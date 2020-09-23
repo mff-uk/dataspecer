@@ -1,0 +1,306 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix psm: <https://ofn.gov.cz/slovník/psm/> .
+
+@prefix pimcis: <https://ofn.gov.cz/zdroj/pim/schéma/číselníky/uzel/> .
+@prefix pimcas: <https://ofn.gov.cz/zdroj/pim/schéma/čas/uzel/> .
+@prefix pimv: <https://ofn.gov.cz/zdroj/pim/schéma/věc/uzel/> .
+@prefix pimdo: <https://ofn.gov.cz/zdroj/pim/schéma/digitální-objekt/uzel/> .
+@prefix pimk: <https://ofn.gov.cz/zdroj/pim/schéma/kontakt/uzel/> .
+@prefix piml: <https://ofn.gov.cz/zdroj/pim/schéma/člověk/uzel/> .
+@prefix pimo: <https://ofn.gov.cz/zdroj/pim/schéma/osoba/uzel/> .
+@prefix pimo: <https://ofn.gov.cz/zdroj/pim/schéma/osoba/uzel/> .
+@prefix pimm: <https://ofn.gov.cz/zdroj/pim/schéma/místo/uzel/> .
+@prefix pimvm: <https://ofn.gov.cz/zdroj/pim/schéma/veřejné-místo/uzel/> .
+@prefix pimtc: <https://ofn.gov.cz/zdroj/pim/schéma/turistický-cíl/uzel/> .
+
+@prefix psmv: <https://ofn.gov.cz/zdroj/psm/schéma/věc/uzel/> .
+@prefix psmco: <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik/uzel/> .
+@prefix psmdo: <https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt/uzel/> .
+@prefix psmk: <https://ofn.gov.cz/zdroj/psm/schéma/kontakt/uzel/> .
+@prefix psml: <https://ofn.gov.cz/zdroj/psm/schéma/člověk/uzel/> .
+@prefix psmo: <https://ofn.gov.cz/zdroj/psm/schéma/osoba/uzel/> .
+@prefix psmm: <https://ofn.gov.cz/zdroj/psm/schéma/místo/uzel/> .
+@prefix psmvm: <https://ofn.gov.cz/zdroj/psm/schéma/věřejné-místo/uzel/> .
+@prefix psmtc: <https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl/uzel/> .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik> a psm:Schema ;
+    <urn:ofn> <https://ofn.gov.cz/základní-datové-typy/2020-07-01/kontexty/časový-okamžik.ssp.jsonld> ;
+    psm:technicalLabel "časový_okamžik" ;
+    dcterms:title "Datová struktura pro reprezentaci časového okamžiku" ;
+    psm:hasRoot psmco:časový_okamžik .
+
+psmco:časový_okamžik a psm:Class ;
+    psm:hasInterpretation pimcas:časový_okamžik ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimcas:datum
+        ]
+        [
+            psm:hasInterpretation pimcas:datum_a_čas
+        ]
+        [
+            psm:hasInterpretation pimcas:je_nespecifikovaný
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/věc> a psm:Schema ;
+    psm:technicalLabel "věc" ;
+    dcterms:title "Datová struktura pro reprezentaci věcí" ;
+    psm:hasRoot psmv:věc .
+
+psmv:věc a psm:Class ;
+    psm:hasInterpretation pimv:věc ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimv:název
+        ]
+        [
+            psm:hasInterpretation pimv:popis
+        ]
+        [
+            psm:hasInterpretation pimv:vytvořeno ;
+            dcterms:hasPart (
+                <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik>
+            )
+        ]
+        [
+            psm:hasInterpretation pimv:aktualizováno ;
+            dcterms:hasPart (
+                <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik>
+            )
+        ]
+        [
+            psm:hasInterpretation pimv:relevantní_do ;
+            dcterms:hasPart (
+                <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik>
+            )
+        ]
+        [
+            psm:hasInterpretation pimv:zneplatněno ;
+            dcterms:hasPart (
+                <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik>
+            )
+        ]
+        [
+            psm:hasInterpretation pimv:má_přílohu ;
+            dcterms:hasPart (
+                <https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt>
+            )
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt> a psm:Schema ;
+    <urn:ofn> <https://ofn.gov.cz/digitální-objekty/2020-07-01/kontexty/digitální-objekt.ssp.jsonld> ;
+    psm:technicalLabel "digitální_objekt" ;
+    dcterms:title "Datová struktura pro reprezentaci digitálních objektů" ;
+    psm:hasRoot psmdo:digitální_objekt .
+
+psmdo:digitální_objekt a psm:Class ;
+    psm:hasInterpretation pimdo:digitální_objekt ;
+    psm:extends psmv:věc ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimdo:url_ke_stažení
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/kontakt> a psm:Schema ;
+    psm:technicalLabel "kontakt" ;
+    dcterms:title "Datová struktura pro reprezentaci kontaktů" ;
+    psm:hasRoot psmk:kontakt .
+
+psmk:kontakt a psm:Class ;
+    psm:hasInterpretation pimk:kontakt ;
+    psm:extends psmv:věc ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimk:druh
+        ]
+        [
+            psm:hasInterpretation pimk:email
+        ]
+        [
+            psm:hasInterpretation pimk:facebook
+        ]
+        [
+            psm:hasInterpretation pimk:instagram
+        ]
+        [
+            psm:hasInterpretation pimk:mobil
+        ]
+        [
+            psm:hasInterpretation pimk:telefon
+        ]
+        [
+            psm:hasInterpretation pimk:twitter
+        ]
+        [
+            psm:hasInterpretation pimk:url
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/člověk> a psm:Schema ;
+    psm:technicalLabel "člověk" ;
+    dcterms:title "Datová struktura pro reprezentaci lidí" ;
+    psm:hasRoot psml:subjekt_údajů_vedený_v_registru_obyvatel, psml:člověk .
+
+psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
+    psm:hasInterpretation piml:subjekt_údajů_vedený_v_registru_obyvatel ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation piml:jméno
+        ]
+        [
+            psm:hasInterpretation piml:příjmení
+        ]
+    ) .
+
+psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
+    psm:hasInterpretation piml:člověk ;
+    psm:extends psmv:věc ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation piml:tituly_před_jménem
+        ]
+        [
+            psm:hasInterpretation piml:tituly_za_jménem
+        ]
+        [
+            psm:hasInterpretation piml:celé_jméno
+        ]
+        [
+            psm:hasInterpretation piml:má_pohlaví ;
+            dcterms:hasPart (
+                [
+                    psm:hasInterpretation pimcis:pohlaví
+                ]
+            )
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/osoba> a psm:Schema ;
+    psm:technicalLabel "osoba" ;
+    dcterms:title "Datová struktura pro reprezentaci osob" ;
+    psm:hasRoot psmo:osobaLeg, psmo:osoba .
+
+psmo:osoba a psm:Class ;
+    psm:hasInterpretation pimo:osoba ;
+    psm:extends psmo:osobaLeg ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimo:stát_registrace ;
+            dcterms:hasPart (
+                [
+                    psm:hasInterpretation pimcis:stát
+                ]
+            )
+        ]
+    ) .
+
+psmo:osobaLeg a psm:Class ;
+    psm:hasInterpretation pimo:osobaLeg ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimo:název
+        ]
+        [
+            psm:hasInterpretation pimo:ičo
+        ]
+    ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/místo> a psm:Schema ;
+    psm:technicalLabel "místo" ;
+    dcterms:title "Datová struktura pro reprezentaci míst" ;
+    psm:hasRoot psmm:místo .
+
+psmm:místo a psm:Class ;
+    psm:hasInterpretation pimm:místo ;
+    psm:extends psmv:věc .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl> a psm:Schema ;
+    psm:technicalLabel "turistický_cíl" ;
+    dcterms:title "Datová struktura pro reprezentaci turistických cílů" ;
+    psm:hasRoot psmtc:turistický_cíl .
+
+psmtc:turistický_cíl a psm:Class ;
+ psm:hasInterpretation pimvm:veřejné_místo ;
+ psm:extends psmm:místo ;
+    dcterms:hasPart (
+         [
+             psm:hasInterpretation pimtc:kouření_povoleno
+         ]
+         [
+             psm:hasInterpretation pimtc:veřejná_přístupnost
+         ]
+         [
+             psm:hasInterpretation pimtc:kapacita
+         ]
+         [
+             psm:hasInterpretation pimtc:má_typ_turistického_cíle ;
+             dcterms:hasPart (
+                 [
+                     psm:hasInterpretation pimtc:typ_turistického_cíle
+                 ]
+             )
+         ]
+         [
+             psm:hasInterpretation pimtc:má_dostupný_jazyk ;
+             dcterms:hasPart (
+                 [
+                     psm:hasInterpretation pimcis:jazyk
+                 ]
+             )
+         ]
+     ) .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo> a psm:Schema ;
+    psm:technicalLabel "veřejné_místo" ;
+    dcterms:title "Datová struktura pro reprezentaci veřejných míst" ;
+    psm:hasRoot psmvm:veřejné_místo .
+
+psmvm:veřejné_místo a psm:Class ;
+    psm:hasInterpretation pimvm:veřejné_místo ;
+    psm:extends psmm:místo ;
+    dcterms:hasPart (
+        [
+            psm:hasInterpretation pimvm:má_provozovatele ;
+            dcterms:hasPart (
+                [
+                    psm:hasInterpretation pimvm:provozovatel ;
+                    psm:choice
+                    [
+                        psm:hasInterpretation pimvm:provozovatel_jako_fyzická_osoba ;
+                        psm:extends psml:člověk
+                    ],[
+                        psm:hasInterpretation pimvm:provozovatel_jako_právnická_osoba ;
+                        psm:extends psmo:osoba
+                    ]
+                ]
+            )
+        ]
+        [
+            psm:hasInterpretation pimvm:má_vlastníka ;
+            dcterms:hasPart (
+                [
+                    psm:hasInterpretation pimvm:vlastník ;
+                    psm:extendedBy
+                        [
+                            psm:hasInterpretation pimvm:vlastník_jako_fyzická_osoba ;
+                            psm:extends psml:člověk
+                        ],[
+                            psm:hasInterpretation pimvm:vlastník_jako_právnická_osoba ;
+                            psm:extends psmo:osoba
+                        ]
+                ]
+            )
+        ]
+        [
+            psm:hasInterpretation pimvm:má_kontakt ;
+            dcterms:hasPart (
+                psmk:kontakt
+            )
+        ]
+    ) .
