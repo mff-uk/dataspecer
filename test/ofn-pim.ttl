@@ -51,6 +51,7 @@ pimcis:stát a pim:Class ;
         pimcas:je_nespecifikovaný .
 
 pimcas:časový_okamžik a pim:Class ;
+    pim:technicalLabel "Časový okamžik" ;
     pim:hasInterpretation gc:časový-okamžik .
 
 pimcas:datum a pim:Attribute ;
@@ -69,7 +70,7 @@ pimcas:je_nespecifikovaný a pim:Attribute ;
     pim:hasInterpretation gc:je-nespecifikovaný ;
     pim:hasClass pimcas:časový_okamžik ;
     pim:hasDatatype xsd:boolean ;
-    pim:technicalLabel "datum_a_čas" .
+    pim:technicalLabel "nespecifikovaný" .
 
 <https://ofn.gov.cz/zdroj/pim/schéma/věc> a pim:Schema ;
     dcterms:title "Věc" ;
@@ -82,7 +83,8 @@ pimcas:je_nespecifikovaný a pim:Attribute ;
         pimv:relevantní_do,
         pimv:zneplatněno,
         pimv:má_přílohu,
-        pimdo:digitální_objekt .
+        pimdo:digitální_objekt ;
+.
 
 pimv:věc a pim:Class ;
     pim:hasInterpretation gv:věc .
@@ -91,21 +93,28 @@ pimv:název a pim:Attribute ;
     pim:hasInterpretation gv:název ;
     pim:hasClass pimv:věc ;
     pim:hasDatatype rdf:langString ;
-    pim:technicalLabel "název" .
+    pim:technicalLabel "název" ;
+    dcterms:title "Název" ;
+    <urn:pimHumanDescription> "Název věci." ;
+.
 
 pimv:popis a pim:Attribute ;
     pim:hasInterpretation gv:popis ;
     pim:hasClass pimv:věc ;
     pim:hasDatatype rdf:langString ;
-    pim:technicalLabel "popis" .
+    pim:technicalLabel "popis" ;
+    dcterms:title "Popis" ;
+    <urn:pimHumanDescription> "Textový popis věci." ;
+.
 
 pimv:vytvořeno a pim:Association ;
     pim:hasInterpretation gv:vytvořeno ;
     pim:hasEnd [ pim:hasParticipant pimv:věc ],
                [ pim:hasParticipant pimcas:časový_okamžik] ;
-    pim:technicalLabel "vytvořeno" .
-
-
+    pim:technicalLabel "vytvořeno"  ;
+    dcterms:title "Vytvořeno" ;
+    <urn:pimHumanDescription> "Datum a čas zveřejnění věci." ;
+.
 
 pimv:aktualizováno a pim:Association ;
     pim:hasInterpretation gv:aktualizováno ;
@@ -114,7 +123,10 @@ pimv:aktualizováno a pim:Association ;
     ],[
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
-    pim:technicalLabel "aktualizováno" .
+    pim:technicalLabel "aktualizováno" ;
+    dcterms:title "Aktualizováno" ;
+    <urn:pimHumanDescription> "Časový okamžik poslední aktualizace údajů." ;
+.
 
 pimv:relevantní_do a pim:Association ;
     pim:hasInterpretation gv:relevantní-do ;
@@ -123,7 +135,10 @@ pimv:relevantní_do a pim:Association ;
     ],[
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
-    pim:technicalLabel "relevantní_do" .
+    pim:technicalLabel "relevantní_do" ;
+    dcterms:title "Relevantní do" ;
+    <urn:pimHumanDescription> "Časový okamžik, ..." ;
+.
 
 pimv:zneplatněno a pim:Association ;
     pim:hasInterpretation gv:zneplatněno ;
@@ -132,7 +147,10 @@ pimv:zneplatněno a pim:Association ;
     ],[
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
-    pim:technicalLabel "zneplatněno" .
+    pim:technicalLabel "zneplatněno" ;
+    dcterms:title "Zneplatněno" ;
+    <urn:pimHumanDescription> "Časový okamžik,..." ;
+.
 
 pimv:má_přílohu a pim:Association ;
     pim:hasInterpretation gv:má-přílohu ;
@@ -141,8 +159,10 @@ pimv:má_přílohu a pim:Association ;
     ],[
         pim:hasParticipant pimdo:digitální_objekt
     ] ;
-    pim:technicalLabel "příloha" .
-
+    pim:technicalLabel "příloha" ;
+    dcterms:title "Příloha" ;
+    <urn:pimHumanDescription> "Dodatečné digitální objekty, ..." ;
+.
 
 <https://ofn.gov.cz/zdroj/pim/schéma/digitální-objekt> a pim:Schema ;
     dcterms:title "Digitální objekt" ;
@@ -150,6 +170,7 @@ pimv:má_přílohu a pim:Association ;
         pimdo:url_ke_stažení .
 
 pimdo:digitální_objekt a pim:Class ;
+    pim:technicalLabel "Digitální objekt" ;
     pim:hasInterpretation gdo:digitální-objekt .
 
 pimdo:url_ke_stažení a pim:Attribute ;
@@ -171,6 +192,7 @@ pimdo:url_ke_stažení a pim:Attribute ;
         pimk:url .
 
 pimk:kontakt a pim:Class ;
+    pim:technicalLabel "Kontakt" ;
     pim:hasInterpretation gk:kontakt .
 
 pimk:druh a pim:Attribute ;
@@ -234,6 +256,7 @@ pimk:url a pim:Attribute ;
         piml:příjmení .
 
 piml:člověk a pim:Class ;
+    pim:technicalLabel "Člověk" ;
     pim:hasInterpretation gl:člověk ;
     pim:isa piml:subjekt_údajů_vedený_v_registru_obyvatel .
 
@@ -263,6 +286,7 @@ pimv:má_pohlaví a pim:Association ;
     pim:technicalLabel "pohlaví" .
 
 piml:subjekt_údajů_vedený_v_registru_obyvatel a pim:Class ;
+    pim:technicalLabel "Osoba" ;
     pim:hasInterpretation lsgov1112009:subjekt-údajů-vedený-v-registru-obyvatel .
 
 piml:jméno a pim:Attribute ;
@@ -388,11 +412,6 @@ pimvm:má_kontakt a pim:Association ;
         pim:hasParticipant pimk:kontakt
     ] ;
     pim:technicalLabel "kontakt" .
-
-
-
-
-
 
 <https://ofn.gov.cz/zdroj/pim/schéma/turistický-cíl> a pim:Schema ;
     dcterms:title "Turistický cíl" ;

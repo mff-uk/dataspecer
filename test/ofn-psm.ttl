@@ -27,10 +27,20 @@
 @prefix psmtc: <https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl/uzel/> .
 
 <https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik> a psm:Schema ;
-    <urn:ofn> <https://ofn.gov.cz/základní-datové-typy/2020-07-01/kontexty/časový-okamžik.ssp.jsonld> ;
     psm:technicalLabel "časový_okamžik" ;
     dcterms:title "Datová struktura pro reprezentaci časového okamžiku" ;
-    psm:hasRoot psmco:časový_okamžik .
+    psm:hasRoot psmco:časový_okamžik ;
+    <urn:prefix> [
+        <urn:prefixName> "xsd" ;
+        <urn:prefixUrl> <http://www.w3.org/2001/XMLSchema#> ;
+    ] ;
+    <urn:prefix> [
+        <urn:prefixName> "časy" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/čas/pojem/> ;
+    ] ;
+    <urn:jsonLdContext> <https://ofn.gov.cz/základní-datové-typy/2020-07-01/kontexty/časový-okamžik.ssp.jsonld> ;
+    <urn:fos> <https://ofn.gov.cz/základní-datové-typy/2020-07-01/#časový-okamžik> ;
+.
 
 psmco:časový_okamžik a psm:Class ;
     psm:hasInterpretation pimcas:časový_okamžik ;
@@ -49,9 +59,16 @@ psmco:časový_okamžik a psm:Class ;
 <https://ofn.gov.cz/zdroj/psm/schéma/věc> a psm:Schema ;
     psm:technicalLabel "věc" ;
     dcterms:title "Datová struktura pro reprezentaci věcí" ;
-    psm:hasRoot psmv:věc .
+    psm:hasRoot psmv:věc ;
+    <urn:prefix> [
+        <urn:prefixName> "věci" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/věci/pojem/> ;
+    ] ;
+    <urn:jsonLdContext> <https://ofn.gov.cz/věc/2020-07-01/kontexty/věc.ssp.jsonld> ;
+.
 
 psmv:věc a psm:Class ;
+    dcterms:title "Věc" ;
     psm:hasInterpretation pimv:věc ;
     dcterms:hasPart (
         [
@@ -93,10 +110,23 @@ psmv:věc a psm:Class ;
     ) .
 
 <https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt> a psm:Schema ;
-    <urn:ofn> <https://ofn.gov.cz/digitální-objekty/2020-07-01/kontexty/digitální-objekt.ssp.jsonld> ;
     psm:technicalLabel "digitální_objekt" ;
     dcterms:title "Datová struktura pro reprezentaci digitálních objektů" ;
-    psm:hasRoot psmdo:digitální_objekt .
+    psm:hasRoot psmdo:digitální_objekt ;
+    <urn:import> <https://ofn.gov.cz/zdroj/psm/schéma/věc> ;
+    <urn:prefix> [
+        <urn:prefixName> "digitální-objekty" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/digitální-objekty/pojem/> ;
+    ], [
+        <urn:prefixName> "podmínky-užití" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/podmínky-užití/pojem/> ;
+    ], [
+        <urn:prefixName> "xsd" ;
+        <urn:prefixUrl> <http://www.w3.org/2001/XMLSchema#> ;
+    ] ;
+    <urn:jsonLdContext> <https://ofn.gov.cz/digitální-objekty/2020-07-01/kontexty/digitální-objekt.ssp.jsonld> ;
+    <urn:fos> <https://ofn.gov.cz/digitální-objekty/2020-07-01/#třída-příloha> ;
+.
 
 psmdo:digitální_objekt a psm:Class ;
     psm:hasInterpretation pimdo:digitální_objekt ;
@@ -110,7 +140,19 @@ psmdo:digitální_objekt a psm:Class ;
 <https://ofn.gov.cz/zdroj/psm/schéma/kontakt> a psm:Schema ;
     psm:technicalLabel "kontakt" ;
     dcterms:title "Datová struktura pro reprezentaci kontaktů" ;
-    psm:hasRoot psmk:kontakt .
+    psm:hasRoot psmk:kontakt ;
+    <urn:import> <https://ofn.gov.cz/zdroj/psm/schéma/věc> ;
+    <urn:prefix> [
+        <urn:prefixName> "kontakty" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/kontakty/pojem/> ;
+    ], [
+        <urn:prefixName> "Umístění" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/veřejný-sektor/pojem/prostorový-objekt> ;
+    ], [
+        <urn:prefixName> "xsd" ;
+        <urn:prefixUrl> <http://www.w3.org/2001/XMLSchema#> ;
+    ] ;
+.
 
 psmk:kontakt a psm:Class ;
     psm:hasInterpretation pimk:kontakt ;
@@ -145,7 +187,22 @@ psmk:kontakt a psm:Class ;
 <https://ofn.gov.cz/zdroj/psm/schéma/člověk> a psm:Schema ;
     psm:technicalLabel "člověk" ;
     dcterms:title "Datová struktura pro reprezentaci lidí" ;
-    psm:hasRoot psml:subjekt_údajů_vedený_v_registru_obyvatel, psml:člověk .
+    psm:hasRoot psml:subjekt_údajů_vedený_v_registru_obyvatel, psml:člověk ;
+    <urn:import> <https://ofn.gov.cz/zdroj/psm/schéma/věc> ;
+    <urn:prefix> [
+        <urn:prefixName> "osoby" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/právnické-osoby/pojem/> ;
+    ], [
+        <urn:prefixName> "rov" ;
+        <urn:prefixUrl> <http://www.w3.org/ns/regorg#> ;
+    ], [
+        <urn:prefixName> "xsd" ;
+        <urn:prefixUrl> <http://www.w3.org/2001/XMLSchema#> ;
+    ], [
+       <urn:prefixName> "skos" ;
+       <urn:prefixUrl> <http://www.w3.org/2004/02/skos/core#> ;
+    ] ;
+.
 
 psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
     psm:hasInterpretation piml:subjekt_údajů_vedený_v_registru_obyvatel ;
@@ -158,7 +215,7 @@ psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
         ]
     ) .
 
-psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
+psml:člověk a psm:Class ;
     psm:hasInterpretation piml:člověk ;
     psm:extends psmv:věc ;
     dcterms:hasPart (
@@ -175,7 +232,8 @@ psml:subjekt_údajů_vedený_v_registru_obyvatel a psm:Class ;
             psm:hasInterpretation piml:má_pohlaví ;
             dcterms:hasPart (
                 [
-                    psm:hasInterpretation pimcis:pohlaví
+                    a psm:Class ;
+                    psm:hasInterpretation pimcis:pohlaví ;
                 ]
             )
         ]
@@ -194,6 +252,7 @@ psmo:osoba a psm:Class ;
             psm:hasInterpretation pimo:stát_registrace ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimcis:stát
                 ]
             )
@@ -214,7 +273,15 @@ psmo:osobaLeg a psm:Class ;
 <https://ofn.gov.cz/zdroj/psm/schéma/místo> a psm:Schema ;
     psm:technicalLabel "místo" ;
     dcterms:title "Datová struktura pro reprezentaci míst" ;
-    psm:hasRoot psmm:místo .
+    psm:hasRoot psmm:místo ;
+    <urn:prefix> [
+        <urn:prefixName> "umístění-g-sgov" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/generický/umístění/pojem/> ;
+    ], [
+        <urn:prefixName> "v-sgov" ;
+        <urn:prefixUrl> <https://slovník.gov.cz/veřejný-sektor/pojem/> ;
+    ] ;
+.
 
 psmm:místo a psm:Class ;
     psm:hasInterpretation pimm:místo ;
@@ -242,6 +309,7 @@ psmtc:turistický_cíl a psm:Class ;
              psm:hasInterpretation pimtc:má_typ_turistického_cíle ;
              dcterms:hasPart (
                  [
+                     a psm:Class ;
                      psm:hasInterpretation pimtc:typ_turistického_cíle
                  ]
              )
@@ -250,6 +318,7 @@ psmtc:turistický_cíl a psm:Class ;
              psm:hasInterpretation pimtc:má_dostupný_jazyk ;
              dcterms:hasPart (
                  [
+                     a psm:Class ;
                      psm:hasInterpretation pimcis:jazyk
                  ]
              )
@@ -267,40 +336,44 @@ psmvm:veřejné_místo a psm:Class ;
     dcterms:hasPart (
         [
             psm:hasInterpretation pimvm:má_provozovatele ;
-            dcterms:hasPart (
-                [
-                    psm:hasInterpretation pimvm:provozovatel ;
-                    psm:choice
+            dcterms:hasPart [
+                a psm:Choice ;
+                dcterms:hasPart (
                     [
+                        a psm:Class ;
                         psm:hasInterpretation pimvm:provozovatel_jako_fyzická_osoba ;
-                        psm:extends psml:člověk
-                    ],[
-                        psm:hasInterpretation pimvm:provozovatel_jako_právnická_osoba ;
-                        psm:extends psmo:osoba
+                        psm:extends psml:člověk, psmvm:provozovatel
                     ]
-                ]
-            )
+                    [
+                        a psm:Class ;
+                        psm:hasInterpretation pimvm:provozovatel_jako_právnická_osoba ;
+                        psm:extends psmo:osoba, psmvm:provozovatel
+                    ]
+                )
+            ]
         ]
         [
             psm:hasInterpretation pimvm:má_vlastníka ;
-            dcterms:hasPart (
-                [
-                    psm:hasInterpretation pimvm:vlastník ;
-                    psm:extendedBy
+                dcterms:hasPart [
+                    a psm:ExtendedBy ;
+                    dcterms:hasPart (
                         [
+                            a psm:Class ;
                             psm:hasInterpretation pimvm:vlastník_jako_fyzická_osoba ;
                             psm:extends psml:člověk
-                        ],[
+                        ]
+                        [
+                            a psm:Class ;
                             psm:hasInterpretation pimvm:vlastník_jako_právnická_osoba ;
                             psm:extends psmo:osoba
                         ]
-                ]
-            )
+                )
+            ]
         ]
         [
             psm:hasInterpretation pimvm:má_kontakt ;
             dcterms:hasPart (
-                psmk:kontakt
+                <https://ofn.gov.cz/zdroj/psm/schéma/kontakt>
             )
         ]
     ) .

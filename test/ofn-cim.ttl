@@ -1,0 +1,20 @@
+@prefix gcis: <https://slovník.gov.cz/generický/číselníky/pojem/> .
+@prefix gc: <https://slovník.gov.cz/generický/čas/pojem/> .
+@prefix gv: <https://slovník.gov.cz/generický/věci/pojem/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+gcis:jazyk
+    a <urn:Codelist> ;
+.
+
+gcis:pohlaví
+    a <urn:Codelist> ;
+.
+
+gcis:stát
+    a <urn:Codelist> ;
+.
+
+gcis:typ-turistického-cíle
+    a <urn:Codelist> ;
+.
