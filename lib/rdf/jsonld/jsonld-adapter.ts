@@ -139,12 +139,12 @@ function parseN3Quad(quad: N3.Quad) {
   } else if (graph.startsWith("_")) {
     result["graph"] = {
       "termType": "BlankNode",
-      "value": predicate,
+      "value": graph,
     }
   } else {
     result["graph"] = {
       "termType": "NamedNode",
-      "value": predicate,
+      "value": graph,
     }
   }
   return result;

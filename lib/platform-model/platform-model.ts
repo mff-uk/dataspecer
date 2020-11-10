@@ -16,7 +16,7 @@ export class ModelResource {
 
   readonly rdfTypes: string[];
 
-  constructor(id: string, rdfTypes:string[] = []) {
+  constructor(id: string, rdfTypes: string[] = []) {
     this.id = id;
     this.rdfTypes = rdfTypes;
   }
@@ -30,12 +30,14 @@ export enum ModelResourceType {
   PimAssociation = "pim-association",
   PsmSchema = "psm-schema",
   PsmClass = "psm-class",
+  PsmChoice = "psm-choice",
+  PsmExtendedBy = "psm-extended-by",
   PsmPart = "psm-part",
 }
 
 export class PimSchema extends ModelResource {
 
-  pimTitle: LanguageString = {};
+  pimHumanLabel: LanguageString = {};
 
   pimParts: string[] = [];
 
@@ -45,7 +47,7 @@ export class PimSchema extends ModelResource {
     }
     resource.types.push(ModelResourceType.PimSchema);
     const result = resource as PimSchema;
-    result.pimTitle = result.pimTitle || {};
+    result.pimHumanLabel = result.pimHumanLabel || {};
     result.pimParts = result.pimParts || [];
     return result;
   }
@@ -57,6 +59,10 @@ export class PimBase extends ModelResource {
   pimInterpretation?: string;
 
   pimTechnicalLabel?: string;
+
+  pimHumanLabel?: LanguageString;
+
+  pimHumanDescription?: LanguageString;
 
 }
 
@@ -114,11 +120,20 @@ export class PimReference {
 
 export class PsmSchema extends ModelResource {
 
-  psmTitle: LanguageString = {};
+  psmHumanLabel?: LanguageString;
 
   psmRoots: string[] = [];
 
-  psmOfn?: string;
+  /**
+   * Allow us to import other schemas.
+   */
+  psmImports: string[] = [];
+
+  psmJsonLdContext: string | undefined;
+
+  psmFos: string | undefined;
+
+  psmPrefix: Record<string, string> = {};
 
   static as(resource: ModelResource): PsmSchema {
     if (resource.types.includes(ModelResourceType.PsmSchema)) {
@@ -126,8 +141,10 @@ export class PsmSchema extends ModelResource {
     }
     resource.types.push(ModelResourceType.PsmSchema);
     const result = resource as PsmSchema;
-    result.psmTitle = result.psmTitle || {};
+    result.psmHumanLabel = result.psmHumanLabel || {};
     result.psmRoots = result.psmRoots || [];
+    result.psmImports = result.psmImports || [];
+    result.psmPrefix = result.psmPrefix || {};
     return result;
   }
 
@@ -138,6 +155,10 @@ export class PsmBase extends ModelResource {
   psmInterpretation?: string;
 
   psmTechnicalLabel?: string;
+
+  psmHumanLabel?: LanguageString;
+
+  psmHumanDescription?: LanguageString;
 
   psmExtends: string[] = [];
 
@@ -160,12 +181,37 @@ export class PsmClass extends PsmBase {
 
 }
 
-export class PsmPart extends PsmBase {
+export class PsmChoice extends PsmBase {
 
-  /**
-   * This part is one of those in choice.
-   */
-  psmChoice:string[] = [];
+  static as(resource: ModelResource): PsmChoice {
+    if (resource.types.includes(ModelResourceType.PsmChoice)) {
+      return resource as PsmChoice;
+    }
+    resource.types.push(ModelResourceType.PsmChoice);
+    const result = resource as PsmChoice;
+    result.psmExtends = result.psmExtends || [];
+    result.psmParts = result.psmParts || [];
+    return result;
+  }
+
+}
+
+export class PsmExtendedBy extends PsmBase {
+
+  static as(resource: ModelResource): PsmExtendedBy {
+    if (resource.types.includes(ModelResourceType.PsmExtendedBy)) {
+      return resource as PsmExtendedBy;
+    }
+    resource.types.push(ModelResourceType.PsmExtendedBy);
+    const result = resource as PsmChoice;
+    result.psmExtends = result.psmExtends || [];
+    result.psmParts = result.psmParts || [];
+    return result;
+  }
+
+}
+
+export class PsmPart extends PsmBase {
 
   static as(resource: ModelResource): PsmPart {
     if (resource.types.includes(ModelResourceType.PsmPart)) {
@@ -175,7 +221,6 @@ export class PsmPart extends PsmBase {
     const result = resource as PsmPart;
     result.psmExtends = result.psmExtends || [];
     result.psmParts = result.psmParts || [];
-    result.psmChoice = result.psmChoice || [];
     return result;
   }
 

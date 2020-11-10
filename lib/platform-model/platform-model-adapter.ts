@@ -11,7 +11,9 @@ import {
   PsmSchema,
   PsmBase,
   PsmClass,
-  PsmPart, ModelResourceType,
+  PsmPart,
+  PsmChoice,
+  PsmExtendedBy,
 } from "./platform-model";
 import * as PIM from "./pim-vocabulary";
 import * as PSM from "./psm-vocabulary";
@@ -60,6 +62,14 @@ export async function loadFromEntity(
   if (types.includes(PSM.CLASS)) {
     await loadPsmClass(source, known, entitySource, PsmClass.as(result));
   }
+  if (types.includes(PSM.CHOICE)) {
+    await loadPsmChoice(
+      source, known, entitySource, PsmChoice.as(result));
+  }
+  if (types.includes(PSM.EXTENDED_BY)) {
+    await loadPsmExtendedBy(
+      source, known, entitySource, PsmExtendedBy.as(result));
+  }
   if (types.includes(PSM.PART)) {
     await loadPsmPart(source, known, entitySource, PsmPart.as(result));
   }
@@ -71,9 +81,8 @@ async function loadPimSchema(
   pimSchema: PimSchema
 ) {
   await loadPimBase(source, known, entitySource, pimSchema);
-  for (const title of await entitySource.literals(PIM.HAS_TITLE)) {
-    pimSchema.pimTitle[title.language || ""] = String(title.value);
-  }
+  pimSchema.pimHumanLabel = await loadLanguageString(
+    entitySource, PIM.HAS_HUMAN_LABEL);
   for (const {entity} of await entitySource.entitiesExtended(PIM.HAS_PART)) {
     pimSchema.pimParts.push(entity.id);
     if (known[entity.id] == undefined) {
@@ -82,18 +91,35 @@ async function loadPimSchema(
   }
 }
 
+async function loadLanguageString(
+  entitySource: EntitySource, predicate: string
+): Promise<Record<string, string>> {
+  const literals = await entitySource.literals(predicate)
+  if (literals === undefined || literals.length === 0) {
+    return null;
+  }
+  const result = {};
+  for (const title of literals) {
+    result[title.language || ""] = String(title.value);
+  }
+  return result;
+}
+
 async function loadPimBase(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   resource: PimBase
 ) {
   resource.pimTechnicalLabel =
     (await entitySource.literal(PIM.HAS_TECHNICAL_LABEL))?.value as string;
+  resource.pimHumanLabel = await loadLanguageString(
+    entitySource, PIM.HAS_HUMAN_LABEL);
+  resource.pimHumanDescription = await loadLanguageString(
+    entitySource, PIM.HAS_HUMAN_DESCRIPTION);
   const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
   if (interpretation !== undefined) {
     resource.pimInterpretation = interpretation.id;
     await loadFromEntity(source, known, interpretation);
   }
-
 }
 
 async function loadPimClass(
@@ -145,14 +171,28 @@ async function loadPsmSchema(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmSchema: PsmSchema
 ) {
-  for (const title of await entitySource.literals(PSM.HAS_TITLE)) {
-    psmSchema.psmTitle[title.language || ""] = String(title.value);
-  }
+  psmSchema.psmHumanLabel = await loadLanguageString(
+    entitySource, PSM.HAS_HUMAN_LABEL);
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_ROOT)) {
     psmSchema.psmRoots.push(entity.id);
     await loadFromEntity(source, known, entity);
   }
-  psmSchema.psmOfn = (await entitySource.entity(PSM.HAS_OFN))?.id;
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_IMPORT)) {
+    psmSchema.psmImports.push(entity.id);
+    await loadFromEntity(source, known, entity);
+  }
+  psmSchema.psmJsonLdContext =
+    (await entitySource.entity(PSM.HAS_JSONLD_CONTEXT_URL))?.id;
+  psmSchema.psmFos =
+    (await entitySource.entity(PSM.HAS_FOS_URL))?.id;
+  for (const prefixEntity of await entitySource.entities(PSM.HAS_PREFIX)) {
+    const prefixSource = EntitySource.forEntity(prefixEntity, source);
+    const name = (await prefixSource.literal(PSM.HAS_PREFIX_NAME))?.value;
+    const url = (await prefixSource.entity(PSM.HAS_PREFIX_URL))?.id;
+    if (name !== undefined && url !== undefined) {
+      psmSchema.psmPrefix[String(name)] = url;
+    }
+  }
 }
 
 async function loadPsmClass(
@@ -168,6 +208,10 @@ async function loadPsmBase(
 ) {
   psmBase.psmTechnicalLabel =
     (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
+  psmBase.psmHumanLabel = await loadLanguageString(
+    entitySource, PSM.HAS_HUMAN_LABEL);
+  psmBase.psmHumanDescription = await loadLanguageString(
+    entitySource, PSM.HAS_HUMAN_DESCRIPTION);
   const interpretation = (await entitySource.entity(PSM.HAS_INTERPRETATION));
   if (interpretation !== undefined) {
     psmBase.psmInterpretation = interpretation.id;
@@ -175,12 +219,26 @@ async function loadPsmBase(
   }
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_EXTENDS)) {
     psmBase.psmExtends.push(entity.id);
-    // await loadFromEntity(source, known, entity);
+    await loadFromEntity(source, known, entity);
   }
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
     psmBase.psmParts.push(entity.id);
     await loadFromEntity(source, known, entity, PSM.PART)
   }
+}
+
+async function loadPsmChoice(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  psmChoice: PsmChoice
+) {
+  await loadPsmBase(source, known, entitySource, psmChoice);
+}
+
+async function loadPsmExtendedBy(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  psmExtendedBy: PsmExtendedBy
+) {
+  await loadPsmBase(source, known, entitySource, psmExtendedBy);
 }
 
 async function loadPsmPart(
