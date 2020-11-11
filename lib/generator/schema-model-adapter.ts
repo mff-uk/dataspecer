@@ -231,8 +231,7 @@ function loadPropertyFromPsmPartDataType(
       propertyData.dataTypeClass.push(
         ...loadPsmChoice(context, entity as PsmChoice));
     } else if (entity.types.includes(ModelResourceType.PsmExtendedBy)) {
-      propertyData.dataTypeClass.push(
-        loadPsmExtendedBy(context, entity as PsmChoice));
+      throw new Error("psm:ExtendedBy is not supported yet.")
     } else {
       throw new Error(
         partEntity.id
@@ -283,22 +282,6 @@ function loadPsmClassFromParts(
   return result;
 }
 
-/**
- * Extended by represents a situation when anonymous class is extended by
- * given classes - sort of 'W' shape of a diagram.
- * So we firt loaded the extending classes and then merge them into a
- * new class.
- */
-function loadPsmExtendedBy(
-  context: LoaderContext, psmExtendedBy: PsmExtendedBy
-): ClassData {
-  const result = new ClassData();
-  // TODO Is this really a class without any additional data?
-  result.id = psmExtendedBy.id;
-  result.extends = loadPsmClassFromParts(
-    context, psmExtendedBy, "psm:ExtendedBy");
-  return result;
-}
 
 function loadPropertyFromPimAttribute(
   context: LoaderContext, attributeEntity: PimAttribute

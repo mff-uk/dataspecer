@@ -352,24 +352,24 @@ psmvm:veřejné_místo a psm:Class ;
                 )
             ]
         ]
-        [
-            psm:hasInterpretation pimvm:má_vlastníka ;
-                dcterms:hasPart [
-                    a psm:ExtendedBy ;
-                    dcterms:hasPart (
-                        [
-                            a psm:Class ;
-                            psm:hasInterpretation pimvm:vlastník_jako_fyzická_osoba ;
-                            psm:extends psml:člověk
-                        ]
-                        [
-                            a psm:Class ;
-                            psm:hasInterpretation pimvm:vlastník_jako_právnická_osoba ;
-                            psm:extends psmo:osoba
-                        ]
-                )
-            ]
-        ]
+#        [
+#            psm:hasInterpretation pimvm:má_vlastníka ;
+#                dcterms:hasPart [
+#                    a psm:ExtendedBy ;
+#                    dcterms:hasPart (
+#                        [
+#                            a psm:Class ;
+#                            psm:hasInterpretation pimvm:vlastník_jako_fyzická_osoba ;
+#                            psm:extends psml:člověk
+#                        ]
+#                        [
+#                            a psm:Class ;
+#                            psm:hasInterpretation pimvm:vlastník_jako_právnická_osoba ;
+#                            psm:extends psmo:osoba
+#                        ]
+#                )
+#            ]
+#        ]
         [
             psm:hasInterpretation pimvm:má_kontakt ;
             dcterms:hasPart (
