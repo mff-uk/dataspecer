@@ -1,20 +1,252 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
 @prefix gcis: <https://slovník.gov.cz/generický/číselníky/pojem/> .
 @prefix gc: <https://slovník.gov.cz/generický/čas/pojem/> .
 @prefix gv: <https://slovník.gov.cz/generický/věci/pojem/> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix gdo: <https://slovník.gov.cz/generický/digitální-objekty/pojem/> .
+@prefix gk: <https://slovník.gov.cz/generický/kontakty/pojem/> .
+@prefix gl: <https://slovník.gov.cz/generický/lidé/pojem/> .
+@prefix go: <https://slovník.gov.cz/generický/osoby/pojem/> .
+@prefix gm: <https://slovník.gov.cz/generický/umístění/pojem/> .
+@prefix gvm: <https://slovník.gov.cz/generický/veřejná-místa/pojem/> .
+@prefix gtc: <https://slovník.gov.cz/generický/turistické-cíle/pojem/> .
+@prefix lsgov1112009: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+
 
 gcis:jazyk
-    a <urn:Codelist> ;
+    a <urn:Codelist>, <urn:CimEntity> ;
+    dcterms:title "Jazyk" ;
 .
 
 gcis:pohlaví
-    a <urn:Codelist> ;
+    a <urn:Codelist>, <urn:CimEntity> ;
+    dcterms:title "Pohlaví" ;
 .
 
 gcis:stát
-    a <urn:Codelist> ;
+    a <urn:Codelist>, <urn:CimEntity> ;
+    dcterms:title "Stát" ;
+.
+
+gc:časový-okamžik
+    dcterms:title "Časový okamžik" ;
+.
+
+gc:datum-a-čas
+    dcterms:title "" ;
+.
+
+gc:je-nespecifikovaný
+    dcterms:title "" ;
+.
+
+gv:věc
+    dcterms:title "Věc" ;
+.
+
+gv:název
+    dcterms:title "Název" ;
+    <urn:cimHumanDescription> "Název věci." ;
+.
+
+gv:popis
+    dcterms:title "Popis" ;
+    <urn:cimHumanDescription> "Textový popis věci." ;
+.
+
+gv:vytvořeno
+    dcterms:title "Vytvořeno" ;
+    <urn:cimHumanDescription> "Datum a čas zveřejnění věci." ;
+.
+
+gv:aktualizováno
+    dcterms:title "Aktualizováno" ;
+    <urn:cimHumanDescription> "Časový okamžik poslední aktualizace údajů." ;
+.
+
+gv:relevantní-do
+    dcterms:title "Relevantní do" ;
+    <urn:cimHumanDescription> "Časový okamžik, ..." ;
+.
+
+gv:zneplatněno
+    dcterms:title "Zneplatněno" ;
+    <urn:cimHumanDescription> "Časový okamžik,..." ;
+.
+
+gv:má-přílohu
+    dcterms:title "Příloha" ;
+    <urn:pimHumanDescription> "Dodatečné digitální objekty, ..." ;
+.
+
+gdo:digitální-objekt
+    dcterms:title "Digitální objekt" ;
+.
+
+gdo:url-ke-stažení
+    dcterms:title "" ;
+.
+
+gk:kontakt
+    dcterms:title "Kontakt" ;
+.
+
+gk:druh
+    dcterms:title "" ;
+.
+
+gk:e-mail
+    dcterms:title "" ;
+.
+
+gk:facebook
+    dcterms:title "" ;
+.
+
+gk:instagram
+    dcterms:title "" ;
+.
+
+gk:mobil
+    dcterms:title "" ;
+.
+
+gk:telefon
+    dcterms:title "" ;
+.
+
+gk:twitter
+    dcterms:title "" ;
+.
+
+gk:url
+    dcterms:title "" ;
+.
+
+gl:člověk
+    dcterms:title "" ;
+.
+
+gl:tituly-před-jménem
+    dcterms:title "" ;
+.
+
+gl:tituly-za-jménem
+    dcterms:title "" ;
+.
+
+gl:celé-jméno
+    dcterms:title "" ;
+.
+
+gl:má-pohlaví
+    dcterms:title "" ;
+.
+
+lsgov1112009:subjekt-údajů-vedený-v-registru-obyvatel
+    dcterms:title "" ;
+.
+
+lsgov1112009:jméno-subjektu-údajů-vedeného-v-registru-obyvatel
+    dcterms:title "" ;
+.
+
+lsgov1112009:příjmení-subjektu-údajů-vedeného-v-registru-obyvatel
+    dcterms:title "" ;
+.
+
+gl:osoba
+    dcterms:title "" ;
+.
+
+lsgov1112009:osoba
+    dcterms:title "" ;
+.
+
+lsgov1112009:název-osoby
+    dcterms:title "" ;
+.
+
+lsgov1112009:identifikační-číslo-osoby
+    dcterms:title "" ;
+.
+
+gvm:má-provozovatele
+    dcterms:title "" ;
+.
+
+gm:místo
+    dcterms:title "" ;
+.
+
+gvm:veřejné-místo
+    dcterms:title "" ;
+.
+
+gvm:má-provozovatele
+    dcterms:title "" ;
+.
+
+gvm:provozovatel
+    dcterms:title "" ;
+.
+
+gvm:provozovatel-jako-fyzická-osoba
+    dcterms:title "" ;
+.
+
+gvm:provozovatel-jako-právnická-osoba
+    dcterms:title "" ;
+.
+
+gvm:má-vlastníka
+    dcterms:title "" ;
+.
+
+gvm:vlastník
+    dcterms:title "" ;
+.
+
+gvm:vlastník-jako-fyzická-osoba
+    dcterms:title "" ;
+.
+
+gvm:vlastník-jako-právnická-osoba
+    dcterms:title "" ;
+.
+
+gvm:má-kontakt
+    dcterms:title "" ;
+.
+
+gtc:turistický-cíl
+    dcterms:title "" ;
+.
+
+gtc:kouření-povoleno
+    dcterms:title "" ;
+.
+
+gtc:veřejná-přístupnost
+    dcterms:title "" ;
+.
+
+gtc:kapacita
+    dcterms:title "" ;
+.
+
+gtc:má-typ-turistického-cíle
+    dcterms:title "" ;
 .
 
 gcis:typ-turistického-cíle
-    a <urn:Codelist> ;
+    a <urn:Codelist>, <urn:CimEntity> ;
+    dcterms:title "" ;
+.
+
+gtc:má-dostupný-jazyk
+    dcterms:title "" ;
 .

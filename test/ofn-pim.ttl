@@ -51,7 +51,6 @@ pimcis:stát a pim:Class ;
         pimcas:je_nespecifikovaný .
 
 pimcas:časový_okamžik a pim:Class ;
-    pim:technicalLabel "Časový okamžik" ;
     pim:hasInterpretation gc:časový-okamžik .
 
 pimcas:datum a pim:Attribute ;
@@ -94,8 +93,6 @@ pimv:název a pim:Attribute ;
     pim:hasClass pimv:věc ;
     pim:hasDatatype rdf:langString ;
     pim:technicalLabel "název" ;
-    dcterms:title "Název" ;
-    <urn:pimHumanDescription> "Název věci." ;
 .
 
 pimv:popis a pim:Attribute ;
@@ -103,8 +100,6 @@ pimv:popis a pim:Attribute ;
     pim:hasClass pimv:věc ;
     pim:hasDatatype rdf:langString ;
     pim:technicalLabel "popis" ;
-    dcterms:title "Popis" ;
-    <urn:pimHumanDescription> "Textový popis věci." ;
 .
 
 pimv:vytvořeno a pim:Association ;
@@ -112,8 +107,6 @@ pimv:vytvořeno a pim:Association ;
     pim:hasEnd [ pim:hasParticipant pimv:věc ],
                [ pim:hasParticipant pimcas:časový_okamžik] ;
     pim:technicalLabel "vytvořeno"  ;
-    dcterms:title "Vytvořeno" ;
-    <urn:pimHumanDescription> "Datum a čas zveřejnění věci." ;
 .
 
 pimv:aktualizováno a pim:Association ;
@@ -124,8 +117,6 @@ pimv:aktualizováno a pim:Association ;
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
     pim:technicalLabel "aktualizováno" ;
-    dcterms:title "Aktualizováno" ;
-    <urn:pimHumanDescription> "Časový okamžik poslední aktualizace údajů." ;
 .
 
 pimv:relevantní_do a pim:Association ;
@@ -136,8 +127,6 @@ pimv:relevantní_do a pim:Association ;
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
     pim:technicalLabel "relevantní_do" ;
-    dcterms:title "Relevantní do" ;
-    <urn:pimHumanDescription> "Časový okamžik, ..." ;
 .
 
 pimv:zneplatněno a pim:Association ;
@@ -148,8 +137,6 @@ pimv:zneplatněno a pim:Association ;
         pim:hasParticipant pimcas:časový_okamžik
     ] ;
     pim:technicalLabel "zneplatněno" ;
-    dcterms:title "Zneplatněno" ;
-    <urn:pimHumanDescription> "Časový okamžik,..." ;
 .
 
 pimv:má_přílohu a pim:Association ;
@@ -160,8 +147,6 @@ pimv:má_přílohu a pim:Association ;
         pim:hasParticipant pimdo:digitální_objekt
     ] ;
     pim:technicalLabel "příloha" ;
-    dcterms:title "Příloha" ;
-    <urn:pimHumanDescription> "Dodatečné digitální objekty, ..." ;
 .
 
 <https://ofn.gov.cz/zdroj/pim/schéma/digitální-objekt> a pim:Schema ;
@@ -278,7 +263,7 @@ piml:celé_jméno a pim:Attribute ;
     pim:hasDatatype xsd:string ;
     pim:technicalLabel "text" .
 
-pimv:má_pohlaví a pim:Association ;
+piml:má_pohlaví a pim:Association ;
     pim:hasInterpretation gl:má-pohlaví ;
     pim:hasEnd 
       [ pim:hasParticipant piml:člověk ],
