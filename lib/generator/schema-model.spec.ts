@@ -2,7 +2,7 @@ import {FederatedSource} from "../rdf/statement/federated-source";
 import {JsonldSource} from "../rdf/statement/jsonld-source";
 import {loadFromIri} from "../platform-model/platform-model-adapter";
 import {loadSchemaFromEntities} from "./schema-model-adapter";
-import {writeFileSync} from "fs";
+import {writeFileSync, existsSync, mkdirSync} from "fs";
 
 async function loadFromTestSources(iri) {
   const source = FederatedSource.create([
@@ -75,70 +75,73 @@ function stringify(content: any): string {
   )
 }
 
-test("Load časový-okamžik.", async () => {
+test("Load 'časový-okamžik'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
   logJson(actual);
-  writeJson(actual, "./temp/časový-okamžik.schema.json");
+  writeJson(actual, "./temp/schema", "časový-okamžik.json");
 });
 
-
-async function writeJson(content: any, path: string) {
+async function writeJson(content: any, dir: string, fileName: string) {
+  if (!existsSync(dir)){
+    mkdirSync(dir);
+  }
+  const path = dir + "/" + fileName;
   writeFileSync(path, stringify(content));
 }
 
-test("Load věc.", async () => {
+test("Load 'věc'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
   logJson(actual);
-  writeJson(actual, "./temp/věc.schema.json");
+  writeJson(actual, "./temp/schema", "věc.json");
 });
 
-test("Load digitální-objekt.", async () => {
+test("Load 'digitální-objekt'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
   logJson(actual);
-  writeJson(actual, "./temp/digitální-objekt.schema.json");
+  writeJson(actual, "./temp/schema", "digitální-objekt.json");
 });
 
-test("Load kontakt.", async () => {
+test("Load 'kontakt'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
   logJson(actual);
-  writeJson(actual, "./temp/kontakt.schema.json");
+  writeJson(actual, "./temp/schema", "kontakt.json");
 });
 
-test("Load člověk.", async () => {
+test("Load 'člověk'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
   logJson(actual);
-  writeJson(actual, "./temp/člověk.schema.json");
+  writeJson(actual, "./temp/schema", "člověk.json");
 });
 
-test("Load osoba.", async () => {
+test("Load 'osoba'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
   logJson(actual);
-  writeJson(actual, "./temp/osoba.schema.json");
+  writeJson(actual, "./temp/schema", "osoba.json");
 });
 
-test("Load místo.", async () => {
+test("Load 'místo'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/místo");
   logJson(actual);
-  writeJson(actual, "./temp/místo.schema.json");
+  writeJson(actual, "./temp/schema", "místo.json");
 });
 
-test("Load turistický-cíl.", async () => {
+test("Load 'turistický-cíl'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
   logJson(actual);
-  writeJson(actual, "./temp/turistický-cíl.schema.json");
+  writeJson(actual, "./temp/schema", "turistický-cíl.json");
 });
 
-test("Load veřejné-místo.", async () => {
+test("Load 'veřejné-místo'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
   logJson(actual);
-  writeJson(actual, "./temp/veřejné-místo.schema.json");
+  writeJson(actual, "./temp/schema", "veřejné-místo.json");
 });

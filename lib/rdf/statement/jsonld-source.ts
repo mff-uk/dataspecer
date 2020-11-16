@@ -74,6 +74,24 @@ export class JsonldSource implements StatementSource {
     return Promise.resolve(result);
   }
 
+  reverseProperties(predicate: string, iri: string
+  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    const result = [];
+    for (const jsonld of Object.values(this.entities)) {
+      const values = jsonld[predicate];
+      if (values === undefined) {
+        continue;
+      }
+      for (const value of values) {
+        if (isObject(value) && value["@id"] === iri) {
+          // We need reference to the jsonld object.
+          result.push(jsonLdValueToQuad({"@id": jsonld["@id"]}));
+          break;
+        }
+      }
+    }
+    return Promise.resolve(result);
+  }
 }
 
 /**
@@ -125,8 +143,7 @@ function isObject(value: any): value is boolean {
 }
 
 function expandList(
-  collector: Record<string, JsonLdEntity>,
-  iris: string[]
+  collector: Record<string, JsonLdEntity>, iris: string[]
 ) {
   const iriPrefix = "_:b-list-" + Object.keys(collector).length + "-";
   let iriCounter = 0;
@@ -148,17 +165,17 @@ function expandList(
 }
 
 function jsonLdValueToQuad(value) {
-  if (value["@language"]) {
+  if (value["@language"] !== undefined) {
     return new RdfLiteral(value["@value"], RDF_LANGSTRING, value["@language"]);
-  } else if (value["@type"]) {
+  } else if (value["@type"] !== undefined) {
     return new RdfLiteral(value["@value"], value["@type"], undefined);
-  } else if (value["@id"]) {
+  } else if (value["@id"] !== undefined) {
     if (value["@id"].startsWith("_")) {
       return new RdfBlankNode(value["@id"]);
     } else {
       return new RdfNamedNode(value["@id"]);
     }
-  } else if (value["@value"]) {
+  } else if (value["@value"] !== undefined) {
     return new RdfLiteral(value["@value"], XSD_STRING, value["@language"]);
   } else {
     throw new Error("Unknown value: " + JSON.stringify(value));

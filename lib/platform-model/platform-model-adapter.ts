@@ -7,16 +7,17 @@ import {
   PimClass,
   PimAttribute,
   PimAssociation,
-  PimReference,
+  PimAssociationEnd,
   PsmSchema,
   PsmBase,
   PsmClass,
   PsmPart,
   PsmChoice,
-  PsmExtendedBy,
+  CimEntity,
 } from "./platform-model";
-import * as PIM from "./pim-vocabulary";
 import * as PSM from "./psm-vocabulary";
+import * as PIM from "./pim-vocabulary";
+import * as CIM from "./cim-vocabulary";
 
 type ResourceMap = Record<string, ModelResource>;
 
@@ -26,6 +27,10 @@ export function loadFromIri(
   return loadFromEntity(source, known, RdfEntity.create(iri));
 }
 
+/**
+ * When called for already loaded entity, just return the value. This
+ * allows for easy loading of cycles.
+ */
 export async function loadFromEntity(
   source: StatementSource, known: ResourceMap, entity: RdfEntity,
   suggestedType?: string
@@ -66,12 +71,11 @@ export async function loadFromEntity(
     await loadPsmChoice(
       source, known, entitySource, PsmChoice.as(result));
   }
-  if (types.includes(PSM.EXTENDED_BY)) {
-    await loadPsmExtendedBy(
-      source, known, entitySource, PsmExtendedBy.as(result));
-  }
   if (types.includes(PSM.PART)) {
     await loadPsmPart(source, known, entitySource, PsmPart.as(result));
+  }
+  if (types.includes(CIM.ENTITY)) {
+    await loadCimEntity(source, known, entitySource, CimEntity.as(result));
   }
   return result;
 }
@@ -109,17 +113,15 @@ async function loadPimBase(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   resource: PimBase
 ) {
+  const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
+  if (interpretation !== undefined) {
+    resource.pimInterpretation = interpretation.id;
+    await loadFromEntity(source, known, interpretation, CIM.ENTITY);
+  }
   resource.pimTechnicalLabel =
     (await entitySource.literal(PIM.HAS_TECHNICAL_LABEL))?.value as string;
   resource.pimHumanLabel = await loadLanguageString(
     entitySource, PIM.HAS_HUMAN_LABEL);
-  resource.pimHumanDescription = await loadLanguageString(
-    entitySource, PIM.HAS_HUMAN_DESCRIPTION);
-  const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
-  if (interpretation !== undefined) {
-    resource.pimInterpretation = interpretation.id;
-    await loadFromEntity(source, known, interpretation);
-  }
 }
 
 async function loadPimClass(
@@ -134,13 +136,13 @@ async function loadPimAttribute(
   pimAttribute: PimAttribute
 ) {
   await loadPimBase(source, known, entitySource, pimAttribute);
-  pimAttribute.pimDatatype =
-    (await entitySource.entity(PIM.HAS_DATA_TYPE))?.id;
   const classEntity = (await entitySource.entity(PIM.HAS_CLASS));
   if (classEntity) {
     pimAttribute.pimHasClass = classEntity.id;
     await loadFromEntity(source, known, classEntity);
   }
+  pimAttribute.pimDatatype =
+    (await entitySource.entity(PIM.HAS_DATA_TYPE))?.id;
 }
 
 async function loadPimAssociation(
@@ -161,8 +163,8 @@ async function loadPimAssociation(
 }
 
 async function loadPimReference(entitySource: EntitySource
-): Promise<PimReference> {
-  const result = new PimReference();
+): Promise<PimAssociationEnd> {
+  const result = new PimAssociationEnd();
   result.pimParticipant = (await entitySource.entity(PIM.HAS_PARTICIPANT))?.id;
   return result;
 }
@@ -175,10 +177,6 @@ async function loadPsmSchema(
     entitySource, PSM.HAS_HUMAN_LABEL);
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_ROOT)) {
     psmSchema.psmRoots.push(entity.id);
-    await loadFromEntity(source, known, entity);
-  }
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_IMPORT)) {
-    psmSchema.psmImports.push(entity.id);
     await loadFromEntity(source, known, entity);
   }
   psmSchema.psmJsonLdContext =
@@ -200,23 +198,35 @@ async function loadPsmClass(
   psmClass: PsmClass
 ) {
   await loadPsmBase(source, known, entitySource, psmClass);
+  const schemas = await source.reverseProperties(
+    PSM.HAS_ROOT, psmClass.id);
+  if (schemas.length === 1) {
+    psmClass.psmSchema = schemas[0].id;
+    await loadFromIri(source, known, psmClass.psmSchema);
+  } else if (schemas.length > 1) {
+    throw Error(
+      "Multiple psm:Schemas ("
+      + schemas.map(item => (item as any).id).join(", ")
+      +") specified for a single class ("
+      + psmClass.id
+      + ")."
+      + "At most one is allowed.")
+  }
 }
 
 async function loadPsmBase(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmBase: PsmBase
 ) {
-  psmBase.psmTechnicalLabel =
-    (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
-  psmBase.psmHumanLabel = await loadLanguageString(
-    entitySource, PSM.HAS_HUMAN_LABEL);
-  psmBase.psmHumanDescription = await loadLanguageString(
-    entitySource, PSM.HAS_HUMAN_DESCRIPTION);
   const interpretation = (await entitySource.entity(PSM.HAS_INTERPRETATION));
   if (interpretation !== undefined) {
     psmBase.psmInterpretation = interpretation.id;
     await loadFromEntity(source, known, interpretation);
   }
+  psmBase.psmTechnicalLabel =
+    (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
+  psmBase.psmHumanLabel = await loadLanguageString(
+    entitySource, PSM.HAS_HUMAN_LABEL);
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_EXTENDS)) {
     psmBase.psmExtends.push(entity.id);
     await loadFromEntity(source, known, entity);
@@ -234,16 +244,20 @@ async function loadPsmChoice(
   await loadPsmBase(source, known, entitySource, psmChoice);
 }
 
-async function loadPsmExtendedBy(
-  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
-  psmExtendedBy: PsmExtendedBy
-) {
-  await loadPsmBase(source, known, entitySource, psmExtendedBy);
-}
-
 async function loadPsmPart(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmPart: PsmPart
 ) {
   await loadPsmBase(source, known, entitySource, psmPart);
+}
+
+async function loadCimEntity(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  cimEntity: CimEntity
+) {
+  cimEntity.cimHumanLabel = await loadLanguageString(
+    entitySource, CIM.HAS_HUMAN_LABEL);
+  cimEntity.cimHumanDescription = await loadLanguageString(
+    entitySource, CIM.HAS_HUMAN_DESCRIPTION);
+  cimEntity.cimIsCodelist = cimEntity.rdfTypes.includes(CIM.CODELIST);
 }

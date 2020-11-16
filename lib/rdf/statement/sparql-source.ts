@@ -45,6 +45,11 @@ export class SparqlSource implements StatementSource {
     return Promise.resolve(properties.map(item => item.object));
   }
 
+  reverseProperties(predicate: string, url: string
+  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    throw Error("Not implemented!");
+  }
+
 }
 
 function createSparqlPropertyQueryUrl(

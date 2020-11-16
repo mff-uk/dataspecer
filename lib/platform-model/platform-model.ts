@@ -31,8 +31,8 @@ export enum ModelResourceType {
   PsmSchema = "psm-schema",
   PsmClass = "psm-class",
   PsmChoice = "psm-choice",
-  PsmExtendedBy = "psm-extended-by",
   PsmPart = "psm-part",
+  CimEntity = "cim-entity",
 }
 
 export class PimSchema extends ModelResource {
@@ -62,8 +62,6 @@ export class PimBase extends ModelResource {
 
   pimHumanLabel?: LanguageString;
 
-  pimHumanDescription?: LanguageString;
-
 }
 
 export class PimClass extends PimBase {
@@ -80,6 +78,9 @@ export class PimClass extends PimBase {
 
 export class PimAttribute extends PimBase {
 
+  /**
+   * Owner class.
+   */
   pimHasClass?: string;
 
   pimDatatype?: string;
@@ -96,9 +97,12 @@ export class PimAttribute extends PimBase {
 
 export class PimAssociation extends PimBase {
 
+  /**
+   * Owner class.
+   */
   pimHasClass?: string;
 
-  pimEnd: PimReference[] = [];
+  pimEnd: PimAssociationEnd[] = [];
 
   static as(resource: ModelResource): PimAssociation {
     if (resource.types.includes(ModelResourceType.PimAssociation)) {
@@ -112,7 +116,7 @@ export class PimAssociation extends PimBase {
 
 }
 
-export class PimReference {
+export class PimAssociationEnd {
 
   pimParticipant?: string;
 
@@ -123,11 +127,6 @@ export class PsmSchema extends ModelResource {
   psmHumanLabel?: LanguageString;
 
   psmRoots: string[] = [];
-
-  /**
-   * Allow us to import other schemas.
-   */
-  psmImports: string[] = [];
 
   psmJsonLdContext: string | undefined;
 
@@ -143,7 +142,6 @@ export class PsmSchema extends ModelResource {
     const result = resource as PsmSchema;
     result.psmHumanLabel = result.psmHumanLabel || {};
     result.psmRoots = result.psmRoots || [];
-    result.psmImports = result.psmImports || [];
     result.psmPrefix = result.psmPrefix || {};
     return result;
   }
@@ -158,8 +156,6 @@ export class PsmBase extends ModelResource {
 
   psmHumanLabel?: LanguageString;
 
-  psmHumanDescription?: LanguageString;
-
   psmExtends: string[] = [];
 
   psmParts: string[] = [];
@@ -167,6 +163,11 @@ export class PsmBase extends ModelResource {
 }
 
 export class PsmClass extends PsmBase {
+
+  /**
+   * A single class can be in only one schema.
+   */
+  psmSchema?: string;
 
   static as(resource: ModelResource): PsmClass {
     if (resource.types.includes(ModelResourceType.PsmClass)) {
@@ -196,21 +197,6 @@ export class PsmChoice extends PsmBase {
 
 }
 
-export class PsmExtendedBy extends PsmBase {
-
-  static as(resource: ModelResource): PsmExtendedBy {
-    if (resource.types.includes(ModelResourceType.PsmExtendedBy)) {
-      return resource as PsmExtendedBy;
-    }
-    resource.types.push(ModelResourceType.PsmExtendedBy);
-    const result = resource as PsmChoice;
-    result.psmExtends = result.psmExtends || [];
-    result.psmParts = result.psmParts || [];
-    return result;
-  }
-
-}
-
 export class PsmPart extends PsmBase {
 
   static as(resource: ModelResource): PsmPart {
@@ -222,6 +208,24 @@ export class PsmPart extends PsmBase {
     result.psmExtends = result.psmExtends || [];
     result.psmParts = result.psmParts || [];
     return result;
+  }
+
+}
+
+export class CimEntity extends ModelResource {
+
+  cimHumanLabel?: LanguageString;
+
+  cimHumanDescription?: LanguageString;
+
+  cimIsCodelist: boolean;
+
+  static as(resource: ModelResource): CimEntity {
+    if (resource.types.includes(ModelResourceType.CimEntity)) {
+      return resource as CimEntity;
+    }
+    resource.types.push(ModelResourceType.CimEntity);
+    return resource as CimEntity;
   }
 
 }

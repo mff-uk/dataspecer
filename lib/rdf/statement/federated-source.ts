@@ -4,7 +4,6 @@ import {
   RdfBaseValue,
 } from "./statement-api";
 
-// TODO Do not load all resources.
 export class FederatedSource implements StatementSource {
 
   private readonly sources: StatementSource [];
@@ -36,6 +35,15 @@ export class FederatedSource implements StatementSource {
     const result: RdfBaseValue[] = [];
     for (const source of this.sources) {
       addValues(result, await source.properties(entity, predicate));
+    }
+    return Promise.resolve(result);
+  }
+
+  async reverseProperties(predicate: string, url: string
+  ): Promise<RdfBaseValue[]> {
+    const result: RdfBaseValue[] = [];
+    for (const source of this.sources) {
+      addValues(result, await source.reverseProperties(predicate, url));
     }
     return Promise.resolve(result);
   }

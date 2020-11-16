@@ -1,20 +1,22 @@
 export class FormalOpenSpecification {
 
-  metadata: FosMetadata;
+  url: string;
 
-  overview: FosOverview;
+  metadata: FosMetadata = new FosMetadata();
 
-  specification: FosSpecification;
+  overview: FosOverview = new FosOverview();
 
-  examples: FosExample[];
+  specification: FosSpecification = new FosSpecification();
 
-  references: FosReference;
+  examples: FosExample[] = [];
+
+  references: FosReference = new FosReference();
 
 }
 
 export class FosMetadata {
 
-  title: string;
+  title: string | undefined = undefined;
 
 }
 
@@ -29,7 +31,7 @@ export class FosSpecification {
   /**
    * List of entities in the section.
    */
-  entities: FosEntity[];
+  entities: FosEntity[] = [];
 
 }
 
@@ -39,21 +41,18 @@ export class FosEntity {
 
   humanDescription: string;
 
+  relativeLink: string;
+
   /**
    * List of class members.
    */
-  properties: FosProperty[];
+  properties: FosProperty[] = [];
 
-}
-
-export enum FosPropertyType {
-  Attribute = "Attribute",
-  Association = "Association"
 }
 
 export class FosProperty {
 
-  propertyType: FosPropertyType;
+  type: FosTypeReference[] = [];
 
   /**
    * Name of the attribute inside the model.
@@ -61,21 +60,27 @@ export class FosProperty {
   technicalLabel: string;
 
   /**
-   * If provided the type is a link with this as a name and
-   * {@link typeValue} as a href.
-   */
-  typeLabel: string;
-
-  typeValue: string;
-
-  /**
    * Human readable title.
    */
   humanLabel: string;
 
-  description: string;
+  humanDescription: string;
 
-  examples: string[];
+  examples: string[] = [];
+
+  relativeLink: string;
+
+}
+
+export class FosTypeReference {
+
+  isPrimitive: boolean;
+
+  label: string;
+
+  schemaLink: string;
+
+  relativeLink: string;
 
 }
 
@@ -98,9 +103,12 @@ export class FosExample {
   /**
    * External files like JSON-LD context, JSON schema etc ...
    */
-  attachments: Record<string, string>;
+  attachments: Record<string, string> = {};
+
 }
 
 export class FosReference {
+
+  // TODO It seems there is no content that should change with data.
 
 }

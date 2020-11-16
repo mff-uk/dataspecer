@@ -2,7 +2,7 @@ import {JsonldSource} from "../rdf/statement/jsonld-source";
 import {FederatedSource} from "../rdf/statement/federated-source";
 import {loadFromIri} from "./platform-model-adapter";
 
-test("Load PIM from example.", async () => {
+test("Load PIM from example for věc.", async () => {
   const source = await JsonldSource.create("file://test/ofn-pim.ttl");
   const entities = {};
   const actual = await loadFromIri(
@@ -11,7 +11,7 @@ test("Load PIM from example.", async () => {
   console.log(JSON.stringify(entities, null, 2));
 });
 
-test("Load PSM from example.", async () => {
+test("Load PSM from example for veřejné-místo.", async () => {
   const source = await JsonldSource.create("file://test/ofn-psm.ttl");
   const entities = {};
   const actual = await loadFromIri(
@@ -20,11 +20,11 @@ test("Load PSM from example.", async () => {
   console.log(JSON.stringify(entities, null, 2));
 });
 
-test("Load PSM and PIM from example.", async () => {
+test("Load PSM, PIM, CIM from example for věc.", async () => {
   const source = FederatedSource.create([
     await JsonldSource.create("file://test/ofn-psm.ttl"),
     await JsonldSource.create("file://test/ofn-pim.ttl"),
-    // await SparqlSource.create("https://slovník.gov.cz/sparql")
+    await JsonldSource.create("file://test/ofn-cim.ttl"),
   ]);
   const entities = {};
   const actual = await loadFromIri(
