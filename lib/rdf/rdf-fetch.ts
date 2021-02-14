@@ -18,7 +18,8 @@ export default function fetchUrl(url, options) {
     };
     return new Response(stream, {"headers": headers});
   } else {
-    return fetch(url, options);
+    const encodedUrl = encodeURI(url);
+    return fetch(encodedUrl, options);
   }
 }
 

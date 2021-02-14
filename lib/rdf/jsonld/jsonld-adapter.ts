@@ -29,13 +29,12 @@ jsonld.registerRDFParser("text/turtle", n3Parser);
  */
 export async function fetchJsonLd(url: string, format?: RdfFormat
 ): Promise<JsonLdEntity[]> {
-  const encodedUrl = encodeURI(url);
   const options = {
     "headers": {
       "Accept": format ? format : supportedTypes().join(","),
     }
   };
-  const response = await fetch(encodedUrl, options);
+  const response = await fetch(url, options);
   const mimeType = getContentType(response);
   switch (mimeType) {
     case RdfFormat.JsonLd:
