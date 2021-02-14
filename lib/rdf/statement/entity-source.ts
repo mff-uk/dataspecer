@@ -121,7 +121,7 @@ export class EntitySource {
     const entity = RdfEntity.create(node.id);
     const hasFirst = await this.rdfSource.properties(entity, HAS_FIRST);
     if (hasFirst.length !== 1) {
-      throw new Error(`Invalid number rdf:head for ${node.id}`)
+      throw new Error(`Invalid number rdf:head for ${node.id}`);
     }
     const first = hasFirst[0];
     if (first.isNamedNode() || first.isBlankNode()) {
@@ -129,7 +129,7 @@ export class EntitySource {
     }
     const hasRest = await this.rdfSource.properties(entity, HAS_REST);
     if (hasRest.length !== 1) {
-      throw new Error(`Invalid number rdf:rest for ${node.id}`)
+      throw new Error(`Invalid number rdf:rest for ${node.id}`);
     }
     const rest = hasRest[0];
     if (rest.isNamedNode() || rest.isBlankNode()) {
