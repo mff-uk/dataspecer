@@ -21,19 +21,23 @@ psmds:datová-schránka a psm:Class ;
 psmds:datová-schránka-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Association ;
             psm:hasInterpretation pimds:má-typ-datové-schránky ;
             psm:technicalLabel "typ-ds" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimds:typ-datové-schránky-jako-položka
                 ]
             )
         ] ;
     rdf:rest [
-      rdf:first
-        [
-            psm:hasInterpretation pimds:má-identifikátor-datové-schránky ;
-            psm:technicalLabel "identifikátor-ds"
-        ] ;
-       rdf:rest () ;
+        a rdf:List ;
+        rdf:first
+            [
+                a psm:Attribute ;
+                psm:hasInterpretation pimds:má-identifikátor-datové-schránky ;
+                psm:technicalLabel "identifikátor-ds"
+            ] ;
+        rdf:rest () ;
     ] .

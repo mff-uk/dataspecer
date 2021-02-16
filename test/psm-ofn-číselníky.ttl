@@ -23,19 +23,23 @@ psmcis:číselník a psm:Class ;
 psmcis:číselník-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimcis:název-číselníku ;
             psm:technicalLabel "název"
         ] ;
     rdf:rest (
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimcis:definice-číselníku ;
             psm:technicalLabel "definice"
         ]
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimcis:akronym-číselníku ;
             psm:technicalLabel "akronym"
         ]
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimcis:má-administrativní-platnost-číselníku ;
             psm:technicalLabel "platnost" ;
             dcterms:hasPart (
@@ -43,38 +47,47 @@ psmcis:číselník-obsah a rdf:List ;
             )
         ]
         [
+            a psm:Association ;
             psm:hasInterpretation pimcis:pokrývá-oblast ;
             psm:technicalLabel "oblast" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimcis:položka-evidenčního-systému
                 ]
             )
         ]
         [
+            a psm:Association ;
             psm:hasInterpretation pimcis:eviduje-položku-číselníku ;
             psm:technicalLabel "položky" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimcis:položka-číselníku ;
                     dcterms:hasPart (
                         [
+                            a psm:Attribute ;
                             psm:hasInterpretation pimcis:kód-položky-číselníku ;
                             psm:technicalLabel "kód"
                         ]
                         [
+                            a psm:Attribute ;
                             psm:hasInterpretation pimcis:název-položky-číselníku ;
                             psm:technicalLabel "název"
                         ]
                         [
+                            a psm:Attribute ;
                             psm:hasInterpretation pimcis:zkrácený-název-číselníku ;
                             psm:technicalLabel "zkr-název"
                         ]
                         [
+                            a psm:Attribute ;
                             psm:hasInterpretation pimcis:popis-položky-číselníku ;
                             psm:technicalLabel "popis"
                         ]
                         [
+                            a psm:Association ;
                             psm:hasInterpretation pimcis:má-administrativní-platnost-položky-číselníku ;
                             psm:technicalLabel "platnost" ;
                             dcterms:hasPart (

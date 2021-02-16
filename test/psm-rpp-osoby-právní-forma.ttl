@@ -21,10 +21,12 @@ psmopf:osoba a psm:Class ;
 psmopf:osoba-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Association ;
             psm:hasInterpretation pimopf:má-právní-formu-osoby ;
             psm:technicalLabel "právní-forma" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimopf:právní-forma-jako-položka
                 ]
             )

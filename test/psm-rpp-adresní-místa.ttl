@@ -21,6 +21,7 @@ psmam:adresní-místo a psm:Class ;
 psmam:adresní-místo-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimam:má-kód-adresního-místa ;
             psm:technicalLabel "🤪" ;
         ] ;

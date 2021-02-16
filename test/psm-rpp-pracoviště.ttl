@@ -22,33 +22,40 @@ psmprac:pracoviště a psm:Class ;
 psmprac:pracoviště-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Association ;
             psm:hasInterpretation pimprac:má-adresu-pracoviště ;
             psm:technicalLabel "adresa-pr" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimam:adresní-místo
                 ]
             )
         ] ;
     rdf:rest (
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimprac:má-adresu-pracoviště-neevidovanou-v-rúian ;
             psm:technicalLabel "adresa-pr-txt"
         ]
         [
+            a psm:Association ;
             psm:hasInterpretation pimprac:má-stát-pracoviště ;
             psm:technicalLabel "stát-pr" ;
             dcterms:hasPart (
                 [
+                    a psm:Class ;
                     psm:hasInterpretation pimprac:stát-jako-položka
                 ]
             )
         ]
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimprac:má-datum-otevření-pracoviště ;
             psm:technicalLabel "開場"
         ]
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimprac:má-datum-uzavření-pracoviště ;
             psm:technicalLabel "بندول"
         ]

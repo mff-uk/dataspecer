@@ -22,6 +22,7 @@ psmupp:ustanovení-právního-předpisu a psm:Class ;
 psmupp:ustanovení-právního-předpisu-obsah a rdf:List ;
     rdf:first
         [
+            a psm:Attribute ;
             psm:hasInterpretation pimupp:má-úplné-označení-ustanovení-včetně-označení-právního-předpisu
         ] ;
     rdf:rest () .
