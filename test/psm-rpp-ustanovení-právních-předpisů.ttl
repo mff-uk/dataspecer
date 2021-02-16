@@ -1,0 +1,27 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix psm: <https://ofn.gov.cz/slovník/psm/> .
+
+@prefix pimupp: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů/uzel/> .
+
+@prefix psmupp: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů/uzel/> .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů> a psm:Schema ;
+    psm:technicalLabel "rpp-ustanovení-právních-předpisů" ;
+    dcterms:title "Datová struktura ustanovení právních předpisů"@cs ;
+    dcterms:description "Platformově specifický model datové struktury pro reprezentaci ustanovení právních předpisů v datových sadách z registru práv a povinností"@cs ;
+    psm:hasRoot psmupp:ustanovení-právního-předpisu .
+
+psmupp:ustanovení-právního-předpisu a psm:Class ;
+    psm:hasInterpretation pimupp:ustanovení-právního-předpisu ;
+    psm:technicalLabel "označení" ;
+    dcterms:hasPart psmupp:ustanovení-právního-předpisu-obsah .
+
+psmupp:ustanovení-právního-předpisu-obsah a rdf:List ;
+    rdf:first
+        [
+            psm:hasInterpretation pimupp:má-úplné-označení-ustanovení-včetně-označení-právního-předpisu
+        ] ;
+    rdf:rest () .

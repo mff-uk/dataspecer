@@ -1,0 +1,61 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix pim: <https://ofn.gov.cz/slovník/pim/> .
+
+@prefix lsgov1112009: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix asgov104: <https://slovník.gov.cz/agendový/104/pojem/> .
+@prefix dsgovst: <https://slovník.gov.cz/datový/registr-práv-a-povinností-státy/pojem/> .
+
+@prefix pimprac: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/pracoviště/uzel/> .
+@prefix pimam: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/adresní-místa/uzel/> .
+
+<https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/pracoviště> a pim:Schema ;
+    dcterms:title "Pracoviště"@cs ;
+    dcterms:description "Platformově nezávislý model pro reprezentaci pracovišť v datových sadách publikovaných z registru práv a povinností."@cs ;
+    dcterms:hasPart pimprac:pracoviště,
+        pimprac:stát,
+        pimprac:stát-jako-položka,
+        pimprac:má-adresu-pracoviště,
+        pimprac:má-adresu-pracoviště-neevidovanou-v-rúian,
+        pimprac:má-stát-pracoviště,
+        pimprac:má-datum-otevření-pracoviště,
+        pimprac:má-datum-uzavření-pracoviště .
+
+pimprac:pracoviště a pim:Class ;
+	pim:hasInterpretation lsgov1112009:pracoviště .
+
+pimprac:stát a pim:Class ;
+	pim:hasInterpretation asgov104:stát .
+
+pimprac:stát-jako-položka a pim:Class ;
+	pim:hasInterpretation dsgovst:stát ;
+    pim:isa pimprac:stát .
+
+pimprac:má-adresu-pracoviště a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-adresu-pracoviště ;
+    pim:hasEnd [
+        pim:hasParticipant pimprac:pracoviště
+    ],[
+        pim:hasParticipant pimam:adresní-místo
+    ] .
+
+pimprac:má-adresu-pracoviště-neevidovanou-v-rúian a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-adresu-pracoviště-neevidovanou-v-rúian ;
+    pim:hasClass pimprac:pracoviště ;
+    pim:hasDatatype xsd:string .
+
+pimprac:má-stát-pracoviště a pim:Association ;
+	pim:hasInterpretation asgov104:má-stát-pracoviště ;
+    pim:hasEnd [
+        pim:hasParticipant pimprac:pracoviště
+    ],[
+        pim:hasParticipant pimprac:stát-jako-položka
+    ] .
+
+pimprac:má-datum-otevření-pracoviště a pim:Association ;
+	pim:hasInterpretation asgov104:má-datum-otevření-pracoviště .
+
+pimprac:má-datum-uzavření-pracoviště a pim:Association ;
+	pim:hasInterpretation asgov104:má-datum-uzavření-pracoviště .

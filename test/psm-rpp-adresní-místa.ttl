@@ -1,0 +1,27 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix psm: <https://ofn.gov.cz/slovník/psm/> .
+
+@prefix pimam: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/adresní-místa/uzel/> .
+
+@prefix psmam: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa/uzel/> .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa> a psm:Schema ;
+    psm:technicalLabel "rpp-adresní-místa" ;
+    dcterms:title "Datová struktura adresních míst"@cs ;
+    dcterms:description "Platformově specifický model datové struktury pro reprezentaci adresních míst v datových sadách z registru práv a povinností"@cs ;
+    psm:hasRoot psmam:adresní-místo .
+
+psmam:adresní-místo a psm:Class ;
+    psm:hasInterpretation pimam:adresní-místo ;
+    dcterms:hasPart psmam:adresní-místo-obsah .
+
+psmam:adresní-místo-obsah a rdf:List ;
+    rdf:first
+        [
+            psm:hasInterpretation pimam:má-kód-adresního-místa ;
+            psm:technicalLabel "🤪" ;
+        ] ;
+    rdf:rest () .

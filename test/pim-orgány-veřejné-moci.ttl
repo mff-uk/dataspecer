@@ -1,0 +1,212 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix pim: <https://ofn.gov.cz/slovník/pim/> .
+
+@prefix lsgov1112009: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix asgov104: <https://slovník.gov.cz/agendový/104/pojem/> .
+
+@prefix pimovm: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/orgány-veřené-moci/uzel/> .
+@prefix pimds: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/datové-schránky/uzel/> .
+@prefix pimprac: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/pracoviště/uzel/> .
+@prefix pimupp: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/ustanovení-právního-předpisu/uzel/> .
+
+<https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/orgány-veřejné-moci> a pim:Schema ;
+    dcterms:title "Orgány veřejné moci"@cs ;
+    dcterms:description "Platformově nezávislý model pro datovou sadu o orgánech veřejné moci publikovanou z registru práv a povinností."@cs ;
+    dcterms:hasPart pimovm:orgán-veřejné-moci,
+        pimovm:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů,
+        pimovm:ustanovení-právního-předpisu,
+        pimovm:osoba-stojící-v-čele-orgánu-veřejné-moci,
+        pimovm:adresní-místo,
+        pimovm:zařazení-do-kategorie,
+        pimovm:kategorie,
+        pimovm:má-identifikátor-orgánu-veřejné-moci,
+        pimovm:má-název-orgánu-veřejné-moci,
+        pimovm:je-vnitřní-organizační-jednotkou,
+        pimovm:má-identifikační-číslo-orgánu-veřejné-moci,
+        pimovm:má-datovou-schránku-orgánu-veřejné-moci,
+        pimovm:vykonává-působnost-na-základě-ustanovení,
+        pimovm:má-úplné-označení-ustanovení-včetně-označení-právního-předpisu,
+        pimovm:má-zařazený-subjekt,
+        pimovm:zařazuje-do-kategorie,
+        pimovm:má-datum-zařazení-do-kategorie,
+        pimovm:má-datum-vyřazení-z-kategorie,
+        pimovm:má-adresu-místa-pobytu-orgánu-veřejné-moci,
+        pimovm:má-adresu-sídla-orgánu-veřejné-moci,
+        pimovm:stojí-v-čele-orgánu-veřejné-moci,
+        pimovm:má-jméno-a-příjmení-osoby-stojící-v-čele-orgánu-veřejné-moci,
+        pimovm:má-datum-zahájení-výkonu-působnosti-orgánu-veřejné-moci,
+        pimovm:má-datum-ukončení-výkonu-působnosti-orgánu-veřejné-moci,
+        pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-od,
+        pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-do,
+        pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-od,
+        pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-do,
+        pimovm:má-pracoviště-vykonávající-úkon,
+        pimovm:má-právní-formu-osoby,
+        pimovm:má-kód-adresního-místa
+    .
+
+pimovm:orgán-veřejné-moci a pim:Class ;
+	pim:hasInterpretation lsgov1112009:orgán-veřejné-moci ;
+    pim:isa pimovm:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů .
+
+pimovm:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů a pim:Class ;
+	pim:hasInterpretation lsgov1112009:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů .
+
+pimovm:datová-schránka a pim:Class ;
+	pim:hasInterpretation lsgov1112009:datová-schránka .
+
+pimovm:ustanovení-právního-předpisu a pim:Class ;
+	pim:hasInterpretation lsgov1112009:ustanovení-právního-předpisu .
+
+pimovm:osoba-stojící-v-čele-orgánu-veřejné-moci a pim:Class ;
+	pim:hasInterpretation lsgov1112009:osoba-stojící-v-čele-orgánu-veřejné-moci .
+
+pimovm:pracoviště a pim:Class ;
+	pim:hasInterpretation lsgov1112009:pracoviště .
+
+pimovm:adresní-místo a pim:Class ;
+	pim:hasInterpretation lsgov1112009:adresní-místo .
+
+pimovm:zařazení-do-kategorie a pim:Class ;
+	pim:hasInterpretation lsgov1112009:zařazení-do-kategorie .
+
+pimovm:kategorie a pim:Class ;
+	pim:hasInterpretation lsgov1112009:kategorie .
+
+pimovm:má-identifikátor-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-identifikátor-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:string .
+
+pimovm:má-název-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-název-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:string .
+
+pimovm:je-vnitřní-organizační-jednotkou a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:je-vnitřní-organizační-jednotkou ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:boolean .
+
+pimovm:má-identifikační-číslo-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-identifikační-číslo-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:string .
+
+pimovm:má-datovou-schránku-orgánu-veřejné-moci a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-datovou-schránku-orgánu-veřejné-moci ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimds:datová-schránka
+    ] .
+
+pimovm:vykonává-působnost-na-základě-ustanovení a pim:Association ;
+	pim:hasInterpretation lsgov1112009:vykonává-působnost-na-základě-ustanovení ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimupp:ustanovení-právního-předpisu
+    ] .
+
+pimovm:má-zařazený-subjekt a pim:Association ;
+	pim:hasInterpretation asgov104:má-zařazený-subjekt ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů
+    ],[
+        pim:hasParticipant pimovm:zařazení-do-kategorie
+    ] .
+
+pimovm:zařazuje-do-kategorie a pim:Association ;
+	pim:hasInterpretation asgov104:zařazuje-do-kategorie ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:zařazení-do-kategorie
+    ],[
+        pim:hasParticipant pimovm:kategorie
+    ] .
+
+pimovm:má-datum-zařazení-do-kategorie a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-datum-zařazení-do-kategorie ;
+    pim:hasClass pimovm:kategorie ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-datum-vyřazení-z-kategorie a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-datum-vyřazení-z-kategorie ;
+    pim:hasClass pimovm:kategorie ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-adresu-místa-pobytu-orgánu-veřejné-moci a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-adresu-místa-pobytu-orgánu-veřejné-moci ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimovm:adresní-místo
+    ] .
+
+pimovm:má-adresu-sídla-orgánu-veřejné-moci a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-adresu-sídla-orgánu-veřejné-moci ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimovm:adresní-místo
+    ] .
+
+pimovm:stojí-v-čele-orgánu-veřejné-moci a pim:Association ;
+	pim:hasInterpretation lsgov1112009:stojí-v-čele-orgánu-veřejné-moci ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimovm:osoba-stojící-v-čele-orgánu-veřejné-moci
+    ] .
+
+pimovm:má-jméno-a-příjmení-osoby-stojící-v-čele-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-jméno-a-příjmení-osoby-stojící-v-čele-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:osoba-stojící-v-čele-orgánu-veřejné-moci ;
+    pim:hasDatatype xsd:string .
+
+pimovm:má-datum-zahájení-výkonu-působnosti-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-datum-zahájení-výkonu-působnosti-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-datum-ukončení-výkonu-působnosti-orgánu-veřejné-moci a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-datum-ukončení-výkonu-působnosti-orgánu-veřejné-moci ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-od a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-od ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-do a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-do ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-od a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-od ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-do a pim:Attribute ;
+	pim:hasInterpretation lsgov1112009:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-do ;
+    pim:hasClass pimovm:orgán-veřejné-moci ;
+    pim:hasDatatype xsd:date .
+
+pimovm:má-pracoviště-vykonávající-úkon a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-pracoviště-vykonávající-úkon ;
+    pim:hasEnd [
+        pim:hasParticipant pimovm:orgán-veřejné-moci
+    ],[
+        pim:hasParticipant pimprac:pracoviště
+    ] .
+
+pimovm:má-právní-formu-osoby a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-právní-formu-osoby .
+
+pimovm:má-kód-adresního-místa a pim:Association ;
+	pim:hasInterpretation lsgov1112009:má-kód-adresního-místa .
