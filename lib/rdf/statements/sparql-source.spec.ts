@@ -1,5 +1,5 @@
 import {SparqlSource} from "./sparql-source";
-import {RdfEntity} from "./statement-api";
+import {RdfEntity} from "./rdf-api";
 
 test("Load from SPARQL.", async () => {
   const endpoint = "https://slovník.gov.cz/sparql";
@@ -9,6 +9,6 @@ test("Load from SPARQL.", async () => {
     await source.properties(
       RdfEntity.create(url),
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-  // Class, DatatypeProperty, skos:Concept, Intrinsic Trope Type
-  console.log("actual", actual);
+  // We should get some types.
+  expect(actual.length).toBeGreaterThan(0);
 });

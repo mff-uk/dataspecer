@@ -2,8 +2,6 @@ const PIM = "https://ofn.gov.cz/slovník/pim/";
 
 export const HAS_TECHNICAL_LABEL = PIM + "technicalLabel";
 
-export const HAS_DESCRIPTION = "urn:pimDescription";
-
 export const HAS_INTERPRETATION = PIM + "hasInterpretation";
 
 export const HAS_CLASS = PIM + "hasClass";
@@ -28,4 +26,6 @@ export const HAS_PART = DCTERMS + "hasPart";
 
 export const HAS_HUMAN_LABEL = DCTERMS + "title";
 
-export const HAS_HUMAN_DESCRIPTION = "urn:pimHumanDescription";
+export const HAS_HUMAN_DESCRIPTION = DCTERMS + "description";
+
+export const HAS_ISA = PIM + "isa";

@@ -2,7 +2,11 @@
 // Define operations for reading properties of an RDF resource.
 //
 
-import {JsonLdEntity, Literal, JsonLdValue} from "./jsonld-types";
+import {
+  JsonLdEntity,
+  Literal,
+  JsonLdValue,
+} from "./jsonld-types";
 
 export function getId(entity: JsonLdEntity): string {
   return entity["@id"];

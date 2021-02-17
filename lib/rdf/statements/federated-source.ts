@@ -1,8 +1,5 @@
-import {
-  RdfEntity,
-  StatementSource,
-  RdfBaseValue,
-} from "./statement-api";
+import {RdfBaseValue, RdfEntity} from "../rdf-api";
+import {StatementSource} from "./statements-api";
 
 // TODO Do not load all resources.
 export class FederatedSource implements StatementSource {

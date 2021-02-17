@@ -19,7 +19,8 @@ test("Get IRI.", () => {
 
 test("Get type.", () => {
   const entity: JsonLdEntity = {
-    "@type": "http://localhost"
+    // @ts-ignore
+    "@type": "http://localhost",
   };
   expect(getTypes(entity))
     .toEqual(["http://localhost"]);
@@ -27,9 +28,10 @@ test("Get type.", () => {
 
 test("Get type.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "@type": [
       "http://localhost/1",
-      "http://localhost/2"
+      "http://localhost/2",
     ]
   };
   expect(getTypes(entity))
@@ -38,9 +40,10 @@ test("Get type.", () => {
 
 test("Get single resource.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": {
-      "@id": "http://localhost/1"
-    }
+      "@id": "http://localhost/1",
+    },
   };
   expect(getResource(entity, "http://property"))
     .toEqual("http://localhost/1");
@@ -51,14 +54,15 @@ test("Get single resource.", () => {
 
 test("Get multiple resources.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": [
       {
-        "@id": "http://localhost/1"
+        "@id": "http://localhost/1",
       },
       {
-        "@id": "http://localhost/2"
-      }
-    ]
+        "@id": "http://localhost/2",
+      },
+    ],
   };
   expect(getResource(entity, "http://property"))
     .toEqual("http://localhost/1");
@@ -68,7 +72,8 @@ test("Get multiple resources.", () => {
 
 test("Get plain string.", () => {
   const entity: JsonLdEntity = {
-    "http://property": "1"
+    "@id": "",
+    "http://property": "1",
   };
   expect(getStrings(entity, "http://property"))
     .toEqual([{"": "1"}]);
@@ -76,7 +81,8 @@ test("Get plain string.", () => {
 
 test("Get multiple plain strings.", () => {
   const entity: JsonLdEntity = {
-    "http://property": ["1", "2"]
+    "@id": "",
+    "http://property": ["1", "2"],
   };
   expect(getStrings(entity, "http://property"))
     .toEqual([{"": "1"}, {"": "2"}]);
@@ -84,10 +90,11 @@ test("Get multiple plain strings.", () => {
 
 test("Get complex string.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": {
       "@value": "1",
       "@language": "cs",
-    }
+    },
   };
   expect(getStrings(entity, "http://property"))
     .toEqual([{"cs": "1"}]);
@@ -95,9 +102,10 @@ test("Get complex string.", () => {
 
 test("Get empty string", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": [
-      {"@value": ""}
-    ]
+      {"@value": ""},
+    ],
   };
   expect(getStrings(entity, "http://property"))
     .toEqual([{"": ""}]);
@@ -105,10 +113,11 @@ test("Get empty string", () => {
 
 test("Get multiple mixed strings.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": [
       "1",
-      {"@language": "cs", "@value": "2"}
-    ]
+      {"@language": "cs", "@value": "2"},
+    ],
   };
   expect(getStrings(entity, "http://property"))
     .toEqual([{"": "1"}, {"cs": "2"}]);
@@ -117,10 +126,11 @@ test("Get multiple mixed strings.", () => {
 
 test("Get multiple mixed values.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": [
       1,
-      {"@value": "2"}
-    ]
+      {"@value": "2"},
+    ],
   };
   expect(getValues(entity, "http://property"))
     .toEqual([1, "2"]);
@@ -128,9 +138,10 @@ test("Get multiple mixed values.", () => {
 
 test("Get value.", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "urn:datasetsCount": [
-      {"@value": 1}
-    ]
+      {"@value": 1},
+    ],
   };
   expect(getValue(entity, "urn:datasetsCount"))
     .toEqual(1);
@@ -138,9 +149,10 @@ test("Get value.", () => {
 
 test("Get empty value", () => {
   const entity: JsonLdEntity = {
+    "@id": "",
     "http://property": [
-      {"@value": ""}
-    ]
+      {"@value": ""},
+    ],
   };
   expect(getValues(entity, "http://property")).toEqual([""]);
 });

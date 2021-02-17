@@ -1,7 +1,5 @@
 import {
   ClassData,
-  ClassNodeData,
-  ClassSimpleData,
   PropertyData,
   SchemaData,
 } from "../schema-model";

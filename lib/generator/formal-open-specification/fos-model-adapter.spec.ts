@@ -1,8 +1,8 @@
 import {loadSchemaFromEntities} from "../schema-model-adapter";
 import {FormalOpenSpecification, FosPropertyType} from "./fos-model";
 import {schemaAsFormalOpenSpecification} from "./fos-model-adapter";
-import {FederatedSource} from "../../rdf/statement/federated-source";
-import {JsonldSource} from "../../rdf/statement/jsonld-source";
+import {FederatedSource} from "../../rdf/federated-source";
+import {JsonldSource} from "../../rdf/jsonld-source";
 import {loadFromIri} from "../../platform-model/platform-model-adapter";
 
 test("Convert 'věc' to formal open specification.", async () => {
@@ -102,11 +102,42 @@ test("Convert 'věc' to formal open specification.", async () => {
 
 async function loadFromTestSources(iri) {
   const source = FederatedSource.create([
-    await JsonldSource.create("file://test/ofn-psm.ttl"),
-    await JsonldSource.create("file://test/ofn-pim.ttl"),
-    await JsonldSource.create("file://test/ofn-cim.ttl"),
+    await JsonldSource.create("file://test/00/ofn-psm.ttl"),
+    await JsonldSource.create("file://test/00/ofn-pim.ttl"),
+    await JsonldSource.create("file://test/00/ofn-cim.ttl"),
   ]);
   const entities = {};
   const entity = await loadFromIri(source, entities, iri);
   return loadSchemaFromEntities(entities, entity.id);
 }
+
+test("Convert entity to formal open specification.", async () => {
+  const source = FederatedSource.create([
+    await JsonldSource.create("file://test/01/pim-ofn-číselníky.ttl"),
+    await JsonldSource.create("file://test/01/pim-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-datové-schránky.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-osoby-právní-forma.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-pracoviště.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-zařazení-do-kategorií.ttl"),
+    await JsonldSource.create("file://test/01/pim-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/01/psm-ofn-číselníky.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-datové-schránky.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-osoba-právní-forma.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-pracoviště.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-zařazení-do-kategorií.ttl"),
+  ]);
+  const entities = {};
+  const entity = await loadFromIri(
+    source, entities,
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci"
+  );
+  const schema = loadSchemaFromEntities(entities, entity.id);
+  console.log(schema);
+});
+

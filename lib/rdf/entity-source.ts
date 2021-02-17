@@ -8,8 +8,8 @@ import {
   RdfEntity,
   RdfLiteral,
   RdfNamedNode,
-  StatementSource
-} from "./statement-api";
+} from "./rdf-api";
+import {StatementSource} from "./statements/statements-api";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -22,7 +22,8 @@ const RDF_NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 export type ExtendedRdfEntityList = { entity: RdfEntity, order?: number }[];
 
 /**
- * Wrap source and entity to provide simple access to source functions.
+ * Wrap StatementSource and RdfEntity to provide simple access to
+ * source functions for given entity.
  */
 export class EntitySource {
 
@@ -121,7 +122,8 @@ export class EntitySource {
     const entity = RdfEntity.create(node.id);
     const hasFirst = await this.rdfSource.properties(entity, HAS_FIRST);
     if (hasFirst.length !== 1) {
-      throw new Error(`Invalid number rdf:head for ${node.id}`);
+      throw new Error(
+        `Invalid number (${hasFirst.length}) rdf:head for ${node.id}`);
     }
     const first = hasFirst[0];
     if (first.isNamedNode() || first.isBlankNode()) {
@@ -148,5 +150,3 @@ export class EntitySource {
   }
 
 }
-
-

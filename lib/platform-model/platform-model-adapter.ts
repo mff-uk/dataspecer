@@ -1,5 +1,5 @@
-import {RdfEntity, StatementSource} from "../rdf/statement/statement-api";
-import {EntitySource} from "../rdf/statement/entity-source";
+import {RdfEntity, StatementSource} from "../rdf/rdf-api";
+import {EntitySource} from "../rdf/entity-source";
 import {
   ModelResource,
   PimBase,
@@ -14,6 +14,7 @@ import {
   PsmPart,
   PsmChoice,
   PsmExtendedBy,
+  PsmIncludes,
 } from "./platform-model";
 import * as PIM from "./pim-vocabulary";
 import * as PSM from "./psm-vocabulary";
@@ -73,6 +74,9 @@ export async function loadFromEntity(
   if (types.includes(PSM.PART)) {
     await loadPsmPart(source, known, entitySource, PsmPart.as(result));
   }
+  if (types.includes(PSM.INCLUDES)) {
+    await loadPsmIncludes(source, known, entitySource, PsmIncludes.as(result));
+  }
   return result;
 }
 
@@ -83,6 +87,8 @@ async function loadPimSchema(
   await loadPimBase(source, known, entitySource, pimSchema);
   pimSchema.pimHumanLabel = await loadLanguageString(
     entitySource, PIM.HAS_HUMAN_LABEL);
+  pimSchema.pimHumanDescription = await loadLanguageString(
+    entitySource, PIM.HAS_HUMAN_DESCRIPTION);
   for (const {entity} of await entitySource.entitiesExtended(PIM.HAS_PART)) {
     pimSchema.pimParts.push(entity.id);
     if (known[entity.id] == undefined) {
@@ -109,17 +115,17 @@ async function loadPimBase(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   resource: PimBase
 ) {
+  const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
+  if (interpretation !== undefined) {
+    resource.pimInterpretation = interpretation.id;
+    await loadFromEntity(source, known, interpretation);
+  }
   resource.pimTechnicalLabel =
     (await entitySource.literal(PIM.HAS_TECHNICAL_LABEL))?.value as string;
   resource.pimHumanLabel = await loadLanguageString(
     entitySource, PIM.HAS_HUMAN_LABEL);
   resource.pimHumanDescription = await loadLanguageString(
     entitySource, PIM.HAS_HUMAN_DESCRIPTION);
-  const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
-  if (interpretation !== undefined) {
-    resource.pimInterpretation = interpretation.id;
-    await loadFromEntity(source, known, interpretation);
-  }
 }
 
 async function loadPimClass(
@@ -127,6 +133,7 @@ async function loadPimClass(
   pimClass: PimClass
 ) {
   await loadPimBase(source, known, entitySource, pimClass);
+  pimClass.pimIsa = (await entitySource.entity(PIM.HAS_ISA))?.id;
 }
 
 async function loadPimAttribute(
@@ -134,13 +141,13 @@ async function loadPimAttribute(
   pimAttribute: PimAttribute
 ) {
   await loadPimBase(source, known, entitySource, pimAttribute);
-  pimAttribute.pimDatatype =
-    (await entitySource.entity(PIM.HAS_DATA_TYPE))?.id;
   const classEntity = (await entitySource.entity(PIM.HAS_CLASS));
   if (classEntity) {
     pimAttribute.pimHasClass = classEntity.id;
     await loadFromEntity(source, known, classEntity);
   }
+  pimAttribute.pimDatatype =
+    (await entitySource.entity(PIM.HAS_DATA_TYPE))?.id;
 }
 
 async function loadPimAssociation(
@@ -173,6 +180,10 @@ async function loadPsmSchema(
 ) {
   psmSchema.psmHumanLabel = await loadLanguageString(
     entitySource, PSM.HAS_HUMAN_LABEL);
+  psmSchema.psmHumanDescription = await loadLanguageString(
+    entitySource, PSM.HAS_HUMAN_DESCRIPTION);
+  psmSchema.psmTechnicalLabel =
+    (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_ROOT)) {
     psmSchema.psmRoots.push(entity.id);
     await loadFromEntity(source, known, entity);
@@ -200,31 +211,31 @@ async function loadPsmClass(
   psmClass: PsmClass
 ) {
   await loadPsmBase(source, known, entitySource, psmClass);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_EXTENDS)) {
+    psmClass.psmExtends.push(entity.id);
+    await loadFromEntity(source, known, entity);
+  }
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmClass.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity, PSM.PART)
+  }
 }
 
 async function loadPsmBase(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmBase: PsmBase
 ) {
+  const interpretation = (await entitySource.entity(PSM.HAS_INTERPRETATION));
+  if (interpretation !== undefined) {
+    psmBase.psmInterpretation = interpretation.id;
+    await loadFromEntity(source, known, interpretation);
+  }
   psmBase.psmTechnicalLabel =
     (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
   psmBase.psmHumanLabel = await loadLanguageString(
     entitySource, PSM.HAS_HUMAN_LABEL);
   psmBase.psmHumanDescription = await loadLanguageString(
     entitySource, PSM.HAS_HUMAN_DESCRIPTION);
-  const interpretation = (await entitySource.entity(PSM.HAS_INTERPRETATION));
-  if (interpretation !== undefined) {
-    psmBase.psmInterpretation = interpretation.id;
-    await loadFromEntity(source, known, interpretation);
-  }
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_EXTENDS)) {
-    psmBase.psmExtends.push(entity.id);
-    await loadFromEntity(source, known, entity);
-  }
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
-    psmBase.psmParts.push(entity.id);
-    await loadFromEntity(source, known, entity, PSM.PART)
-  }
 }
 
 async function loadPsmChoice(
@@ -232,6 +243,10 @@ async function loadPsmChoice(
   psmChoice: PsmChoice
 ) {
   await loadPsmBase(source, known, entitySource, psmChoice);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmChoice.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity, PSM.PART)
+  }
 }
 
 async function loadPsmExtendedBy(
@@ -239,6 +254,10 @@ async function loadPsmExtendedBy(
   psmExtendedBy: PsmExtendedBy
 ) {
   await loadPsmBase(source, known, entitySource, psmExtendedBy);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmExtendedBy.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity, PSM.PART)
+  }
 }
 
 async function loadPsmPart(
@@ -246,4 +265,16 @@ async function loadPsmPart(
   psmPart: PsmPart
 ) {
   await loadPsmBase(source, known, entitySource, psmPart);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmPart.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity, PSM.PART)
+  }
+}
+
+async function loadPsmIncludes(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  psmIncludes: PsmIncludes
+) {
+  psmIncludes.psmIncludes =
+    (await entitySource.entity(PSM.HAS_INCLUDES))?.id;
 }

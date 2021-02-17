@@ -1,5 +1,6 @@
 //
 // Allow user to read RDF resource and navigate between them.
+// The API is focused on retrieving information about single resource.
 //
 
 export enum RdfValueType {
@@ -86,20 +87,5 @@ export class RdfLiteral extends RdfBaseValue {
     this.type = type;
     this.language = language;
   }
-
-}
-
-export interface StatementSource {
-
-  /**
-   * Fetch and return all values for given predicate fro this source.
-   * Does NOT save the result into the entity.
-   */
-  properties(entity: RdfEntity, predicate: string): Promise<RdfBaseValue[]>;
-
-  /**
-   * Fetch and save all information available about given entity.
-   */
-  fetch(entity: RdfEntity): Promise<void>;
 
 }

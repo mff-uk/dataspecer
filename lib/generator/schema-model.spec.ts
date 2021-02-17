@@ -1,14 +1,14 @@
-import {FederatedSource} from "../rdf/statement/federated-source";
-import {JsonldSource} from "../rdf/statement/jsonld-source";
+import {FederatedSource} from "../rdf/federated-source";
+import {JsonldSource} from "../rdf/jsonld-source";
 import {loadFromIri} from "../platform-model/platform-model-adapter";
 import {loadSchemaFromEntities} from "./schema-model-adapter";
 import {writeFileSync} from "fs";
 
 async function loadFromTestSources(iri) {
   const source = FederatedSource.create([
-    await JsonldSource.create("file://test/ofn-psm.ttl"),
-    await JsonldSource.create("file://test/ofn-pim.ttl"),
-    await JsonldSource.create("file://test/ofn-cim.ttl"),
+    await JsonldSource.create("file://test/00/ofn-psm.ttl"),
+    await JsonldSource.create("file://test/00/ofn-pim.ttl"),
+    await JsonldSource.create("file://test/00/ofn-cim.ttl"),
   ]);
   const entities = {};
   const entity = await loadFromIri(source, entities, iri);
@@ -82,7 +82,6 @@ test("Load časový-okamžik.", async () => {
   writeJson(actual, "./temp/časový-okamžik.schema.json");
 });
 
-
 async function writeJson(content: any, path: string) {
   writeFileSync(path, stringify(content));
 }
@@ -141,4 +140,37 @@ test("Load veřejné-místo.", async () => {
     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
   logJson(actual);
   writeJson(actual, "./temp/veřejné-místo.schema.json");
+});
+
+test("Load orgány-veřejné-moci.", async () => {
+  const source = FederatedSource.create([
+    // await JsonldSource.create("file://test/01/pim-ofn-číselníky.ttl"),
+    // await JsonldSource.create("file://test/01/pim-orgány-veřejné-moci.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/01/pim-rpp-datové-schránky.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-orgány-veřejné-moci.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-osoby-právní-forma.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-pracoviště.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-ustanovení-právních-předpisů.ttl"),
+    // await JsonldSource.create("file://test/01/pim-rpp-zařazení-do-kategorií.ttl"),
+    // await JsonldSource.create("file://test/01/pim-ustanovení-právních-předpisů.ttl"),
+    // await JsonldSource.create("file://test/01/psm-ofn-číselníky.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/01/psm-rpp-datové-schránky.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-orgány-veřejné-moci.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-osoba-právní-forma.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-pracoviště.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-ustanovení-právních-předpisů.ttl"),
+    // await JsonldSource.create("file://test/01/psm-rpp-zařazení-do-kategorií.ttl"),
+  ]);
+  const entities = {};
+  const entity = await loadFromIri(
+    source, entities,
+    // "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci"
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky"
+  );
+  console.log(entities);
+  const actual = loadSchemaFromEntities(entities, entity.id);
+  // writeJson(actual, "./temp/orgány-veřejné-moci.json");
+  console.log(JSON.stringify(actual, null, 2));
 });

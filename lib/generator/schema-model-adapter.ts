@@ -8,7 +8,8 @@ import {
   PimAssociation,
   PimClass,
   PsmChoice,
-  PsmExtendedBy
+  PsmExtendedBy,
+  PsmIncludes,
 } from "../platform-model/platform-model";
 import {
   ClassData,

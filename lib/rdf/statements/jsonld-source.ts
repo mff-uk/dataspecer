@@ -1,11 +1,11 @@
 import {
   RdfEntity,
-  StatementSource,
   RdfBaseValue,
   RdfBlankNode,
   RdfNamedNode,
   RdfLiteral,
-} from "./statement-api";
+} from "../rdf-api";
+import {StatementSource} from "./statements-api";
 import {JsonLdEntity} from "../jsonld/jsonld-types";
 import {fetchJsonLd} from "../jsonld/jsonld-adapter";
 
@@ -21,6 +21,7 @@ const RDF_NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 
 const HAS_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
+
 /**
  * Internally store RDF as JSON-LD with expanded keywords: @type, @list.
  */
@@ -34,16 +35,16 @@ export class JsonldSource implements StatementSource {
 
   static async create(url: string): Promise<JsonldSource> {
     const content = await fetchJsonLd(url);
-    return JsonldSource.wrapEntities(content);
+    return JsonldSource.wrapEntities(content, url);
   }
 
-  static wrapEntities(content: JsonLdEntity[]) {
+  static wrapEntities(content: JsonLdEntity[], url: string) {
+    updateJsonLdEntities(content);
+    sanitizeBlankNodes(content, url);
     const entities = content.reduce((collector, entity) => {
-      updateJsonLdEntity(entity)
       collector[entity["@id"]] = entity;
       return collector;
     }, {});
-    unwrapJsonLdList(entities);
     return new JsonldSource(entities);
   }
 
@@ -76,10 +77,33 @@ export class JsonldSource implements StatementSource {
 
 }
 
+function jsonLdValueToQuad(value) {
+  if (value["@language"]) {
+    return new RdfLiteral(value["@value"], RDF_LANGSTRING, value["@language"]);
+  } else if (value["@id"]) {
+    if (value["@id"].startsWith("_")) {
+      return new RdfBlankNode(value["@id"]);
+    } else {
+      return new RdfNamedNode(value["@id"]);
+    }
+  } else if (value["@value"]) {
+    return new RdfLiteral(value["@value"], XSD_STRING, value["@language"]);
+  } else {
+    throw new Error("Unknown value: " + JSON.stringify(value));
+  }
+}
+
+
 /**
- * JSONLD employ some keywords, we need to get rid of them.
+ * Normalize shape of JSON-LD, all values are arrays and all references
+ * are objects with "@id".
  */
-function updateJsonLdEntity(entity) {
+function updateJsonLdEntities(entities: JsonLdEntity[]): void {
+  entities.forEach(updateJsonLdEntity);
+  unwrapJsonLdList(entities);
+}
+
+function updateJsonLdEntity(entity: JsonLdEntity): void {
   if (entity["@type"] !== undefined) {
     entity[HAS_TYPE] = entity["@type"].map((iri) => ({"@id": iri}));
     delete entity["@type"];
@@ -100,9 +124,10 @@ function isArray(value: any): boolean {
   return Array.isArray(value);
 }
 
-function unwrapJsonLdList(entities: Record<string, JsonLdEntity[]>) {
-  const newEntities: Record<string, JsonLdEntity[]> = {};
-  for (const entity of Object.values(entities)) {
+function unwrapJsonLdList(entities: JsonLdEntity[]): void {
+  // New entities are created by expanding the @list keywords.
+  const newEntities: JsonLdEntity[] = [];
+  for (const entity of entities) {
     for (const [predicate, values] of Object.entries(entity)) {
       if (predicate === "@id") {
         continue;
@@ -115,20 +140,16 @@ function unwrapJsonLdList(entities: Record<string, JsonLdEntity[]>) {
       });
     }
   }
-  for (const [key, value] of Object.entries(newEntities)) {
-    entities[key] = value;
-  }
+  // Add new entities.
+  entities.push(...newEntities);
 }
 
 function isObject(value: any): value is boolean {
   return typeof value === "object";
 }
 
-function expandList(
-  collector: Record<string, JsonLdEntity>,
-  iris: string[]
-) {
-  const iriPrefix = "_:b-list-" + Object.keys(collector).length + "-";
+function expandList(collector: JsonLdEntity[], iris: string[]) {
+  const iriPrefix = "_:b-list-" + collector.length + "-";
   let iriCounter = 0;
   let last = undefined;
   for (const iri of iris) {
@@ -141,26 +162,34 @@ function expandList(
       last[HAS_REST] = [{"@id": nextIri}];
     }
     last = next;
-    collector[nextIri] = next;
+    collector.push(next);
   }
   last[HAS_REST] = [{"@id": RDF_NIL}];
   return {"@id": iriPrefix + "0"}
 }
 
-function jsonLdValueToQuad(value) {
-  if (value["@language"]) {
-    return new RdfLiteral(value["@value"], RDF_LANGSTRING, value["@language"]);
-  } else if (value["@type"]) {
-    return new RdfLiteral(value["@value"], value["@type"], undefined);
-  } else if (value["@id"]) {
-    if (value["@id"].startsWith("_")) {
-      return new RdfBlankNode(value["@id"]);
-    } else {
-      return new RdfNamedNode(value["@id"]);
+
+/**
+ * Perform in-place update of blank nodes. As documents must not share
+ * blank nodes identifiers.
+ */
+export function sanitizeBlankNodes(
+  entities: JsonLdEntity[], baseUrl: string
+): void {
+  const sanitizeUrl = (url: string) =>
+    url.startsWith("_:") ? url + ":" + baseUrl : url;
+  for (const entity of Object.values(entities)) {
+    entity["@id"] = sanitizeUrl(entity["@id"]);
+    for (const [predicate, values] of Object.entries(entity)) {
+      if (predicate === "@id") {
+        continue;
+      }
+      entity[predicate] = values.map((value) => {
+        if (isObject(value) && value["@id"] !== undefined) {
+          value["@id"] = sanitizeUrl(value["@id"]);
+        }
+        return value;
+      });
     }
-  } else if (value["@value"]) {
-    return new RdfLiteral(value["@value"], XSD_STRING, value["@language"]);
-  } else {
-    throw new Error("Unknown value: " + JSON.stringify(value));
   }
 }

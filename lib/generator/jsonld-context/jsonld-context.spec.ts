@@ -1,11 +1,11 @@
-import {FederatedSource} from "../rdf/statement/federated-source";
-import {JsonldSource} from "../rdf/statement/jsonld-source";
-import {loadFromIri} from "../platform-model/platform-model-adapter";
+import {FederatedSource} from "../../rdf/statement/federated-source";
+import {JsonldSource} from "../../rdf/statement/jsonld-source";
+import {loadFromIri} from "../../platform-model/platform-model-adapter";
 import {
   JsonldContextGeneratorOptions,
   generateJsonLdContext
 } from "./jsonld-context";
-import fetchUrl from "../rdf/rdf-fetch";
+import fetchUrl from "../../rdf/rdf-fetch";
 
 async function generateFromTestSources(iri, options) {
   const source = FederatedSource.create([

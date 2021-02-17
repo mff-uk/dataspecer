@@ -8,6 +8,8 @@ export const HAS_INTERPRETATION = PSM + "hasInterpretation";
 
 export const HAS_EXTENDS = PSM + "extends";
 
+export const HAS_INCLUDES = PSM + "includes";
+
 export const HAS_EXTEND_BY = PSM + "extendedBy";
 
 export const HAS_CHOICE = PSM + "choice";
@@ -17,6 +19,8 @@ export const SCHEMA = PSM + "Schema";
 export const CLASS = PSM + "Class";
 
 export const PART = PSM + "Part";
+
+export const INCLUDES = PSM + "Includes";
 
 const DCTERMS = "http://purl.org/dc/terms/";
 

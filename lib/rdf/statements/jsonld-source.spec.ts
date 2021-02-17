@@ -1,4 +1,4 @@
-import {RdfEntity} from "./statement-api";
+import {RdfEntity} from "./rdf-api";
 import {JsonldSource} from "./jsonld-source";
 
 test("Load from remote url.", async () => {
@@ -16,14 +16,7 @@ test("Load from remote url.", async () => {
 });
 
 test("Expand JSON-LD @list.", async () => {
-  const actual = JsonldSource.wrapEntities([
-    {
-      "@id": "urn:1",
-      "urn:values": {
-        "@list":[{"@id":"urn:2"},{"@id":"urn:3"},{"@id":"urn:4"}]
-      }
-    }
-  ]);
+  const actual = await JsonldSource.create("file://test/rdf/00.jsonld");
   // The list should be transformed to root entities.
   expect(Object.keys(actual.entities).length).toBe(4);
 })
