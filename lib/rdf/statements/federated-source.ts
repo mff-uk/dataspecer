@@ -1,7 +1,6 @@
-import {RdfBaseValue, RdfEntity} from "../rdf-api";
+import {RdfBaseValue, RdfBlankNode, RdfEntity, RdfNamedNode} from "../rdf-api";
 import {StatementSource} from "./statements-api";
 
-// TODO Do not load all resources.
 export class FederatedSource implements StatementSource {
 
   private readonly sources: StatementSource [];
@@ -28,11 +27,22 @@ export class FederatedSource implements StatementSource {
     return Promise.resolve(undefined);
   }
 
-  async properties(entity: RdfEntity, predicate: string
+  async properties(
+    entity: RdfEntity, predicate: string
   ): Promise<RdfBaseValue[]> {
     const result: RdfBaseValue[] = [];
     for (const source of this.sources) {
       addValues(result, await source.properties(entity, predicate));
+    }
+    return Promise.resolve(result);
+  }
+
+  async reverseProperties(
+    predicate: string, url: string
+  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    const result: (RdfBlankNode | RdfNamedNode)[] = [];
+    for (const source of this.sources) {
+      addValues(result, await source.reverseProperties(predicate, url));
     }
     return Promise.resolve(result);
   }

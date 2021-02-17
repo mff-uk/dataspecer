@@ -2,6 +2,7 @@ import {
   RdfEntity,
   RdfBaseValue,
   RdfBlankNode,
+  RdfNamedNode,
 } from "../rdf-api";
 import {StatementSource} from "./statements-api";
 import fetch from "../rdf-fetch";
@@ -20,7 +21,7 @@ export class SparqlSource implements StatementSource {
   }
 
   async fetch(entity: RdfEntity): Promise<void> {
-    throw Error("TODO");
+    throw Error("Not implemented!");
   }
 
   async properties(entity: RdfEntity, predicate: string
@@ -44,6 +45,12 @@ export class SparqlSource implements StatementSource {
       }
       return item.object;
     }));
+  }
+
+  reverseProperties(
+    predicate: string, iri: string
+  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    throw Error("Not implemented!");
   }
 
 }

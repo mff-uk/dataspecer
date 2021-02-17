@@ -5,7 +5,6 @@ import {
 } from "../schema-model";
 import {
   FormalOpenSpecification,
-  FosPropertyType,
   FosEntity,
   FosExample,
   FosMetadata,
@@ -13,6 +12,7 @@ import {
   FosProperty,
   FosReference,
   FosSpecification,
+  FosTypeReference,
 } from "./fos-model";
 
 const BASE_TYPE_NAMES = {
@@ -35,13 +35,64 @@ export function schemaAsFormalOpenSpecification(
   schema: SchemaData
 ): FormalOpenSpecification {
   const context = new AdapterContext(schema);
+  const allRoots = selectRootClasses(schema);
+  setSchemaToClasses(schema, allRoots);
   return {
+    "url": schema.fos,
     "metadata": loadFosMetadata(context),
     "overview": loadFosOverview(context),
-    "specification": loadFosSpecification(context),
+    "specification": loadFosSpecification(context, allRoots),
     "examples": loadFosExample(context),
     "references": loadFosReference(context),
   };
+}
+
+/**
+ * The schema contains root class as specified by the schema, but
+ * we also need to add classes without schema.
+ */
+function selectRootClasses(schema: SchemaData): ClassData [] {
+  let roots: Record<string, ClassData> = {};
+  for (const classData of schema.roots) {
+    roots = {
+      ...roots,
+      [classData.iri]: classData,
+      ...collectClassesWithoutSchema(classData)
+    };
+  }
+  return Object.values(roots);
+}
+
+/**
+ * Search recursively class for all classes without schema.
+ */
+function collectClassesWithoutSchema(
+  classData: ClassData
+): Record<string, ClassData> {
+  let result = {};
+  for (const property of classData.properties) {
+    for (const propertyClass of property.dataTypeClass) {
+      if (propertyClass.schema !== undefined) {
+        // We have schema so no need to check any further.
+        continue;
+      }
+      result = {
+        ...result,
+        [propertyClass.iri]: propertyClass,
+        ...collectClassesWithoutSchema(propertyClass)
+      };
+    }
+  }
+  return result;
+}
+
+/**
+ * Set given schema as the schema for all given classes.
+ */
+function setSchemaToClasses(schema: SchemaData, classes: ClassData []) {
+  for (const classData of classes) {
+    classData.schema = schema;
+  }
 }
 
 function loadFosMetadata(context: AdapterContext): FosMetadata {
@@ -53,136 +104,133 @@ function loadFosMetadata(context: AdapterContext): FosMetadata {
 function selectString(
   context: AdapterContext, str: Record<string, string> | undefined
 ): string {
-  if (str === undefined) {
+  if (str === undefined || str === null) {
     return "";
   }
   if (str[""] !== undefined) {
     return str[""];
   }
-  for (const [language, value] of Object.entries(str)) {
+  for (const value of Object.values(str)) {
     return value;
   }
 }
 
 function loadFosOverview(context: AdapterContext): FosOverview {
-  return {};
+  return new FosOverview();
 }
 
-function loadFosSpecification(context: AdapterContext): FosSpecification {
-  const entities = []
-  for (const classData of context.schema.roots) {
-    entities.push(...convertClassData(context, classData));
-  }
+function loadFosSpecification(
+  context: AdapterContext, roots: ClassData []
+): FosSpecification {
   return {
-    "entities": entities,
+    "entities": roots.map(classData =>
+      loadFosSpecificationClassData(context, classData)),
   };
 }
 
-function convertClassData(
+function loadFosSpecificationClassData(
   context: AdapterContext, classData: ClassData
-): FosEntity[] {
-  if (classData.isClassSimpleData()) {
-    return convertClassSimpleData(context, classData);
-  }
-  if (classData.isClassNodeData()) {
-    return convertClassNodeData(context, classData);
-  }
-  throw new Error("");
-}
-
-function convertClassSimpleData(
-  context: AdapterContext, classData: ClassSimpleData
-): FosEntity[] {
-  return [{
+): FosEntity {
+  return {
     "humanLabel": selectString(context, classData.humanLabel),
-    "humanDescription": "",
-    "properties": Object.values(collectProperties(context, classData)),
-  }];
+    "humanDescription": selectString(context, classData.humanDescription),
+    "relativeLink": createClassDataRelativeLink(context, classData),
+    "properties": loadClassDataProperties(context, classData),
+  };
 }
 
-function collectProperties(
-  context: AdapterContext, classData: ClassSimpleData
-): Record<string, FosProperty> {
+function createClassDataRelativeLink(
+  context: AdapterContext, classData: ClassData
+): string {
+  return selectString(context, classData.humanLabel)
+    .toLowerCase()
+    .replace(" ", "-");
+}
+
+function loadClassDataProperties(
+  context: AdapterContext, classData: ClassData
+): FosProperty[] {
   let result = {};
   for (const extendedClass of classData.extends) {
-    if (extendedClass.isClassSimpleData()) {
-      result = {
-        ...result,
-        ...collectProperties(context, extendedClass),
-      };
+    for (const property of loadClassDataProperties(context, extendedClass)) {
+      result[property.technicalLabel] = property;
     }
-    throw new Error("Extending a non simple class is not supported.");
   }
   for (const property of classData.properties) {
     const propertyData = convertPropertyData(context, property);
     result[propertyData.technicalLabel] = propertyData;
   }
-  return result;
+  return Object.values(result);
 }
 
 function convertPropertyData(
   context: AdapterContext, propertyData: PropertyData,
 ): FosProperty {
-  const result = {
-    "propertyType": FosPropertyType.Association,
-    "technicalLabel": propertyData.technicalLabel,
-    "humanLabel": selectString(context, propertyData.humanLabel),
-    "description": selectString(context, propertyData.humanDescription),
-    // Loaded bellow.
-    "typeLabel": "",
-    "typeValue": "",
-    "examples": [],
+  const result = new FosProperty();
+  result.technicalLabel = propertyData.technicalLabel;
+  result.humanLabel = selectString(context, propertyData.humanLabel);
+  result.humanDescription =
+    selectString(context, propertyData.humanDescription);
+  result.examples = [];
+  result.relativeLink = createPropertyRelativeLink(context, propertyData);
+  //
+  if (propertyData.datatype !== undefined) {
+    result.type.push(convertPropertyType(context, propertyData));
+  }
+  for (const classData of propertyData.dataTypeClass) {
+    result.type.push(convertPropertyTypeClass(context, classData));
+  }
+  if (result.type.length === 0) {
+    throw new Error(`Missing data type for ${propertyData.id}`);
+  }
+  return result;
+}
+
+
+function createPropertyRelativeLink(
+  context: AdapterContext, propertyData: PropertyData
+): string {
+  return selectString(context, propertyData.humanLabel).toLowerCase();
+}
+
+function convertPropertyType(
+  context: AdapterContext, propertyData: PropertyData
+): FosTypeReference {
+  return {
+    "isPrimitive": true,
+    "label": selectString(context, BASE_TYPE_NAMES[propertyData.datatype])
+      || propertyData.datatype,
+    "schemaLink": propertyData.datatype,
+    "relativeLink": "",
   };
-  if (propertyData.dataTypeSchema.length === 1) {
+}
+
+function convertPropertyTypeClass(
+  context: AdapterContext, classData: ClassData
+): FosTypeReference {
+  const label = selectString(context, classData.humanLabel) || classData.id;
+  if (classData.isCodelist) {
     return {
-      ...result,
-      ...convertTypeSchema(context, propertyData.dataTypeSchema[0]),
+      "isPrimitive": false,
+      "label": label,
+      // TODO Generate link ..
+      "schemaLink": "http://example/",
+      "relativeLink": "",
     };
-  } else if (propertyData.dataTypeSchema.length > 1) {
+  }
+  if (classData.schema === undefined) {
     throw new Error(
-      `Multiple schemas detected for '${propertyData.technicalLabel}'`
-    );
-  } else if (propertyData.dataTypeClass.length === 1) {
-    throw new Error(
-      `Class not supported for '${propertyData.technicalLabel}'`);
-  } else if (propertyData.dataTypeClass.length > 1) {
-    throw new Error(
-      `Multiple classes detected for '${propertyData.technicalLabel}'`
-    );
-  } else if (propertyData.datatype !== undefined) {
-    return {
-      ...result,
-      ...convertDataType(context, propertyData),
-    };
-  } else {
-    throw new Error(
-      `Missing data type for '${propertyData.technicalLabel}'`
+      "Use of class '"
+      + classData.id
+      + "' without schema is not supported"
     );
   }
-}
-
-function convertTypeSchema(context: AdapterContext, schemaData: SchemaData) {
   return {
-    "propertyType": FosPropertyType.Association,
-    "typeValue": schemaData.fos,
-    "typeLabel": selectString(context, schemaData.humanLabel),
+    "isPrimitive": false,
+    "label": label,
+    "schemaLink": classData.schema.fos,
+    "relativeLink": createClassDataRelativeLink(context, classData),
   };
-}
-
-function convertDataType(context: AdapterContext, propertyData: PropertyData) {
-  return {
-    "propertyType": FosPropertyType.Attribute,
-    "typeLabel":
-      selectString(context, BASE_TYPE_NAMES[propertyData.datatype])
-      || propertyData.datatype,
-    "typeValue": propertyData.datatype,
-  };
-}
-
-function convertClassNodeData(
-  context: AdapterContext, classData: ClassNodeData
-): FosEntity[] {
-  throw new Error("Class node is not supported!");
 }
 
 function loadFosExample(context: AdapterContext): FosExample[] {
@@ -190,5 +238,5 @@ function loadFosExample(context: AdapterContext): FosExample[] {
 }
 
 function loadFosReference(context: AdapterContext): FosReference {
-  return {};
+  return new FosReference();
 }

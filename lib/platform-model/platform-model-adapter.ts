@@ -1,4 +1,5 @@
-import {RdfEntity, StatementSource} from "../rdf/rdf-api";
+import {RdfEntity} from "../rdf/rdf-api";
+import {StatementSource} from "../rdf/statements/statements-api";
 import {EntitySource} from "../rdf/entity-source";
 import {
   ModelResource,
@@ -7,17 +8,18 @@ import {
   PimClass,
   PimAttribute,
   PimAssociation,
-  PimReference,
+  PimAssociationEnd,
   PsmSchema,
   PsmBase,
   PsmClass,
   PsmPart,
   PsmChoice,
-  PsmExtendedBy,
   PsmIncludes,
+  CimEntity,
 } from "./platform-model";
-import * as PIM from "./pim-vocabulary";
 import * as PSM from "./psm-vocabulary";
+import * as PIM from "./pim-vocabulary";
+import * as CIM from "./cim-vocabulary";
 
 type ResourceMap = Record<string, ModelResource>;
 
@@ -27,6 +29,10 @@ export function loadFromIri(
   return loadFromEntity(source, known, RdfEntity.create(iri));
 }
 
+/**
+ * When called for already loaded entity, just return the value. This
+ * allows for easy loading of cycles.
+ */
 export async function loadFromEntity(
   source: StatementSource, known: ResourceMap, entity: RdfEntity,
   suggestedType?: string
@@ -67,15 +73,14 @@ export async function loadFromEntity(
     await loadPsmChoice(
       source, known, entitySource, PsmChoice.as(result));
   }
-  if (types.includes(PSM.EXTENDED_BY)) {
-    await loadPsmExtendedBy(
-      source, known, entitySource, PsmExtendedBy.as(result));
-  }
   if (types.includes(PSM.PART)) {
     await loadPsmPart(source, known, entitySource, PsmPart.as(result));
   }
   if (types.includes(PSM.INCLUDES)) {
     await loadPsmIncludes(source, known, entitySource, PsmIncludes.as(result));
+  }
+  if (types.includes(CIM.ENTITY)) {
+    await loadCimEntity(source, known, entitySource, CimEntity.as(result));
   }
   return result;
 }
@@ -118,7 +123,7 @@ async function loadPimBase(
   const interpretation = (await entitySource.entity(PIM.HAS_INTERPRETATION));
   if (interpretation !== undefined) {
     resource.pimInterpretation = interpretation.id;
-    await loadFromEntity(source, known, interpretation);
+    await loadFromEntity(source, known, interpretation, CIM.ENTITY);
   }
   resource.pimTechnicalLabel =
     (await entitySource.literal(PIM.HAS_TECHNICAL_LABEL))?.value as string;
@@ -168,8 +173,8 @@ async function loadPimAssociation(
 }
 
 async function loadPimReference(entitySource: EntitySource
-): Promise<PimReference> {
-  const result = new PimReference();
+): Promise<PimAssociationEnd> {
+  const result = new PimAssociationEnd();
   result.pimParticipant = (await entitySource.entity(PIM.HAS_PARTICIPANT))?.id;
   return result;
 }
@@ -186,10 +191,6 @@ async function loadPsmSchema(
     (await entitySource.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_ROOT)) {
     psmSchema.psmRoots.push(entity.id);
-    await loadFromEntity(source, known, entity);
-  }
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_IMPORT)) {
-    psmSchema.psmImports.push(entity.id);
     await loadFromEntity(source, known, entity);
   }
   psmSchema.psmJsonLdContext =
@@ -249,17 +250,6 @@ async function loadPsmChoice(
   }
 }
 
-async function loadPsmExtendedBy(
-  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
-  psmExtendedBy: PsmExtendedBy
-) {
-  await loadPsmBase(source, known, entitySource, psmExtendedBy);
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
-    psmExtendedBy.psmParts.push(entity.id);
-    await loadFromEntity(source, known, entity, PSM.PART)
-  }
-}
-
 async function loadPsmPart(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmPart: PsmPart
@@ -275,6 +265,18 @@ async function loadPsmIncludes(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmIncludes: PsmIncludes
 ) {
+  await loadPsmBase(source, known, entitySource, psmIncludes);
   psmIncludes.psmIncludes =
     (await entitySource.entity(PSM.HAS_INCLUDES))?.id;
+}
+
+async function loadCimEntity(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  cimEntity: CimEntity
+) {
+  cimEntity.cimHumanLabel = await loadLanguageString(
+    entitySource, CIM.HAS_HUMAN_LABEL);
+  cimEntity.cimHumanDescription = await loadLanguageString(
+    entitySource, CIM.HAS_HUMAN_DESCRIPTION);
+  cimEntity.cimIsCodelist = cimEntity.rdfTypes.includes(CIM.CODELIST);
 }

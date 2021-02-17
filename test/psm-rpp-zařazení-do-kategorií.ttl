@@ -1,0 +1,57 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix psm: <https://ofn.gov.cz/slovník/psm/> .
+
+@prefix pimzk: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/zařazení-do-kategorií/uzel/> .
+
+@prefix psmzk: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií/uzel/> .
+
+<https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií> a psm:Schema ;
+    psm:technicalLabel "rpp-zařazení-do-kategorií" ;
+    dcterms:title "Datová struktura zařazení do kategorií"@cs ;
+    dcterms:description "Platformově specifický model datové struktury pro reprezentaci zařazení orgánů veřejné moci a soukromoprávních uživatelů údajů do kategorií v datových sadách z registru práv a povinností"@cs ;
+    psm:hasRoot psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů .
+
+psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů a psm:Class ;
+    psm:hasInterpretation pimzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů ;
+    dcterms:hasPart psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů-obsah .
+
+psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů-obsah a rdf:List ;
+    rdf:first
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimzk:má-zařazený-subjekt ; # Zde je nutno pracovat s dědičností, protože rodičova PIM interpretace je orgán-veřejné-moci, který ale nemá zařazení-do-kategorie definováno přímo - dědí jej od orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů
+            psm:technicalLabel "seznam-kategorií" ;
+            dcterms:hasPart (
+                [
+                    a psm:Class ;
+                    psm:hasInterpretation pimzk:zařazení-do-kategorie ;
+                    dcterms:hasPart (
+                        [
+                            a psm:Association ;
+                            psm:hasInterpretation pimzk:zařazuje-do-kategorie ;
+                            psm:technicalLabel "kategorie" ;
+                            dcterms:hasPart (
+                                [
+                                    a psm:Class ;
+                                    psm:hasInterpretation pimzk:kategorie
+                                ]
+                            )
+                        ]
+                        [
+                            a psm:Attribute ;
+                            psm:hasInterpretation pimzk:má-datum-zařazení-do-kategorie ;
+                            psm:technicalLabel "zařazení-od"
+                        ]
+                        [
+                            a psm:Attribute ;
+                            psm:hasInterpretation pimzk:má-datum-vyřazení-z-kategorie ;
+                            psm:technicalLabel "zařazení-do"
+                        ]
+                    )
+                ]
+            )
+        ] ;
+    rdf:rest () .

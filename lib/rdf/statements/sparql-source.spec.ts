@@ -1,5 +1,5 @@
 import {SparqlSource} from "./sparql-source";
-import {RdfEntity} from "./rdf-api";
+import {RdfEntity} from "../rdf-api";
 
 test("Load from SPARQL.", async () => {
   const endpoint = "https://slovník.gov.cz/sparql";

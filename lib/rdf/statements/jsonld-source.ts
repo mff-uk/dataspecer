@@ -75,18 +75,37 @@ export class JsonldSource implements StatementSource {
     return Promise.resolve(result);
   }
 
+  reverseProperties(
+    predicate: string, iri: string
+  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    const result = [];
+    for (const jsonld of Object.values(this.entities)) {
+      const values = jsonld[predicate];
+      if (values === undefined) {
+        continue;
+      }
+      for (const value of values) {
+        if (isObject(value) && value["@id"] === iri) {
+          // We need reference to the jsonld object.
+          result.push(jsonLdValueToQuad({"@id": jsonld["@id"]}));
+          break;
+        }
+      }
+    }
+    return Promise.resolve(result);
+  }
 }
 
 function jsonLdValueToQuad(value) {
-  if (value["@language"]) {
+  if (value["@language"] !== undefined) {
     return new RdfLiteral(value["@value"], RDF_LANGSTRING, value["@language"]);
-  } else if (value["@id"]) {
+  } else if (value["@id"] !== undefined) {
     if (value["@id"].startsWith("_")) {
       return new RdfBlankNode(value["@id"]);
     } else {
       return new RdfNamedNode(value["@id"]);
     }
-  } else if (value["@value"]) {
+  } else if (value["@value"] !== undefined) {
     return new RdfLiteral(value["@value"], XSD_STRING, value["@language"]);
   } else {
     throw new Error("Unknown value: " + JSON.stringify(value));
@@ -167,7 +186,6 @@ function expandList(collector: JsonLdEntity[], iris: string[]) {
   last[HAS_REST] = [{"@id": RDF_NIL}];
   return {"@id": iriPrefix + "0"}
 }
-
 
 /**
  * Perform in-place update of blank nodes. As documents must not share

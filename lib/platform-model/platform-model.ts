@@ -34,6 +34,7 @@ export enum ModelResourceType {
   PsmExtendedBy = "psm-extended-by",
   PsmPart = "psm-part",
   PsmIncludes = "prm-includes",
+  CimEntity = "cim-entity",
 }
 
 export class PimSchema extends ModelResource {
@@ -94,7 +95,9 @@ export class PimClass extends PimBase {
 
 export class PimAttribute extends PimBase {
 
-  // pim:hasClass
+  /**
+   * Owner class.
+   */
   pimHasClass?: string;
 
   // pim:hasDatatype
@@ -112,11 +115,12 @@ export class PimAttribute extends PimBase {
 
 export class PimAssociation extends PimBase {
 
-  // pim:hasClass
+  /**
+   * Owner class.
+   */
   pimHasClass?: string;
 
-  // pim:hasEnd
-  pimEnd: PimReference[] = [];
+  pimEnd: PimAssociationEnd[] = [];
 
   static as(resource: ModelResource): PimAssociation {
     if (resource.types.includes(ModelResourceType.PimAssociation)) {
@@ -130,7 +134,7 @@ export class PimAssociation extends PimBase {
 
 }
 
-export class PimReference {
+export class PimAssociationEnd {
 
   // pim:hasParticipant
   pimParticipant?: string;
@@ -174,7 +178,6 @@ export class PsmSchema extends ModelResource {
     const result = resource as PsmSchema;
     result.psmHumanLabel = result.psmHumanLabel || {};
     result.psmRoots = result.psmRoots || [];
-    result.psmImports = result.psmImports || [];
     result.psmPrefix = result.psmPrefix || {};
     return result;
   }
@@ -290,3 +293,20 @@ export class PsmIncludes extends PsmBase {
 
 }
 
+export class CimEntity extends ModelResource {
+
+  cimHumanLabel?: LanguageString;
+
+  cimHumanDescription?: LanguageString;
+
+  cimIsCodelist: boolean;
+
+  static as(resource: ModelResource): CimEntity {
+    if (resource.types.includes(ModelResourceType.CimEntity)) {
+      return resource as CimEntity;
+    }
+    resource.types.push(ModelResourceType.CimEntity);
+    return resource as CimEntity;
+  }
+
+}

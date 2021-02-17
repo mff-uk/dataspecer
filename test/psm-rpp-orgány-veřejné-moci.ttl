@@ -1,0 +1,160 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix psm: <https://ofn.gov.cz/slovník/psm/> .
+
+@prefix pimovm: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/orgány-veřené-moci/uzel/> .
+@prefix pimds: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/datové-schránky/uzel/> .
+@prefix pimprac: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/pracoviště/uzel/> .
+@prefix pimam: <https://ofn.gov.cz/zdroj/pim/schéma/registr-práv-a-povinností/adresní-místa/uzel/> .
+
+@prefix psmovm: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřené-moci/uzel/> .
+@prefix psmds: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky/uzel/> .
+@prefix psmprac: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/pracoviště/uzel/> .
+@prefix psmam: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa/uzel/> .
+@prefix psmopf: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/osoby-právní-forma/uzel/> .
+@prefix psmupp: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů/uzel/> .
+@prefix psmzk: <https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií/uzel/> .
+
+# z tohoto PSM má vypadnout:
+# JSON schema https://ofn.gov.cz/registr-práv-a-povinností/orgány-veřejné-moci/2021-01-12/orgány-veřejné-moci.schema.json
+# OFN https://ofn.gov.cz/registr-práv-a-povinností/orgány-veřejné-moci/2021-01-12/
+
+<https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci> a psm:Schema ;
+    psm:technicalLabel "rpp-orgány-veřejné-moci" ;
+    dcterms:title "Datová struktura orgánů veřejné moci"@cs ;
+    dcterms:description "Platformově specifický model datové struktury pro reprezentaci datové sady o orgánech veřejné moci z registru práv a povinností"@cs ;
+    psm:hasRoot psmovm:orgán-veřejné-moci ;
+    psm:rootTechnicalLabel "položky" . # název root jsme ještě neměli
+
+psmovm:orgán-veřejné-moci a psm:Class ;
+    psm:hasInterpretation pimovm:orgán-veřejné-moci ;
+    dcterms:hasPart psmovm:orgán-veřejné-moci-obsah .
+
+psmovm:orgán-veřejné-moci-obsah a rdf:List ;
+    rdf:first
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-identifikátor-orgánu-veřejné-moci ;
+            psm:technicalLabel "identifikátor"
+        ] ;
+    rdf:rest (
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-název-orgánu-veřejné-moci ;
+            psm:technicalLabel "název"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:je-vnitřní-organizační-jednotkou ;
+            psm:technicalLabel "vnitřní-organizační-jednotka"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-identifikační-číslo-orgánu-veřejné-moci ;
+            psm:technicalLabel "ičo"
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:má-datovou-schránku-orgánu-veřejné-moci ;
+            psm:technicalLabel "datové-schránky" ;
+            dcterms:hasPart (
+                psmds:datová-schránka
+            )
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:vykonává-působnost-na-základě-ustanovení ;
+            psm:technicalLabel "ustanovení" ;
+            dcterms:hasPart (
+                psmupp:ustanovení-právního-předpisu
+            )
+        ]
+        [
+            a psm:Includes ;
+            psm:includes psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů-obsah
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:má-adresu-místa-pobytu-orgánu-veřejné-moci ;
+            psm:technicalLabel "adresa-místa-pobytu" ;
+            dcterms:hasPart (
+                [
+                    a psm:Class ;
+                    psm:hasInterpretation pimam:adresní-místo
+                ]
+            )
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:má-adresu-sídla-orgánu-veřejné-moci ;
+            psm:technicalLabel "adresa-sídla" ;
+            dcterms:hasPart (
+                [
+                    a psm:Class ;
+                    psm:hasInterpretation pimam:adresní-místo
+                ]
+            )
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:stojí-v-čele-orgánu-veřejné-moci ;
+            psm:technicalLabel "osoba-v-čele" ;
+            dcterms:hasPart (
+                [
+                    a psm:Class ;
+                    psm:hasInterpretation pimovm:osoba-stojící-v-čele-orgánu-veřejné-moci ;
+                    dcterms:hasPart (
+                        [
+                            a psm:Attribute ;
+                            psm:hasInterpretation pimovm:má-jméno-a-příjmení-osoby-stojící-v-čele-orgánu-veřejné-moci ;
+                            psm:technicalLabel "jméno" ;
+                        ]
+                    )
+                ]
+            )
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-datum-zahájení-výkonu-působnosti-orgánu-veřejné-moci ;
+            psm:technicalLabel "zahájení-od"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-datum-ukončení-výkonu-působnosti-orgánu-veřejné-moci ;
+            psm:technicalLabel "ukončení-do"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-od ;
+            psm:technicalLabel "pozastavení-od"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-pozastavený-výkon-působnosti-orgánu-veřejné-moci-do ;
+            psm:technicalLabel "pozastavení-do"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-od ;
+            psm:technicalLabel "přerušení-od"
+        ]
+        [
+            a psm:Attribute ;
+            psm:hasInterpretation pimovm:má-přerušený-výkon-působnosti-orgánu-veřejné-moci-do ;
+            psm:technicalLabel "přerušení-do"
+        ]
+        [
+            a psm:Association ;
+            psm:hasInterpretation pimovm:má-pracoviště-vykonávající-úkon ;
+            psm:technicalLabel "pracoviště" ;
+            dcterms:hasPart (
+                psmprac:pracoviště
+            )
+        ]
+        [
+            a psm:Includes ;
+            psm:includes psmopf:osoba-obsah
+        ]
+    ) .

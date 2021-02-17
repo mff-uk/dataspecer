@@ -1,22 +1,18 @@
-import {FederatedSource} from "../rdf/federated-source";
-import {JsonldSource} from "../rdf/jsonld-source";
+import {FederatedSource} from "../rdf/statements/federated-source";
+import {JsonldSource} from "../rdf/statements/jsonld-source";
 import {loadFromIri} from "../platform-model/platform-model-adapter";
 import {loadSchemaFromEntities} from "./schema-model-adapter";
-import {writeFileSync} from "fs";
+import {writeFileSync, existsSync, mkdirSync} from "fs";
 
 async function loadFromTestSources(iri) {
   const source = FederatedSource.create([
-    await JsonldSource.create("file://test/00/ofn-psm.ttl"),
-    await JsonldSource.create("file://test/00/ofn-pim.ttl"),
-    await JsonldSource.create("file://test/00/ofn-cim.ttl"),
+    await JsonldSource.create("file://test/ofn-psm.ttl"),
+    await JsonldSource.create("file://test/ofn-pim.ttl"),
+    await JsonldSource.create("file://test/ofn-cim.ttl"),
   ]);
   const entities = {};
   const entity = await loadFromIri(source, entities, iri);
   return loadSchemaFromEntities(entities, entity.id);
-}
-
-function logJson(content) {
-  console.log(stringify(content));
 }
 
 /**
@@ -75,102 +71,95 @@ function stringify(content: any): string {
   )
 }
 
-test("Load časový-okamžik.", async () => {
+test("Load 'časový-okamžik'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
-  logJson(actual);
-  writeJson(actual, "./temp/časový-okamžik.schema.json");
+  writeJson(actual, "./test-output/schema", "časový-okamžik.json");
 });
 
-async function writeJson(content: any, path: string) {
+async function writeJson(content: any, dir: string, fileName: string) {
+  if (!existsSync(dir)){
+    mkdirSync(dir);
+  }
+  const path = dir + "/" + fileName;
   writeFileSync(path, stringify(content));
 }
 
-test("Load věc.", async () => {
+test("Load 'věc'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
-  logJson(actual);
-  writeJson(actual, "./temp/věc.schema.json");
+  writeJson(actual, "./test-output/schema", "věc.json");
 });
 
-test("Load digitální-objekt.", async () => {
+test("Load 'digitální-objekt'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
-  logJson(actual);
-  writeJson(actual, "./temp/digitální-objekt.schema.json");
+  writeJson(actual, "./test-output/schema", "digitální-objekt.json");
 });
 
-test("Load kontakt.", async () => {
+test("Load 'kontakt'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
-  logJson(actual);
-  writeJson(actual, "./temp/kontakt.schema.json");
+  writeJson(actual, "./test-output/schema", "kontakt.json");
 });
 
-test("Load člověk.", async () => {
+test("Load 'člověk'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
-  logJson(actual);
-  writeJson(actual, "./temp/člověk.schema.json");
+  writeJson(actual, "./test-output/schema", "člověk.json");
 });
 
-test("Load osoba.", async () => {
+test("Load 'osoba'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
-  logJson(actual);
-  writeJson(actual, "./temp/osoba.schema.json");
+  writeJson(actual, "./test-output/schema", "osoba.json");
 });
 
-test("Load místo.", async () => {
+test("Load 'místo'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/místo");
-  logJson(actual);
-  writeJson(actual, "./temp/místo.schema.json");
+  writeJson(actual, "./test-output/schema", "místo.json");
 });
 
-test("Load turistický-cíl.", async () => {
+test("Load 'turistický-cíl'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
-  logJson(actual);
-  writeJson(actual, "./temp/turistický-cíl.schema.json");
+  writeJson(actual, "./test-output/schema", "turistický-cíl.json");
 });
 
-test("Load veřejné-místo.", async () => {
+test("Load 'veřejné-místo'.", async () => {
   const actual = await loadFromTestSources(
     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
-  logJson(actual);
-  writeJson(actual, "./temp/veřejné-místo.schema.json");
+  writeJson(actual, "./test-output/schema", "veřejné-místo.json");
 });
 
-test("Load orgány-veřejné-moci.", async () => {
+test("Load 'orgány-veřejné-moci'.", async () => {
   const source = FederatedSource.create([
-    // await JsonldSource.create("file://test/01/pim-ofn-číselníky.ttl"),
-    // await JsonldSource.create("file://test/01/pim-orgány-veřejné-moci.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-adresní-místa.ttl"),
-    await JsonldSource.create("file://test/01/pim-rpp-datové-schránky.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-orgány-veřejné-moci.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-osoby-právní-forma.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-pracoviště.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-ustanovení-právních-předpisů.ttl"),
-    // await JsonldSource.create("file://test/01/pim-rpp-zařazení-do-kategorií.ttl"),
-    // await JsonldSource.create("file://test/01/pim-ustanovení-právních-předpisů.ttl"),
-    // await JsonldSource.create("file://test/01/psm-ofn-číselníky.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-adresní-místa.ttl"),
-    await JsonldSource.create("file://test/01/psm-rpp-datové-schránky.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-orgány-veřejné-moci.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-osoba-právní-forma.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-pracoviště.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-ustanovení-právních-předpisů.ttl"),
-    // await JsonldSource.create("file://test/01/psm-rpp-zařazení-do-kategorií.ttl"),
+    await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-datové-schránky.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-osoby-právní-forma.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-pracoviště.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/pim-rpp-zařazení-do-kategorií.ttl"),
+    await JsonldSource.create("file://test/pim-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/psm-ofn-číselníky.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-adresní-místa.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-datové-schránky.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-orgány-veřejné-moci.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-osoby-právní-forma.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-pracoviště.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-ustanovení-právních-předpisů.ttl"),
+    await JsonldSource.create("file://test/psm-rpp-zařazení-do-kategorií.ttl"),
   ]);
   const entities = {};
   const entity = await loadFromIri(
     source, entities,
-    // "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci"
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky"
   );
   console.log(entities);
-  const actual = loadSchemaFromEntities(entities, entity.id);
-  // writeJson(actual, "./temp/orgány-veřejné-moci.json");
-  console.log(JSON.stringify(actual, null, 2));
+  // const actual = loadSchemaFromEntities(entities, entity.id);
+  // writeJson(actual, "./test-output/schema", "datové-schránky.json");
 });

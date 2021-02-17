@@ -1,4 +1,4 @@
-import {RdfEntity} from "./rdf-api";
+import {RdfEntity} from "../rdf-api";
 import {JsonldSource} from "./jsonld-source";
 
 test("Load from remote url.", async () => {
@@ -13,10 +13,8 @@ test("Load from remote url.", async () => {
   expect(values.length).toBe(2);
   await source.fetch(root);
   expect(Object.keys(root.properties).length).toBe(2);
+  const reverse = await source.reverseProperties(
+    "http://www.w3.org/2004/02/skos/core#inScheme",
+    "https://data.mvcr.gov.cz/zdroj/číselníky/typy-pracovních-míst-na-vysoké-škole");
+  expect(reverse.length).toBe(10);
 });
-
-test("Expand JSON-LD @list.", async () => {
-  const actual = await JsonldSource.create("file://test/rdf/00.jsonld");
-  // The list should be transformed to root entities.
-  expect(Object.keys(actual.entities).length).toBe(4);
-})

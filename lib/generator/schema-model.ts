@@ -3,6 +3,14 @@
  */
 export class PropertyData {
 
+  /**
+   * IRI of PSM entity.
+   */
+  iri: string;
+
+  /**
+   * IRI of CIM entity.
+   */
   id: string | undefined;
 
   datatype: string | undefined;
@@ -12,11 +20,6 @@ export class PropertyData {
   humanLabel: Record<string, string> | undefined;
 
   humanDescription: Record<string, string> | undefined;
-
-  /**
-   * Reference schema that describe this type.
-   */
-  dataTypeSchema: SchemaData[] = [];
 
   /**
    * As alternative to datatype, the type can be specified as a class.
@@ -32,9 +35,6 @@ export class PropertyData {
     this.technicalLabel = this.technicalLabel || other.technicalLabel;
     this.humanLabel = this.humanLabel || other.humanLabel;
     this.humanDescription = this.humanDescription || other.humanDescription;
-    this.dataTypeSchema =
-      this.dataTypeSchema.length > 0
-        ? this.dataTypeSchema : other.dataTypeSchema;
     this.dataTypeClass =
       this.dataTypeClass.length > 0
         ? this.dataTypeClass : other.dataTypeClass;
@@ -44,6 +44,14 @@ export class PropertyData {
 
 export class ClassData {
 
+  /**
+   * IRI of PSM entity.
+   */
+  iri: string;
+
+  /**
+   * IRI of CIM entity.
+   */
   id: string | undefined;
 
   technicalLabel: string | undefined;
@@ -61,7 +69,15 @@ export class ClassData {
    */
   isCodelist: boolean = false;
 
+  /**
+   * Each class can be in at most one schema.
+   */
+  schema: SchemaData | undefined;
+
   withInterpretation(other: ClassData | undefined) {
+    if (other === undefined) {
+      return;
+    }
     this.id = other.id || this.id;
     this.technicalLabel = this.technicalLabel || other.technicalLabel;
     this.humanLabel = this.humanLabel || other.humanLabel;
@@ -93,16 +109,11 @@ export class ClassData {
 
 export class SchemaData {
 
+  iri: string;
+
   humanLabel: Record<string, string> | undefined;
 
   roots: ClassData[] = [];
-
-  prefixes: Record<string, string> = {};
-
-  /**
-   * Schemas to only reference from the output.
-   */
-  importSchema: SchemaData[] = [];
 
   /**
    * JSON-LD context location.
@@ -113,5 +124,7 @@ export class SchemaData {
    * Open format specification location.
    */
   fos: string | undefined;
+
+  prefixes: Record<string, string> = {};
 
 }
