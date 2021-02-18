@@ -54,8 +54,12 @@ pimprac:má-stát-pracoviště a pim:Association ;
         pim:hasParticipant pimprac:stát-jako-položka
     ] .
 
-pimprac:má-datum-otevření-pracoviště a pim:Association ;
-	pim:hasInterpretation asgov104:má-datum-otevření-pracoviště .
+pimprac:má-datum-otevření-pracoviště a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-datum-otevření-pracoviště ;
+    pim:hasClass pimprac:pracoviště ;
+    pim:hasDatatype xsd:date .
 
-pimprac:má-datum-uzavření-pracoviště a pim:Association ;
-	pim:hasInterpretation asgov104:má-datum-uzavření-pracoviště .
+pimprac:má-datum-uzavření-pracoviště a pim:Attribute ;
+	pim:hasInterpretation asgov104:má-datum-uzavření-pracoviště ;
+    pim:hasClass pimprac:pracoviště ;
+    pim:hasDatatype xsd:date .
