@@ -12,7 +12,8 @@ import {
   PsmSchema,
   PsmBase,
   PsmClass,
-  PsmPart,
+  PsmAttribute,
+  PsmAssociation,
   PsmChoice,
   PsmIncludes,
   CimEntity,
@@ -49,38 +50,57 @@ export async function loadFromEntity(
   if (types.length === 0 && suggestedType !== undefined) {
     types = [suggestedType];
   }
+  let entityLoaded = false;
   if (types.includes(PIM.SCHEMA)) {
     await loadPimSchema(source, known, entitySource, PimSchema.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PIM.CLASS)) {
     await loadPimClass(source, known, entitySource, PimClass.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PIM.ATTRIBUTE)) {
     await loadPimAttribute(
       source, known, entitySource, PimAttribute.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PIM.ASSOCIATION)) {
     await loadPimAssociation(
       source, known, entitySource, PimAssociation.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PSM.SCHEMA)) {
     await loadPsmSchema(source, known, entitySource, PsmSchema.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PSM.CLASS)) {
     await loadPsmClass(source, known, entitySource, PsmClass.as(result));
+    entityLoaded = true;
+  }
+  if (types.includes(PSM.ATTRIBUTE)) {
+    await loadPsmAttribute(source, known, entitySource, PsmAttribute.as(result));
+    entityLoaded = true;
+  }
+  if (types.includes(PSM.ASSOCIATION)) {
+    await loadPsmAssociation(
+      source, known, entitySource, PsmAssociation.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PSM.CHOICE)) {
     await loadPsmChoice(
       source, known, entitySource, PsmChoice.as(result));
-  }
-  if (types.includes(PSM.PART)) {
-    await loadPsmPart(source, known, entitySource, PsmPart.as(result));
+    entityLoaded = true;
   }
   if (types.includes(PSM.INCLUDES)) {
     await loadPsmIncludes(source, known, entitySource, PsmIncludes.as(result));
+    entityLoaded = true;
   }
   if (types.includes(CIM.ENTITY)) {
     await loadCimEntity(source, known, entitySource, CimEntity.as(result));
+    entityLoaded = true;
+  }
+  if (!entityLoaded) {
+    console.warn("No data loaded for:", entity.id, "of types:", types);
   }
   return result;
 }
@@ -138,7 +158,10 @@ async function loadPimClass(
   pimClass: PimClass
 ) {
   await loadPimBase(source, known, entitySource, pimClass);
-  pimClass.pimIsa = (await entitySource.entity(PIM.HAS_ISA))?.id;
+  for (const {entity} of await entitySource.entitiesExtended(PIM.HAS_ISA)) {
+    pimClass.pimIsa.push(entity.id);
+    await loadFromEntity(source, known, entity);
+  }
 }
 
 async function loadPimAttribute(
@@ -151,6 +174,7 @@ async function loadPimAttribute(
     pimAttribute.pimHasClass = classEntity.id;
     await loadFromEntity(source, known, classEntity);
   }
+  // TODO Consider loading the entity.
   pimAttribute.pimDatatype =
     (await entitySource.entity(PIM.HAS_DATA_TYPE))?.id;
 }
@@ -168,14 +192,20 @@ async function loadPimAssociation(
   pimAssociation.pimEnd = [];
   for (const {entity} of await entitySource.entitiesExtended(PIM.HAS_END)) {
     const entitySource = EntitySource.forEntity(entity, source);
-    pimAssociation.pimEnd.push(await loadPimReference(entitySource));
+    pimAssociation.pimEnd.push(
+      await loadPimReference(source, known, entitySource));
   }
 }
 
-async function loadPimReference(entitySource: EntitySource
+async function loadPimReference(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
 ): Promise<PimAssociationEnd> {
   const result = new PimAssociationEnd();
-  result.pimParticipant = (await entitySource.entity(PIM.HAS_PARTICIPANT))?.id;
+  const entity = (await entitySource.entity(PIM.HAS_PARTICIPANT));
+  if (entity !== undefined) {
+    result.pimParticipant = entity.id;
+    await loadFromEntity(source, known, entity);
+  }
   return result;
 }
 
@@ -218,7 +248,7 @@ async function loadPsmClass(
   }
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
     psmClass.psmParts.push(entity.id);
-    await loadFromEntity(source, known, entity, PSM.PART)
+    await loadFromEntity(source, known, entity)
   }
 }
 
@@ -239,6 +269,28 @@ async function loadPsmBase(
     entitySource, PSM.HAS_HUMAN_DESCRIPTION);
 }
 
+async function loadPsmAttribute(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  psmAttribute: PsmAttribute
+) {
+  await loadPsmBase(source, known, entitySource, psmAttribute);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmAttribute.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity)
+  }
+}
+
+async function loadPsmAssociation(
+  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
+  psmAssociation:PsmAssociation
+) {
+  await loadPsmBase(source, known, entitySource, psmAssociation);
+  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
+    psmAssociation.psmParts.push(entity.id);
+    await loadFromEntity(source, known, entity)
+  }
+}
+
 async function loadPsmChoice(
   source: StatementSource, known: ResourceMap, entitySource: EntitySource,
   psmChoice: PsmChoice
@@ -246,18 +298,7 @@ async function loadPsmChoice(
   await loadPsmBase(source, known, entitySource, psmChoice);
   for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
     psmChoice.psmParts.push(entity.id);
-    await loadFromEntity(source, known, entity, PSM.PART)
-  }
-}
-
-async function loadPsmPart(
-  source: StatementSource, known: ResourceMap, entitySource: EntitySource,
-  psmPart: PsmPart
-) {
-  await loadPsmBase(source, known, entitySource, psmPart);
-  for (const {entity} of await entitySource.entitiesExtended(PSM.HAS_PART)) {
-    psmPart.psmParts.push(entity.id);
-    await loadFromEntity(source, known, entity, PSM.PART)
+    await loadFromEntity(source, known, entity);
   }
 }
 
@@ -266,8 +307,12 @@ async function loadPsmIncludes(
   psmIncludes: PsmIncludes
 ) {
   await loadPsmBase(source, known, entitySource, psmIncludes);
-  psmIncludes.psmIncludes =
-    (await entitySource.entity(PSM.HAS_INCLUDES))?.id;
+  // This points to a RDF list.
+  const includes = await entitySource.entitiesExtended(PSM.HAS_INCLUDES);
+  for (const {entity} of includes) {
+    psmIncludes.psmIncludes.push(entity.id);
+    await loadFromEntity(source, known, entity);
+  }
 }
 
 async function loadCimEntity(

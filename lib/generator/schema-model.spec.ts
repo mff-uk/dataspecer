@@ -4,7 +4,7 @@ import {loadFromIri} from "../platform-model/platform-model-adapter";
 import {loadSchemaFromEntities} from "./schema-model-adapter";
 import {writeFileSync, existsSync, mkdirSync} from "fs";
 
-async function loadFromTestSources(iri) {
+async function loadFromTestSourcesGroupOne(iri) {
   const source = FederatedSource.create([
     await JsonldSource.create("file://test/ofn-psm.ttl"),
     await JsonldSource.create("file://test/ofn-pim.ttl"),
@@ -72,71 +72,76 @@ function stringify(content: any): string {
 }
 
 test("Load 'časový-okamžik'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
   writeJson(actual, "./test-output/schema", "časový-okamžik.json");
 });
 
 async function writeJson(content: any, dir: string, fileName: string) {
-  if (!existsSync(dir)){
-    mkdirSync(dir);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, {"recursive": true});
   }
   const path = dir + "/" + fileName;
   writeFileSync(path, stringify(content));
 }
 
 test("Load 'věc'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
   writeJson(actual, "./test-output/schema", "věc.json");
 });
 
 test("Load 'digitální-objekt'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
   writeJson(actual, "./test-output/schema", "digitální-objekt.json");
 });
 
 test("Load 'kontakt'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
   writeJson(actual, "./test-output/schema", "kontakt.json");
 });
 
 test("Load 'člověk'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
   writeJson(actual, "./test-output/schema", "člověk.json");
 });
 
 test("Load 'osoba'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
   writeJson(actual, "./test-output/schema", "osoba.json");
 });
 
 test("Load 'místo'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/místo");
   writeJson(actual, "./test-output/schema", "místo.json");
 });
 
 test("Load 'turistický-cíl'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
   writeJson(actual, "./test-output/schema", "turistický-cíl.json");
 });
 
 test("Load 'veřejné-místo'.", async () => {
-  const actual = await loadFromTestSources(
+  const actual = await loadFromTestSourcesGroupOne(
     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
   writeJson(actual, "./test-output/schema", "veřejné-místo.json");
 });
 
-test("Load 'orgány-veřejné-moci'.", async () => {
+test("Load 'číselníky'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
+  writeJson(actual, "./test-output/schema", "číselníky.json");
+});
+
+async function loadFromTestSourcesGroupTwo(iri) {
   const source = FederatedSource.create([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
-    await JsonldSource.create("file://test/pim-rpp-orgány-veřejné-moci.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
     await JsonldSource.create("file://test/pim-rpp-datové-schránky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-orgány-veřejné-moci.ttl"),
@@ -153,13 +158,51 @@ test("Load 'orgány-veřejné-moci'.", async () => {
     await JsonldSource.create("file://test/psm-rpp-pracoviště.ttl"),
     await JsonldSource.create("file://test/psm-rpp-ustanovení-právních-předpisů.ttl"),
     await JsonldSource.create("file://test/psm-rpp-zařazení-do-kategorií.ttl"),
+    await JsonldSource.create("file://test/pim-ustanovení-právních-předpisů.ttl"),
   ]);
   const entities = {};
-  const entity = await loadFromIri(
-    source, entities,
-    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky"
-  );
-  console.log(entities);
-  // const actual = loadSchemaFromEntities(entities, entity.id);
-  // writeJson(actual, "./test-output/schema", "datové-schránky.json");
+  const entity = await loadFromIri(source, entities, iri);
+  return loadSchemaFromEntities(entities, entity.id);
+}
+
+test("Load 'adresní-místa'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa");
+  writeJson(actual, "./test-output/schema", "adresní-místa.json");
+});
+
+test("Load 'datové-schránky'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky");
+  writeJson(actual, "./test-output/schema", "datové-schránky.json");
+});
+
+test("Load 'orgány-veřejné-moci'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci");
+  writeJson(actual, "./test-output/schema", "orgány-veřejné-moci.json");
+});
+
+test("Load 'osoby-právní-forma'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/osoby-právní-forma");
+  writeJson(actual, "./test-output/schema", "osoby-právní-forma.json");
+});
+
+test("Load 'pracoviště'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/pracoviště");
+  writeJson(actual, "./test-output/schema", "pracoviště.json");
+});
+
+test("Load 'ustanovení-právních-předpisů'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů");
+  writeJson(actual, "./test-output/schema", "ustanovení-právních-předpisů.json");
+});
+
+test("Load 'zařazení-do-kategorií'.", async () => {
+  const actual = await loadFromTestSourcesGroupTwo(
+    "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií");
+  writeJson(actual, "./test-output/schema", "zařazení-do-kategorií.json");
 });

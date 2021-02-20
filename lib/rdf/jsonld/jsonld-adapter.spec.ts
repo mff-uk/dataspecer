@@ -34,3 +34,9 @@ test("Load n-quads file.", async () => {
   const actual = await fetchJsonLd(url, RdfFormat.NQuads);
   expect(actual.length).toBeGreaterThan(0);
 });
+
+test("Load psm-rpp-zařazení-do-kategorií.", async () => {
+  const url = "file://test/psm-rpp-zařazení-do-kategorií.ttl";
+  const actual = await fetchJsonLd(url, RdfFormat.Turtle);
+  expect(actual.length).toBe(14);
+});

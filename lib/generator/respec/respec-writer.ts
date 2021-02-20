@@ -2,15 +2,14 @@ import * as fileSystem from "fs";
 import * as path from "path";
 
 import {
-  FormalOpenSpecification,
-  FosEntity,
-  FosProperty, FosTypeReference,
-} from "./fos-model";
+  ReSpec,
+  ReSpecEntity,
+  ReSpecProperty,
+  ReSpecTypeReference,
+} from "./respec-model";
 import {WriteStream} from "fs";
 
-export function writeFosToDirectory(
-  model: FormalOpenSpecification, directory: string
-) {
+export function writeReSpecToDirectory(model: ReSpec, directory: string) {
   if (!fileSystem.existsSync(directory)) {
     fileSystem.mkdirSync(directory);
   }
@@ -24,7 +23,7 @@ export function writeFosToDirectory(
   outputStream.close();
 }
 
-function writeHeader(model: FormalOpenSpecification, stream: WriteStream) {
+function writeHeader(model: ReSpec, stream: WriteStream) {
   const title = model.metadata.title;
   stream.write(`
   <head>
@@ -93,7 +92,7 @@ function currentDate() {
   return [year, month, day].join("-");
 }
 
-function writeBody(model: FormalOpenSpecification, stream: WriteStream) {
+function writeBody(model: ReSpec, stream: WriteStream) {
   stream.write("\n  </body>")
   writeIntroduction(model, stream);
   writeOverview(model, stream);
@@ -102,9 +101,7 @@ function writeBody(model: FormalOpenSpecification, stream: WriteStream) {
   stream.write("\n  </body>")
 }
 
-function writeIntroduction(
-  model: FormalOpenSpecification, stream: WriteStream
-) {
+function writeIntroduction(model: ReSpec, stream: WriteStream) {
   stream.write(`
     <section id="abstract" class="introductory">
       <h2>Abstrakt</h2>
@@ -124,7 +121,7 @@ function writeIntroduction(
     </section>`);
 }
 
-function writeOverview(model: FormalOpenSpecification, stream: WriteStream) {
+function writeOverview(model: ReSpec, stream: WriteStream) {
   stream.write(`
     <section id="přehled">
       <h2>Přehled</h2>
@@ -132,9 +129,7 @@ function writeOverview(model: FormalOpenSpecification, stream: WriteStream) {
 `);
 }
 
-function writeSpecification(
-  model: FormalOpenSpecification, stream: WriteStream
-) {
+function writeSpecification(model: ReSpec, stream: WriteStream) {
   stream.write(`
     <section id="specifikace">
       <h2>Specifikace</h2>
@@ -144,7 +139,7 @@ function writeSpecification(
   stream.write("\n    </section>");
 }
 
-function writeFosEntity(entity: FosEntity, stream: WriteStream) {
+function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
   stream.write(`
       <section id="třída-${entity.relativeLink}">
         <h3>${entity.humanLabel}</h3>
@@ -155,7 +150,7 @@ function writeFosEntity(entity: FosEntity, stream: WriteStream) {
 }
 
 function writeFosProperty(
-  owner: FosEntity, property: FosProperty, stream: WriteStream
+  owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream
 ) {
   const types = property.type
     .map(type => `<a href="${createTypeLink(type)}">${type.label}</a>`)
@@ -181,11 +176,11 @@ function writeFosProperty(
         </section>`);
 }
 
-function createTypeLink(reference: FosTypeReference) {
+function createTypeLink(reference: ReSpecTypeReference) {
   return reference.schemaLink + "#třída-" + reference.relativeLink;
 }
 
-function writeExamples(model: FormalOpenSpecification, stream: WriteStream) {
+function writeExamples(model: ReSpec, stream: WriteStream) {
   stream.write(`
     <section id="příklady">
       <h2>Příklady</h2>

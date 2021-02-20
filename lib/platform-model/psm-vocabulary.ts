@@ -14,7 +14,9 @@ export const SCHEMA = PSM + "Schema";
 
 export const CLASS = PSM + "Class";
 
-export const PART = PSM + "Part";
+export const ATTRIBUTE = PSM + "Attribute";
+
+export const ASSOCIATION = PSM + "Association";
 
 export const INCLUDES = PSM + "Includes";
 
@@ -36,4 +38,4 @@ export const HAS_PART = DCTERMS + "hasPart";
 
 export const HAS_HUMAN_LABEL = DCTERMS + "title";
 
-export const HAS_HUMAN_DESCRIPTION = "urn:psmHumanDescription";
+export const HAS_HUMAN_DESCRIPTION = DCTERMS + "description";

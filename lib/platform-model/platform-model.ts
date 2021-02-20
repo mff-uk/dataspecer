@@ -30,10 +30,10 @@ export enum ModelResourceType {
   PimAssociation = "pim-association",
   PsmSchema = "psm-schema",
   PsmClass = "psm-class",
+  PsmAttribute = "psm-attribute",
+  PsmAssociation = "psm-association",
   PsmChoice = "psm-choice",
-  PsmExtendedBy = "psm-extended-by",
-  PsmPart = "psm-part",
-  PsmIncludes = "prm-includes",
+  PsmIncludes = "psm-includes",
   CimEntity = "cim-entity",
 }
 
@@ -80,15 +80,24 @@ export class PimBase extends ModelResource {
 
 export class PimClass extends PimBase {
 
+  // Each schema can have only one class. So we can find the schema
+  // for given class.
+  ownerSchema?: string;
+
+  /**
+   * Extends for PIM.
+   */
   // pim:isa
-  pimIsa?: string;
+  pimIsa: string[] = [];
 
   static as(resource: ModelResource): PimClass {
     if (resource.types.includes(ModelResourceType.PimClass)) {
-      return resource as PimSchema;
+      return resource as PimClass;
     }
     resource.types.push(ModelResourceType.PimClass);
-    return resource as PimClass;
+    const result = resource as PimClass;
+    result.pimIsa = result.pimIsa || [];
+    return result;
   }
 
 }
@@ -96,8 +105,9 @@ export class PimClass extends PimBase {
 export class PimAttribute extends PimBase {
 
   /**
-   * Owner class.
+   * Class this entity belongs to.
    */
+    // pim:hasClass
   pimHasClass?: string;
 
   // pim:hasDatatype
@@ -116,10 +126,12 @@ export class PimAttribute extends PimBase {
 export class PimAssociation extends PimBase {
 
   /**
-   * Owner class.
+   * Alternative specification to pimEnd.
    */
+  // pim:hasClass
   pimHasClass?: string;
 
+  // pim:hasEnd
   pimEnd: PimAssociationEnd[] = [];
 
   static as(resource: ModelResource): PimAssociation {
@@ -158,7 +170,7 @@ export class PsmSchema extends ModelResource {
   /**
    * Allow us to import other schemas.
    */
-  // urn:import
+    // urn:import
   psmImports: string[] = [];
 
   // urn:jsonLdContext
@@ -221,6 +233,39 @@ export class PsmClass extends PsmBase {
 
 }
 
+export class PsmAttribute extends PsmBase {
+
+  // dcterms:hasPart
+  psmParts: string[] = [];
+
+  static as(resource: ModelResource): PsmAttribute {
+    if (resource.types.includes(ModelResourceType.PsmAttribute)) {
+      return resource as PsmChoice;
+    }
+    resource.types.push(ModelResourceType.PsmAttribute);
+    const result = resource as PsmChoice;
+    result.psmParts = result.psmParts || [];
+    return result;
+  }
+
+}
+
+export class PsmAssociation extends PsmBase {
+
+  // dcterms:hasPart
+  psmParts: string[] = [];
+
+  static as(resource: ModelResource): PsmAssociation {
+    if (resource.types.includes(ModelResourceType.PsmAssociation)) {
+      return resource as PsmChoice;
+    }
+    resource.types.push(ModelResourceType.PsmAssociation);
+    const result = resource as PsmChoice;
+    result.psmParts = result.psmParts || [];
+    return result;
+  }
+}
+
 export class PsmChoice extends PsmBase {
 
   // dcterms:hasPart
@@ -238,57 +283,22 @@ export class PsmChoice extends PsmBase {
 
 }
 
-export class PsmExtendedBy extends PsmBase {
-
-  // dcterms:hasPart
-  psmParts: string[] = [];
-
-  static as(resource: ModelResource): PsmExtendedBy {
-    if (resource.types.includes(ModelResourceType.PsmExtendedBy)) {
-      return resource as PsmExtendedBy;
-    }
-    resource.types.push(ModelResourceType.PsmExtendedBy);
-    const result = resource as PsmChoice;
-    result.psmParts = result.psmParts || [];
-    return result;
-  }
-
-}
-
-/**
- * General part, allow to override values from PsmBase.
- */
-export class PsmPart extends PsmBase {
-
-  // dcterms:hasPart
-  psmParts: string[] = [];
-
-  static as(resource: ModelResource): PsmPart {
-    if (resource.types.includes(ModelResourceType.PsmPart)) {
-      return resource as PsmPart;
-    }
-    resource.types.push(ModelResourceType.PsmPart);
-    const result = resource as PsmPart;
-    result.psmParts = result.psmParts || [];
-    return result;
-  }
-
-}
-
 /**
  * Content of given include should be placed instead of this.
  */
 export class PsmIncludes extends PsmBase {
 
   // psm:includes
-  psmIncludes?: string;
+  psmIncludes: string[] = [];
 
   static as(resource: ModelResource): PsmIncludes {
     if (resource.types.includes(ModelResourceType.PsmIncludes)) {
       return resource as PsmIncludes;
     }
     resource.types.push(ModelResourceType.PsmIncludes);
-    return resource as PsmIncludes;
+    const result = resource as PsmIncludes;
+    result.psmIncludes = result.psmIncludes || [];
+    return result;
   }
 
 }

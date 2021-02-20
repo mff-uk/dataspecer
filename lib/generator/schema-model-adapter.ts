@@ -3,11 +3,11 @@ import {
   ModelResourceType,
   PsmSchema,
   PsmClass,
-  PsmPart,
   PimAttribute,
   PimAssociation,
   PimClass,
-  PsmExtendedBy,
+  PsmAssociation,
+  PsmAttribute,
   PsmIncludes,
   PsmChoice,
   CimEntity,
@@ -31,11 +31,13 @@ class LoaderContext {
 
   readonly psmClass: Record<string, ClassData> = {};
 
+  readonly psmAttributeProperty: Record<string, PropertyData> = {};
+
+  readonly psmAssociationProperty: Record<string, PropertyData> = {};
+
   readonly pimClass: Record<string, ClassData> = {};
 
   readonly cimClass: Record<string, ClassData> = {};
-
-  readonly psmPartProperty: Record<string, PropertyData> = {};
 
   readonly pimAttributeProperty: Record<string, PropertyData> = {};
 
@@ -100,6 +102,9 @@ function loadClass(
     return undefined;
   }
   const entity = context.entities[iri];
+  if (entity === undefined) {
+    throw new Error(`Missing entity data for ${iri}.`);
+  }
   if (entity?.types.includes(ModelResourceType.PsmClass)) {
     return loadClassFromPsmClass(context, entity as PsmClass);
   }
@@ -109,7 +114,7 @@ function loadClass(
   if (entity?.types.includes(ModelResourceType.CimEntity)) {
     return loadClassFromCimEntity(context, entity as CimEntity);
   }
-  throw new Error(`Unexpected type(s) ${entity.types} for class: ${iri}`);
+  throw new Error(`Unexpected type(s) ${entity?.types} for class: ${iri}`);
 }
 
 function loadClassFromPsmClass(
@@ -125,12 +130,15 @@ function loadClassFromPsmClass(
   // PsmBase
   result.technicalLabel = classEntity.psmTechnicalLabel;
   result.humanLabel = classEntity.psmHumanLabel;
+  result.humanDescription = classEntity.psmHumanDescription;
+  // PsmClass
   result.extends = classEntity.psmExtends
     .map(iri => loadClass(context, iri))
     .filter(item => item !== undefined);
-  result.properties = classEntity.psmParts
-    .map(iri => loadProperty(context, iri))
-    .filter(item => item !== undefined);
+  result.properties = [];
+  classEntity.psmParts
+    .map(iri => loadProperties(context, iri))
+    .forEach(properties => result.properties.push(...properties));
   //
   const interpretation = loadClass(context, classEntity.psmInterpretation);
   result.withInterpretation(interpretation);
@@ -150,6 +158,13 @@ function loadClassFromPimClass(
   // PimBase
   result.technicalLabel = classEntity.pimTechnicalLabel;
   result.humanLabel = classEntity.pimHumanLabel;
+  result.humanDescription = classEntity.pimHumanDescription;
+  // PimClass
+  result.schema = classEntity.ownerSchema === undefined ? undefined :
+    loadSchema(context, classEntity.ownerSchema);
+  result.extends = classEntity.pimIsa
+    .map(iri => loadClass(context, iri))
+    .filter(item => item !== undefined);
   //
   const interpretation = loadClass(context, classEntity.pimInterpretation);
   result.withInterpretation(interpretation);
@@ -170,13 +185,37 @@ function loadClassFromCimEntity(
   return result;
 }
 
+function loadProperties(context: LoaderContext, iri: string): PropertyData[] {
+  if (iri === undefined) {
+    return undefined;
+  }
+  const entity = context.entities[iri];
+  if (entity?.types.includes(ModelResourceType.PsmIncludes)) {
+    return loadIncludesProperty(context, entity as PsmIncludes);
+  }
+  return [loadProperty(context, iri)];
+}
+
+function loadIncludesProperty(
+  context: LoaderContext, psmIncludes: PsmIncludes
+): PropertyData[] {
+  const result = [];
+  for (const iri of psmIncludes.psmIncludes) {
+    result.push(...loadProperties(context, iri));
+  }
+  return result;
+}
+
 function loadProperty(context: LoaderContext, iri: string): PropertyData {
   if (iri === undefined) {
     return undefined;
   }
   const entity = context.entities[iri];
-  if (entity?.types.includes(ModelResourceType.PsmPart)) {
-    return loadPropertyFromPsmPart(context, entity as PsmPart);
+  if (entity?.types.includes(ModelResourceType.PsmAttribute)) {
+    return loadPropertyFromPsmAttribute(context, entity as PsmAttribute);
+  }
+  if (entity?.types.includes(ModelResourceType.PsmAssociation)) {
+    return loadPropertyFromPsmAssociation(context, entity as PsmAssociation);
   }
   if (entity?.types.includes(ModelResourceType.PimAttribute)) {
     return loadPropertyFromPimAttribute(context, entity as PimAttribute);
@@ -190,28 +229,55 @@ function loadProperty(context: LoaderContext, iri: string): PropertyData {
   throw new Error(`Unexpected type(s) ${entity.types} for property: ${iri}`);
 }
 
-function loadPropertyFromPsmPart(
-  context: LoaderContext, partEntity: PsmPart
+function loadPropertyFromPsmAttribute(
+  context: LoaderContext, psmAttribute: PsmAttribute
 ): PropertyData {
-  if (context.psmPartProperty[partEntity.id] !== undefined) {
-    return context.psmPartProperty[partEntity.id];
+  if (context.psmAttributeProperty[psmAttribute.id] !== undefined) {
+    return context.psmAttributeProperty[psmAttribute.id];
   }
   const result = new PropertyData();
-  result.iri = partEntity.id;
-  result.id = partEntity.id;
-  context.psmPartProperty[partEntity.id] = result;
+  result.iri = psmAttribute.id;
+  result.id = psmAttribute.id;
+  context.psmAttributeProperty[psmAttribute.id] = result;
   // PsmBase
-  result.technicalLabel = partEntity.psmTechnicalLabel;
-  result.humanLabel = partEntity.psmHumanLabel;
-  loadPropertyFromPsmPartDataType(context, partEntity, result);
+  result.technicalLabel = psmAttribute.psmTechnicalLabel;
+  result.humanLabel = psmAttribute.psmHumanLabel;
+  result.humanDescription = psmAttribute.psmHumanDescription;
+  loadPropertyPsmParts(context, psmAttribute, result);
   //
-  const interpretation = loadProperty(context, partEntity.psmInterpretation);
+  const interpretation = loadProperty(context, psmAttribute.psmInterpretation);
   result.withInterpretation(interpretation)
   return result;
 }
 
-function loadPropertyFromPsmPartDataType(
-  context: LoaderContext, partEntity: PsmPart, propertyData: PropertyData
+
+function loadPropertyFromPsmAssociation(
+  context: LoaderContext, psmAssociation: PsmAssociation
+): PropertyData {
+  if (context.psmAssociationProperty[psmAssociation.id] !== undefined) {
+    return context.psmAssociationProperty[psmAssociation.id];
+  }
+  const result = new PropertyData();
+  result.iri = psmAssociation.id;
+  result.id = psmAssociation.id;
+  context.psmAssociationProperty[psmAssociation.id] = result;
+  // PsmBase
+  result.technicalLabel = psmAssociation.psmTechnicalLabel;
+  result.humanLabel = psmAssociation.psmHumanLabel;
+  result.humanDescription = psmAssociation.psmHumanDescription;
+  loadPropertyPsmParts(context, psmAssociation, result);
+  //
+  const interpretation = loadProperty(
+    context, psmAssociation.psmInterpretation);
+  result.withInterpretation(interpretation)
+  return result;
+}
+
+function loadPropertyPsmParts(
+  context: LoaderContext, partEntity: {
+    id: string, psmInterpretation?: string, psmParts: string[],
+  },
+  propertyData: PropertyData
 ) {
   if (partEntity.psmParts.length === 0) {
     return;
@@ -247,7 +313,7 @@ function loadPropertyFromPsmPartDataType(
 function loadPsmChoice(
   context: LoaderContext, psmChoice: PsmChoice
 ): ClassData[] {
-  return loadPsmClassFromParts(context, psmChoice, "psm:Choice");
+  return loadPsmClassFromParts(context, psmChoice);
 }
 
 /**
@@ -256,10 +322,12 @@ function loadPsmChoice(
  * to break the circular dependency.
  */
 function loadPsmClassFromParts(
-  context: LoaderContext, psmPart: PsmPart, psmPartType: string,
+  context: LoaderContext, partEntity: {
+    id: string, psmInterpretation?: string, psmParts: string[],
+  }
 ): ClassData[] {
   const result = [];
-  for (const iri of psmPart.psmParts) {
+  for (const iri of partEntity.psmParts) {
     const entity = context.entities[iri];
     if (entity === undefined) {
       throw new Error(`Missing definition.`)
@@ -268,12 +336,12 @@ function loadPsmClassFromParts(
       result.push(loadClass(context, entity.id));
     } else {
       throw new Error(
-        psmPart.id
-        + " of type " + psmPartType + " has unexpected type for "
+        partEntity.id
+        + " psm:Choice has unexpected type for "
         + entity.id
         + " of types [" + entity.types.join(",")
         + "] interpretation of "
-        + psmPart.psmInterpretation
+        + partEntity.psmInterpretation
       )
     }
   }
@@ -316,14 +384,18 @@ function loadPropertyFromPimAssociation(
   result.technicalLabel = associationEntity.pimTechnicalLabel;
   result.humanLabel = associationEntity.pimHumanLabel;
   // PimAssociation
-  if (associationEntity.pimEnd.length !== 2) {
+  if (associationEntity.pimHasClass !== undefined) {
+    result.dataTypeClass = [loadClass(context, associationEntity.pimHasClass)];
+  } else if (associationEntity.pimEnd.length === 2) {
+    const pimEnd = associationEntity.pimEnd[0];
+    result.dataTypeClass = [loadClass(context, pimEnd.pimParticipant)];
+  } else {
     throw new Error(
-      "Invalid number of pim:hasEnd " +
-      + associationEntity.pimEnd.length
-      + " (two expected) for " + associationEntity.id);
+      "Missing class or ends (actual: " +
+      +associationEntity.pimEnd.length
+      + " expected: 2) for " + associationEntity.id);
+
   }
-  const pimEnd = associationEntity.pimEnd[0];
-  result.dataTypeClass = [loadClass(context, pimEnd.pimParticipant)];
   //
   const interpretation = loadProperty(
     context, associationEntity.pimInterpretation);

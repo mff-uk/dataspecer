@@ -1,41 +1,41 @@
-export class FormalOpenSpecification {
+export class ReSpec {
 
   url: string;
 
-  metadata: FosMetadata = new FosMetadata();
+  metadata: ReSpecMetadata = new ReSpecMetadata();
 
-  overview: FosOverview = new FosOverview();
+  overview: ReSpecOverview = new ReSpecOverview();
 
-  specification: FosSpecification = new FosSpecification();
+  specification: ReSpecSpecification = new ReSpecSpecification();
 
-  examples: FosExample[] = [];
+  examples: ReSpecExample[] = [];
 
-  references: FosReference = new FosReference();
+  references: ReSpecReference = new ReSpecReference();
 
 }
 
-export class FosMetadata {
+export class ReSpecMetadata {
 
   title: string | undefined = undefined;
 
 }
 
-export class FosOverview {
+export class ReSpecOverview {
 
   // TODO This contains a diagram .. we do not have one yet.
 
 }
 
-export class FosSpecification {
+export class ReSpecSpecification {
 
   /**
    * List of entities in the section.
    */
-  entities: FosEntity[] = [];
+  entities: ReSpecEntity[] = [];
 
 }
 
-export class FosEntity {
+export class ReSpecEntity {
 
   humanLabel: string;
 
@@ -46,13 +46,13 @@ export class FosEntity {
   /**
    * List of class members.
    */
-  properties: FosProperty[] = [];
+  properties: ReSpecProperty[] = [];
 
 }
 
-export class FosProperty {
+export class ReSpecProperty {
 
-  type: FosTypeReference[] = [];
+  type: ReSpecTypeReference[] = [];
 
   /**
    * Name of the attribute inside the model.
@@ -72,7 +72,7 @@ export class FosProperty {
 
 }
 
-export class FosTypeReference {
+export class ReSpecTypeReference {
 
   isPrimitive: boolean;
 
@@ -84,7 +84,7 @@ export class FosTypeReference {
 
 }
 
-export class FosExample {
+export class ReSpecExample {
 
   title: string;
 
@@ -107,7 +107,7 @@ export class FosExample {
 
 }
 
-export class FosReference {
+export class ReSpecReference {
 
   // TODO It seems there is no content that should change with data.
 

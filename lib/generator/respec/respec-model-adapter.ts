@@ -4,16 +4,16 @@ import {
   SchemaData,
 } from "../schema-model";
 import {
-  FormalOpenSpecification,
-  FosEntity,
-  FosExample,
-  FosMetadata,
-  FosOverview,
-  FosProperty,
-  FosReference,
-  FosSpecification,
-  FosTypeReference,
-} from "./fos-model";
+  ReSpec,
+  ReSpecEntity,
+  ReSpecExample,
+  ReSpecMetadata,
+  ReSpecOverview,
+  ReSpecProperty,
+  ReSpecReference,
+  ReSpecSpecification,
+  ReSpecTypeReference,
+} from "./respec-model";
 
 const BASE_TYPE_NAMES = {
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString": {
@@ -31,19 +31,17 @@ class AdapterContext {
 
 }
 
-export function schemaAsFormalOpenSpecification(
-  schema: SchemaData
-): FormalOpenSpecification {
+export function schemaAsReSpec(schema: SchemaData): ReSpec {
   const context = new AdapterContext(schema);
   const allRoots = selectRootClasses(schema);
   setSchemaToClasses(schema, allRoots);
   return {
     "url": schema.fos,
-    "metadata": loadFosMetadata(context),
-    "overview": loadFosOverview(context),
-    "specification": loadFosSpecification(context, allRoots),
-    "examples": loadFosExample(context),
-    "references": loadFosReference(context),
+    "metadata": loadReSpecMetadata(context),
+    "overview": loadReSpecOverview(context),
+    "specification": loadReSpecSpecification(context, allRoots),
+    "examples": loadReSpecExample(context),
+    "references": loadReSpecReference(context),
   };
 }
 
@@ -95,7 +93,7 @@ function setSchemaToClasses(schema: SchemaData, classes: ClassData []) {
   }
 }
 
-function loadFosMetadata(context: AdapterContext): FosMetadata {
+function loadReSpecMetadata(context: AdapterContext): ReSpecMetadata {
   return {
     "title": selectString(context, context.schema.humanLabel),
   }
@@ -115,22 +113,22 @@ function selectString(
   }
 }
 
-function loadFosOverview(context: AdapterContext): FosOverview {
-  return new FosOverview();
+function loadReSpecOverview(context: AdapterContext): ReSpecOverview {
+  return new ReSpecOverview();
 }
 
-function loadFosSpecification(
+function loadReSpecSpecification(
   context: AdapterContext, roots: ClassData []
-): FosSpecification {
+): ReSpecSpecification {
   return {
     "entities": roots.map(classData =>
-      loadFosSpecificationClassData(context, classData)),
+      loadReSpecSpecificationClassData(context, classData)),
   };
 }
 
-function loadFosSpecificationClassData(
+function loadReSpecSpecificationClassData(
   context: AdapterContext, classData: ClassData
-): FosEntity {
+): ReSpecEntity {
   return {
     "humanLabel": selectString(context, classData.humanLabel),
     "humanDescription": selectString(context, classData.humanDescription),
@@ -149,7 +147,7 @@ function createClassDataRelativeLink(
 
 function loadClassDataProperties(
   context: AdapterContext, classData: ClassData
-): FosProperty[] {
+): ReSpecProperty[] {
   let result = {};
   for (const extendedClass of classData.extends) {
     for (const property of loadClassDataProperties(context, extendedClass)) {
@@ -165,8 +163,8 @@ function loadClassDataProperties(
 
 function convertPropertyData(
   context: AdapterContext, propertyData: PropertyData,
-): FosProperty {
-  const result = new FosProperty();
+): ReSpecProperty {
+  const result = new ReSpecProperty();
   result.technicalLabel = propertyData.technicalLabel;
   result.humanLabel = selectString(context, propertyData.humanLabel);
   result.humanDescription =
@@ -195,7 +193,7 @@ function createPropertyRelativeLink(
 
 function convertPropertyType(
   context: AdapterContext, propertyData: PropertyData
-): FosTypeReference {
+): ReSpecTypeReference {
   return {
     "isPrimitive": true,
     "label": selectString(context, BASE_TYPE_NAMES[propertyData.datatype])
@@ -207,7 +205,7 @@ function convertPropertyType(
 
 function convertPropertyTypeClass(
   context: AdapterContext, classData: ClassData
-): FosTypeReference {
+): ReSpecTypeReference {
   const label = selectString(context, classData.humanLabel) || classData.id;
   if (classData.isCodelist) {
     return {
@@ -233,10 +231,10 @@ function convertPropertyTypeClass(
   };
 }
 
-function loadFosExample(context: AdapterContext): FosExample[] {
+function loadReSpecExample(context: AdapterContext): ReSpecExample[] {
   return [];
 }
 
-function loadFosReference(context: AdapterContext): FosReference {
-  return new FosReference();
+function loadReSpecReference(context: AdapterContext): ReSpecReference {
+  return new ReSpecReference();
 }

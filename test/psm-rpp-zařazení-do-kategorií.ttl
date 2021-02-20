@@ -22,7 +22,11 @@ psmzk:orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů-obsah a rdf:
     rdf:first
         [
             a psm:Association ;
-            psm:hasInterpretation pimzk:má-zařazený-subjekt ; # Zde je nutno pracovat s dědičností, protože rodičova PIM interpretace je orgán-veřejné-moci, který ale nemá zařazení-do-kategorie definováno přímo - dědí jej od orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů
+            # Zde je nutno pracovat s dědičností, protože rodičova PIM
+            # interpretace je orgán-veřejné-moci, který ale nemá
+            # zařazení-do-kategorie definováno přímo - dědí jej od
+            # orgán-veřejné-moci-nebo-soukromoprávní-uživatel-údajů
+            psm:hasInterpretation pimzk:má-zařazený-subjekt ;
             psm:technicalLabel "seznam-kategorií" ;
             dcterms:hasPart (
                 [
