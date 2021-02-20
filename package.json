@@ -27,9 +27,9 @@
     "webpack-cli": "^3.3.12"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.14",
     "babel-jest": "^26.3.0",
-    "jest": "^26.4.2",
-    "@types/jest": "^26.0.14"
+    "jest": "^26.4.2"
   },
   "main": "./lib/index.js",
   "bin": {
