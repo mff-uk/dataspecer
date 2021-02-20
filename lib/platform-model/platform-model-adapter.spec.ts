@@ -5,6 +5,8 @@ import {FederatedSource} from "../rdf/statements/federated-source";
 import {loadFromIri} from "./platform-model-adapter";
 import {SparqlSource} from "../rdf/statements/sparql-source";
 
+beforeAll(() => jest.setTimeout(5 * 60 * 1000))
+
 test("Load 'číselníky' model.", async () => {
   const [actual, entities] = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");

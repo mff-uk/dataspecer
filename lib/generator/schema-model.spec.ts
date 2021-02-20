@@ -71,11 +71,11 @@ function stringify(content: any): string {
   )
 }
 
-test("Load 'časový-okamžik' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
-  writeJson(actual, "./test-output/schema", "časový-okamžik.json");
-});
+// test("Load 'časový-okamžik' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
+//   writeJson(actual, "./test-output/schema", "časový-okamžik.json");
+// });
 
 async function writeJson(content: any, dir: string, fileName: string) {
   if (!existsSync(dir)) {
@@ -85,53 +85,53 @@ async function writeJson(content: any, dir: string, fileName: string) {
   writeFileSync(path, stringify(content));
 }
 
-test("Load 'věc' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/věc");
-  writeJson(actual, "./test-output/schema", "věc.json");
-});
+// test("Load 'věc' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
+//   writeJson(actual, "./test-output/schema", "věc.json");
+// });
 
-test("Load 'digitální-objekt' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
-  writeJson(actual, "./test-output/schema", "digitální-objekt.json");
-});
+// test("Load 'digitální-objekt' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
+//   writeJson(actual, "./test-output/schema", "digitální-objekt.json");
+// });
 
-test("Load 'kontakt' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
-  writeJson(actual, "./test-output/schema", "kontakt.json");
-});
+// test("Load 'kontakt' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
+//   writeJson(actual, "./test-output/schema", "kontakt.json");
+// });
 
-test("Load 'člověk' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
-  writeJson(actual, "./test-output/schema", "člověk.json");
-});
+// test("Load 'člověk' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
+//   writeJson(actual, "./test-output/schema", "člověk.json");
+// });
 
-test("Load 'osoba' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
-  writeJson(actual, "./test-output/schema", "osoba.json");
-});
+// test("Load 'osoba' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
+//   writeJson(actual, "./test-output/schema", "osoba.json");
+// });
 
-test("Load 'místo' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/místo");
-  writeJson(actual, "./test-output/schema", "místo.json");
-});
+// test("Load 'místo' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/místo");
+//   writeJson(actual, "./test-output/schema", "místo.json");
+// });
 
-test("Load 'turistický-cíl' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
-  writeJson(actual, "./test-output/schema", "turistický-cíl.json");
-});
+// test("Load 'turistický-cíl' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
+//   writeJson(actual, "./test-output/schema", "turistický-cíl.json");
+// });
 
-test("Load 'veřejné-místo' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupOne(
-    "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
-  writeJson(actual, "./test-output/schema", "veřejné-místo.json");
-});
+// test("Load 'veřejné-místo' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupOne(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
+//   writeJson(actual, "./test-output/schema", "veřejné-místo.json");
+// });
 
 test("Load 'číselníky' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
