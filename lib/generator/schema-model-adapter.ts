@@ -299,11 +299,11 @@ function loadPropertyPsmParts(
     } else {
       throw new Error(
         partEntity.id
-        + " of type psm:Part has unexpected type for "
-        + entity.id
-        + " of types [" + entity.types.join(",")
-        + "] interpretation of "
+        + " of interpretation "
         + partEntity.psmInterpretation
+        + " has unexpected types [" + entity.types.join(",")
+        + "] for "
+        + entity.id
       )
     }
   }
