@@ -15,6 +15,8 @@ test("Load from remote url.", async () => {
   expect(Object.keys(root.properties).length).toBe(2);
   const reverse = await source.reverseProperties(
     "http://www.w3.org/2004/02/skos/core#inScheme",
-    "https://data.mvcr.gov.cz/zdroj/číselníky/typy-pracovních-míst-na-vysoké-škole");
+    RdfEntity.create(
+      "https://data.mvcr.gov.cz/zdroj/číselníky/typy-pracovních-míst-na-vysoké-škole"
+    ));
   expect(reverse.length).toBe(10);
 });

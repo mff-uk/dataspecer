@@ -5,7 +5,7 @@ import {loadEntitySchemaFromIri} from "./entity-model-adapter";
 import {writeFileSync, existsSync, mkdirSync} from "fs";
 import {SparqlSource} from "../rdf/statements/sparql-source";
 
-beforeAll(() => jest.setTimeout(5 * 60 * 1000))
+beforeAll(() => jest.setTimeout(10 * 60 * 1000));
 
 test("Load 'adresní-místa' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(

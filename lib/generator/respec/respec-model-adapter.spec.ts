@@ -1,5 +1,4 @@
 import {existsSync, mkdirSync, writeFileSync} from "fs";
-
 import {loadEntitySchemaFromIri} from "../../entity-model/entity-model-adapter";
 import {schemaAsReSpec} from "./respec-model-adapter";
 import {FederatedSource} from "../../rdf/statements/federated-source";
@@ -7,6 +6,8 @@ import {JsonldSource} from "../../rdf/statements/jsonld-source";
 import {PlatformModelAdapter} from "../../platform-model/platform-model-adapter";
 import {writeReSpecToDirectory} from "./respec-writer";
 import {SparqlSource} from "../../rdf/statements/sparql-source";
+
+beforeAll(() => jest.setTimeout(10 * 60 * 1000));
 
 test("Convert 'číselníky' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(

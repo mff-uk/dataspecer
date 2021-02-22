@@ -1,6 +1,8 @@
 import {SparqlSource} from "./sparql-source";
 import {RdfEntity} from "../rdf-api";
 
+beforeAll(() => jest.setTimeout(10 * 60 * 1000));
+
 test("Load from SPARQL.", async () => {
   const endpoint = "https://slovník.gov.cz/sparql";
   const url = "https://slovník.gov.cz/generický/věci/pojem/název";

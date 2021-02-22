@@ -4,7 +4,7 @@ import {FederatedSource} from "../rdf/statements/federated-source";
 import {PlatformModelAdapter} from "./platform-model-adapter";
 import {SparqlSource} from "../rdf/statements/sparql-source";
 
-beforeAll(() => jest.setTimeout(5 * 60 * 1000))
+beforeAll(() => jest.setTimeout(10 * 60 * 1000));
 
 test("Load 'číselníky' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
