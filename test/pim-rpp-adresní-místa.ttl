@@ -18,6 +18,6 @@
 pimam:adresní-místo a pim:Class ;
 	pim:hasInterpretation lsgov1112009:adresní-místo .
 
-pimam:má-kód-adresního-místa a pim:Association ;
+pimam:má-kód-adresního-místa a pim:Attribute ;
 	pim:hasInterpretation lsgov1112009:má-kód-adresního-místa ;
     pim:hasClass pimam:adresní-místo .

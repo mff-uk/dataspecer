@@ -39,7 +39,7 @@ psmcis:číselník-obsah a rdf:List ;
             psm:technicalLabel "akronym"
         ]
         [
-            a psm:Attribute ;
+            a psm:Association ;
             psm:hasInterpretation pimcis:má-administrativní-platnost-číselníku ;
             psm:technicalLabel "platnost" ;
             dcterms:hasPart (
