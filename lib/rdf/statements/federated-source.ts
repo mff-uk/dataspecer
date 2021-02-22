@@ -5,12 +5,23 @@ export class FederatedSource implements StatementSource {
 
   private readonly sources: StatementSource [];
 
-  protected constructor(sources: StatementSource[]) {
+  /**
+   * If true try all sources, else stop after the first source return some
+   * data. Works for properties and reverse properties.
+   */
+  private readonly exhaustive: boolean;
+
+  protected constructor(sources: StatementSource[], exhaustive:boolean) {
     this.sources = sources;
+    this.exhaustive = exhaustive;
   }
 
   static create(sources: StatementSource[]): StatementSource {
-    return new FederatedSource(sources);
+    return new FederatedSource(sources, false);
+  }
+
+  static createExhaustive(sources: StatementSource[]): StatementSource {
+    return new FederatedSource(sources, true);
   }
 
   async fetch(entity: RdfEntity): Promise<void> {
@@ -23,6 +34,9 @@ export class FederatedSource implements StatementSource {
         }
         addValues(entity.properties[predicate], values);
       }
+      if (!this.exhaustive && Object.values(entity.properties).length > 0) {
+        break;
+      }
     }
     return Promise.resolve(undefined);
   }
@@ -33,6 +47,9 @@ export class FederatedSource implements StatementSource {
     const result: RdfBaseValue[] = [];
     for (const source of this.sources) {
       addValues(result, await source.properties(entity, predicate));
+      if (!this.exhaustive && result.length > 0) {
+        break;
+      }
     }
     return Promise.resolve(result);
   }
@@ -43,6 +60,9 @@ export class FederatedSource implements StatementSource {
     const result: (RdfBlankNode | RdfNamedNode)[] = [];
     for (const source of this.sources) {
       addValues(result, await source.reverseProperties(predicate, entity));
+      if (!this.exhaustive && result.length > 0) {
+        break;
+      }
     }
     return Promise.resolve(result);
   }
