@@ -1,101 +1,12 @@
 import {existsSync, mkdirSync, writeFileSync} from "fs";
 
-import {loadSchemaFromEntities} from "../schema-model-adapter";
+import {loadEntitySchemaFromIri} from "../../entity-model/entity-model-adapter";
 import {schemaAsReSpec} from "./respec-model-adapter";
 import {FederatedSource} from "../../rdf/statements/federated-source";
 import {JsonldSource} from "../../rdf/statements/jsonld-source";
-import {loadFromIri} from "../../platform-model/platform-model-adapter";
+import {PlatformModelAdapter} from "../../platform-model/platform-model-adapter";
 import {writeReSpecToDirectory} from "./respec-writer";
-
-// test("Convert 'časový-okamžik' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/časový-okamžik");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "časový-okamžik");
-// });
-
-async function loadFromTestSourcesGroupOne(iri) {
-  const source = FederatedSource.create([
-    await JsonldSource.create("file://test/ofn-psm.ttl"),
-    await JsonldSource.create("file://test/ofn-pim.ttl"),
-    await JsonldSource.create("file://test/ofn-cim.ttl"),
-  ]);
-  const entities = {};
-  const entity = await loadFromIri(source, entities, iri);
-  return loadSchemaFromEntities(entities, entity.id);
-}
-
-async function writeJson(content: any, dir: string, name: string) {
-  if (!existsSync(dir)) {
-    mkdirSync(dir, {"recursive": true});
-  }
-  const path = dir + "/" + name;
-  writeFileSync(path + ".json", JSON.stringify(content, null, 2));
-  writeReSpecToDirectory(content, path);
-}
-
-// test("Convert 'věc' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "věc");
-// });
-
-// test("Convert 'digitální-objekt' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/digitální-objekt");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "digitální-objekt");
-// });
-
-// test("Convert 'kontakt' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/kontakt");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "kontakt");
-// });
-
-// test("Convert 'člověk' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/člověk");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "člověk");
-// });
-
-// test("Convert 'věc' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/věc");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "věc");
-// });
-
-// test("Convert 'osoba' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/osoba");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "osoba");
-// });
-
-// test("Convert 'místo' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/místo");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "místo");
-// });
-
-// test("Convert 'turistický-cíl' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/turistický-cíl");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "turistický-cíl");
-// });
-
-// test("Convert 'veřejné-místo' to respec.", async () => {
-//   const input = await loadFromTestSourcesGroupOne(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/veřejné-místo");
-//   const actual = schemaAsReSpec(input);
-//   writeJson(actual, "./test-output/respec", "veřejné-místo");
-// });
+import {SparqlSource} from "../../rdf/statements/sparql-source";
 
 test("Convert 'číselníky' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
@@ -124,10 +35,21 @@ async function loadFromTestSourcesGroupTwo(iri) {
     await JsonldSource.create("file://test/psm-rpp-ustanovení-právních-předpisů.ttl"),
     await JsonldSource.create("file://test/psm-rpp-zařazení-do-kategorií.ttl"),
     await JsonldSource.create("file://test/pim-ustanovení-právních-předpisů.ttl"),
+    await SparqlSource.create("https://slovník.gov.cz/sparql"),
   ]);
-  const entities = {};
-  const entity = await loadFromIri(source, entities, iri);
-  return loadSchemaFromEntities(entities, entity.id);
+  const adapter = PlatformModelAdapter.create(source);
+  await adapter.loadIriTree(iri);
+  const entities = adapter.get();
+  return loadEntitySchemaFromIri(entities, iri);
+}
+
+async function writeJson(content: any, dir: string, name: string) {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, {"recursive": true});
+  }
+  const path = dir + "/" + name;
+  writeFileSync(path + ".json", JSON.stringify(content, null, 2));
+  writeReSpecToDirectory(content, path);
 }
 
 test("Convert 'adresní-místa' to respec.", async () => {

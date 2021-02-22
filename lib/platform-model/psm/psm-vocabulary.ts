@@ -22,16 +22,6 @@ export const INCLUDES = PSM + "Includes";
 
 export const CHOICE = PSM + "Choice";
 
-export const HAS_JSONLD_CONTEXT_URL = "urn:jsonLdContext";
-
-export const HAS_FOS_URL = "urn:fos";
-
-export const HAS_PREFIX = "urn:prefix";
-
-export const HAS_PREFIX_NAME = "urn:prefixName";
-
-export const HAS_PREFIX_URL = "urn:prefixUrl";
-
 const DCTERMS = "http://purl.org/dc/terms/";
 
 export const HAS_PART = DCTERMS + "hasPart";

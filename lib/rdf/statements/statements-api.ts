@@ -9,8 +9,8 @@ export interface StatementSource {
   properties(entity: RdfEntity, predicate: string): Promise<RdfBaseValue[]>;
 
   reverseProperties(
-    predicate: string, iri: string
-  ): Promise<(RdfBlankNode | RdfNamedNode)[]>;
+    predicate: string, entity: RdfEntity
+  ): Promise<RdfBaseValue[]>;
 
   /**
    * Fetch and save all information available about given entity.

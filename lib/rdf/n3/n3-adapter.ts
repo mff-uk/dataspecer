@@ -5,7 +5,7 @@ const RDF_LANGSTRING = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
 
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 
-type Property = {
+export type Property = {
   predicate: string,
   object: RdfNamedNode | RdfBlankNode | RdfLiteral
 };

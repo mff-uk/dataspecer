@@ -38,11 +38,11 @@ export class FederatedSource implements StatementSource {
   }
 
   async reverseProperties(
-    predicate: string, url: string
-  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    predicate: string, entity: RdfEntity
+  ): Promise<RdfBaseValue[]> {
     const result: (RdfBlankNode | RdfNamedNode)[] = [];
     for (const source of this.sources) {
-      addValues(result, await source.reverseProperties(predicate, url));
+      addValues(result, await source.reverseProperties(predicate, entity));
     }
     return Promise.resolve(result);
   }

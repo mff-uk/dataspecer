@@ -1,7 +1,5 @@
 export class ReSpec {
 
-  url: string;
-
   metadata: ReSpecMetadata = new ReSpecMetadata();
 
   overview: ReSpecOverview = new ReSpecOverview();

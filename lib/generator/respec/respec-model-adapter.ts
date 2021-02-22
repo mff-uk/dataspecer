@@ -2,7 +2,7 @@ import {
   ClassData,
   PropertyData,
   SchemaData,
-} from "../schema-model";
+} from "../../entity-model/entity-model";
 import {
   ReSpec,
   ReSpecEntity,
@@ -36,7 +36,6 @@ export function schemaAsReSpec(schema: SchemaData): ReSpec {
   const allRoots = selectRootClasses(schema);
   setSchemaToClasses(schema, allRoots);
   return {
-    "url": schema.fos,
     "metadata": loadReSpecMetadata(context),
     "overview": loadReSpecOverview(context),
     "specification": loadReSpecSpecification(context, allRoots),
@@ -54,7 +53,7 @@ function selectRootClasses(schema: SchemaData): ClassData [] {
   for (const classData of schema.roots) {
     roots = {
       ...roots,
-      [classData.iri]: classData,
+      [classData.psmIri]: classData,
       ...collectClassesWithoutSchema(classData)
     };
   }
@@ -76,7 +75,7 @@ function collectClassesWithoutSchema(
       }
       result = {
         ...result,
-        [propertyClass.iri]: propertyClass,
+        [propertyClass.psmIri]: propertyClass,
         ...collectClassesWithoutSchema(propertyClass)
       };
     }
@@ -172,14 +171,14 @@ function convertPropertyData(
   result.examples = [];
   result.relativeLink = createPropertyRelativeLink(context, propertyData);
   //
-  if (propertyData.datatype !== undefined) {
+  if (propertyData.dataTypePrimitive !== undefined) {
     result.type.push(convertPropertyType(context, propertyData));
   }
   for (const classData of propertyData.dataTypeClass) {
     result.type.push(convertPropertyTypeClass(context, classData));
   }
   if (result.type.length === 0) {
-    throw new Error(`Missing data type for ${propertyData.id}`);
+    throw new Error(`Missing data type for ${propertyData.psmIri}`);
   }
   return result;
 }
@@ -194,11 +193,11 @@ function createPropertyRelativeLink(
 function convertPropertyType(
   context: AdapterContext, propertyData: PropertyData
 ): ReSpecTypeReference {
+  const dataType = propertyData.dataTypePrimitive;
   return {
     "isPrimitive": true,
-    "label": selectString(context, BASE_TYPE_NAMES[propertyData.datatype])
-      || propertyData.datatype,
-    "schemaLink": propertyData.datatype,
+    "label": selectString(context, BASE_TYPE_NAMES[dataType]) || dataType,
+    "schemaLink": dataType,
     "relativeLink": "",
   };
 }
@@ -206,27 +205,15 @@ function convertPropertyType(
 function convertPropertyTypeClass(
   context: AdapterContext, classData: ClassData
 ): ReSpecTypeReference {
-  const label = selectString(context, classData.humanLabel) || classData.id;
-  if (classData.isCodelist) {
-    return {
-      "isPrimitive": false,
-      "label": label,
-      // TODO Generate link ..
-      "schemaLink": "http://example/",
-      "relativeLink": "",
-    };
-  }
+  const label = selectString(context, classData.humanLabel) || classData.psmIri;
   if (classData.schema === undefined) {
     throw new Error(
-      "Use of class '"
-      + classData.id
-      + "' without schema is not supported"
-    );
+      `Use of class ${classData.psmIri}' without schema is not supported`);
   }
   return {
     "isPrimitive": false,
     "label": label,
-    "schemaLink": classData.schema.fos,
+    "schemaLink": classData.schema.psmIri,
     "relativeLink": createClassDataRelativeLink(context, classData),
   };
 }

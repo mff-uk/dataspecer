@@ -44,6 +44,10 @@ export class EntitySource {
     return new EntitySource(entity, source);
   }
 
+  changeEntity(entity: RdfEntity) {
+    return new EntitySource(entity, this.rdfSource);
+  }
+
   id(): string {
     return this.rdfEntity.id;
   }
@@ -70,6 +74,17 @@ export class EntitySource {
     return properties
       .filter(item => item.isLiteral())
       .map(item => item as RdfLiteral);
+  }
+
+  async reverseEntity(predicate: string): Promise<RdfEntity | undefined> {
+    const properties: RdfBaseValue[] =
+      await this.rdfSource.reverseProperties(predicate, this.rdfEntity);
+    for (const property of properties) {
+      if (property.isBlankNode() || property.isNamedNode()) {
+        return RdfEntity.create(property.id);
+      }
+    }
+    return undefined;
   }
 
   async entity(predicate: string): Promise<RdfEntity | undefined> {
@@ -142,11 +157,31 @@ export class EntitySource {
     }
   }
 
+  async irisExtended(predicate: string): Promise<string[]> {
+    const result = [];
+    for (const {entity} of await this.entitiesExtended(predicate)) {
+      result.push(entity.id);
+    }
+    return result;
+  }
+
   async types(): Promise<string[]> {
     const properties = await this.properties(TYPE);
     return properties
       .filter(property => property.isNamedNode)
       .map(property => (property as RdfNamedNode).id);
+  }
+
+  async languageString(predicate: string): Promise<Record<string, string>> {
+    const literals = await this.literals(predicate)
+    if (literals === undefined || literals.length === 0) {
+      return null;
+    }
+    const result = {};
+    for (const title of literals) {
+      result[title.language || ""] = String(title.value);
+    }
+    return result;
   }
 
 }

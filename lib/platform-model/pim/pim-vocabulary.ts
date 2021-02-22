@@ -20,6 +20,8 @@ export const ASSOCIATION = PIM + "Association";
 
 export const SCHEMA = PIM + "Schema";
 
+export const HAS_ISA = PIM + "isa";
+
 const DCTERMS = "http://purl.org/dc/terms/";
 
 export const HAS_PART = DCTERMS + "hasPart";
@@ -27,5 +29,3 @@ export const HAS_PART = DCTERMS + "hasPart";
 export const HAS_HUMAN_LABEL = DCTERMS + "title";
 
 export const HAS_HUMAN_DESCRIPTION = DCTERMS + "description";
-
-export const HAS_ISA = PIM + "isa";

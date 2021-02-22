@@ -67,8 +67,8 @@ export class JsonldSource implements StatementSource {
   }
 
   reverseProperties(
-    predicate: string, iri: string
-  ): Promise<(RdfBlankNode | RdfNamedNode)[]> {
+    predicate: string, entity: RdfEntity
+  ): Promise<RdfBaseValue[]> {
     const result = [];
     for (const jsonld of Object.values(this.entities)) {
       const values = jsonld[predicate];
@@ -76,7 +76,7 @@ export class JsonldSource implements StatementSource {
         continue;
       }
       for (const value of values) {
-        if (isObject(value) && value["@id"] === iri) {
+        if (isObject(value) && value["@id"] === entity.id) {
           // We need reference to the jsonld object.
           result.push(jsonLdValueToQuad({"@id": jsonld["@id"]}));
           break;
