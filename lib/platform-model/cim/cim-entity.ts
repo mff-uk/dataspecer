@@ -29,8 +29,7 @@ export class CimEntity extends ModelResource {
 export class CimEntityAdapter implements ModelLoader {
 
   canLoadResource(resource: ModelResource): boolean {
-    // TODO Consider http://www.w3.org/2004/02/skos/core#Concept
-    return true;
+    return resource.rdfTypes.includes(CIM.CONCEPT);
   }
 
   async loadIntoResource(

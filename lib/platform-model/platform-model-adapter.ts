@@ -91,13 +91,8 @@ export class PlatformModelAdapter {
       resource, entitySource, this.psmAdapters);
     await this.loadEntityWithAdapters(
       resource, entitySource, this.pimAdapters);
-    // We have no way how to detect CIM level, so we just use it
-    // as a fallback option.
-    // TODO Improve handling and detect unknown entities.
-    if (resource.types.length === 0) {
-      await this.loadEntityWithAdapters(
-        resource, entitySource, this.cimAdapters);
-    }
+    await this.loadEntityWithAdapters(
+      resource, entitySource, this.cimAdapters);
   }
 
   async loadEntityWithAdapters(

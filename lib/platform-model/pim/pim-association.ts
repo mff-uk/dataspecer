@@ -45,6 +45,9 @@ export class PimAssociationAdapter implements ModelLoader {
     const loadFromBase = await loadPimBaseIntoResource(source, resource);
     const pimAssociation = PimAssociation.as(resource);
     pimAssociation.pimHasClass = (await source.entity(PIM.HAS_CLASS))?.id;
+    if (pimAssociation.pimHasClass !== undefined) {
+      console.log("ASSOCIATION WITH CLASS", source.id());
+    }
     const loadEnds = [];
     for (const {entity} of await source.entitiesExtended(PIM.HAS_END)) {
       const pimEnd = await this.loadPimReference(source.changeEntity(entity));

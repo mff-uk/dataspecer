@@ -1,11 +1,9 @@
-const CIM = "urn:";
+const SKOS = "http://www.w3.org/2004/02/skos/core#"
 
-export const CODELIST = CIM + "Codelist";
+export const CONCEPT = SKOS + "Concept";
 
-export const ENTITY = CIM + "CimEntity";
+export const HAS_HUMAN_LABEL = SKOS + "prefLabel";
 
 const DCTERMS = "http://purl.org/dc/terms/";
-
-export const HAS_HUMAN_LABEL = DCTERMS + "title";
 
 export const HAS_HUMAN_DESCRIPTION = DCTERMS + "description";
