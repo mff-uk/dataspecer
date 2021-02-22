@@ -178,7 +178,10 @@ function convertPropertyData(
     result.type.push(convertPropertyTypeClass(context, classData));
   }
   if (result.type.length === 0) {
-    throw new Error(`Missing data type for ${propertyData.psmIri}`);
+    throw new Error(
+      `Missing data type for ${propertyData.psmIri} with interpretation `
+      + `${propertyData.cimIri}`
+    );
   }
   return result;
 }

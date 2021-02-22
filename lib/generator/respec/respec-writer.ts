@@ -54,8 +54,8 @@ function writeHeader(model: ReSpec, stream: WriteStream) {
             publishDate: "${currentDate()}",
             shortName: "${title}",
             showPreviousVersion: false,
-            thisVersion: "${model.url}",
-            latestVersion: "${model.url}",
+            thisVersion: "",
+            latestVersion: "",
             editors: [{
               name: "Model Drive Data",
               company: "Model Drive Data",
