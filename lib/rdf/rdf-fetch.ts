@@ -6,7 +6,10 @@ import {createReadStream} from "fs";
 import makeFetchHappen from "make-fetch-happen";
 import {Response} from "minipass-fetch";
 
-const fetch = makeFetchHappen.defaults({"cacheManager": "./.http-cache"});
+const fetch = makeFetchHappen.defaults({
+  "cacheManager": "./.http-cache",
+  "cache": "no-store",
+});
 
 // https://github.com/hyperjump-io/json-schema-core/blob/517247ab8848b44e0b0129bc802790c8ab6cb956/lib/schema.js#L159
 export default function fetchUrl(url, options) {
