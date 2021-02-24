@@ -62,7 +62,7 @@ pimovm:je-vnitřní-organizační-jednotkou a pim:Attribute ;
     pim:hasDatatype xsd:boolean .
 
 pimovm:má-identifikační-číslo-orgánu-veřejné-moci a pim:Attribute ;
-	pim:hasInterpretation lsgov1112009:má-identifikační-číslo-orgánu-veřejné-moci ;
+	pim:hasInterpretation lsgov1112009:má-identifikační-číslo-osoby-orgánu-veřejné-moci ;
     pim:hasClass pimovm:orgán-veřejné-moci ;
     pim:hasDatatype xsd:string .
 
