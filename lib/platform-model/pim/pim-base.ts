@@ -12,6 +12,11 @@ export class PimBase extends ModelResource {
 
   pimHumanDescription?: LanguageString;
 
+  /**
+   * Class this property belongs to.
+   */
+  pimHasClass?: string;
+
 }
 
 export async function loadPimBaseIntoResource(
@@ -25,5 +30,6 @@ export async function loadPimBaseIntoResource(
     await source.languageString(PIM.HAS_HUMAN_LABEL);
   pimBase.pimHumanDescription =
     await source.languageString(PIM.HAS_HUMAN_DESCRIPTION);
-  return [pimBase.pimInterpretation];
+  pimBase.pimHasClass = (await source.entity(PIM.HAS_CLASS))?.id;
+  return [pimBase.pimInterpretation, pimBase.pimHasClass];
 }

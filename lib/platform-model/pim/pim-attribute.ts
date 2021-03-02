@@ -7,8 +7,6 @@ export class PimAttribute extends PimBase {
 
   static readonly TYPE: string = "pim-attribute";
 
-  pimHasClass?: string;
-
   pimDatatype?: string;
 
   static is(resource: ModelResource): resource is PimAttribute {
@@ -36,11 +34,8 @@ export class PimAttributeAdapter implements ModelLoader {
   ): Promise<string[]> {
     const loadFromBase = await loadPimBaseIntoResource(source, resource);
     const pimAttribute = PimAttribute.as(resource);
-    pimAttribute.pimHasClass = (await source.entity(PIM.HAS_CLASS))?.id;
     pimAttribute.pimDatatype = (await source.entity(PIM.HAS_DATA_TYPE))?.id;
-    return [
-      ...loadFromBase, pimAttribute.pimHasClass, pimAttribute.pimDatatype
-    ];
+    return [...loadFromBase, pimAttribute.pimDatatype];
   }
 
 }

@@ -200,11 +200,6 @@ export class EntityPropertyAdapter {
     propertyData.propertyType = PropertyType.Attribute;
     propertyData.technicalLabel = pimAttribute.pimTechnicalLabel;
     propertyData.dataTypePrimitive = pimAttribute.pimDatatype;
-    if (pimAttribute.pimHasClass !== undefined) {
-      const classResource = this.entities[pimAttribute.pimHasClass];
-      const pimClass = this.classAdapter.loadClassFromPimClass(classResource);
-      propertyData.dataTypeClass.push(pimClass);
-    }
   }
 
   loadPropertyFromCimIri(iri: string): PropertyData {
@@ -265,12 +260,7 @@ export class EntityPropertyAdapter {
     propertyData.humanDescription = pimAssociation.pimHumanDescription;
     propertyData.propertyType = PropertyType.Association;
     propertyData.technicalLabel = pimAssociation.pimTechnicalLabel;
-    if (pimAssociation.pimHasClass !== undefined) {
-      const entity = this.entities[pimAssociation.pimHasClass];
-      propertyData.dataTypeClass = [
-        this.classAdapter.loadClassFromPimClass(entity)
-      ];
-    } else if (pimAssociation.pimEnd.length === 2) {
+    if (pimAssociation.pimEnd.length === 2) {
       const entity = this.entities[pimAssociation.pimEnd[1].pimParticipant];
       propertyData.dataTypeClass = [
         this.classAdapter.loadClassFromPimClass(entity)
