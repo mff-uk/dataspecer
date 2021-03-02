@@ -56,6 +56,7 @@ export class EntityClassAdapter {
   }
 
   protected psmClassToClass(psmClass: PsmClass, classData: ClassData) {
+    classData.iris = [psmClass.id];
     classData.psmIri = psmClass.id;
     classData.humanLabel = psmClass.psmHumanLabel;
     classData.humanDescription = psmClass.psmHumanDescription;
@@ -73,15 +74,17 @@ export class EntityClassAdapter {
   }
 
   protected addPsmInterpretation(left: ClassData, right: ClassData) {
+    left.iris.push(...right.iris);
     left.cimIri = right.cimIri;
     left.humanLabel = left.humanLabel || right.humanLabel;
     left.humanDescription = left.humanDescription || right.humanDescription;
-    left.extends = left.extends || right.extends;
-    left.properties = left.properties || right.properties;
+    left.extends = selectNotEmpty(left.extends, right.extends);
+    left.properties = selectNotEmpty(left.properties, right.properties);
     left.schema = left.schema || right.schema;
   }
 
   protected addPimInterpretation(psm: ClassData, pim: ClassData) {
+    psm.iris.push(...pim.iris);
     psm.cimIri = pim.cimIri;
     psm.humanLabel = psm.humanLabel || pim.humanLabel;
     psm.humanDescription = psm.humanDescription || pim.humanDescription;
@@ -105,12 +108,14 @@ export class EntityClassAdapter {
   }
 
   protected addCimInterpretation(pim: ClassData, cim: ClassData) {
+    pim.iris.push(...cim.iris);
     pim.cimIri = cim.cimIri;
     pim.humanLabel = pim.humanLabel || cim.humanLabel;
     pim.humanDescription = pim.humanDescription || cim.humanDescription;
   }
 
   protected pimClassToClass(pimClass: PimClass, classData: ClassData) {
+    classData.iris = [pimClass.id];
     classData.humanLabel = pimClass.pimHumanLabel;
     classData.humanDescription = pimClass.pimHumanDescription;
     classData.extends = pimClass.pimIsa
@@ -131,6 +136,7 @@ export class EntityClassAdapter {
   }
 
   protected cimEntityToClass(cimEntity: CimEntity, classData: ClassData) {
+    classData.iris = [cimEntity.id];
     classData.cimIri = cimEntity.id;
     classData.humanLabel = cimEntity.cimHumanLabel;
     classData.humanDescription = cimEntity.cimHumanDescription;
@@ -138,3 +144,9 @@ export class EntityClassAdapter {
 
 }
 
+function  selectNotEmpty<T>(first: T[], second:T[]) : T[] {
+  if (first === undefined || first.length === 0) {
+    return second;
+  }
+  return first;
+}

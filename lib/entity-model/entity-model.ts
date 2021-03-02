@@ -15,6 +15,11 @@ export enum PropertyType {
  */
 export class PropertyData {
 
+  /**
+   * List of IRIs used to build this object, from PSM, PIM to CIM.
+   */
+  iris: string[];
+
   psmIri: string;
 
   cimIri: string | undefined;
@@ -34,6 +39,11 @@ export class PropertyData {
 }
 
 export class ClassData {
+
+  /**
+   * List of IRIs used to build this object, from PSM, PIM to CIM.
+   */
+  iris: string[];
 
   psmIri: string;
 
