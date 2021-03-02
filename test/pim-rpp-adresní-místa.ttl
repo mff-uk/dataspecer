@@ -20,4 +20,5 @@ pimam:adresní-místo a pim:Class ;
 
 pimam:má-kód-adresního-místa a pim:Attribute ;
 	pim:hasInterpretation lsgov1112009:má-kód-adresního-místa ;
+	pim:hasDatatype xsd:string ;
     pim:hasClass pimam:adresní-místo .
