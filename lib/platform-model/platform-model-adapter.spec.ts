@@ -13,7 +13,7 @@ test("Load 'číselníky' model.", async () => {
 });
 
 async function loadFromTestSourcesGroupTwo(iri) {
-  const source = FederatedSource.create([
+  const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
     await JsonldSource.create("file://test/pim-rpp-datové-schránky.ttl"),

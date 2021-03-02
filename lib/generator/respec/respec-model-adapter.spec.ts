@@ -9,15 +9,15 @@ import {SparqlSource} from "../../rdf/statements/sparql-source";
 
 beforeAll(() => jest.setTimeout(10 * 60 * 1000));
 
-test("Convert 'číselníky' to respec.", async () => {
-  const input = await loadFromTestSourcesGroupTwo(
-    "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
-  const actual = schemaAsReSpec(input);
-  writeJson(actual, "./test-output/respec", "číselníky");
-});
+// test("Convert 'číselníky' to respec.", async () => {
+//   const input = await loadFromTestSourcesGroupTwo(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
+//   const actual = schemaAsReSpec(input);
+//   writeJson(actual, "./test-output/respec", "číselníky");
+// });
 
 async function loadFromTestSourcesGroupTwo(iri) {
-  const source = FederatedSource.create([
+  const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
     await JsonldSource.create("file://test/pim-rpp-datové-schránky.ttl"),

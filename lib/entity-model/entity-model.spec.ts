@@ -14,7 +14,7 @@ test("Load 'adresní-místa' schema.", async () => {
 });
 
 async function loadFromTestSourcesGroupTwo(iri) {
-  const source = FederatedSource.create([
+  const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
     await JsonldSource.create("file://test/pim-rpp-datové-schránky.ttl"),
@@ -105,11 +105,11 @@ async function writeJson(content: any, dir: string, fileName: string) {
   writeFileSync(path, stringify(content));
 }
 
-test("Load 'číselníky' schema.", async () => {
-  const actual = await loadFromTestSourcesGroupTwo(
-    "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
-  writeJson(actual, "./test-output/entity-model", "číselníky.json");
-});
+// test("Load 'číselníky' schema.", async () => {
+//   const actual = await loadFromTestSourcesGroupTwo(
+//     "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
+//   writeJson(actual, "./test-output/entity-model", "číselníky.json");
+// });
 
 test("Load 'datové-schránky' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
