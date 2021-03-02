@@ -9,12 +9,12 @@ import {
 } from "./respec-model";
 import {WriteStream} from "fs";
 
-export function writeReSpecToDirectory(model: ReSpec, directory: string) {
+export function writeReSpec(model: ReSpec, directory: string, name:string) {
   if (!fileSystem.existsSync(directory)) {
     fileSystem.mkdirSync(directory);
   }
   const outputStream = fileSystem.createWriteStream(
-    path.join(directory, "index.html"));
+    path.join(directory, name + ".html"));
   outputStream.write("<!DOCTYPE html>\n")
   outputStream.write("<html lang=\"cs\">")
   writeHeader(model, outputStream);
