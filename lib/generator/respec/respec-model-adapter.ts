@@ -210,13 +210,13 @@ function convertPropertyTypeClass(
 ): ReSpecTypeReference {
   const label = selectString(context, classData.humanLabel) || classData.psmIri;
   if (classData.schema === undefined) {
-    throw new Error(
-      `Use of class ${classData.psmIri}' without schema is not supported`);
+    console.warn(
+      `Class [${classData.iris}] is without schema.`)
   }
   return {
     "isPrimitive": false,
     "label": label,
-    "schemaLink": classData.schema.psmIri,
+    "schemaLink": classData.schema?.psmIri,
     "relativeLink": createClassDataRelativeLink(context, classData),
   };
 }
