@@ -227,9 +227,9 @@ export class EntityPropertyAdapter {
   ) {
     pim.iris.push(...cim.iris);
     pim.cimIri = cim.cimIri;
-    pim.humanLabel = cim.humanLabel || cim.humanLabel;
-    pim.humanDescription = cim.humanDescription || cim.humanDescription;
-    pim.technicalLabel = cim.technicalLabel || cim.technicalLabel;
+    pim.humanLabel = pim.humanLabel || cim.humanLabel;
+    pim.humanDescription = pim.humanDescription || cim.humanDescription;
+    pim.technicalLabel = pim.technicalLabel || cim.technicalLabel;
   }
 
   protected loadPropertyFromPimAssociation(

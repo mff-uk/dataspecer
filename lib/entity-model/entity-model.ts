@@ -61,6 +61,8 @@ export class ClassData {
 
   schema: SchemaData | undefined;
 
+  isCodelist: boolean = false;
+
 }
 
 export class SchemaData {

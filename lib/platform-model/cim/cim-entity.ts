@@ -12,6 +12,10 @@ export class CimEntity extends ModelResource {
 
   cimHumanDescription?: LanguageString;
 
+  cimSubClassOf: string[] = [];
+
+  cimIsCodelist: boolean = false;
+
   static is(resource: ModelResource): resource is CimEntity {
     return resource.types.includes(CimEntity.TYPE);
   }
@@ -21,7 +25,10 @@ export class CimEntity extends ModelResource {
       return resource as CimEntity;
     }
     resource.types.push(CimEntity.TYPE);
-    return resource as CimEntity;
+    const result =  resource as CimEntity;
+    result.cimSubClassOf = result.cimSubClassOf || [];
+    result.cimIsCodelist = result.cimIsCodelist || false;
+    return result;
   }
 
 }
@@ -40,6 +47,11 @@ export class CimEntityAdapter implements ModelLoader {
       await source.languageString(CIM.HAS_HUMAN_LABEL);
     cimEntity.cimHumanDescription =
       await source.languageString(CIM.HAS_HUMAN_DESCRIPTION);
+    cimEntity.cimSubClassOf =
+      await source.iris(CIM.HAS_SUBCLASS_OF);
+    //
+    cimEntity.cimIsCodelist =
+      cimEntity.cimSubClassOf.includes(CIM.CODELIST_ITEM);
     return [];
   }
 

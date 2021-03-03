@@ -20,7 +20,7 @@ export class ReSpecMetadata {
 
 export class ReSpecOverview {
 
-  // TODO This contains a diagram .. we do not have one yet.
+  humanDescription: string;
 
 }
 
@@ -39,7 +39,10 @@ export class ReSpecEntity {
 
   humanDescription: string;
 
-  relativeLink: string;
+  /**
+   * Identification of section
+   */
+  identification: string;
 
   /**
    * List of class members.
@@ -66,7 +69,10 @@ export class ReSpecProperty {
 
   examples: string[] = [];
 
-  relativeLink: string;
+  /**
+   * Identification of section
+   */
+  identification: string;
 
 }
 
@@ -76,9 +82,13 @@ export class ReSpecTypeReference {
 
   label: string;
 
-  schemaLink: string;
+  link: string;
 
-  relativeLink: string;
+  /**
+   * If given values for this reference should be part of the codelist,
+   * this item contains CIM IRI of entity that is codelist item.
+   */
+  codelist: string | undefined;
 
 }
 

@@ -157,6 +157,14 @@ export class EntitySource {
     }
   }
 
+  async iris(predicate: string): Promise<string[]> {
+    const result = [];
+    for (const entity of await this.entities(predicate)) {
+      result.push(entity.id);
+    }
+    return result;
+  }
+
   async irisExtended(predicate: string): Promise<string[]> {
     const result = [];
     for (const {entity} of await this.entitiesExtended(predicate)) {

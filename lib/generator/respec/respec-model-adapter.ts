@@ -15,10 +15,10 @@ import {
   ReSpecTypeReference,
 } from "./respec-model";
 
-const BASE_TYPE_NAMES = {
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString": {
-    "": "Text"
-  },
+/**
+ * Predefined base types identified by IRI with labels as language strings.
+ */
+const BASE_TYPE_NAMES : {[iri:string]: Record<string, string>} = {
 };
 
 class AdapterContext {
@@ -37,7 +37,7 @@ export function schemaAsReSpec(schema: SchemaData): ReSpec {
   setSchemaToClasses(schema, allRoots);
   return {
     "metadata": loadReSpecMetadata(context),
-    "overview": loadReSpecOverview(context),
+    "overview": loadReSpecOverview(context, schema),
     "specification": loadReSpecSpecification(context, allRoots),
     "examples": loadReSpecExample(context),
     "references": loadReSpecReference(context),
@@ -54,6 +54,8 @@ function selectRootClasses(schema: SchemaData): ClassData [] {
     roots = {
       ...roots,
       [classData.psmIri]: classData,
+      // We add all classes without schema, as we can not link to their
+      // external definitions.
       ...collectClassesWithoutSchema(classData)
     };
   }
@@ -107,13 +109,18 @@ function selectString(
   if (str[""] !== undefined) {
     return str[""];
   }
+  // Return anything we found.
   for (const value of Object.values(str)) {
     return value;
   }
 }
 
-function loadReSpecOverview(context: AdapterContext): ReSpecOverview {
-  return new ReSpecOverview();
+function loadReSpecOverview(
+  context: AdapterContext, schema: SchemaData
+): ReSpecOverview {
+  return {
+    "humanDescription" : selectString(context, schema.humanDescription),
+  };
 }
 
 function loadReSpecSpecification(
@@ -131,17 +138,23 @@ function loadReSpecSpecificationClassData(
   return {
     "humanLabel": selectString(context, classData.humanLabel),
     "humanDescription": selectString(context, classData.humanDescription),
-    "relativeLink": createClassDataRelativeLink(context, classData),
     "properties": loadClassDataProperties(context, classData),
+    "identification": createClassIdentification(context, classData),
   };
 }
 
-function createClassDataRelativeLink(
+function createClassIdentification(
   context: AdapterContext, classData: ClassData
 ): string {
-  return selectString(context, classData.humanLabel)
+  return "třída-" + sanitizeForIdentification(context, classData.humanLabel);
+}
+
+function sanitizeForIdentification(
+  context: AdapterContext, content:Record<string, string>
+) : string {
+  return selectString(context, content)
     .toLowerCase()
-    .replace(" ", "-");
+    .replace(/ /g, "-");
 }
 
 function loadClassDataProperties(
@@ -154,14 +167,14 @@ function loadClassDataProperties(
     }
   }
   for (const property of classData.properties) {
-    const propertyData = convertPropertyData(context, property);
+    const propertyData = convertPropertyData(context, classData, property);
     result[propertyData.technicalLabel] = propertyData;
   }
   return Object.values(result);
 }
 
 function convertPropertyData(
-  context: AdapterContext, propertyData: PropertyData,
+  context: AdapterContext, owner: ClassData, propertyData: PropertyData,
 ): ReSpecProperty {
   const result = new ReSpecProperty();
   result.technicalLabel = propertyData.technicalLabel;
@@ -169,13 +182,14 @@ function convertPropertyData(
   result.humanDescription =
     selectString(context, propertyData.humanDescription);
   result.examples = [];
-  result.relativeLink = createPropertyRelativeLink(context, propertyData);
+  result.identification =
+    createPropertyIdentification(context, owner, propertyData);
   //
   if (propertyData.dataTypePrimitive !== undefined) {
-    result.type.push(convertPropertyType(context, propertyData));
+    result.type.push(convertPropertyPrimitive(context, propertyData));
   }
   for (const classData of propertyData.dataTypeClass) {
-    result.type.push(convertPropertyTypeClass(context, classData));
+    result.type.push(convertPropertyClass(context, classData));
   }
   if (result.type.length === 0) {
     throw new Error(
@@ -187,37 +201,39 @@ function convertPropertyData(
 }
 
 
-function createPropertyRelativeLink(
-  context: AdapterContext, propertyData: PropertyData
+function createPropertyIdentification(
+  context: AdapterContext, owner: ClassData, propertyData: PropertyData
 ): string {
-  return selectString(context, propertyData.humanLabel).toLowerCase();
+  return "vlastnost-"
+    + sanitizeForIdentification(context, owner.humanLabel)
+    + "-"
+    + sanitizeForIdentification(context, propertyData.humanLabel);
 }
 
-function convertPropertyType(
+function convertPropertyPrimitive(
   context: AdapterContext, propertyData: PropertyData
 ): ReSpecTypeReference {
   const dataType = propertyData.dataTypePrimitive;
   return {
     "isPrimitive": true,
     "label": selectString(context, BASE_TYPE_NAMES[dataType]) || dataType,
-    "schemaLink": dataType,
-    "relativeLink": "",
+    "link": dataType,
+    "codelist": undefined,
   };
 }
 
-function convertPropertyTypeClass(
+function convertPropertyClass(
   context: AdapterContext, classData: ClassData
 ): ReSpecTypeReference {
   const label = selectString(context, classData.humanLabel) || classData.psmIri;
-  if (classData.schema === undefined) {
-    console.warn(
-      `Class [${classData.iris}] is without schema.`)
-  }
   return {
     "isPrimitive": false,
     "label": label,
-    "schemaLink": classData.schema?.psmIri,
-    "relativeLink": createClassDataRelativeLink(context, classData),
+    // We can use external or internal link.
+    "link": classData.schema === undefined
+      ? createClassIdentification(context, classData)
+      : classData.schema.psmIri,
+    "codelist": classData.isCodelist ? classData.cimIri : undefined,
   };
 }
 

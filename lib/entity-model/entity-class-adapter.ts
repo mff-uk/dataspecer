@@ -81,6 +81,7 @@ export class EntityClassAdapter {
     left.extends = selectNotEmpty(left.extends, right.extends);
     left.properties = selectNotEmpty(left.properties, right.properties);
     left.schema = left.schema || right.schema;
+    left.isCodelist = left.isCodelist || right.isCodelist;
   }
 
   protected addPimInterpretation(psm: ClassData, pim: ClassData) {
@@ -88,6 +89,7 @@ export class EntityClassAdapter {
     psm.cimIri = pim.cimIri;
     psm.humanLabel = psm.humanLabel || pim.humanLabel;
     psm.humanDescription = psm.humanDescription || pim.humanDescription;
+    psm.isCodelist = pim.isCodelist;
   }
 
   loadClassFromPimClass(entity: ModelResource): ClassData {
@@ -112,6 +114,7 @@ export class EntityClassAdapter {
     pim.cimIri = cim.cimIri;
     pim.humanLabel = pim.humanLabel || cim.humanLabel;
     pim.humanDescription = pim.humanDescription || cim.humanDescription;
+    pim.isCodelist = cim.isCodelist;
   }
 
   protected pimClassToClass(pimClass: PimClass, classData: ClassData) {
@@ -140,6 +143,7 @@ export class EntityClassAdapter {
     classData.cimIri = cimEntity.id;
     classData.humanLabel = cimEntity.cimHumanLabel;
     classData.humanDescription = cimEntity.cimHumanDescription;
+    classData.isCodelist = cimEntity.cimIsCodelist;
   }
 
 }

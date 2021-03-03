@@ -2,14 +2,12 @@ import * as fileSystem from "fs";
 import * as path from "path";
 
 import {
-  ReSpec,
-  ReSpecEntity,
-  ReSpecProperty,
-  ReSpecTypeReference,
+  ReSpec, ReSpecEntity, ReSpecOverview,
+  ReSpecProperty, ReSpecSpecification, ReSpecTypeReference,
 } from "./respec-model";
 import {WriteStream} from "fs";
 
-export function writeReSpec(model: ReSpec, directory: string, name:string) {
+export function writeReSpec(model: ReSpec, directory: string, name: string) {
   if (!fileSystem.existsSync(directory)) {
     fileSystem.mkdirSync(directory);
   }
@@ -95,8 +93,8 @@ function currentDate() {
 function writeBody(model: ReSpec, stream: WriteStream) {
   stream.write("\n  </body>")
   writeIntroduction(model, stream);
-  writeOverview(model, stream);
-  writeSpecification(model, stream);
+  writeOverview(model.overview, stream);
+  writeSpecification(model.specification, stream);
   writeExamples(model, stream);
   stream.write("\n  </body>")
 }
@@ -106,44 +104,45 @@ function writeIntroduction(model: ReSpec, stream: WriteStream) {
     <section id="abstract" class="introductory">
       <h2>Abstrakt</h2>
       <p>
-          Tento dokument je sdílenou specifikací, která je součástí 
-          otevřených formálních norem ve smyslu 
-          <a href="https://www.zakonyprolidi.cz/cs/1999-106#p3-9">
-            § 3 odst. 9 zákona č. 106/1999 Sb., o svobodném přístupu 
-            k informacím
-          </a>.
-          Věc v této specifikaci reprezentuje předka 
-          (ve smyslu dědičnosti) všech tříd definovaných v jiných
-          specifikacích a otevřených formálních normách. Její vlastnosti
-          a vazby tedy lze použít vždy a jsou specifikovány zde,
-          na jednom místě.
+        Tento dokument je sdílenou specifikací.
       </p>
     </section>`);
 }
 
-function writeOverview(model: ReSpec, stream: WriteStream) {
+function writeOverview(overview: ReSpecOverview, stream: WriteStream) {
   stream.write(`
     <section id="přehled">
-      <h2>Přehled</h2>
-    </section>
-`);
+      <h2>Přehled</h2>`);
+  if (!isStringEmpty(overview.humanDescription)) {
+    stream.write("\n    <p>");
+    stream.write(overview.humanDescription);
+    stream.write("</p>");
+  }
+  stream.write("\n    </section>");
 }
 
-function writeSpecification(model: ReSpec, stream: WriteStream) {
+function writeSpecification(
+  specification: ReSpecSpecification, stream: WriteStream
+) {
   stream.write(`
     <section id="specifikace">
       <h2>Specifikace</h2>
-      <p></p>
+      <p>
+        V této sekci jsou definovány jednotlivé třídy a jejich vlastnosti. 
+        Pro každou vlastnost je uveden její identifikátor, který je pro její
+        reprezentaci použit ve všech datových formátech, její název a datový typ.
+        Volitelně je uveden také popis a příklad. 
+      </p>
 `);
-  model.specification.entities.forEach(entity => writeFosEntity(entity, stream));
+  specification.entities.forEach(entity => writeFosEntity(entity, stream));
   stream.write("\n    </section>");
 }
 
 function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
   stream.write(`
-      <section id="třída-${entity.relativeLink}">
+      <section id="${entity.identification}">
         <h3>${entity.humanLabel}</h3>
-        <p>${entity.humanDescription}.</p>`);
+        <p>${entity.humanDescription}</p>`);
   entity.properties.forEach(property =>
     writeFosProperty(entity, property, stream));
   stream.write("\n      </section>");
@@ -152,32 +151,71 @@ function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
 function writeFosProperty(
   owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream
 ) {
+  stream.write(`
+        <section id="${property.identification}">
+          <h4>${property.humanLabel}</h4>
+          <dl>
+              <dt>Vlastnost</dt>
+              <dd><code>${property.technicalLabel}</code></dd>`);
+  writeFosPropertyTypes(property, stream);
+  writeFosPropertyHumanLabel(property, stream);
+  writeFosPropertyHumanDescription(property, stream);
+  writeFosPropertyExamples(property, stream);
+  stream.write(`
+          </dl>
+         </section>`);
+
+}
+
+function writeFosPropertyTypes(
+  property: ReSpecProperty, stream: WriteStream) {
   const types = property.type
-    .map(type => `<a href="${createTypeLink(type)}">${type.label}</a>`)
+    .map(writeFosPropertyType)
     .join("");
+  stream.write(`
+              <dt>Typ</dt>
+              <dd>${types}</dd>`);
+}
+
+function writeFosPropertyType(type: ReSpecTypeReference): string {
+  if (type.codelist === undefined) {
+    return `<a href="${type.link}">${type.label}</a>`;
+  }
+  return `Číselník <a href="${type.link}">${type.label}</a>`
+}
+
+function writeFosPropertyHumanLabel(
+  property: ReSpecProperty, stream: WriteStream) {
+  stream.write(`
+            <dt>Jméno</dt>
+            <dd>${property.humanLabel}</dd>`);
+}
+
+function writeFosPropertyHumanDescription(
+  property: ReSpecProperty, stream: WriteStream) {
+  if (isStringEmpty(property.humanDescription)) {
+    return;
+  }
+  stream.write(`
+              <dt>Popis</dt>
+              <dd>${property.humanDescription}</dd>`);
+}
+
+function writeFosPropertyExamples(
+  property: ReSpecProperty, stream: WriteStream) {
+  if (property.examples.length === 0) {
+    return;
+  }
   const examples = property.examples
     .map(iri => `<code>${iri}</code>`)
     .join("");
   stream.write(`
-        <section id="vlastnost-${owner.relativeLink}-${property.relativeLink}">
-          <h4>${property.humanLabel}</h4>
-          <dl>
-              <dt>Vlastnost</dt>
-              <dd><code>${property.technicalLabel}</code></dd>
-              <dt>Typ</dt>
-              <dd>${types}</dd>
-              <dt>Jméno</dt>
-              <dd>${property.humanLabel}</dd>
-              <dt>Popis</dt>
-              <dd>${property.humanDescription}</dd>
               <dt>Příklad</dt>
-              <dd>${examples}</dd>
-          </dl>
-        </section>`);
+              <dd>${examples}</dd>`);
 }
 
-function createTypeLink(reference: ReSpecTypeReference) {
-  return reference.schemaLink + "#třída-" + reference.relativeLink;
+function isStringEmpty(content: string): boolean {
+  return content === undefined || content.trim().length === 0;
 }
 
 function writeExamples(model: ReSpec, stream: WriteStream) {
