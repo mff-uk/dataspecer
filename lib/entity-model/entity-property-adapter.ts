@@ -153,6 +153,9 @@ export class EntityPropertyAdapter {
     propertyData.humanDescription = psmAssociation.psmHumanDescription;
     propertyData.propertyType = PropertyType.Association;
     propertyData.technicalLabel = psmAssociation.psmTechnicalLabel;
+    propertyData.dataTypeClass = psmAssociation.psmParts
+      .map(iri => this.entities[iri])
+      .map(entity => this.classAdapter.loadClassFromPsmClass(entity));
   }
 
   protected loadPropertyFromPsmIncludes(

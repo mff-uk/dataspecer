@@ -69,8 +69,10 @@ export class EntityClassAdapter {
       classData.properties.push(
         ...this.propertyAdapter.loadPropertyFromPsm(entity));
     }
-    classData.schema = this.schemaAdapter.loadPsmSchemaFromIri(
-      psmClass.ownerSchema);
+    if (psmClass.ownerSchema !== undefined) {
+      classData.schema = this.schemaAdapter.loadPsmSchemaFromIri(
+        psmClass.ownerSchema);
+    }
   }
 
   protected addPsmInterpretation(left: ClassData, right: ClassData) {
