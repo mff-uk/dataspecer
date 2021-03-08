@@ -229,10 +229,7 @@ function convertPropertyClass(
   return {
     "isPrimitive": false,
     "label": label,
-    // We can use external or internal link.
-    "link": classData.schema === undefined
-      ? createClassIdentification(context, classData)
-      : classData.schema.psmIri,
+    "link": "#" + createClassIdentification(context, classData),
     "codelist": classData.isCodelist ? classData.cimIri : undefined,
   };
 }
