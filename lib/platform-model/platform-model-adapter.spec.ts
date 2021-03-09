@@ -12,7 +12,7 @@ test("Load 'číselníky' model.", async () => {
   writeJson(entities, "./test-output/platform-model", "číselníky.json");
 });
 
-async function loadFromTestSourcesGroupTwo(iri) {
+async function loadFromTestSourcesGroupTwo(iri: string) {
   const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
@@ -39,7 +39,7 @@ async function loadFromTestSourcesGroupTwo(iri) {
   return adapter.get();
 }
 
-async function writeJson(content: any, dir: string, fileName: string) {
+async function writeJson(content, dir: string, fileName: string) {
   if (!existsSync(dir)) {
     mkdirSync(dir, {"recursive": true});
   }

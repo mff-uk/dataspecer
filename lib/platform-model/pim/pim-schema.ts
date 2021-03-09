@@ -39,7 +39,7 @@ export class PimSchemaAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const pimSchema = PimSchema.as(resource);
     pimSchema.pimHumanLabel =

@@ -1,4 +1,4 @@
-import {RdfBaseValue, RdfBlankNode, RdfEntity, RdfNamedNode} from "../rdf-api";
+import {RdfBaseValue, RdfEntity} from "../rdf-api";
 
 export interface StatementSource {
 
@@ -11,10 +11,5 @@ export interface StatementSource {
   reverseProperties(
     predicate: string, entity: RdfEntity
   ): Promise<RdfBaseValue[]>;
-
-  /**
-   * Fetch and save all information available about given entity.
-   */
-  fetch(entity: RdfEntity): Promise<void>;
 
 }

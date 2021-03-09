@@ -9,17 +9,20 @@ export enum RdfValueType {
   Literal,
 }
 
+/**
+ * Represents an RDF resource, later we can for example add caching
+ * of properties, or request all properties in single query to save
+ * some network traffic.
+ */
 export class RdfEntity {
 
-  readonly id;
+  readonly id: string;
 
-  readonly properties: Record<string, RdfBaseValue[]> = {};
-
-  protected constructor(id) {
+  protected constructor(id: string) {
     this.id = id;
   }
 
-  static create(id: string) {
+  static create(id: string): RdfEntity {
     return new RdfEntity(id);
   }
 
@@ -49,9 +52,9 @@ export class RdfBaseValue {
 
 export class RdfBlankNode extends RdfBaseValue {
 
-  readonly id;
+  readonly id: string;
 
-  constructor(id) {
+  constructor(id: string) {
     super(RdfValueType.BlankNode);
     this.id = id;
   }
@@ -60,9 +63,9 @@ export class RdfBlankNode extends RdfBaseValue {
 
 export class RdfNamedNode extends RdfBaseValue {
 
-  readonly id;
+  readonly id: string;
 
-  constructor(id) {
+  constructor(id: string) {
     super(RdfValueType.NamedNode);
     this.id = id;
   }
@@ -80,7 +83,7 @@ export class RdfLiteral extends RdfBaseValue {
   constructor(
     value: string | number | boolean,
     type: string,
-    language?: string
+    language?: string,
   ) {
     super(RdfValueType.Literal);
     this.value = value;

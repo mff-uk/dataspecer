@@ -35,7 +35,7 @@ export class EntitySchemaAdapter {
     return result;
   }
 
-  psmSchemaToSchema(psmSchema: PsmSchema, schemaData: SchemaData) {
+  psmSchemaToSchema(psmSchema: PsmSchema, schemaData: SchemaData):void {
     schemaData.psmIri = psmSchema.id;
     schemaData.humanLabel = psmSchema.psmHumanLabel;
     schemaData.humanDescription = psmSchema.psmHumanDescription;

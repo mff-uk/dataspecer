@@ -30,7 +30,7 @@ export class PimAttributeAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const loadFromBase = await loadPimBaseIntoResource(source, resource);
     const pimAttribute = PimAttribute.as(resource);

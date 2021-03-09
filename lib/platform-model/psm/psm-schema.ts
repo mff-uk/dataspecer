@@ -40,7 +40,7 @@ export class PsmSchemaAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const psmSchema = PsmSchema.as(resource);
     psmSchema.psmHumanLabel =

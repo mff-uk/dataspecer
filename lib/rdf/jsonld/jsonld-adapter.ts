@@ -30,12 +30,12 @@ jsonld.registerRDFParser("text/turtle", parseN3AsQuads);
  * Return flattened-like JSON-LD representation of given resource.
  * Expand @type into predicate and @list into multiple entries.
  */
-export async function fetchJsonLd(url: string, format?: RdfFormat
+export async function fetchJsonLd(url: string, format?: RdfFormat,
 ): Promise<JsonLdEntity[]> {
   const options = {
     "headers": {
       "Accept": format ? format : supportedTypes().join(","),
-    }
+    },
   };
   const response = await fetch(url, options);
   const mimeType = getContentType(response);
@@ -59,7 +59,7 @@ export async function fetchJsonLd(url: string, format?: RdfFormat
 function supportedTypes() {
   return [
     "application/ld+json",
-    "application/n-quads"
+    "application/n-quads",
   ];
 }
 
@@ -115,7 +115,7 @@ function updateJsonLdEntity(entity: JsonLdEntity): void {
   }
 }
 
-function isArray(value: any): boolean {
+function isArray(value: unknown): value is Array<unknown> {
   return Array.isArray(value);
 }
 
@@ -139,7 +139,7 @@ function unwrapJsonLdList(entities: JsonLdEntity[]): void {
   entities.push(...newEntities);
 }
 
-function isObject(value: any): value is boolean {
+function isObject(value: unknown): value is boolean {
   return typeof value === "object";
 }
 
@@ -160,12 +160,12 @@ function expandList(collector: JsonLdEntity[], iris: string[]) {
     collector.push(next);
   }
   last[HAS_REST] = [{"@id": RDF_NIL}];
-  return {"@id": iriPrefix + "0"}
+  return {"@id": iriPrefix + "0"};
 }
 
 async function loadJsonLdFromWithN3(response): Promise<JsonLdEntity[]> {
   const content = await response.text();
-  const quads = await parseN3AsQuads(content)
+  const quads = await parseN3AsQuads(content);
   return quadsToJsonLd(quads);
 }
 
@@ -185,26 +185,30 @@ function quadsToJsonLd(quads: Quad[]): JsonLdEntity[] {
       entity[predicate.value] = values;
     }
     switch (object.termType) {
-      case  "BlankNode":
+      case "BlankNode":
         values.push({"@id": object.value});
-        break
+        break;
       case "NamedNode":
         values.push({"@id": object.value});
-        break
+        break;
       case "Literal":
-        const value = {
-          "@value": object.value
-        };
-        if (object.language !== undefined) {
-          value["@language"] = object.language;
-        } else {
-          value["@type"] = object.datatype.value;
-        }
-        values.push(value);
+        values.push(objectAsLiteral(object));
         break;
       default:
         throw Error("Unknown object type: " + object.termType);
     }
   }
   return Object.values(entities);
+}
+
+function objectAsLiteral(object): Record<string, unknown> {
+  const value = {
+    "@value": object.value,
+  };
+  if (object.language !== undefined) {
+    value["@language"] = object.language;
+  } else {
+    value["@type"] = object.datatype.value;
+  }
+  return value;
 }

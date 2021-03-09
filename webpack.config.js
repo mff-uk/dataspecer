@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-var-requires */
 const path = require("path");
 
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
     "path": path.join(__dirname, "dist"),
     "filename": "json-schema-mapping.js",
     "library": "json-schema-mapping",
-    "libraryTarget": "umd"
+    "libraryTarget": "umd",
   },
   "module": {
     "rules": [
@@ -17,9 +18,9 @@ module.exports = {
         "exclude": /node_modules/,
         "use": [
           "babel-loader",
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
   "resolve": {
     "extensions": [".ts", ".js"],

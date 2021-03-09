@@ -34,7 +34,7 @@ export class PlatformModelAdapter {
     this.source = source;
   }
 
-  static create(source: StatementSource) : PlatformModelAdapter {
+  static create(source: StatementSource): PlatformModelAdapter {
     const result = new PlatformModelAdapter(source);
     result.psmAdapters = [
       new PsmAssociationAdapter(),
@@ -60,15 +60,15 @@ export class PlatformModelAdapter {
     return this.resources;
   }
 
-  clear() {
+  clear(): void {
     this.resources = {};
   }
 
-  async loadIriTree(iri: string) {
+  async loadIriTree(iri: string): Promise<void> {
     await this.loadEntityTree(RdfEntity.create(iri));
   }
 
-  async loadEntityTree(entity: RdfEntity) {
+  async loadEntityTree(entity: RdfEntity): Promise<void> {
     this.entitiesToLoad = [entity];
     while (this.entitiesToLoad.length > 0) {
       const next: RdfEntity = this.entitiesToLoad.pop();
@@ -78,11 +78,11 @@ export class PlatformModelAdapter {
     }
   }
 
-  shouldLoad(entity:RdfEntity):boolean {
+  shouldLoad(entity: RdfEntity): boolean {
     return this.resources[entity.id] === undefined;
   }
 
-  async loadEntity(entity: RdfEntity) {
+  async loadEntity(entity: RdfEntity): Promise<void> {
     const entitySource = EntitySource.forEntity(entity, this.source);
     const types = await entitySource.types();
     const resource = new ModelResource(entitySource.id(), types);
@@ -96,13 +96,14 @@ export class PlatformModelAdapter {
   }
 
   async loadEntityWithAdapters(
-    resource: ModelResource, entitySource: EntitySource, adapters:ModelLoader[]
-  ) {
+    resource: ModelResource, entitySource: EntitySource,
+    adapters: ModelLoader[],
+  ): Promise<void> {
     for (const loader of adapters) {
       if (loader.canLoadResource(resource)) {
         (await loader.loadIntoResource(entitySource, resource))
           .filter(iri => iri !== undefined)
-          .forEach(iri => this.entitiesToLoad.push(RdfEntity.create(iri)))
+          .forEach(iri => this.entitiesToLoad.push(RdfEntity.create(iri)));
       }
     }
   }

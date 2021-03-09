@@ -3,15 +3,11 @@
 // expansion of all keywords besides: @id, @type, @value, @language, @type.
 //
 
-export type JsonLdResource = {
+export interface JsonLdResource {
   "@id": string;
-};
+}
 
-export type JsonLdEntity =
-  JsonLdResource
-  & { "@type"?: string[] }
-  & { [key: string]: any };
-
-export type JsonLdValue = string | number | boolean;
-
-export type Literal = { [language: string]: string };
+export interface JsonLdEntity extends JsonLdResource {
+  "@type"?: string[];
+  // Plus all the properties.
+}

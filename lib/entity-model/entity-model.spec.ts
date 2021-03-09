@@ -13,7 +13,7 @@ test("Load 'adresní-místa' schema.", async () => {
   writeJson(actual, "./test-output/entity-model", "adresní-místa.json");
 });
 
-async function loadFromTestSourcesGroupTwo(iri) {
+async function loadFromTestSourcesGroupTwo(iri: string) {
   const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
     await JsonldSource.create("file://test/pim-rpp-adresní-místa.ttl"),
@@ -44,9 +44,9 @@ async function loadFromTestSourcesGroupTwo(iri) {
 /**
  * Convert JSON with cycles into string with referecnes.
  */
-function stringify(content: any): string {
+function stringify(content): string {
   let refCounter = 0;
-  let visitedReference = [];
+  const visitedReference = [];
 
   const addReferences = (content) => {
     if (content === null || content === undefined) {
@@ -73,7 +73,7 @@ function stringify(content: any): string {
 
   addReferences(content);
 
-  let visitedLog = [];
+  const visitedLog = [];
   return JSON.stringify(
     content,
     (key, value) => {
@@ -93,23 +93,17 @@ function stringify(content: any): string {
       visitedLog.push(value);
       return value;
     },
-    2
-  )
+    2,
+  );
 }
 
-async function writeJson(content: any, dir: string, fileName: string) {
+async function writeJson(content, dir: string, fileName: string) {
   if (!existsSync(dir)) {
     mkdirSync(dir, {"recursive": true});
   }
   const path = dir + "/" + fileName;
   writeFileSync(path, stringify(content));
 }
-
-// test("Load 'číselníky' schema.", async () => {
-//   const actual = await loadFromTestSourcesGroupTwo(
-//     "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
-//   writeJson(actual, "./test-output/entity-model", "číselníky.json");
-// });
 
 test("Load 'datové-schránky' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(

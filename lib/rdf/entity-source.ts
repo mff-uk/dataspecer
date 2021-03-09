@@ -36,15 +36,15 @@ export class EntitySource {
     this.rdfSource = source;
   }
 
-  static forIri(iri: string, source: StatementSource) {
+  static forIri(iri: string, source: StatementSource): EntitySource {
     return EntitySource.forEntity(RdfEntity.create(iri), source);
   }
 
-  static forEntity(entity: RdfEntity, source: StatementSource) {
+  static forEntity(entity: RdfEntity, source: StatementSource): EntitySource {
     return new EntitySource(entity, source);
   }
 
-  changeEntity(entity: RdfEntity) {
+  changeEntity(entity: RdfEntity): EntitySource {
     return new EntitySource(entity, this.rdfSource);
   }
 
@@ -132,8 +132,8 @@ export class EntitySource {
 
   async loadList(
     collector: ExtendedRdfEntityList, order: number,
-    node: RdfBlankNode | RdfNamedNode
-  ) {
+    node: RdfBlankNode | RdfNamedNode,
+  ): Promise<void> {
     const entity = RdfEntity.create(node.id);
     const hasFirst = await this.rdfSource.properties(entity, HAS_FIRST);
     if (hasFirst.length !== 1) {
@@ -181,7 +181,7 @@ export class EntitySource {
   }
 
   async languageString(predicate: string): Promise<Record<string, string>> {
-    const literals = await this.literals(predicate)
+    const literals = await this.literals(predicate);
     if (literals === undefined || literals.length === 0) {
       return null;
     }

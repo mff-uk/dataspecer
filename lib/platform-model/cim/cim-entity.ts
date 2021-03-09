@@ -14,7 +14,7 @@ export class CimEntity extends ModelResource {
 
   cimSubClassOf: string[] = [];
 
-  cimIsCodelist: boolean = false;
+  cimIsCodelist = false;
 
   static is(resource: ModelResource): resource is CimEntity {
     return resource.types.includes(CimEntity.TYPE);
@@ -40,7 +40,7 @@ export class CimEntityAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const cimEntity = CimEntity.as(resource);
     cimEntity.cimHumanLabel =

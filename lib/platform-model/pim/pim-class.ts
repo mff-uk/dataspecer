@@ -37,7 +37,7 @@ export class PimClassAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const loadFromBase = await loadPimBaseIntoResource(source, resource);
     const pimClass = PimClass.as(resource);

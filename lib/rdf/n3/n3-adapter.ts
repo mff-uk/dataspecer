@@ -10,17 +10,17 @@ export type Property = {
   object: RdfNamedNode | RdfBlankNode | RdfLiteral
 };
 
-export async function parseN3AsProperties<T>(content): Promise<Property[]> {
+export async function parseN3AsProperties(content: unknown): Promise<Property[]> {
   return await n3Adapter(content, parseN3QuadAsProperty);
 }
 
 async function n3Adapter<T>(
-  content, handler: (quad: N3.Quad) => T
+  content, handler: (quad: N3.Quad) => T,
 ): Promise<T[]> {
   const parser = new N3.Parser();
   const quads = [];
   return new Promise((accept, reject) => {
-    parser.parse(content, (error, quad, prefixes) => {
+    parser.parse(content, (error, quad) => {
       if (error !== null) {
         reject(error);
       } else if (quad === null) {
@@ -61,7 +61,7 @@ function parseLiteralId(input: string): string[] {
   } else if (tail.startsWith("^^")) {
     return [head, tail.substr(2), undefined];
   } else {
-    throw new Error(`Can not parse: ${input}`)
+    throw new Error(`Can not parse: ${input}`);
   }
 }
 
@@ -82,7 +82,7 @@ function splitLiteralId(input: string): string[] {
     }
     if (char === "\"") {
       tail = input.substr(index + 1);
-      break
+      break;
     }
     head += char;
   }
@@ -113,7 +113,7 @@ type Quad = {
   },
 };
 
-export async function parseN3AsQuads<T>(content): Promise<Quad[]> {
+export async function parseN3AsQuads(content: unknown): Promise<Quad[]> {
   return await n3Adapter(content, parseN3QuadAsQuad);
 }
 
@@ -148,17 +148,17 @@ function parseN3QuadAsQuad(quad: N3.Quad): Quad {
     result["graph"] = {
       "termType": "DefaultGraph",
       "value": "",
-    }
+    };
   } else if (graph.startsWith("_")) {
     result["graph"] = {
       "termType": "BlankNode",
       "value": graph,
-    }
+    };
   } else {
     result["graph"] = {
       "termType": "NamedNode",
       "value": graph,
-    }
+    };
   }
   return result as Quad;
 }

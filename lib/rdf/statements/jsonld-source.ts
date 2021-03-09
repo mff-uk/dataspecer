@@ -30,27 +30,13 @@ export class JsonldSource implements StatementSource {
     return JsonldSource.wrapEntities(content, url);
   }
 
-  static wrapEntities(content: JsonLdEntity[], url: string) {
+  static wrapEntities(content: JsonLdEntity[], url: string):JsonldSource {
     sanitizeBlankNodes(content, url);
-    const entities = content.reduce((collector, entity) => {
-      collector[entity["@id"]] = entity;
-      return collector;
-    }, {});
+    const entities : Record<string, JsonLdEntity> = {};
+    content.forEach(entity => {
+      entities[entity["@id"]] = entity;
+    });
     return new JsonldSource(entities);
-  }
-
-  fetch(entity: RdfEntity): Promise<void> {
-    const jsonld = this.findEntity(entity.id);
-    if (jsonld === undefined) {
-      return Promise.resolve();
-    }
-    for (const [predicate, values] of Object.entries(jsonld)) {
-      if (predicate === "@id") {
-        continue;
-      }
-      entity.properties[predicate] = values.map(jsonLdValueToQuad);
-    }
-    return Promise.resolve();
   }
 
   private findEntity(id: string): JsonLdEntity | undefined {
@@ -67,7 +53,7 @@ export class JsonldSource implements StatementSource {
   }
 
   reverseProperties(
-    predicate: string, entity: RdfEntity
+    predicate: string, entity: RdfEntity,
   ): Promise<RdfBaseValue[]> {
     const result = [];
     for (const jsonld of Object.values(this.entities)) {
@@ -103,7 +89,7 @@ function jsonLdValueToQuad(value) {
   }
 }
 
-function isObject(value: any): value is boolean {
+function isObject(value): value is boolean {
   return typeof value === "object";
 }
 /**
@@ -111,12 +97,12 @@ function isObject(value: any): value is boolean {
  * blank nodes identifiers.
  */
 export function sanitizeBlankNodes(
-  entities: JsonLdEntity[], baseUrl: string
+  entities: JsonLdEntity[], baseUrl: string,
 ): void {
   const sanitizeUrl = (url: string) =>
     url.startsWith("_:") ? url + ":" + baseUrl : url;
   for (const entity of Object.values(entities)) {
-    entity["@id"] = sanitizeUrl(entity["@id"]);
+    entity["@id"] = sanitizeUrl(entity["@id"] as string);
     for (const [predicate, values] of Object.entries(entity)) {
       if (predicate === "@id") {
         continue;

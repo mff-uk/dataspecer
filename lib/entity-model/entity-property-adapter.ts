@@ -7,7 +7,6 @@ import {PsmIncludes} from "../platform-model/psm/psm-includes";
 import {PimAttribute} from "../platform-model/pim/pim-attribute";
 import {PimAssociation} from "../platform-model/pim/pim-association";
 import {CimEntity} from "../platform-model/cim/cim-entity";
-import {RdfEntity} from "../rdf/rdf-api";
 
 export class EntityPropertyAdapter {
 
@@ -25,7 +24,7 @@ export class EntityPropertyAdapter {
 
   constructor(
     entities: Record<string, ModelResource>,
-    classAdapter: EntityClassAdapter
+    classAdapter: EntityClassAdapter,
   ) {
     this.entities = entities;
     this.classAdapter = classAdapter;
@@ -46,7 +45,7 @@ export class EntityPropertyAdapter {
   }
 
   protected loadPropertyFromPsmAttribute(
-    entity: ModelResource
+    entity: ModelResource,
   ): PropertyData {
     if (this.psmAttribute[entity.id] !== undefined) {
       return this.psmAttribute[entity.id];
@@ -79,7 +78,8 @@ export class EntityPropertyAdapter {
   }
 
   protected psmAttributeToProperty(
-    psmAttribute: PsmAttribute, propertyData: PropertyData) {
+    psmAttribute: PsmAttribute, propertyData: PropertyData,
+  ): void {
     propertyData.iris = [psmAttribute.id];
     propertyData.psmIri = psmAttribute.id;
     propertyData.humanLabel = psmAttribute.psmHumanLabel;
@@ -89,8 +89,8 @@ export class EntityPropertyAdapter {
   }
 
   protected addPsmInterpretation(
-    left: PropertyData, right: PropertyData
-  ) {
+    left: PropertyData, right: PropertyData,
+  ): void {
     left.iris.push(...right.iris);
     left.cimIri = right.cimIri;
     left.humanLabel = left.humanLabel || right.humanLabel;
@@ -101,8 +101,8 @@ export class EntityPropertyAdapter {
   }
 
   protected addPimInterpretation(
-    psm: PropertyData, pim: PropertyData
-  ) {
+    psm: PropertyData, pim: PropertyData,
+  ): void {
     psm.iris.push(...pim.iris);
     psm.cimIri = pim.cimIri;
     psm.humanLabel = psm.humanLabel || pim.humanLabel;
@@ -113,7 +113,7 @@ export class EntityPropertyAdapter {
   }
 
   protected loadPropertyFromPsmAssociation(
-    entity: ModelResource
+    entity: ModelResource,
   ): PropertyData {
     if (this.psmAssociation[entity.id] !== undefined) {
       return this.psmAssociation[entity.id];
@@ -146,7 +146,8 @@ export class EntityPropertyAdapter {
   }
 
   protected psmAssociationToProperty(
-    psmAssociation: PsmAssociation, propertyData: PropertyData) {
+    psmAssociation: PsmAssociation, propertyData: PropertyData,
+  ): void {
     propertyData.iris = [psmAssociation.id];
     propertyData.psmIri = psmAssociation.id;
     propertyData.humanLabel = psmAssociation.psmHumanLabel;
@@ -159,7 +160,7 @@ export class EntityPropertyAdapter {
   }
 
   protected loadPropertyFromPsmIncludes(
-    entity: ModelResource
+    entity: ModelResource,
   ): PropertyData[] {
     if (!PsmIncludes.is(entity)) {
       throw new Error(
@@ -169,13 +170,13 @@ export class EntityPropertyAdapter {
     const result = [];
     for (const iri of psmIncludes.psmIncludes) {
       const entity = this.entities[iri];
-      result.push(...this.loadPropertyFromPsm(entity))
+      result.push(...this.loadPropertyFromPsm(entity));
     }
     return result;
   }
 
   protected loadPropertyFromPimAttribute(
-    entity: ModelResource
+    entity: ModelResource,
   ): PropertyData {
     if (this.pimAttribute[entity.id] !== undefined) {
       return this.pimAttribute[entity.id];
@@ -195,7 +196,8 @@ export class EntityPropertyAdapter {
   }
 
   protected pimAttributeToProperty(
-    pimAttribute: PimAttribute, propertyData: PropertyData) {
+    pimAttribute: PimAttribute, propertyData: PropertyData,
+  ): void {
     propertyData.iris = [pimAttribute.id];
     propertyData.psmIri = pimAttribute.id;
     propertyData.humanLabel = pimAttribute.pimHumanLabel;
@@ -217,8 +219,8 @@ export class EntityPropertyAdapter {
   }
 
   protected cimEntityToProperty(
-    cimEntity: CimEntity, propertyData: PropertyData
-  ) {
+    cimEntity: CimEntity, propertyData: PropertyData,
+  ): void {
     propertyData.iris = [cimEntity.id];
     propertyData.cimIri = cimEntity.id;
     propertyData.humanLabel = cimEntity.cimHumanLabel;
@@ -226,8 +228,8 @@ export class EntityPropertyAdapter {
   }
 
   protected addCimInterpretation(
-    pim: PropertyData, cim: PropertyData
-  ) {
+    pim: PropertyData, cim: PropertyData,
+  ): void {
     pim.iris.push(...cim.iris);
     pim.cimIri = cim.cimIri;
     pim.humanLabel = pim.humanLabel || cim.humanLabel;
@@ -236,7 +238,7 @@ export class EntityPropertyAdapter {
   }
 
   protected loadPropertyFromPimAssociation(
-    entity: ModelResource
+    entity: ModelResource,
   ): PropertyData {
     if (this.pimAssociation[entity.id] !== undefined) {
       return this.pimAssociation[entity.id];
@@ -256,7 +258,8 @@ export class EntityPropertyAdapter {
   }
 
   protected pimAssociationToProperty(
-    pimAssociation: PimAssociation, propertyData: PropertyData) {
+    pimAssociation: PimAssociation, propertyData: PropertyData,
+  ): void {
     propertyData.iris = [pimAssociation.id];
     propertyData.psmIri = pimAssociation.id;
     propertyData.humanLabel = pimAssociation.pimHumanLabel;
@@ -266,7 +269,7 @@ export class EntityPropertyAdapter {
     if (pimAssociation.pimEnd.length === 2) {
       const entity = this.entities[pimAssociation.pimEnd[1].pimParticipant];
       propertyData.dataTypeClass = [
-        this.classAdapter.loadClassFromPimClass(entity)
+        this.classAdapter.loadClassFromPimClass(entity),
       ];
     } else {
       throw new Error(
@@ -277,7 +280,7 @@ export class EntityPropertyAdapter {
 
 }
 
-function  selectNotEmpty<T>(first: T[], second:T[]) : T[] {
+function selectNotEmpty<T>(first: T[], second: T[]): T[] {
   if (first === undefined || first.length === 0) {
     return second;
   }

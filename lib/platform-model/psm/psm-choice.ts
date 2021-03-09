@@ -32,7 +32,7 @@ export class PsmChoiceAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const loadFromBase = await loadPsmBaseIntoResource(source, resource);
     const psmChoice = PsmChoice.as(resource);

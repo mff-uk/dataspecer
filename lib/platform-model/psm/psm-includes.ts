@@ -31,7 +31,7 @@ export class PsmIncludesAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const psmIncludes = PsmIncludes.as(resource);
     psmIncludes.psmIncludes = await source.irisExtended(PSM.HAS_INCLUDES);

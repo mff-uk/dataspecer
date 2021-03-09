@@ -39,8 +39,8 @@ export function schemaAsReSpec(schema: SchemaData): ReSpec {
     "metadata": loadReSpecMetadata(context),
     "overview": loadReSpecOverview(context, schema),
     "specification": loadReSpecSpecification(context, allRoots),
-    "examples": loadReSpecExample(context),
-    "references": loadReSpecReference(context),
+    "examples": loadReSpecExample(),
+    "references": loadReSpecReference(),
   };
 }
 
@@ -56,7 +56,7 @@ function selectRootClasses(schema: SchemaData): ClassData [] {
       [classData.psmIri]: classData,
       // We add all classes without schema, as we can not link to their
       // external definitions.
-      ...collectClassesWithoutSchema(classData)
+      ...collectClassesWithoutSchema(classData),
     };
   }
   return Object.values(roots);
@@ -66,7 +66,7 @@ function selectRootClasses(schema: SchemaData): ClassData [] {
  * Search recursively class for all classes without schema.
  */
 function collectClassesWithoutSchema(
-  classData: ClassData
+  classData: ClassData,
 ): Record<string, ClassData> {
   let result = {};
   for (const property of classData.properties) {
@@ -78,7 +78,7 @@ function collectClassesWithoutSchema(
       result = {
         ...result,
         [propertyClass.psmIri]: propertyClass,
-        ...collectClassesWithoutSchema(propertyClass)
+        ...collectClassesWithoutSchema(propertyClass),
       };
     }
   }
@@ -97,11 +97,11 @@ function setSchemaToClasses(schema: SchemaData, classes: ClassData []) {
 function loadReSpecMetadata(context: AdapterContext): ReSpecMetadata {
   return {
     "title": selectString(context, context.schema.humanLabel),
-  }
+  };
 }
 
 function selectString(
-  context: AdapterContext, str: Record<string, string> | undefined
+  context: AdapterContext, str: Record<string, string> | undefined,
 ): string {
   if (str === undefined || str === null) {
     return "";
@@ -116,7 +116,7 @@ function selectString(
 }
 
 function loadReSpecOverview(
-  context: AdapterContext, schema: SchemaData
+  context: AdapterContext, schema: SchemaData,
 ): ReSpecOverview {
   return {
     "humanDescription" : selectString(context, schema.humanDescription),
@@ -124,7 +124,7 @@ function loadReSpecOverview(
 }
 
 function loadReSpecSpecification(
-  context: AdapterContext, roots: ClassData []
+  context: AdapterContext, roots: ClassData [],
 ): ReSpecSpecification {
   return {
     "entities": roots.map(classData =>
@@ -133,7 +133,7 @@ function loadReSpecSpecification(
 }
 
 function loadReSpecSpecificationClassData(
-  context: AdapterContext, classData: ClassData
+  context: AdapterContext, classData: ClassData,
 ): ReSpecEntity {
   return {
     "humanLabel": selectString(context, classData.humanLabel),
@@ -144,13 +144,13 @@ function loadReSpecSpecificationClassData(
 }
 
 function createClassIdentification(
-  context: AdapterContext, classData: ClassData
+  context: AdapterContext, classData: ClassData,
 ): string {
   return "třída-" + sanitizeForIdentification(context, classData.humanLabel);
 }
 
 function sanitizeForIdentification(
-  context: AdapterContext, content:Record<string, string>
+  context: AdapterContext, content:Record<string, string>,
 ) : string {
   return selectString(context, content)
     .toLowerCase()
@@ -158,9 +158,9 @@ function sanitizeForIdentification(
 }
 
 function loadClassDataProperties(
-  context: AdapterContext, classData: ClassData
+  context: AdapterContext, classData: ClassData,
 ): ReSpecProperty[] {
-  let result = {};
+  const result = {};
   for (const extendedClass of classData.extends) {
     for (const property of loadClassDataProperties(context, extendedClass)) {
       result[property.technicalLabel] = property;
@@ -194,7 +194,7 @@ function convertPropertyData(
   if (result.type.length === 0) {
     throw new Error(
       `Missing data type for ${propertyData.psmIri} with interpretation `
-      + `${propertyData.cimIri}`
+      + `${propertyData.cimIri}`,
     );
   }
   return result;
@@ -202,7 +202,7 @@ function convertPropertyData(
 
 
 function createPropertyIdentification(
-  context: AdapterContext, owner: ClassData, propertyData: PropertyData
+  context: AdapterContext, owner: ClassData, propertyData: PropertyData,
 ): string {
   return "vlastnost-"
     + sanitizeForIdentification(context, owner.humanLabel)
@@ -211,7 +211,7 @@ function createPropertyIdentification(
 }
 
 function convertPropertyPrimitive(
-  context: AdapterContext, propertyData: PropertyData
+  context: AdapterContext, propertyData: PropertyData,
 ): ReSpecTypeReference {
   const dataType = propertyData.dataTypePrimitive;
   return {
@@ -223,7 +223,7 @@ function convertPropertyPrimitive(
 }
 
 function convertPropertyClass(
-  context: AdapterContext, classData: ClassData
+  context: AdapterContext, classData: ClassData,
 ): ReSpecTypeReference {
   const label = selectString(context, classData.humanLabel) || classData.psmIri;
   return {
@@ -234,10 +234,10 @@ function convertPropertyClass(
   };
 }
 
-function loadReSpecExample(context: AdapterContext): ReSpecExample[] {
+function loadReSpecExample(): ReSpecExample[] {
   return [];
 }
 
-function loadReSpecReference(context: AdapterContext): ReSpecReference {
+function loadReSpecReference(): ReSpecReference {
   return new ReSpecReference();
 }

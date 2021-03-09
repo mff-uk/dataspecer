@@ -6,8 +6,10 @@
     "model"
   ],
   "scripts": {
+    "build": "webpack",
+    "lint": "eslint --ignore-path .gitignore . --fix",
     "test": "jest",
-    "build": "webpack"
+    "respec": "jest --runTestsByPath ./lib/generator/respec/respec-model-adapter.spec.ts"
   },
   "license": "MIT",
   "dependencies": {
@@ -28,7 +30,11 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
     "babel-jest": "^26.3.0",
+    "eslint": "^7.21.0",
+    "eslint-plugin-jest": "^24.1.9",
     "jest": "^26.4.2"
   },
   "main": "./lib/index.js",

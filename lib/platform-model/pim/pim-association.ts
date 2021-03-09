@@ -38,7 +38,7 @@ export class PimAssociationAdapter implements ModelLoader {
   }
 
   async loadIntoResource(
-    source: EntitySource, resource: ModelResource
+    source: EntitySource, resource: ModelResource,
   ): Promise<string[]> {
     const loadFromBase = await loadPimBaseIntoResource(source, resource);
     const pimAssociation = PimAssociation.as(resource);

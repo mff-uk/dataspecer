@@ -12,7 +12,9 @@ const fetch = makeFetchHappen.defaults({
 });
 
 // https://github.com/hyperjump-io/json-schema-core/blob/517247ab8848b44e0b0129bc802790c8ab6cb956/lib/schema.js#L159
-export default function fetchUrl(url, options) {
+export default function fetchUrl(
+  url: string, options: Record<string, unknown>,
+): Response {
   if (url.startsWith("file://")) {
     const path = url.match(/file:\/\/(.+)/)[1];
     const stream = createReadStream(path);
@@ -21,8 +23,7 @@ export default function fetchUrl(url, options) {
     };
     return new Response(stream, {"headers": headers});
   } else {
-    const encodedUrl = url; // encodeURI(url);
-    return fetch(encodedUrl, options);
+    return fetch(url, options);
   }
 }
 

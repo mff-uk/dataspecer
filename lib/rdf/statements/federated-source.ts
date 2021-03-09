@@ -24,25 +24,8 @@ export class FederatedSource implements StatementSource {
     return new FederatedSource(sources, true);
   }
 
-  async fetch(entity: RdfEntity): Promise<void> {
-    for (const source of this.sources) {
-      const entityCopy = RdfEntity.create(entity.id);
-      await source.fetch(entityCopy);
-      for (const [predicate, values] of Object.entries(entity.properties)) {
-        if (entity.properties[predicate] === undefined) {
-          entity.properties[predicate] = [];
-        }
-        addValues(entity.properties[predicate], values);
-      }
-      if (!this.exhaustive && Object.values(entity.properties).length > 0) {
-        break;
-      }
-    }
-    return Promise.resolve(undefined);
-  }
-
   async properties(
-    entity: RdfEntity, predicate: string
+    entity: RdfEntity, predicate: string,
   ): Promise<RdfBaseValue[]> {
     const result: RdfBaseValue[] = [];
     for (const source of this.sources) {
@@ -55,7 +38,7 @@ export class FederatedSource implements StatementSource {
   }
 
   async reverseProperties(
-    predicate: string, entity: RdfEntity
+    predicate: string, entity: RdfEntity,
   ): Promise<RdfBaseValue[]> {
     const result: (RdfBlankNode | RdfNamedNode)[] = [];
     for (const source of this.sources) {

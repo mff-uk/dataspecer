@@ -20,7 +20,7 @@ export class PimBase extends ModelResource {
 }
 
 export async function loadPimBaseIntoResource(
-  source: EntitySource, pimBase: PimBase
+  source: EntitySource, pimBase: PimBase,
 ): Promise<string[]> {
   pimBase.pimInterpretation =
     (await source.entity(PIM.HAS_INTERPRETATION))?.id;

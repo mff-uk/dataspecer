@@ -7,17 +7,19 @@ import {
 } from "./respec-model";
 import {WriteStream} from "fs";
 
-export function writeReSpec(model: ReSpec, directory: string, name: string) {
+export function writeReSpec(
+  model: ReSpec, directory: string, name: string,
+):void {
   if (!fileSystem.existsSync(directory)) {
     fileSystem.mkdirSync(directory);
   }
   const outputStream = fileSystem.createWriteStream(
     path.join(directory, name + ".html"));
-  outputStream.write("<!DOCTYPE html>\n")
-  outputStream.write("<html lang=\"cs\">")
+  outputStream.write("<!DOCTYPE html>\n");
+  outputStream.write("<html lang=\"cs\">");
   writeHeader(model, outputStream);
   writeBody(model, outputStream);
-  outputStream.write("\n</html>\n")
+  outputStream.write("\n</html>\n");
   outputStream.close();
 }
 
@@ -91,12 +93,12 @@ function currentDate() {
 }
 
 function writeBody(model: ReSpec, stream: WriteStream) {
-  stream.write("\n  </body>")
+  stream.write("\n  </body>");
   writeIntroduction(model, stream);
   writeOverview(model.overview, stream);
   writeSpecification(model.specification, stream);
   writeExamples(model, stream);
-  stream.write("\n  </body>")
+  stream.write("\n  </body>");
 }
 
 function writeIntroduction(model: ReSpec, stream: WriteStream) {
@@ -122,7 +124,7 @@ function writeOverview(overview: ReSpecOverview, stream: WriteStream) {
 }
 
 function writeSpecification(
-  specification: ReSpecSpecification, stream: WriteStream
+  specification: ReSpecSpecification, stream: WriteStream,
 ) {
   stream.write(`
     <section id="specifikace">
@@ -149,7 +151,7 @@ function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
 }
 
 function writeFosProperty(
-  owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream
+  owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream,
 ) {
   stream.write(`
         <section id="${property.identification}">
@@ -181,7 +183,7 @@ function writeFosPropertyType(type: ReSpecTypeReference): string {
   if (type.codelist === undefined) {
     return `<a href="${type.link}">${type.label}</a>`;
   }
-  return `Číselník <a href="${type.link}">${type.label}</a>`
+  return `Číselník <a href="${type.link}">${type.label}</a>`;
 }
 
 function writeFosPropertyHumanLabel(

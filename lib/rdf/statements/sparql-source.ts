@@ -15,11 +15,7 @@ export class SparqlSource implements StatementSource {
     return new SparqlSource(url);
   }
 
-  async fetch(entity: RdfEntity): Promise<void> {
-    throw Error("Not implemented!");
-  }
-
-  async properties(entity: RdfEntity, predicate: string
+  async properties(entity: RdfEntity, predicate: string,
   ): Promise<RdfBaseValue[]> {
     if (entity.id.startsWith("_")) {
       // There is no point in asking for blank nodes.
@@ -31,7 +27,7 @@ export class SparqlSource implements StatementSource {
   }
 
   async executeSparqlConstruct(
-    query: string, baseUrl: string
+    query: string, baseUrl: string,
   ): Promise<RdfBaseValue[]> {
     const format = "text/plain";
     const url = this.endpoint
@@ -50,7 +46,7 @@ export class SparqlSource implements StatementSource {
   }
 
   async reverseProperties(
-    predicate: string, entity: RdfEntity
+    predicate: string, entity: RdfEntity,
   ): Promise<RdfBaseValue[]> {
     if (entity.id.startsWith("_")) {
       // There is no point in asking for blank nodes.
@@ -65,10 +61,10 @@ export class SparqlSource implements StatementSource {
 
 function createSparqlProperty(iri: string, predicate: string): string {
   return `CONSTRUCT { <${iri}> <http://localhost/value> ?o } 
-  WHERE { <${iri}> <${predicate}> ?o }`
+  WHERE { <${iri}> <${predicate}> ?o }`;
 }
 
 function createSparqlReverseProperty(iri: string, predicate: string): string {
   return `CONSTRUCT { <${iri}> <http://localhost/value> ?s }
-  WHERE { ?s <${predicate}> <${iri}> }`
+  WHERE { ?s <${predicate}> <${iri}> }`;
 }

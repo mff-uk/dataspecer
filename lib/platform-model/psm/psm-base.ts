@@ -18,7 +18,7 @@ export class PsmBase extends ModelResource {
 }
 
 export async function loadPsmBaseIntoResource(
-  source: EntitySource, psmBase: PsmBase
+  source: EntitySource, psmBase: PsmBase,
 ): Promise<string[]> {
   psmBase.psmInterpretation =
     (await source.entity(PSM.HAS_INTERPRETATION))?.id;
