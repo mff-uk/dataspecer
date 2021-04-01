@@ -18,8 +18,7 @@ import {
 /**
  * Predefined base types identified by IRI with labels as language strings.
  */
-const BASE_TYPE_NAMES : {[iri:string]: Record<string, string>} = {
-};
+const BASE_TYPE_NAMES: { [iri: string]: Record<string, string> } = {};
 
 class AdapterContext {
 
@@ -71,18 +70,37 @@ function collectClassesWithoutSchema(
   let result = {};
   for (const property of classData.properties) {
     for (const propertyClass of property.dataTypeClass) {
-      if (propertyClass.schema !== undefined) {
-        // We have schema so no need to check any further.
-        continue;
+      if (shouldBeRootClass(propertyClass)) {
+        result = {
+          ...result,
+          [propertyClass.psmIri]: propertyClass,
+          ...collectClassesWithoutSchema(propertyClass),
+        };
       }
-      result = {
-        ...result,
-        [propertyClass.psmIri]: propertyClass,
-        ...collectClassesWithoutSchema(propertyClass),
-      };
     }
   }
   return result;
+}
+
+function shouldBeRootClass(classData: ClassData): boolean {
+  if (classData.schema !== undefined) {
+    // Class with schema should not be included, as they
+    // are in their own ReSpec files.
+    return false;
+  }
+  if (classData.isCodelist) {
+    // Codelist should be put on output always.
+    return true;
+  }
+  return !isClassValue(classData);
+}
+
+/**
+ * An empty class refer to an identifier, IRI for RDF, for entity
+ * of the class. Such class should not be included in the list of classes.
+ */
+function isClassValue(classData: ClassData): boolean {
+  return !classData.isCodelist && classData.properties.length === 0;
 }
 
 /**
@@ -119,7 +137,7 @@ function loadReSpecOverview(
   context: AdapterContext, schema: SchemaData,
 ): ReSpecOverview {
   return {
-    "humanDescription" : selectString(context, schema.humanDescription),
+    "humanDescription": selectString(context, schema.humanDescription),
   };
 }
 
@@ -140,7 +158,7 @@ function loadReSpecSpecificationClassData(
     "humanDescription": selectString(context, classData.humanDescription),
     "properties": loadClassDataProperties(context, classData),
     "identification": createClassIdentification(context, classData),
-    "isCodelist" : classData.isCodelist,
+    "isCodelist": classData.isCodelist,
   };
 }
 
@@ -151,8 +169,8 @@ function createClassIdentification(
 }
 
 function sanitizeForIdentification(
-  context: AdapterContext, content:Record<string, string>,
-) : string {
+  context: AdapterContext, content: Record<string, string>,
+): string {
   return selectString(context, content)
     .toLowerCase()
     .replace(/ /g, "-");
@@ -220,6 +238,7 @@ function convertPropertyPrimitive(
     "label": selectString(context, BASE_TYPE_NAMES[dataType]) || dataType,
     "link": dataType,
     "codelist": undefined,
+    "isClassValue": undefined,
   };
 }
 
@@ -227,12 +246,68 @@ function convertPropertyClass(
   context: AdapterContext, classData: ClassData,
 ): ReSpecTypeReference {
   const label = selectString(context, classData.humanLabel) || classData.psmIri;
+  if (classData.isCodelist) {
+    return convertPropertyClassCodeList(context, classData, label);
+  }
+  if (isClassValue(classData)) {
+    return convertPropertyClassValue(context, classData, label);
+  }
+
   return {
     "isPrimitive": false,
     "label": label,
+    "link": createPropertyClassLink(context, classData),
+    "codelist": undefined,
+    "isClassValue": false,
+  };
+}
+
+function createPropertyClassLink(
+  context: AdapterContext,classData: ClassData
+):string {
+  let result = "#" + createClassIdentification(context, classData);
+  if (classData.schema === undefined) {
+    return result;
+  }
+  let schemaIri = classData.schema.psmIri;
+  if (!schemaIri.endsWith("/")) {
+    schemaIri += "/";
+  }
+  return schemaIri + "respec" + result;
+}
+
+function convertPropertyClassCodeList(
+  context: AdapterContext, classData: ClassData, label: string
+): ReSpecTypeReference {
+  return {
+    "isPrimitive": false,
+    "label": label,
+    // The codelist class is located in this ReSpec file.
     "link": "#" + createClassIdentification(context, classData),
     "codelist": classData.isCodelist ? classData.cimIri : undefined,
+    "isClassValue": false,
   };
+}
+
+function convertPropertyClassValue(
+  context: AdapterContext, classData: ClassData, label: string
+): ReSpecTypeReference {
+  return {
+    "isPrimitive": false,
+    "label": label,
+    "link": getFirstNamedNode(classData.iris),
+    "codelist": classData.isCodelist ? classData.cimIri : undefined,
+    "isClassValue": true,
+  };
+}
+
+function getFirstNamedNode(resources: string[]): string | undefined {
+  for (const resource of resources) {
+    if (!resource.startsWith("_")) {
+      return resource;
+    }
+  }
+  return undefined;
 }
 
 function loadReSpecExample(): ReSpecExample[] {

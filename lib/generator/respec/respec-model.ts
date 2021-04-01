@@ -84,13 +84,19 @@ export class ReSpecTypeReference {
 
   label: string;
 
-  link: string;
+  link: string | undefined;
 
   /**
    * If given values for this reference should be part of the codelist,
    * this item contains CIM IRI of entity that is codelist item.
    */
   codelist: string | undefined;
+
+  /**
+   * If true the value of this property is instance of given class, but
+   * without any properties.
+   */
+  isClassValue: boolean | unknown;
 
 }
 

@@ -6,11 +6,10 @@ import {
   ReSpecProperty, ReSpecSpecification, ReSpecTypeReference,
 } from "./respec-model";
 import {WriteStream} from "fs";
-import {st} from "rdflib";
 
 export function writeReSpec(
   model: ReSpec, directory: string, name: string,
-):void {
+): void {
   if (!fileSystem.existsSync(directory)) {
     fileSystem.mkdirSync(directory);
   }
@@ -185,10 +184,16 @@ function writeFosPropertyTypes(
 }
 
 function writeFosPropertyType(type: ReSpecTypeReference): string {
-  if (type.codelist === undefined) {
-    return `<a href="${type.link}">${type.label}</a>`;
+  const linkElement = type.link === undefined ?
+    "" : ` <a href="${type.link}">${type.label}</a>`;
+
+  if (type.codelist !== undefined) {
+    return "Číselník" + linkElement;
   }
-  return `Číselník <a href="${type.link}">${type.label}</a>`;
+  if (type.isClassValue) {
+    return "Identifikátor pro " + linkElement
+  }
+  return linkElement;
 }
 
 function writeFosPropertyHumanLabel(
