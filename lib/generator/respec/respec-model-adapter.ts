@@ -140,6 +140,7 @@ function loadReSpecSpecificationClassData(
     "humanDescription": selectString(context, classData.humanDescription),
     "properties": loadClassDataProperties(context, classData),
     "identification": createClassIdentification(context, classData),
+    "isCodelist" : classData.isCodelist,
   };
 }
 

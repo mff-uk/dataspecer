@@ -6,6 +6,7 @@ import {
   ReSpecProperty, ReSpecSpecification, ReSpecTypeReference,
 } from "./respec-model";
 import {WriteStream} from "fs";
+import {st} from "rdflib";
 
 export function writeReSpec(
   model: ReSpec, directory: string, name: string,
@@ -144,7 +145,11 @@ function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
   stream.write(`
       <section id="${entity.identification}">
         <h3>${entity.humanLabel}</h3>
-        <p>${entity.humanDescription}</p>`);
+        <p>`);
+  if (entity.isCodelist) {
+    stream.write(`Tato třída reprezentuje číselník.<br/>`);
+  }
+  stream.write(`${entity.humanDescription}</p>`);
   entity.properties.forEach(property =>
     writeFosProperty(entity, property, stream));
   stream.write("\n      </section>");
