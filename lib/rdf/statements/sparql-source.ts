@@ -1,6 +1,6 @@
 import {RdfEntity, RdfBaseValue, RdfBlankNode} from "../rdf-api";
 import {StatementSource} from "./statements-api";
-import fetch from "../rdf-fetch";
+//import fetch from "../rdf-fetch";
 import {parseN3AsProperties} from "../n3/n3-adapter";
 
 export class SparqlSource implements StatementSource {

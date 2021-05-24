@@ -1,4 +1,3 @@
-import fetch from "../../../../rdf/rdf-fetch";
 import * as N3 from "n3";
 import {PimClass} from "../../../pim/pim-class";
 import {LanguageString} from "../../../platform-model-api";
@@ -7,9 +6,10 @@ import {PimAssociation} from "../../../pim/pim-association";
 import {CimAdapter} from "../cim-adapters-api";
 import {Store} from "../../../platform-model-store";
 import IdProvider from "../../../IdProvider";
+import {PimBase} from "../../../pim/pim-base";
 
 // todo fix injection
-function createSearchQuery(searchString: string) {
+function searchQuery(searchString: string) {
     return `PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
@@ -24,9 +24,10 @@ CONSTRUCT WHERE {
 LIMIT 20`;
 }
 
-function classExistsQuery(id: string) {
+function getClassQuery(id: string) {
     return `PREFIX z: <https://slovník.gov.cz/základní/pojem/>
-ASK WHERE { <${id}> a z:typ-objektu . }`;
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+CONSTRUCT WHERE { <${id}> a z:typ-objektu ; skos:prefLabel ?label ; skos:definition ?definition . }`;
 }
 
 function getSurroundingsQuery(id: string) {
@@ -41,11 +42,17 @@ CONSTRUCT {
 
     ?association rdfs:domain ?node ;
         rdfs:range ?association_node ;
+        skos:prefLabel ?associationLabel ;
         a <__association> .
+        
+    ?association_node skos:prefLabel ?association_node_label .
 
     ?reverse_association rdfs:range ?node ;
         rdfs:domain ?reverse_association_node ;
+        skos:prefLabel ?reverse_associationLabel ;  
         a <__association> .
+        
+    ?reverse_association_node skos:prefLabel ?reverse_association_node_label .
 
     ?attribute a z:typ-vlastnosti ;
         skos:prefLabel ?attribute_label ;
@@ -60,11 +67,17 @@ CONSTRUCT {
     } union
     {
         ?association rdfs:domain ?node ;
-            rdfs:range ?association_node .
+            rdfs:range ?association_node ;
+            skos:prefLabel ?associationLabel .
+            
+        ?association_node skos:prefLabel ?association_node_label .
     } union
     {
         ?reverse_association rdfs:range ?node ;
-            rdfs:domain ?reverse_association_node .
+            rdfs:domain ?reverse_association_node ;
+            skos:prefLabel ?reverse_associationLabel .
+            
+        ?reverse_association_node skos:prefLabel ?reverse_association_node_label .
     } union
     {
         ?attribute a z:typ-vlastnosti ;
@@ -84,7 +97,13 @@ async function parseN3IntoStore(source: string): Promise<N3.Store> {
     let parser = new N3.Parser();
     let store = new N3.Store();
     parser.parse(source, (error, quad) => {
-        store.addQuad(quad);
+        if (error !== null) {
+            throw error;
+        } else if (quad === null) {
+            return store;
+        } else {
+            store.addQuad(quad);
+        }
     });
 
     return store;
@@ -94,6 +113,24 @@ function N3QuadsToLanguageString(quads: Quad[]): LanguageString {
     // @ts-ignore
     return Object.fromEntries(quads.map(quad => [quad.object.language, quad.object.value]));
 }
+
+const RDF = {
+    type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+}
+const RDFS = {
+    subClassOf: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    domain: "http://www.w3.org/2000/01/rdf-schema#domain",
+    range: "http://www.w3.org/2000/01/rdf-schema#range",
+}
+const POJEM = {
+    typObjektu: "https://slovník.gov.cz/základní/pojem/typ-objektu",
+}
+const SKOS = {
+    prefLabel: "http://www.w3.org/2004/02/skos/core#prefLabel",
+    definition: "http://www.w3.org/2004/02/skos/core#definition",
+}
+
+const IRI_REGEXP = new RegExp("^https://slovník\.gov\.cz/");
 
 export default class implements CimAdapter {
     private readonly endpoint = "https://slovník.gov.cz/sparql";
@@ -114,33 +151,28 @@ export default class implements CimAdapter {
     }
 
     async search(searchString: string): Promise<PimClass[]> {
-        const content = await this.executeQuery(createSearchQuery(searchString));
+        const content = await this.executeQuery(searchQuery(searchString));
         const cimStore = await parseN3IntoStore(content);
 
-        const result: PimClass[] = [];
+        const cimClasses = cimStore.getQuads(null, RDF.type, POJEM.typObjektu, null);
+        const result = cimClasses.map(quad => this.parseClassFromN3StoreToStore(cimStore, quad.subject.id));
 
-        const cimClasses = cimStore.getQuads(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", null, null);
-        for (const cimClass of cimClasses) {
-            const cimId = cimClass.subject.id;
-            const pimClass = this.createPimClass(cimId);
-
-            // skos:prefLabel
-            const prefLabel = cimStore.getQuads(cimId, "http://www.w3.org/2004/02/skos/core#prefLabel", null, null);
-            pimClass.pimHumanLabel = {...pimClass.pimHumanLabel, ...N3QuadsToLanguageString(prefLabel)};
-
-            // skos:definition
-            const definition = cimStore.getQuads(cimId, "http://www.w3.org/2004/02/skos/core#definition", null, null);
-            pimClass.pimHumanDescription = {...pimClass.pimHumanDescription, ...N3QuadsToLanguageString(definition)};
-
-            result.push(pimClass);
+        if (IRI_REGEXP.test(searchString)) {
+            const classById = await this.getClass(searchString);
+            if (classById) return [classById, ...result];
         }
 
         return result;
     }
 
     async getClass(cimId: string): Promise<PimClass | null> {
-        const pimId = this.idProvider.pimFromCim(cimId);
-        return await this.executeQuery(classExistsQuery(cimId)) === "true" ? this.createPimClass(pimId) : null;
+        const content = await this.executeQuery(getClassQuery(cimId));
+        const cimStore = await parseN3IntoStore(content);
+        if (cimStore.size) {
+            return this.parseClassFromN3StoreToStore(cimStore, cimId);
+        } else {
+            return null;
+        }
     }
 
     async getSurroundings(cimId: string): Promise<Store> {
@@ -149,44 +181,52 @@ export default class implements CimAdapter {
 
         const pimStore: Store = {};
 
-        const root = this.createPimClass(cimId, pimStore);
+        const root = this.parseClassFromN3StoreToStore(cimStore, cimId, pimStore);
 
         // process isa
-        const stream = cimStore.getQuads(cimId, "http://www.w3.org/2000/01/rdf-schema#subClassOf", null, null);
+        const stream = cimStore.getQuads(cimId, RDFS.subClassOf, null, null);
         const isaIds = stream.map(quad => this.createPimClass(quad.object.id, pimStore).id);
         root.pimIsa = [... new Set([...root.pimIsa, ...isaIds])];
 
-        // skos:prefLabel
-        const prefLabel = cimStore.getQuads(cimId, "http://www.w3.org/2004/02/skos/core#prefLabel", null, null);
-        root.pimHumanLabel = {...root.pimHumanLabel, ...N3QuadsToLanguageString(prefLabel)};
-
-        // skos:definition
-        const definition = cimStore.getQuads(cimId, "http://www.w3.org/2004/02/skos/core#definition", null, null);
-        root.pimHumanDescription = {...root.pimHumanDescription, ...N3QuadsToLanguageString(definition)};
-
         // forward and reverse associations
-        const associations = cimStore.getQuads(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "__association", null);
+        const associations = cimStore.getQuads(null, RDF.type, "__association", null);
         for (const association of associations) {
-            const domain = cimStore.getQuads(association.subject.id, "http://www.w3.org/2000/01/rdf-schema#domain", null, null)[0].object.id;
-            const range = cimStore.getQuads(association.subject.id, "http://www.w3.org/2000/01/rdf-schema#range", null, null)[0].object.id;
+            const domain = cimStore.getQuads(association.subject.id, RDFS.domain, null, null)[0].object.id;
+            const range = cimStore.getQuads(association.subject.id, RDFS.range, null, null)[0].object.id;
 
-            const domainClass = this.createPimClass(domain, pimStore);
-            const rangeClass = this.createPimClass(range, pimStore);
+            const domainClass = this.parseClassFromN3StoreToStore(cimStore, domain, pimStore);
+            const rangeClass = this.parseClassFromN3StoreToStore(cimStore, range, pimStore);
 
-            const associationClass = this.createPimAssociation(association.subject.id, pimStore);
+            const associationClass = this.parseAssociationFromN3StoreToStore(cimStore, association.subject.id, pimStore);
             associationClass.pimEnd = [{pimParticipant: domainClass.id}, {pimParticipant: rangeClass.id}];
         }
 
         return pimStore;
     }
 
+    private parsePropertiesFromN3(inputStore: N3.Store, inputId: string, outputPim: PimBase) {
+        // skos:prefLabel
+        const prefLabel = inputStore.getQuads(inputId, SKOS.prefLabel, null, null);
+        outputPim.pimHumanLabel = {...outputPim.pimHumanLabel, ...N3QuadsToLanguageString(prefLabel)};
+
+        // skos:definition
+        const definition = inputStore.getQuads(inputId, SKOS.definition, null, null);
+        outputPim.pimHumanDescription = {...outputPim.pimHumanDescription, ...N3QuadsToLanguageString(definition)};
+    }
+
     private createPimClass(cimId: string, store?: Store): PimClass {
         const pimId = this.idProvider.pimFromCim(cimId);
-        const resource = store && store[cimId] ? store[pimId] : new PimClass(pimId);
-        if (store) store[cimId] = resource;
+        const resource = store && store[pimId] ? store[pimId] : new PimClass(pimId);
+        if (store) store[pimId] = resource;
         const pimClass = PimClass.as(resource);
         pimClass.pimInterpretation = cimId;
         return pimClass;
+    }
+
+    private parseClassFromN3StoreToStore(inputStore: N3.Store, entityId: string, outputStore?: Store): PimClass {
+        const cls = this.createPimClass(entityId, outputStore);
+        this.parsePropertiesFromN3(inputStore, entityId, cls);
+        return cls;
     }
 
     private createPimAssociation(cimId: string, store: Store): PimAssociation {
@@ -194,5 +234,11 @@ export default class implements CimAdapter {
         const pimAssociation = PimAssociation.as(store[pimId] = store[pimId] ?? new PimAssociation(pimId));
         pimAssociation.pimInterpretation = cimId;
         return pimAssociation;
+    }
+
+    private parseAssociationFromN3StoreToStore(inputStore: N3.Store, entityId: string, outputStore?: Store): PimAssociation {
+        const association = this.createPimAssociation(entityId, outputStore);
+        this.parsePropertiesFromN3(inputStore, entityId, association);
+        return association;
     }
 }
