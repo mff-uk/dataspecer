@@ -25,8 +25,8 @@ export class JsonldSource implements StatementSource {
     this.entities = entities;
   }
 
-  static async create(url: string): Promise<JsonldSource> {
-    const content = await fetchJsonLd(url);
+  static async create(url: string, resourceFormat: string = undefined): Promise<JsonldSource> {
+    const content = await fetchJsonLd(url, null, resourceFormat);
     return JsonldSource.wrapEntities(content, url);
   }
 

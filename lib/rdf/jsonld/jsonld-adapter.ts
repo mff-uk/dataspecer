@@ -4,7 +4,7 @@
 
 import jsonld from "jsonld";
 import {JsonLdEntity} from "./jsonld-types";
-import fetch from "./../rdf-fetch";
+//import fetch from "./../rdf-fetch";
 import {parseN3AsQuads} from "../n3/n3-adapter";
 import {Quad} from "n3";
 
@@ -31,14 +31,14 @@ jsonld.registerRDFParser("text/turtle", parseN3AsQuads);
  * Expand @type into predicate and @list into multiple entries.
  */
 export async function fetchJsonLd(url: string, format?: RdfFormat,
-): Promise<JsonLdEntity[]> {
+resourceFormat: string = undefined): Promise<JsonLdEntity[]> {
   const options = {
     "headers": {
       "Accept": format ? format : supportedTypes().join(","),
     },
   };
   const response = await fetch(url, options);
-  const mimeType = getContentType(response);
+  const mimeType = resourceFormat ?? getContentType(response);
   let result;
   switch (mimeType) {
     case RdfFormat.JsonLd:
@@ -166,6 +166,7 @@ function expandList(collector: JsonLdEntity[], iris: string[]) {
 async function loadJsonLdFromWithN3(response): Promise<JsonLdEntity[]> {
   const content = await response.text();
   const quads = await parseN3AsQuads(content);
+  // @ts-ignore
   return quadsToJsonLd(quads);
 }
 
