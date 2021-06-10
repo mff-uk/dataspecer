@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {AppBar, Box, Container, Fab, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AddRootButton from "./cimSearch/AddRootButton";
 import {
@@ -223,6 +223,8 @@ const App: React.FC = () => {
             {schemas.length === 0 &&
                 <Typography color={"textSecondary"}>Create a root or load a store</Typography>
             }
+            <Divider style={{margin: "1rem 0 1rem 0"}} />
+            Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
         </Container>
     </>;
 }
