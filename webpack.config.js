@@ -24,9 +24,13 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.sparql$/,
+        use: 'raw-loader',
+      }
     ],
   },
   "resolve": {
-    "extensions": [".ts", ".js"],
+    "extensions": [".ts", ".js", ".sparql"],
   },
 };

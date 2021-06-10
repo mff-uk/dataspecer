@@ -33,13 +33,16 @@ test("slovník.gov.cz: getClass method", async () => {
 test("slovník.gov.cz: getSurroundings method", async () => {
     const adapter = new SlovnikGovCzAdapter(new IdProvider());
     const queries = [
+        "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/orgán-veřejné-moci",
+        "https://slovník.gov.cz/legislativní/sbírka/56/2001/pojem/silniční-vozidlo",
+        "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/vozidlo",
         "https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba",
         "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/fyzická-osoba",
     ];
 
     for (const query of queries) {
         const result = await adapter.getSurroundings(query);
-        console.log(result);
+        debugger;
     }
 });
 

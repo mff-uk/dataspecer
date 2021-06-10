@@ -1,0 +1,19 @@
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+    %NODE% rdfs:subClassOf ?parent .
+    ?parent
+        skos:prefLabel ?label ;
+        skos:definition ?definition ;
+        skos:inScheme ?glossary .
+} WHERE {
+    %NODE% rdfs:subClassOf ?parent .
+    ?parent
+        skos:prefLabel ?label ;
+        skos:inScheme ?glossary .
+
+    OPTIONAL { ?parent skos:definition ?definition }
+}

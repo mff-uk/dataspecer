@@ -10,6 +10,11 @@
     "allowJs": true,
     "sourceMap": true,
     "declaration": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "@types",
+      "node_modules/@types"
+    ]
   }
 }

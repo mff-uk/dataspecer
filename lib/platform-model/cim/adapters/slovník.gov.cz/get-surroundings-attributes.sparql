@@ -1,0 +1,21 @@
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+    ?attribute a z:typ-vlastnosti ;
+        rdfs:domain %NODE% ;
+        skos:prefLabel ?attributeLabel ;
+        skos:definition ?attributeDefinition ;
+        skos:inScheme ?attributeGlossary .
+} WHERE {
+    ?attribute a z:typ-vlastnosti ;
+        skos:prefLabel ?attributeLabel ;
+        skos:inScheme ?attributeGlossary ;
+        rdfs:subClassOf [
+            owl:allValuesFrom %NODE% ;
+            owl:onProperty z:je-vlastností
+        ] .
+    OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+}
