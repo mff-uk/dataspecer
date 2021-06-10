@@ -1,9 +1,21 @@
-import {Dialog, DialogContent, DialogTitle, List, ListItem, ListItemText, TextField} from "@material-ui/core";
+import {
+    Box,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
+    Typography
+} from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
-import {IdProvider, PimClass, Slovnik} from 'model-driven-data';
+import {IdProvider, PimClass, Slovnik, SlovnikPimMetadata} from 'model-driven-data';
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
+import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -20,31 +32,31 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
     const classes = useStyles();
     const [findResults, updateFindResults] = useState<PimClass[]>([]);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
-
-    useEffect(() => {findResults.length && isOpen && updateFindResults([])}, [isOpen]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if(subject === null) {
-            const sub = new BehaviorSubject('');
-            setSubject(sub);
-        } else {
-            subject.pipe(
-                debounceTime(200)
-            ).subscribe( term => {
-                if (term) {
-                    const idProvider = new IdProvider();
-                    const adapter = new Slovnik(idProvider);
-                    adapter.search(term).then(updateFindResults);
-                } else {
-                    updateFindResults([]);
-                }
-            });
+        const subject = new BehaviorSubject('');
+        setSubject(subject);
+        subject.pipe(
+            debounceTime(200)
+        ).subscribe( term => {
+            if (term) {
+                const idProvider = new IdProvider();
+                const adapter = new Slovnik(idProvider);
+                setLoading(true);
+                adapter.search(term).then(result => {
+                    updateFindResults(result);
+                    setLoading(false);
+                });
+            } else {
+                updateFindResults([]);
+            }
+        });
 
-            // When the component unmounts, this will clean up the
-            // subscription
-            return () => subject.unsubscribe();
-        }
-    }, [subject]);
+        // When the component unmounts, this will clean up the
+        // subscription
+        return () => subject.unsubscribe();
+    }, []);
 
     const onChange = (e: any) => {
         if(subject) {
@@ -57,11 +69,18 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
             Add root class
         </DialogTitle>
         <DialogContent dividers>
-            <TextField id="standard-basic" placeholder="type IRI or search for label" fullWidth autoFocus onChange={onChange} />
+            <Box display={"flex"}>
+                <TextField id="standard-basic" placeholder="type IRI or search for label" fullWidth autoFocus onChange={onChange} />
+                {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30} />}
+            </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">
-                {findResults.map(result =>
+                {findResults.map((result: PimClass & SlovnikPimMetadata)  =>
                     <ListItem button key={result.id} onClick={() => {selected(result); close();}}>
-                        <ListItemText secondary={result.pimHumanDescription?.cs}>{result.pimHumanLabel?.cs}</ListItemText>
+                        <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={result.pimHumanDescription?.cs}>{result.pimHumanDescription?.cs}</Typography>}>
+                            <strong>{result.pimHumanLabel?.cs}</strong>
+                            {" "}
+                            <GlossaryNote entity={result as SlovnikPimMetadata} />
+                        </ListItemText>
                     </ListItem>
                 )}
             </List>

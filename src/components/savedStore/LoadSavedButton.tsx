@@ -1,10 +1,8 @@
 import React, {useState} from "react";
-import { Fab } from "@material-ui/core";
-import { PimClass } from "model-driven-data";
+import {Badge, Fab} from "@material-ui/core";
+import {Store} from "model-driven-data";
 import RestoreIcon from "@material-ui/icons/Restore";
 import {LoadSavedDialog} from "./LoadSavedDialog";
-import {Store} from "model-driven-data";
-import { Badge } from "@material-ui/core";
 
 const LoadSavedButton: React.FC<{store: (store: Store) => void}> = ({store}) => {
     const [isOpen, setOpen] = useState(false);

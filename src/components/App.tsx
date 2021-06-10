@@ -4,12 +4,18 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import AddRootButton from "./cimSearch/AddRootButton";
 import {
     CreatePsmAssociation,
+    CreatePsmAttribute,
     CreatePsmClass,
     CreatePsmSchema,
     IdProvider,
+    ModelResource,
     PimAssociation,
     PimAttribute,
+    PimBase,
     PimClass,
+    PsmAssociation,
+    PsmAttribute,
+    PsmBase,
     PsmClass,
     PsmSchema,
     Store,
@@ -17,10 +23,38 @@ import {
 } from "model-driven-data";
 import LoadSavedButton from "./savedStore/LoadSavedButton";
 import {PsmSchemaItem} from "./psm/PsmSchemaItem";
-import {AddInterpretedSurroundingDialog} from "./addInterpretedSurroundings/addInterpretedSurroundingDialog";
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 
+interface StoreContextInterface {
+    store: Store,
+    psmModifyTechnicalLabel: (entity: PsmBase, label: string) => void,
+    psmDeleteAttribute: (attribute: PsmAttribute) => void,
+    psmSelectedInterpretedSurroundings: (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => void,
+}
+
+// equal and truthy
+function eqt(a: any, b: any) {return a && a === b}
+
+function loopPrevention(store: Store, entity: ModelResource, entityChain: ModelResource[] = []): boolean {
+    if (entityChain.includes(entity)) {
+        alert("Sorry, this operation is not implemented yet. You have caused a loop.");
+        return false;
+    }
+    if (PsmClass.is(entity) || PsmAssociation.is(entity)) {
+        const newChain = [...entityChain, entity];
+        for (const iri of entity.psmParts) {
+            if (store[iri]) {
+                if (!loopPrevention(store, store[iri], newChain)) return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// @ts-ignore
+export const StoreContext = React.createContext<StoreContextInterface>(null);
 
 const App: React.FC = () => {
     const [store, setStoreInternal] = useState<Store>({});
@@ -59,44 +93,110 @@ const App: React.FC = () => {
         setStore(newStore);
     }
 
-    const [surroundingDialogOpen, setSurroundingDialogOpen] = useState(false);
-    const [SDcim, setSDcim] = useState<string>("");
-    const openSurroundingDialog = (cimId: string) => {
-        setSDcim(cimId);
-        setSurroundingDialogOpen(true);
-    }
-
-    const SDselected = (pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => {
+    const psmSelectedInterpretedSurroundings = (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => {
         let newStore = {...store};
         const idProvider = new IdProvider();
 
+
         // For every PimAssociation
         for (let association of associations) {
+            console.log(newStore);
+            const associationPsmId = idProvider.psmFromPim(association.id);
+
+            let firstEnd = null;
+            let secondEnd = null;
+
             // First, ensure both PIM ends exists
             // Secondly, each PIM must have PSM class
             for (let {pimParticipant: pimId} of association.pimEnd) {
                 if (!pimId) continue;
                 if (!newStore[pimId]) newStore[pimId] = pimStore[pimId];
-                const psmId = idProvider.psmFromPim(pimId);
+
+                // Find class or create one
+                const end: PimBase = pimStore[pimId];
+                // eslint-disable-next-line no-loop-func
+                const psmEnd = Object.values(newStore).filter(PsmClass.is).find(cls => cls.psmInterpretation && eqt((newStore[cls.psmInterpretation] as PimClass)?.pimInterpretation, end.pimInterpretation));
+                const psmId = psmEnd?.id ?? idProvider.psmFromPim(pimId);
                 if (!newStore[psmId]) {
                     newStore = (new CreatePsmClass()).execute(newStore, {id: psmId});
-                    newStore = (new UpdatePsmClassInterpretation()).execute(newStore, {id: psmId, interpretation: pimId});
                 }
+                newStore = (new UpdatePsmClassInterpretation()).execute(newStore, {id: psmId, interpretation: pimId});
+
                 // todo hack for now
-                if (pimId === association.pimEnd[0].pimParticipant) {
-                    const modifiedClass = {...newStore[psmId], psmParts: [...(newStore[psmId] as PsmClass).psmParts, idProvider.psmFromPim(association.id)]} as PsmClass;
-                    newStore = {...newStore, [psmId]: modifiedClass};
-                }
+                if (pimId === association.pimEnd[0].pimParticipant) { firstEnd = psmId; }
+                if (pimId === association.pimEnd[1].pimParticipant) { secondEnd = psmId; }
             }
+
+            if (secondEnd === forClass.id) [firstEnd, secondEnd] = [secondEnd, firstEnd];
+
+            if (!secondEnd || !firstEnd) continue;
+
+            // Update PSM class
+            const originalClass = newStore[forClass.id] as PsmClass;
+            const modifiedClass = {...originalClass, psmParts: [...originalClass.psmParts, associationPsmId]} as PsmClass;
+            newStore = {...newStore, [modifiedClass.id]: modifiedClass};
+
             // We can create the association now
-            const [fromId, toId] = association.pimEnd.map(({pimParticipant}) => pimParticipant ?? "").map(idProvider.psmFromPim);
-            newStore = (new CreatePsmAssociation()).execute(newStore, {id: idProvider.psmFromPim(association.id), toId});
+            newStore = (new CreatePsmAssociation()).execute(newStore, {id: associationPsmId, toId: secondEnd});
+            (newStore[associationPsmId] as PsmAssociation).psmInterpretation = association.id;
         }
+
+        // Process attributes
+        for (const attribute of attributes) {
+            if (!attribute.pimHasClass) {
+                console.warn("PIM attribute has no PIM class assigned to it.", attribute);
+                continue;
+            }
+
+            // Create PIM class
+            if (!newStore[attribute.pimHasClass]) newStore[attribute.pimHasClass] = pimStore[attribute.pimHasClass];
+
+            // Create PIM attribute
+            newStore[attribute.id] = attribute;
+
+            // Create PSM attribute
+            const psmId = idProvider.psmFromPim(attribute.id);
+            newStore = (new CreatePsmAttribute()).execute(newStore, {id: psmId, classId: forClass.id});
+            (newStore[forClass.id] as PsmClass).psmParts.push(psmId);
+            (newStore[psmId] as PsmAttribute).psmInterpretation = attribute.id;
+        }
+
+        // Loop PSM prevention
+        const schemas = Object.values(store).filter(PsmSchema.is);
+        for (const schema of schemas) {
+            for (const root of schema.psmRoots) {
+                if (!loopPrevention(newStore, newStore[root])) return;
+            }
+        }
+
         setStore(newStore);
     }
 
-    const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem store={store} id={it.id} key={it.id} osd={openSurroundingDialog} />);
+    const psmModifyTechnicalLabel = (entity: PsmBase, label: string) => {
+        const modified = {...entity, psmTechnicalLabel: label} as PsmBase;
+        setStore({...store, [entity.id]: modified});
+    }
 
+    const psmDeleteAttribute = (attribute: PsmAttribute) => {
+        const parent = Object.values(store).filter(PsmClass.is).find(c => c.psmParts.includes(attribute.id));
+        if (!parent) throw new Error("Unable to remove PSM attribute from non existing PSM class.");
+        const newParent = {...parent, psmParts: parent.psmParts.filter(c => c !== attribute.id)} as PsmClass;
+        const newStore = {...store, [newParent.id]: newParent};
+        delete newStore[attribute.id];
+        setStore(newStore);
+    }
+
+    const storeContextData: StoreContextInterface = {
+        store,
+        psmModifyTechnicalLabel,
+        psmDeleteAttribute,
+        psmSelectedInterpretedSurroundings,
+    }
+
+    const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);
+
+    // @ts-ignore
+    // @ts-ignore
     return <>
         <CssBaseline />
         <AppBar position="static">
@@ -117,13 +217,13 @@ const App: React.FC = () => {
                 <LoadSavedButton store={setStore}  />
                 <AddRootButton selected={addRootElement} />
             </Box>
-            {schemas}
+            <StoreContext.Provider value={storeContextData}>
+                {schemas}
+            </StoreContext.Provider>
             {schemas.length === 0 &&
                 <Typography color={"textSecondary"}>Create a root or load a store</Typography>
             }
         </Container>
-
-        <AddInterpretedSurroundingDialog isOpen={surroundingDialogOpen} close={() => setSurroundingDialogOpen(false)} selected={SDselected} cimId={SDcim} />
     </>;
 }
 
