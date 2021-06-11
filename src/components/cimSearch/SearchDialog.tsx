@@ -33,10 +33,12 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
     const [findResults, updateFindResults] = useState<PimClass[]>([]);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isError, setError] = useState(false);
 
     useEffect(() => {
         const subject = new BehaviorSubject('');
         setSubject(subject);
+        subject.subscribe(() => setError(false));
         subject.pipe(
             debounceTime(200)
         ).subscribe( term => {
@@ -46,6 +48,10 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                 setLoading(true);
                 adapter.search(term).then(result => {
                     updateFindResults(result);
+                    setLoading(false);
+                }).catch(error => {
+                    console.info("Error during search.", error);
+                    setError(true);
                     setLoading(false);
                 });
             } else {
@@ -70,7 +76,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         </DialogTitle>
         <DialogContent dividers>
             <Box display={"flex"}>
-                <TextField id="standard-basic" placeholder="type IRI or search for label" fullWidth autoFocus onChange={onChange} />
+                <TextField id="standard-basic" placeholder="Type IRI or search for label. You can even use regular expressions." fullWidth autoFocus onChange={onChange} error={isError} />
                 {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30} />}
             </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">
