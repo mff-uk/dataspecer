@@ -106,14 +106,16 @@ export default class implements CimAdapter {
         const cimStore = await parseN3IntoStore(content);
 
         const cimClasses = cimStore.getQuads(null, RDF.type, POJEM.typObjektu, null);
-        const result = cimClasses.map(quad => this.parseClassFromN3StoreToStore(cimStore, quad.subject.id));
+        const result: [string, PimClass][] = cimClasses.map(quad => [cimStore.getQuads(quad.subject, "__search_lang", null, null)[0].object.value, this.parseClassFromN3StoreToStore(cimStore, quad.subject.id)]);
+
+        const sorted = result.sort((a, b) => a[1].pimHumanLabel[a[0]].length - b[1].pimHumanLabel[b[0]].length).map(([,c]) => c);
 
         if (IRI_REGEXP.test(searchString)) {
             const classById = await this.getClass(searchString);
-            if (classById) return [classById, ...result];
+            if (classById) return [classById, ...sorted];
         }
 
-        return result;
+        return sorted;
     }
 
     async getClass(cimId: string): Promise<PimClass | null> {
@@ -179,9 +181,10 @@ export default class implements CimAdapter {
         // glossary metadata
         if (inputStore) {
             const glossary_quads = inputStore.getQuads(inputId, SKOS.inScheme, null, null);
-            if (glossary_quads.length) {
-                const type = glossary_quads[0].object.id.match(/^https:\/\/slovník.gov.cz\/([^\/]+)/)[1];
-                const glossary = outputPim.glossary = {type}
+            for (const quad of glossary_quads) { // Only slovník.gov.cz is accepted
+                const match = glossary_quads[0].object.id.match(/^https:\/\/slovník.gov.cz\/([^\/]+)/);
+                if (!match) continue;
+                const glossary = outputPim.glossary = {type: match[1]}
 
                 if (LegislativniSlovnikGlossary.is(glossary)) {
                     const [, number, year] = glossary_quads[0].object.id.match(/^https:\/\/slovník.gov.cz\/legislativní\/sbírka\/([^\/]+)\/([^\/]+)/);

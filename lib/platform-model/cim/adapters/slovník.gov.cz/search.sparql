@@ -1,11 +1,21 @@
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-CONSTRUCT WHERE {
+CONSTRUCT {
 	?node a z:typ-objektu ;
-		skos:prefLabel ?label ; skos:definition ?definition ;
+		<__search_lang> ?search_lang ;
+		skos:prefLabel ?label ;
+		skos:definition ?definition ;
+		skos:inScheme ?glossary .
+} WHERE {
+	?node a z:typ-objektu ;
+		skos:prefLabel ?search_label ;
+		skos:prefLabel ?label ;
+	    skos:definition ?definition ;
 		skos:inScheme ?glossary .
 
-	FILTER (regex(lcase(str(?label)), %QUERY%, "i"))
+	FILTER (regex(lcase(str(?search_label)), %QUERY%, "i"))
+	BIND(lang(?search_label) as ?search_lang)
 }
-LIMIT 20
+ORDER BY ASC(strlen(str(?search_label)))
+LIMIT 30
