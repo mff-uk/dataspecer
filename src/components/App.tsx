@@ -25,6 +25,8 @@ import LoadSavedButton from "./savedStore/LoadSavedButton";
 import {PsmSchemaItem} from "./psm/PsmSchemaItem";
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
+import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
+import {SnackbarProvider} from "notistack";
 
 interface StoreContextInterface {
     store: Store,
@@ -195,37 +197,38 @@ const App: React.FC = () => {
 
     const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);
 
-    // @ts-ignore
-    // @ts-ignore
     return <>
-        <CssBaseline />
-        <AppBar position="static">
-            <Toolbar>
-                <Typography variant="h6">
-                    Schema Generator
-                </Typography>
-            </Toolbar>
-        </AppBar>
-        <Container>
-            <Box height="30px"/>
-            <Box display="flex" flexDirection="row" justifyContent="space-between">
-                <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-                <div>
-                    <Fab variant="extended" disabled={sh.length + shi <= 1} size="medium" color="secondary" onClick={back} style={{marginRight: "1rem"}}><UndoIcon /></Fab>
-                    <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
-                </div>
-                <LoadSavedButton store={setStore}  />
-                <AddRootButton selected={addRootElement} />
-            </Box>
-            <StoreContext.Provider value={storeContextData}>
-                {schemas}
-            </StoreContext.Provider>
-            {schemas.length === 0 &&
-                <Typography color={"textSecondary"}>Create a root or load a store</Typography>
-            }
-            <Divider style={{margin: "1rem 0 1rem 0"}} />
-            Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
-        </Container>
+        <SnackbarProvider maxSnack={3}>
+            <CssBaseline />
+            <AppBar position="static">
+                <Toolbar>
+                    <Typography variant="h6">
+                        Schema Generator
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+            <Container>
+                <Box height="30px"/>
+                <Box display="flex" flexDirection="row" justifyContent="space-between">
+                    <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
+                    <div>
+                        <Fab variant="extended" disabled={sh.length + shi <= 1} size="medium" color="secondary" onClick={back} style={{marginRight: "1rem"}}><UndoIcon /></Fab>
+                        <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
+                    </div>
+                    <LoadSavedButton store={setStore}  />
+                    <GenerateArtifacts store={store} />
+                    <AddRootButton selected={addRootElement} />
+                </Box>
+                <StoreContext.Provider value={storeContextData}>
+                    {schemas}
+                </StoreContext.Provider>
+                {schemas.length === 0 &&
+                    <Typography color={"textSecondary"}>Create a root or load a store</Typography>
+                }
+                <Divider style={{margin: "1rem 0 1rem 0"}} />
+                Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
+            </Container>
+        </SnackbarProvider>
     </>;
 }
 

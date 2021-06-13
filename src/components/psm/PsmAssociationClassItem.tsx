@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {PimClass, PsmAssociation, PsmAttribute, PsmClass} from "model-driven-data";
 import {PsmAttributeItem} from "./PsmAttributeItem";
 import {StoreContext} from "../App";
@@ -9,6 +9,7 @@ import {AddInterpretedSurroundingDialog} from "../addInterpretedSurroundings/add
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {AssociationDetailDialog} from "../psmDetail/AssociationDetailDialog";
 import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
+import {useToggle} from "../../hooks/useToggle";
 
 const termStyle: React.CSSProperties = {
     fontFamily: "monospace",
@@ -46,8 +47,8 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
 
     const interpretedCim = cls.psmInterpretation && (store[cls.psmInterpretation] as PimClass).pimInterpretation;
 
-    const [surroundingDialogOpen, setSurroundingDialogOpen] = useState(false);
-    const [editOpen, setEditOpen] = useState<boolean>(false);
+    const surroundingDialog = useToggle();
+    const editDialog = useToggle();
 
     const styles = useStyles();
 
@@ -67,10 +68,10 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
             {' '}
             <PsmInterpretedAgainst store={store} entity={cls}/>
             {' '}
-            <Chip className={styles.chip} variant="outlined" size="small" onClick={() => {interpretedCim && setSurroundingDialogOpen(true)}} icon={<AddIcon/>} label={"add"}/>
+            {interpretedCim && <Chip className={styles.chip} variant="outlined" size="small" onClick={surroundingDialog.open} icon={<AddIcon/>} label={"add"}/>}
             {association && <>
                 {' '}
-                <Chip className={styles.chip} variant="outlined" size="small" onClick={() => setEditOpen(true)} icon={<EditIcon/>} label={"edit"}/>
+                <Chip className={styles.chip} variant="outlined" size="small" onClick={editDialog.open} icon={<EditIcon/>} label={"edit"}/>
             </>}
         </div>
         <ul>
@@ -81,7 +82,7 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
             })}
         </ul>
 
-        <AddInterpretedSurroundingDialog store={store} isOpen={surroundingDialogOpen} close={() => setSurroundingDialogOpen(false)} selected={psmSelectedInterpretedSurroundings} psmClass={cls} />
-        {association && <AssociationDetailDialog store={store} association={association} isOpen={editOpen} close={() => setEditOpen(false)} updateTechnicalLabel={psmModifyTechnicalLabel} />}
+        <AddInterpretedSurroundingDialog store={store} isOpen={surroundingDialog.isOpen} close={surroundingDialog.close} selected={psmSelectedInterpretedSurroundings} psmClass={cls} />
+        {association && <AssociationDetailDialog store={store} association={association} isOpen={editDialog.isOpen} close={editDialog.close} updateTechnicalLabel={psmModifyTechnicalLabel} />}
     </li>;
 }

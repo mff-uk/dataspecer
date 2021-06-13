@@ -1,15 +1,12 @@
-import React, {useState} from "react";
+import React from "react";
 import {Badge, Fab} from "@material-ui/core";
 import {Store} from "model-driven-data";
 import RestoreIcon from "@material-ui/icons/Restore";
 import {LoadSavedDialog} from "./LoadSavedDialog";
+import {useToggle} from "../../hooks/useToggle";
 
 const LoadSavedButton: React.FC<{store: (store: Store) => void}> = ({store}) => {
-    const [isOpen, setOpen] = useState(false);
-
-    const open = () => setOpen(true);
-    const close = () => setOpen(false);
-
+    const {isOpen, open, close} = useToggle();
     return (
         <>
             <Badge badgeContent={"dočasné"} color="secondary">
