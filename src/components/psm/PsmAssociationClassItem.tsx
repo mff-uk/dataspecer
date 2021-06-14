@@ -13,13 +13,7 @@ import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
-const termStyle: React.CSSProperties = {
-    fontFamily: "monospace",
-    fontWeight: "bold",
-    color: "red",
-};
-
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme) =>
     createStyles({
         root: {
             "&>div": {
@@ -35,6 +29,11 @@ const useStyles = makeStyles(() =>
         icon: {
             verticalAlign: "middle",
             cursor: "pointer",
+        },
+        term: {
+            fontFamily: "monospace",
+            fontWeight: "bold",
+            color: theme.palette.secondary.main,
         }
     }),
 );
@@ -68,14 +67,14 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
             {association &&
                 <>
                     {association.psmTechnicalLabel ?
-                        <><span style={termStyle}>{association.psmTechnicalLabel}</span> association </> : <>unlabeled
+                        <><span className={styles.term}>{association.psmTechnicalLabel}</span> association </> : <>unlabeled
                             association </>}
                     <PsmInterpretedAgainst store={store} entity={association}/>
                     {' to '}
                 </>
             }
             {cls.psmTechnicalLabel ?
-                <><span style={termStyle}>{cls.psmTechnicalLabel || "[no label]"}</span> class</> : <>unlabeled class</>}
+                <><span className={styles.term}>{cls.psmTechnicalLabel || "[no label]"}</span> class</> : <>unlabeled class</>}
             {' '}
             <PsmInterpretedAgainst store={store} entity={cls}/>
             {' '}

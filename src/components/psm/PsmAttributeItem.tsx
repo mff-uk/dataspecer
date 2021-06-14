@@ -9,12 +9,6 @@ import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
 import {useToggle} from "../../hooks/useToggle";
 
-const termStyle: React.CSSProperties = {
-    fontFamily: "monospace",
-    fontWeight: "bold",
-    color: "blue",
-};
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
@@ -27,6 +21,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         chip: {
             transition: "opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms"
+        },
+        term: {
+            fontFamily: "monospace",
+            fontWeight: "bold",
+            color: theme.palette.primary.main,
         }
     }),
 );
@@ -50,7 +49,7 @@ export const PsmAttributeItem: React.FC<{id: string}> = ({id}) => {
         <li>
             <div className={styles.root}>
                 {attribute.psmTechnicalLabel ?
-                    <span style={termStyle}>{attribute.psmTechnicalLabel}</span> : <>unlabeled attribute</>}
+                    <span className={styles.term}>{attribute.psmTechnicalLabel}</span> : <>unlabeled attribute</>}
                 {' '}
                 <PsmInterpretedAgainst store={store} entity={attribute}/>
                 {' '}
