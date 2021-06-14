@@ -7,8 +7,9 @@ import {Store} from "model-driven-data";
 import copy from "copy-to-clipboard";
 import {useSnackbar} from 'notistack';
 import FileSaver from "file-saver";
+import fileDialog from "file-dialog";
 
-export const GenerateArtifacts: React.FC<{store: Store}> = ({store}) => {
+export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store) => void}> = ({store, setStore}) => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId())
     const ref = useRef(null);
@@ -29,10 +30,26 @@ export const GenerateArtifacts: React.FC<{store: Store}> = ({store}) => {
         FileSaver.saveAs(data, "platform-model.json", {autoBom: false});
     }, [close, store]);
 
+    const fileToStore = useCallback(async () => {
+        close();
+        const files = await fileDialog();
+        if (files.length) {
+            try {
+                const file = files[0];
+                const text = await file.text();
+                const result = JSON.parse(text) as Store;
+                setStore(result);
+                enqueueSnackbar("Platform-model data loaded successfully", {variant: "success"});
+            } catch (e) {
+                enqueueSnackbar("Unable to load saved platform-model", {variant: "error"});
+            }
+        }
+    }, [enqueueSnackbar, setStore]);
+
     return (
         <>
             <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref}>
-                Generate artifacts
+                Generate/Load artifacts
                 <ExpandMoreIcon />
             </Fab>
             <Menu
@@ -44,6 +61,7 @@ export const GenerateArtifacts: React.FC<{store: Store}> = ({store}) => {
             >
                 <MenuItem onClick={saveToFile}>platform-model JSON as file</MenuItem>
                 <MenuItem onClick={storeToClipboard}>platform-model JSON to clipboard</MenuItem>
+                <MenuItem onClick={fileToStore}>import platform-model JSON</MenuItem>
             </Menu>
         </>
     );

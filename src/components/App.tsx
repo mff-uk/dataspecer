@@ -27,12 +27,14 @@ import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
+import {LabelAndDescriptionLanguageStrings} from "./psmDetail/LabelDescriptionEditor";
 
 interface StoreContextInterface {
     store: Store,
     psmModifyTechnicalLabel: (entity: PsmBase, label: string) => void,
     psmDeleteAttribute: (attribute: PsmAttribute) => void,
     psmSelectedInterpretedSurroundings: (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => void,
+    psmUpdateHumanLabelAndDescription: (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => void,
 }
 
 // equal and truthy
@@ -188,11 +190,16 @@ const App: React.FC = () => {
         setStore(newStore);
     }
 
+    const psmUpdateHumanLabelAndDescription = (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => {
+        setStore({...store, [entity.id]: {...entity, psmHumanLabel: data.label, psmHumanDescription: data.description} as PsmBase});
+    }
+
     const storeContextData: StoreContextInterface = {
         store,
         psmModifyTechnicalLabel,
         psmDeleteAttribute,
         psmSelectedInterpretedSurroundings,
+        psmUpdateHumanLabelAndDescription,
     }
 
     const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);
@@ -216,7 +223,7 @@ const App: React.FC = () => {
                         <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
                     </div>
                     <LoadSavedButton store={setStore}  />
-                    <GenerateArtifacts store={store} />
+                    <GenerateArtifacts store={store} setStore={setStore} />
                     <AddRootButton selected={addRootElement} />
                 </Box>
                 <StoreContext.Provider value={storeContextData}>
