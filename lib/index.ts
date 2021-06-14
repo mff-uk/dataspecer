@@ -19,11 +19,10 @@ import {UpdateClassInterpretation} from "./platform-model/psm/operations/UpdateC
 import { PsmBase } from "./platform-model/psm/psm-base";
 import { PimBase } from "./platform-model/pim/pim-base";
 import { CreateAttribute } from "./platform-model/psm/operations/CreateAttribute";
-import { ModelResource } from "./platform-model/platform-model-api";
-
+import {LanguageString, ModelResource } from "./platform-model/platform-model-api";
 export {IdProvider, Slovnik, SparqlSource, FederatedSource, PlatformModelAdapter, JsonldSource, Store};
 export {PimClass, PimAttribute, PimAssociation, PimBase};
 export {PsmClass, PsmSchema, PsmAttribute, PsmAssociation, PsmBase};
 export {CreateSchema as CreatePsmSchema, CreateClass as CreatePsmClass, CreateAssociation as CreatePsmAssociation, UpdateClassInterpretation as UpdatePsmClassInterpretation, CreateAttribute as CreatePsmAttribute};
 export {SlovnikPimMetadata, SlovnikGlossary, LegislativniSlovnikGlossary};
-export {ModelResource};
+export {LanguageString, ModelResource};
