@@ -1,13 +1,12 @@
-/* eslint-disable  @typescript-eslint/no-var-requires */
 const path = require("path");
 
 module.exports = {
   "mode": "production",
-  "entry": path.join(__dirname, "src", "index.ts"),
+  "entry": path.join(__dirname, "lib", "index.ts"),
   "target": "node",
   "output": {
     "path": path.join(__dirname, "dist"),
-    "filename": "json-schema-mapping.js",
+    "filename": "index.js",
     "library": "json-schema-mapping",
     "libraryTarget": "umd",
   },
@@ -19,6 +18,11 @@ module.exports = {
         "use": [
           "babel-loader",
         ],
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
     ],
   },
