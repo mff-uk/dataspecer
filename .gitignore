@@ -1,2 +1,7 @@
+# Files
+.*
+*.iml
+
+# Directories
 node_modules/
 test-output/
