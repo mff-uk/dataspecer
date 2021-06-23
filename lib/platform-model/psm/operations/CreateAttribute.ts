@@ -13,17 +13,17 @@ interface CreateAttributeParameters {
 }
 
 export class CreateAttribute implements Operation<CreateAttributeParameters> {
-    canExecute(store: Store, parameters: CreateAttributeParameters): boolean {
-        const {classId} = parameters;
-        return PsmClass.is(store[classId]);
-    }
+  canExecute(store: Store, parameters: CreateAttributeParameters): boolean {
+    const {classId} = parameters;
+    return PsmClass.is(store[classId]);
+  }
 
-    execute(store: Store, parameters: CreateAttributeParameters): Store {
-        const {id, classId} = parameters;
-        let resource = store[id];
-        resource = resource ? {...resource} : new ModelResource(id);
-        const attribute = PsmAttribute.as(resource);
-        //attribute.pimHasClass = classId; todo fix
-        return {...store, [id]: attribute};
-    }
+  execute(store: Store, parameters: CreateAttributeParameters): Store {
+    const {id, classId} = parameters;
+    let resource = store[id];
+    resource = resource ? {...resource} : new ModelResource(id);
+    const attribute = PsmAttribute.as(resource);
+    //attribute.pimHasClass = classId; todo fix
+    return {...store, [id]: attribute};
+  }
 }

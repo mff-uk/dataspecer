@@ -8,15 +8,15 @@ interface CreateSchemaParameters {
 }
 
 export class CreateSchema implements Operation<CreateSchemaParameters> {
-    canExecute(): boolean {
-        return true;
-    }
+  canExecute(): boolean {
+    return true;
+  }
 
-    execute(store: Store, parameters: CreateSchemaParameters): Store {
-        const {id} = parameters;
-        let schema = store[id];
-        schema = schema ? {...schema} : new ModelResource(id);
-        PsmSchema.as(schema);
-        return {...store, [id]: schema};
-    }
+  execute(store: Store, parameters: CreateSchemaParameters): Store {
+    const {id} = parameters;
+    let schema = store[id];
+    schema = schema ? {...schema} : new ModelResource(id);
+    PsmSchema.as(schema);
+    return {...store, [id]: schema};
+  }
 }

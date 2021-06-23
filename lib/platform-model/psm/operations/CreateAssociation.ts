@@ -12,16 +12,16 @@ interface CreateAssociationParameters {
 }
 
 export class CreateAssociation implements Operation<CreateAssociationParameters> {
-    canExecute(store: Store, parameters: CreateAssociationParameters): boolean {
-        return true; // todo implement
-    }
+  canExecute(store: Store, parameters: CreateAssociationParameters): boolean {
+    return true; // todo implement
+  }
 
-    execute(store: Store, parameters: CreateAssociationParameters): Store {
-        const {id, toId} = parameters;
-        let resource = store[id];
-        resource = resource ? {...resource} : new ModelResource(id);
-        const association = PsmAssociation.as(resource);
-        association.psmParts = [toId];
-        return {...store, [id]: association};
-    }
+  execute(store: Store, parameters: CreateAssociationParameters): Store {
+    const {id, toId} = parameters;
+    let resource = store[id];
+    resource = resource ? {...resource} : new ModelResource(id);
+    const association = PsmAssociation.as(resource);
+    association.psmParts = [toId];
+    return {...store, [id]: association};
+  }
 }

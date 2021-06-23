@@ -11,11 +11,11 @@ interface UpdateAttributeInterpretationParameters {
 }
 
 export class UpdateAttributeInterpretation implements Operation<UpdateAttributeInterpretationParameters> {
-    canExecute(store: Store, parameters: UpdateAttributeInterpretationParameters): boolean {
-        return true; // todo fix
-    }
+  canExecute(store: Store, parameters: UpdateAttributeInterpretationParameters): boolean {
+    return true; // todo fix
+  }
 
-    execute(store: Store, parameters: UpdateAttributeInterpretationParameters): Store {
-        return updatePsmInterpretation(store, parameters);
-    }
+  execute(store: Store, parameters: UpdateAttributeInterpretationParameters): Store {
+    return updatePsmInterpretation(store, parameters);
+  }
 }

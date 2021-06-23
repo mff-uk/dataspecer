@@ -11,12 +11,12 @@ interface UpdateClassInterpretationParameters {
 }
 
 export class UpdateClassInterpretation implements Operation<UpdateClassInterpretationParameters> {
-    canExecute(store: Store, parameters: UpdateClassInterpretationParameters): boolean {
-        return true; // todo implement
-    }
+  canExecute(store: Store, parameters: UpdateClassInterpretationParameters): boolean {
+    return true; // todo implement
+  }
 
-    execute(store: Store, parameters: UpdateClassInterpretationParameters): Store {
-        return updatePsmInterpretation(store, parameters);
-    }
+  execute(store: Store, parameters: UpdateClassInterpretationParameters): Store {
+    return updatePsmInterpretation(store, parameters);
+  }
 
 }

@@ -8,15 +8,15 @@ interface CreateClassParameters {
 }
 
 export class CreateClass implements Operation<CreateClassParameters> {
-    canExecute(): boolean {
-        return true;
-    }
+  canExecute(): boolean {
+    return true;
+  }
 
-    execute(store: Store, parameters: CreateClassParameters): Store {
-        const {id} = parameters;
-        let cls = store[id];
-        cls = cls ? {...cls} : new ModelResource(id);
-        PsmClass.as(cls);
-        return {...store, [id]: cls};
-    }
+  execute(store: Store, parameters: CreateClassParameters): Store {
+    const {id} = parameters;
+    let cls = store[id];
+    cls = cls ? {...cls} : new ModelResource(id);
+    PsmClass.as(cls);
+    return {...store, [id]: cls};
+  }
 }
