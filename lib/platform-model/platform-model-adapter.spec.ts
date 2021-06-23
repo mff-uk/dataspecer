@@ -4,13 +4,11 @@ import {FederatedSource} from "../rdf/statements/federated-source";
 import {PlatformModelAdapter} from "./platform-model-adapter";
 import {SparqlSource} from "../rdf/statements/sparql-source";
 
-beforeAll(() => jest.setTimeout(10 * 60 * 1000));
-
 test("Load 'číselníky' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/ofn/číselníky");
   writeJson(entities, "./test-output/platform-model", "číselníky.json");
-});
+}, 10 * 60 * 1000);
 
 async function loadFromTestSourcesGroupTwo(iri: string) {
   const source = FederatedSource.createExhaustive([
@@ -32,7 +30,6 @@ async function loadFromTestSourcesGroupTwo(iri: string) {
     await JsonldSource.create("file://test/psm-rpp-ustanovení-právních-předpisů.ttl"),
     await JsonldSource.create("file://test/psm-rpp-zařazení-do-kategorií.ttl"),
     await JsonldSource.create("file://test/pim-ustanovení-právních-předpisů.ttl"),
-    await SparqlSource.create("https://slovník.gov.cz/sparql"),
   ]);
   const adapter = PlatformModelAdapter.create(source);
   await adapter.loadIriTree(iri);
@@ -51,40 +48,40 @@ test("Load 'adresní-místa' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa");
   writeJson(entities, "./test-output/platform-model", "adresní-místa.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'datové-schránky' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky");
   writeJson(entities, "./test-output/platform-model", "datové-schránky.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'orgány-veřejné-moci' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci");
   writeJson(entities, "./test-output/platform-model", "orgány-veřejné-moci.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'osoby-právní-forma' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/osoby-právní-forma");
   writeJson(entities, "./test-output/platform-model", "osoby-právní-forma.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'pracoviště' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/pracoviště");
   writeJson(entities, "./test-output/platform-model", "pracoviště.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'ustanovení-právních-předpisů' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů");
   writeJson(entities, "./test-output/platform-model", "ustanovení-právních-předpisů.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'zařazení-do-kategorií' model.", async () => {
   const entities = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií");
   writeJson(entities, "./test-output/platform-model", "zařazení-do-kategorií.json");
-});
+}, 10 * 60 * 1000);

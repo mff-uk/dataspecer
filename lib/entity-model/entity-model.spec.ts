@@ -5,13 +5,11 @@ import {loadEntitySchemaFromIri} from "./entity-model-adapter";
 import {writeFileSync, existsSync, mkdirSync} from "fs";
 import {SparqlSource} from "../rdf/statements/sparql-source";
 
-beforeAll(() => jest.setTimeout(10 * 60 * 1000));
-
 test("Load 'adresní-místa' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa");
   writeJson(actual, "./test-output/entity-model", "adresní-místa.json");
-});
+}, 10 * 60 * 1000);
 
 async function loadFromTestSourcesGroupTwo(iri: string) {
   const source = FederatedSource.createExhaustive([
@@ -109,34 +107,34 @@ test("Load 'datové-schránky' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky");
   writeJson(actual, "./test-output/entity-model", "datové-schránky.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'orgány-veřejné-moci' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci");
   writeJson(actual, "./test-output/entity-model", "orgány-veřejné-moci.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'osoby-právní-forma' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/osoby-právní-forma");
   writeJson(actual, "./test-output/entity-model", "osoby-právní-forma.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'pracoviště' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/pracoviště");
   writeJson(actual, "./test-output/entity-model", "pracoviště.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'ustanovení-právních-předpisů' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů");
   writeJson(actual, "./test-output/entity-model", "ustanovení-právních-předpisů.json");
-});
+}, 10 * 60 * 1000);
 
 test("Load 'zařazení-do-kategorií' schema.", async () => {
   const actual = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií");
   writeJson(actual, "./test-output/entity-model", "zařazení-do-kategorií.json");
-});
+}, 10 * 60 * 1000);

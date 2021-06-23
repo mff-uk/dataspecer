@@ -5,14 +5,14 @@ test("slovník.gov.cz: IdProvider", async () => {
   const input = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/orgán-veřejné-moci";
   const provider = new IdProvider();
   expect(provider.pimFromCim(input)).toBe("https://localhost/pim/slovník.gov.cz/legislativní/sbírka/111/2009/pojem/orgán-veřejné-moci");
-});
+}, 10 * 60 * 1000);
 
 test("slovník.gov.cz: search method", async () => {
   const adapter = new SlovnikGovCzAdapter(new IdProvider());
   const query = "řidič";
   const result = await adapter.search(query);
   expect(result.map(cls => cls.pimHumanLabel?.cs)).toContain("Řidičský průkaz České republiky");
-});
+}, 10 * 60 * 1000);
 
 test("slovník.gov.cz: getClass method", async () => {
   const adapter = new SlovnikGovCzAdapter(new IdProvider());
@@ -28,7 +28,7 @@ test("slovník.gov.cz: getClass method", async () => {
   }
 
   expect(result).toStrictEqual(queries.map(([,expected]) => expected));
-});
+}, 10 * 60 * 1000);
 
 test("slovník.gov.cz: getSurroundings method", async () => {
   const adapter = new SlovnikGovCzAdapter(new IdProvider());
@@ -41,18 +41,14 @@ test("slovník.gov.cz: getSurroundings method", async () => {
     const result = await adapter.getSurroundings(query);
     console.log(result);
   }
-});
+}, 10 * 60 * 1000);
 
 test("slovník.gov.cz: combined search + surroundings", async () => {
-  const a = performance.now();
   const adapter = new SlovnikGovCzAdapter(new IdProvider());
   const query = "řidič";
 
-
   const searchResult = await adapter.search(query);
-  const b = performance.now();
   const result = await Promise.all(searchResult.map(cls => adapter.getSurroundings(cls.id)));
-  const c = performance.now();
 
   console.log(result);
-});
+}, 10 * 60 * 1000);

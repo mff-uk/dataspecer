@@ -7,6 +7,7 @@ import {CimAdapter} from "../cim-adapters-api";
 import {Store} from "../../../platform-model-store";
 import IdProvider from "../../../IdProvider";
 import {PimBase} from "../../../pim/pim-base";
+import fetch from "./../../../../rdf/rdf-fetch";
 
 // todo fix injection
 function searchQuery(searchString: string) {

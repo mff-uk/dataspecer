@@ -7,8 +7,6 @@ import {PlatformModelAdapter} from "../../platform-model/platform-model-adapter"
 import {writeReSpec} from "./respec-writer";
 import {SparqlSource} from "../../rdf/statements/sparql-source";
 
-beforeAll(() => jest.setTimeout(10 * 60 * 1000));
-
 async function loadFromTestSourcesGroupTwo(iri: string) {
   const source = FederatedSource.createExhaustive([
     await JsonldSource.create("file://test/pim-ofn-číselníky.ttl"),
@@ -50,46 +48,45 @@ test("Convert 'adresní-místa' to respec.", async () => {
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/adresní-místa");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "adresní-místa");
-});
+}, 10 * 60 * 1000);
 
 test("Convert 'datové-schránky' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/datové-schránky");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "datové-schránky");
-});
+}, 10 * 60 * 1000);
 
 test("Convert 'orgány-veřejné-moci' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/orgány-veřejné-moci");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "orgány-veřejné-moci");
-});
+}, 10 * 60 * 1000);
 
 test("Convert 'osoby-právní-forma' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/osoby-právní-forma");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "osoby-právní-forma");
-});
+}, 10 * 60 * 1000);
 
 test("Convert 'pracoviště' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/pracoviště");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "pracoviště");
-});
-
+}, 10 * 60 * 1000);
 test("Convert 'ustanovení-právních-předpisů' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/ustanovení-právních-předpisů");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "ustanovení-právních-předpisů");
-});
+}, 10 * 60 * 1000);
 
 test("Convert 'zařazení-do-kategorií'' to respec.", async () => {
   const input = await loadFromTestSourcesGroupTwo(
     "https://ofn.gov.cz/zdroj/psm/schéma/registr-práv-a-povinností/zařazení-do-kategorií");
   const actual = schemaAsReSpec(input);
   writeOutput(actual, "./test-output/respec", "zařazení-do-kategorií'");
-});
+}, 10 * 60 * 1000);
