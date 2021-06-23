@@ -3,15 +3,8 @@
 //
 
 import {createReadStream} from "fs";
-import makeFetchHappen from "make-fetch-happen";
-import {Response} from "minipass-fetch";
+import fetch from "minipass-fetch";
 
-const fetch = makeFetchHappen.defaults({
-  "cacheManager": "./.http-cache",
-  "cache": "no-store",
-});
-
-// https://github.com/hyperjump-io/json-schema-core/blob/517247ab8848b44e0b0129bc802790c8ab6cb956/lib/schema.js#L159
 export default function fetchUrl(
   url: string, options: Record<string, unknown>,
 ): Response {
@@ -21,7 +14,7 @@ export default function fetchUrl(
     const headers = {
       "content-type": getFileContentType(path.substr(path.lastIndexOf("."))),
     };
-    return new Response(stream, {"headers": headers});
+    return new fetch.Response(stream, {"headers": headers});
   } else {
     return fetch(url, options);
   }

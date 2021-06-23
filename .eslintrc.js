@@ -8,7 +8,7 @@ module.exports = {
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": "es2021",
+    "ecmaVersion": "es2020",
     "sourceType": "module",
   },
   "rules": {
@@ -29,7 +29,7 @@ module.exports = {
   "env": {
     "jest/globals": true,
     "browser": true,
-    "es2021": true,
+    "es2020": true,
     "node": true,
   }
 };
