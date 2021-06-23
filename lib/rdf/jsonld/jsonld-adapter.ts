@@ -4,7 +4,7 @@
 
 import jsonld from "jsonld";
 import {JsonLdEntity} from "./jsonld-types";
-//import fetch from "./../rdf-fetch";
+import fetch from "./../rdf-fetch";
 import {parseN3AsQuads} from "../n3/n3-adapter";
 import {Quad} from "n3";
 
@@ -31,7 +31,7 @@ jsonld.registerRDFParser("text/turtle", parseN3AsQuads);
  * Expand @type into predicate and @list into multiple entries.
  */
 export async function fetchJsonLd(url: string, format?: RdfFormat,
-resourceFormat: string = undefined): Promise<JsonLdEntity[]> {
+  resourceFormat: string = undefined): Promise<JsonLdEntity[]> {
   const options = {
     "headers": {
       "Accept": format ? format : supportedTypes().join(","),
