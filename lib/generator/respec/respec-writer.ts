@@ -1,11 +1,15 @@
 import * as fileSystem from "fs";
 import * as path from "path";
 
-import {
-  ReSpec, ReSpecEntity, ReSpecOverview,
-  ReSpecProperty, ReSpecSpecification, ReSpecTypeReference,
-} from "./respec-model";
+import {ReSpec} from "./respec-model";
 import {WriteStream} from "fs";
+import {
+  WebSpecification,
+  WebSpecificationEntity,
+  WebSpecificationProperty,
+  WebSpecificationSchema,
+  WebSpecificationType,
+} from "../web-specification/web-specification-model";
 
 export function writeReSpec(
   model: ReSpec, directory: string, name: string,
@@ -95,8 +99,7 @@ function currentDate() {
 function writeBody(model: ReSpec, stream: WriteStream) {
   stream.write("\n  </body>");
   writeIntroduction(model, stream);
-  writeOverview(model.overview, stream);
-  writeSpecification(model.specification, stream);
+  writeSpecification(model.schemas, stream);
   writeExamples(model, stream);
   stream.write("\n  </body>");
 }
@@ -111,20 +114,8 @@ function writeIntroduction(model: ReSpec, stream: WriteStream) {
     </section>`);
 }
 
-function writeOverview(overview: ReSpecOverview, stream: WriteStream) {
-  stream.write(`
-    <section id="přehled">
-      <h2>Přehled</h2>`);
-  if (!isStringEmpty(overview.humanDescription)) {
-    stream.write("\n    <p>");
-    stream.write(overview.humanDescription);
-    stream.write("</p>");
-  }
-  stream.write("\n    </section>");
-}
-
 function writeSpecification(
-  specification: ReSpecSpecification, stream: WriteStream,
+  specification: WebSpecificationSchema, stream: WriteStream,
 ) {
   stream.write(`
     <section id="specifikace">
@@ -136,17 +127,17 @@ function writeSpecification(
         Volitelně je uveden také popis a příklad. 
       </p>
 `);
-  specification.entities.forEach(entity => writeFosEntity(entity, stream));
+  specification.entities.forEach(entity => writeEntity(entity, stream));
   stream.write("\n    </section>");
 }
 
-function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
+function writeEntity(entity: WebSpecificationEntity, stream: WriteStream) {
   stream.write(`
-      <section id="${entity.identification}">
+      <section id="${entity.anchor}">
         <h3>${entity.humanLabel}</h3>
         <p>`);
   if (entity.isCodelist) {
-    stream.write(`Tato třída reprezentuje číselník.<br/>`);
+    stream.write("Tato třída reprezentuje číselník.<br/>");
   }
   stream.write(`${entity.humanDescription}</p>`);
   entity.properties.forEach(property =>
@@ -155,75 +146,62 @@ function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
 }
 
 function writeFosProperty(
-  owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream,
+  owner: WebSpecificationEntity,
+  property: WebSpecificationProperty,
+  stream: WriteStream,
 ) {
   stream.write(`
-        <section id="${property.identification}">
+        <section id="${property.anchor}">
           <h4>${property.humanLabel}</h4>
           <dl>
               <dt>Vlastnost</dt>
               <dd><code>${property.technicalLabel}</code></dd>`);
-  writeFosPropertyTypes(property, stream);
-  writeFosPropertyHumanLabel(property, stream);
-  writeFosPropertyHumanDescription(property, stream);
-  writeFosPropertyExamples(property, stream);
+  writePropertyTypes(property, stream);
+  writePropertyHumanLabel(property, stream);
+  writePropertyHumanDescription(property, stream);
   stream.write(`
           </dl>
          </section>`);
-
 }
 
-function writeFosPropertyTypes(
-  property: ReSpecProperty, stream: WriteStream) {
+function writePropertyTypes(
+  property: WebSpecificationProperty, stream: WriteStream) {
   const types = property.type
-    .map(writeFosPropertyType)
+    .map(writePropertyType)
     .join("");
-  stream.write(`
+  stream.write(Typ`
               <dt>Typ</dt>
               <dd>${types}</dd>`);
 }
 
-function writeFosPropertyType(type: ReSpecTypeReference): string {
+function writePropertyType(type: WebSpecificationType): string {
   const linkElement = type.link === undefined ?
     "" : ` <a href="${type.link}">${type.label}</a>`;
 
-  if (type.codelist !== undefined) {
+  if (type.codelistIri !== undefined) {
     return "Číselník" + linkElement;
   }
   if (type.isClassValue) {
-    return "Identifikátor pro " + linkElement
+    return "Identifikátor pro " + linkElement;
   }
   return linkElement;
 }
 
-function writeFosPropertyHumanLabel(
-  property: ReSpecProperty, stream: WriteStream) {
+function writePropertyHumanLabel(
+  property: WebSpecificationProperty, stream: WriteStream) {
   stream.write(`
             <dt>Jméno</dt>
             <dd>${property.humanLabel}</dd>`);
 }
 
-function writeFosPropertyHumanDescription(
-  property: ReSpecProperty, stream: WriteStream) {
+function writePropertyHumanDescription(
+  property: WebSpecificationProperty, stream: WriteStream) {
   if (isStringEmpty(property.humanDescription)) {
     return;
   }
   stream.write(`
               <dt>Popis</dt>
               <dd>${property.humanDescription}</dd>`);
-}
-
-function writeFosPropertyExamples(
-  property: ReSpecProperty, stream: WriteStream) {
-  if (property.examples.length === 0) {
-    return;
-  }
-  const examples = property.examples
-    .map(iri => `<code>${iri}</code>`)
-    .join("");
-  stream.write(`
-              <dt>Příklad</dt>
-              <dd>${examples}</dd>`);
 }
 
 function isStringEmpty(content: string): boolean {
