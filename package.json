@@ -9,7 +9,8 @@
     "build": "webpack",
     "lint": "eslint --ignore-path .gitignore . --fix",
     "test": "jest",
-    "respec": "jest --runTestsByPath ./lib/generator/respec/respec-model-adapter.spec.ts"
+    "respec": "jest --runTestsByPath ./lib/generator/respec/respec-model-adapter.spec.ts",
+    "bikeshed": "jest --runTestsByPath ./lib/generator/bikeshed/bikeshed-model-adapter.spec.ts"
   },
   "license": "MIT",
   "dependencies": {
