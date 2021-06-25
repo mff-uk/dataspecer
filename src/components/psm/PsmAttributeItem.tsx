@@ -8,6 +8,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
 import {useToggle} from "../../hooks/useToggle";
+import {PsmItemCommonAttributes} from "./PsmItemCommon";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -33,8 +34,9 @@ const useStyles = makeStyles((theme: Theme) =>
 /**
  * Component rendering PSM attribute into a PSM tree
  * @param id string id of the attribute, because the attribute may not exists under the given store.
+ * @param dragHandleProps
  */
-export const PsmAttributeItem: React.FC<{id: string}> = ({id}) => {
+export const PsmAttributeItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps}) => {
     const dialog = useToggle();
 
     const {store, psmModifyTechnicalLabel, psmDeleteAttribute} = React.useContext(StoreContext);
@@ -48,10 +50,12 @@ export const PsmAttributeItem: React.FC<{id: string}> = ({id}) => {
     return <>
         <li>
             <div className={styles.root}>
-                {attribute.psmTechnicalLabel ?
-                    <span className={styles.term}>{attribute.psmTechnicalLabel}</span> : <>unlabeled attribute</>}
-                {' '}
-                <PsmInterpretedAgainst store={store} entity={attribute}/>
+                <span {...dragHandleProps}>
+                    {attribute.psmTechnicalLabel ?
+                        <span className={styles.term}>{attribute.psmTechnicalLabel}</span> : <>unlabeled attribute</>}
+                    {' '}
+                    <PsmInterpretedAgainst store={store} entity={attribute}/>
+                </span>
                 {' '}
                 <Chip className={styles.chip} variant="outlined" size="small" onClick={dialog.open} icon={<EditIcon/>} label={"edit"}/>
                 {' '}

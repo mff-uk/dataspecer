@@ -12,6 +12,8 @@ import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
 import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import {Draggable, Droppable} from "react-beautiful-dnd";
+import {PsmItemCommonAttributes} from "./PsmItemCommon";
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -41,9 +43,10 @@ const useStyles = makeStyles((theme) =>
 /**
  * This component represents either PSM class or PSM association to a PSM class.
  * @param id
+ * @param dragHandleProps
  * @constructor
  */
-export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
+export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps}) => {
     const {store, psmSelectedInterpretedSurroundings, psmModifyTechnicalLabel} = React.useContext(StoreContext);
 
     // Association is only set if we are dealing with associations
@@ -64,17 +67,19 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
                 <ExpandMoreIcon className={styles.icon} onClick={collapse.close} /> :
                 <ExpandLessIcon className={styles.icon} onClick={collapse.open} />
             }
-            {association &&
-                <>
-                    {association.psmTechnicalLabel ?
-                        <><span className={styles.term}>{association.psmTechnicalLabel}</span> association </> : <>unlabeled
-                            association </>}
-                    <PsmInterpretedAgainst store={store} entity={association}/>
-                    {' to '}
-                </>
-            }
-            {cls.psmTechnicalLabel ?
-                <><span className={styles.term}>{cls.psmTechnicalLabel || "[no label]"}</span> class</> : <>unlabeled class</>}
+            <span {...dragHandleProps}>
+                {association &&
+                    <>
+                        {association.psmTechnicalLabel ?
+                            <><span className={styles.term}>{association.psmTechnicalLabel}</span> association </> : <>unlabeled
+                                association </>}
+                        <PsmInterpretedAgainst store={store} entity={association}/>
+                        {' to '}
+                    </>
+                }
+                {cls.psmTechnicalLabel ?
+                    <><span className={styles.term}>{cls.psmTechnicalLabel || "[no label]"}</span> class</> : <>unlabeled class</>}
+            </span>
             {' '}
             <PsmInterpretedAgainst store={store} entity={cls}/>
             {' '}
@@ -85,13 +90,21 @@ export const PsmAssociationClassItem: React.FC<{id: string}> = ({id}) => {
             </>}
         </div>
         <Collapse in={collapse.isOpen} unmountOnExit>
-            <ul>
-                {cls.psmParts?.map(part => {
-                    if (PsmAttribute.is(store[part])) return <PsmAttributeItem id={part} key={part} />;
-                    if (PsmAssociation.is(store[part])) return <PsmAssociationClassItem id={part} key={part} />;
-                    return null;
-                })}
-            </ul>
+            <Droppable droppableId={cls.id} type={cls.id}>
+                {provided =>
+                    <ul ref={provided.innerRef} {...provided.droppableProps}>
+                        {cls.psmParts?.map((part, index) => <Draggable index={index} key={part} draggableId={part}>
+                            {provided =>
+                                <div ref={provided.innerRef} {...provided.draggableProps}>
+                                    {PsmAttribute.is(store[part]) && <PsmAttributeItem id={part} dragHandleProps={provided.dragHandleProps}/>}
+                                    {PsmAssociation.is(store[part]) && <PsmAssociationClassItem id={part} dragHandleProps={provided.dragHandleProps} />}
+                                </div>
+                            }
+                        </Draggable>)}
+                        {provided.placeholder}
+                    </ul>
+                }
+            </Droppable>
         </Collapse>
 
         <AddInterpretedSurroundingDialog store={store} isOpen={surroundingDialog.isOpen} close={surroundingDialog.close} selected={psmSelectedInterpretedSurroundings} psmClass={cls} />

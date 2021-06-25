@@ -28,6 +28,7 @@ import RedoIcon from '@material-ui/icons/Redo';
 import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
 import {LabelAndDescriptionLanguageStrings} from "./psmDetail/LabelDescriptionEditor";
+import arrayMove from "array-move";
 
 interface StoreContextInterface {
     store: Store,
@@ -35,6 +36,7 @@ interface StoreContextInterface {
     psmDeleteAttribute: (attribute: PsmAttribute) => void,
     psmSelectedInterpretedSurroundings: (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => void,
     psmUpdateHumanLabelAndDescription: (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => void,
+    psmChangeOrder: (parent: PsmClass, child: PsmBase, newIndex: number) => void,
 }
 
 // equal and truthy
@@ -194,12 +196,18 @@ const App: React.FC = () => {
         setStore({...store, [entity.id]: {...entity, psmHumanLabel: data.label, psmHumanDescription: data.description} as PsmBase});
     }
 
+    const psmChangeOrder = (parent: PsmClass, child: PsmBase, newIndex: number) => {
+        console.log(parent, child, newIndex);
+        setStore({...store, [parent.id]: {...parent, psmParts: arrayMove(parent.psmParts, parent.psmParts.indexOf(child.id), newIndex)} as PsmClass});
+    }
+
     const storeContextData: StoreContextInterface = {
         store,
         psmModifyTechnicalLabel,
         psmDeleteAttribute,
         psmSelectedInterpretedSurroundings,
         psmUpdateHumanLabelAndDescription,
+        psmChangeOrder,
     }
 
     const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);
