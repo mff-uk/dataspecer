@@ -1,6 +1,22 @@
 import {PimAttribute, PsmAttribute, Store} from "model-driven-data";
-import React, {useState} from "react";
-import {Button, Dialog, DialogContent, DialogTitle, Grid, TextField, Typography} from "@material-ui/core";
+import React, {useCallback, useMemo, useState} from "react";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    TextField,
+    Typography
+} from "@material-ui/core";
+import {LabelAndDescriptionLanguageStrings, LabelDescriptionEditor} from "./LabelDescriptionEditor";
+import {useToggle} from "../../hooks/useToggle";
+import {StoreContext} from "../App";
+import {useTranslation} from "react-i18next";
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 
 interface Parameters {
     store: Store,
@@ -18,54 +34,104 @@ const valueStyle = {
 } as React.CSSProperties;
 
 export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, isOpen, close, updateTechnicalLabel}) => {
+    const {psmUpdateHumanLabelAndDescription, psmModifyAttribute} = React.useContext(StoreContext);
     const [technicalLabel, setTechnicalLabel] = useState<string>(attribute?.psmTechnicalLabel || "");
+    // @ts-ignore
+    const [dataType, setDataType] = useState<string>(attribute?.type || "");
+    const {t} = useTranslation("psmAttribute-dialog");
 
     const interpretation = attribute?.psmInterpretation ? store[attribute?.psmInterpretation] as PimAttribute : null;
 
-    const saveLabel = () => {
+    const psmLabelDialog = useToggle();
+    const psmLabelsData: LabelAndDescriptionLanguageStrings = useMemo(() => {
+        return {
+            label: attribute?.psmHumanLabel ?? {},
+            description: attribute?.psmHumanDescription ?? {},
+        }
+    }, [attribute?.psmHumanLabel, attribute?.psmHumanDescription]);
+    const psmUpdateLabels = useCallback((data: LabelAndDescriptionLanguageStrings) => attribute ? psmUpdateHumanLabelAndDescription(attribute, data) : null, [attribute, psmUpdateHumanLabelAndDescription]);
+
+
+    const save = () => {
         if (!attribute) return;
         close();
-        updateTechnicalLabel(attribute, technicalLabel);
+        psmModifyAttribute(attribute, technicalLabel, dataType);
     }
 
     return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
         <DialogTitle id="customized-dialog-title">
-            Attribute properties
+            {t("title")}
         </DialogTitle>
         <DialogContent>
             <Grid container spacing={2} alignItems="center">
-                <Grid item xs={9}>
+                <Grid item xs={6}>
                     <TextField
                         id="outlined-helperText"
-                        label="Technical label"
+                        label={t("technical label.label")}
                         value={technicalLabel}
                         onChange={event => setTechnicalLabel(event.target.value)}
-                        onKeyDown={event => event.key === "Enter" && saveLabel()}
+                        onKeyDown={event => event.key === "Enter" && save()}
                         autoFocus
                         fullWidth
-                        placeholder={"[unlabeled attribute]"}
+                        placeholder={t("technical label.placeholder")}
                         variant={"filled"}
                     />
                 </Grid>
-                <Grid item xs={3}>
-                    <Button onClick={saveLabel}>Update label</Button>
+                <Grid item xs={6}>
+                    <TextField
+                        id="outlined-helperText"
+                        label={t("data type.label")}
+                        value={dataType}
+                        onChange={event => setDataType(event.target.value)}
+                        onKeyDown={event => event.key === "Enter" && save()}
+                        fullWidth
+                        placeholder={t("data type.placeholder")}
+                        variant={"filled"}
+                    />
                 </Grid>
             </Grid>
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={save} color="primary">Update changes</Button>
+            <Button onClick={close} color="primary">Cancel</Button>
+        </DialogActions>
 
+        <DialogContent dividers>
+            <Grid container spacing={2} alignItems="center">
+                <Grid item xs={9}>
+                    <LanguageStringFallback from={attribute?.psmHumanLabel} fallback={<Typography color={"textSecondary"}>{t("no humanLabel")}</Typography>}>
+                        {(text, lang) =>
+                            <Typography><strong>{t("humanLabel")} [{lang}]: </strong> {text}</Typography>
+                        }
+                    </LanguageStringFallback>
+                    <LanguageStringFallback from={attribute?.psmHumanDescription} fallback={<Typography color={"textSecondary"}>{t("no humanDescription")}</Typography>}>
+                        {(text, lang) =>
+                            <Typography><strong>{t("humanDescription")} [{lang}]: </strong> {text}</Typography>
+                        }
+                    </LanguageStringFallback>
+                </Grid>
+                <Grid item xs={3} style={{textAlign: "right"}}>
+                    <Button onClick={psmLabelDialog.open} color="primary">Update</Button>
+                </Grid>
+            </Grid>
+            <LabelDescriptionEditor isOpen={psmLabelDialog.isOpen} close={psmLabelDialog.close} data={psmLabelsData} update={psmUpdateLabels} />
         </DialogContent>
+
         <DialogContent>
-            <div><strong>Label: </strong>{attribute?.psmHumanLabel?.cs ? <pre>{attribute.psmHumanLabel.cs}</pre> : <em>no label</em>}</div>
-            <div><strong>Description: </strong>{attribute?.psmHumanDescription?.cs ? <pre>{attribute.psmHumanDescription.cs}</pre> : <em>no description</em>}</div>
-        </DialogContent>
-        <DialogContent>
-            <Typography variant={"h6"} gutterBottom>Interpretation</Typography>
-            {attribute?.psmInterpretation ?
-                <>
-                    <div><strong>Label: </strong>{interpretation?.pimHumanLabel?.cs ? <span style={valueStyle}>{interpretation.pimHumanLabel.cs}</span> : <em>no label</em>}</div>
-                    <div><strong>Description: </strong>{interpretation?.pimHumanDescription?.cs ? <span style={valueStyle}>{interpretation.pimHumanDescription.cs}</span> : <em>no description</em>}</div>
-                </> :
-                <em>This attribute has no interpretation.</em>
-            }
+            <Grid container spacing={2} alignItems="center">
+                <Grid item xs={6}>
+                    <Typography>
+                        {interpretation ?
+                            <CheckIcon style={{verticalAlign: "middle", color: "green"}} /> :
+                            <ClearIcon style={{verticalAlign: "middle", color: "red"}} />}
+                        {' '}
+                        {t('attribute is interpreted.' + (interpretation ? 'yes' : 'no'))}
+                    </Typography>
+                </Grid>
+                <Grid item xs={6} style={{textAlign: "right"}}>
+                    <Button disabled={!interpretation} onClick={undefined} color="primary">{t('button go to interpretation')}</Button>
+                </Grid>
+            </Grid>
         </DialogContent>
     </Dialog>;
 }

@@ -20,5 +20,34 @@
       "ok": "Zkopírováno do schránky",
       "failed": "Nepodařilo se zkopírovat platform-model do schránky"
     }
+  },
+  "psm": {
+    "button delete": "odstranit",
+    "button add": "přidat",
+    "button edit": "upravit",
+    "unlabeled": "bez labelu",
+    "interpreted": "interpretováno",
+    "not interpreted": "neinterpretováno",
+    "cim resource": "CIM entita"
+  },
+  "psmAttribute-dialog": {
+    "title": "Vlastnosti PSM atributu",
+    "technical label": {
+      "label": "Technický popisek",
+      "placeholder": ""
+    },
+    "data type": {
+      "label": "Datový typ",
+      "placeholder": ""
+    },
+    "attribute is interpreted": {
+      "yes": "Tento atribut je interpretovaný",
+      "no": "Tento atribut není interpretovaný"
+    },
+    "button go to interpretation": "Jít na interpretaci",
+    "humanLabel": "lidský titulek",
+    "humanDescription": "lidský popisek",
+    "no humanLabel": "bez lidského titulku",
+    "no humanDescription": "bez lidského popisku"
   }
 }

@@ -6,39 +6,14 @@ import {Chip, Collapse} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
 import {AddInterpretedSurroundingDialog} from "../addInterpretedSurroundings/addInterpretedSurroundingDialog";
-import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {AssociationDetailDialog} from "../psmDetail/AssociationDetailDialog";
 import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
 import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import {Draggable, Droppable} from "react-beautiful-dnd";
-import {PsmItemCommonAttributes} from "./PsmItemCommon";
-
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        root: {
-            "&>div": {
-                opacity: 0
-            },
-            "&:hover>div": {
-                opacity: 1
-            }
-        },
-        chip: {
-            transition: "opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms"
-        },
-        icon: {
-            verticalAlign: "middle",
-            cursor: "pointer",
-        },
-        term: {
-            fontFamily: "monospace",
-            fontWeight: "bold",
-            color: theme.palette.secondary.main,
-        }
-    }),
-);
+import {PsmDeleteItem, PsmItemCommonAttributes, usePsmItemStyles} from "./PsmItemCommon";
+import {useTranslation} from "react-i18next";
 
 /**
  * This component represents either PSM class or PSM association to a PSM class.
@@ -46,8 +21,9 @@ const useStyles = makeStyles((theme) =>
  * @param dragHandleProps
  * @constructor
  */
-export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps}) => {
+export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps, parent, index}) => {
     const {store, psmSelectedInterpretedSurroundings, psmModifyTechnicalLabel} = React.useContext(StoreContext);
+    const {t} = useTranslation("psm");
 
     // Association is only set if we are dealing with associations
     const association = PsmAssociation.is(store[id]) ? store[id] as PsmAssociation : null;
@@ -59,7 +35,7 @@ export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, 
     const editDialog = useToggle();
     const collapse = useToggle(true);
 
-    const styles = useStyles();
+    const styles = usePsmItemStyles();
 
     return <li>
         <div className={styles.root}>
@@ -67,26 +43,28 @@ export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, 
                 <ExpandMoreIcon className={styles.icon} onClick={collapse.close} /> :
                 <ExpandLessIcon className={styles.icon} onClick={collapse.open} />
             }
-            <span {...dragHandleProps}>
                 {association &&
                     <>
-                        {association.psmTechnicalLabel ?
-                            <><span className={styles.term}>{association.psmTechnicalLabel}</span> association </> : <>unlabeled
-                                association </>}
+                        <span {...dragHandleProps}>
+                            {association.psmTechnicalLabel ?
+                                <span className={`${styles.term} ${styles.classAssociation}`}>{association.psmTechnicalLabel}</span> : <span className={styles.classAssociation}>[{t('unlabeled')}]</span>}
+                        </span>
+                        {' '}
                         <PsmInterpretedAgainst store={store} entity={association}/>
                         {' to '}
                     </>
                 }
                 {cls.psmTechnicalLabel ?
-                    <><span className={styles.term}>{cls.psmTechnicalLabel || "[no label]"}</span> class</> : <>unlabeled class</>}
-            </span>
+                    <span className={`${styles.term} ${styles.classAssociation}`}>{cls.psmTechnicalLabel}</span> : <span className={styles.classAssociation}>[{t('unlabeled')}]</span>}
             {' '}
             <PsmInterpretedAgainst store={store} entity={cls}/>
             {' '}
-            {interpretedCim && <Chip className={styles.chip} variant="outlined" size="small" onClick={surroundingDialog.open} icon={<AddIcon/>} label={"add"}/>}
+            {interpretedCim && <Chip className={styles.chip} variant="outlined" size="small" onClick={surroundingDialog.open} icon={<AddIcon/>} label={t("button add")}/>}
             {association && <>
                 {' '}
-                <Chip className={styles.chip} variant="outlined" size="small" onClick={editDialog.open} icon={<EditIcon/>} label={"edit"}/>
+                <Chip className={styles.chip} variant="outlined" size="small" onClick={editDialog.open} icon={<EditIcon/>} label={t("button edit")}/>
+                {' '}
+                {parent && index !== undefined && <PsmDeleteItem parent={parent} index={index} />}
             </>}
         </div>
         <Collapse in={collapse.isOpen} unmountOnExit>
@@ -96,8 +74,8 @@ export const PsmAssociationClassItem: React.FC<PsmItemCommonAttributes> = ({id, 
                         {cls.psmParts?.map((part, index) => <Draggable index={index} key={part} draggableId={part}>
                             {provided =>
                                 <div ref={provided.innerRef} {...provided.draggableProps}>
-                                    {PsmAttribute.is(store[part]) && <PsmAttributeItem id={part} dragHandleProps={provided.dragHandleProps}/>}
-                                    {PsmAssociation.is(store[part]) && <PsmAssociationClassItem id={part} dragHandleProps={provided.dragHandleProps} />}
+                                    {PsmAttribute.is(store[part]) && <PsmAttributeItem id={part} dragHandleProps={provided.dragHandleProps} parent={cls} index={index}/>}
+                                    {PsmAssociation.is(store[part]) && <PsmAssociationClassItem id={part} dragHandleProps={provided.dragHandleProps} parent={cls} index={index} />}
                                 </div>
                             }
                         </Draggable>)}

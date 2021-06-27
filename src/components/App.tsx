@@ -35,10 +35,12 @@ import {Trans, useTranslation} from "react-i18next";
 interface StoreContextInterface {
     store: Store,
     psmModifyTechnicalLabel: (entity: PsmBase, label: string) => void,
+    psmModifyAttribute: (attribute: PsmAttribute, technicalLabel: string, dataType: string) => void,
     psmDeleteAttribute: (attribute: PsmAttribute) => void,
     psmSelectedInterpretedSurroundings: (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => void,
     psmUpdateHumanLabelAndDescription: (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => void,
     psmChangeOrder: (parent: PsmClass, child: PsmBase, newIndex: number) => void,
+    psmRemoveFromPart: (from: PsmClass, index: number) => void,
 }
 
 // equal and truthy
@@ -186,6 +188,11 @@ const App: React.FC = () => {
         setStore({...store, [entity.id]: modified});
     }
 
+    const psmModifyAttribute = (attribute: PsmAttribute, technicalLabel: string, dataType: string) => {
+        const modified = {...attribute, psmTechnicalLabel: technicalLabel, type: dataType} as PsmAttribute;
+        setStore({...store, [attribute.id]: modified});
+    }
+
     const psmDeleteAttribute = (attribute: PsmAttribute) => {
         const parent = Object.values(store).filter(PsmClass.is).find(c => c.psmParts.includes(attribute.id));
         if (!parent) throw new Error("Unable to remove PSM attribute from non existing PSM class.");
@@ -193,6 +200,15 @@ const App: React.FC = () => {
         const newStore = {...store, [newParent.id]: newParent};
         delete newStore[attribute.id];
         setStore(newStore);
+    }
+
+    /**
+     * Removes specific element from PsmClass list of parts
+     * @param from
+     * @param index
+     */
+    const psmRemoveFromPart = (from: PsmClass, index: number) => {
+        setStore({...store, [from.id]: {...from, psmParts: from.psmParts.filter((_, i) => i !== index)} as PsmClass});
     }
 
     const psmUpdateHumanLabelAndDescription = (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => {
@@ -211,6 +227,8 @@ const App: React.FC = () => {
         psmSelectedInterpretedSurroundings,
         psmUpdateHumanLabelAndDescription,
         psmChangeOrder,
+        psmRemoveFromPart,
+        psmModifyAttribute
     }
 
     const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);

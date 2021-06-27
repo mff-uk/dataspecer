@@ -20,5 +20,34 @@
       "ok": "Copied to clipboard",
       "failed": "Unable to copy to clipboard"
     }
+  },
+  "psm": {
+    "button delete": "delete",
+    "button add": "add",
+    "button edit": "edit",
+    "unlabeled": "unlabeled",
+    "interpreted": "interpreted",
+    "not interpreted": "not interpreted",
+    "cim resource": "CIM resource"
+  },
+  "psmAttribute-dialog": {
+    "title": "PSM attribute properties",
+    "technical label": {
+      "label": "Technical label",
+      "placeholder": ""
+    },
+    "data type": {
+      "label": "Data type",
+      "placeholder": ""
+    },
+    "attribute is interpreted": {
+      "yes": "This attribute is interpreted",
+      "no": "This attribute is not interpreted"
+    },
+    "button go to interpretation": "Go to interpretation",
+    "humanLabel": "human label",
+    "humanDescription": "human description",
+    "no humanLabel": "no human label",
+    "no humanDescription": "no human description"
   }
 }

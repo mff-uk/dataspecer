@@ -7,6 +7,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {LabelAndDescriptionLanguageStrings, LabelDescriptionEditor} from "../psmDetail/LabelDescriptionEditor";
 import {useToggle} from "../../hooks/useToggle";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
+import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 
 export const PsmSchemaItem: React.FC<{id: string}> = ({id}) => {
     const {store, psmUpdateHumanLabelAndDescription, psmChangeOrder} = React.useContext(StoreContext);
@@ -40,8 +41,8 @@ export const PsmSchemaItem: React.FC<{id: string}> = ({id}) => {
             Edit labels
         </Fab>
         <LabelDescriptionEditor isOpen={labelDescriptionDialog.isOpen} close={labelDescriptionDialog.close} data={labelsData} update={updateLabels} />
-        <Typography variant="h5">{schema.psmHumanLabel?.cs || "[no label]"}</Typography>
-        <Typography color="textSecondary">{schema.psmHumanDescription?.cs || "[no description]"}</Typography>
+        <LanguageStringFallback from={schema.psmHumanLabel}>{text => <Typography variant="h5">{text}</Typography>}</LanguageStringFallback>
+        <LanguageStringFallback from={schema.psmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul>
                 {schema.psmRoots.map(root => <PsmAssociationClassItem id={root} key={root} />)}

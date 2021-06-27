@@ -4,62 +4,61 @@ import {Chip} from "@material-ui/core";
 import {AttributeDetailDialog} from "../psmDetail/AttributeDetailDialog";
 import {StoreContext} from "../App";
 import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {PsmInterpretedAgainst} from "./PsmInterpretedAgainst";
 import {useToggle} from "../../hooks/useToggle";
-import {PsmItemCommonAttributes} from "./PsmItemCommon";
+import {PsmDeleteItem, PsmItemCommonAttributes, usePsmItemStyles} from "./PsmItemCommon";
+import {useTranslation} from "react-i18next";
+import {LanguageStringFallback, LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            "&>div": {
-                opacity: 0
-            },
-            "&:hover>div": {
-                opacity: 1
-            }
-        },
-        chip: {
-            transition: "opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms"
-        },
-        term: {
-            fontFamily: "monospace",
-            fontWeight: "bold",
-            color: theme.palette.primary.main,
-        }
-    }),
-);
+const valueStyle = {
+    fontFamily: "monospace",
+    wordBreak: "break-all",
+} as React.CSSProperties;
+
 
 /**
  * Component rendering PSM attribute into a PSM tree
  * @param id string id of the attribute, because the attribute may not exists under the given store.
  * @param dragHandleProps
  */
-export const PsmAttributeItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps}) => {
+export const PsmAttributeItem: React.FC<PsmItemCommonAttributes> = ({id, dragHandleProps, parent, index}) => {
     const dialog = useToggle();
+    const {t} = useTranslation("psm");
 
-    const {store, psmModifyTechnicalLabel, psmDeleteAttribute} = React.useContext(StoreContext);
+    const {store, psmModifyTechnicalLabel} = React.useContext(StoreContext);
 
     const attribute = store[id] as PsmAttribute;
 
-    const del = useCallback(() => psmDeleteAttribute(attribute), [psmDeleteAttribute, attribute]);
+    const styles = usePsmItemStyles();
 
-    const styles = useStyles();
+    // @ts-ignore
+    const attributeType = attribute.type ?? null;
 
     return <>
         <li>
             <div className={styles.root}>
                 <span {...dragHandleProps}>
                     {attribute.psmTechnicalLabel ?
-                        <span className={styles.term}>{attribute.psmTechnicalLabel}</span> : <>unlabeled attribute</>}
-                    {' '}
-                    <PsmInterpretedAgainst store={store} entity={attribute}/>
+                        <span className={`${styles.term} ${styles.attribute}`}>{attribute.psmTechnicalLabel}</span> : <span className={styles.attribute}>[{t('unlabeled')}]</span>}
                 </span>
+
+                {attributeType && attributeType.length && <>
+                    {': '}
+                    <span style={valueStyle}>{attributeType}</span>
+                </>}
+
+                <LanguageStringUndefineable from={attribute.psmHumanDescription}>
+                    {description =>
+                        <LanguageStringFallback from={attribute.psmHumanLabel}>{text => <>{' '}<span title={description}>{text}</span></>}</LanguageStringFallback>
+                    }
+                </LanguageStringUndefineable>
+
                 {' '}
-                <Chip className={styles.chip} variant="outlined" size="small" onClick={dialog.open} icon={<EditIcon/>} label={"edit"}/>
+                    <PsmInterpretedAgainst store={store} entity={attribute}/>
                 {' '}
-                <Chip className={styles.chip} variant="outlined" color={"secondary"} size="small" onClick={del} icon={<DeleteIcon/>} label={"delete"}/>
+                <Chip className={styles.chip} variant="outlined" size="small" onClick={dialog.open} icon={<EditIcon/>} label={t("button edit")}/>
+                {' '}
+                {parent && index !== undefined && <PsmDeleteItem parent={parent} index={index} />}
             </div>
         </li>
 
