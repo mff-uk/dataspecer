@@ -1,0 +1,24 @@
+{
+  "_": {
+    "locale": "Česky"
+  },
+  "ui": {
+    "title": "Generátor schémat",
+    "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
+    "add root element button": "Přidat kořen"
+  },
+  "artifacts": {
+    "button generate load artifacts": "Vygenerovat/Načíst artefakty",
+    "platform-model JSON as file" : "uložit platform-model JSON jako soubor",
+    "platform-model JSON to clipboard" : "uložit platform-model JSON do schránky",
+    "import platform-model JSON" :  "importovat platform-model JSON soubor",
+    "snackbar load": {
+      "ok": "Data platform-modelu načtena úspěšně",
+      "fail": "Nepodařilo se úspěšně načíst data platform-modelu. Zkontrolujte konzoli JavaScriptu."
+    },
+    "snackbar copied to clipboard": {
+      "ok": "Zkopírováno do schránky",
+      "failed": "Nepodařilo se zkopírovat platform-model do schránky"
+    }
+  }
+}

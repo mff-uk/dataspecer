@@ -29,6 +29,8 @@ import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
 import {LabelAndDescriptionLanguageStrings} from "./psmDetail/LabelDescriptionEditor";
 import arrayMove from "array-move";
+import {LanguageSelector} from "./LanguageSelector";
+import {Trans, useTranslation} from "react-i18next";
 
 interface StoreContextInterface {
     store: Store,
@@ -63,6 +65,7 @@ function loopPrevention(store: Store, entity: ModelResource, entityChain: ModelR
 export const StoreContext = React.createContext<StoreContextInterface>(null);
 
 const App: React.FC = () => {
+    const { t } = useTranslation('ui');
     const [store, setStoreInternal] = useState<Store>({});
     const [sh, ssh] = useState<Store[]>([{}]);
     const [shi, sshi] = useState(0);
@@ -218,8 +221,11 @@ const App: React.FC = () => {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6">
-                        Schema Generator
+                        {t("title")}
                     </Typography>
+                    <Box display="flex" flexGrow="1" justifyContent="flex-end">
+                        <LanguageSelector />
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Container>
@@ -241,7 +247,9 @@ const App: React.FC = () => {
                     <Typography color={"textSecondary"}>Create a root or load a store</Typography>
                 }
                 <Divider style={{margin: "1rem 0 1rem 0"}} />
-                Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
+                <Trans i18nKey="footer report bug" t={t}>
+                    Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
+                </Trans>
             </Container>
         </SnackbarProvider>
     </>;

@@ -1,0 +1,24 @@
+{
+  "_": {
+    "locale": "English"
+  },
+  "ui": {
+    "title": "Schema Generator",
+    "footer report bug": "Report a bug on <1>GitHub</1>",
+    "add root element button": "Add root element"
+  },
+  "artifacts": {
+    "button generate load artifacts": "Generate/Load artifacts",
+    "platform-model JSON as file" : "platform-model JSON as file",
+    "platform-model JSON to clipboard" : "platform-model JSON to clipboard",
+    "import platform-model JSON" :  "import platform-model JSON",
+    "snackbar load": {
+      "ok": "Platform-model data loaded successfully",
+      "fail": "Unable to load saved platform-model"
+    },
+    "snackbar copied to clipboard": {
+      "ok": "Copied to clipboard",
+      "failed": "Unable to copy to clipboard"
+    }
+  }
+}

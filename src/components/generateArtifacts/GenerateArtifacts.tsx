@@ -8,21 +8,23 @@ import copy from "copy-to-clipboard";
 import {useSnackbar} from 'notistack';
 import FileSaver from "file-saver";
 import fileDialog from "file-dialog";
+import {useTranslation} from "react-i18next";
 
 export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store) => void}> = ({store, setStore}) => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId())
     const ref = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
+    const {t} = useTranslation("artifacts");
 
     const storeToClipboard = useCallback(() => {
         close();
         if (copy(JSON.stringify(store))) {
-            enqueueSnackbar("Copied to clipboard", {variant: "success"});
+            enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
         } else {
-            enqueueSnackbar("Unable to copy to clipboard", {variant: "error"});
+            enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
         }
-        }, [close, store, enqueueSnackbar]);
+        }, [close, store, enqueueSnackbar, t]);
 
     const saveToFile = useCallback(() => {
         close();
@@ -39,9 +41,9 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 const text = await file.text();
                 const result = JSON.parse(text) as Store;
                 setStore(result);
-                enqueueSnackbar("Platform-model data loaded successfully", {variant: "success"});
+                enqueueSnackbar(t("snackbar load.ok"), {variant: "success"});
             } catch (e) {
-                enqueueSnackbar("Unable to load saved platform-model", {variant: "error"});
+                enqueueSnackbar(t("snackbar load.fail"), {variant: "error"});
             }
         }
     }, [enqueueSnackbar, setStore]);
@@ -49,7 +51,7 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
     return (
         <>
             <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref}>
-                Generate/Load artifacts
+                {t("button generate load artifacts")}
                 <ExpandMoreIcon />
             </Fab>
             <Menu
@@ -59,9 +61,9 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 open={isOpen}
                 onClose={close}
             >
-                <MenuItem onClick={saveToFile}>platform-model JSON as file</MenuItem>
-                <MenuItem onClick={storeToClipboard}>platform-model JSON to clipboard</MenuItem>
-                <MenuItem onClick={fileToStore}>import platform-model JSON</MenuItem>
+                <MenuItem onClick={saveToFile}>{t("platform-model JSON as file")}</MenuItem>
+                <MenuItem onClick={storeToClipboard}>{t("platform-model JSON to clipboard")}</MenuItem>
+                <MenuItem onClick={fileToStore}>{t("import platform-model JSON")}</MenuItem>
             </Menu>
         </>
     );
