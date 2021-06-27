@@ -18,6 +18,7 @@
     "copy-to-clipboard": "^3.3.1",
     "file-dialog": "^0.0.8",
     "file-saver": "^2.0.5",
+    "i18next": "^20.3.2",
     "i18next-browser-languagedetector": "^6.1.2",
     "lodash": "^4.17.21",
     "notistack": "^1.0.9",
