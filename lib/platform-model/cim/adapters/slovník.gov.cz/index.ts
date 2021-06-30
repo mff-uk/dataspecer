@@ -105,10 +105,12 @@ export default class implements CimAdapter {
         const content = await this.executeQuery(searchQuery(searchString));
         const cimStore = await parseN3IntoStore(content);
 
-        const cimClasses = cimStore.getQuads(null, RDF.type, POJEM.typObjektu, null);
-        const result: [string, PimClass][] = cimClasses.map(quad => [cimStore.getQuads(quad.subject, "__search_lang", null, null)[0].object.value, this.parseClassFromN3StoreToStore(cimStore, quad.subject.id)]);
+        const classQuads = cimStore.getQuads(null, RDF.type, POJEM.typObjektu, null);
 
-        const sorted = result.sort((a, b) => a[1].pimHumanLabel[a[0]].length - b[1].pimHumanLabel[b[0]].length).map(([,c]) => c);
+        const sorted = classQuads.map(quad => ({
+            sort: Number(cimStore.getQuads(quad.subject, "__order", null, null)[0].object.value),
+            cls: this.parseClassFromN3StoreToStore(cimStore, quad.subject.id)
+        })).sort((a, b) => a.sort - b.sort).map(p => p.cls);
 
         if (IRI_REGEXP.test(searchString)) {
             const classById = await this.getClass(searchString);

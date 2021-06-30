@@ -3,19 +3,23 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
 	?node a z:typ-objektu ;
-		<__search_lang> ?search_lang ;
+    	<__order> ?len ;
 		skos:prefLabel ?label ;
 		skos:definition ?definition ;
 		skos:inScheme ?glossary .
 } WHERE {
 	?node a z:typ-objektu ;
-		skos:prefLabel ?search_label ;
-		skos:prefLabel ?label ;
-	    skos:definition ?definition ;
-		skos:inScheme ?glossary .
+		skos:prefLabel ?label .
+	OPTIONAL { ?node skos:definition ?definition . }
+	OPTIONAL { ?node skos:inScheme ?glossary . }
 
-	FILTER (regex(lcase(str(?search_label)), %QUERY%, "i"))
-	BIND(lang(?search_label) as ?search_lang)
+	{
+		select ?node (MIN(strlen(str(?search_label)))  as ?len) WHERE {
+			?node skos:prefLabel ?search_label .
+			FILTER (regex(lcase(str(?search_label)), %QUERY%, "i"))
+		}
+		GROUP BY ?node
+		ORDER BY ?len
+		LIMIT 30
+	}
 }
-ORDER BY ASC(strlen(str(?search_label)))
-LIMIT 30
