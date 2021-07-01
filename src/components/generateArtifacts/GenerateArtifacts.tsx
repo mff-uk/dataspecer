@@ -12,7 +12,7 @@ import {useTranslation} from "react-i18next";
 
 export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store) => void}> = ({store, setStore}) => {
     const {isOpen, open, close} = useToggle();
-    const [ id ] = useState(() => uniqueId())
+    const [ id ] = useState(() => uniqueId());
     const ref = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
     const {t} = useTranslation("artifacts");
@@ -28,7 +28,7 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
 
     const saveToFile = useCallback(() => {
         close();
-        const data = new Blob([JSON.stringify(store)], {type: "text/plain;charset=utf-8"})
+        const data = new Blob([JSON.stringify(store)], {type: "text/plain;charset=utf-8"});
         FileSaver.saveAs(data, "platform-model.json", {autoBom: false});
     }, [close, store]);
 
@@ -46,7 +46,7 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 enqueueSnackbar(t("snackbar load.fail"), {variant: "error"});
             }
         }
-    }, [enqueueSnackbar, setStore]);
+    }, [close, enqueueSnackbar, setStore, t]);
 
     return (
         <>

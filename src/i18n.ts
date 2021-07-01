@@ -13,7 +13,6 @@ i18n
         resources: {cs, en},
         fallbackLng: 'en',
         whitelist: languages,
-        debug: true,
 
         interpolation: {
             escapeValue: false, // not needed for react as it escapes by default

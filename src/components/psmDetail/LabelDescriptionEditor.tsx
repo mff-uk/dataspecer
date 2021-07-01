@@ -59,7 +59,7 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
 
         const sorted = [...Object.keys(sourceLabel), ...Object.keys(sourceDescription)].sort();
         setLang(sorted.length ? sorted[0] : "");
-    }, [sourceLabel, sourceDescription, setAvailableLangs]);
+    }, [sourceLabel, sourceDescription, setAvailableLangs, setLabel, setDescription]);
 
     return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
         <DialogTitle id="customized-dialog-title">
@@ -70,7 +70,7 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
                 <Grid item xs={5}>
                     <List component="nav">
                         {availableLangs.map(l =>
-                            <ListItem button selected={l === lang} onClick={() => setLang(l)}><ListItemIcon><TranslateIcon /></ListItemIcon><ListItemText primary={l} /></ListItem>
+                            <ListItem button selected={l === lang} onClick={() => setLang(l)} key={l}><ListItemIcon><TranslateIcon /></ListItemIcon><ListItemText primary={l} /></ListItem>
                         )}
                         <ListItem>
                             <TextField
@@ -79,7 +79,12 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
                                 value={newLang}
                                 onChange={e => setNewLang(e.target.value)}
                                 error={availableLangs.includes(newLang)}
-                                onKeyDown={event => event.key === "Enter" && newLang.length && !availableLangs.includes(newLang) && addNewLang()}
+                                onKeyDown={event => {
+                                    if (event.key === "Enter") {
+                                        event.stopPropagation();
+                                        newLang.length && !availableLangs.includes(newLang) && addNewLang();
+                                    }
+                                }}
                             />
                             <Box mx={1} />
                             <Button color={"primary"} disabled={!newLang.length || availableLangs.includes(newLang)} onClick={addNewLang}>add</Button>

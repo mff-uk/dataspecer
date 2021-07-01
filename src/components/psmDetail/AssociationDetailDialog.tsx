@@ -26,7 +26,7 @@ export const AssociationDetailDialog: React.FC<Parameters> = ({store, associatio
         if (!association) return;
         close();
         updateTechnicalLabel(association, technicalLabel);
-    }
+    };
 
     return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
         <DialogTitle id="customized-dialog-title">
@@ -40,7 +40,12 @@ export const AssociationDetailDialog: React.FC<Parameters> = ({store, associatio
                         label="Technical label"
                         value={technicalLabel}
                         onChange={event => setTechnicalLabel(event.target.value)}
-                        onKeyDown={event => event.key === "Enter" && saveLabel()}
+                        onKeyDown={event => {
+                            if (event.key === "Enter") {
+                                event.stopPropagation();
+                                saveLabel();
+                            }
+                        }}
                         autoFocus
                         fullWidth
                         placeholder={"[unlabeled association]"}

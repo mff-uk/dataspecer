@@ -20,7 +20,7 @@ export const LanguageStringFallback: React.FC<{
     }
 
     return fallback ?? null;
-}
+};
 
 export const LanguageStringUndefineable: React.FC<{
     from?: LanguageString,

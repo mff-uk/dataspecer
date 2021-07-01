@@ -2,15 +2,26 @@ import {PsmClass, PsmSchema} from "model-driven-data";
 import {Fab, Paper, Typography} from "@material-ui/core";
 import React, {useCallback, useMemo} from "react";
 import {StoreContext} from "../App";
-import {PsmAssociationClassItem} from "./PsmAssociationClassItem";
 import EditIcon from "@material-ui/icons/Edit";
 import {LabelAndDescriptionLanguageStrings, LabelDescriptionEditor} from "../psmDetail/LabelDescriptionEditor";
 import {useToggle} from "../../hooks/useToggle";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
+import {PsmRootClass} from "./PsmRootClass";
+import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        ul: {
+            paddingLeft: 0
+        }
+    }),
+);
 
 export const PsmSchemaItem: React.FC<{id: string}> = ({id}) => {
     const {store, psmUpdateHumanLabelAndDescription, psmChangeOrder} = React.useContext(StoreContext);
+    const styles = useStyles();
+
     const schema = store[id] as PsmSchema;
 
     const labelDescriptionDialog = useToggle();
@@ -44,8 +55,8 @@ export const PsmSchemaItem: React.FC<{id: string}> = ({id}) => {
         <LanguageStringFallback from={schema.psmHumanLabel}>{text => <Typography variant="h5">{text}</Typography>}</LanguageStringFallback>
         <LanguageStringFallback from={schema.psmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
-            <ul>
-                {schema.psmRoots.map(root => <PsmAssociationClassItem id={root} key={root} />)}
+            <ul className={styles.ul}>
+                {schema.psmRoots.map(root => <PsmRootClass id={root} key={root} />)}
             </ul>
         </DragDropContext>
     </Paper>

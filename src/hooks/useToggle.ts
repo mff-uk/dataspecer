@@ -18,4 +18,4 @@ export const useToggle = (initialValue: boolean = false) => {
         open,
         close,
     };
-}
+};

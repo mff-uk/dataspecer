@@ -28,11 +28,6 @@ interface Parameters {
     updateTechnicalLabel: (attribute: PsmAttribute, label: string) => void,
 }
 
-const valueStyle = {
-    fontFamily: "monospace",
-    wordBreak: "break-all",
-} as React.CSSProperties;
-
 export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, isOpen, close, updateTechnicalLabel}) => {
     const {psmUpdateHumanLabelAndDescription, psmModifyAttribute} = React.useContext(StoreContext);
     const [technicalLabel, setTechnicalLabel] = useState<string>(attribute?.psmTechnicalLabel || "");
@@ -53,10 +48,15 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
 
 
     const save = () => {
-        if (!attribute) return;
-        close();
+        if (!attribute) {
+            return;
+        }
         psmModifyAttribute(attribute, technicalLabel, dataType);
-    }
+        close();
+    };
+
+    // @ts-ignore
+    window.sss = save;
 
     return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
         <DialogTitle id="customized-dialog-title">
@@ -70,7 +70,12 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
                         label={t("technical label.label")}
                         value={technicalLabel}
                         onChange={event => setTechnicalLabel(event.target.value)}
-                        onKeyDown={event => event.key === "Enter" && save()}
+                        onKeyDown={event => {
+                            if (event.key === "Enter") {
+                                save();
+                                event.stopPropagation();
+                            }
+                        }}
                         autoFocus
                         fullWidth
                         placeholder={t("technical label.placeholder")}
@@ -83,7 +88,12 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
                         label={t("data type.label")}
                         value={dataType}
                         onChange={event => setDataType(event.target.value)}
-                        onKeyDown={event => event.key === "Enter" && save()}
+                        onKeyDown={event => {
+                            if (event.key === "Enter") {
+                                save();
+                                event.stopPropagation();
+                            }
+                        }}
                         fullWidth
                         placeholder={t("data type.placeholder")}
                         variant={"filled"}
@@ -134,4 +144,4 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
             </Grid>
         </DialogContent>
     </Dialog>;
-}
+};

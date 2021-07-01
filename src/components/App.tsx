@@ -77,15 +77,16 @@ const App: React.FC = () => {
         ssh([...sh.slice(0, sh.length - shi), newStore]);
         sshi(0);
         setStoreInternal(newStore);
-    }
+
+    };
     const back = () => {
         sshi(shi - 1);
         setStoreInternal(sh[sh.length - 1 + shi - 1 ]);
-    }
+    };
     const forward = () => {
         sshi(shi + 1);
         setStoreInternal(sh[sh.length - 1 + shi + 1 ]);
-    }
+    };
     //#endregion
 
     const addRootElement = (root: PimClass) => {
@@ -102,16 +103,14 @@ const App: React.FC = () => {
         newStore = (new UpdatePsmClassInterpretation()).execute(newStore, {id: psmClassId, interpretation: root.id});
 
         setStore(newStore);
-    }
+    };
 
     const psmSelectedInterpretedSurroundings = (forClass: PsmClass, pimStore: Store, attributes: PimAttribute[], associations: PimAssociation[]) => {
         let newStore = {...store};
         const idProvider = new IdProvider();
 
-
         // For every PimAssociation
         for (let association of associations) {
-            console.log(newStore);
             const associationPsmId = idProvider.psmFromPim(association.id);
 
             let firstEnd = null;
@@ -150,6 +149,7 @@ const App: React.FC = () => {
             // We can create the association now
             newStore = (new CreatePsmAssociation()).execute(newStore, {id: associationPsmId, toId: secondEnd});
             (newStore[associationPsmId] as PsmAssociation).psmInterpretation = association.id;
+            newStore = {[association.id]: association, ...newStore};
         }
 
         // Process attributes
@@ -181,17 +181,17 @@ const App: React.FC = () => {
         }
 
         setStore(newStore);
-    }
+    };
 
     const psmModifyTechnicalLabel = (entity: PsmBase, label: string) => {
         const modified = {...entity, psmTechnicalLabel: label} as PsmBase;
         setStore({...store, [entity.id]: modified});
-    }
+    };
 
     const psmModifyAttribute = (attribute: PsmAttribute, technicalLabel: string, dataType: string) => {
         const modified = {...attribute, psmTechnicalLabel: technicalLabel, type: dataType} as PsmAttribute;
         setStore({...store, [attribute.id]: modified});
-    }
+    };
 
     const psmDeleteAttribute = (attribute: PsmAttribute) => {
         const parent = Object.values(store).filter(PsmClass.is).find(c => c.psmParts.includes(attribute.id));
@@ -200,7 +200,7 @@ const App: React.FC = () => {
         const newStore = {...store, [newParent.id]: newParent};
         delete newStore[attribute.id];
         setStore(newStore);
-    }
+    };
 
     /**
      * Removes specific element from PsmClass list of parts
@@ -209,16 +209,15 @@ const App: React.FC = () => {
      */
     const psmRemoveFromPart = (from: PsmClass, index: number) => {
         setStore({...store, [from.id]: {...from, psmParts: from.psmParts.filter((_, i) => i !== index)} as PsmClass});
-    }
+    };
 
     const psmUpdateHumanLabelAndDescription = (entity: PsmBase, data: LabelAndDescriptionLanguageStrings) => {
         setStore({...store, [entity.id]: {...entity, psmHumanLabel: data.label, psmHumanDescription: data.description} as PsmBase});
-    }
+    };
 
     const psmChangeOrder = (parent: PsmClass, child: PsmBase, newIndex: number) => {
-        console.log(parent, child, newIndex);
         setStore({...store, [parent.id]: {...parent, psmParts: arrayMove(parent.psmParts, parent.psmParts.indexOf(child.id), newIndex)} as PsmClass});
-    }
+    };
 
     const storeContextData: StoreContextInterface = {
         store,
@@ -229,7 +228,7 @@ const App: React.FC = () => {
         psmChangeOrder,
         psmRemoveFromPart,
         psmModifyAttribute
-    }
+    };
 
     const schemas = Object.values(store).filter(PsmSchema.is).map(it => <PsmSchemaItem id={it.id} key={it.id} />);
 
@@ -271,6 +270,6 @@ const App: React.FC = () => {
             </Container>
         </SnackbarProvider>
     </>;
-}
+};
 
 export default App;
