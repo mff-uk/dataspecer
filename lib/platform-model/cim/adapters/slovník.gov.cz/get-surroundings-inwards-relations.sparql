@@ -1,3 +1,6 @@
+# see https://github.com/sstenchlak/schema-generator/issues/9
+DEFINE sql:signal-void-variables 0
+
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -6,26 +9,55 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 CONSTRUCT {
     ?inwardsRelation a z:typ-vztahu ;
         rdfs:domain ?domainElement ;
-        rdfs:range %NODE% ;
-        skos:prefLabel ?inwardsRelationLabel ;
-        skos:definition ?inwardsRelationDefinition ;
-        skos:inScheme ?inwardsRelationGlossary .
-    ?domainElement a z:typ-objektu ;
-        skos:prefLabel ?domainLabel ;
-        skos:definition ?domainDefinition ;
-        skos:inScheme ?domainGlossary .
+    rdfs:range %NODE% ;
+                skos:prefLabel ?inwardsRelationLabel ;
+                skos:definition ?inwardsRelationDefinition ;
+                skos:inScheme ?inwardsRelationGlossary ;
+                              rdfs:subPropertyOf ?parentRelation .
+                              ?domainElement a z:typ-objektu ;
+                              skos:prefLabel ?domainLabel ;
+    skos:definition ?domainDefinition ;
+    skos:inScheme ?domainGlossary .
 } WHERE {
     ?inwardsRelation a z:typ-vztahu ;
         skos:prefLabel ?inwardsRelationLabel ;
-        skos:inScheme ?inwardsRelationGlossary ;
-        rdfs:subClassOf [
-            owl:allValuesFrom ?domainElement ;
-            owl:onProperty z:má-vztažený-prvek-1
-        ] ;
-        rdfs:subClassOf [
-            owl:allValuesFrom %NODE% ;
-            owl:onProperty z:má-vztažený-prvek-2
-        ] .
+        skos:inScheme ?inwardsRelationGlossary .
+
+    {
+        ?inwardsRelation rdfs:subClassOf ?rangeDefinition .
+        ?rangeDefinition owl:allValuesFrom %NODE% ;
+        owl:onProperty z:má-vztažený-prvek-2 .
+    } UNION {
+        ?ancestorInwardsRelation rdfs:subClassOf
+                [
+                    owl:allValuesFrom %NODE% ;
+                                       owl:onProperty z:má-vztažený-prvek-2
+                                       ] .
+                                       ?inwardsRelation rdfs:subClassOf+ ?ancestorInwardsRelation .
+    }
+
+    {
+        ?inwardsRelation rdfs:subClassOf ?domainDefinition .
+        ?domainDefinition owl:allValuesFrom ?domainElement ;
+            owl:onProperty z:má-vztažený-prvek-1 .
+    } UNION {
+        ?inwardsRelation rdfs:subClassOf/rdfs:subClassOf ?domainDefinition .
+        ?rangeDefinition owl:allValuesFrom ?domainElement ;
+            owl:onProperty z:má-vztažený-prvek-1 .
+        FILTER NOT EXISTS {
+            ?inwardsRelation rdfs:subClassOf/owl:onProperty z:má-vztažený-prvek-1 .
+        }
+    } UNION {
+        ?inwardsRelation rdfs:subClassOf+/rdfs:subClassOf ?domainDefinition .
+        ?rangeDefinition owl:allValuesFrom ?domainElement ;
+            owl:onProperty z:má-vztažený-prvek-1 .
+        FILTER NOT EXISTS {
+            ?inwardsRelation rdfs:subClassOf+ ?specificInwardsRelation .
+            ?specificInwardsRelation rdfs:subClassOf+ ?domainDefinition ;
+                rdfs:subClassOf ?domainDefinition1 .
+            ?domainDefinition1 owl:onProperty z:má-vztažený-prvek-1 .
+        }
+    }
 
     OPTIONAL { ?inwardsRelation skos:definition ?inwardsRelationDefinition }
 
@@ -33,4 +65,10 @@ CONSTRUCT {
         skos:inScheme ?domainGlossary .
 
     OPTIONAL { ?domainElement skos:definition ?domainDefinition }
+
+    OPTIONAL {
+        ?inwardsRelation rdfs:subClassOf ?parentRelation .
+        ?parentRelation a z:typ-vztahu .
+        FILTER (?parentRelation != <https://slovník.gov.cz/základní/pojem/vztah>)
+    }
 }

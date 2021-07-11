@@ -1,3 +1,6 @@
+# see https://github.com/sstenchlak/schema-generator/issues/9
+DEFINE sql:signal-void-variables 0
+
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -5,27 +8,73 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 CONSTRUCT {
     ?outwardsRelation a z:typ-vztahu ;
-        rdfs:domain %NODE% ;
-        rdfs:range ?rangeElement ;
-        skos:prefLabel ?outwardsRelationLabel ;
-        skos:definition ?outwardsRelationDefinition ;
-        skos:inScheme ?outwardsRelationGlossary .
-    ?rangeElement a z:typ-objektu ;
-        skos:prefLabel ?rangeLabel ;
-        skos:definition ?rangeDefinition ;
-        skos:inScheme ?rangeGlossary .
+    rdfs:domain %NODE% ;
+                 rdfs:range ?rangeElement ;
+                 skos:prefLabel ?outwardsRelationLabel ;
+                 skos:definition ?outwardsRelationDefinition ;
+                                 skos:inScheme ?outwardsRelationGlossary ;
+                                     # (4) relationship to the parent association in the inheritance hierarchy, only ?parentRelation returned also as ?outwardsRelation is valid. A ?parentRelation is returned as ?outwardsRelation iff it has the mandatory properties such as skos:prefLabel etc. START
+                                 rdfs:subPropertyOf ?parentRelation .
+                                     # (4) relationship to the parent association in the inheritance hierarchy END
+                                 ?rangeElement a z:typ-objektu ;
+                                                 skos:prefLabel ?rangeLabel ;
+                                                 skos:definition ?rangeDefinition ;
+                                                 skos:inScheme ?rangeGlossary .
 } WHERE {
     ?outwardsRelation a z:typ-vztahu ;
         skos:prefLabel ?outwardsRelationLabel ;
-        skos:inScheme ?outwardsRelationGlossary ;
-        rdfs:subClassOf [
-            owl:allValuesFrom %NODE% ;
-            owl:onProperty z:má-vztažený-prvek-1
-        ] ;
-        rdfs:subClassOf [
-            owl:allValuesFrom ?rangeElement ;
-            owl:onProperty z:má-vztažený-prvek-2
-        ] .
+        skos:inScheme ?outwardsRelationGlossary .
+
+    {
+        ?outwardsRelation rdfs:subClassOf
+                [
+                    owl:allValuesFrom %NODE% ;
+        owl:onProperty z:má-vztažený-prvek-1
+        ]
+    } UNION {
+        # (1) associations inheriting their membership START
+        ?ancestorOutwardsRelation rdfs:subClassOf
+                [
+                    owl:allValuesFrom %NODE% ;
+                                       owl:onProperty z:má-vztažený-prvek-1
+                                       ] .
+                                       ?outwardsRelation rdfs:subClassOf+ ?ancestorOutwardsRelation .
+        # (1) associations inheriting their membership END
+    }
+
+    {
+        ?outwardsRelation rdfs:subClassOf
+                [
+                    owl:allValuesFrom ?rangeElement ;
+                    owl:onProperty z:má-vztažený-prvek-2
+                ]
+        # (2) associations inheriting their other class START
+    } UNION {
+        # (2.1) associations inheriting their other class from an inheritance parent START
+        ?outwardsRelation rdfs:subClassOf/rdfs:subClassOf
+                [
+                    owl:allValuesFrom ?rangeElement ;
+                    owl:onProperty z:má-vztažený-prvek-2
+                ]
+        FILTER NOT EXISTS {
+            ?outwardsRelation rdfs:subClassOf/owl:onProperty z:má-vztažený-prvek-2 .
+        }
+        # (2.1) associations inheriting their other class from an inheritance parent END
+    } UNION {
+        # (2.2) associations inheriting their other class from an inheritance grand^{+}parent START
+        ### This branch is non-optimal. If query executions are too slow, this branch can be removed. The result will not be complete but this branch covers quite rare cases.
+        ?outwardsRelation rdfs:subClassOf+/rdfs:subClassOf ?rangeDefinition .
+        ?rangeDefinition owl:allValuesFrom ?rangeElement ;
+            owl:onProperty z:má-vztažený-prvek-2 .
+        FILTER NOT EXISTS {
+            ?outwardsRelation rdfs:subClassOf+ ?specificOutwardsRelation .
+            ?specificOutwardsRelation rdfs:subClassOf+ ?rangeDefinition ;
+                rdfs:subClassOf ?rangeDefinition1 .
+            ?rangeDefinition1 owl:onProperty z:má-vztažený-prvek-2 .
+        }
+        # (2.2) associations inheriting their other class from an inheritance grand^{+}parent END
+    }
+    # (2) associations inheriting their other class END
 
     OPTIONAL { ?outwardsRelation skos:definition ?outwardsRelationDefinition }
 
@@ -33,4 +82,12 @@ CONSTRUCT {
         skos:inScheme ?rangeGlossary .
 
     OPTIONAL { ?rangeElement skos:definition ?rangeDefinition }
+
+    # (4) relationship to the parent association in the inheritance hierarchy START
+    OPTIONAL {
+        ?outwardsRelation rdfs:subClassOf ?parentRelation .
+        ?parentRelation a z:typ-vztahu .
+        FILTER (?parentRelation != <https://slovník.gov.cz/základní/pojem/vztah>)
+    }
+    # (4) relationship to the parent association in the inheritance hierarchy END
 }

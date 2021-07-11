@@ -16,8 +16,10 @@ import getSurroundingsAttributes from "./get-surroundings-attributes.sparql"
 import getSurroundingsInwardsRelations from "./get-surroundings-inwards-relations.sparql"
 import getSurroundingsOutwardsRelations from "./get-surroundings-outwards-relations.sparql"
 import getSurroundingsParent from "./get-surroundings-parent.sparql"
+import getSurroundingsComplexAttributes from "./get-surroundings-complex-attributes.sparql"
+import getHierarchy from "./get-hierarchy.sparql"
 
-const getSurroundings = [getSurroundingsAttributes, getSurroundingsInwardsRelations, getSurroundingsOutwardsRelations, getSurroundingsParent];
+const getSurroundings = [getSurroundingsAttributes, getSurroundingsInwardsRelations, getSurroundingsOutwardsRelations, getSurroundingsParent, getSurroundingsComplexAttributes];
 
 export interface SlovnikPimMetadata {
     glossary?: SlovnikGlossary;
@@ -37,9 +39,14 @@ export class LegislativniSlovnikGlossary implements SlovnikGlossary {
     }
 }
 
-const searchQuery = (searchString: string) => search.replace("%QUERY%", `"${jsStringEscape(searchString)}"`);
-const getClassQuery = (id: string) => getClass.replace("%NODE%", `<${id}>`);
-const getSurroundingsQueries = (id: string) => getSurroundings.map(q => q.replace(/%NODE%/g, `<${id}>`));
+const compressQueryString = (query: string): string => {
+    return query.replace(/^\s*#.*$/mg, '').replace(/[ \t]+/g, ' ');
+}
+
+const searchQuery = (searchString: string) => compressQueryString(search.replace("%QUERY%", `"${jsStringEscape(searchString)}"`));
+const getClassQuery = (id: string) => compressQueryString(getClass.replace("%NODE%", `<${id}>`));
+const getSurroundingsQueries = (id: string) => getSurroundings.map(q => compressQueryString(q.replace(/%NODE%/g, `<${id}>`)));
+const getHierarchyQuery = (id: string) => compressQueryString(getHierarchy.replace(/%NODE%/g, `<${id}>`));
 
 async function parseN3IntoStore(source: string, useStore: N3.Store = undefined): Promise<N3.Store> {
     let parser = new N3.Parser();
@@ -132,8 +139,8 @@ export default class implements CimAdapter {
 
     async getSurroundings(cimId: string): Promise<Store> {
         let cimStore = undefined;
-        for (const query of getSurroundingsQueries(cimId)) {
-            const content = await this.executeQuery(query);
+        const contents = await Promise.all(getSurroundingsQueries(cimId).map(query => this.executeQuery(query)));
+        for (const content of contents) {
             cimStore = await parseN3IntoStore(content, cimStore);
         }
 
@@ -166,6 +173,41 @@ export default class implements CimAdapter {
             const pimAttribute = this.createPimAttribute(attribute.id, pimStore);
             this.parsePropertiesFromN3(cimStore, attribute.id, pimAttribute);
             pimAttribute.pimHasClass = root.id;
+        }
+
+        return pimStore;
+    }
+
+    /**
+     * There are no classes on the CIM level, only at PIM. Therefore, the returned store contains only PIM classes
+     * hierarchy. All PIM classes are interpreted against their CIM entities.
+     * @param cimId
+     */
+    public async getHierarchy(cimId: string): Promise<Store> {
+        const content = await this.executeQuery(getHierarchyQuery(cimId));
+        const cimStore = await parseN3IntoStore(content);
+
+        // Output store
+        const pimStore: Store = {};
+
+        const root = this.parseClassFromN3StoreToStore(cimStore, cimId, pimStore);
+
+        const processedClasses = new Set<PimClass>();
+        const toProcessClasses = [root] as PimClass[];
+
+        let classToProcess: PimClass | undefined;
+        while (classToProcess = toProcessClasses.pop()) {
+            const quads = cimStore.getQuads(classToProcess.pimInterpretation, RDFS.subClassOf, null, null);
+            const allClassesIds = [];
+            for (const quad of quads) {
+                const cls = this.parseClassFromN3StoreToStore(cimStore, quad.object.id, pimStore);
+                allClassesIds.push(cls.id);
+                if (!processedClasses.has(cls)) {
+                    processedClasses.add(cls);
+                    toProcessClasses.push(cls);
+                }
+            }
+            classToProcess.pimIsa = [... new Set([...classToProcess.pimIsa, ...allClassesIds])];
         }
 
         return pimStore;
