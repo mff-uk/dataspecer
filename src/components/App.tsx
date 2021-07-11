@@ -22,7 +22,6 @@ import {
     Store,
     UpdatePsmClassInterpretation
 } from "model-driven-data";
-import LoadSavedButton from "./savedStore/LoadSavedButton";
 import {PsmSchemaItem} from "./psm/PsmSchemaItem";
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
@@ -284,7 +283,6 @@ const App: React.FC = () => {
                         <Fab variant="extended" disabled={sh.length + shi <= 1} size="medium" color="secondary" onClick={back} style={{marginRight: "1rem"}}><UndoIcon /></Fab>
                         <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
                     </div>
-                    <LoadSavedButton store={setStore}  />
                     <GenerateArtifacts store={store} setStore={setStore} />
                     <AddRootButton selected={addRootElement} />
                 </Box>
