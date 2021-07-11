@@ -81,7 +81,7 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
                                 error={availableLangs.includes(newLang)}
                                 onKeyDown={event => {
                                     if (event.key === "Enter") {
-                                        event.stopPropagation();
+                                        event.preventDefault();
                                         newLang.length && !availableLangs.includes(newLang) && addNewLang();
                                     }
                                 }}
@@ -128,4 +128,4 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
             </Button>
         </DialogActions>
     </Dialog>
-}
+};

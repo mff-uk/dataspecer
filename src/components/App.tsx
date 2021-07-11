@@ -3,6 +3,7 @@ import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@materi
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AddRootButton from "./cimSearch/AddRootButton";
 import {
+    CimEntity,
     CreatePsmAssociation,
     CreatePsmAttribute,
     CreatePsmClass,
@@ -66,6 +67,8 @@ function loopPrevention(store: Store, entity: ModelResource, entityChain: ModelR
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
 
+const createCIMEntity = (iri: string, store: Store): Store => ({...store, [iri]: CimEntity.as(new CimEntity(iri))});
+
 const App: React.FC = () => {
     const { t } = useTranslation('ui');
     const [store, setStoreInternal] = useState<Store>({});
@@ -89,6 +92,10 @@ const App: React.FC = () => {
     };
     //#endregion
 
+    /**
+     * Creates a new root entity from specified PIM class with schema as __root_schema
+     * @param root
+     */
     const addRootElement = (root: PimClass) => {
         let newStore: Store = {[root.id]: root};
         const idProvider = new IdProvider();
@@ -97,10 +104,15 @@ const App: React.FC = () => {
         newStore = (new CreatePsmSchema()).execute(newStore, {id: "__root_schema"});
         newStore = (new CreatePsmClass()).execute(newStore, {id: psmClassId});
 
-        // hack
+        // temporal solution
         (newStore["__root_schema"] as PsmSchema).psmRoots.push(psmClassId);
 
         newStore = (new UpdatePsmClassInterpretation()).execute(newStore, {id: psmClassId, interpretation: root.id});
+
+        // Add CIM entity to the store
+        if (root.pimInterpretation) {
+            newStore = createCIMEntity(root.pimInterpretation, newStore);
+        }
 
         setStore(newStore);
     };
@@ -118,6 +130,7 @@ const App: React.FC = () => {
 
             // First, ensure both PIM ends exists
             // Secondly, each PIM must have PSM class
+            // Also, each PIM must have CIM class if interpreted
             for (let {pimParticipant: pimId} of association.pimEnd) {
                 if (!pimId) continue;
                 if (!newStore[pimId]) newStore[pimId] = pimStore[pimId];
@@ -135,6 +148,11 @@ const App: React.FC = () => {
                 // todo hack for now
                 if (pimId === association.pimEnd[0].pimParticipant) { firstEnd = psmId; }
                 if (pimId === association.pimEnd[1].pimParticipant) { secondEnd = psmId; }
+
+                // Add CIM entity to the store
+                if (end.pimInterpretation) {
+                    newStore = createCIMEntity(end.pimInterpretation, newStore);
+                }
             }
 
             if (secondEnd === forClass.id) [firstEnd, secondEnd] = [secondEnd, firstEnd];
@@ -150,6 +168,11 @@ const App: React.FC = () => {
             newStore = (new CreatePsmAssociation()).execute(newStore, {id: associationPsmId, toId: secondEnd});
             (newStore[associationPsmId] as PsmAssociation).psmInterpretation = association.id;
             newStore = {[association.id]: association, ...newStore};
+
+            // Add CIM entity to the store for the association
+            if (association.pimInterpretation) {
+                newStore = createCIMEntity(association.pimInterpretation, newStore);
+            }
         }
 
         // Process attributes
@@ -165,11 +188,19 @@ const App: React.FC = () => {
             // Create PIM attribute
             newStore[attribute.id] = attribute;
 
+            // Set datatype of attribute
+            attribute.pimDatatype = "http://www.w3.org/2001/XMLSchema#string";
+
             // Create PSM attribute
             const psmId = idProvider.psmFromPim(attribute.id);
             newStore = (new CreatePsmAttribute()).execute(newStore, {id: psmId, classId: forClass.id});
             (newStore[forClass.id] as PsmClass).psmParts.push(psmId);
             (newStore[psmId] as PsmAttribute).psmInterpretation = attribute.id;
+
+            // Add CIM entity to the store
+            if (attribute.pimInterpretation) {
+                newStore = createCIMEntity(attribute.pimInterpretation, newStore);
+            }
         }
 
         // Loop PSM prevention

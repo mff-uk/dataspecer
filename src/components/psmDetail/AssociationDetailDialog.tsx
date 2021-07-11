@@ -42,7 +42,7 @@ export const AssociationDetailDialog: React.FC<Parameters> = ({store, associatio
                         onChange={event => setTechnicalLabel(event.target.value)}
                         onKeyDown={event => {
                             if (event.key === "Enter") {
-                                event.stopPropagation();
+                                event.preventDefault();
                                 saveLabel();
                             }
                         }}
@@ -73,4 +73,4 @@ export const AssociationDetailDialog: React.FC<Parameters> = ({store, associatio
             }
         </DialogContent>
     </Dialog>;
-}
+};

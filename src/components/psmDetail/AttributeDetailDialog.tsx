@@ -72,8 +72,8 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
                         onChange={event => setTechnicalLabel(event.target.value)}
                         onKeyDown={event => {
                             if (event.key === "Enter") {
+                                event.preventDefault();
                                 save();
-                                event.stopPropagation();
                             }
                         }}
                         autoFocus
@@ -90,8 +90,8 @@ export const AttributeDetailDialog: React.FC<Parameters> = ({store, attribute, i
                         onChange={event => setDataType(event.target.value)}
                         onKeyDown={event => {
                             if (event.key === "Enter") {
+                                event.preventDefault();
                                 save();
-                                event.stopPropagation();
                             }
                         }}
                         fullWidth
