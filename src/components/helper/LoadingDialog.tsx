@@ -4,6 +4,6 @@ import {
     DialogContent
 } from "@material-ui/core";
 
-export const LoadingDialog: React.FC = () => <DialogContent dividers style={{textAlign: "center"}}>
+export const LoadingDialog: React.FC = () => <DialogContent style={{textAlign: "center"}}>
 	<CircularProgress style={{margin: "5rem auto"}}/>
-</DialogContent>
+</DialogContent>;

@@ -25,4 +25,6 @@ export const LanguageStringFallback: React.FC<{
 export const LanguageStringUndefineable: React.FC<{
     from?: LanguageString,
     children: (text: string|undefined, lang?: string) => ReactElement,
-}> = ({from, children}) => <LanguageStringFallback from={from} fallback={children(undefined, undefined)}>{children}</LanguageStringFallback>
+}> = ({from, children}) => <LanguageStringFallback from={from} fallback={children(undefined, undefined)}>{children}</LanguageStringFallback>;
+
+export const LanguageStringText: React.FC<{from?: LanguageString}> = ({from}) => <LanguageStringFallback from={from}>{text => <>{text}</>}</LanguageStringFallback>;

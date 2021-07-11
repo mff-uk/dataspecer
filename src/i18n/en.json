@@ -49,5 +49,8 @@
     "humanDescription": "human description",
     "no humanLabel": "no human label",
     "no humanDescription": "no human description"
+  },
+  "interpretedSurrounding": {
+    "ancestors title": "Ancestors"
   }
 }
