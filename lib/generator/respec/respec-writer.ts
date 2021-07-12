@@ -16,17 +16,21 @@ export function writeReSpec(
   }
   const outputStream = fileSystem.createWriteStream(
     path.join(directory, name + ".html"));
-  outputStream.write("<!DOCTYPE html>\n");
-  outputStream.write("<html lang=\"cs\">");
-  writeHeader(model, outputStream);
-  writeBody(model, outputStream);
-  outputStream.write("\n</html>\n");
+  outputStream.write(getReSpec(model));
   outputStream.close();
 }
 
-function writeHeader(model: ReSpec, stream: WriteStream) {
+export function getReSpec(model: ReSpec) {
+  return "<!DOCTYPE html>\n" +
+      "<html lang=\"cs\">" +
+      getHeader(model) +
+      getBody(model) +
+      "\n</html>\n";
+}
+
+function getHeader(model: ReSpec): string {
   const title = model.metadata.title;
-  stream.write(`
+  return `
   <head>
     <title>${title}</title>
     <meta content="text/html; charset=utf-8" http-equiv="content-type" />
@@ -76,7 +80,7 @@ function writeHeader(model: ReSpec, stream: WriteStream) {
             thanks: "Tento dokument vznikl v rámci projektu OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983."
           };
     </script>
-  </head>`);
+  </head>`;
 }
 
 function currentDate() {
@@ -93,41 +97,40 @@ function currentDate() {
   return [year, month, day].join("-");
 }
 
-function writeBody(model: ReSpec, stream: WriteStream) {
-  stream.write("\n  </body>");
-  writeIntroduction(model, stream);
-  writeOverview(model.overview, stream);
-  writeSpecification(model.specification, stream);
-  writeExamples(model, stream);
-  stream.write("\n  </body>");
+function getBody(model: ReSpec): string {
+  return "\n  </body>" +
+    getIntroduction(model) +
+    getOverview(model.overview) +
+    getSpecification(model.specification) +
+    getExamples(model) +
+    "\n  </body>";
 }
 
-function writeIntroduction(model: ReSpec, stream: WriteStream) {
-  stream.write(`
+function getIntroduction(model: ReSpec): string {
+  return `
     <section id="abstract" class="introductory">
       <h2>Abstrakt</h2>
       <p>
         Tento dokument je sdílenou specifikací.
       </p>
-    </section>`);
+    </section>`;
 }
 
-function writeOverview(overview: ReSpecOverview, stream: WriteStream) {
-  stream.write(`
+function getOverview(overview: ReSpecOverview): string {
+  return `
     <section id="přehled">
-      <h2>Přehled</h2>`);
-  if (!isStringEmpty(overview.humanDescription)) {
-    stream.write("\n    <p>");
-    stream.write(overview.humanDescription);
-    stream.write("</p>");
-  }
-  stream.write("\n    </section>");
+      <h2>Přehled</h2>` +
+  (!isStringEmpty(overview.humanDescription) ?
+    "\n    <p>" +
+    overview.humanDescription +
+    "</p>" : "") +
+    "\n    </section>";
 }
 
-function writeSpecification(
-  specification: ReSpecSpecification, stream: WriteStream,
-) {
-  stream.write(`
+function getSpecification(
+  specification: ReSpecSpecification,
+): string {
+  return `
     <section id="specifikace">
       <h2>Specifikace</h2>
       <p>
@@ -136,87 +139,85 @@ function writeSpecification(
         reprezentaci použit ve všech datových formátech, její název a datový typ.
         Volitelně je uveden také popis a příklad. 
       </p>
-`);
-  specification.entities.forEach(entity => writeFosEntity(entity, stream));
-  stream.write("\n    </section>");
+` +
+  specification.entities.map(entity => getFosEntity(entity)).join("") +
+  "\n    </section>";
 }
 
-function writeFosEntity(entity: ReSpecEntity, stream: WriteStream) {
-  stream.write(`
+function getFosEntity(entity: ReSpecEntity): string {
+  return `
       <section id="${entity.identification}">
         <h3>${entity.humanLabel}</h3>
-        <p>`);
-  if (entity.isCodelist) {
-    stream.write(`Tato třída reprezentuje číselník.<br/>`);
-  }
-  stream.write(`${entity.humanDescription}</p>`);
-  entity.properties.forEach(property =>
-    writeFosProperty(entity, property, stream));
-  stream.write("\n      </section>");
+        <p>` +
+      ((entity.isCodelist ? `Tato třída reprezentuje číselník.<br/>` : "") +
+      `${entity.humanDescription}</p>` +
+  entity.properties.map(property =>
+    getFosProperty(entity, property)).join("")) +
+  "\n      </section>";
 }
 
-function writeFosProperty(
-  owner: ReSpecEntity, property: ReSpecProperty, stream: WriteStream,
-) {
-  stream.write(`
+function getFosProperty(
+  owner: ReSpecEntity, property: ReSpecProperty
+): string {
+  return`
         <section id="${property.identification}">
           <h4>${property.humanLabel}</h4>
           <dl>
               <dt>Vlastnost</dt>
-              <dd><code>${property.technicalLabel}</code></dd>`);
-  writeFosPropertyTypes(property, stream);
-  writeFosPropertyHumanLabel(property, stream);
-  writeFosPropertyHumanDescription(property, stream);
-  writeFosPropertyExamples(property, stream);
-  stream.write(`
+              <dd><code>${property.technicalLabel}</code></dd>` +
+  getFosPropertyTypes(property) +
+  getFosPropertyHumanLabel(property) +
+  getFosPropertyHumanDescription(property) +
+  getFosPropertyExamples(property) +
+  `
           </dl>
-         </section>`);
+         </section>`;
 
 }
 
-function writeFosPropertyTypes(
-  property: ReSpecProperty, stream: WriteStream) {
+function getFosPropertyTypes(
+  property: ReSpecProperty): string {
   const types = property.type
-    .map(writeFosPropertyType)
+    .map(getFosPropertyType)
     .join("");
-  stream.write(`
+  return `
               <dt>Typ</dt>
-              <dd>${types}</dd>`);
+              <dd>${types}</dd>`;
 }
 
-function writeFosPropertyType(type: ReSpecTypeReference): string {
+function getFosPropertyType(type: ReSpecTypeReference): string {
   if (type.codelist === undefined) {
     return `<a href="${type.link}">${type.label}</a>`;
   }
   return `Číselník <a href="${type.link}">${type.label}</a>`;
 }
 
-function writeFosPropertyHumanLabel(
-  property: ReSpecProperty, stream: WriteStream) {
-  stream.write(`
+function getFosPropertyHumanLabel(
+  property: ReSpecProperty): string {
+  return `
             <dt>Jméno</dt>
-            <dd>${property.humanLabel}</dd>`);
+            <dd>${property.humanLabel}</dd>`;
 }
 
-function writeFosPropertyHumanDescription(
-  property: ReSpecProperty, stream: WriteStream) {
+function getFosPropertyHumanDescription(
+  property: ReSpecProperty): string {
   if (isStringEmpty(property.humanDescription)) {
-    return;
+    return "";
   }
-  stream.write(`
+  return (`
               <dt>Popis</dt>
               <dd>${property.humanDescription}</dd>`);
 }
 
-function writeFosPropertyExamples(
-  property: ReSpecProperty, stream: WriteStream) {
+function getFosPropertyExamples(
+  property: ReSpecProperty): string {
   if (property.examples.length === 0) {
-    return;
+    return "";
   }
   const examples = property.examples
     .map(iri => `<code>${iri}</code>`)
     .join("");
-  stream.write(`
+  return (`
               <dt>Příklad</dt>
               <dd>${examples}</dd>`);
 }
@@ -225,8 +226,8 @@ function isStringEmpty(content: string): boolean {
   return content === undefined || content.trim().length === 0;
 }
 
-function writeExamples(model: ReSpec, stream: WriteStream) {
-  stream.write(`
+function getExamples(model: ReSpec) {
+  return `
     <section id="příklady">
       <h2>Příklady</h2>
       <p>
@@ -235,5 +236,5 @@ function writeExamples(model: ReSpec, stream: WriteStream) {
           [[!ECMA-404]].
       </p>
     </section>
-`);
+`;
 }
