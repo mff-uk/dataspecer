@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from "react";
-import {Fab, Menu, MenuItem} from "@material-ui/core";
+import {Divider, Fab, ListItemIcon, Menu, MenuItem} from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
@@ -9,6 +9,10 @@ import {useSnackbar} from 'notistack';
 import FileSaver from "file-saver";
 import fileDialog from "file-dialog";
 import {useTranslation} from "react-i18next";
+import SaveTwoToneIcon from '@material-ui/icons/SaveTwoTone';
+import AssignmentTwoToneIcon from '@material-ui/icons/AssignmentTwoTone';
+import OpenInBrowserTwoToneIcon from '@material-ui/icons/OpenInBrowserTwoTone';
+import {ReSpecArtifact} from "./ReSpecArtifact";
 
 export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store) => void}> = ({store, setStore}) => {
     const {isOpen, open, close} = useToggle();
@@ -61,9 +65,12 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 open={isOpen}
                 onClose={close}
             >
-                <MenuItem onClick={saveToFile}>{t("platform-model JSON as file")}</MenuItem>
-                <MenuItem onClick={storeToClipboard}>{t("platform-model JSON to clipboard")}</MenuItem>
-                <MenuItem onClick={fileToStore}>{t("import platform-model JSON")}</MenuItem>
+                <MenuItem onClick={saveToFile}><ListItemIcon><SaveTwoToneIcon fontSize="small" /></ListItemIcon>{t("platform-model JSON as file")}</MenuItem>
+                <MenuItem onClick={storeToClipboard}><ListItemIcon><AssignmentTwoToneIcon fontSize="small" /></ListItemIcon>{t("platform-model JSON to clipboard")}</MenuItem>
+                <Divider />
+                <MenuItem onClick={fileToStore}><ListItemIcon><OpenInBrowserTwoToneIcon fontSize="small" /></ListItemIcon>{t("import platform-model JSON")}</MenuItem>
+                <Divider />
+                <ReSpecArtifact store={store} close={close} />
             </Menu>
         </>
     );

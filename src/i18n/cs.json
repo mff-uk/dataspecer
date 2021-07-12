@@ -19,7 +19,12 @@
     "snackbar copied to clipboard": {
       "ok": "Zkopírováno do schránky",
       "failed": "Nepodařilo se zkopírovat platform-model do schránky"
-    }
+    },
+    "snackbar ReSpec": {
+      "fail": "Nelze vygenerovat ReSpec dokumentaci. Aktuálně nejsou známy žádné další informace."
+    },
+    "ReSpec preview": "náhled ReSpec dokumentace",
+    "ReSpec download": "uložit ReSpec dokumentaci"
   },
   "psm": {
     "button delete": "odstranit",

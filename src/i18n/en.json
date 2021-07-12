@@ -19,7 +19,12 @@
     "snackbar copied to clipboard": {
       "ok": "Copied to clipboard",
       "failed": "Unable to copy to clipboard"
-    }
+    },
+    "snackbar ReSpec": {
+      "fail": "Unable to generate ReSpec documentation. No further info is provided."
+    },
+    "ReSpec preview": "preview ReSpec documentation",
+    "ReSpec download": "save ReSpec documentation"
   },
   "psm": {
     "button delete": "delete",
