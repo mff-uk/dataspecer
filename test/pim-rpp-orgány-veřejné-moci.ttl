@@ -68,8 +68,14 @@ pimovm:má-identifikační-číslo-orgánu-veřejné-moci a pim:Attribute ;
 
 pimovm:má-datovou-schránku-orgánu-veřejné-moci a pim:Association ;
 	pim:hasInterpretation lsgov1112009:má-datovou-schránku-orgánu-veřejné-moci ;
-    pim:hasEnd [
-        pim:hasParticipant pimovm:orgán-veřejné-moci
+    dcterms:hasPart
+    [
+        # TODO Tohle nemá interpretaci v CIM, jde se přes Association
+        # TODO Explicitní typ
+        a pim:AssociationEnd ;
+        # TODO Možné další property pro end
+        pim:technicalLabel "" ;
+        dcterms:hasPart pimovm:orgán-veřejné-moci
     ],[
         pim:hasParticipant pimds:datová-schránka
     ] .

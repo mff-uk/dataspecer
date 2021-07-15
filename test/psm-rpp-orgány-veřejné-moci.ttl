@@ -56,8 +56,9 @@ psmovm:orgán-veřejné-moci-obsah a rdf:List ;
             psm:technicalLabel "ičo"
         ]
         [
-            a psm:Association ;
-            psm:hasInterpretation pimovm:má-datovou-schránku-orgánu-veřejné-moci ;
+            a psm:PropertyXXXXXX ;
+            # TODO Tady jde intepretace na PIM part
+            psm:hasInterpretation pimovm:má-datovou-schránku-orgánu-veřejné-moci-has-part-first ;
             psm:technicalLabel "datové-schránky" ;
             dcterms:hasPart (
                 psmds:datová-schránka
