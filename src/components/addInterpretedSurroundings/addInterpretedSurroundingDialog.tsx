@@ -92,8 +92,8 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
     const attributes = currentSurroundings ? Object.values(currentSurroundings).filter(PimAttribute.is) : [];
     const associations = currentSurroundings ? Object.values(currentSurroundings).filter(PimAssociation.is) : [];
-    const forwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[0].pimParticipant && (currentSurroundings[a.pimEnd[0].pimParticipant] as PimClass)?.pimInterpretation === cimId) : [];
-    const backwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[1].pimParticipant && (currentSurroundings[a.pimEnd[1].pimParticipant] as PimClass)?.pimInterpretation === cimId) : [];
+    const forwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[0].pimParticipant && (currentSurroundings[a.pimEnd[0].pimParticipant] as PimClass)?.pimInterpretation === currentCIM) : [];
+    const backwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[1].pimParticipant && (currentSurroundings[a.pimEnd[1].pimParticipant] as PimClass)?.pimInterpretation === currentCIM) : [];
 
     return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
