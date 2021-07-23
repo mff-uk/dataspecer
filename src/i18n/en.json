@@ -5,7 +5,7 @@
   "ui": {
     "title": "Schema Generator",
     "footer report bug": "Report a bug on <1>GitHub</1>",
-    "add root element button": "Add root element"
+    "set root element button": "Set root element"
   },
   "artifacts": {
     "button generate load artifacts": "Generate/Load artifacts",

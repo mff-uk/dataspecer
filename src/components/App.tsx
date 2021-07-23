@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import AddRootButton from "./cimSearch/AddRootButton";
+import SetRootButton from "./cimSearch/SetRootButton";
 import {
     CimEntity,
     CreatePsmAssociation,
@@ -284,7 +284,7 @@ const App: React.FC = () => {
                         <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
                     </div>
                     <GenerateArtifacts store={store} setStore={setStore} />
-                    <AddRootButton selected={addRootElement} />
+                    <SetRootButton selected={addRootElement} />
                 </Box>
                 <StoreContext.Provider value={storeContextData}>
                     {schemas}

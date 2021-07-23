@@ -5,7 +5,7 @@
   "ui": {
     "title": "Generátor schémat",
     "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
-    "add root element button": "Přidat kořen"
+    "set root element button": "Zvolit kořen"
   },
   "artifacts": {
     "button generate load artifacts": "Vygenerovat/Načíst artefakty",

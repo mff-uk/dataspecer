@@ -72,7 +72,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
 
     return <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
-            Add root class
+            Set root class
         </DialogTitle>
         <DialogContent dividers>
             <Box display={"flex"}>
@@ -92,4 +92,4 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
             </List>
         </DialogContent>
     </Dialog>;
-}
+};
