@@ -1,13 +1,18 @@
 import {CoreResource} from "../core-resource";
 import {PimResource} from "./pim-resource";
 
+/**
+ * An association connects two entities, but it does not point to entities
+ * directly instead it points to association ends that points to the entities.
+ *
+ * As association connect two entities without any side preference, i.e. there
+ * is no order on the ends, the association does not belong to any class.
+ */
 export class PimAssociation extends PimResource {
 
   static readonly TYPE: string = "pim-association";
 
   pimEnd: string[] = [];
-
-  pimOwnerClass?: string;
 
   static is(resource: CoreResource): resource is PimAssociation {
     return resource.types.includes(PimAssociation.TYPE);

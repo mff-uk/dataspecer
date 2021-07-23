@@ -1,11 +1,23 @@
 import {CoreResource, LanguageString} from "../core-resource";
 
+/**
+ * Represents a schema, diagram, on PIM level. Schema on this level
+ * must contains a reference to all it's parts: classes, associations,
+ * and attributes.
+ */
 export class PimSchema extends CoreResource {
 
   static readonly TYPE: string = "pim-schema";
 
+  /**
+   * Label used in human readable documents as a name for this resource.
+   */
   pimHumanLabel?: LanguageString;
 
+  /**
+   * Description, longer plain text, shown in human readable documents
+   * as a description for this resource.
+   */
   pimHumanDescription?: LanguageString;
 
   pimParts: string[] = [];

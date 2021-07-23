@@ -1,6 +1,9 @@
 import {CoreResource} from "../core-resource";
 import {PimResource} from "./pim-resource";
 
+/**
+ * Specify one end of the association that points to a class.
+ */
 export class PimAssociationEnd extends PimResource {
 
   static readonly TYPE: string = "pim-association-end";

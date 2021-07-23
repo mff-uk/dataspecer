@@ -1,6 +1,11 @@
 import {CoreResource} from "../core-resource";
 import {PimResource} from "./pim-resource";
 
+/**
+ * Represents a class. On the PIM level the properties are not pointed to
+ * from the class. Instead the properties specify an owner class and the
+ * associations ends points to classes.
+ */
 export class PimClass extends PimResource {
 
   static readonly TYPE: string = "pim-class";

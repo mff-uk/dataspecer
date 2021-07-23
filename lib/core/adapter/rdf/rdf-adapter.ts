@@ -1,7 +1,7 @@
 import {RdfResourceAdapter, RdfSource} from "./rdf-adapter-api";
 import {RdfSourceWrap} from "./rdf-source-wrap";
-import * as pim from "./pim";
-import * as psm from "./psm";
+import * as pim from "./model/pim";
+import * as psm from "./model/psm";
 import {CoreResource} from "../../model";
 
 export class RdfAdapter {

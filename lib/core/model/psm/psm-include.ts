@@ -1,6 +1,11 @@
 import {CoreResource} from "../core-resource";
 import {PsmResource} from "./psm-resource";
 
+/**
+ * This resource can be used as a part of a class, instead of  a particular
+ * attribute or association end. This resource act as a syntactic sugar
+ * and perform an include of given attribute list in place of this attribute.
+ */
 export class PsmInclude extends PsmResource {
 
   static readonly TYPE: string = "psm-include";

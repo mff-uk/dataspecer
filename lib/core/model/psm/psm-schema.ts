@@ -1,5 +1,9 @@
 import {CoreResource, LanguageString} from "../core-resource";
 
+/**
+ * PSM schema point only to root classes. The rest of the diagram is loaded
+ * by resolving the referenced entities.
+ */
 export class PsmSchema extends CoreResource {
 
   static readonly TYPE: string = "psm-schema";

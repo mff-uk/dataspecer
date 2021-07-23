@@ -1,4 +1,4 @@
-import {CoreResource} from "../../model/core-resource";
+import {CoreResource} from "../../model";
 import {RdfSourceWrap} from "./rdf-source-wrap"
 import {RdfObject} from "../../../io/rdf/rdf-api";
 

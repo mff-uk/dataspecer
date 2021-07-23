@@ -1,6 +1,9 @@
 import {CoreResource} from "../core-resource";
 import {PsmResource} from "./psm-resource";
 
+/**
+ * Represent a choice among multiple classes.
+ */
 export class PsmChoice extends PsmResource {
 
   static readonly TYPE: string = "psm-choice";

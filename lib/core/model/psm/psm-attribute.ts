@@ -1,6 +1,9 @@
 import {CoreResource} from "../core-resource";
 import {PsmResource} from "./psm-resource";
 
+/**
+ * An attribute is a primitive property. It may be a string, integer etc.
+ */
 export class PsmAttribute extends PsmResource {
 
   static readonly TYPE: string = "psm-attribute";
