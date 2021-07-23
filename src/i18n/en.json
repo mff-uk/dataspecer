@@ -8,6 +8,11 @@
     "set root element button": "Set root element",
     "no schema text": "Start by clicking on set root element button."
   },
+  "ui.iri_copy": {
+    "text": "copy",
+    "success": "Copied IRI to the clipboard",
+    "fail": "Failed to copy IRI to the clipboard"
+  },
   "artifacts": {
     "button generate load artifacts": "Generate/Load artifacts",
     "platform-model JSON as file" : "platform-model JSON as file",
@@ -71,5 +76,17 @@
   "search-dialog": {
     "title": "Class search",
     "placeholder": "Type IRI or search for label. You can even use regular expressions."
+  },
+  "psmDetail": {
+    "no description": "Without the description in any language",
+    "attribute": {
+      "title text": "attribute"
+    },
+    "class": {
+      "title text": "class"
+    },
+    "association": {
+      "title text": "association"
+    }
   }
 }

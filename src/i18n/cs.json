@@ -8,6 +8,11 @@
     "set root element button": "Zvolit kořen",
     "no schema text": "Začněte kliknutím na tlačíko zvolit kořen."
   },
+  "ui.iri_copy": {
+    "text": "zkopírovat",
+    "success": "IRI zkopírováno do schránky",
+    "fail": "Nepodařilo se zkopírovat IRI do schránky"
+  },
   "artifacts": {
     "button generate load artifacts": "Vygenerovat/Načíst artefakty",
     "platform-model JSON as file": "uložit platform-model JSON jako soubor",
@@ -71,5 +76,17 @@
   "search-dialog": {
     "title": "Vyhledání třídy",
     "placeholder": "Vložte IRI, nebo hledejte podle titulku. Lze používat regulární výrazy."
+  },
+  "psmDetail": {
+    "no description": "Bez popisku v jakémkoli jazyce",
+    "attribute": {
+      "title text": "atribut"
+    },
+    "class": {
+      "title text": "třída"
+    },
+    "association": {
+      "title text": "asociace"
+    }
   }
 }

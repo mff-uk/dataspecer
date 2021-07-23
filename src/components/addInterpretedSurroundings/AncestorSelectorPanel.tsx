@@ -1,10 +1,13 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {List, ListItem, ListItemText, Tooltip, Typography} from "@material-ui/core";
+import {IconButton, List, ListItem, ListItemText, Tooltip, Typography} from "@material-ui/core";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {IdProvider, PimClass, Slovnik, SlovnikPimMetadata, Store} from "model-driven-data";
 import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
 import {useTranslation} from "react-i18next";
 import {LanguageStringText} from "../helper/LanguageStringComponents";
+import InfoTwoToneIcon from "@material-ui/icons/InfoTwoTone";
+import {useDialog} from "../../hooks/useDialog";
+import {PimClassDetailDialog} from "../pimDetail/pimClassDetailDialog";
 
 interface AncestorSelectorPanelParameters {
     forCimId: string,
@@ -39,6 +42,7 @@ const topologicalSort = (classes: PimClass[], startFrom: string) => {
 export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimId, selectedAncestorCimId, selectAncestorCim}) => {
     const [loading, setLoading] = useState(true);
     const [ancestors, setAncestors] = useState<Store>({});
+    const classDialog = useDialog(PimClassDetailDialog, "cls");
 
     const {t} = useTranslation("interpretedSurrounding");
 
@@ -64,11 +68,19 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
                 {sorted.map(ancestor =>
                     <Tooltip open={(ancestor.pimHumanDescription && Object.values(ancestor.pimHumanDescription).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.pimHumanDescription} />} placement="left" key={ancestor.id}>
                         <ListItem button selected={ancestor.pimInterpretation === (selectedAncestorCimId ?? forCimId)} onClick={() => ancestor.pimInterpretation && selectAncestorCim(ancestor.pimInterpretation)}>
-                            <ListItemText primary={<LanguageStringText from={ancestor.pimHumanLabel} />} secondary={<GlossaryNote entity={ancestor as SlovnikPimMetadata}/>}/>
+                            <ListItemText
+                                primary={<>
+                                    <LanguageStringText from={ancestor.pimHumanLabel} />
+                                    {" "}
+                                    <IconButton size="small" onClick={(event) => {classDialog.open({cls: ancestor}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                </>}
+                                secondary={<GlossaryNote entity={ancestor as SlovnikPimMetadata}/>}
+                            />
                         </ListItem>
                     </Tooltip>
                 )}
             </List>
         }
+        <classDialog.component store={ancestors} />
     </>;
 };

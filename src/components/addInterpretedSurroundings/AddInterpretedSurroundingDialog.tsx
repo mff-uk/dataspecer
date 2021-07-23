@@ -6,6 +6,7 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
+    IconButton,
     ListItem,
     ListItemIcon,
     ListItemText,
@@ -27,6 +28,11 @@ import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useTranslation} from "react-i18next";
+import InfoTwoToneIcon from '@material-ui/icons/InfoTwoTone';
+import {useDialog} from "../../hooks/useDialog";
+import {PimAttributeDetailDialog} from "../pimDetail/pimAttributeDetailDialog";
+import {PimClassDetailDialog} from "../pimDetail/pimClassDetailDialog";
+import {PimAssociationDetailDialog} from "../pimDetail/pimAssociationDetailDialog";
 
 type EntityType = PimAssociation | PimAttribute;
 
@@ -88,6 +94,10 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, cimId]); // change of switchToCim should not trigger this effect
 
+    const attributeDetail = useDialog(PimAttributeDetailDialog, "attribute");
+    const classDialog = useDialog(PimClassDetailDialog, "cls");
+    const associationDialog = useDialog(PimAssociationDetailDialog, "association");
+
     if (!psmClass) return null;
 
     const currentSurroundings = surroundings[currentCIM];
@@ -127,6 +137,8 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
                                         <GlossaryNote entity={entity as SlovnikPimMetadata} />
+                                        {" "}
+                                        <IconButton size="small" onClick={(event) => {attributeDetail.open({attribute: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                     </ListItemText>
                                 </ListItem>
                             )}
@@ -150,8 +162,13 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                         {" "}
                                         <GlossaryNote entity={entity as SlovnikPimMetadata}/>
                                         {" "}
-                                        {entity.pimEnd[1].pimParticipant &&
-                                        <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass).pimHumanLabel?.cs})</span>
+                                        <IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                        {" "}
+                                        {entity.pimEnd[1].pimParticipant && currentSurroundings &&
+                                        <span>({(currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass).pimHumanLabel?.cs}
+                                            ){" "}
+                                            <IconButton size="small" onClick={(event) => {entity.pimEnd[1].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                            </span>
                                         }
                                     </ListItemText>
                                 </ListItem>
@@ -173,11 +190,16 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                         />
                                     </ListItemIcon>
                                     <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
-                                        {entity.pimEnd[0].pimParticipant && <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass).pimHumanLabel?.cs})</span>}
+                                        {entity.pimEnd[0].pimParticipant && <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass).pimHumanLabel?.cs}
+                                            ){" "}
+                                            <IconButton size="small" onClick={(event) => {currentSurroundings && entity.pimEnd[0].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                            </span>}
                                         {" "}
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
                                         <GlossaryNote entity={entity as SlovnikPimMetadata}/>
+                                        {" "}
+                                        <IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                     </ListItemText>
                                 </ListItem>
                             )}
@@ -199,5 +221,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                 {t("confirm button")}
             </Button>
         </DialogActions>
+
+        <attributeDetail.component store={store} />
+        <classDialog.component store={store} />
+        <associationDialog.component store={store} />
     </Dialog>;
 };
