@@ -27,9 +27,10 @@ const topologicalSort = (classes: PimClass[], startFrom: string) => {
     const start = classes.find(c => c.id === startFrom);
     if (start) visit(start);
 
-    let cls: PimClass | undefined;
-    while (cls = notVisited[0]) {
+    let cls: PimClass | undefined = notVisited[0];
+    while (cls) {
         visit(cls);
+        cls = notVisited[0];
     }
 
     return result.reverse();

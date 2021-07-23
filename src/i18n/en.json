@@ -5,7 +5,8 @@
   "ui": {
     "title": "Schema Generator",
     "footer report bug": "Report a bug on <1>GitHub</1>",
-    "set root element button": "Set root element"
+    "set root element button": "Set root element",
+    "no schema text": "Start by clicking on set root element button."
   },
   "artifacts": {
     "button generate load artifacts": "Generate/Load artifacts",
@@ -56,6 +57,19 @@
     "no humanDescription": "no human description"
   },
   "interpretedSurrounding": {
-    "ancestors title": "Ancestors"
+    "ancestors title": "Ancestors",
+    "title": "Add interpreted surroundings",
+    "attributes": "Attributes",
+    "no attributes": "There are no attributes available.",
+    "associations": "Associations",
+    "no associations": "There are no associations available.",
+    "backward associations": "Backward associations",
+    "no backward associations": "There are no associations available.",
+    "close button": "Close",
+    "confirm button": "Confirm"
+  },
+  "search-dialog": {
+    "title": "Class search",
+    "placeholder": "Type IRI or search for label. You can even use regular expressions."
   }
 }

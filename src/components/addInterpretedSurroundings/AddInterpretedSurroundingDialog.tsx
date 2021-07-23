@@ -26,6 +26,7 @@ import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
+import {useTranslation} from "react-i18next";
 
 type EntityType = PimAssociation | PimAttribute;
 
@@ -47,6 +48,7 @@ interface AddInterpretedSurroundingDialogProperties {
 
 export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({store, isOpen, close, selected, psmClass}) => {
     const styles = useStyles();
+    const {t} = useTranslation("interpretedSurrounding");
 
     // @ts-ignore
     const cimId: string = psmClass ? (store[psmClass?.psmInterpretation] as PimClass).pimInterpretation : "";
@@ -97,7 +99,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
     return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
-            Add interpreted surroundings
+            {t("title")}
         </DialogTitle>
 
         <DialogContent dividers>
@@ -110,7 +112,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                     {surroundings[currentCIM] === undefined ||
                         <>
-                            <Typography variant={"h6"}>Attributes</Typography>
+                            <Typography variant={"h6"}>{t("attributes")}</Typography>
                             {attributes && attributes.map((entity: PimAttribute) =>
                                 <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
                                     <ListItemIcon>
@@ -129,10 +131,10 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                 </ListItem>
                             )}
                             {attributes && attributes.length === 0 &&
-                            <Typography color={"textSecondary"}>There are no attributes available.</Typography>
+                            <Typography color={"textSecondary"}>{t("no attributes")}</Typography>
                             }
 
-                            <Typography variant={"h6"}>Associations</Typography>
+                            <Typography variant={"h6"}>{t("associations")}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
                                 <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
                                     <ListItemIcon>
@@ -156,10 +158,10 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                             )}
 
                             {forwardAssociations.length === 0 &&
-                            <Typography color={"textSecondary"}>There are no associations available.</Typography>
+                            <Typography color={"textSecondary"}>{t("no associations")}</Typography>
                             }
 
-                            <Typography variant={"h6"}>Backward associations</Typography>
+                            <Typography variant={"h6"}>{t("backward associations")}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
                                 <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
                                     <ListItemIcon>
@@ -181,7 +183,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                             )}
 
                             {backwardAssociations.length === 0 &&
-                            <Typography color={"textSecondary"}>There are no associations available.</Typography>
+                            <Typography color={"textSecondary"}>{t("no backward associations")}</Typography>
                             }
                         </>
                     }
@@ -189,8 +191,13 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             </Grid>
         </DialogContent>
         <DialogActions>
-            <Button onClick={close} color="primary">Close</Button>
-            <Button onClick={() => {close(); currentSurroundings && selected(psmClass, Object.fromEntries((Object.values(surroundings).filter(v => v !== undefined) as Store[]).map(Object.entries).flat()), selectedEntities.filter(PimAttribute.is), selectedEntities.filter(PimAssociation.is))}} disabled={selectedEntities.length === 0} color="secondary">Confirm</Button>
+            <Button onClick={close} color="primary">{t("close button")}</Button>
+            <Button
+                onClick={() => {close(); currentSurroundings && selected(psmClass, Object.fromEntries((Object.values(surroundings).filter(v => v !== undefined) as Store[]).map(Object.entries).flat()), selectedEntities.filter(PimAttribute.is), selectedEntities.filter(PimAssociation.is))}}
+                disabled={selectedEntities.length === 0}
+                color="secondary">
+                {t("confirm button")}
+            </Button>
         </DialogActions>
     </Dialog>;
 };

@@ -5,13 +5,14 @@
   "ui": {
     "title": "Generátor schémat",
     "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
-    "set root element button": "Zvolit kořen"
+    "set root element button": "Zvolit kořen",
+    "no schema text": "Začněte kliknutím na tlačíko zvolit kořen."
   },
   "artifacts": {
     "button generate load artifacts": "Vygenerovat/Načíst artefakty",
-    "platform-model JSON as file" : "uložit platform-model JSON jako soubor",
-    "platform-model JSON to clipboard" : "uložit platform-model JSON do schránky",
-    "import platform-model JSON" :  "importovat platform-model JSON soubor",
+    "platform-model JSON as file": "uložit platform-model JSON jako soubor",
+    "platform-model JSON to clipboard": "uložit platform-model JSON do schránky",
+    "import platform-model JSON":  "importovat platform-model JSON soubor",
     "snackbar load": {
       "ok": "Data platform-modelu načtena úspěšně",
       "fail": "Nepodařilo se úspěšně načíst data platform-modelu. Zkontrolujte konzoli JavaScriptu."
@@ -54,5 +55,21 @@
     "humanDescription": "lidský popisek",
     "no humanLabel": "bez lidského titulku",
     "no humanDescription": "bez lidského popisku"
+  },
+  "interpretedSurrounding": {
+    "ancestors title": "Rodičovské třídy",
+    "title": "Přidat interpretované okolí",
+    "attributes": "Atributy",
+    "no attributes": "Žádné dostupné atributy",
+    "associations": "Asociace",
+    "no associations": "Žádné dostupné asociace",
+    "backward associations": "Zpětné asociace",
+    "no backward associations": "Žádné dostupné asociace",
+    "close button": "Zavřít",
+    "confirm button": "Přidat"
+  },
+  "search-dialog": {
+    "title": "Vyhledání třídy",
+    "placeholder": "Vložte IRI, nebo hledejte podle titulku. Lze používat regulární výrazy."
   }
 }

@@ -16,7 +16,7 @@ import {IdProvider, PimClass, Slovnik, SlovnikPimMetadata} from 'model-driven-da
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
 import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
-
+import {useTranslation} from "react-i18next";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -34,6 +34,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
+    const {t} = useTranslation("search-dialog");
 
     useEffect(() => {
         const subject = new BehaviorSubject('');
@@ -72,11 +73,11 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
 
     return <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
-            Set root class
+            {t("title")}
         </DialogTitle>
         <DialogContent dividers>
             <Box display={"flex"}>
-                <TextField id="standard-basic" placeholder="Type IRI or search for label. You can even use regular expressions." fullWidth autoFocus onChange={onChange} error={isError} />
+                <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange} error={isError} />
                 {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30} />}
             </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">

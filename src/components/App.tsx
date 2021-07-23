@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Box, ButtonGroup, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
 import {
@@ -280,8 +280,10 @@ const App: React.FC = () => {
                 <Box display="flex" flexDirection="row" justifyContent="space-between">
                     <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
                     <div>
-                        <Fab variant="extended" disabled={sh.length + shi <= 1} size="medium" color="secondary" onClick={back} style={{marginRight: "1rem"}}><UndoIcon /></Fab>
-                        <Fab variant="extended" disabled={shi >= 0} size="medium" color="secondary" onClick={forward}><RedoIcon /></Fab>
+                        <ButtonGroup>
+                            <Fab disabled={sh.length + shi <= 1} size="small" color="secondary" onClick={back}><UndoIcon /></Fab>
+                            <Fab disabled={shi >= 0} size="small" color="secondary" onClick={forward}><RedoIcon /></Fab>
+                        </ButtonGroup>
                     </div>
                     <GenerateArtifacts store={store} setStore={setStore} />
                     <SetRootButton selected={addRootElement} />
@@ -290,7 +292,7 @@ const App: React.FC = () => {
                     {schemas}
                 </StoreContext.Provider>
                 {schemas.length === 0 &&
-                    <Typography color={"textSecondary"}>Create a root or load a store</Typography>
+                    <Typography color={"textSecondary"}>{t("no schema text")}</Typography>
                 }
                 <Divider style={{margin: "1rem 0 1rem 0"}} />
                 <Trans i18nKey="footer report bug" t={t}>
