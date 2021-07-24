@@ -9,15 +9,16 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 CONSTRUCT {
     ?inwardsRelation a z:typ-vztahu ;
         rdfs:domain ?domainElement ;
-    rdfs:range %NODE% ;
-                skos:prefLabel ?inwardsRelationLabel ;
-                skos:definition ?inwardsRelationDefinition ;
-                skos:inScheme ?inwardsRelationGlossary ;
-                              rdfs:subPropertyOf ?parentRelation .
-                              ?domainElement a z:typ-objektu ;
-                              skos:prefLabel ?domainLabel ;
-    skos:definition ?domainDefinition ;
-    skos:inScheme ?domainGlossary .
+        rdfs:range %NODE% ;
+        skos:prefLabel ?inwardsRelationLabel ;
+        skos:definition ?inwardsRelationDefinition ;
+        skos:inScheme ?inwardsRelationGlossary ;
+        rdfs:subPropertyOf ?parentRelation .
+
+    ?domainElement a z:typ-objektu ;
+        skos:prefLabel ?domainLabel ;
+        skos:definition ?domainDefinition ;
+        skos:inScheme ?domainGlossary .
 } WHERE {
     ?inwardsRelation a z:typ-vztahu ;
         skos:prefLabel ?inwardsRelationLabel ;
@@ -26,14 +27,13 @@ CONSTRUCT {
     {
         ?inwardsRelation rdfs:subClassOf ?rangeDefinition .
         ?rangeDefinition owl:allValuesFrom %NODE% ;
-        owl:onProperty z:má-vztažený-prvek-2 .
+            owl:onProperty z:má-vztažený-prvek-2 .
     } UNION {
-        ?ancestorInwardsRelation rdfs:subClassOf
-                [
-                    owl:allValuesFrom %NODE% ;
-                                       owl:onProperty z:má-vztažený-prvek-2
-                                       ] .
-                                       ?inwardsRelation rdfs:subClassOf+ ?ancestorInwardsRelation .
+        ?ancestorInwardsRelation rdfs:subClassOf [
+            owl:allValuesFrom %NODE% ;
+            owl:onProperty z:má-vztažený-prvek-2
+        ] .
+        ?inwardsRelation rdfs:subClassOf+ ?ancestorInwardsRelation .
     }
 
     {

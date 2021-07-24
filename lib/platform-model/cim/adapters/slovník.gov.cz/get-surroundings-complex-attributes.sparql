@@ -14,45 +14,42 @@ CONSTRUCT {
         skos:definition ?outwardsRelationDefinition ;
         skos:inScheme ?outwardsRelationGlossary ;
         # (4) relationship to the parent association in the inheritance hierarchy, only ?parentRelation returned also as ?outwardsRelation is valid. A ?parentRelation is returned as ?outwardsRelation iff it has the mandatory properties such as skos:prefLabel etc. START
-        rdfs:subPropertyOf ?parentRelation .
+            rdfs:subPropertyOf ?parentRelation .
         # (4) relationship to the parent association in the inheritance hierarchy END
+
     ?rangeElement a z:typ-objektu ;
         skos:prefLabel ?rangeLabel ;
         skos:definition ?rangeDefinition ;
         skos:inScheme ?rangeGlossary .
 } WHERE {
     # (1) both directions START
-    {
-        ?attribute rdfs:subClassOf
-                [
+        {
+            ?attribute rdfs:subClassOf [
+                owl:allValuesFrom %NODE% ;
+                owl:onProperty z:je-vlastností
+            ] .
+        } UNION {
+            # (2) attributes inheriting their membership START
+                ?ancestorAttribute rdfs:subClassOf [
                     owl:allValuesFrom %NODE% ;
                     owl:onProperty z:je-vlastností
                 ] .
-    } UNION {
-        # (2) attributes inheriting their membership START
-        ?ancestorAttribute rdfs:subClassOf
-                [
-                    owl:allValuesFrom %NODE% ;
-                    owl:onProperty z:je-vlastností
-                ] .
-        ?attribute rdfs:subClassOf+ ?ancestorAttribute .
-        # (2) attributes inheriting their membership END
-    } UNION {
-        %NODE% rdfs:subClassOf
-                [
-                    owl:allValuesFrom ?attribute ;
-                    owl:onProperty z:má-vlastnost
-                ] .
-    } UNION {
-        # (2) attributes inheriting their membership START
-        %NODE% rdfs:subClassOf
-                [
+                ?attribute rdfs:subClassOf+ ?ancestorAttribute .
+            # (2) attributes inheriting their membership END
+        } UNION {
+            %NODE% rdfs:subClassOf [
+                owl:allValuesFrom ?attribute ;
+                owl:onProperty z:má-vlastnost
+            ] .
+        } UNION {
+            # (2) attributes inheriting their membership START
+                %NODE% rdfs:subClassOf [
                     owl:allValuesFrom ?ancestorAttribute ;
                     owl:onProperty z:má-vlastnost
                 ] .
-        ?attribute rdfs:subClassOf+ ?ancestorAttribute .
-        # (2) attributes inheriting their membership END
-    }
+                ?attribute rdfs:subClassOf+ ?ancestorAttribute .
+            # (2) attributes inheriting their membership END
+        }
     # (1) both directions END
 
     ?attribute a z:typ-vlastnosti ;
@@ -60,49 +57,45 @@ CONSTRUCT {
         skos:inScheme ?attributeGlossary .
 
     # (3) only complex CIM attributes START
-    {
-        ?restriction rdfs:subClassOf
-                [
-                    owl:allValuesFrom ?attribute ;
-                    owl:onProperty z:je-vlastností
-                ]
-    } UNION {
-        ?restriction rdfs:subClassOf
-                [
-                    owl:allValuesFrom ?ancestor ;
-                    owl:onProperty z:je-vlastností
-                ] .
-        ?attribute rdfs:subClassOf+ ?ancestor .
-        FILTER (?ancestor NOT IN
+        {
+            ?restriction rdfs:subClassOf [
+                owl:allValuesFrom ?attribute ;
+                owl:onProperty z:je-vlastností
+            ]
+        } UNION {
+            ?restriction rdfs:subClassOf [
+                owl:allValuesFrom ?ancestor ;
+                owl:onProperty z:je-vlastností
+            ] .
+            ?attribute rdfs:subClassOf+ ?ancestor .
+            FILTER (?ancestor NOT IN
                 (<https://slovník.gov.cz/základní/pojem/vlastnost>, <https://slovník.gov.cz/základní/pojem/proměnný-prvek>, <https://slovník.gov.cz/základní/pojem/prvek>)
-        )
-    } UNION {
-        ?attribute rdfs:subClassOf
-                [
-                    owl:allValuesFrom [] ;
-                    owl:onProperty z:má-vlastnost
-                ] .
-    } UNION {
-        ?ancestor rdfs:subClassOf
-                [
-                    owl:allValuesFrom [] ;
-                    owl:onProperty z:má-vlastnost
-                ] .
-        ?attribute rdfs:subClassOf+ ?ancestor .
-        FILTER (?ancestor NOT IN
+            )
+        } UNION {
+            ?attribute rdfs:subClassOf [
+                owl:allValuesFrom [] ;
+                owl:onProperty z:má-vlastnost
+            ] .
+        } UNION {
+            ?ancestor rdfs:subClassOf [
+                owl:allValuesFrom [] ;
+                owl:onProperty z:má-vlastnost
+            ] .
+            ?attribute rdfs:subClassOf+ ?ancestor .
+            FILTER (?ancestor NOT IN
                 (<https://slovník.gov.cz/základní/pojem/vlastnost>, <https://slovník.gov.cz/základní/pojem/proměnný-prvek>, <https://slovník.gov.cz/základní/pojem/prvek>)
-        )
-    }
+            )
+        }
     # (3) only complex CIM attributes END
 
     OPTIONAL { ?attribute skos:definition ?attributeDefinition }
 
     # (4) relationship to the parent attribute in the inheritance hierarchy START
-    OPTIONAL {
-        ?attribute rdfs:subClassOf ?parentAttribute .
-        ?parentAttribute a z:typ-vlastnosti .
-        FILTER (?parentAttribute != <https://slovník.gov.cz/základní/pojem/vlastnost>)
-    }
+        OPTIONAL {
+            ?attribute rdfs:subClassOf ?parentAttribute .
+            ?parentAttribute a z:typ-vlastnosti .
+            FILTER (?parentAttribute != <https://slovník.gov.cz/základní/pojem/vlastnost>)
+        }
     # (4) relationship to the parent attribute in the inheritance hierarchy END
 
     BIND(IRI(REPLACE(STR(?attribute), "/pojem/", "/pojem-z-cim-transformace/")) AS ?outwardsRelation)

@@ -19,7 +19,13 @@ import getSurroundingsParent from "./get-surroundings-parent.sparql"
 import getSurroundingsComplexAttributes from "./get-surroundings-complex-attributes.sparql"
 import getHierarchy from "./get-hierarchy.sparql"
 
-const getSurroundings = [getSurroundingsAttributes, getSurroundingsInwardsRelations, getSurroundingsOutwardsRelations, getSurroundingsParent, getSurroundingsComplexAttributes];
+const getSurroundings = [
+    getSurroundingsAttributes,
+    getSurroundingsInwardsRelations,
+    getSurroundingsOutwardsRelations,
+    getSurroundingsParent,
+    getSurroundingsComplexAttributes
+];
 
 export interface SlovnikPimMetadata {
     glossary?: SlovnikGlossary;
