@@ -1,6 +1,8 @@
 Schema generator
 ================
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e2ef1ee8-53c8-42ad-9cbb-6ca635e940a9/deploy-status)](https://app.netlify.com/sites/kodi-schema-generator/deploys)
+
 Please keep in mind that this project is still in the development phase.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
