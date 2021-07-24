@@ -42,14 +42,14 @@ CONSTRUCT {
             owl:onProperty z:má-vztažený-prvek-1 .
     } UNION {
         ?inwardsRelation rdfs:subClassOf/rdfs:subClassOf ?domainDefinition .
-        ?rangeDefinition owl:allValuesFrom ?domainElement ;
+        ?domainDefinition owl:allValuesFrom ?domainElement ;
             owl:onProperty z:má-vztažený-prvek-1 .
         FILTER NOT EXISTS {
             ?inwardsRelation rdfs:subClassOf/owl:onProperty z:má-vztažený-prvek-1 .
         }
     } UNION {
         ?inwardsRelation rdfs:subClassOf+/rdfs:subClassOf ?domainDefinition .
-        ?rangeDefinition owl:allValuesFrom ?domainElement ;
+        ?domainDefinition owl:allValuesFrom ?domainElement ;
             owl:onProperty z:má-vztažený-prvek-1 .
         FILTER NOT EXISTS {
             ?inwardsRelation rdfs:subClassOf+ ?specificInwardsRelation .

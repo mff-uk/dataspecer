@@ -29,6 +29,14 @@ CONSTRUCT {
                     owl:onProperty z:je-vlastností
                 ] .
                 ?attribute rdfs:subClassOf+ ?ancestorAttribute .
+
+                # see https://github.com/sstenchlak/schema-generator/issues/11#issue-950901733
+                FILTER NOT EXISTS {
+                    ?attribute rdfs:subClassOf [
+                        owl:allValuesFrom [] ;
+                        owl:onProperty z:je-vlastností
+                    ] .
+                }
             # (2) attributes inheriting their membership END
         } UNION {
             %NODE% rdfs:subClassOf [
