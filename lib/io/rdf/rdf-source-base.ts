@@ -22,7 +22,7 @@ export abstract class RdfMemorySource implements RdfSource {
     const result = [];
     this.quads
       .filter(quad => quad.object.value === iri)
-      .filter(quad => quad.object.isNode())
+      .filter(quad => RdfObject.isNode(quad.object))
       .filter(quad => quad.predicate.value === predicate)
       .forEach(quad => result.push(quad.object));
     return result;

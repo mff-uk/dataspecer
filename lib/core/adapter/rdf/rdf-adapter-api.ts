@@ -1,6 +1,5 @@
-import {CoreResource} from "../../model";
-import {RdfSourceWrap} from "./rdf-source-wrap"
-import {RdfObject} from "../../../io/rdf/rdf-api";
+import {CoreResource} from "../../core-resource";
+import {RdfSourceWrap} from "./rdf-source-wrap";
 
 export enum RdfTermType {
   BlankNode = "BlankNode",

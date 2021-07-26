@@ -1,31 +1,13 @@
 import {RdfResourceAdapter, RdfSource} from "./rdf-adapter-api";
+import {CoreResource} from "../../core-resource";
 import {RdfSourceWrap} from "./rdf-source-wrap";
-import * as pim from "./model/pim";
-import * as psm from "./model/psm";
-import {CoreResource} from "../../model";
 
 export class RdfAdapter {
 
   readonly adapters: RdfResourceAdapter [];
 
-  protected constructor(adapters: RdfResourceAdapter[]) {
+  constructor(adapters: RdfResourceAdapter[]) {
     this.adapters = adapters;
-  }
-
-  static create(source: RdfSourceWrap): RdfAdapter {
-    return new RdfAdapter([
-      new pim.PimAssociationAdapter(),
-      new pim.PimAssociationEndAdapter(),
-      new pim.PimAttributeAdapter(),
-      new pim.PimClassAdapter(),
-      new pim.PimSchemaAdapter(),
-      new psm.PsmAssociationEndAdapter(),
-      new psm.PsmAttributeAdapter(),
-      new psm.PsmChoiceAdapter(),
-      new psm.PsmClassAdapter(),
-      new psm.PsmIncludeAdapter(),
-      new psm.PsmSchemaAdapter(),
-    ]);
   }
 
   async loadNodeTree(
