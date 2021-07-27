@@ -1,31 +1,59 @@
-import {assert} from "../../io/assert";
-import {CoreOperation} from "../../core";
-import {PimResourceMap} from "../model";
-import {CreateNewIdentifier} from "./pim-executor-api";
-import {pimCreateClassExecutor} from "./pim-create-class-executor";
-import {pimCreateSchemaExecutor} from "./pim-create-schema-executor";
+import {
+  CoreOperation,
+  CreateNewIdentifier,
+  CoreModelReader,
+  OperationResult,
+  createErrorOperationResult
+} from "../../core";
 import * as Operations from "../operation";
-import {CoreModelReader} from "../../core/api";
-import {pimCreateAttributeExecutor} from "./pim-create-attribute-executor";
+import {executePimCreateSchema} from "./pim-create-schema-executor";
+import {executePimCreateClass} from "./pim-create-class-executor"
+import {executePimDeleteClass} from "./pim-delete-class-executor"
+import {executePimCreateAttribute} from "./pim-create-attribute-executor"
+import {executePimDeleteAttribute} from "./pim-delete-attribute-executor"
+import {executesPimCreateAssociation} from "./pim-create-association-executor"
+import {
+  executePimDeleteAssociation,
+} from "./pim-delete-association-executor"
 
-export async function applyPimOperation(
-  createNewIdentifier: CreateNewIdentifier, modelReader: CoreModelReader,
+export async function executePimOperation(
+  createNewIdentifier: CreateNewIdentifier,
+  modelReader: CoreModelReader,
   operation: CoreOperation
-): Promise<PimResourceMap> {
-  assert(operation.types.length === 1, "Operation must have exactly one type.")
+): Promise<OperationResult> {
+  if (operation.types.length !== 1) {
+    return createErrorOperationResult("Invalid operation");
+  }
   switch (operation.types[0]) {
+    case Operations.PimCreateSchemaType:
+      return await executePimCreateSchema(
+        createNewIdentifier, modelReader,
+        Operations.asPimCreateSchema(operation));
     case Operations.PimCreateClassType:
-      return await pimCreateClassExecutor(
+      return await executePimCreateClass(
         createNewIdentifier, modelReader,
         Operations.asPimCreateClass(operation));
-    case Operations.PimCreateSchemaType:
-      return await pimCreateSchemaExecutor(
-        createNewIdentifier, Operations.asPimCreateSchema(operation));
+    case Operations.PimDeleteClassType:
+      return await executePimDeleteClass(
+        createNewIdentifier, modelReader,
+        Operations.asPimDeleteClass(operation));
     case Operations.PimCreateAttributeType:
-      return await pimCreateAttributeExecutor(
+      return await executePimCreateAttribute(
         createNewIdentifier, modelReader,
         Operations.asPimCreateAttribute(operation));
+    case Operations.PimDeleteAttributeType:
+      return await executePimDeleteAttribute(
+        createNewIdentifier, modelReader,
+        Operations.asPimDeleteAttribute(operation));
+    case Operations.PimCreateAssociationType:
+      return await executesPimCreateAssociation(
+        createNewIdentifier, modelReader,
+        Operations.asPimCreateAssociation(operation));
+    case Operations.PimDeleteAssociationType:
+      return await executePimDeleteAssociation(
+        createNewIdentifier, modelReader,
+        Operations.asPimDeleteAssociation(operation));
     default:
-      throw new Error("Unknown operation types:" + operation.types);
+      return createErrorOperationResult("Unknown operation");
   }
 }

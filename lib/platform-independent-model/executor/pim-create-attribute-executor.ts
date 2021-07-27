@@ -1,14 +1,20 @@
 import {PimCreateAttribute} from "../operation";
-import {asPimAttribute, PimResourceMap} from "../model";
-import {CreateNewIdentifier} from "./pim-executor-api";
-import {createEmptyCoreResource} from "../../core";
-import {CoreModelReader} from "../../core/api";
-import {loadSchema} from "./pim-executor-utils";
+import {asPimAttribute} from "../model";
+import {
+  createEmptyCoreResource,
+  createErrorOperationResult,
+  createSuccessOperationResult,
+  OperationResult,
+  CoreModelReader,
+  CreateNewIdentifier,
+} from "../../core";
+import {loadPimSchema} from "./pim-executor-utils";
 
-export async function pimCreateAttributeExecutor(
+export async function executePimCreateAttribute(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader, operation: PimCreateAttribute
-): Promise<PimResourceMap> {
+  modelReader: CoreModelReader,
+  operation: PimCreateAttribute
+): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("attribute");
 
   const result = asPimAttribute(createEmptyCoreResource(iri));
@@ -19,19 +25,19 @@ export async function pimCreateAttributeExecutor(
   result.pimOwnerClass = operation.pimOwnerClass;
   result.pimDatatype = operation.pimDatatype;
 
-  const schema = await loadSchema(modelReader);
+  const schema = await loadPimSchema(modelReader);
+  if (schema === undefined) {
+    return createErrorOperationResult(
+      "Missing schema object.")
+  }
   schema.pimParts = [...schema.pimParts, result.iri];
 
-  const ownerClass = await modelReader.readResource(operation.pimOwnerClass);
+  // TODO Check that the class is part of the schema.
+  const ownerClass = await modelReader.readResource(
+    operation.pimOwnerClass);
   if (ownerClass === undefined) {
-    throw new Error("Missing owner class");
+    return createErrorOperationResult("Missing owner class");
   }
 
-  return {
-    [result.iri]: result,
-    [schema.iri]: schema,
-  };
-
+  return createSuccessOperationResult([result, schema]);
 }
-
-

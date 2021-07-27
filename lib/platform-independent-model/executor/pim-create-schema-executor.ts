@@ -1,19 +1,24 @@
 import {PimCreateSchema} from "../operation";
-import {asPimSchema, PimResourceMap} from "../model";
-import {CreateNewIdentifier} from "./pim-executor-api";
-import {createEmptyCoreResource} from "../../core";
+import {asPimSchema} from "../model";
+import {
+  CoreModelReader,
+  createEmptyCoreResource,
+  CreateNewIdentifier,
+  createSuccessOperationResult,
+  OperationResult
+} from "../../core";
 
-export async function pimCreateSchemaExecutor(
+export async function executePimCreateSchema(
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimCreateSchema): Promise<PimResourceMap> {
+  modelReader: CoreModelReader,
+  operation: PimCreateSchema
+): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("schema");
 
   const result = asPimSchema(createEmptyCoreResource(iri));
   result.pimParts = operation.pimParts;
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
-  return {
-    [result.iri]: result,
-  };
 
+  return createSuccessOperationResult([result]);
 }

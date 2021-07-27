@@ -1,34 +1,37 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createEmptyCoreResource
 } from "../../core";
-import {asPimCreateAttribute} from "../operation";
-import {executePimCreateAttribute} from "./pim-create-attribute-executor";
+import {asPimCreateAssociation} from "../operation";
+import {executesPimCreateAssociation} from "./pim-create-association-executor";
 
-test("Create attribute.", async () => {
-  const operation = asPimCreateAttribute(createEmptyCoreResource());
+test("Create association.", async () => {
+  const operation = asPimCreateAssociation(createEmptyCoreResource());
   operation.pimInterpretation = "attribute"
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
-  operation.pimOwnerClass = "http://class";
-  operation.pimDatatype = "xsd:string";
+  operation.pimAssociationEnds = ["http://left", "http://right"];
 
   const before = {
     "http://schema": {
       "iri": "http://schema",
       "types": ["pim-schema"],
-      "pimParts": ["http://class"],
+      "pimParts": ["http://class", "http://left", "http://right"],
     },
-    "http://class": {
-      "iri": "http://class",
+    "http://left": {
+      "iri": "http://left",
+      "types": ["pim-class"],
+    },
+    "http://right": {
+      "iri": "http://right",
       "types": ["pim-class"],
     }
   };
 
   let counter = 0;
-  const actual = await executePimCreateAttribute(
+  const actual = await executesPimCreateAssociation(
     (name) => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
@@ -37,18 +40,30 @@ test("Create attribute.", async () => {
     "http://schema": {
       "iri": "http://schema",
       "types": ["pim-schema"],
-      "pimParts": ["http://class", "http://localhost/1"],
+      "pimParts": [
+        "http://class", "http://left", "http://right",
+        "http://localhost/3", "http://localhost/1", "http://localhost/2",
+      ],
     },
-    "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+    "http://localhost/3": {
+      "iri": "http://localhost/3",
+      "types": ["pim-association"],
       "pimInterpretation": operation.pimInterpretation,
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
-      "pimOwnerClass": operation.pimOwnerClass,
-      "pimDatatype": operation.pimDatatype,
-    }
+      "pimEnd": ["http://localhost/1", "http://localhost/2"]
+    },
+    "http://localhost/2": {
+      "iri": "http://localhost/2",
+      "types": ["pim-association-end"],
+      "pimPart": "http://right",
+    },
+    "http://localhost/1": {
+      "iri": "http://localhost/1",
+      "types": ["pim-association-end"],
+      "pimPart": "http://left",
+    },
   };
 
   expect(actual.failed).toBeFalsy();

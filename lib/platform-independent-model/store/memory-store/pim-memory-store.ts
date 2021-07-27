@@ -1,9 +1,15 @@
-import {CoreModelReader, CoreModelWriter, ModelChange} from "../../../core/api";
-import {CoreOperation, CoreResource} from "../../../core/";
-import {PimResource, PimResourceMap} from "../../model";
+import {
+  CoreModelReader,
+  CoreModelWriter,
+  ModelChange,
+  CoreOperation,
+  CoreResource,
+  CreateNewIdentifier,
+} from "../../../core";
+import {PimResourceMap} from "../../model";
 import {asPimCreateSchema, isPimCreateSchema} from "../../operation";
 import {assert, assertNot} from "../../../io/assert";
-import {CreateNewIdentifier, applyPimOperation} from "../../executor";
+import {executePimOperation} from "../../executor";
 
 export class PimMemoryStore implements CoreModelReader, CoreModelWriter {
 
@@ -34,13 +40,17 @@ export class PimMemoryStore implements CoreModelReader, CoreModelWriter {
     if (this.operations.length === 0) {
       this.applyFirstOperation(operation);
     }
-    const changedResources = await applyPimOperation(
+    const operationResult = await executePimOperation(
       this.createNewIdentifier, this, operation);
+    if (operationResult.failed) {
+      throw new Error("Operation failed: " + operationResult.message);
+    }
     const resultOperation = this.addOperation(operation);
-    this.resources = {...this.resources, ...changedResources};
+    this.resources = {...this.resources, ...operationResult.changedResources};
     return {
       "operation": resultOperation,
-      "changed": Object.keys(changedResources),
+      "changed": Object.keys(operationResult.changedResources),
+      "deleted": operationResult.deletedResource,
     };
   }
 

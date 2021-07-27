@@ -12,6 +12,11 @@ export interface ModelChange {
    */
   changed: string[];
 
+  /**
+   * IRIs of all resource deleted by the operation.
+   */
+  deleted: string[];
+
 }
 
 export interface CoreModelWriter {

@@ -1,7 +1,10 @@
-import {CoreResource, createEmptyCoreResource} from "../../core";
+import {
+  CoreResource,
+  CoreModelReader,
+  createEmptyCoreResource
+} from "../../core";
 import {asPimCreateClass} from "../operation";
-import {pimCreateClassExecutor} from "./pim-create-class-executor";
-import {CoreModelReader} from "../../core/api";
+import {executePimCreateClass} from "./pim-create-class-executor";
 
 test("Create class.", async () => {
   const operation = asPimCreateClass(createEmptyCoreResource());
@@ -19,7 +22,7 @@ test("Create class.", async () => {
   };
 
   let counter = 0;
-  const actual = await pimCreateClassExecutor(
+  const actual = await executePimCreateClass(
     (name) => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
@@ -41,8 +44,8 @@ test("Create class.", async () => {
     },
   };
 
-  expect(actual).toEqual(expected);
-
+  expect(actual.failed).toBeFalsy();
+  expect(actual.changedResources).toEqual(expected);
 });
 
 function wrapResourcesWithReader(

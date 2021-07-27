@@ -1,6 +1,8 @@
-import {createEmptyCoreResource} from "../../core";
+import {
+  createEmptyCoreResource
+} from "../../core";
 import {asPimCreateSchema} from "../operation";
-import {pimCreateSchemaExecutor} from "./pim-create-schema-executor";
+import {executePimCreateSchema} from "./pim-create-schema-executor";
 
 test("Create schema.", async () => {
   const operation = asPimCreateSchema(createEmptyCoreResource());
@@ -9,8 +11,10 @@ test("Create schema.", async () => {
   operation.pimHumanDescription = {"en": "Desc"};
 
   let counter = 0;
-  const actual = await pimCreateSchemaExecutor(
-    (name) => "http://localhost/" + ++counter, operation);
+  const actual = await executePimCreateSchema(
+    (name) => "http://localhost/" + ++counter,
+    undefined,
+    operation);
 
   const expected = {
     "http://localhost/1": {
@@ -22,18 +26,19 @@ test("Create schema.", async () => {
     }
   };
 
-  expect(actual).toEqual(expected);
-
+  expect(actual.failed).toBeFalsy();
+  expect(actual.changedResources).toEqual(expected);
 });
 
-test("Create schema with given IRI.", () => {
+test("Create schema with given IRI.", async () => {
   const operation = asPimCreateSchema(createEmptyCoreResource());
   operation.pimBaseIri = "http://localhost/"
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
   operation.pimNewIri = "urn";
 
-  const actual = pimCreateSchemaExecutor(undefined, operation);
+  const actual = await executePimCreateSchema(
+    undefined, undefined, operation);
 
   const expected = {
     [operation.pimNewIri]: {
@@ -45,6 +50,6 @@ test("Create schema with given IRI.", () => {
     }
   };
 
-  expect(actual).toEqual(expected);
-
+  expect(actual.failed).toBeFalsy();
+  expect(actual.changedResources).toEqual(expected);
 });

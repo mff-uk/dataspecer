@@ -3,8 +3,6 @@ import {PimCreate} from "./pim-create";
 
 export interface PimCreateAssociation extends PimCreate {
 
-  pimOwnerClass?: string;
-
   pimAssociationEnds: string[];
 
 }

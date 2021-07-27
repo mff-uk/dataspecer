@@ -23,6 +23,7 @@ test("Create schema with class and attribute.", async () => {
   expect(pimSchemaChange.changed).toEqual([
     "http://localhost/schema/1"
   ]);
+  expect(pimSchemaChange.deleted).toEqual([]);
 
   const pimClass = Operations.asPimCreateClass(createEmptyCoreResource());
   pimClass.pimInterpretation = "http://localhost/cim/TheClass";
@@ -32,6 +33,7 @@ test("Create schema with class and attribute.", async () => {
     "http://localhost/schema/1",
     "http://localhost/class/3",
   ].sort());
+  expect(pimSchemaChange.deleted).toEqual([]);
 
   const pimAttribute = Operations.asPimCreateAttribute(
     createEmptyCoreResource());
@@ -44,6 +46,7 @@ test("Create schema with class and attribute.", async () => {
     "http://localhost/schema/1",
     "http://localhost/attribute/5",
   ].sort());
+  expect(pimSchemaChange.deleted).toEqual([]);
 
   //
 

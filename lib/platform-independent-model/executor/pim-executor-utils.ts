@@ -1,14 +1,14 @@
-import {CoreModelReader} from "../../core/api";
+import {CoreModelReader} from "../../core";
 import {asPimSchema, isPimSchema, PimSchema} from "../model";
 
-export async function loadSchema(
+export async function loadPimSchema(
   modelReader: CoreModelReader
-): Promise<PimSchema> {
+): Promise<PimSchema | undefined> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isPimSchema(resource)) {
       return {...asPimSchema(resource)};
     }
   }
-  throw new Error("Missing PIM schema.");
+  return undefined;
 }
