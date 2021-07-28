@@ -6,7 +6,6 @@ import {
   CoreResource,
   CreateNewIdentifier,
 } from "../../../core";
-import {PimResourceMap} from "../../model";
 import {asPimCreateSchema, isPimCreateSchema} from "../../operation";
 import {assert, assertNot} from "../../../io/assert";
 import {executePimOperation} from "../../executor";
@@ -15,7 +14,7 @@ export class PimMemoryStore implements CoreModelReader, CoreModelWriter {
 
   private operations: CoreOperation[] = [];
 
-  private resources: PimResourceMap = {};
+  private resources: { [iri: string]: CoreResource } = {};
 
   private baseIri: string;
 

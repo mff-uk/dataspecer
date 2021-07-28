@@ -16,7 +16,6 @@ export async function executePimCreateSchema(
   const iri = operation.pimNewIri || createNewIdentifier("schema");
 
   const result = asPimSchema(createEmptyCoreResource(iri));
-  result.pimParts = operation.pimParts;
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
 

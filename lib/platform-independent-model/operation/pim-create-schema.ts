@@ -13,8 +13,6 @@ export interface PimCreateSchema extends CoreOperation {
 
   pimBaseIri?: string;
 
-  pimParts: string[];
-
 }
 
 export const PimCreateSchemaType = "pim-action-create-schema";
@@ -32,7 +30,5 @@ export function asPimCreateSchema(
     return resource as PimCreateSchema;
   }
   resource.types.push(PimCreateSchemaType);
-  const result = resource as PimCreateSchema;
-  result.pimParts = result.pimParts || [];
-  return result;
+  return resource as PimCreateSchema;
 }

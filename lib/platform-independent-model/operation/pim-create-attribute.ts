@@ -1,4 +1,4 @@
-import {CoreOperation, CoreResource} from "../../core";
+import {CoreResource} from "../../core";
 import {PimCreate} from "./pim-create";
 
 export interface PimCreateAttribute extends PimCreate {

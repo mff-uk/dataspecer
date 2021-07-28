@@ -25,5 +25,3 @@ export interface PimResource extends CoreResource {
   pimHumanDescription?: LanguageString;
 
 }
-
-export type PimResourceMap = { [iri: string]: CoreResource };
