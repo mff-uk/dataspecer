@@ -26,6 +26,13 @@ export class RdfNode {
     };
   }
 
+  static defaultGraph() {
+    return {
+      "termType": RdfTermType.DefaultGraph,
+      "value": "",
+    };
+  }
+
 }
 
 export class RdfObject {

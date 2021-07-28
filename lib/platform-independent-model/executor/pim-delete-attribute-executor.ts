@@ -33,7 +33,7 @@ export async function executePimDeleteAttribute(
       "Missing schema object.")
   }
   schema.pimParts = schema.pimParts.filter(
-    iri => iri === operation.pimAttribute);
+    iri => iri !== operation.pimAttribute);
 
   return createSuccessOperationResult(
     [schema], [operation.pimAttribute]);

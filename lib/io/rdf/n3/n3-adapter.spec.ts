@@ -14,22 +14,22 @@ test("Load sample TRIG.", async () => {
       "predicate": RdfNode.namedNode(
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
       "object": RdfNode.namedNode("http://example.org/cartoons#Cat"),
-      "graph": undefined
+      "graph": RdfNode.defaultGraph(),
     },
     {
       "subject": RdfNode.namedNode("http://example.org/cartoons#Jerry"),
       "predicate": RdfNode.namedNode(
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
       "object": RdfNode.namedNode("http://example.org/cartoons#Mouse"),
-      "graph": undefined
+      "graph": RdfNode.defaultGraph(),
     },
     {
       "subject": RdfNode.namedNode("http://example.org/cartoons#Jerry"),
       "predicate": RdfNode.namedNode(
         "http://example.org/cartoons#smarterThan"),
       "object": RdfNode.namedNode("http://example.org/cartoons#Tom"),
-      "graph": undefined
-    }
-  ]
+      "graph": RdfNode.defaultGraph(),
+    },
+  ];
   expect(actual).toStrictEqual(expected);
 });

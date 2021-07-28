@@ -33,7 +33,7 @@ export async function executePimDeleteAssociation(
   // also used to delete invalid association. We just delete all of it.
 
   const iriToRemove = [
-    operation.iri,
+    associationObject.iri,
     ...associationObject.pimEnd,
   ];
 
@@ -42,7 +42,7 @@ export async function executePimDeleteAssociation(
     return createErrorOperationResult(
       "Missing schema object.")
   }
-  schema.pimParts = schema.pimParts.filter(iri => iriToRemove.includes(iri));
+  schema.pimParts = schema.pimParts.filter(iri => !iriToRemove.includes(iri));
 
   return createSuccessOperationResult(
     [schema], iriToRemove);

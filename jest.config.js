@@ -10,4 +10,11 @@ module.exports = {
   "roots": [
     "lib",
   ],
+  "testPathIgnorePatterns": [
+    "./lib/bikeshed",
+    "./lib/object-model",
+    "./lib/respec",
+    "./lib/slovník.gov.cz",
+    "./lib/web-specification"
+  ]
 };

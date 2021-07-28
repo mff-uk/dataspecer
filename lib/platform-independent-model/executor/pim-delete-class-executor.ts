@@ -41,7 +41,7 @@ export async function executePimDeleteClass(
       "Missing schema object.")
   }
   schema.pimParts = schema.pimParts.filter(
-    iri => iri === operation.pimClass);
+    iri => iri !== operation.pimClass);
 
   return createSuccessOperationResult(
     [schema], [operation.pimClass]);
