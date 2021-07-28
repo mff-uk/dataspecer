@@ -11,7 +11,7 @@ import jsStringEscape from "js-string-escape";
 import search from "./search.sparql"
 import getClass from "./get-class.sparql"
 import {PimAttribute} from "../../../pim/pim-attribute";
-//import fetch from "../../../../rdf/rdf-fetch"
+import fetch from "../../../../rdf/rdf-fetch"
 import getSurroundingsAttributes from "./get-surroundings-attributes.sparql"
 import getSurroundingsInwardsRelations from "./get-surroundings-inwards-relations.sparql"
 import getSurroundingsOutwardsRelations from "./get-surroundings-outwards-relations.sparql"
