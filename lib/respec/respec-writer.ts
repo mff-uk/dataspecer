@@ -10,6 +10,8 @@ import {
   WebSpecificationSchema,
   WebSpecificationType,
 } from "../web-specification/web-specification-model";
+import {WritableObject} from "../io/stream/writable-object";
+import {StringWriteStream} from "../io/stream/string-write-stream";
 
 export function writeReSpec(
   model: ReSpec, directory: string, name: string,
@@ -19,15 +21,25 @@ export function writeReSpec(
   }
   const outputStream = fileSystem.createWriteStream(
     path.join(directory, name + ".html"));
-  outputStream.write("<!DOCTYPE html>\n");
-  outputStream.write("<html lang=\"cs\">");
-  writeHeader(model, outputStream);
-  writeBody(model, outputStream);
-  outputStream.write("\n</html>\n");
+  constructReSpec(model, outputStream);
   outputStream.close();
 }
 
-function writeHeader(model: ReSpec, stream: WriteStream) {
+export function getReSpec(model: ReSpec): string {
+  const stream = new StringWriteStream();
+  constructReSpec(model, stream);
+  return stream.getContent();
+}
+
+function constructReSpec(model: ReSpec, stream: WritableObject) {
+  stream.write("<!DOCTYPE html>\n");
+  stream.write("<html lang=\"cs\">");
+  writeHeader(model, stream);
+  writeBody(model, stream);
+  stream.write("\n</html>\n");
+}
+
+function writeHeader(model: ReSpec, stream: WritableObject) {
   const title = model.metadata.title;
   stream.write(`
   <head>
@@ -96,7 +108,7 @@ function currentDate() {
   return [year, month, day].join("-");
 }
 
-function writeBody(model: ReSpec, stream: WriteStream) {
+function writeBody(model: ReSpec, stream: WritableObject) {
   stream.write("\n  </body>");
   writeIntroduction(model, stream);
   writeSpecification(model.schemas, stream);
@@ -104,7 +116,7 @@ function writeBody(model: ReSpec, stream: WriteStream) {
   stream.write("\n  </body>");
 }
 
-function writeIntroduction(model: ReSpec, stream: WriteStream) {
+function writeIntroduction(model: ReSpec, stream: WritableObject) {
   stream.write(`
     <section id="abstract" class="introductory">
       <h2>Abstrakt</h2>
@@ -115,7 +127,7 @@ function writeIntroduction(model: ReSpec, stream: WriteStream) {
 }
 
 function writeSpecification(
-  specification: WebSpecificationSchema, stream: WriteStream,
+  specification: WebSpecificationSchema, stream: WritableObject,
 ) {
   stream.write(`
     <section id="specifikace">
@@ -131,7 +143,7 @@ function writeSpecification(
   stream.write("\n    </section>");
 }
 
-function writeEntity(entity: WebSpecificationEntity, stream: WriteStream) {
+function writeEntity(entity: WebSpecificationEntity, stream: WritableObject) {
   stream.write(`
       <section id="${entity.anchor}">
         <h3>${entity.humanLabel}</h3>
@@ -148,7 +160,7 @@ function writeEntity(entity: WebSpecificationEntity, stream: WriteStream) {
 function writeFosProperty(
   owner: WebSpecificationEntity,
   property: WebSpecificationProperty,
-  stream: WriteStream,
+  stream: WritableObject,
 ) {
   stream.write(`
         <section id="${property.anchor}">
@@ -165,7 +177,7 @@ function writeFosProperty(
 }
 
 function writePropertyTypes(
-  property: WebSpecificationProperty, stream: WriteStream) {
+  property: WebSpecificationProperty, stream: WritableObject) {
   const types = property.type
     .map(writePropertyType)
     .join("");
@@ -188,14 +200,14 @@ function writePropertyType(type: WebSpecificationType): string {
 }
 
 function writePropertyHumanLabel(
-  property: WebSpecificationProperty, stream: WriteStream) {
+  property: WebSpecificationProperty, stream: WritableObject) {
   stream.write(`
             <dt>Jméno</dt>
             <dd>${property.humanLabel}</dd>`);
 }
 
 function writePropertyHumanDescription(
-  property: WebSpecificationProperty, stream: WriteStream) {
+  property: WebSpecificationProperty, stream: WritableObject) {
   if (isStringEmpty(property.humanDescription)) {
     return;
   }
@@ -208,7 +220,7 @@ function isStringEmpty(content: string): boolean {
   return content === undefined || content.trim().length === 0;
 }
 
-function writeExamples(model: ReSpec, stream: WriteStream) {
+function writeExamples(model: ReSpec, stream: WritableObject) {
   stream.write(`
     <section id="příklady">
       <h2>Příklady</h2>

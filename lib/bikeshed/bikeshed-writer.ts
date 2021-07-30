@@ -7,6 +7,8 @@ import {
   WebSpecificationEntity, WebSpecificationProperty,
   WebSpecificationSchema, WebSpecificationType,
 } from "../web-specification/web-specification-model";
+import {WritableObject} from "../io/stream/writable-object";
+import {StringWriteStream} from "../io/stream/string-write-stream";
 
 export async function writeBikeshed(
   model: Bikeshed, directory: string, name: string,
@@ -23,15 +25,25 @@ export async function writeBikeshed(
     outputStream.on("error", reject);
   });
 
-  writeMetadata(model.metadata, outputStream);
-  writeIntroduction(model, outputStream);
-  writeDataModel(model.schemas, outputStream);
+  constructBikeshed(model, outputStream);
   outputStream.end();
 
   return result;
 }
 
-function writeMetadata(content: Record<string, string>, stream: WriteStream) {
+export function getBikeshed(model: Bikeshed): string {
+  const stream = new StringWriteStream();
+  constructBikeshed(model, stream);
+  return stream.getContent();
+}
+
+function constructBikeshed(model: Bikeshed, stream: WritableObject) {
+  writeMetadata(model.metadata, stream);
+  writeIntroduction(model, stream);
+  writeDataModel(model.schemas, stream);
+}
+
+function writeMetadata(content: Record<string, string>, stream: WritableObject) {
   stream.write("<pre class='metadata'>\n");
   for (const [key, value] of Object.entries(content)) {
     stream.write(key + ": ");
@@ -53,14 +65,14 @@ function sanitizeMultiline(string: string): string {
   return string.replace("\n", "\n    ");
 }
 
-function writeIntroduction(specification: Bikeshed, stream: WriteStream) {
+function writeIntroduction(specification: Bikeshed, stream: WritableObject) {
   stream.write("Introduction {#intro}\n");
   stream.write("=====================\n");
   stream.write(specification.humanDescription);
   stream.write("\n\n");
 }
 
-function writeDataModel(specification: WebSpecificationSchema, stream: WriteStream) {
+function writeDataModel(specification: WebSpecificationSchema, stream: WritableObject) {
   stream.write("Specifikace\n");
   stream.write("==========\n");
   stream.write(
@@ -72,7 +84,7 @@ function writeDataModel(specification: WebSpecificationSchema, stream: WriteStre
   specification.entities.forEach(entity => writeEntity(entity, stream));
 }
 
-function writeEntity(entity: WebSpecificationEntity, stream: WriteStream) {
+function writeEntity(entity: WebSpecificationEntity, stream: WritableObject) {
   stream.write(entity.humanLabel);
   stream.write(" {#" + entity.anchor + "}");
   stream.write("\n-------\n");
@@ -92,7 +104,7 @@ function isNotEmpty(string: string | undefined): boolean {
   return string !== undefined && string.trim().length > 0;
 }
 
-function writeProperty(property: WebSpecificationProperty, stream: WriteStream) {
+function writeProperty(property: WebSpecificationProperty, stream: WritableObject) {
   stream.write("### " + property.technicalLabel + "\n");
 
   stream.write(": Typ");
@@ -112,7 +124,7 @@ function writeProperty(property: WebSpecificationProperty, stream: WriteStream) 
 
 }
 
-function writePropertyType(type: WebSpecificationType, stream: WriteStream) {
+function writePropertyType(type: WebSpecificationType, stream: WritableObject) {
   stream.write("\n:: ");
   const link = "[" + type.label + "](" + type.link + ")";
   if (type.codelistIri !== undefined) {
