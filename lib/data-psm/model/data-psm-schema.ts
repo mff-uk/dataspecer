@@ -14,6 +14,8 @@ export interface DataPsmSchema extends CoreResource {
 
   dataPsmRoots: string[];
 
+  dataPsmParts: string[];
+
 }
 
 export const DataPsmSchemaType = "data-psm-schema";
@@ -34,5 +36,6 @@ export function asDataPsmSchema(
   const result = resource as DataPsmSchema;
   result.dataPsmHumanLabel = result.dataPsmHumanLabel || {};
   result.dataPsmRoots = result.dataPsmRoots || [];
+  result.dataPsmParts = result.dataPsmParts || [];
   return result;
 }
