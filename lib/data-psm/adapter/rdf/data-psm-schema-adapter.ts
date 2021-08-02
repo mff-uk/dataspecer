@@ -22,7 +22,8 @@ export class DataPsmSchemaAdapter implements RdfResourceAdapter {
     result.dataPsmHumanDescription =
       await source.languageString(PSM.HAS_HUMAN_DESCRIPTION);
     result.dataPsmRoots = await source.nodesExtended(PSM.HAS_ROOT)
-    return [...result.dataPsmRoots];
+    result.dataPsmParts = await source.nodesExtended(PSM.HAS_PART)
+    return [...result.dataPsmParts];
   }
 
 }

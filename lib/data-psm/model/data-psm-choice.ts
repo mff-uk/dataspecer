@@ -1,10 +1,10 @@
 import {CoreResource} from "../../core";
-import {DataPsmResource} from "./data-psm-resource";
+import {DataPsmHumanReadableResource} from "./data-psm-resource";
 
 /**
  * Represent a choice among multiple classes.
  */
-export interface DataPsmChoice extends DataPsmResource {
+export interface DataPsmChoice extends DataPsmHumanReadableResource {
 
   dataPsmParts: string[];
 

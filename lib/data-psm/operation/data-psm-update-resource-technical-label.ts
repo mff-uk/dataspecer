@@ -2,9 +2,9 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export interface DataPsmUpdateResourceTechnicalLabel extends CoreOperation {
 
-  psmResource?: string;
+  dataPsmResource?: string;
 
-  psmTechnicalLabel?: string;
+  dataPsmTechnicalLabel?: string;
 
 }
 
@@ -12,13 +12,13 @@ export const DataPsmUpdateResourceTechnicalLabelType =
   "psm-action-update-technical-label";
 
 export function isDataPsmUpdateResourceTechnicalLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmUpdateResourceTechnicalLabel {
   return resource.types.includes(DataPsmUpdateResourceTechnicalLabelType);
 }
 
 export function asDataPsmUpdateResourceTechnicalLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmUpdateResourceTechnicalLabel {
   if (isDataPsmUpdateResourceTechnicalLabel(resource)) {
     return resource as DataPsmUpdateResourceTechnicalLabel;

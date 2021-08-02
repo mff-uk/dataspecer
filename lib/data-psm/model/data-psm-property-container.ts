@@ -1,21 +1,11 @@
-import {CoreResource, LanguageString} from "../../core";
+import {CoreResource} from "../../core";
+import {DataPsmHumanReadableResource} from "./data-psm-resource";
 
 /**
  * Represent a container with properties. Human labels can be attached as
  * a documentation.
  */
-export interface DataPsmPropertyContainer extends CoreResource {
-
-  /**
-   * Label used in human readable documents as a name for this resource.
-   */
-  dataPsmHumanLabel?: LanguageString;
-
-  /**
-   * Description, longer plain text, shown in human readable documents
-   * as a description for this resource.
-   */
-  dataPsmHumanDescription?: LanguageString;
+export interface DataPsmPropertyContainer extends DataPsmHumanReadableResource {
 
   dataPsmParts: string[];
 

@@ -1,27 +1,28 @@
 import {CoreResource, CoreOperation, LanguageString} from "../../core";
 
-export interface PsmUpdateHumanLabel extends CoreOperation {
+export interface DataPsmUpdateResourceHumanDescription extends CoreOperation {
 
-  psmResource?: string;
+  dataPsmResource?: string;
 
-  psmHumanDescription?: LanguageString;
+  dataPsmHumanDescription?: LanguageString;
 
 }
 
-export const PsmUpdateHumanLabelType = "psm-action-update-human-description";
+export const DataPsmUpdateResourceHumanDescriptionType =
+  "psm-action-update-human-description";
 
-export function isPsmUpdateHumanLabel(
-  resource: CoreResource
-): resource is PsmUpdateHumanLabel {
-  return resource.types.includes(PsmUpdateHumanLabelType);
+export function isDataPsmUpdateResourceHumanDescription(
+  resource: CoreResource,
+): resource is DataPsmUpdateResourceHumanDescription {
+  return resource.types.includes(DataPsmUpdateResourceHumanDescriptionType);
 }
 
-export function asPsmUpdateHumanLabel(
-  resource: CoreResource
-): PsmUpdateHumanLabel {
-  if (isPsmUpdateHumanLabel(resource)) {
-    return resource as PsmUpdateHumanLabel;
+export function asDataPsmUpdateResourceHumanDescription(
+  resource: CoreResource,
+): DataPsmUpdateResourceHumanDescription {
+  if (isDataPsmUpdateResourceHumanDescription(resource)) {
+    return resource as DataPsmUpdateResourceHumanDescription;
   }
-  resource.types.push(PsmUpdateHumanLabelType);
-  return resource as PsmUpdateHumanLabel;
+  resource.types.push(DataPsmUpdateResourceHumanDescriptionType);
+  return resource as DataPsmUpdateResourceHumanDescription;
 }
