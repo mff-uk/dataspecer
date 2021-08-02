@@ -12,13 +12,13 @@ export interface DataPsmCreateAttribute extends DataPsmCreate {
 export const DataPsmCreateAttributeType = "psm-action-create-attribute";
 
 export function isDataPsmCreateAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmCreateAttribute {
   return resource.types.includes(DataPsmCreateAttributeType);
 }
 
 export function asDataPsmCreateAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmCreateAttribute {
   if (isDataPsmCreateAttribute(resource)) {
     return resource as DataPsmCreateAttribute;

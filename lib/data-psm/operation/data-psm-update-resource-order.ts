@@ -2,22 +2,24 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export interface DataPsmUpdateResourceOrder extends CoreOperation {
 
-  psmResource: string;
+  dataPsmOwnerClass?: string;
 
-  psmMoveAfter: string;
+  dataPsmResourceToMove?: string;
+
+  dataPsmMoveAfter?: string;
 
 }
 
 export const DataPsmUpdateResourceOrderType = "psm-action-update-order";
 
 export function isDataPsmUpdateResourceOrder(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmUpdateResourceOrder {
   return resource.types.includes(DataPsmUpdateResourceOrderType);
 }
 
 export function asDataPsmUpdateResourceOrder(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmUpdateResourceOrder {
   if (isDataPsmUpdateResourceOrder(resource)) {
     return resource as DataPsmUpdateResourceOrder;

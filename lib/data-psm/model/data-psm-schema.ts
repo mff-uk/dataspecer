@@ -1,16 +1,24 @@
-import {CoreResource, LanguageString} from "../../core";
+import {CoreResource} from "../../core";
+import {
+  DataPsmHumanReadableResource,
+} from "./data-psm-resource";
 
 /**
- * PSM schema point only to root classes. The rest of the diagram is loaded
- * by resolving the referenced entities.
+ * Originally the schema point only to root classes. The rest of the diagram
+ * has been loaded by resolving the referenced entities.
+ *
+ * This mean that each class must be either a root class or added to
+ * diagram as an association. This is not possible as in order to create
+ * an association the class must already exists. So before adding the
+ * association the class would need to be root class, and after the association
+ * is created the class would be removed from the root class list.
+ * Such approach would make it difficult to manage the schema.
+ *
+ * A solution is to introduce list of all parts. This list contains
+ * all resources in the schema. A class can then be optionally added
+ * to the list of root classes.
  */
-export interface DataPsmSchema extends CoreResource {
-
-  dataPsmHumanLabel?: LanguageString;
-
-  dataPsmHumanDescription?: LanguageString;
-
-  dataPsmTechnicalLabel?: string;
+export interface DataPsmSchema extends DataPsmHumanReadableResource {
 
   dataPsmRoots: string[];
 

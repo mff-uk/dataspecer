@@ -2,9 +2,9 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export interface DataPsmUpdateResourceInterpretation extends CoreOperation {
 
-  psmAssociationEnd?: string;
+  dataPsmResource?: string;
 
-  psmInterpretation?: string;
+  dataPsmInterpretation?: string;
 
 }
 
@@ -12,13 +12,13 @@ export const DataPsmUpdateResourceInterpretationType =
   "psm-action-update-association-end-interpretation";
 
 export function isDataPsmUpdateResourceInterpretation(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmUpdateResourceInterpretation {
   return resource.types.includes(DataPsmUpdateResourceInterpretationType);
 }
 
 export function asDataPsmUpdateResourceInterpretation(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmUpdateResourceInterpretation {
   if (isDataPsmUpdateResourceInterpretation(resource)) {
     return resource as DataPsmUpdateResourceInterpretation;

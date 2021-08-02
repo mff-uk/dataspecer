@@ -6,7 +6,7 @@ import {DataPsmResource} from "./data-psm-resource";
  * attribute or association end. This resource act as a syntactic sugar
  * and perform an include of given attribute list in place of this attribute.
  */
-export interface DataPsmInclude extends DataPsmResource {
+export interface DataPsmInclude extends CoreResource {
 
   dataPsmParts: string[];
 

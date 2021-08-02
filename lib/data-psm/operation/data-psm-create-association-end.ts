@@ -13,13 +13,13 @@ export const DataPsmCreateAssociationEndType =
   "data-psm-action-create-association-end";
 
 export function isDataPsmCreateAssociationEnd(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmCreateAssociationEnd {
   return resource.types.includes(DataPsmCreateAssociationEndType);
 }
 
-export function aDataPsmCreateAssociationEnds(
-  resource: CoreResource
+export function asDataPsmCreateAssociationEnd(
+  resource: CoreResource,
 ): DataPsmCreateAssociationEnd {
   if (isDataPsmCreateAssociationEnd(resource)) {
     return resource as DataPsmCreateAssociationEnd;

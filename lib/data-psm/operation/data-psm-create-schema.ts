@@ -18,13 +18,13 @@ export interface DataPsmCreateSchema extends CoreResource {
 export const DataPsmCreateSchemaType = "psm-action-create-schema";
 
 export function isDataPsmCreateSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmCreateSchema {
   return resource.types.includes(DataPsmCreateSchemaType);
 }
 
 export function asDataPsmCreateSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmCreateSchema {
   if (isDataPsmCreateSchema(resource)) {
     return resource as DataPsmCreateSchema;

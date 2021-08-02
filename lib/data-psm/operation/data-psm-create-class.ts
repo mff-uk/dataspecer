@@ -10,13 +10,13 @@ export interface DataPsmCreateClass extends DataPsmCreate {
 export const DataPsmCreateClassType = "psm-action-create-class";
 
 export function isDataPsmCreateClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmCreateClass {
   return resource.types.includes(DataPsmCreateClassType);
 }
 
 export function asDataPsmCreateClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmCreateClass {
   if (isDataPsmCreateClass(resource)) {
     return resource as DataPsmCreateClass;
