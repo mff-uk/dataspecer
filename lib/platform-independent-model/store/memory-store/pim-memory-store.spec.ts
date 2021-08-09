@@ -86,3 +86,37 @@ test("Create PIM schema with class and attribute.", async () => {
   });
 
 });
+
+test("Create and delete PIM class", async () => {
+  const store = new PredictableStore();
+
+  const pimSchema = Operations.asPimCreateSchema(createCoreResource());
+  pimSchema.pimBaseIri = "http://localhost";
+  const pimSchemaChange = await store.applyOperation(pimSchema);
+  expect(pimSchemaChange.operation.iri).toBeDefined();
+  expect(pimSchemaChange.changed).toEqual([
+    "http://localhost/schema/1",
+  ]);
+  expect(pimSchemaChange.deleted).toEqual([]);
+
+  const pimCreate = Operations.asPimCreateClass(createCoreResource());
+  const pimCreateChange = await store.applyOperation(pimCreate);
+  expect(pimCreateChange.operation.iri).toBeDefined();
+  expect(pimCreateChange.changed.sort()).toEqual([
+    "http://localhost/schema/1",
+    "http://localhost/class/3",
+  ].sort());
+  expect(pimSchemaChange.deleted).toEqual([]);
+
+  const pimDelete = Operations.asPimDeleteClass(createCoreResource());
+  pimDelete.pimClass = "http://localhost/class/3";
+  const pimDeleteChange = await store.applyOperation(pimDelete);
+  expect(pimDeleteChange.operation.iri).toBeDefined();
+  expect(pimDeleteChange.changed).toEqual(["http://localhost/schema/1"]);
+  expect(pimDeleteChange.deleted).toEqual(["http://localhost/class/3"]);
+
+  expect((await store.listResources()).sort()).toEqual([
+    "http://localhost/schema/1",
+  ].sort());
+
+});

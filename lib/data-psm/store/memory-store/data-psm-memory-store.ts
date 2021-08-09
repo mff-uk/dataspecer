@@ -44,8 +44,12 @@ export class DataPsmMemoryStore implements CoreModelReader, CoreModelWriter {
     if (operationResult.failed) {
       throw new Error("Operation failed: " + operationResult.message);
     }
+
     const resultOperation = this.addOperation(operation);
     this.resources = {...this.resources, ...operationResult.changedResources};
+    operationResult.deletedResource
+      .forEach((iri) => delete this.resources[iri]);
+
     return {
       "operation": resultOperation,
       "changed": Object.keys(operationResult.changedResources),
