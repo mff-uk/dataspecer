@@ -12,7 +12,7 @@ class PredictableStore extends PimMemoryStore {
 
 }
 
-test("Create schema with class and attribute.", async () => {
+test("Create PIM schema with class and attribute.", async () => {
   const store = new PredictableStore();
 
   const pimSchema = Operations.asPimCreateSchema(createEmptyCoreResource());
@@ -39,7 +39,7 @@ test("Create schema with class and attribute.", async () => {
     createEmptyCoreResource());
   pimAttribute.pimDatatype = "xsd:string";
   pimAttribute.pimInterpretation = "http://localhost/cim/TheProperty";
-  pimAttribute.pimOwnerClass = pimClassChange.changed[0];
+  pimAttribute.pimOwnerClass = "http://localhost/class/3";
   const pimAttributeChange = await store.applyOperation(pimAttribute);
   expect(pimAttributeChange.operation.iri).toBeDefined();
   expect(pimAttributeChange.changed.sort()).toEqual([
