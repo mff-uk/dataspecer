@@ -20,7 +20,7 @@ export async function executesDataPsmCreateAttribute(
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
   if (owner === undefined) {
     return createErrorOperationResult(
-      "Missing owner class.");
+      "Missing owner class: '" + operation.dataPsmOwner + "'.");
   }
 
   // TODO Check that target exists.

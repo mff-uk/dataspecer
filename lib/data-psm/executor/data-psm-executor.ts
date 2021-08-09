@@ -46,7 +46,7 @@ import {
   executeDataPsmUpdateSchemaRoots,
 } from "./data-psm-update-schema-roots-executor";
 
-export async function executePimOperation(
+export async function executeDataPsmOperation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
   operation: CoreOperation,

@@ -19,7 +19,7 @@ export async function executesDataPsmCreateClass(
 
   // TODO Check that all extends exists.
 
-  const iri = operation.dataPsmNewIri || createNewIdentifier("association");
+  const iri = operation.dataPsmNewIri || createNewIdentifier("class");
   const result = asDataPsmClass(createEmptyCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;

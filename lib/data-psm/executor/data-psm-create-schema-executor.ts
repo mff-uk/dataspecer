@@ -10,7 +10,7 @@ export async function executesDataPsmCreateSchema(
   modelReader: CoreModelReader,
   operation: DataPsmCreateSchema,
 ): Promise<OperationResult> {
-  const iri = operation.dataPsmNewIri || createNewIdentifier("association");
+  const iri = operation.dataPsmNewIri || createNewIdentifier("schema");
   const result = asDataPsmSchema(createEmptyCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
