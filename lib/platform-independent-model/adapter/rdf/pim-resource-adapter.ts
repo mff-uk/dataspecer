@@ -15,5 +15,3 @@ export async function loadPimResource(
     await source.languageString(PIM.HAS_HUMAN_DESCRIPTION);
   return [pimResource.pimInterpretation];
 }
-
-

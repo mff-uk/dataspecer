@@ -1,7 +1,7 @@
 import {PimCreateClass} from "../operation";
 import {asPimClass} from "../model";
 import {
-  createEmptyCoreResource,
+  createCoreResource,
   createErrorOperationResult,
   createSuccessOperationResult,
   OperationResult,
@@ -17,7 +17,7 @@ export async function executePimCreateClass(
 ): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("class");
 
-  const result = asPimClass(createEmptyCoreResource(iri));
+  const result = asPimClass(createCoreResource(iri));
   result.pimInterpretation = operation.pimInterpretation;
   result.pimTechnicalLabel = operation.pimTechnicalLabel;
   result.pimHumanLabel = operation.pimHumanLabel;

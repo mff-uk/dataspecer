@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimDeleteAttribute} from "../operation";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./pim-delete-attribute-executor";
 
 test("Delete attribute.", async () => {
-  const operation = asPimDeleteAttribute(createEmptyCoreResource());
+  const operation = asPimDeleteAttribute(createCoreResource());
   operation.pimAttribute = "http://localhost/1";
 
   const before = {

@@ -1,5 +1,5 @@
 import * as jsonld from "jsonld";
-import {RdfQuad} from "../../../core/adapter/rdf/rdf-adapter-api";
+import {RdfQuad} from "../../../core/adapter/rdf";
 
 export async function parseRdfQuadsWithJsonLd(content: string): Promise<RdfQuad[]> {
   const contentAsJson = JSON.parse(content) as jsonld.JsonLdDocument;

@@ -1,13 +1,13 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimCreateClass} from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
 
 test("Create class.", async () => {
-  const operation = asPimCreateClass(createEmptyCoreResource());
+  const operation = asPimCreateClass(createCoreResource());
   operation.pimInterpretation = "class-type";
   operation.pimTechnicalLabel = "my-class";
   operation.pimHumanLabel = {"en": "Label"};
@@ -64,4 +64,3 @@ function wrapResourcesWithReader(
 
   };
 }
-

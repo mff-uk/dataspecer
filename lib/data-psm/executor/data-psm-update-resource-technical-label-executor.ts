@@ -3,9 +3,7 @@ import {
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
 import {DataPsmUpdateResourceTechnicalLabel} from "../operation";
-import {
-  loadDataPsmResource,
-} from "./data-psm-executor-utils";
+import {loadDataPsmTechnicalResource} from "./data-psm-executor-utils";
 
 export async function executeDataPsmUpdateResourceTechnicalLabel(
   createNewIdentifier: CreateNewIdentifier,
@@ -13,7 +11,7 @@ export async function executeDataPsmUpdateResourceTechnicalLabel(
   operation: DataPsmUpdateResourceTechnicalLabel,
 ): Promise<OperationResult> {
   const result =
-    await loadDataPsmResource(modelReader, operation.dataPsmResource);
+    await loadDataPsmTechnicalResource(modelReader, operation.dataPsmResource);
   if (result === undefined) {
     return createErrorOperationResult(
       "Missing schema object.");

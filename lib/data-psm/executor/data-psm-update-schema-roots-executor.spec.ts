@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {
   asDataPsmUpdateSchemaRoots,
 } from "../operation";
@@ -9,7 +9,7 @@ import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Set data PSM class as a schema root.", async () => {
   const operation =
-    asDataPsmUpdateSchemaRoots(createEmptyCoreResource());
+    asDataPsmUpdateSchemaRoots(createCoreResource());
   operation.dataPsmRoots = ["http://class"];
 
   const before = {

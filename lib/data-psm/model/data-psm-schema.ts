@@ -1,7 +1,5 @@
 import {CoreResource} from "../../core";
-import {
-  DataPsmHumanReadableResource,
-} from "./data-psm-resource";
+import {DataPsmTechnicalResource} from "./data-psm-resource";
 
 /**
  * Originally the schema point only to root classes. The rest of the diagram
@@ -18,7 +16,7 @@ import {
  * all resources in the schema. A class can then be optionally added
  * to the list of root classes.
  */
-export interface DataPsmSchema extends DataPsmHumanReadableResource {
+export interface DataPsmSchema extends DataPsmTechnicalResource {
 
   dataPsmRoots: string[];
 

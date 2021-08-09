@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {
   asDataPsmUpdateResourceOrder,
 } from "../operation";
@@ -9,7 +9,7 @@ import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Change order in data PSM class.", async () => {
   const operation =
-    asDataPsmUpdateResourceOrder(createEmptyCoreResource());
+    asDataPsmUpdateResourceOrder(createCoreResource());
   operation.dataPsmOwnerClass = "http://class";
   operation.dataPsmResourceToMove = "http://attribute/1";
   operation.dataPsmMoveAfter = "http://attribute/2";

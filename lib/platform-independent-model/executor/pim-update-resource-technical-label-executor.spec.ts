@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimUpdateResourceTechnicalLabel} from "../operation";
 import {
@@ -10,7 +10,7 @@ import {
 
 test("Update resource technical label.", async () => {
   const operation = asPimUpdateResourceTechnicalLabel(
-    createEmptyCoreResource());
+    createCoreResource());
   operation.pimResource = "http://localhost/1";
   operation.pimTechnicalLabel = "NewLabel";
 

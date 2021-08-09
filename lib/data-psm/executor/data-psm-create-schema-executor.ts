@@ -1,5 +1,5 @@
 import {
-  CoreModelReader, createEmptyCoreResource,
+  CoreModelReader, createCoreResource,
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
 import {DataPsmCreateSchema} from "../operation";
@@ -11,7 +11,7 @@ export async function executesDataPsmCreateSchema(
   operation: DataPsmCreateSchema,
 ): Promise<OperationResult> {
   const iri = operation.dataPsmNewIri || createNewIdentifier("schema");
-  const result = asDataPsmSchema(createEmptyCoreResource(iri));
+  const result = asDataPsmSchema(createCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmParts = [];

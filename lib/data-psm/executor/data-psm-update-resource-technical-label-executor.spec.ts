@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {
   asDataPsmUpdateResourceTechnicalLabel,
 } from "../operation";
@@ -9,7 +9,7 @@ import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Update data PSM resource technical label.", async () => {
   const operation =
-    asDataPsmUpdateResourceTechnicalLabel(createEmptyCoreResource());
+    asDataPsmUpdateResourceTechnicalLabel(createCoreResource());
   operation.dataPsmResource = "http://class";
   operation.dataPsmTechnicalLabel = "technical";
 

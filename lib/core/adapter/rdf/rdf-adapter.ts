@@ -1,5 +1,5 @@
 import {RdfResourceAdapter, RdfSource} from "./rdf-adapter-api";
-import {CoreResource} from "../../core-resource";
+import {CoreResource, createCoreResource} from "../../core-resource";
 import {RdfSourceWrap} from "./rdf-source-wrap";
 
 export class RdfAdapter {
@@ -10,6 +10,10 @@ export class RdfAdapter {
     this.adapters = adapters;
   }
 
+  /**
+   * Load given resource and it's subtree. The subtree is collected by
+   * following the objects in statements.
+   */
   async loadNodeTree(
     source: RdfSource, iri: string,
   ): Promise<{ [iri: string]: CoreResource }> {
@@ -21,7 +25,7 @@ export class RdfAdapter {
       if (hasBeenLoaded) {
         continue;
       }
-      const resource = new CoreResource(next);
+      const resource = createCoreResource(next);
       result[resource.iri] = resource;
       const resourceSource = RdfSourceWrap.forIri(next, source);
       const newToLoad = await this.loadNode(resourceSource, resource);

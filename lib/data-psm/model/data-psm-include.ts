@@ -1,5 +1,4 @@
 import {CoreResource} from "../../core";
-import {DataPsmResource} from "./data-psm-resource";
 
 /**
  * This resource can be used as a part of a class, instead of  a particular

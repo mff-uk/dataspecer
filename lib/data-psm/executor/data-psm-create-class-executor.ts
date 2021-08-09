@@ -1,5 +1,5 @@
 import {
-  CoreModelReader, createEmptyCoreResource, createErrorOperationResult,
+  CoreModelReader, createCoreResource, createErrorOperationResult,
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
 import {DataPsmCreateClass} from "../operation";
@@ -20,7 +20,7 @@ export async function executesDataPsmCreateClass(
   // TODO Check that all extends exists.
 
   const iri = operation.dataPsmNewIri || createNewIdentifier("class");
-  const result = asDataPsmClass(createEmptyCoreResource(iri));
+  const result = asDataPsmClass(createCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;

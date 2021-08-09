@@ -1,5 +1,5 @@
 import {HttpFetch} from "../../fetch/fetch-api";
-import {RdfQuad} from "../../../core/adapter/rdf/rdf-adapter-api";
+import {RdfQuad} from "../../../core/adapter/rdf";
 import {parseRdfQuadsWithJsonLd} from "../jsonld/jsonld-adapter";
 import {parseRdfQuadsWithN3} from "../n3/n3-adapter";
 

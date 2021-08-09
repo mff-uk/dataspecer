@@ -1,7 +1,6 @@
 import {HttpFetch} from "../../fetch/fetch-api";
 import {parseRdfQuadsWithN3} from "../n3/n3-adapter";
 import {RdfQuad} from "../rdf-api";
-import {httpFetch} from "../../fetch/fetch-nodejs";
 
 export async function fetchRdfQuadsBySparqlConstruct(
   httpFetch: HttpFetch, endpoint: string, query: string,

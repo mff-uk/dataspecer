@@ -1,5 +1,5 @@
 import {
-  CoreModelReader, createEmptyCoreResource, createErrorOperationResult,
+  CoreModelReader, createCoreResource, createErrorOperationResult,
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
 import {
@@ -26,7 +26,7 @@ export async function executesDataPsmCreateAssociationEnd(
   }
 
   const iri = operation.dataPsmNewIri || createNewIdentifier("association");
-  const result = asDataPsmAssociationEnd(createEmptyCoreResource(iri));
+  const result = asDataPsmAssociationEnd(createCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;

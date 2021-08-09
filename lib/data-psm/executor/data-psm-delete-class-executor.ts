@@ -1,12 +1,10 @@
 import {
-  CoreModelReader, createEmptyCoreResource, createErrorOperationResult,
+  CoreModelReader, createErrorOperationResult,
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
-import {
-  DataPsmCreateAssociationEnd, DataPsmDeleteClass,
-} from "../operation";
+import {DataPsmDeleteClass} from "../operation";
 import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
-import {asDataPsmAssociationEnd} from "../model";
+
 
 export async function executesDataPsmDeleteClass(
   createNewIdentifier: CreateNewIdentifier,

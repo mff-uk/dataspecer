@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmUpdateResourceHumanDescription} from "../operation";
 import {
   executeDataPsmUpdateResourceHumanDescription,
@@ -7,7 +7,7 @@ import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Update data PSM resource human description.", async () => {
   const operation=
-    asDataPsmUpdateResourceHumanDescription(createEmptyCoreResource());
+    asDataPsmUpdateResourceHumanDescription(createCoreResource());
   operation.dataPsmResource = "http://class";
   operation.dataPsmHumanDescription = {"cs": "popis"};
 

@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimUpdateResourceHumanDescription} from "../operation";
 import {
@@ -10,7 +10,7 @@ import {
 
 test("Update resource human description.", async () => {
   const operation = asPimUpdateResourceHumanDescription(
-    createEmptyCoreResource());
+    createCoreResource());
   operation.pimResource = "http://localhost/1";
   operation.pimHumanDescription = {"cs": "Popis"};
 

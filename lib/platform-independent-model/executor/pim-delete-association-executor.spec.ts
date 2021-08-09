@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimDeleteAssociation} from "../operation";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./pim-delete-association-executor";
 
 test("Delete association.", async () => {
-  const operation = asPimDeleteAssociation(createEmptyCoreResource());
+  const operation = asPimDeleteAssociation(createCoreResource());
   operation.pimAssociation = "http://localhost/3";
 
   const before = {
@@ -78,4 +78,3 @@ function wrapResourcesWithReader(
 
   };
 }
-

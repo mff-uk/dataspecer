@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmUpdateResourceHumanLabel} from "../operation";
 import {
   executeDataPsmUpdateResourceHumanLabel,
@@ -7,7 +7,7 @@ import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Update data PSM resource human label.", async () => {
   const operation =
-    asDataPsmUpdateResourceHumanLabel(createEmptyCoreResource());
+    asDataPsmUpdateResourceHumanLabel(createCoreResource());
   operation.dataPsmResource = "http://class";
   operation.dataPsmHumanLabel = {"en": "label"};
 

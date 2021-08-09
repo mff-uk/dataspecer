@@ -5,7 +5,7 @@ import {
   createSuccessOperationResult,
   CoreModelReader,
   CreateNewIdentifier,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {PimCreateAssociation} from "../operation";
 import {asPimAssociation, asPimAssociationEnd, isPimClass} from "../model";
@@ -16,7 +16,7 @@ export async function executesPimCreateAssociation(
   modelReader: CoreModelReader,
   operation: PimCreateAssociation,
 ): Promise<OperationResult> {
-  const left = asPimAssociationEnd(createEmptyCoreResource());
+  const left = asPimAssociationEnd(createCoreResource());
   left.iri = createNewIdentifier("association-end");
   left.pimPart = operation.pimAssociationEnds[0];
   const leftResult = await verityAssociationEnd(modelReader, left.pimPart);
@@ -24,7 +24,7 @@ export async function executesPimCreateAssociation(
     return leftResult;
   }
 
-  const right = asPimAssociationEnd(createEmptyCoreResource());
+  const right = asPimAssociationEnd(createCoreResource());
   right.iri = createNewIdentifier("association-end");
   right.pimPart = operation.pimAssociationEnds[1];
   const rightResult = await verityAssociationEnd(modelReader, right.pimPart);
@@ -33,7 +33,7 @@ export async function executesPimCreateAssociation(
   }
 
   const iri = operation.pimNewIri || createNewIdentifier("association");
-  const result = asPimAssociation(createEmptyCoreResource(iri));
+  const result = asPimAssociation(createCoreResource(iri));
   result.pimInterpretation = operation.pimInterpretation;
   result.pimTechnicalLabel = operation.pimTechnicalLabel;
   result.pimHumanLabel = operation.pimHumanLabel;

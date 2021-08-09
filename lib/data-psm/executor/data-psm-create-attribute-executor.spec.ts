@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmCreateAttribute} from "../operation";
 import {
   executesDataPsmCreateAttribute,
@@ -6,7 +6,7 @@ import {
 import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Create data PSM attribute.", async () => {
-  const operation = asDataPsmCreateAttribute(createEmptyCoreResource());
+  const operation = asDataPsmCreateAttribute(createCoreResource());
   operation.dataPsmInterpretation = "attribute";
   operation.dataPsmTechnicalLabel = "name";
   operation.dataPsmHumanLabel = {"en": "Label"};

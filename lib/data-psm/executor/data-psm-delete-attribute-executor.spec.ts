@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmDeleteAttribute} from "../operation";
 import {
   executesDataPsmDeleteAttribute,
@@ -6,7 +6,7 @@ import {
 import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Delete data PSM attribute.", async () => {
-  const operation = asDataPsmDeleteAttribute(createEmptyCoreResource());
+  const operation = asDataPsmDeleteAttribute(createCoreResource());
   operation.dataPsmOwner = "http://class";
   operation.dataPsmAttribute = "http://attribute";
 

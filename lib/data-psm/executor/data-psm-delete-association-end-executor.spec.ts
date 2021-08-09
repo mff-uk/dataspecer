@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmDeleteAssociationEnd} from "../operation";
 import {
   executesDataPsmDeleteAssociationEnd,
@@ -6,7 +6,7 @@ import {
 import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Delete data PSM association-end.", async () => {
-  const operation = asDataPsmDeleteAssociationEnd(createEmptyCoreResource());
+  const operation = asDataPsmDeleteAssociationEnd(createCoreResource());
   operation.dataPsmOwner = "http://class";
   operation.dataPsmAssociationEnd = "http://association-end";
 

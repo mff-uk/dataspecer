@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../../core";
+import {createCoreResource} from "../../../core";
 import {PimMemoryStore} from "./pim-memory-store";
 import * as Operations from "../../operation";
 
@@ -15,7 +15,7 @@ class PredictableStore extends PimMemoryStore {
 test("Create PIM schema with class and attribute.", async () => {
   const store = new PredictableStore();
 
-  const pimSchema = Operations.asPimCreateSchema(createEmptyCoreResource());
+  const pimSchema = Operations.asPimCreateSchema(createCoreResource());
   pimSchema.pimBaseIri = "http://localhost";
   pimSchema.pimHumanLabel = {"en": "Test schema."};
   const pimSchemaChange = await store.applyOperation(pimSchema);
@@ -25,7 +25,7 @@ test("Create PIM schema with class and attribute.", async () => {
   ]);
   expect(pimSchemaChange.deleted).toEqual([]);
 
-  const pimClass = Operations.asPimCreateClass(createEmptyCoreResource());
+  const pimClass = Operations.asPimCreateClass(createCoreResource());
   pimClass.pimInterpretation = "http://localhost/cim/TheClass";
   const pimClassChange = await store.applyOperation(pimClass);
   expect(pimClassChange.operation.iri).toBeDefined();
@@ -36,7 +36,7 @@ test("Create PIM schema with class and attribute.", async () => {
   expect(pimSchemaChange.deleted).toEqual([]);
 
   const pimAttribute = Operations.asPimCreateAttribute(
-    createEmptyCoreResource());
+    createCoreResource());
   pimAttribute.pimDatatype = "xsd:string";
   pimAttribute.pimInterpretation = "http://localhost/cim/TheProperty";
   pimAttribute.pimOwnerClass = "http://localhost/class/3";

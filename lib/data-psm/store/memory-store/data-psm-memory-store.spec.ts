@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../../core";
+import {createCoreResource} from "../../../core";
 import {DataPsmMemoryStore} from "./data-psm-memory-store";
 import * as Operations from "../../operation";
 
@@ -16,7 +16,7 @@ test("Create data PSM schema with class and attribute.", async () => {
   const store = new PredictableStore();
 
   const dataPsmSchema =
-    Operations.asDataPsmCreateSchema(createEmptyCoreResource());
+    Operations.asDataPsmCreateSchema(createCoreResource());
   dataPsmSchema.dataPsmBaseIri = "http://localhost";
   dataPsmSchema.dataPsmHumanLabel = {"en": "Test schema."};
   const dataPsmSchemaChange = await store.applyOperation(dataPsmSchema);
@@ -27,7 +27,7 @@ test("Create data PSM schema with class and attribute.", async () => {
   expect(dataPsmSchemaChange.deleted).toEqual([]);
 
   const dataPsmClass =
-    Operations.asDataPsmCreateClass(createEmptyCoreResource());
+    Operations.asDataPsmCreateClass(createCoreResource());
   dataPsmClass.dataPsmInterpretation = "http://localhost/cim/TheClass";
   const dataPsmClassChange = await store.applyOperation(dataPsmClass);
   expect(dataPsmClassChange.operation.iri).toBeDefined();
@@ -38,7 +38,7 @@ test("Create data PSM schema with class and attribute.", async () => {
   expect(dataPsmSchemaChange.deleted).toEqual([]);
 
   const dataPsmAttribute =
-    Operations.asDataPsmCreateAttribute(createEmptyCoreResource());
+    Operations.asDataPsmCreateAttribute(createCoreResource());
   dataPsmAttribute.dataPsmDatatype = "xsd:string";
   dataPsmAttribute.dataPsmInterpretation = "http://localhost/cim/TheProperty";
   dataPsmAttribute.dataPsmOwner = "http://localhost/class/3";

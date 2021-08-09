@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../core";
+import {createCoreResource} from "../../core";
 import {asDataPsmCreateAssociationEnd} from "../operation";
 import {
   executesDataPsmCreateAssociationEnd,
@@ -6,7 +6,7 @@ import {
 import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
 
 test("Create data PSM association-end.", async () => {
-  const operation = asDataPsmCreateAssociationEnd(createEmptyCoreResource());
+  const operation = asDataPsmCreateAssociationEnd(createCoreResource());
   operation.dataPsmInterpretation = "attribute";
   operation.dataPsmTechnicalLabel = "name";
   operation.dataPsmHumanLabel = {"en": "Label"};

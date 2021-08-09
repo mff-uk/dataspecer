@@ -15,17 +15,21 @@ export interface DataPsmHumanReadableResource extends CoreResource {
 
 }
 
-export interface DataPsmResource extends DataPsmHumanReadableResource {
-
-  /**
-   * Points to PIM level.
-   */
-  dataPsmInterpretation?: string;
+export interface DataPsmTechnicalResource extends DataPsmHumanReadableResource {
 
   /**
    * Label used by file formats, may represent a name of a property
    * in JSON or tag name in XML.
    */
   dataPsmTechnicalLabel?: string;
+
+}
+
+export interface DataPsmResource extends DataPsmTechnicalResource {
+
+  /**
+   * Points to PIM level.
+   */
+  dataPsmInterpretation?: string;
 
 }

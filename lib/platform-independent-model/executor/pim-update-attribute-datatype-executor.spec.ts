@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimUpdateAttributeDatatype} from "../operation";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./pim-update-attribute-datatype-executor";
 
 test("Update attribute datatype.", async () => {
-  const operation = asPimUpdateAttributeDatatype(createEmptyCoreResource());
+  const operation = asPimUpdateAttributeDatatype(createCoreResource());
   operation.pimAttribute = "http://localhost/1";
   operation.pimDatatype = "xsd:integer";
 

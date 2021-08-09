@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimDeleteClass} from "../operation";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./pim-delete-class-executor";
 
 test("Delete class.", async () => {
-  const operation = asPimDeleteClass(createEmptyCoreResource());
+  const operation = asPimDeleteClass(createCoreResource());
   operation.pimClass = "http://localhost/1";
 
   const before = {

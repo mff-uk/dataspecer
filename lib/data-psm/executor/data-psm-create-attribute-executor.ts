@@ -1,5 +1,5 @@
 import {
-  CoreModelReader, createEmptyCoreResource, createErrorOperationResult,
+  CoreModelReader, createCoreResource, createErrorOperationResult,
   CreateNewIdentifier, createSuccessOperationResult, OperationResult,
 } from "../../core";
 import {DataPsmCreateAttribute} from "../operation";
@@ -26,7 +26,7 @@ export async function executesDataPsmCreateAttribute(
   // TODO Check that target exists.
 
   const iri = operation.dataPsmNewIri || createNewIdentifier("attribute");
-  const result = asDataPsmAttribute(createEmptyCoreResource(iri));
+  const result = asDataPsmAttribute(createCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;

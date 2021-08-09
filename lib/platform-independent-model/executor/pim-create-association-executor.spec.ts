@@ -1,13 +1,13 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimCreateAssociation} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
 
 test("Create association.", async () => {
-  const operation = asPimCreateAssociation(createEmptyCoreResource());
+  const operation = asPimCreateAssociation(createCoreResource());
   operation.pimInterpretation = "attribute";
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
@@ -86,4 +86,3 @@ function wrapResourcesWithReader(
 
   };
 }
-

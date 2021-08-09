@@ -47,4 +47,3 @@ export async function executePimDeleteAssociation(
   return createSuccessOperationResult(
     [schema], iriToRemove);
 }
-

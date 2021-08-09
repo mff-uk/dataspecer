@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource,
+  createCoreResource,
 } from "../../core";
 import {asPimUpdateResourceHumanLabel} from "../operation";
 import {
@@ -10,7 +10,7 @@ import {
 
 test("Update resource human label.", async () => {
   const operation = asPimUpdateResourceHumanLabel(
-    createEmptyCoreResource());
+    createCoreResource());
   operation.pimResource = "http://localhost/1";
   operation.pimHumanLabel = {"cs": "Popis"};
 

@@ -1,7 +1,7 @@
 import {PimCreateAttribute} from "../operation";
 import {asPimAttribute} from "../model";
 import {
-  createEmptyCoreResource,
+  createCoreResource,
   createErrorOperationResult,
   createSuccessOperationResult,
   OperationResult,
@@ -17,7 +17,7 @@ export async function executePimCreateAttribute(
 ): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("attribute");
 
-  const result = asPimAttribute(createEmptyCoreResource(iri));
+  const result = asPimAttribute(createCoreResource(iri));
   result.pimInterpretation = operation.pimInterpretation;
   result.pimTechnicalLabel = operation.pimTechnicalLabel;
   result.pimHumanLabel = operation.pimHumanLabel;

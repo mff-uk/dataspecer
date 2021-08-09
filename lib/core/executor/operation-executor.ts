@@ -1,6 +1,4 @@
 import {CoreResource} from "../core-resource";
-import {CoreModelReader} from "../api";
-import {CoreOperation} from "../operation";
 
 export interface OperationResult {
 

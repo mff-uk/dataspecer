@@ -13,7 +13,7 @@ import {
   isDataPsmClass,
   isDataPsmInclude,
   isDataPsmPropertyContainer,
-  DataPsmHumanReadableResource, DataPsmClass,
+  DataPsmHumanReadableResource, DataPsmClass, DataPsmTechnicalResource,
 } from "../model";
 
 export async function loadDataPsmSchema(
@@ -48,6 +48,29 @@ function isDataPsmResource(
   return isDataPsmAssociationEnd(resource)
     || isDataPsmAttribute(resource)
     || isDataPsmClass(resource);
+}
+
+export async function loadDataPsmTechnicalResource(
+  modelReader: CoreModelReader,
+  iri: string,
+): Promise<DataPsmTechnicalResource | undefined> {
+  const result = await modelReader.readResource(iri);
+  if (isDataPsmTechnicalResource(result)) {
+    return {...result};
+  }
+  return undefined;
+}
+
+function isDataPsmTechnicalResource(
+  resource: CoreResource | undefined,
+): resource is DataPsmTechnicalResource {
+  if (resource === undefined) {
+    return false;
+  }
+  return isDataPsmAssociationEnd(resource)
+    || isDataPsmAttribute(resource)
+    || isDataPsmClass(resource)
+    || isDataPsmSchema(resource);
 }
 
 export async function loadDataPsmHumanReadable(
