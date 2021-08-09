@@ -2,6 +2,7 @@
 
 # Design Choices
 This section highlights important design choices and the reasoning behind them. 
+There is also page with [choices not to implement something](../../wiki/Comments-and-Ideas).
 
 ## Operations and inconsistent state
 Especially on platform specific level (PSM) level some operations may lead to state which is inconsistent with platform independent level (PIM).  
