@@ -3,7 +3,7 @@ import {PimResource} from "../../model";
 import * as PIM from "./pim-vocabulary";
 
 export async function loadPimResource(
-  source: RdfSourceWrap, pimResource: PimResource
+  source: RdfSourceWrap, pimResource: PimResource,
 ): Promise<string[]> {
   pimResource.pimInterpretation =
     (await source.node(PIM.HAS_INTERPRETATION))?.id;

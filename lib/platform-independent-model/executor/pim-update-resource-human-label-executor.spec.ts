@@ -29,7 +29,7 @@ test("Update resource human label.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimHumanLabel": {"en": "Label"},
-    }
+    },
   };
 
   const actual = await executePimUpdateResourceHumanLabel(
@@ -41,7 +41,7 @@ test("Update resource human label.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimHumanLabel": {"cs": "Popis"},
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();
@@ -49,7 +49,7 @@ test("Update resource human label.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

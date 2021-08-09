@@ -32,7 +32,7 @@ export type OperationMessage = string;
 export type CreateNewIdentifier = (resourceType: string) => string;
 
 export function createErrorOperationResult(
-  message: OperationMessage
+  message: OperationMessage,
 ): OperationResult {
   return {
     "changedResources": {},
@@ -52,7 +52,7 @@ export function createEmptySuccessOperationResult(): OperationResult {
 }
 
 export function createSuccessOperationResult(
-  changed: CoreResource[], deleted: string[] = []
+  changed: CoreResource[], deleted: string[] = [],
 ): OperationResult {
   const resourceMap = {};
   changed.forEach(resource => resourceMap[resource.iri] = resource);

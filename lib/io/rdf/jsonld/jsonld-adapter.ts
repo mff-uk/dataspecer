@@ -9,7 +9,7 @@ export async function parseRdfQuadsWithJsonLd(content: string): Promise<RdfQuad[
       const loader = jsonld.documentLoaders.node();
       // Encode the URL to allow for national characters.
       return await loader(encodeURI(url));
-    }
+    },
   };
   // The dataset model match with the RdfQuad array.
   return (await jsonld.toRDF(contentAsJson, options)) as RdfQuad[];

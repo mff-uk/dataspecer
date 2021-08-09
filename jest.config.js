@@ -15,6 +15,6 @@ module.exports = {
     "./lib/object-model",
     "./lib/respec",
     "./lib/slovník.gov.cz",
-    "./lib/web-specification"
-  ]
+    "./lib/web-specification",
+  ],
 };

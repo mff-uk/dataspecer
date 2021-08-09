@@ -18,13 +18,13 @@ export interface PimCreateSchema extends CoreOperation {
 export const PimCreateSchemaType = "pim-action-create-schema";
 
 export function isPimCreateSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimCreateSchema {
   return resource.types.includes(PimCreateSchemaType);
 }
 
 export function asPimCreateSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimCreateSchema {
   if (isPimCreateSchema(resource)) {
     return resource as PimCreateSchema;

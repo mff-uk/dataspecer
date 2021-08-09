@@ -17,7 +17,7 @@ export abstract class RdfMemorySource implements RdfSource {
   }
 
   async reverseProperty(
-    predicate: string, iri: string
+    predicate: string, iri: string,
   ): Promise<RdfObject[]> {
     const result = [];
     this.quads

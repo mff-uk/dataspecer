@@ -3,7 +3,7 @@ import {
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult
+  OperationResult,
 } from "../../core";
 import {
   isPimAttribute,
@@ -14,23 +14,23 @@ import {PimDeleteAttribute} from "../operation";
 export async function executePimDeleteAttribute(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: PimDeleteAttribute
+  operation: PimDeleteAttribute,
 ): Promise<OperationResult> {
   const attributeResource =
     await modelReader.readResource(operation.pimAttribute);
   if (attributeResource === undefined) {
     return createErrorOperationResult(
-      "Missing attribute object.")
+      "Missing attribute object.");
   }
   if (!isPimAttribute(attributeResource)) {
     return createErrorOperationResult(
-      "Object to delete is not an attribute.")
+      "Object to delete is not an attribute.");
   }
 
   const schema = await loadPimSchema(modelReader);
   if (schema === undefined) {
     return createErrorOperationResult(
-      "Missing schema object.")
+      "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(
     iri => iri !== operation.pimAttribute);

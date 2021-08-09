@@ -7,7 +7,7 @@ import * as PIM from "./pim-vocabulary";
 export class PimAttributeAdapter implements RdfResourceAdapter {
 
   async loadResource(
-    source: RdfSourceWrap, resource: CoreResource
+    source: RdfSourceWrap, resource: CoreResource,
   ): Promise<string[]> {
     const types = await source.types();
     if (!types.includes(PIM.ATTRIBUTE)) {

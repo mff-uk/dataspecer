@@ -4,11 +4,11 @@ import {
 } from "../../core";
 import {
   asPimSchema, isPimAssociation, isPimAttribute, isPimClass, isPimSchema,
-  PimResource, PimSchema
+  PimResource, PimSchema,
 } from "../model";
 
 export async function loadPimSchema(
-  modelReader: CoreModelReader
+  modelReader: CoreModelReader,
 ): Promise<PimSchema | undefined> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
@@ -21,7 +21,7 @@ export async function loadPimSchema(
 
 export async function loadPimResource(
   modelReader: CoreModelReader,
-  iri: string
+  iri: string,
 ): Promise<PimResource | undefined> {
   const result = await modelReader.readResource(iri);
   if (isPimResource(result)) {
@@ -31,7 +31,7 @@ export async function loadPimResource(
 }
 
 function isPimResource(
-  resource: CoreResource | undefined
+  resource: CoreResource | undefined,
 ): resource is PimResource {
   if (resource === undefined) {
     return false;

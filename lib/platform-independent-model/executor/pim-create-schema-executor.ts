@@ -5,13 +5,13 @@ import {
   createEmptyCoreResource,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult
+  OperationResult,
 } from "../../core";
 
 export async function executePimCreateSchema(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: PimCreateSchema
+  operation: PimCreateSchema,
 ): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("schema");
 

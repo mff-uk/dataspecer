@@ -9,13 +9,13 @@ export interface PimDeleteAssociation extends CoreOperation {
 export const PimDeleteAssociationType = "pim-action-delete-association";
 
 export function isPimDeleteAssociation(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimDeleteAssociation {
   return resource.types.includes(PimDeleteAssociationType);
 }
 
 export function asPimDeleteAssociation(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimDeleteAssociation {
   if (isPimDeleteAssociation(resource)) {
     return resource as PimDeleteAssociation;

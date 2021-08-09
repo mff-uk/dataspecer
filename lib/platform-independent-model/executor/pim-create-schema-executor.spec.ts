@@ -1,12 +1,12 @@
 import {
-  createEmptyCoreResource
+  createEmptyCoreResource,
 } from "../../core";
 import {asPimCreateSchema} from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
 
 test("Create schema.", async () => {
   const operation = asPimCreateSchema(createEmptyCoreResource());
-  operation.pimBaseIri = "http://localhost/"
+  operation.pimBaseIri = "http://localhost/";
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
 
@@ -23,7 +23,7 @@ test("Create schema.", async () => {
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();
@@ -32,7 +32,7 @@ test("Create schema.", async () => {
 
 test("Create schema with given IRI.", async () => {
   const operation = asPimCreateSchema(createEmptyCoreResource());
-  operation.pimBaseIri = "http://localhost/"
+  operation.pimBaseIri = "http://localhost/";
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
   operation.pimNewIri = "urn";
@@ -47,7 +47,7 @@ test("Create schema with given IRI.", async () => {
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();

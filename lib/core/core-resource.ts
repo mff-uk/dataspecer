@@ -28,6 +28,6 @@ export interface CoreResource {
 export function createEmptyCoreResource(iri?: string) {
   return {
     "iri": iri,
-    "types": []
+    "types": [],
   };
 }

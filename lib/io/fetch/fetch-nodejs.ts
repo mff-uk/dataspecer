@@ -3,7 +3,7 @@ import minipassFetch from "minipass-fetch";
 import {HttpFetch, FetchResponse, FetchOptions} from "./fetch-api";
 
 export const httpFetch: HttpFetch = function fetch(
-  url: string, options: FetchOptions
+  url: string, options: FetchOptions,
 ): Promise<FetchResponse> {
   if (url.startsWith("file://")) {
     const path = url.match(/file:\/\/(.+)/)[1];
@@ -16,7 +16,7 @@ export const httpFetch: HttpFetch = function fetch(
   } else {
     return minipassFetch(url, options);
   }
-}
+};
 
 function getFileContentType(extension: string): string {
   extension = extension.substr(1).toLowerCase();

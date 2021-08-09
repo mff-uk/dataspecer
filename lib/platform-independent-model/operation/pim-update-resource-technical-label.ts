@@ -12,13 +12,13 @@ export const PimUpdateResourceTechnicalLabelType =
   "psm-action-update-technical-label";
 
 export function isDataPimUpdateResourceTechnicalLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimUpdateResourceTechnicalLabel {
   return resource.types.includes(PimUpdateResourceTechnicalLabelType);
 }
 
 export function asPimUpdateResourceTechnicalLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimUpdateResourceTechnicalLabel {
   if (isDataPimUpdateResourceTechnicalLabel(resource)) {
     return resource as PimUpdateResourceTechnicalLabel;

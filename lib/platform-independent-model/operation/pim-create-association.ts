@@ -10,13 +10,13 @@ export interface PimCreateAssociation extends PimCreate {
 export const PimCreateAssociationType = "pim-action-create-association";
 
 export function isPimCreateAssociation(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimCreateAssociation {
   return resource.types.includes(PimCreateAssociationType);
 }
 
 export function asPimCreateAssociation(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimCreateAssociation {
   if (isPimCreateAssociation(resource)) {
     return resource as PimCreateAssociation;

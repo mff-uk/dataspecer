@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../../core"
+import {createEmptyCoreResource} from "../../../core";
 import {PimMemoryStore} from "./pim-memory-store";
 import * as Operations from "../../operation";
 
@@ -21,7 +21,7 @@ test("Create PIM schema with class and attribute.", async () => {
   const pimSchemaChange = await store.applyOperation(pimSchema);
   expect(pimSchemaChange.operation.iri).toBeDefined();
   expect(pimSchemaChange.changed).toEqual([
-    "http://localhost/schema/1"
+    "http://localhost/schema/1",
   ]);
   expect(pimSchemaChange.deleted).toEqual([]);
 

@@ -3,7 +3,7 @@ import {DataPsmResource} from "../../model";
 import * as PSM from "./data-psm-vocabulary";
 
 export async function loadDataPsmResource(
-  source: RdfSourceWrap, dataPsmResource: DataPsmResource
+  source: RdfSourceWrap, dataPsmResource: DataPsmResource,
 ): Promise<string[]> {
   dataPsmResource.dataPsmInterpretation =
     (await source.node(PSM.HAS_INTERPRETATION))?.id;

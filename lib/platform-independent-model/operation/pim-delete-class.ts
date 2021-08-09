@@ -9,13 +9,13 @@ export interface PimDeleteClass extends CoreOperation {
 export const PimDeleteClassType = "pim-action-delete-class";
 
 export function isPimDeleteClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimDeleteClass {
   return resource.types.includes(PimDeleteClassType);
 }
 
 export function asPimDeleteClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimDeleteClass {
   if (isPimDeleteClass(resource)) {
     return resource as PimDeleteClass;

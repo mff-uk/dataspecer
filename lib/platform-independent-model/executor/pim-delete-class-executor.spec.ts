@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource
+  createEmptyCoreResource,
 } from "../../core";
 import {asPimDeleteClass} from "../operation";
 import {
@@ -23,7 +23,7 @@ test("Delete class.", async () => {
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-class"],
-    }
+    },
   };
 
   const actual = await executePimDeleteClass(
@@ -47,7 +47,7 @@ test("Delete class.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

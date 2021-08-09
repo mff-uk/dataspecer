@@ -16,13 +16,13 @@ export interface PimAttribute extends PimResource {
 const PimAttributeType = "pim-attribute";
 
 export function isPimAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimAttribute {
   return resource.types.includes(PimAttributeType);
 }
 
 export function asPimAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimAttribute {
   if (isPimAttribute(resource)) {
     return resource as PimAttribute;

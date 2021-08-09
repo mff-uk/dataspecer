@@ -18,13 +18,13 @@ export interface DataPsmClass extends DataPsmResource {
 export const DataPsmClassType = "data-psm-class";
 
 export function isDataPsmClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmClass {
   return resource.types.includes(DataPsmClassType);
 }
 
 export function asDataPsmClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmClass {
   if (isDataPsmClass(resource)) {
     return resource as DataPsmClass;

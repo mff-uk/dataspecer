@@ -3,23 +3,23 @@ import {
   CreateNewIdentifier,
   CoreModelReader,
   OperationResult,
-  createErrorOperationResult
+  createErrorOperationResult,
 } from "../../core";
 import * as Operations from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
-import {executePimCreateClass} from "./pim-create-class-executor"
-import {executePimDeleteClass} from "./pim-delete-class-executor"
-import {executePimCreateAttribute} from "./pim-create-attribute-executor"
-import {executePimDeleteAttribute} from "./pim-delete-attribute-executor"
-import {executesPimCreateAssociation} from "./pim-create-association-executor"
+import {executePimCreateClass} from "./pim-create-class-executor";
+import {executePimDeleteClass} from "./pim-delete-class-executor";
+import {executePimCreateAttribute} from "./pim-create-attribute-executor";
+import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
+import {executesPimCreateAssociation} from "./pim-create-association-executor";
 import {
   executePimDeleteAssociation,
-} from "./pim-delete-association-executor"
+} from "./pim-delete-association-executor";
 
 export async function executePimOperation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: CoreOperation
+  operation: CoreOperation,
 ): Promise<OperationResult> {
   if (operation.types.length !== 1) {
     return createErrorOperationResult("Invalid operation");

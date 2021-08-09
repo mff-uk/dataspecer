@@ -28,7 +28,7 @@ test("Update attribute datatype.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimDatatype": "xsd:string",
-    }
+    },
   };
 
   const actual = await executePimUpdateAttributeDataType(
@@ -40,7 +40,7 @@ test("Update attribute datatype.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimDatatype": "xsd:integer",
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();
@@ -48,7 +48,7 @@ test("Update attribute datatype.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

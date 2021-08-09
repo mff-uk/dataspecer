@@ -7,7 +7,7 @@ import * as PIM from "./pim-vocabulary";
 export class PimAssociationEndAdapter implements RdfResourceAdapter {
 
   async loadResource(
-    source: RdfSourceWrap, resource: CoreResource
+    source: RdfSourceWrap, resource: CoreResource,
   ): Promise<string[]> {
     const types = await source.types();
     if (!types.includes(PIM.ASSOCIATION_END)) {

@@ -6,7 +6,7 @@ import * as PIM from "./pim-vocabulary";
 export class PimSchemaAdapter implements RdfResourceAdapter {
 
   async loadResource(
-    source: RdfSourceWrap, resource: CoreResource
+    source: RdfSourceWrap, resource: CoreResource,
   ): Promise<string[]> {
     const types = await source.types();
     if (!types.includes(PIM.SCHEMA)) {
@@ -19,7 +19,7 @@ export class PimSchemaAdapter implements RdfResourceAdapter {
       await source.languageString(PIM.HAS_HUMAN_LABEL);
     pimSchema.pimHumanDescription =
       await source.languageString(PIM.HAS_HUMAN_DESCRIPTION);
-    pimSchema.pimParts = await source.nodesExtended(PIM.HAS_PART)
+    pimSchema.pimParts = await source.nodesExtended(PIM.HAS_PART);
     return [...pimSchema.pimParts];
   }
 

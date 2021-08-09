@@ -1,14 +1,14 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource
+  createEmptyCoreResource,
 } from "../../core";
 import {asPimCreateAssociation} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
 
 test("Create association.", async () => {
   const operation = asPimCreateAssociation(createEmptyCoreResource());
-  operation.pimInterpretation = "attribute"
+  operation.pimInterpretation = "attribute";
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
@@ -27,7 +27,7 @@ test("Create association.", async () => {
     "http://right": {
       "iri": "http://right",
       "types": ["pim-class"],
-    }
+    },
   };
 
   let counter = 0;
@@ -52,7 +52,7 @@ test("Create association.", async () => {
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
-      "pimEnd": ["http://localhost/1", "http://localhost/2"]
+      "pimEnd": ["http://localhost/1", "http://localhost/2"],
     },
     "http://localhost/2": {
       "iri": "http://localhost/2",
@@ -71,7 +71,7 @@ test("Create association.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

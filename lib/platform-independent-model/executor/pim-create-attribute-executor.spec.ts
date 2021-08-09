@@ -8,7 +8,7 @@ import {executePimCreateAttribute} from "./pim-create-attribute-executor";
 
 test("Create attribute.", async () => {
   const operation = asPimCreateAttribute(createEmptyCoreResource());
-  operation.pimInterpretation = "attribute"
+  operation.pimInterpretation = "attribute";
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
@@ -24,7 +24,7 @@ test("Create attribute.", async () => {
     "http://class": {
       "iri": "http://class",
       "types": ["pim-class"],
-    }
+    },
   };
 
   let counter = 0;
@@ -48,7 +48,7 @@ test("Create attribute.", async () => {
       "pimHumanDescription": operation.pimHumanDescription,
       "pimOwnerClass": operation.pimOwnerClass,
       "pimDatatype": operation.pimDatatype,
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();
@@ -56,7 +56,7 @@ test("Create attribute.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

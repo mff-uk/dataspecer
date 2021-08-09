@@ -1,4 +1,4 @@
-import {createEmptyCoreResource} from "../../../core"
+import {createEmptyCoreResource} from "../../../core";
 import {DataPsmMemoryStore} from "./data-psm-memory-store";
 import * as Operations from "../../operation";
 
@@ -22,7 +22,7 @@ test("Create data PSM schema with class and attribute.", async () => {
   const dataPsmSchemaChange = await store.applyOperation(dataPsmSchema);
   expect(dataPsmSchemaChange.operation.iri).toBeDefined();
   expect(dataPsmSchemaChange.changed).toEqual([
-    "http://localhost/schema/1"
+    "http://localhost/schema/1",
   ]);
   expect(dataPsmSchemaChange.deleted).toEqual([]);
 

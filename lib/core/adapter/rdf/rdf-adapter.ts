@@ -11,7 +11,7 @@ export class RdfAdapter {
   }
 
   async loadNodeTree(
-    source: RdfSource, iri: string
+    source: RdfSource, iri: string,
   ): Promise<{ [iri: string]: CoreResource }> {
     const nodesToLoad = [iri];
     const result = {};
@@ -31,7 +31,7 @@ export class RdfAdapter {
   }
 
   async loadNode(
-    source: RdfSourceWrap, resource: CoreResource
+    source: RdfSourceWrap, resource: CoreResource,
   ): Promise<string[]> {
     const result = [];
     for (const adapter of this.adapters) {

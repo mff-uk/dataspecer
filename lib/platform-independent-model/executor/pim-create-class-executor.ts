@@ -13,7 +13,7 @@ import {loadPimSchema} from "./pim-executor-utils";
 export async function executePimCreateClass(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: PimCreateClass
+  operation: PimCreateClass,
 ): Promise<OperationResult> {
   const iri = operation.pimNewIri || createNewIdentifier("class");
 
@@ -26,7 +26,7 @@ export async function executePimCreateClass(
   const schema = await loadPimSchema(modelReader);
   if (schema === undefined) {
     return createErrorOperationResult(
-      "Missing schema object.")
+      "Missing schema object.");
   }
   schema.pimParts = [...schema.pimParts, result.iri];
 

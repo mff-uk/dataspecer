@@ -14,7 +14,7 @@ import {loadPimSchema} from "./pim-executor-utils";
 export async function executesPimCreateAssociation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: PimCreateAssociation
+  operation: PimCreateAssociation,
 ): Promise<OperationResult> {
   const left = asPimAssociationEnd(createEmptyCoreResource());
   left.iri = createNewIdentifier("association-end");
@@ -49,7 +49,7 @@ export async function executesPimCreateAssociation(
   const schema = await loadPimSchema(modelReader);
   if (schema === undefined) {
     return createErrorOperationResult(
-      "Missing schema object.")
+      "Missing schema object.");
   }
 
   schema.pimParts = [...schema.pimParts, result.iri, left.iri, right.iri];
@@ -59,7 +59,7 @@ export async function executesPimCreateAssociation(
 
 async function verityAssociationEnd(
   modelReader: CoreModelReader,
-  iri: string
+  iri: string,
 ): Promise<OperationResult> {
   const resource = await modelReader.readResource(iri);
   if (resource === undefined) {

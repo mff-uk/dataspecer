@@ -40,7 +40,7 @@ function parseN3QuadAsRdfQuad(quad: N3.Quad): RdfQuad {
   const predicate = quad.predicate.id;
   result["predicate"] = {
     "termType": RdfTermType.NamedNode,
-    "value": predicate
+    "value": predicate,
   };
   const object = quad.object.id;
   if (object.startsWith("\"")) {
@@ -57,12 +57,12 @@ function parseN3QuadAsRdfQuad(quad: N3.Quad): RdfQuad {
   } else if (object.startsWith("_")) {
     result["object"] = {
       "termType": RdfTermType.BlankNode,
-      "value": object
+      "value": object,
     };
   } else {
     result["object"] = {
       "termType": RdfTermType.NamedNode,
-      "value": object
+      "value": object,
     };
   }
   const graph = quad.graph.id;

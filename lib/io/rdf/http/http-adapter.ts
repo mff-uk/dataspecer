@@ -12,7 +12,7 @@ enum MimeType {
 }
 
 export async function fetchRdfQuads(
-  httpFetch: HttpFetch, url: string
+  httpFetch: HttpFetch, url: string,
 ): Promise<RdfQuad[]> {
   const options = {
     "headers": {
@@ -28,7 +28,7 @@ export async function fetchRdfQuads(
     case MimeType.Turtle:
     case MimeType.TriG:
     case MimeType.NTriples:
-      return await parseRdfQuadsWithN3(await response.text())
+      return await parseRdfQuadsWithN3(await response.text());
     default:
       throw new Error(`Unsupported format '${contentType}'`);
   }
@@ -40,7 +40,7 @@ function supportedTypes() {
     MimeType.NQuads,
     MimeType.Turtle,
     MimeType.TriG,
-    MimeType.NTriples
+    MimeType.NTriples,
   ];
 }
 

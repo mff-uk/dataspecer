@@ -12,13 +12,13 @@ export const PimUpdateAttributeDatatypeType =
   "pim-action-update-attribute-datatype";
 
 export function isPimUpdateAttributeDatatype(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimUpdateAttributeDatatype {
   return resource.types.includes(PimUpdateAttributeDatatypeType);
 }
 
 export function asPimUpdateAttributeDatatype(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimUpdateAttributeDatatype {
   if (isPimUpdateAttributeDatatype(resource)) {
     return resource as PimUpdateAttributeDatatype;

@@ -12,13 +12,13 @@ export const PimUpdateResourceHumanDescriptionType =
   "psm-action-update-human-description";
 
 export function isPimUpdateResourceHumanDescription(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimUpdateResourceHumanDescription {
   return resource.types.includes(PimUpdateResourceHumanDescriptionType);
 }
 
 export function asPimUpdateResourceHumanDescription(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimUpdateResourceHumanDescription {
   if (isPimUpdateResourceHumanDescription(resource)) {
     return resource as PimUpdateResourceHumanDescription;

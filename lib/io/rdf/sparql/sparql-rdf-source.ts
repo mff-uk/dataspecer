@@ -24,7 +24,7 @@ export class RdfSparqlSource implements RdfSource {
   }
 
   async reverseProperty(
-    predicate: string, iri: string
+    predicate: string, iri: string,
   ): Promise<RdfObject[]> {
     if (isBlankNode(iri)) {
       return [];

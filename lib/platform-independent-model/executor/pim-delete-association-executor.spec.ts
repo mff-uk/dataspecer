@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource
+  createEmptyCoreResource,
 } from "../../core";
 import {asPimDeleteAssociation} from "../operation";
 import {
@@ -24,7 +24,7 @@ test("Delete association.", async () => {
     "http://localhost/3": {
       "iri": "http://localhost/3",
       "types": ["pim-association"],
-      "pimEnd": ["http://localhost/1", "http://localhost/2"]
+      "pimEnd": ["http://localhost/1", "http://localhost/2"],
     },
     "http://localhost/2": {
       "iri": "http://localhost/2",
@@ -63,7 +63,7 @@ test("Delete association.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

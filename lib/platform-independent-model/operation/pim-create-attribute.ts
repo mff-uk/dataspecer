@@ -12,13 +12,13 @@ export interface PimCreateAttribute extends PimCreate {
 export const PimCreateAttributeType = "pim-action-create-attribute";
 
 export function isPimCreateAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimCreateAttribute {
   return resource.types.includes(PimCreateAttributeType);
 }
 
 export function asPimCreateAttribute(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimCreateAttribute {
   if (isPimCreateAttribute(resource)) {
     return resource as PimCreateAttribute;

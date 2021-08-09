@@ -7,7 +7,7 @@ import * as PIM from "./pim-vocabulary";
 export class PimClassAdapter implements RdfResourceAdapter {
 
   async loadResource(
-    source: RdfSourceWrap, resource: CoreResource
+    source: RdfSourceWrap, resource: CoreResource,
   ): Promise<string[]> {
     const types = await source.types();
     if (!types.includes(PIM.CLASS)) {
@@ -17,7 +17,7 @@ export class PimClassAdapter implements RdfResourceAdapter {
     const pimClass: PimClass = asPimClass(resource);
     const loadFromPim = await loadPimResource(source, pimClass);
     //
-    pimClass.pimExtends = await source.nodesExtended(PIM.HAS_ISA)
+    pimClass.pimExtends = await source.nodesExtended(PIM.HAS_ISA);
     return [...loadFromPim, ...pimClass.pimExtends];
   }
 

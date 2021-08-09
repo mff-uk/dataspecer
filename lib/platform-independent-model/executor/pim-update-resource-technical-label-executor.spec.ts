@@ -29,7 +29,7 @@ test("Update resource technical label.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimTechnicalLabel": "OldLabel",
-    }
+    },
   };
 
   const actual = await executePimUpdateResourceTechnicalLabel(
@@ -41,7 +41,7 @@ test("Update resource technical label.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimTechnicalLabel": "NewLabel",
-    }
+    },
   };
 
   expect(actual.failed).toBeFalsy();
@@ -49,7 +49,7 @@ test("Update resource technical label.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

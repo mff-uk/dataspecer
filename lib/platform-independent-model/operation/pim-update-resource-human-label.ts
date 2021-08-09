@@ -12,13 +12,13 @@ export const PimUpdateResourceHumanLabelType =
   "psm-action-update-human-label";
 
 export function isPimUpdateResourceHumanLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimUpdateResourceHumanLabel {
   return resource.types.includes(PimUpdateResourceHumanLabelType);
 }
 
 export function asPimUpdateResourceHumanLabel(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimUpdateResourceHumanLabel {
   if (isPimUpdateResourceHumanLabel(resource)) {
     return resource as PimUpdateResourceHumanLabel;

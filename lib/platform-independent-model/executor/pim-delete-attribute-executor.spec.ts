@@ -1,7 +1,7 @@
 import {
   CoreResource,
   CoreModelReader,
-  createEmptyCoreResource
+  createEmptyCoreResource,
 } from "../../core";
 import {asPimDeleteAttribute} from "../operation";
 import {
@@ -23,7 +23,7 @@ test("Delete attribute.", async () => {
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-attribute"],
-    }
+    },
   };
 
   const actual = await executePimDeleteAttribute(
@@ -47,7 +47,7 @@ test("Delete attribute.", async () => {
 });
 
 function wrapResourcesWithReader(
-  resources: { [iri: string]: any }
+  resources: { [iri: string]: any },
 ): CoreModelReader {
 
   return new class implements CoreModelReader {

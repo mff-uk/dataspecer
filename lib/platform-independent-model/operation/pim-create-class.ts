@@ -10,13 +10,13 @@ export interface PimCreateClass extends PimCreate {
 export const PimCreateClassType = "pim-action-create-class";
 
 export function isPimCreateClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is PimCreateClass {
   return resource.types.includes(PimCreateClassType);
 }
 
 export function asPimCreateClass(
-  resource: CoreResource
+  resource: CoreResource,
 ): PimCreateClass {
   if (isPimCreateClass(resource)) {
     return resource as PimCreateClass;

@@ -29,13 +29,13 @@ export interface DataPsmSchema extends DataPsmHumanReadableResource {
 export const DataPsmSchemaType = "data-psm-schema";
 
 export function isDataPsmSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmSchema {
   return resource.types.includes(DataPsmSchemaType);
 }
 
 export function asDataPsmSchema(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmSchema {
   if (isDataPsmSchema(resource)) {
     return resource as DataPsmSchema;

@@ -67,16 +67,16 @@ export class DataPsmMemoryStore implements CoreModelReader, CoreModelWriter {
   protected addOperation<T extends CoreOperation>(operation: T): T {
     // TODO Replace with deep clone.
     const result = {...operation} as T;
-    assertNot(this.baseIri === undefined, "Base IRI is not defined.")
+    assertNot(this.baseIri === undefined, "Base IRI is not defined.");
     result.iri = this.baseIri + "/operation/" + this.createUniqueIdentifier();
     this.operations.push(result);
     return result;
   }
 
   protected createUniqueIdentifier() {
-    return 'xxxx-xxxx-yxxx'.replace(/[xy]/g, function (pattern) {
-      let code = Math.random() * 16 | 0;
-      let result = pattern == 'x' ? code : (code & 0x3 | 0x8);
+    return "xxxx-xxxx-yxxx".replace(/[xy]/g, function (pattern) {
+      const code = Math.random() * 16 | 0;
+      const result = pattern == "x" ? code : (code & 0x3 | 0x8);
       return Date.now() + result.toString(16);
     });
   }

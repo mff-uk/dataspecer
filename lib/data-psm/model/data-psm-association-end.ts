@@ -15,13 +15,13 @@ export interface DataPsmAssociationEnd extends DataPsmResource {
 export const DataPsmAssociationEndType = "data-psm-association-end";
 
 export function isDataPsmAssociationEnd(
-  resource: CoreResource
+  resource: CoreResource,
 ): resource is DataPsmAssociationEnd {
   return resource.types.includes(DataPsmAssociationEndType);
 }
 
 export function asDataPsmAssociationEnd(
-  resource: CoreResource
+  resource: CoreResource,
 ): DataPsmAssociationEnd {
   if (isDataPsmAssociationEnd(resource)) {
     return resource as DataPsmAssociationEnd;

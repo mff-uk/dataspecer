@@ -4,7 +4,7 @@ import {RdfQuad} from "../rdf-api";
 import {httpFetch} from "../../fetch/fetch-nodejs";
 
 export async function fetchRdfQuadsBySparqlConstruct(
-  httpFetch: HttpFetch, endpoint: string, query: string
+  httpFetch: HttpFetch, endpoint: string, query: string,
 ): Promise<RdfQuad[]> {
   const format = "text/plain";
   const url = createUrl(endpoint, query, format);
@@ -17,5 +17,5 @@ export async function fetchRdfQuadsBySparqlConstruct(
 function createUrl(endpoint: string, query: string, format: string): string {
   return endpoint
     + "?format=" + encodeURIComponent(format)
-    + "&query=" + encodeURIComponent(query)
+    + "&query=" + encodeURIComponent(query);
 }

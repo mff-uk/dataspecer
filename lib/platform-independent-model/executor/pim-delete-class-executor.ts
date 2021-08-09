@@ -2,7 +2,7 @@ import {
   CoreModelReader, createEmptySuccessOperationResult,
   createErrorOperationResult, CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult
+  OperationResult,
 } from "../../core";
 import {
   asPimAssociationEnd,
@@ -17,17 +17,17 @@ import {loadPimSchema} from "./pim-executor-utils";
 export async function executePimDeleteClass(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreModelReader,
-  operation: PimDeleteClass
+  operation: PimDeleteClass,
 ): Promise<OperationResult> {
   const classResource =
     await modelReader.readResource(operation.pimClass);
   if (classResource === undefined) {
     return createErrorOperationResult(
-      "Missing class object.")
+      "Missing class object.");
   }
   if (!isPimClass(classResource)) {
     return createErrorOperationResult(
-      "Object to delete is not an class.")
+      "Object to delete is not an class.");
   }
 
   const usageCheck = await checkIsNotUsed(modelReader, operation.pimClass);
@@ -38,7 +38,7 @@ export async function executePimDeleteClass(
   const schema = await loadPimSchema(modelReader);
   if (schema === undefined) {
     return createErrorOperationResult(
-      "Missing schema object.")
+      "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(
     iri => iri !== operation.pimClass);
