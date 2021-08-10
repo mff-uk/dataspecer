@@ -1,5 +1,4 @@
 import * as fileSystem from "fs";
-import {WriteStream} from "fs";
 import * as path from "path";
 
 import {Bikeshed} from "./bikeshed-model";
@@ -7,10 +6,9 @@ import {
   WebSpecificationEntity, WebSpecificationProperty,
   WebSpecificationSchema, WebSpecificationType,
 } from "../web-specification/web-specification-model";
-import {WritableObject} from "../io/stream/writable-object";
-import {StringWriteStream} from "../io/stream/string-write-stream";
+import {Writable} from "../io/stream/writable";
 
-export async function writeBikeshed(
+export async function saveBikeshed(
   model: Bikeshed, directory: string, name: string,
 ): Promise<void> {
   if (!fileSystem.existsSync(directory)) {
@@ -25,32 +23,34 @@ export async function writeBikeshed(
     outputStream.on("error", reject);
   });
 
-  constructBikeshed(model, outputStream);
+  // wrap outputStream into a Writable object
+  const writable = {
+    write: chunk =>
+      new Promise<void>((resolve, reject) => {
+        outputStream.write(chunk, error => error ? reject(error) : resolve());
+      }),
+  } as Writable;
+
+  await writeBikeshed(model, writable);
   outputStream.end();
 
   return result;
 }
 
-export function getBikeshed(model: Bikeshed): string {
-  const stream = new StringWriteStream();
-  constructBikeshed(model, stream);
-  return stream.getContent();
+export async function writeBikeshed(model: Bikeshed, writable: Writable): Promise<void> {
+  await writeMetadata(model.metadata, writable);
+  await writeIntroduction(model, writable);
+  await writeDataModel(model.schemas, writable);
 }
 
-function constructBikeshed(model: Bikeshed, stream: WritableObject) {
-  writeMetadata(model.metadata, stream);
-  writeIntroduction(model, stream);
-  writeDataModel(model.schemas, stream);
-}
-
-function writeMetadata(content: Record<string, string>, stream: WritableObject) {
-  stream.write("<pre class='metadata'>\n");
+async function writeMetadata(content: Record<string, string>, writable: Writable) {
+  await writable.write("<pre class='metadata'>\n");
   for (const [key, value] of Object.entries(content)) {
-    stream.write(key + ": ");
-    stream.write(sanitizeMultiline(value));
-    stream.write("\n");
+    await writable.write(key + ": ");
+    await writable.write(sanitizeMultiline(value));
+    await writable.write("\n");
   }
-  stream.write("</pre>\n");
+  await writable.write("</pre>\n");
 }
 
 function asArray<T>(value: T | T[]): T[] {
@@ -65,73 +65,79 @@ function sanitizeMultiline(string: string): string {
   return string.replace("\n", "\n    ");
 }
 
-function writeIntroduction(specification: Bikeshed, stream: WritableObject) {
-  stream.write("Introduction {#intro}\n");
-  stream.write("=====================\n");
-  stream.write(specification.humanDescription);
-  stream.write("\n\n");
+async function writeIntroduction(specification: Bikeshed, writable: Writable) {
+  await writable.write("Introduction {#intro}\n");
+  await writable.write("=====================\n");
+  await writable.write(specification.humanDescription);
+  await writable.write("\n\n");
 }
 
-function writeDataModel(specification: WebSpecificationSchema, stream: WritableObject) {
-  stream.write("Specifikace\n");
-  stream.write("==========\n");
-  stream.write(
+async function writeDataModel(specification: WebSpecificationSchema, writable: Writable) {
+  await writable.write("Specifikace\n");
+  await writable.write("==========\n");
+  await writable.write(
     "V této sekci jsou definovány jednotlivé třídy a jejich vlastnosti.\n" +
     "Pro každou vlastnost je uveden její identifikátor, který je pro její\n" +
     "reprezentaci použit ve všech datových formátech, její název a datový " +
     "typ.\nVolitelně je uveden také popis a příklad.\n");
-  stream.write("\n");
-  specification.entities.forEach(entity => writeEntity(entity, stream));
+  await writable.write("\n");
+  for (const entity of specification.entities) {
+    await writeEntity(entity, writable);
+  }
 }
 
-function writeEntity(entity: WebSpecificationEntity, stream: WritableObject) {
-  stream.write(entity.humanLabel);
-  stream.write(" {#" + entity.anchor + "}");
-  stream.write("\n-------\n");
+async function writeEntity(entity: WebSpecificationEntity, writable: Writable) {
+  await writable.write(entity.humanLabel);
+  await writable.write(" {#" + entity.anchor + "}");
+  await writable.write("\n-------\n");
   if (isNotEmpty(entity.humanDescription)) {
-    stream.write(entity.humanDescription);
-    stream.write("\n");
+    await writable.write(entity.humanDescription);
+    await writable.write("\n");
   }
   if (entity.isCodelist) {
-    stream.write("Tato třída reprezentuje číselník.\n");
+    await writable.write("Tato třída reprezentuje číselník.\n");
   }
-  stream.write("\n");
+  await writable.write("\n");
   //
-  entity.properties.forEach((item) => writeProperty(item, stream));
+  for (const item of entity.properties) {
+    await writeProperty(item, writable);
+  }
 }
 
 function isNotEmpty(string: string | undefined): boolean {
   return string !== undefined && string.trim().length > 0;
 }
 
-function writeProperty(property: WebSpecificationProperty, stream: WritableObject) {
-  stream.write("### " + property.technicalLabel + "\n");
+async function writeProperty(property: WebSpecificationProperty, writable: Writable) {
+  await writable.write("### " + property.technicalLabel + "\n");
 
-  stream.write(": Typ");
-  property.type.forEach(type => writePropertyType(type, stream));
+  await writable.write(": Typ");
+  for (const type of property.type) {
+    await writePropertyType(type, writable);
+  }
 
   if (isNotEmpty(property.humanLabel)) {
-    stream.write("\n: Jméno\n");
-    stream.write(":: " + sanitizeMultiline(property.humanLabel) + "\n");
+    await writable.write("\n: Jméno\n");
+    await writable.write(":: " + sanitizeMultiline(property.humanLabel) + "\n");
   }
 
   if (isNotEmpty(property.humanDescription)) {
-    stream.write("\n: Popis\n");
-    stream.write(":: " + sanitizeMultiline(property.humanDescription) + "\n");
+    await writable.write("\n: Popis\n");
+    await writable.write(":: " + sanitizeMultiline(property.humanDescription) + "\n");
   }
 
-  stream.write("\n");
+  await writable.write("\n");
 
 }
 
-function writePropertyType(type: WebSpecificationType, stream: WritableObject) {
-  stream.write("\n:: ");
+async function writePropertyType(type: WebSpecificationType, writer: Writable) {
+  await writer.write("\n:: ");
   const link = "[" + type.label + "](" + type.link + ")";
   if (type.codelistIri !== undefined) {
-    stream.write("Číselník " + link)
+    await writer.write("Číselník " + link);
   } else if (type.isClassValue) {
-    stream.write("Identifikátor pro " + link)
+    await writer.write("Identifikátor pro " + link);
   } else {
-    stream.write(link);
+    await writer.write(link);
   }
 }

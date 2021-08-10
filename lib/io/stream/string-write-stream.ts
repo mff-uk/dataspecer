@@ -1,14 +1,10 @@
-import {WritableObject} from "./writable-object";
+import {Writable} from "./writable";
 
-export class StringWriteStream implements WritableObject {
+export class StringWriteStream implements Writable {
     private content = "";
 
-    write(chunk: string): void {
+    async write(chunk: string): Promise<void> {
       this.content += chunk;
-    }
-
-    close(): void {
-      return;
     }
 
     getContent(): string {
