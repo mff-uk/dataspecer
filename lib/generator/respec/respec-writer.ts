@@ -169,7 +169,7 @@ function writePropertyTypes(
   const types = property.type
     .map(writePropertyType)
     .join("");
-  stream.write(Typ`
+  stream.write(`
               <dt>Typ</dt>
               <dd>${types}</dd>`);
 }
