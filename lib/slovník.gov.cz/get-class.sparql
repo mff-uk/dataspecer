@@ -1,0 +1,9 @@
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT WHERE {
+	%NODE% a z:typ-objektu ;
+		skos:prefLabel ?label ;
+		skos:definition ?definition;
+		skos:inScheme ?glossary .
+}

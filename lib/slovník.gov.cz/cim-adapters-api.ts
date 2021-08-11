@@ -22,4 +22,11 @@ export interface CimAdapter {
      * @return Store containing the PSM class and its surroundings
      */
     getSurroundings(cimId: string): Promise<Store>;
+
+    /**
+     * Returns full 'Isa' hierarchy for CIM entity
+     * @param cimId
+     * @return Store of PIM classes
+     */
+    getHierarchy(cimId: string): Promise<Store>;
 }

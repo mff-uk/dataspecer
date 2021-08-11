@@ -6,6 +6,7 @@ module.exports = {
   ],
   "transform": {
     "^.+\\.[t|j]sx?$": "babel-jest",
+    "\\.sparql$": "jest-raw-loader",
   },
   "roots": [
     "lib",
