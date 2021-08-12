@@ -6,7 +6,7 @@ import {
   WebSpecificationEntity, WebSpecificationProperty,
   WebSpecificationSchema, WebSpecificationType,
 } from "../web-specification/web-specification-model";
-import {Writable} from "../io/stream/writable";
+import {OutputStream} from "../io/stream/outputStream";
 
 export async function saveBikeshed(
   model: Bikeshed, directory: string, name: string,
@@ -29,7 +29,7 @@ export async function saveBikeshed(
       new Promise<void>((resolve, reject) => {
         outputStream.write(chunk, error => error ? reject(error) : resolve());
       }),
-  } as Writable;
+  } as OutputStream;
 
   await writeBikeshed(model, writable);
   outputStream.end();
@@ -37,13 +37,13 @@ export async function saveBikeshed(
   return result;
 }
 
-export async function writeBikeshed(model: Bikeshed, writable: Writable): Promise<void> {
+export async function writeBikeshed(model: Bikeshed, writable: OutputStream): Promise<void> {
   await writeMetadata(model.metadata, writable);
   await writeIntroduction(model, writable);
   await writeDataModel(model.schemas, writable);
 }
 
-async function writeMetadata(content: Record<string, string>, writable: Writable) {
+async function writeMetadata(content: Record<string, string>, writable: OutputStream) {
   await writable.write("<pre class='metadata'>\n");
   for (const [key, value] of Object.entries(content)) {
     await writable.write(key + ": ");
@@ -65,14 +65,14 @@ function sanitizeMultiline(string: string): string {
   return string.replace("\n", "\n    ");
 }
 
-async function writeIntroduction(specification: Bikeshed, writable: Writable) {
+async function writeIntroduction(specification: Bikeshed, writable: OutputStream) {
   await writable.write("Introduction {#intro}\n");
   await writable.write("=====================\n");
   await writable.write(specification.humanDescription);
   await writable.write("\n\n");
 }
 
-async function writeDataModel(specification: WebSpecificationSchema, writable: Writable) {
+async function writeDataModel(specification: WebSpecificationSchema, writable: OutputStream) {
   await writable.write("Specifikace\n");
   await writable.write("==========\n");
   await writable.write(
@@ -86,7 +86,7 @@ async function writeDataModel(specification: WebSpecificationSchema, writable: W
   }
 }
 
-async function writeEntity(entity: WebSpecificationEntity, writable: Writable) {
+async function writeEntity(entity: WebSpecificationEntity, writable: OutputStream) {
   await writable.write(entity.humanLabel);
   await writable.write(" {#" + entity.anchor + "}");
   await writable.write("\n-------\n");
@@ -108,7 +108,7 @@ function isNotEmpty(string: string | undefined): boolean {
   return string !== undefined && string.trim().length > 0;
 }
 
-async function writeProperty(property: WebSpecificationProperty, writable: Writable) {
+async function writeProperty(property: WebSpecificationProperty, writable: OutputStream) {
   await writable.write("### " + property.technicalLabel + "\n");
 
   await writable.write(": Typ");
@@ -130,7 +130,7 @@ async function writeProperty(property: WebSpecificationProperty, writable: Writa
 
 }
 
-async function writePropertyType(type: WebSpecificationType, writer: Writable) {
+async function writePropertyType(type: WebSpecificationType, writer: OutputStream) {
   await writer.write("\n:: ");
   const link = "[" + type.label + "](" + type.link + ")";
   if (type.codelistIri !== undefined) {
