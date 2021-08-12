@@ -1,5 +1,5 @@
 import {CoreModelReader, CoreResource} from "../../../core";
-import clone from "just-clone";
+import {clone} from "../../../utilities/clone";
 
 export class ReadOnlyMemoryStore implements CoreModelReader {
 
