@@ -68,6 +68,6 @@ function writeElement(elem: XmlSchemaElement, stream: WriteStream) {
       stream.write(`</${def.type}>\n`);
     }
     stream.write(`</xs:complexType>\n`);
+    stream.write('</xs:element>\n');
   }
-  stream.write('</xs:element>\n');
 }
