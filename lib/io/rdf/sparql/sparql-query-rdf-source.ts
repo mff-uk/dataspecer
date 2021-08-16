@@ -1,12 +1,31 @@
 import {HttpFetch} from "../../fetch/fetch-api";
 import {RdfMemorySource} from "../rdf-source-base";
 import {fetchRdfQuads} from "../http/http-adapter";
+import {createSparqlQueryUrl} from "./sparql-adapter";
 
+/**
+ * Executes a user-defined SPARQL query on a triplestore and provides the results as an RdfMemoryStore.
+ */
 export class SparqlQueryRdfSource extends RdfMemorySource {
 
-  async query(httpFetch: HttpFetch, endpoint: string, query: string): Promise<void> {
-    const url = endpoint + "?format=" + encodeURIComponent("text/turtle") + "&query=" + encodeURIComponent(query);
-    this.quads = await fetchRdfQuads(httpFetch, url);
+  readonly httpFetch: HttpFetch;
+
+  readonly endpoint: string;
+
+  readonly sparqlQuery: string;
+
+  readonly format: string;
+
+  constructor(httpFetch: HttpFetch, endpoint: string, sparqlQuery: string, format = "text/turtle") {
+    super();
+    this.httpFetch = httpFetch;
+    this.endpoint = endpoint;
+    this.sparqlQuery = sparqlQuery;
+    this.format = format;
+  }
+
+  async query(): Promise<void> {
+    this.quads = await fetchRdfQuads(this.httpFetch, createSparqlQueryUrl(this.endpoint, this.sparqlQuery, this.format));
   }
 
 }
