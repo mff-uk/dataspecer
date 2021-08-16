@@ -2,6 +2,9 @@ import {RdfSource, RdfObject} from "../rdf-api";
 import {fetchRdfQuadsBySparqlConstruct} from "./sparql-adapter";
 import {HttpFetch} from "../../fetch/fetch-api";
 
+/**
+ * Implementation of an RdfSource to a triplestore using a SPARQL query language.
+ */
 export class RdfSparqlSource implements RdfSource {
 
   readonly httpFetch: HttpFetch;
