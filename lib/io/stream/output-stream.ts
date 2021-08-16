@@ -1,3 +1,6 @@
-export interface Writable {
+
+export interface OutputStream {
+
     write(chunk: string): Promise<void>;
+
 }

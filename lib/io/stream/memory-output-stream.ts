@@ -1,6 +1,7 @@
-import {Writable} from "./writable";
+import {OutputStream} from "./output-stream";
 
-export class StringWriteStream implements Writable {
+export class MemoryOutputStream implements OutputStream {
+
     private content = "";
 
     async write(chunk: string): Promise<void> {
@@ -10,4 +11,5 @@ export class StringWriteStream implements Writable {
     getContent(): string {
       return this.content;
     }
+
 }

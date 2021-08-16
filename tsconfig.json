@@ -10,13 +10,7 @@
     "declaration": true,
     "downlevelIteration": true,
     "lib": [
-      "ES2020",
-      "dom"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": [
-      "@types",
-      "node_modules/@types"
+      "ES2020"
     ]
   }
 }
