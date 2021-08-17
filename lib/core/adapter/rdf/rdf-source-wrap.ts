@@ -34,6 +34,10 @@ export class RdfSourceWrap {
     return this.source.property(this.resource, predicate);
   }
 
+  async reverseProperty(predicate: string): Promise<RdfObject[]> {
+    return this.source.reverseProperty(predicate, this.resource);
+  }
+
 
   /**
    * Resolve lists with rdf:first, rdf:rest
@@ -102,14 +106,20 @@ export class RdfSourceWrap {
     return properties.filter(RdfObject.isLiteral);
   }
 
-  async reverseNode(predicate: string): Promise<RdfObject | undefined> {
-    const values = await this.source.reverseProperty(predicate, this.resource);
+  async reverseNode(predicate: string): Promise<string | undefined> {
+    const values = await this.reverseProperty(predicate);
     for (const value of values) {
       if (RdfObject.isNode(value)) {
-        return value;
+        return value.value;
       }
     }
     return undefined;
+  }
+
+  async reverseNodes(predicate: string): Promise<string[]> {
+    return (await this.reverseProperty(predicate))
+      .filter(RdfObject.isNode)
+      .map(value => value.value);
   }
 
   async node(predicate: string): Promise<string | undefined> {
