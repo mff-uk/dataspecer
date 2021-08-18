@@ -22,9 +22,7 @@ CONSTRUCT {
 		}
 	}
 
-	?ancestor
-		skos:prefLabel ?label ;
-		skos:inScheme ?glossary .
-
+	?ancestor skos:prefLabel ?label .
 	OPTIONAL { ?ancestor skos:definition ?definition }
+	OPTIONAL { ?ancestor skos:inScheme ?glossary }
 }

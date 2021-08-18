@@ -2,6 +2,7 @@ PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
+    <__search_results> <__has_search_result> ?node .
 	?node a z:typ-objektu ;
     	<__order> ?len ;
 		skos:prefLabel ?label ;

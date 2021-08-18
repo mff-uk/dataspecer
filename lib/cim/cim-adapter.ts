@@ -1,9 +1,10 @@
-import {PimClass} from "../../pim/pim-class";
-import {Store} from "../../platform-model-store";
+import {PimClass} from "../platform-independent-model/model";
+import {ReadOnlyMemoryStore} from "../core/store/memory-store/read-only-memory-store";
 
 export interface CimAdapter {
+
     /**
-     * Searches in the CIM source and returns an unordered list of PimClasses.
+     * Searches the CIM and returns an unordered list of PimClasses.
      * @param searchQuery Search query
      * @return List of PimClasses matching the search
      */
@@ -21,12 +22,12 @@ export interface CimAdapter {
      * @param cimId ID of CIM entity representing PIM class for which we look for attributes and associations
      * @return Store containing the PSM class and its surroundings
      */
-    getSurroundings(cimId: string): Promise<Store>;
+    getSurroundings(cimId: string): Promise<ReadOnlyMemoryStore>;
 
     /**
-     * Returns full 'Isa' hierarchy for CIM entity
-     * @param cimId
-     * @return Store of PIM classes
+     * Returns a group(s) ids to which the class belongs to.
+     * @param cimId CIM id of queried class
      */
-    getHierarchy(cimId: string): Promise<Store>;
+    getClassGroup(cimId: string): Promise<string[] | null>;
+
 }
