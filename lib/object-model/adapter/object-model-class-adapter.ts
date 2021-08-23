@@ -2,7 +2,7 @@ import {createObjectModelClass, ObjectModelClass} from "../object-model";
 import {ObjectModelPropertyAdapter} from "./object-model-property-adapter";
 import {CoreModelReader} from "../../core";
 import {DataPsmClass, isDataPsmClass} from "../../data-psm/model";
-import {isPimClass, PimClass} from "../../platform-independent-model/model";
+import {isPimClass, PimClass} from "../../pim/model";
 
 export class ObjectModelClassAdapter {
 

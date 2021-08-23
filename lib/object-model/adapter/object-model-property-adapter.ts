@@ -14,7 +14,7 @@ import {
 import {
   isPimAssociation, isPimAssociationEnd,
   isPimAttribute, PimAssociationEnd, PimAttribute,
-} from "../../platform-independent-model/model";
+} from "../../pim/model";
 
 export class ObjectModelPropertyAdapter {
 
