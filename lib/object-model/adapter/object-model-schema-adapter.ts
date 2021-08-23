@@ -1,44 +1,63 @@
-import {CoreResourceMap, PsmSchema,PsmClass} from "../../core/model";
-import {ObjectModelSchema, ObjectModelClass} from "../object-model";
+import {
+  ObjectModelSchema, ObjectModelClass,
+  createObjectModelSchema, isObjectModelClass,
+} from "../object-model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
+import {CoreModelReader} from "../../core";
+import {
+  isDataPsmSchema,
+  asDataPsmSchema,
+  DataPsmSchema,
+  isDataPsmClass,
+  asDataPsmClass,
+} from "../../data-psm/model";
 
 export class ObjectModelSchemaAdapter {
 
-  readonly entities: CoreResourceMap;
+  readonly reader: CoreModelReader;
 
   readonly schemas: Record<string, ObjectModelSchema> = {};
 
   readonly classAdapter: ObjectModelClassAdapter;
 
-  constructor(entities: CoreResourceMap) {
-    this.entities = entities;
-    this.classAdapter = new ObjectModelClassAdapter(entities);
+  constructor(reader: CoreModelReader) {
+    this.reader = reader;
+    this.classAdapter = new ObjectModelClassAdapter(reader);
   }
 
-  loadSchemaFromPsmSchema(iri: string): ObjectModelSchema | undefined {
-    const entity = this.entities[iri];
-    if (!PsmSchema.is(entity)) {
+  async loadSchemaFromDataPsmSchema(iri: string):
+    Promise<ObjectModelSchema | undefined> {
+    const entity = await this.reader.readResource(iri);
+    if (!isDataPsmSchema(entity)) {
       return undefined;
     }
-    const psmSchema = PsmSchema.as(entity);
-    const result = new ObjectModelSchema();
+    const psmSchema = asDataPsmSchema(entity);
+    const result = createObjectModelSchema();
     this.schemas[psmSchema.iri] = result;
-    this.psmSchemaToSchema(psmSchema, result);
-    this.collectClasses(result);
+    await this.psmSchemaToSchema(psmSchema, result);
+    for (const schema of Object.values(this.schemas)) {
+      this.collectClasses(result);
+    }
     return result;
   }
 
-  protected psmSchemaToSchema(
-    psmSchema: PsmSchema, objectSchema: ObjectModelSchema
-  ):void {
-    objectSchema.psmIri = psmSchema.iri;
-    objectSchema.humanLabel = psmSchema.psmHumanLabel;
-    objectSchema.humanDescription = psmSchema.psmHumanDescription;
-    objectSchema.roots = psmSchema.psmRoots
-      .map(iri => this.entities[iri])
-      .filter(entity => PsmClass.is(entity))
-      .map(entity => PsmClass.as(entity))
-      .map(entity => this.classAdapter.loadClassFromPsmClass(entity));
+  protected async psmSchemaToSchema(
+    dataPsmSchema: DataPsmSchema, objectSchema: ObjectModelSchema,
+  ): Promise<void> {
+    objectSchema.psmIri = dataPsmSchema.iri;
+    objectSchema.technicalLabel = dataPsmSchema.dataPsmTechnicalLabel;
+    objectSchema.humanLabel = dataPsmSchema.dataPsmHumanLabel;
+    objectSchema.humanDescription = dataPsmSchema.dataPsmHumanDescription;
+    for (const iri of dataPsmSchema.dataPsmRoots) {
+      const resource = await this.reader.readResource(iri);
+      if (!isDataPsmClass(resource)) {
+        continue;
+      }
+      const dataPsmClass = asDataPsmClass(resource);
+      const objectModelClass =
+        await this.classAdapter.loadClassFromPsmClass(dataPsmClass);
+      objectSchema.roots.push(objectModelClass);
+    }
   }
 
   protected collectClasses(objectSchema: ObjectModelSchema): void {
@@ -54,8 +73,8 @@ export class ObjectModelSchemaAdapter {
       stack.push(...next.extends);
       for (const property of next.properties) {
         for (const dataType of property.dataTypes) {
-          if (ObjectModelClass.is(dataType)) {
-            stack.push(ObjectModelClass.as(dataType));
+          if (isObjectModelClass(dataType)) {
+            stack.push(dataType as ObjectModelClass);
           }
         }
       }

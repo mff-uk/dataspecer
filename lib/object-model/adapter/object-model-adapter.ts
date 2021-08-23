@@ -1,9 +1,9 @@
-import {CoreResourceMap} from "../../core/model";
+import {CoreModelReader} from "../../core";
 import {ObjectModelSchema} from "../object-model";
 import {ObjectModelSchemaAdapter} from "./object-model-schema-adapter";
 
-export function createObjectModelFromCoreModel(
-  entities: CoreResourceMap, iri: string,
-): ObjectModelSchema {
-  return (new ObjectModelSchemaAdapter(entities)).loadSchemaFromPsmSchema(iri);
+export async function createObjectModelFromCoreModel(
+  reader: CoreModelReader, iri: string,
+): Promise<ObjectModelSchema> {
+  return (new ObjectModelSchemaAdapter(reader)).loadSchemaFromDataPsmSchema(iri);
 }
