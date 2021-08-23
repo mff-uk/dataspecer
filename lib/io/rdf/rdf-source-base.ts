@@ -24,7 +24,7 @@ export abstract class RdfMemorySource implements RdfSource {
       .filter(quad => quad.object.value === iri)
       .filter(quad => RdfObject.isNode(quad.object))
       .filter(quad => quad.predicate.value === predicate)
-      .forEach(quad => result.push(quad.object));
+      .forEach(quad => result.push(quad.subject));
     return result;
   }
 
