@@ -6,7 +6,7 @@ export async function loadDataPsmResource(
   source: RdfSourceWrap, dataPsmResource: DataPsmResource,
 ): Promise<string[]> {
   dataPsmResource.dataPsmInterpretation =
-    (await source.node(PSM.HAS_INTERPRETATION))?.id;
+    (await source.node(PSM.HAS_INTERPRETATION));
   dataPsmResource.dataPsmTechnicalLabel =
     (await source.literal(PSM.HAS_TECHNICAL_LABEL))?.value as string;
   dataPsmResource.dataPsmHumanLabel =
