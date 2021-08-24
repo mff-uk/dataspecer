@@ -1,2 +1,2 @@
 export * from "./web-specification-model";
-export * from "./adapter/web-specification-model-adapter";
+export * from "./web-specification-model-adapter";

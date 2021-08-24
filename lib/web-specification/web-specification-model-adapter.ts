@@ -5,14 +5,14 @@ import {
   ObjectModelPrimitive,
   isObjectModelClass,
   isObjectModelPrimitive,
-} from "../../object-model";
+} from "../object-model";
 import {
   WebSpecification,
   WebSpecificationSchema,
   WebSpecificationEntity,
   WebSpecificationProperty,
   WebSpecificationType,
-} from "../web-specification-model";
+} from "./web-specification-model";
 
 class AdapterContext {
 
