@@ -11,9 +11,6 @@ module.exports = {
     "lib",
   ],
   "testPathIgnorePatterns": [
-    "./lib/bikeshed",
-    "./lib/respec",
     "./lib/slovník.gov.cz",
-    "./lib/web-specification",
   ],
 };
