@@ -7,10 +7,10 @@ import {
   WebSpecificationProperty,
   WebSpecificationSchema,
   WebSpecificationType,
-} from "../web-specification/web-specification-model";
-import {OutputStream} from "../io/stream/outputStream";
+} from "../web-specification";
+import {OutputStream} from "../io/stream/output-stream";
 
-export async function saveReSpec(
+export async function saveReSpecToDirectory(
   model: ReSpec, directory: string, name: string,
 ): Promise<void> {
   if (!fileSystem.existsSync(directory)) {
@@ -25,12 +25,8 @@ export async function saveReSpec(
     outputStream.on("error", reject);
   });
 
-  // wrap outputStream into a Writable object
   const writable = {
-    write: chunk =>
-      new Promise<void>((resolve, reject) => {
-        outputStream.write(chunk, error => error ? reject(error) : resolve());
-      }),
+    write: async chunk => await outputStream.write(chunk),
   } as OutputStream;
 
   await writeReSpec(model, writable);
@@ -39,17 +35,19 @@ export async function saveReSpec(
   return result;
 }
 
-export async function writeReSpec(model: ReSpec, writable: OutputStream): Promise<void> {
-  await writable.write("<!DOCTYPE html>\n");
-  await writable.write("<html lang=\"cs\">");
-  await writeHeader(model, writable);
-  await writeBody(model, writable);
-  await writable.write("\n</html>\n");
+export async function writeReSpec(
+  model: ReSpec, stream: OutputStream): Promise<void> {
+  await stream.write("<!DOCTYPE html>\n");
+  await stream.write("<html lang=\"cs\">");
+  await writeHeader(model, stream);
+  await writeBody(model, stream);
+  await stream.write("\n</html>\n");
 }
 
-async function writeHeader(model: ReSpec, writable: OutputStream): Promise<void> {
+async function writeHeader(
+  model: ReSpec, stream: OutputStream): Promise<void> {
   const title = model.metadata.title;
-  await writable.write(`
+  await stream.write(`
   <head>
     <title>${title}</title>
     <meta content="text/html; charset=utf-8" http-equiv="content-type" />
@@ -116,16 +114,20 @@ function currentDate() {
   return [year, month, day].join("-");
 }
 
-async function writeBody(model: ReSpec, writable: OutputStream): Promise<void> {
-  await writable.write("\n  </body>");
-  await writeIntroduction(model, writable);
-  await writeSpecification(model.schemas, writable);
-  await writeExamples(model, writable);
-  await writable.write("\n  </body>");
+async function writeBody(
+  model: ReSpec, stream: OutputStream
+): Promise<void> {
+  await stream.write("\n  </body>");
+  await writeIntroduction(model, stream);
+  await writeSpecification(model.schemas, stream);
+  await writeExamples(model, stream);
+  await stream.write("\n  </body>");
 }
 
-async function writeIntroduction(model: ReSpec, writable: OutputStream): Promise<void> {
-  await writable.write(`
+async function writeIntroduction(
+  model: ReSpec, stream: OutputStream
+): Promise<void> {
+  await stream.write(`
     <section id="abstract" class="introductory">
       <h2>Abstrakt</h2>
       <p>
@@ -135,9 +137,9 @@ async function writeIntroduction(model: ReSpec, writable: OutputStream): Promise
 }
 
 async function writeSpecification(
-  specification: WebSpecificationSchema, writable: OutputStream,
+  specification: WebSpecificationSchema, stream: OutputStream,
 ): Promise<void> {
-  await writable.write(`
+  await stream.write(`
     <section id="specifikace">
       <h2>Specifikace</h2>
       <p>
@@ -148,51 +150,54 @@ async function writeSpecification(
       </p>
 `);
   for (const entity of specification.entities) {
-    await writeEntity(entity, writable);
+    await writeEntity(entity, stream);
   }
-  await writable.write("\n    </section>");
+  await stream.write("\n    </section>");
 }
 
-async function writeEntity(entity: WebSpecificationEntity, writable: OutputStream): Promise<void> {
-  await writable.write(`
+async function writeEntity(
+  entity: WebSpecificationEntity, stream: OutputStream
+): Promise<void> {
+  await stream.write(`
       <section id="${entity.anchor}">
         <h3>${entity.humanLabel}</h3>
         <p>`);
   if (entity.isCodelist) {
-    await writable.write("Tato třída reprezentuje číselník.<br/>");
+    await stream.write("Tato třída reprezentuje číselník.<br/>");
   }
-  await writable.write(`${entity.humanDescription}</p>`);
+  await stream.write(`${entity.humanDescription}</p>`);
   for (const property of entity.properties) {
-    await writeFosProperty(entity, property, writable);
+    await writeFosProperty(entity, property, stream);
   }
-  await writable.write("\n      </section>");
+  await stream.write("\n      </section>");
 }
 
 async function writeFosProperty(
   owner: WebSpecificationEntity,
   property: WebSpecificationProperty,
-  writable: OutputStream,
+  stream: OutputStream,
 ): Promise<void> {
-  await writable.write(`
+  await stream.write(`
         <section id="${property.anchor}">
           <h4>${property.humanLabel}</h4>
           <dl>
               <dt>Vlastnost</dt>
               <dd><code>${property.technicalLabel}</code></dd>`);
-  await writePropertyTypes(property, writable);
-  await writePropertyHumanLabel(property, writable);
-  await writePropertyHumanDescription(property, writable);
-  await writable.write(`
+  await writePropertyTypes(property, stream);
+  await writePropertyHumanLabel(property, stream);
+  await writePropertyHumanDescription(property, stream);
+  await stream.write(`
           </dl>
          </section>`);
 }
 
 async function writePropertyTypes(
-  property: WebSpecificationProperty, writable: OutputStream): Promise<void> {
+  property: WebSpecificationProperty, stream: OutputStream
+): Promise<void> {
   const types = property.type
     .map(writePropertyType)
     .join("");
-  await writable.write(`
+  await stream.write(`
               <dt>Typ</dt>
               <dd>${types}</dd>`);
 }
@@ -211,18 +216,20 @@ function writePropertyType(type: WebSpecificationType): string {
 }
 
 async function writePropertyHumanLabel(
-  property: WebSpecificationProperty, writable: OutputStream): Promise<void> {
-  await writable.write(`
+  property: WebSpecificationProperty, stream: OutputStream
+): Promise<void> {
+  await stream.write(`
             <dt>Jméno</dt>
             <dd>${property.humanLabel}</dd>`);
 }
 
 async function writePropertyHumanDescription(
-  property: WebSpecificationProperty, writable: OutputStream): Promise<void> {
+  property: WebSpecificationProperty, stream: OutputStream
+): Promise<void> {
   if (isStringEmpty(property.humanDescription)) {
     return;
   }
-  await writable.write(`
+  await stream.write(`
               <dt>Popis</dt>
               <dd>${property.humanDescription}</dd>`);
 }
@@ -231,8 +238,10 @@ function isStringEmpty(content: string): boolean {
   return content === undefined || content.trim().length === 0;
 }
 
-async function writeExamples(model: ReSpec, writable: OutputStream): Promise<void> {
-  await writable.write(`
+async function writeExamples(
+  model: ReSpec, stream: OutputStream
+): Promise<void> {
+  await stream.write(`
     <section id="příklady">
       <h2>Příklady</h2>
       <p>
