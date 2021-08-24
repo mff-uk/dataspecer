@@ -1,19 +1,18 @@
-import {SchemaData} from "../../entity-model/entity-model";
+import {ObjectModelSchema} from "../object-model";
 import {Bikeshed, BikeshedMetadataKeys} from "./bikeshed-model";
 import {
   defaultStringSelector,
-  webSpecification,
-  RootClassSelector,
+  createWebSpecificationFromObjectModel,
   defaultRootSelector,
   DefaultLinkFactory,
-} from "../web-specification/web-specification-model-adapter";
-import {WebSpecification} from "../web-specification/web-specification-model";
+  WebSpecification,
+} from "../web-specification";
 
-export function schemaAsBikeshed(schema: SchemaData): Bikeshed {
+export function schemaAsBikeshed(schema: ObjectModelSchema): Bikeshed {
   const result = new Bikeshed();
-  const specification = webSpecification(
-    schema, createRootSelector(schema), defaultStringSelector,
-    new BikeshedLinkFactory(schema));
+  const specification = createWebSpecificationFromObjectModel(
+    schema, defaultRootSelector, defaultStringSelector,
+    new DefaultLinkFactory(schema));
   result.humanLabel = specification.humanLabel;
   result.humanDescription = specification.humanDescription;
   result.schemas = specification.schemas;
@@ -21,13 +20,8 @@ export function schemaAsBikeshed(schema: SchemaData): Bikeshed {
   return result;
 }
 
-function createRootSelector(schema: SchemaData): RootClassSelector {
-  return classData => classData.schema == schema
-    || defaultRootSelector(classData);
-}
-
 function loadBikehedMetadata(
-  schema: SchemaData, specification: WebSpecification
+  schema: ObjectModelSchema, specification: WebSpecification
 ): Record<string, string> {
   return {
     [BikeshedMetadataKeys.title]: specification.humanLabel,
@@ -38,17 +32,4 @@ function loadBikehedMetadata(
     [BikeshedMetadataKeys.abstract]: specification.humanDescription,
     [BikeshedMetadataKeys.markup]: "markdown yes",
   }
-}
-
-class BikeshedLinkFactory extends DefaultLinkFactory {
-
-  protected schemaLink(schema: SchemaData) {
-    let result = schema.psmIri;
-    if (!result.endsWith("/")) {
-      result += "/";
-    }
-    result += "bikeshed";
-    return result;
-  }
-
 }
