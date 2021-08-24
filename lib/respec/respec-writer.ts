@@ -25,11 +25,11 @@ export async function saveReSpecToDirectory(
     outputStream.on("error", reject);
   });
 
-  const writable = {
+  const stream = {
     write: async chunk => await outputStream.write(chunk),
   } as OutputStream;
 
-  await writeReSpec(model, writable);
+  await writeReSpec(model, stream);
   outputStream.close();
 
   return result;
