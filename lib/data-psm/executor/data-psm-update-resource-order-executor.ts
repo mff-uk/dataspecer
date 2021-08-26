@@ -1,6 +1,9 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreModelReader,
+  createErrorOperationResult,
+  CreateNewIdentifier,
+  createSuccessOperationResult,
+  OperationResult,
 } from "../../core";
 import {DataPsmUpdateResourceOrder} from "../operation";
 import {loadDataPsmClass, loadDataPsmResource} from "./data-psm-executor-utils";
@@ -17,7 +20,7 @@ export async function executeDataPsmUpdateResourceOrder(
       "Missing resource to move.");
   }
 
-  const resourceToMoveAfter =
+  const resourceToMoveAfter = operation.dataPsmMoveAfter === null ? null :
     await loadDataPsmResource(modelReader, operation.dataPsmMoveAfter);
   if (resourceToMoveAfter === undefined) {
     return createErrorOperationResult(
@@ -42,9 +45,9 @@ export async function executeDataPsmUpdateResourceOrder(
     ...ownerClass.dataPsmParts.slice(indexToMove + 1),
   ];
 
-  const indexToMoveAfter =
+  const indexToMoveAfter = operation.dataPsmMoveAfter === null ? -1 :
     partsWithoutTheOneToMove.indexOf(operation.dataPsmMoveAfter);
-  if (indexToMoveAfter === -1) {
+  if (indexToMoveAfter === -1 && operation.dataPsmMoveAfter !== null) {
     return createErrorOperationResult(
       "Resource to move after is not part of the class.");
   }
