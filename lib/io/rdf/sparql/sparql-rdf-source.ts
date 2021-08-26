@@ -35,7 +35,7 @@ export class RdfSparqlSource implements RdfSource {
     const query = createSparqlReverseProperty(iri, predicate);
     const quads = await fetchRdfQuadsBySparqlConstruct(
       this.httpFetch, this.endpoint, query);
-    return quads.map(quad => RdfObject.node(quad.subject));
+    return quads.map(quad => quad.subject);
   }
 
 }

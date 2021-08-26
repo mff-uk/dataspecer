@@ -6,7 +6,7 @@ export async function loadPimResource(
   source: RdfSourceWrap, pimResource: PimResource,
 ): Promise<string[]> {
   pimResource.pimInterpretation =
-    (await source.node(PIM.HAS_INTERPRETATION))?.id;
+    (await source.node(PIM.HAS_INTERPRETATION));
   pimResource.pimTechnicalLabel =
     (await source.literal(PIM.HAS_TECHNICAL_LABEL))?.value as string;
   pimResource.pimHumanLabel =
