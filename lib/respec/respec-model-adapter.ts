@@ -2,15 +2,15 @@ import {ObjectModelSchema} from "../object-model";
 import {ReSpec, ReSpecMetadata} from "./respec-model";
 import {
   defaultStringSelector,
-  createWebSpecificationFromObjectModel,
+  objectModelToWebSpecification,
   defaultRootSelector,
   DefaultLinkFactory,
 } from "../web-specification";
 
-export function schemaAsReSpec(schema: ObjectModelSchema): ReSpec {
+export function objectModelToReSpec(schema: ObjectModelSchema): ReSpec {
   const result = new ReSpec();
   result.metadata = loadReSpecMetadata(schema);
-  const specification = createWebSpecificationFromObjectModel(
+  const specification = objectModelToWebSpecification(
     schema, defaultRootSelector, defaultStringSelector,
     new ReSpecLinkFactory(schema));
   result.humanLabel = specification.humanLabel;
