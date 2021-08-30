@@ -1,4 +1,4 @@
-import {RdfObject, RdfSource} from "./rdf-adapter-api";
+import {RdfObject, RdfSource} from "./rdf-api";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -38,7 +38,6 @@ export class RdfSourceWrap {
     return this.source.reverseProperty(predicate, this.resource);
   }
 
-
   /**
    * Resolve lists with rdf:first, rdf:rest
    */
@@ -64,7 +63,7 @@ export class RdfSourceWrap {
   }
 
   protected async loadList(
-    collector: RdfObject[], node: RdfObject,
+    collector: RdfObject[], node: RdfObject
   ): Promise<void> {
     const hasFirst = await this.source.property(node.value, HAS_FIRST);
     if (hasFirst.length !== 1) {
@@ -88,17 +87,17 @@ export class RdfSourceWrap {
     }
   }
 
-  async literal(predicate: string): Promise<RdfObject | undefined> {
+  async literal(predicate: string): Promise<RdfObject | null> {
     const values = await this.property(predicate);
     if (values.length == 0) {
-      return undefined;
+      return null;
     }
     for (const value of values) {
       if (RdfObject.isLiteral(value)) {
         return value;
       }
     }
-    return undefined;
+    return null;
   }
 
   async literals(predicate: string): Promise<RdfObject[]> {
@@ -106,14 +105,14 @@ export class RdfSourceWrap {
     return properties.filter(RdfObject.isLiteral);
   }
 
-  async reverseNode(predicate: string): Promise<string | undefined> {
+  async reverseNode(predicate: string): Promise<string | null> {
     const values = await this.reverseProperty(predicate);
     for (const value of values) {
       if (RdfObject.isNode(value)) {
         return value.value;
       }
     }
-    return undefined;
+    return null;
   }
 
   async reverseNodes(predicate: string): Promise<string[]> {
@@ -122,14 +121,14 @@ export class RdfSourceWrap {
       .map(value => value.value);
   }
 
-  async node(predicate: string): Promise<string | undefined> {
+  async node(predicate: string): Promise<string | null> {
     const values = await this.property(predicate);
     for (const value of values) {
       if (RdfObject.isNode(value)) {
         return value.value;
       }
     }
-    return undefined;
+    return null;
   }
 
   async nodes(predicate: string): Promise<string[]> {
@@ -150,7 +149,7 @@ export class RdfSourceWrap {
 
   async languageString(predicate: string): Promise<Record<string, string>> {
     const literals = await this.literals(predicate);
-    if (literals === undefined || literals.length === 0) {
+    if (literals.length === 0) {
       return null;
     }
     const result = {};
