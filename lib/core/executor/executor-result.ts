@@ -62,7 +62,7 @@ export function createSuccessOperationResult(
   created: CoreResource[], changed: CoreResource[], deleted: string[] = [],
 ): ExecutorResult {
   const createdMap = {};
-  changed.forEach(resource => createdMap[resource.iri] = resource);
+  created.forEach(resource => createdMap[resource.iri] = resource);
   const changedMap = {};
   changed.forEach(resource => changedMap[resource.iri] = resource);
   return {

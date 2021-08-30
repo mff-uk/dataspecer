@@ -1,8 +1,8 @@
 import {
-  CoreModelReader, createEmptySuccessOperationResult,
+  CoreResourceReader, createEmptySuccessOperationResult,
   createErrorOperationResult, CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult,
+  ExecutorResult,
 } from "../../core";
 import {
   asPimAssociationEnd,
@@ -16,12 +16,12 @@ import {loadPimSchema} from "./pim-executor-utils";
 
 export async function executePimDeleteClass(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimDeleteClass,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const classResource =
     await modelReader.readResource(operation.pimClass);
-  if (classResource === undefined) {
+  if (classResource === null) {
     return createErrorOperationResult(
       "Missing class object.");
   }
@@ -36,7 +36,7 @@ export async function executePimDeleteClass(
   }
 
   const schema = await loadPimSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
@@ -44,12 +44,12 @@ export async function executePimDeleteClass(
     iri => iri !== operation.pimClass);
 
   return createSuccessOperationResult(
-    [schema], [operation.pimClass]);
+    [], [schema], [operation.pimClass]);
 }
 
 async function checkIsNotUsed(
-  modelReader: CoreModelReader,
-  classIri: string): Promise<OperationResult> {
+  modelReader: CoreResourceReader,
+  classIri: string): Promise<ExecutorResult> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isPimAttribute(resource)) {

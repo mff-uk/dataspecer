@@ -1,12 +1,13 @@
 import {
   CoreResource,
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {asPimDeleteClass} from "../operation";
 import {
   executePimDeleteClass,
 } from "./pim-delete-class-executor";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Delete class.", async () => {
   const operation = asPimDeleteClass(createCoreResource());
@@ -31,34 +32,22 @@ test("Delete class.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
       "types": ["pim-schema"],
       "pimParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource.sort()).toEqual([
+  });
+  expect(actual.deleted.sort()).toEqual([
     "http://localhost/1",
   ].sort());
 });
 
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
-): CoreModelReader {
-
-  return new class implements CoreModelReader {
-
-    listResources(): Promise<string[]> {
-      return Promise.resolve(Object.keys(resources));
-    }
-
-    readResource(iri: string): Promise<CoreResource> {
-      return Promise.resolve(resources[iri]);
-    }
-
-  };
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
 }

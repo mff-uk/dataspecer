@@ -4,17 +4,17 @@ import {
   createCoreResource,
   createErrorOperationResult,
   createSuccessOperationResult,
-  OperationResult,
-  CoreModelReader,
+  ExecutorResult,
+  CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
 import {loadPimSchema} from "./pim-executor-utils";
 
 export async function executePimCreateClass(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimCreateClass,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const iri = operation.pimNewIri || createNewIdentifier("class");
 
   const result = asPimClass(createCoreResource(iri));
@@ -24,11 +24,11 @@ export async function executePimCreateClass(
   result.pimHumanDescription = operation.pimHumanDescription;
 
   const schema = await loadPimSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
   schema.pimParts = [...schema.pimParts, result.iri];
 
-  return createSuccessOperationResult([result, schema]);
+  return createSuccessOperationResult([result], [schema]);
 }

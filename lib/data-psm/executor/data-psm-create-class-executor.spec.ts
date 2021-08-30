@@ -1,9 +1,9 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmCreateClass} from "../operation";
 import {
   executesDataPsmCreateClass,
 } from "./data-psm-create-class-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create data PSM class.", async () => {
   const operation = asDataPsmCreateClass(createCoreResource());
@@ -31,14 +31,8 @@ test("Create data PSM class.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
-    "http://schema": {
-      "iri": "http://schema",
-      "types": ["data-psm-schema"],
-      "dataPsmParts": [
-        "http://base", "http://localhost/1",
-      ],
-    },
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["data-psm-class"],
@@ -49,8 +43,21 @@ test("Create data PSM class.", async () => {
       "dataPsmExtends": operation.dataPsmExtends,
       "dataPsmParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({
+    "http://schema": {
+      "iri": "http://schema",
+      "types": ["data-psm-schema"],
+      "dataPsmParts": [
+        "http://base", "http://localhost/1",
+      ],
+    },
+  });
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

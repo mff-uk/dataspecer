@@ -1,12 +1,13 @@
 import {
   CoreResource,
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {asPimUpdateResourceHumanLabel} from "../operation";
 import {
   executePimUpdateResourceHumanLabel,
 } from "./pim-update-resource-human-label-executor";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Update resource human label.", async () => {
   const operation = asPimUpdateResourceHumanLabel(
@@ -35,32 +36,21 @@ test("Update resource human label.", async () => {
   const actual = await executePimUpdateResourceHumanLabel(
     undefined, wrapResourcesWithReader(before), operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimHumanLabel": {"cs": "Popis"},
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.deleted).toEqual([]);
 });
 
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
-): CoreModelReader {
-
-  return new class implements CoreModelReader {
-
-    listResources(): Promise<string[]> {
-      return Promise.resolve(Object.keys(resources));
-    }
-
-    readResource(iri: string): Promise<CoreResource> {
-      return Promise.resolve(resources[iri]);
-    }
-
-  };
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
 }

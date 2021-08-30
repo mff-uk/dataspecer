@@ -1,5 +1,5 @@
 import {
-  CoreModelReader,
+  CoreResourceReader,
   CoreResource,
 } from "../../core";
 import {
@@ -8,32 +8,32 @@ import {
 } from "../model";
 
 export async function loadPimSchema(
-  modelReader: CoreModelReader,
-): Promise<PimSchema | undefined> {
+  modelReader: CoreResourceReader,
+): Promise<PimSchema | null> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isPimSchema(resource)) {
       return {...asPimSchema(resource)};
     }
   }
-  return undefined;
+  return null;
 }
 
 export async function loadPimResource(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<PimResource | undefined> {
+): Promise<PimResource | null> {
   const result = await modelReader.readResource(iri);
   if (isPimResource(result)) {
     return result;
   }
-  return undefined;
+  return null;
 }
 
 function isPimResource(
-  resource: CoreResource | undefined,
+  resource: CoreResource | null,
 ): resource is PimResource {
-  if (resource === undefined) {
+  if (resource === null) {
     return false;
   }
   return isPimAssociation(resource)

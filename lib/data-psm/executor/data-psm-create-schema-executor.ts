@@ -1,15 +1,15 @@
 import {
-  CoreModelReader, createCoreResource,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createCoreResource,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmCreateSchema} from "../operation";
 import {asDataPsmSchema} from "../model";
 
 export async function executesDataPsmCreateSchema(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmCreateSchema,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const iri = operation.dataPsmNewIri || createNewIdentifier("schema");
   const result = asDataPsmSchema(createCoreResource(iri));
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
@@ -17,5 +17,5 @@ export async function executesDataPsmCreateSchema(
   result.dataPsmParts = [];
   result.dataPsmRoots = [];
 
-  return createSuccessOperationResult([result]);
+  return createSuccessOperationResult([result], []);
 }

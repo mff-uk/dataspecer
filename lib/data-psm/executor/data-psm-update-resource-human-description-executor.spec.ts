@@ -1,12 +1,12 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmUpdateResourceHumanDescription} from "../operation";
 import {
   executeDataPsmUpdateResourceHumanDescription,
 } from "./data-psm-update-resource-human-description-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Update data PSM resource human description.", async () => {
-  const operation=
+  const operation =
     asDataPsmUpdateResourceHumanDescription(createCoreResource());
   operation.dataPsmResource = "http://class";
   operation.dataPsmHumanDescription = {"cs": "popis"};
@@ -23,15 +23,20 @@ test("Update data PSM resource human description.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
       "types": ["data-psm-class"],
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource).toEqual([]);
+  });
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

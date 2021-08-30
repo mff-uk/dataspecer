@@ -1,12 +1,13 @@
 import {
   CoreResource,
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {asPimDeleteAssociation} from "../operation";
 import {
   executePimDeleteAssociation,
 } from "./pim-delete-association-executor";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Delete association.", async () => {
   const operation = asPimDeleteAssociation(createCoreResource());
@@ -43,7 +44,9 @@ test("Delete association.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
       "types": ["pim-schema"],
@@ -51,11 +54,8 @@ test("Delete association.", async () => {
         "http://class", "http://left", "http://right",
       ],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource.sort()).toEqual([
+  });
+  expect(actual.deleted.sort()).toEqual([
     "http://localhost/1",
     "http://localhost/2",
     "http://localhost/3",
@@ -64,17 +64,6 @@ test("Delete association.", async () => {
 
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
-): CoreModelReader {
-
-  return new class implements CoreModelReader {
-
-    listResources(): Promise<string[]> {
-      return Promise.resolve(Object.keys(resources));
-    }
-
-    readResource(iri: string): Promise<CoreResource> {
-      return Promise.resolve(resources[iri]);
-    }
-
-  };
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
 }

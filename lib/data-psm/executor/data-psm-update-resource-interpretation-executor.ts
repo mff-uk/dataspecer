@@ -1,23 +1,23 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceInterpretation} from "../operation";
 import {loadDataPsmResource} from "./data-psm-executor-utils";
 
 export async function executeDataPsmUpdateResourceInterpretation(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceInterpretation,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const result =
     await loadDataPsmResource(modelReader, operation.dataPsmResource);
-  if (result === undefined) {
+  if (result === null) {
     return createErrorOperationResult(
       "Missing resource object.");
   }
 
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
 
-  return createSuccessOperationResult([result]);
+  return createSuccessOperationResult([], [result]);
 }

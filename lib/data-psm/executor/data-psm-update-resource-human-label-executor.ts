@@ -1,21 +1,21 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceHumanLabel} from "../operation";
 import {loadDataPsmHumanReadable} from "./data-psm-executor-utils";
 
 export async function executeDataPsmUpdateResourceHumanLabel(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceHumanLabel,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const result =
     await loadDataPsmHumanReadable(modelReader, operation.dataPsmResource);
-  if (result === undefined) {
+  if (result === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
-  return createSuccessOperationResult([result]);
+  return createSuccessOperationResult([], [result]);
 }

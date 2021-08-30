@@ -1,9 +1,9 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmDeleteAssociationEnd} from "../operation";
 import {
   executesDataPsmDeleteAssociationEnd,
 } from "./data-psm-delete-association-end-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Delete data PSM association-end.", async () => {
   const operation = asDataPsmDeleteAssociationEnd(createCoreResource());
@@ -32,7 +32,9 @@ test("Delete data PSM association-end.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
       "types": ["data-psm-schema"],
@@ -43,9 +45,12 @@ test("Delete data PSM association-end.", async () => {
       "types": ["data-psm-class"],
       "dataPsmParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource).toEqual(["http://association-end"]);
+  });
+  expect(actual.deleted).toEqual(["http://association-end"]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

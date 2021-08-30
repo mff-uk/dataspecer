@@ -16,7 +16,8 @@ test("Create schema.", async () => {
     undefined,
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-schema"],
@@ -24,10 +25,9 @@ test("Create schema.", async () => {
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({});
+  expect(actual.deleted).toEqual([]);
 });
 
 test("Create schema with given IRI.", async () => {
@@ -40,7 +40,8 @@ test("Create schema with given IRI.", async () => {
   const actual = await executePimCreateSchema(
     undefined, undefined, operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     [operation.pimNewIri]: {
       "iri": operation.pimNewIri,
       "types": ["pim-schema"],
@@ -48,8 +49,7 @@ test("Create schema with given IRI.", async () => {
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({});
+  expect(actual.deleted).toEqual([]);
 });

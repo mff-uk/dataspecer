@@ -1,10 +1,10 @@
 import {
-  CoreResource,
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {asPimCreateAssociation} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create association.", async () => {
   const operation = asPimCreateAssociation(createCoreResource());
@@ -36,15 +36,8 @@ test("Create association.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
-    "http://schema": {
-      "iri": "http://schema",
-      "types": ["pim-schema"],
-      "pimParts": [
-        "http://class", "http://left", "http://right",
-        "http://localhost/3", "http://localhost/1", "http://localhost/2",
-      ],
-    },
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     "http://localhost/3": {
       "iri": "http://localhost/3",
       "types": ["pim-association"],
@@ -64,25 +57,22 @@ test("Create association.", async () => {
       "types": ["pim-association-end"],
       "pimPart": "http://left",
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({
+    "http://schema": {
+      "iri": "http://schema",
+      "types": ["pim-schema"],
+      "pimParts": [
+        "http://class", "http://left", "http://right",
+        "http://localhost/3", "http://localhost/1", "http://localhost/2",
+      ],
+    },
+  });
+  expect(actual.deleted).toEqual([]);
 });
 
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
-): CoreModelReader {
-
-  return new class implements CoreModelReader {
-
-    listResources(): Promise<string[]> {
-      return Promise.resolve(Object.keys(resources));
-    }
-
-    readResource(iri: string): Promise<CoreResource> {
-      return Promise.resolve(resources[iri]);
-    }
-
-  };
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
 }

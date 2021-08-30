@@ -1,11 +1,11 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {
   asDataPsmUpdateResourceOrder,
 } from "../operation";
 import {
   executeDataPsmUpdateResourceOrder,
 } from "./data-psm-update-resource-order-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Change order in data PSM class.", async () => {
   const operation =
@@ -43,7 +43,9 @@ test("Change order in data PSM class.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
       "types": ["data-psm-class"],
@@ -52,9 +54,12 @@ test("Change order in data PSM class.", async () => {
         "http://attribute/1", "http://attribute/3",
       ],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource).toEqual([]);
+  });
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

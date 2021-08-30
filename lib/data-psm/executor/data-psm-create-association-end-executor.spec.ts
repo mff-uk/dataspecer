@@ -1,9 +1,9 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmCreateAssociationEnd} from "../operation";
 import {
   executesDataPsmCreateAssociationEnd,
 } from "./data-psm-create-association-end-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create data PSM association-end.", async () => {
   const operation = asDataPsmCreateAssociationEnd(createCoreResource());
@@ -32,7 +32,18 @@ test("Create data PSM association-end.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
+    "http://localhost/1": {
+      "iri": "http://localhost/1",
+      "types": ["data-psm-association-end"],
+      "dataPsmInterpretation": operation.dataPsmInterpretation,
+      "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
+      "dataPsmHumanLabel": operation.dataPsmHumanLabel,
+      "dataPsmHumanDescription": operation.dataPsmHumanDescription,
+    },
+  });
+  expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
       "types": ["data-psm-schema"],
@@ -43,16 +54,12 @@ test("Create data PSM association-end.", async () => {
       "types": ["data-psm-class"],
       "dataPsmParts": ["http://localhost/1"],
     },
-    "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": ["data-psm-association-end"],
-      "dataPsmInterpretation": operation.dataPsmInterpretation,
-      "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
-      "dataPsmHumanLabel": operation.dataPsmHumanLabel,
-      "dataPsmHumanDescription": operation.dataPsmHumanDescription,
-    },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

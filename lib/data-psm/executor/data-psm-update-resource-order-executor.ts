@@ -1,32 +1,32 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceOrder} from "../operation";
 import {loadDataPsmClass, loadDataPsmResource} from "./data-psm-executor-utils";
 
 export async function executeDataPsmUpdateResourceOrder(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceOrder,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const resourceToMove =
     await loadDataPsmResource(modelReader, operation.dataPsmResourceToMove);
-  if (resourceToMove === undefined) {
+  if (resourceToMove === null) {
     return createErrorOperationResult(
       "Missing resource to move.");
   }
 
   const resourceToMoveAfter =
     await loadDataPsmResource(modelReader, operation.dataPsmMoveAfter);
-  if (resourceToMoveAfter === undefined) {
+  if (resourceToMoveAfter === null) {
     return createErrorOperationResult(
       "Missing resource to move after.");
   }
 
   const ownerClass =
     await loadDataPsmClass(modelReader, operation.dataPsmOwnerClass);
-  if (ownerClass === undefined) {
+  if (ownerClass === null) {
     return createErrorOperationResult(
       "Missing class resource.");
   }
@@ -54,5 +54,5 @@ export async function executeDataPsmUpdateResourceOrder(
     ...partsWithoutTheOneToMove.slice(indexToMoveAfter + 1),
   ];
 
-  return createSuccessOperationResult([ownerClass]);
+  return createSuccessOperationResult([], [ownerClass]);
 }
