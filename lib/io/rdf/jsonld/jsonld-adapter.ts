@@ -1,7 +1,9 @@
 import * as jsonld from "jsonld";
 import {RdfQuad} from "../../../core/adapter/rdf";
 
-export async function parseRdfQuadsWithJsonLd(content: string): Promise<RdfQuad[]> {
+export async function parseRdfQuadsWithJsonLd(
+  content: string,
+): Promise<RdfQuad[]> {
   const contentAsJson = JSON.parse(content) as jsonld.JsonLdDocument;
   const options = {
     "documentLoader": async (url) => {
