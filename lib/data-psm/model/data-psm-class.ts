@@ -18,9 +18,10 @@ export interface DataPsmClass extends DataPsmResource {
 export const DataPsmClassType = "data-psm-class";
 
 export function isDataPsmClass(
-  resource: CoreResource,
+  resource: unknown,
 ): resource is DataPsmClass {
-  return resource.types.includes(DataPsmClassType);
+  return resource !== null
+    && resource?.types?.includes(DataPsmClassType);
 }
 
 export function asDataPsmClass(

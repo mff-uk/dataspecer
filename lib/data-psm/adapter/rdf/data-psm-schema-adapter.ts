@@ -1,9 +1,9 @@
-import {RdfSourceWrap, RdfResourceAdapter} from "../../../core/adapter/rdf";
+import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
 import {CoreResource} from "../../../core";
 import {asDataPsmSchema} from "../../model";
 import * as PSM from "./data-psm-vocabulary";
 
-export class DataPsmSchemaAdapter implements RdfResourceAdapter {
+export class DataPsmSchemaAdapter implements RdfResourceLoader {
 
   async loadResource(
     source: RdfSourceWrap, resource: CoreResource,
@@ -23,7 +23,7 @@ export class DataPsmSchemaAdapter implements RdfResourceAdapter {
       await source.languageString(PSM.HAS_HUMAN_DESCRIPTION);
     result.dataPsmRoots = await source.nodesExtended(PSM.HAS_ROOT);
     result.dataPsmParts = await source.nodesExtended(PSM.HAS_PART);
-    return [...result.dataPsmParts];
+    return [...result.dataPsmParts, ...result.dataPsmRoots];
   }
 
 }

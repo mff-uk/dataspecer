@@ -1,8 +1,11 @@
 import {
-  ClassData,
-  PropertyData,
-  SchemaData,
-} from "../../entity-model/entity-model";
+  ObjectModelClass,
+  ObjectModelSchema,
+  ObjectModelProperty,
+  ObjectModelPrimitive,
+  isObjectModelClass,
+  isObjectModelPrimitive,
+} from "../object-model";
 import {
   WebSpecification,
   WebSpecificationSchema,
@@ -13,14 +16,14 @@ import {
 
 class AdapterContext {
 
-  readonly schema: SchemaData;
+  readonly schema: ObjectModelSchema;
 
   readonly stringSelector: StringSelector;
 
   readonly linkFactory: LinkFactory;
 
   constructor(
-    schema: SchemaData,
+    schema: ObjectModelSchema,
     stringSelector: StringSelector,
     linkFactory: LinkFactory,
   ) {
@@ -32,34 +35,34 @@ class AdapterContext {
 }
 
 export type RootClassSelector =
-  (classData: ClassData) => boolean;
+  (classData: ObjectModelClass) => boolean;
 
 export type StringSelector =
   (string: Record<string, string> | undefined) => string;
 
 export interface LinkFactory {
 
-  classAnchor: (classData: ClassData) => string;
+  classAnchor: (classData: ObjectModelClass) => string;
 
-  propertyAnchor: (classData: ClassData, propertyData: PropertyData) => string;
+  propertyAnchor:
+    (classData: ObjectModelClass, propertyData: ObjectModelProperty) => string;
 
-  classLink: (classData: ClassData) => string;
+  classLink: (classData: ObjectModelClass) => string;
 
-  codeListLink: (classData: ClassData) => string;
+  codeListLink: (classData: ObjectModelClass) => string;
 
-  valueClassLink: (classData: ClassData) => string;
+  valueClassLink: (classData: ObjectModelClass) => string;
 
 }
 
-export function webSpecification(
-  schema: SchemaData,
+export function objectModelToWebSpecification(
+  schema: ObjectModelSchema,
   rootClassSelector: RootClassSelector,
   stringSelector: StringSelector,
   linkFactory: LinkFactory,
 ): WebSpecification {
   const context = new AdapterContext(schema, stringSelector, linkFactory);
-  const classes = collectAllClassesForSchema(schema);
-  const roots = selectRootClass(classes, rootClassSelector);
+  const roots = selectRootClass(schema.classes, rootClassSelector);
   return {
     "humanLabel": context.stringSelector(schema.humanLabel),
     "humanDescription": context.stringSelector(schema.humanLabel),
@@ -67,43 +70,15 @@ export function webSpecification(
   };
 }
 
-function collectAllClassesForSchema(
-  schemaData: SchemaData): Record<string, ClassData> {
-  let result: Record<string, ClassData> = {};
-  for (const classData of schemaData.roots) {
-    result = {
-      ...result,
-      ...collectAllClassesFromClass(classData),
-    };
-  }
-  return result;
-}
-
-function collectAllClassesFromClass(
-  classData: ClassData): Record<string, ClassData> {
-  let result: Record<string, ClassData> = {
-    [classData.psmIri]: classData,
-  };
-  for (const property of classData.properties) {
-    for (const propertyClass of property.dataTypeClass) {
-      result = {
-        ...result,
-        ...collectAllClassesFromClass(propertyClass),
-      };
-    }
-  }
-  return result;
-}
-
 function selectRootClass(
-  classes: Record<string, ClassData>,
+  classes: ObjectModelClass[],
   rootClassSelector: RootClassSelector,
-): ClassData[] {
-  return Object.values(classes).filter(rootClassSelector);
+): ObjectModelClass[] {
+  return classes.filter(rootClassSelector);
 }
 
 function loadSpecificationSchema(
-  context: AdapterContext, roots: ClassData [],
+  context: AdapterContext, roots: ObjectModelClass [],
 ): WebSpecificationSchema {
   return {
     "entities": roots.map(classData =>
@@ -112,7 +87,7 @@ function loadSpecificationSchema(
 }
 
 function loadReSpecSpecificationClassData(
-  context: AdapterContext, classData: ClassData,
+  context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationEntity {
   return {
     "humanLabel": context.stringSelector(classData.humanLabel),
@@ -125,7 +100,7 @@ function loadReSpecSpecificationClassData(
 }
 
 function loadClassDataProperties(
-  context: AdapterContext, classData: ClassData,
+  context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationProperty[] {
   const result = {};
   // We first load all properties based on the inheritance.
@@ -143,7 +118,8 @@ function loadClassDataProperties(
 }
 
 function convertPropertyData(
-  context: AdapterContext, owner: ClassData, propertyData: PropertyData,
+  context: AdapterContext, owner: ObjectModelClass,
+  propertyData: ObjectModelProperty,
 ): WebSpecificationProperty {
   const result = new WebSpecificationProperty();
   result.technicalLabel = propertyData.technicalLabel;
@@ -151,12 +127,15 @@ function convertPropertyData(
   result.humanDescription =
     context.stringSelector(propertyData.humanDescription);
   result.anchor = context.linkFactory.propertyAnchor(owner, propertyData);
-  //
-  if (propertyData.dataTypePrimitive !== undefined) {
-    result.type.push(convertPropertyPrimitive(context, propertyData));
-  }
-  for (const classData of propertyData.dataTypeClass) {
-    result.type.push(convertPropertyClass(context, classData));
+  for (const dataType of propertyData.dataTypes) {
+    if (isObjectModelPrimitive(dataType)) {
+      result.type.push(convertPropertyPrimitive(context, dataType));
+    } else if (isObjectModelClass(dataType)) {
+      result.type.push(convertPropertyClass(context, dataType));
+    } else {
+      throw new Error(
+        `Invalid data type ${dataType["psmIri"]} in ${owner.psmIri}`);
+    }
   }
   if (result.type.length === 0) {
     throw new Error(
@@ -168,9 +147,9 @@ function convertPropertyData(
 }
 
 function convertPropertyPrimitive(
-  context: AdapterContext, propertyData: PropertyData,
+  context: AdapterContext, propertyData: ObjectModelPrimitive,
 ): WebSpecificationType {
-  const dataType = propertyData.dataTypePrimitive;
+  const dataType = propertyData.dataType;
   return {
     "label": dataType,
     "isPrimitive": true,
@@ -181,7 +160,7 @@ function convertPropertyPrimitive(
 }
 
 function convertPropertyClass(
-  context: AdapterContext, classData: ClassData,
+  context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationType {
   const label = context.stringSelector(classData.humanLabel) || classData.psmIri;
   if (classData.isCodelist) {
@@ -200,7 +179,7 @@ function convertPropertyClass(
 }
 
 function convertPropertyClassCodeList(
-  context: AdapterContext, classData: ClassData, label: string,
+  context: AdapterContext, classData: ObjectModelClass, label: string,
 ): WebSpecificationType {
   return {
     "label": label,
@@ -215,12 +194,12 @@ function convertPropertyClassCodeList(
  * An empty class refer to an identifier, IRI for RDF, for entity
  * of the class. Such class should not be included in the list of classes.
  */
-function isClassValue(classData: ClassData): boolean {
+function isClassValue(classData: ObjectModelClass): boolean {
   return !classData.isCodelist && classData.properties.length === 0;
 }
 
 function convertPropertyClassValue(
-  context: AdapterContext, classData: ClassData, label: string,
+  context: AdapterContext, classData: ObjectModelClass, label: string,
 ): WebSpecificationType {
   return {
     "label": label,
@@ -231,12 +210,7 @@ function convertPropertyClassValue(
   };
 }
 
-export function defaultRootSelector(classData: ClassData): boolean {
-  if (classData.schema === undefined) {
-    // Class with schema should not be included, as they
-    // are in their own ReSpec files.
-    return true;
-  }
+export function defaultRootSelector(classData: ObjectModelClass): boolean {
   if (classData.isCodelist) {
     // Codelist should be put on output always.
     return true;
@@ -263,13 +237,13 @@ export class DefaultLinkFactory implements LinkFactory {
   /**
    * Root schema.
    */
-  readonly schema: SchemaData;
+  readonly schema: ObjectModelSchema;
 
-  constructor(schema: SchemaData) {
+  constructor(schema: ObjectModelSchema) {
     this.schema = schema;
   }
 
-  classAnchor(classData: ClassData): string {
+  classAnchor(classData: ObjectModelClass): string {
     return "třída-" + this.sanitizeForAnchor(classData.humanLabel);
   }
 
@@ -279,47 +253,32 @@ export class DefaultLinkFactory implements LinkFactory {
       .replace(/ /g, "-");
   }
 
-  classLink(classData: ClassData): string {
-    return this.domainLink(classData) + "#" + this.classAnchor(classData);
-  }
-
-  protected domainLink(classData: ClassData): string {
-    if (classData.schema === undefined) {
-      return "";
-    }
-    if (classData.schema === this.schema) {
-      return "";
-    }
-    return this.schemaLink(classData.schema);
-  }
-
-  protected schemaLink(schema: SchemaData) {
-    let result = schema.psmIri;
-    if (!result.endsWith("/")) {
-      result += "/";
-    }
-    result += "schema";
-    return result;
-  }
-
-  codeListLink(classData: ClassData): string {
+  classLink(classData: ObjectModelClass): string {
     return "#" + this.classAnchor(classData);
   }
 
-  valueClassLink(classData: ClassData): string {
-    return this.firstNamedNode(classData.iris);
+  codeListLink(classData: ObjectModelClass): string {
+    return "#" + this.classAnchor(classData);
+  }
+
+  valueClassLink(classData: ObjectModelClass): string {
+    return this.firstNamedNode(
+      [classData.psmIri, classData.pimIri, classData.cimIri]);
   }
 
   protected firstNamedNode(resources: string[]): string | undefined {
     for (const resource of resources) {
-      if (!resource.startsWith("_")) {
-        return resource;
+      if (resource === undefined || resource.startsWith("_")) {
+        continue;
       }
+      return resource;
     }
     return undefined;
   }
 
-  propertyAnchor(classData: ClassData, propertyData: PropertyData): string {
+  propertyAnchor(
+    classData: ObjectModelClass, propertyData: ObjectModelProperty
+  ): string {
     return "vlastnost-"
       + this.sanitizeForAnchor(classData.humanLabel)
       + "-"

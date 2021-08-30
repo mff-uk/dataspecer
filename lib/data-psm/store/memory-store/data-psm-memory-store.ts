@@ -1,16 +1,17 @@
 import {
-  CoreModelReader,
-  CoreModelWriter,
-  ModelChange,
+  CoreResourceReader,
+  CoreResourceWriter,
+  CoreOperationResult,
   CoreOperation,
   CoreResource,
   CreateNewIdentifier,
+  assert, assertNot,
 } from "../../../core";
 import {asDataPsmCreateSchema, isDataPsmCreateSchema} from "../../operation";
-import {assert, assertNot} from "../../../io/assert";
 import {executeDataPsmOperation} from "../../executor";
 
-export class DataPsmMemoryStore implements CoreModelReader, CoreModelWriter {
+export class DataPsmMemoryStore
+  implements CoreResourceReader, CoreResourceWriter {
 
   private operations: CoreOperation[] = [];
 
@@ -30,12 +31,22 @@ export class DataPsmMemoryStore implements CoreModelReader, CoreModelWriter {
     return Object.keys(this.resources);
   }
 
+  listResourcesOfType(typeIri: string): Promise<string[]> {
+    const result: string[] = [];
+    for (const [iri, resource] of Object.entries(this.resources)) {
+      if (resource.types.includes(typeIri)) {
+        result.push(iri);
+      }
+    }
+    return Promise.resolve(result);
+  }
+
   async readResource(iri: string): Promise<CoreResource> {
     // TODO: We may need to create a deep copy here.
     return this.resources[iri];
   }
 
-  async applyOperation(operation: CoreOperation): Promise<ModelChange> {
+  async applyOperation(operation: CoreOperation): Promise<CoreOperationResult> {
     if (this.operations.length === 0) {
       this.applyFirstOperation(operation);
     }
@@ -46,14 +57,19 @@ export class DataPsmMemoryStore implements CoreModelReader, CoreModelWriter {
     }
 
     const resultOperation = this.addOperation(operation);
-    this.resources = {...this.resources, ...operationResult.changedResources};
-    operationResult.deletedResource
+    this.resources = {
+      ...this.resources,
+      ...operationResult.changed,
+      ...operationResult.created,
+    };
+    operationResult.deleted
       .forEach((iri) => delete this.resources[iri]);
 
     return {
       "operation": resultOperation,
-      "changed": Object.keys(operationResult.changedResources),
-      "deleted": operationResult.deletedResource,
+      "created": Object.keys(operationResult.created),
+      "changed": Object.keys(operationResult.changed),
+      "deleted": operationResult.deleted,
     };
   }
 

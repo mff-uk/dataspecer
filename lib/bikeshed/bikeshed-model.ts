@@ -1,4 +1,4 @@
-import {WebSpecification} from "../web-specification/web-specification-model";
+import {WebSpecification} from "../web-specification";
 
 export class Bikeshed extends  WebSpecification {
 

@@ -45,8 +45,6 @@ export class WebSpecificationProperty {
 
   anchor: string;
 
-  note: string | undefined = undefined;
-
   type: WebSpecificationType[] = [];
 
 }

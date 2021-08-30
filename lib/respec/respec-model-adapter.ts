@@ -1,18 +1,17 @@
-import {SchemaData} from "../../entity-model/entity-model";
+import {ObjectModelSchema} from "../object-model";
 import {ReSpec, ReSpecMetadata} from "./respec-model";
 import {
   defaultStringSelector,
-  webSpecification,
-  RootClassSelector,
+  objectModelToWebSpecification,
   defaultRootSelector,
   DefaultLinkFactory,
-} from "../web-specification/web-specification-model-adapter";
+} from "../web-specification";
 
-export function schemaAsReSpec(schema: SchemaData): ReSpec {
+export function objectModelToReSpec(schema: ObjectModelSchema): ReSpec {
   const result = new ReSpec();
   result.metadata = loadReSpecMetadata(schema);
-  const specification = webSpecification(
-    schema, createRootSelector(schema), defaultStringSelector,
+  const specification = objectModelToWebSpecification(
+    schema, defaultRootSelector, defaultStringSelector,
     new ReSpecLinkFactory(schema));
   result.humanLabel = specification.humanLabel;
   result.humanDescription = specification.humanDescription;
@@ -20,12 +19,7 @@ export function schemaAsReSpec(schema: SchemaData): ReSpec {
   return result;
 }
 
-function createRootSelector(schema: SchemaData): RootClassSelector {
-  return classData => classData.schema == schema
-    || defaultRootSelector(classData);
-}
-
-function loadReSpecMetadata(schema: SchemaData): ReSpecMetadata {
+function loadReSpecMetadata(schema: ObjectModelSchema): ReSpecMetadata {
   return {
     "title": defaultStringSelector(schema.humanLabel),
   };
@@ -33,7 +27,7 @@ function loadReSpecMetadata(schema: SchemaData): ReSpecMetadata {
 
 class ReSpecLinkFactory extends DefaultLinkFactory {
 
-  protected schemaLink(schema: SchemaData) {
+  protected schemaLink(schema: ObjectModelSchema) {
     let result = schema.psmIri;
     if (!result.endsWith("/")) {
       result += "/";

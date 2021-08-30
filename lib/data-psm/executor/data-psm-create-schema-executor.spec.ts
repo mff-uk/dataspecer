@@ -1,16 +1,16 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmCreateSchema} from "../operation";
 import {
   executesDataPsmCreateSchema,
 } from "./data-psm-create-schema-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create data PSM schema.", async () => {
   const operation = asDataPsmCreateSchema(createCoreResource());
   operation.dataPsmHumanLabel = {"en": "Label"};
   operation.dataPsmHumanDescription = {"en": "Desc"};
 
-  const before = {  };
+  const before = {};
 
   let counter = 0;
   const actual = await executesDataPsmCreateSchema(
@@ -18,7 +18,8 @@ test("Create data PSM schema.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["data-psm-schema"],
@@ -27,8 +28,13 @@ test("Create data PSM schema.", async () => {
       "dataPsmRoots": [],
       "dataPsmParts": [],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({});
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

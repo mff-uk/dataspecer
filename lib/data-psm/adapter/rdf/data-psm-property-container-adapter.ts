@@ -1,9 +1,9 @@
-import {RdfSourceWrap, RdfResourceAdapter} from "../../../core/adapter/rdf";
+import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
 import {CoreResource} from "../../../core";
 import {asDataPsmPropertyContainer} from "../../model";
 import * as PSM from "./data-psm-vocabulary";
 
-export class PsmIncludeAdapter implements RdfResourceAdapter {
+export class PsmIncludeAdapter implements RdfResourceLoader {
 
   async loadResource(
     source: RdfSourceWrap, resource: CoreResource,

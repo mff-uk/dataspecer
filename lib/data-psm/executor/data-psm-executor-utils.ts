@@ -1,5 +1,5 @@
 import {
-  CoreModelReader,
+  CoreResourceReader,
   CoreResource,
 } from "../../core";
 import {
@@ -17,32 +17,32 @@ import {
 } from "../model";
 
 export async function loadDataPsmSchema(
-  modelReader: CoreModelReader,
-): Promise<DataPsmSchema | undefined> {
+  modelReader: CoreResourceReader,
+): Promise<DataPsmSchema | null> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isDataPsmSchema(resource)) {
       return {...asDataPsmSchema(resource)};
     }
   }
-  return undefined;
+  return null;
 }
 
 export async function loadDataPsmResource(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<DataPsmResource | undefined> {
+): Promise<DataPsmResource | null> {
   const result = await modelReader.readResource(iri);
-  if (isDataPsmResource(result)) {
+  if (result != null && isDataPsmResource(result)) {
     return {...result};
   }
-  return undefined;
+  return null;
 }
 
 function isDataPsmResource(
-  resource: CoreResource | undefined,
+  resource: CoreResource | null,
 ): resource is DataPsmResource {
-  if (resource === undefined) {
+  if (resource === null) {
     return false;
   }
   return isDataPsmAssociationEnd(resource)
@@ -51,20 +51,20 @@ function isDataPsmResource(
 }
 
 export async function loadDataPsmTechnicalResource(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<DataPsmTechnicalResource | undefined> {
+): Promise<DataPsmTechnicalResource | null> {
   const result = await modelReader.readResource(iri);
-  if (isDataPsmTechnicalResource(result)) {
+  if (result !== null && isDataPsmTechnicalResource(result)) {
     return {...result};
   }
-  return undefined;
+  return null;
 }
 
 function isDataPsmTechnicalResource(
-  resource: CoreResource | undefined,
+  resource: CoreResource | null,
 ): resource is DataPsmTechnicalResource {
-  if (resource === undefined) {
+  if (resource === null) {
     return false;
   }
   return isDataPsmAssociationEnd(resource)
@@ -74,20 +74,20 @@ function isDataPsmTechnicalResource(
 }
 
 export async function loadDataPsmHumanReadable(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<DataPsmResource | undefined> {
+): Promise<DataPsmResource | null> {
   const result = await modelReader.readResource(iri);
-  if (isDataPsmHumanReadableResource(result)) {
+  if (result !== null && isDataPsmHumanReadableResource(result)) {
     return {...result};
   }
-  return undefined;
+  return null;
 }
 
 function isDataPsmHumanReadableResource(
-  resource: CoreResource | undefined,
+  resource: CoreResource | null,
 ): resource is DataPsmHumanReadableResource {
-  if (resource === undefined) {
+  if (resource === null) {
     return false;
   }
   return isDataPsmResource(resource)
@@ -98,12 +98,12 @@ function isDataPsmHumanReadableResource(
 }
 
 export async function loadDataPsmClass(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<DataPsmClass | undefined> {
+): Promise<DataPsmClass | null> {
   const result = await modelReader.readResource(iri);
-  if (isDataPsmClass(result)) {
+  if (result !== null && isDataPsmClass(result)) {
     return {...result};
   }
-  return undefined;
+  return null;
 }

@@ -1,7 +1,7 @@
-import {CoreModelReader, CoreResource} from "../../../core";
-import {clone} from "../../../utilities/clone";
+import {CoreResourceReader, CoreResource} from "../../../core";
+import {clone} from "../../utilities/clone";
 
-export class ReadOnlyMemoryStore implements CoreModelReader {
+export class ReadOnlyMemoryStore implements CoreResourceReader {
 
   private readonly resources: { [iri: string]: CoreResource };
 
@@ -9,12 +9,26 @@ export class ReadOnlyMemoryStore implements CoreModelReader {
     this.resources = resources;
   }
 
-  async listResources(): Promise<string[]> {
-    return Object.keys(this.resources);
+  listResources(): Promise<string[]> {
+    return Promise.resolve(Object.keys(this.resources));
   }
 
-  async readResource(iri: string): Promise<CoreResource> {
-    return clone(this.resources[iri]);
+  listResourcesOfType(typeIri: string): Promise<string[]> {
+    const result: string[] = [];
+    for (const [iri, resource] of Object.entries(this.resources)) {
+      if (resource.types.includes(typeIri)) {
+        result.push(iri);
+      }
+    }
+    return Promise.resolve(result);
+  }
+
+  readResource(iri: string): Promise<CoreResource | null> {
+    const resource = this.resources[iri];
+    if (resource === undefined) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(clone(this.resources[iri]) as CoreResource);
   }
 
 }

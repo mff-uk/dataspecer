@@ -1,288 +1,211 @@
-import {PropertyData, PropertyType} from "./entity-model";
-import {ModelResource} from "../platform-model/platform-model-api";
-import {ObjectModelClassAdapter} from "./entity-class-adapter";
-import {PsmAttribute} from "../platform-model/psm/psm-attribute";
-import {PsmAssociation} from "../platform-model/psm/psm-association";
-import {PsmIncludes} from "../platform-model/psm/psm-includes";
-import {PimAttribute} from "../platform-model/pim/pim-attribute";
-import {PimAssociation} from "../platform-model/pim/pim-association";
-import {CimEntity} from "../platform-model/cim/cim-entity";
+import {CoreResourceReader, CoreResource} from "../../core";
+import {
+  createObjectModelPrimitive,
+  createObjectModelProperty, ObjectModelPrimitive,
+  ObjectModelProperty,
+} from "../object-model";
+import {ObjectModelClassAdapter} from "./object-model-class-adapter";
+import {
+  DataPsmAssociationEnd,
+  DataPsmAttribute,
+  isDataPsmAssociationEnd,
+  isDataPsmAttribute, isDataPsmClass,
+} from "../../data-psm/model";
+import {
+  isPimAssociation, isPimAssociationEnd,
+  isPimAttribute, PimAssociationEnd, PimAttribute,
+} from "../../pim/model";
 
 export class ObjectModelPropertyAdapter {
 
-  readonly entities: Record<string, ModelResource>;
+  readonly reader: CoreResourceReader;
 
-  readonly psmAttribute: Record<string, PropertyData> = {};
+  readonly psmAttribute: Record<string, ObjectModelProperty> = {};
 
-  readonly psmAssociation: Record<string, PropertyData> = {};
+  readonly psmAssociation: Record<string, ObjectModelProperty> = {};
 
-  readonly pimAttribute: Record<string, PropertyData> = {};
+  readonly pimAttribute: Record<string, ObjectModelProperty> = {};
 
-  readonly pimAssociation: Record<string, PropertyData> = {};
+  readonly pimAssociation: Record<string, ObjectModelProperty> = {};
 
   readonly classAdapter: ObjectModelClassAdapter;
 
   constructor(
-    entities: Record<string, ModelResource>,
+    reader: CoreResourceReader,
     classAdapter: ObjectModelClassAdapter,
   ) {
-    this.entities = entities;
+    this.reader = reader;
     this.classAdapter = classAdapter;
   }
 
-  loadPropertyFromPsm(entity: ModelResource): PropertyData[] {
-    if (PsmAttribute.is(entity)) {
-      return [this.loadPropertyFromPsmAttribute(entity)];
+  async loadPropertyFromDataPsm(
+    resource: CoreResource,
+  ): Promise<ObjectModelProperty[]> {
+    if (isDataPsmAttribute(resource)) {
+      return [await this.loadPropertyFromPsmAttribute(resource)];
     }
-    if (PsmAssociation.is(entity)) {
-      return [this.loadPropertyFromPsmAssociation(entity)];
-    }
-    if (PsmIncludes.is(entity)) {
-      return this.loadPropertyFromPsmIncludes(entity);
+    if (isDataPsmAssociationEnd(resource)) {
+      return [await this.loadPropertyFromPsmAssociationEnd(resource)];
     }
     throw new Error(
-      ` ${entity.id} with types [${entity.rdfTypes}] is not psm property.`);
+      ` ${resource.iri} with types [${resource.types}] is not psm property.`);
   }
 
-  protected loadPropertyFromPsmAttribute(
-    entity: ModelResource,
-  ): PropertyData {
-    if (this.psmAttribute[entity.id] !== undefined) {
-      return this.psmAttribute[entity.id];
+  protected async loadPropertyFromPsmAttribute(
+    dataPsmAttribute: DataPsmAttribute,
+  ): Promise<ObjectModelProperty> {
+    if (this.psmAttribute[dataPsmAttribute.iri] !== undefined) {
+      return this.psmAttribute[dataPsmAttribute.iri];
     }
-    if (!PsmAttribute.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not psm:Attribute.`);
+    const result = createObjectModelProperty();
+    this.psmAttribute[dataPsmAttribute.iri] = result;
+    // As of now we do not address the cardinality, so we leave it to default.
+    this.psmAttributeToProperty(dataPsmAttribute, result);
+    if (dataPsmAttribute.dataPsmInterpretation === undefined) {
+      return result;
     }
-    const psmAttribute: PsmAttribute = entity as PsmAttribute;
-    const result = new PropertyData();
-    this.psmAttribute[entity.id] = result;
-    this.psmAttributeToProperty(psmAttribute, result);
     const interpretationEntity =
-      this.entities[psmAttribute.psmInterpretation];
-    if (PsmAttribute.is(interpretationEntity)) {
+      await this.reader.readResource(dataPsmAttribute.dataPsmInterpretation);
+    if (isPimAttribute(interpretationEntity)) {
       const interpretation =
-        this.loadPropertyFromPsmAttribute(interpretationEntity);
-      this.addPsmInterpretation(result, interpretation);
-    } else if (PimAttribute.is(interpretationEntity)) {
-      const interpretation =
-        this.loadPropertyFromPimAttribute(interpretationEntity);
+        await this.loadPropertyFromPimAttribute(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
     } else {
       throw new Error(
-        ` ${interpretationEntity.id} with types `
-        + `[${interpretationEntity.rdfTypes}] is not psm:Attribute `
-        + `interpretation for ${entity.id}.`);
+        ` ${interpretationEntity.iri} with types `
+        + `[${interpretationEntity.types}] is not psm:Attribute `
+        + `interpretation for ${dataPsmAttribute.iri}.`);
     }
     return result;
   }
 
   protected psmAttributeToProperty(
-    psmAttribute: PsmAttribute, propertyData: PropertyData,
+    dataPsmAttribute: DataPsmAttribute, propertyData: ObjectModelProperty,
   ): void {
-    propertyData.iris = [psmAttribute.id];
-    propertyData.psmIri = psmAttribute.id;
-    propertyData.humanLabel = psmAttribute.psmHumanLabel;
-    propertyData.humanDescription = psmAttribute.psmHumanDescription;
-    propertyData.propertyType = PropertyType.Attribute;
-    propertyData.technicalLabel = psmAttribute.psmTechnicalLabel;
+    propertyData.psmIri = dataPsmAttribute.iri;
+    propertyData.humanLabel = dataPsmAttribute.dataPsmHumanLabel;
+    propertyData.humanDescription = dataPsmAttribute.dataPsmHumanDescription;
+    propertyData.technicalLabel = dataPsmAttribute.dataPsmTechnicalLabel;
+    //
+    const dataType = createObjectModelPrimitive();
+    this.psmAttributeToPrimitive(dataPsmAttribute, dataType);
+    propertyData.dataTypes.push(dataType);
   }
 
-  protected addPsmInterpretation(
-    left: PropertyData, right: PropertyData,
-  ): void {
-    left.iris.push(...right.iris);
-    left.cimIri = right.cimIri;
-    left.humanLabel = left.humanLabel || right.humanLabel;
-    left.humanDescription = left.humanDescription || right.humanDescription;
-    left.technicalLabel = left.technicalLabel || right.technicalLabel;
-    left.dataTypePrimitive = left.dataTypePrimitive || right.dataTypePrimitive;
-    left.dataTypeClass = left.dataTypeClass || right.dataTypeClass;
+  protected psmAttributeToPrimitive(
+    dataPsmAttribute: DataPsmAttribute, primitiveData: ObjectModelPrimitive,
+  ) {
+    primitiveData.dataType = dataPsmAttribute.dataPsmDatatype;
   }
 
   protected addPimInterpretation(
-    psm: PropertyData, pim: PropertyData,
+    dataPsm: ObjectModelProperty, pim: ObjectModelProperty,
   ): void {
-    psm.iris.push(...pim.iris);
-    psm.cimIri = pim.cimIri;
-    psm.humanLabel = psm.humanLabel || pim.humanLabel;
-    psm.humanDescription = psm.humanDescription || pim.humanDescription;
-    psm.technicalLabel = psm.technicalLabel || pim.technicalLabel;
-    psm.dataTypePrimitive = psm.dataTypePrimitive || pim.dataTypePrimitive;
-    psm.dataTypeClass = selectNotEmpty(psm.dataTypeClass, pim.dataTypeClass);
+    dataPsm.pimIri = pim.pimIri;
+    dataPsm.cimIri = pim.cimIri;
+    dataPsm.humanLabel = dataPsm.humanLabel || pim.humanLabel;
+    dataPsm.humanDescription = dataPsm.humanDescription || pim.humanDescription;
+    dataPsm.technicalLabel = dataPsm.technicalLabel || pim.technicalLabel;
+    // PIM level has no impact on defined types.
   }
 
-  protected loadPropertyFromPsmAssociation(
-    entity: ModelResource,
-  ): PropertyData {
-    if (this.psmAssociation[entity.id] !== undefined) {
-      return this.psmAssociation[entity.id];
+  protected async loadPropertyFromPsmAssociationEnd(
+    dataPsmAssociationEnd: DataPsmAssociationEnd,
+  ): Promise<ObjectModelProperty> {
+    if (this.psmAssociation[dataPsmAssociationEnd.iri] !== undefined) {
+      return this.psmAssociation[dataPsmAssociationEnd.iri];
     }
-    if (!PsmAssociation.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not psm:Association.`);
+    const result = new createObjectModelProperty();
+    this.psmAssociation[dataPsmAssociationEnd.iri] = result;
+    // As of now we do not address the cardinality, so we leave it to default.
+    await this.psmAssociationEndToProperty(dataPsmAssociationEnd, result);
+    if (dataPsmAssociationEnd.dataPsmInterpretation === undefined) {
+      return result;
     }
-    const psmAssociation: PsmAssociation = entity as PsmAssociation;
-    const result = new PropertyData();
-    this.psmAssociation[entity.id] = result;
-    this.psmAssociationToProperty(psmAssociation, result);
     const interpretationEntity =
-      this.entities[psmAssociation.psmInterpretation];
-    if (PsmAssociation.is(interpretationEntity)) {
+      await this.reader.readResource(
+        dataPsmAssociationEnd.dataPsmInterpretation);
+    if (isPimAssociationEnd(interpretationEntity)) {
       const interpretation =
-        this.loadPropertyFromPsmAssociation(interpretationEntity);
-      this.addPsmInterpretation(result, interpretation);
-    } else if (PimAssociation.is(interpretationEntity)) {
-      const interpretation =
-        this.loadPropertyFromPimAssociation(interpretationEntity);
+        await this.loadPropertyFromPimAssociationEnd(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
     } else {
       throw new Error(
-        ` ${interpretationEntity.id} with types `
-        + `[${interpretationEntity.rdfTypes}] is not psm:Association `
-        + `interpretation for ${entity.id}.`);
+        ` ${interpretationEntity.iri} with types `
+        + `[${interpretationEntity.types}] is not psm:Association `
+        + `interpretation for ${dataPsmAssociationEnd.iri}.`);
     }
     return result;
   }
 
-  protected psmAssociationToProperty(
-    psmAssociation: PsmAssociation, propertyData: PropertyData,
-  ): void {
-    propertyData.iris = [psmAssociation.id];
-    propertyData.psmIri = psmAssociation.id;
-    propertyData.humanLabel = psmAssociation.psmHumanLabel;
-    propertyData.humanDescription = psmAssociation.psmHumanDescription;
-    propertyData.propertyType = PropertyType.Association;
-    propertyData.technicalLabel = psmAssociation.psmTechnicalLabel;
-    propertyData.dataTypeClass = psmAssociation.psmParts
-      .map(iri => this.entities[iri])
-      .map(entity => this.classAdapter.loadClassFromPsmClass(entity));
+  protected async psmAssociationEndToProperty(
+    dataPsmAssociationEnd: DataPsmAssociationEnd,
+    propertyData: ObjectModelProperty,
+  ): Promise<void> {
+    propertyData.psmIri = dataPsmAssociationEnd.iri;
+    propertyData.humanLabel = dataPsmAssociationEnd.dataPsmHumanLabel;
+    propertyData.humanDescription =
+      dataPsmAssociationEnd.dataPsmHumanDescription;
+    propertyData.technicalLabel = dataPsmAssociationEnd.dataPsmTechnicalLabel;
+    //
+    const typeResource =
+      await this.reader.readResource(dataPsmAssociationEnd.dataPsmPart);
+    if (isDataPsmClass(typeResource)) {
+      const classType =
+        await this.classAdapter.loadClassFromPsmClass(typeResource);
+      propertyData.dataTypes.push(classType);
+    } else {
+      throw new Error(
+        ` ${typeResource.iri} with types `
+        + `[${typeResource.types}] is not psm:Class `
+        + `type for ${dataPsmAssociationEnd.iri}.`);
+    }
   }
 
-  protected loadPropertyFromPsmIncludes(
-    entity: ModelResource,
-  ): PropertyData[] {
-    if (!PsmIncludes.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not psm:Includes.`);
+  protected async loadPropertyFromPimAttribute(
+    pimAttribute: PimAttribute,
+  ): Promise<ObjectModelProperty> {
+    if (this.pimAttribute[pimAttribute.iri] !== undefined) {
+      return this.pimAttribute[pimAttribute.iri];
     }
-    const psmIncludes = entity as PsmIncludes;
-    const result = [];
-    for (const iri of psmIncludes.psmIncludes) {
-      const entity = this.entities[iri];
-      result.push(...this.loadPropertyFromPsm(entity));
-    }
-    return result;
-  }
-
-  protected loadPropertyFromPimAttribute(
-    entity: ModelResource,
-  ): PropertyData {
-    if (this.pimAttribute[entity.id] !== undefined) {
-      return this.pimAttribute[entity.id];
-    }
-    if (!PimAttribute.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not pim:Attribute.`);
-    }
-    const pimAttribute: PimAttribute = entity as PimAttribute;
-    const result = new PropertyData();
-    this.pimAttribute[entity.id] = result;
+    const result = createObjectModelProperty();
+    this.pimAttribute[pimAttribute.iri] = result;
     this.pimAttributeToProperty(pimAttribute, result);
-    const interpretation =
-      this.loadPropertyFromCimIri(pimAttribute.pimInterpretation);
-    this.addCimInterpretation(result, interpretation);
     return result;
   }
 
   protected pimAttributeToProperty(
-    pimAttribute: PimAttribute, propertyData: PropertyData,
+    pimAttribute: PimAttribute, propertyData: ObjectModelProperty,
   ): void {
-    propertyData.iris = [pimAttribute.id];
-    propertyData.psmIri = pimAttribute.id;
+    propertyData.cimIri = pimAttribute.pimInterpretation;
+    propertyData.psmIri = pimAttribute.iri;
     propertyData.humanLabel = pimAttribute.pimHumanLabel;
     propertyData.humanDescription = pimAttribute.pimHumanDescription;
-    propertyData.propertyType = PropertyType.Attribute;
     propertyData.technicalLabel = pimAttribute.pimTechnicalLabel;
-    propertyData.dataTypePrimitive = pimAttribute.pimDatatype;
+    // PIM level has no impact on defined types.
   }
 
-  loadPropertyFromCimIri(iri: string): PropertyData {
-    const entity = this.entities[iri];
-    if (!CimEntity.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not cim entity.`);
+  protected async loadPropertyFromPimAssociationEnd(
+    pimAssociationEnd: PimAssociationEnd,
+  ): Promise<ObjectModelProperty> {
+    if (this.pimAssociation[pimAssociationEnd.iri] !== undefined) {
+      return this.pimAssociation[pimAssociationEnd.iri];
     }
-    const result = new PropertyData();
-    this.cimEntityToProperty(entity as CimEntity, result);
-    return result;
-  }
-
-  protected cimEntityToProperty(
-    cimEntity: CimEntity, propertyData: PropertyData,
-  ): void {
-    propertyData.iris = [cimEntity.id];
-    propertyData.cimIri = cimEntity.id;
-    propertyData.humanLabel = cimEntity.cimHumanLabel;
-    propertyData.humanDescription = cimEntity.cimHumanDescription;
-  }
-
-  protected addCimInterpretation(
-    pim: PropertyData, cim: PropertyData,
-  ): void {
-    pim.iris.push(...cim.iris);
-    pim.cimIri = cim.cimIri;
-    pim.humanLabel = pim.humanLabel || cim.humanLabel;
-    pim.humanDescription = pim.humanDescription || cim.humanDescription;
-    pim.technicalLabel = pim.technicalLabel || cim.technicalLabel;
-  }
-
-  protected loadPropertyFromPimAssociation(
-    entity: ModelResource,
-  ): PropertyData {
-    if (this.pimAssociation[entity.id] !== undefined) {
-      return this.pimAssociation[entity.id];
-    }
-    if (!PimAssociation.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not pim:Association.`);
-    }
-    const pimAssociation: PimAssociation = entity as PimAssociation;
-    const result = new PropertyData();
-    this.pimAssociation[entity.id] = result;
-    this.pimAssociationToProperty(pimAssociation, result);
-    const interpretation =
-      this.loadPropertyFromCimIri(pimAssociation.pimInterpretation);
-    this.addCimInterpretation(result, interpretation);
+    const result = createObjectModelProperty();
+    this.pimAssociation[pimAssociationEnd.iri] = result;
+    this.pimAssociationToProperty(pimAssociationEnd, result);
     return result;
   }
 
   protected pimAssociationToProperty(
-    pimAssociation: PimAssociation, propertyData: PropertyData,
+    pimAssociationEnd: PimAssociationEnd, propertyData: ObjectModelProperty,
   ): void {
-    propertyData.iris = [pimAssociation.id];
-    propertyData.psmIri = pimAssociation.id;
-    propertyData.humanLabel = pimAssociation.pimHumanLabel;
-    propertyData.humanDescription = pimAssociation.pimHumanDescription;
-    propertyData.propertyType = PropertyType.Association;
-    propertyData.technicalLabel = pimAssociation.pimTechnicalLabel;
-    if (pimAssociation.pimEnd.length === 2) {
-      const entity = this.entities[pimAssociation.pimEnd[1].pimParticipant];
-      propertyData.dataTypeClass = [
-        this.classAdapter.loadClassFromPimClass(entity),
-      ];
-    } else {
-      throw new Error(
-        "Missing class or ends (actual: " + pimAssociation.pimEnd.length
-        + " expected: 2) for " + pimAssociation.id);
-    }
+    propertyData.pimIri = pimAssociationEnd.iri;
+    propertyData.cimIri = pimAssociationEnd.pimInterpretation;
+    propertyData.humanLabel = pimAssociationEnd.pimHumanLabel;
+    propertyData.humanDescription = pimAssociationEnd.pimHumanDescription;
+    propertyData.technicalLabel = pimAssociationEnd.pimTechnicalLabel;
+    // PIM level has no impact on defined types.
   }
 
-}
-
-function selectNotEmpty<T>(first: T[], second: T[]): T[] {
-  if (first === undefined || first.length === 0) {
-    return second;
-  }
-  return first;
 }

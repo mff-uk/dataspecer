@@ -1,1 +1,1 @@
-export * from "../../core/adapter/rdf/rdf-adapter-api";
+export * from "../../core/adapter/rdf/rdf-api";

@@ -1,10 +1,12 @@
-import {CoreResourceMap,PsmClass} from "../../core/model";
-import {ObjectModelClass} from "../object-model";
+import {createObjectModelClass, ObjectModelClass} from "../object-model";
 import {ObjectModelPropertyAdapter} from "./object-model-property-adapter";
+import {CoreResourceReader} from "../../core";
+import {DataPsmClass, isDataPsmClass} from "../../data-psm/model";
+import {isPimClass, PimClass} from "../../pim/model";
 
 export class ObjectModelClassAdapter {
 
-  readonly entities: CoreResourceMap;
+  readonly reader: CoreResourceReader;
 
   readonly psmClass: Record<string, ObjectModelClass> = {};
 
@@ -12,133 +14,97 @@ export class ObjectModelClassAdapter {
 
   readonly propertyAdapter: ObjectModelPropertyAdapter;
 
-  constructor(entities: CoreResourceMap) {
-    this.entities = entities;
-    this.propertyAdapter = new ObjectModelPropertyAdapter(entities, this);
+  constructor(reader: CoreResourceReader) {
+    this.reader = reader;
+    this.propertyAdapter = new ObjectModelPropertyAdapter(reader, this);
   }
 
-  loadClassFromPsmClass(entity: PsmClass): ObjectModelClass {
-    if (this.psmClass[entity.iri] !== undefined) {
-      return this.psmClass[entity.iri];
+  async loadClassFromPsmClass(
+    dataPsmClass: DataPsmClass,
+  ): Promise<ObjectModelClass> {
+    if (this.psmClass[dataPsmClass.iri] !== undefined) {
+      return this.psmClass[dataPsmClass.iri];
     }
-    const psmClass = entity as PsmClass;
-    const result = new ObjectModelClass();
-    this.psmClass[entity.id] = result;
-    this.psmClassToClass(psmClass, result);
-    const interpretationEntity = this.entities[psmClass.psmInterpretation];
-    if (PsmClass.is(interpretationEntity)) {
-      const interpretation = this.loadClassFromPsmClass(interpretationEntity);
-      this.addPsmInterpretation(result, interpretation);
-    } else if (PimClass.is(interpretationEntity)) {
-      const interpretation = this.loadClassFromPimClass(interpretationEntity);
+    const result = createObjectModelClass();
+    this.psmClass[dataPsmClass.iri] = result;
+    await this.psmClassToClass(dataPsmClass, result);
+    if (dataPsmClass.dataPsmInterpretation === undefined) {
+      return result;
+    }
+    const interpretationEntity =
+      await this.reader.readResource(dataPsmClass.dataPsmInterpretation);
+    if (isPimClass(interpretationEntity)) {
+      const interpretation =
+        await this.loadClassFromPimClass(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
     } else {
       throw new Error(
-        ` ${interpretationEntity.id} with types `
-        + `[${interpretationEntity.rdfTypes}] is not psm:Schema `
-        + `interpretation for ${entity.id}.`);
+        ` ${interpretationEntity.iri} with types `
+        + `[${interpretationEntity.types}] is not psm:Schema `
+        + `interpretation for ${dataPsmClass.iri}.`);
     }
     return result;
   }
 
-  protected psmClassToClass(psmClass: PsmClass, classData: ObjectModelClass): void {
-    classData.iris = [psmClass.id];
-    classData.psmIri = psmClass.id;
-    classData.humanLabel = psmClass.psmHumanLabel;
-    classData.humanDescription = psmClass.psmHumanDescription;
-    classData.extends = psmClass.psmExtends
-      .map(iri => this.entities[iri])
-      .map(entity => this.loadClassFromPsmClass(entity));
+  protected async psmClassToClass(
+    dataPsmClass: DataPsmClass, classData: ObjectModelClass,
+  ): Promise<void> {
+    classData.psmIri = dataPsmClass.iri;
+    classData.technicalLabel  = dataPsmClass.dataPsmTechnicalLabel;
+    classData.humanLabel = dataPsmClass.dataPsmHumanLabel;
+    classData.humanDescription = dataPsmClass.dataPsmHumanDescription;
+    for (const iri of dataPsmClass.dataPsmExtends) {
+      const resource = await this.reader.readResource(iri);
+      if (!isDataPsmClass(resource)) {
+        continue;
+      }
+      const parentClassData = await this.loadClassFromPsmClass(resource);
+      classData.extends.push(parentClassData);
+    }
     classData.properties = [];
-    for (const iri of psmClass.psmParts) {
-      const entity = this.entities[iri];
-      classData.properties.push(
-        ...this.propertyAdapter.loadPropertyFromPsm(entity));
-    }
-    if (psmClass.ownerSchema !== undefined) {
-      classData.schema = this.schemaAdapter.loadPsmSchemaFromIri(
-        psmClass.ownerSchema);
+    for (const iri of dataPsmClass.dataPsmParts) {
+      const resource = await this.reader.readResource(iri);
+      const propertyData =
+        await this.propertyAdapter.loadPropertyFromDataPsm(resource);
+      classData.properties.push(...propertyData);
     }
   }
 
-  protected addPsmInterpretation(left: ObjectModelClass, right: ObjectModelClass): void {
-    left.iris.push(...right.iris);
-    left.cimIri = right.cimIri;
-    left.humanLabel = left.humanLabel || right.humanLabel;
-    left.humanDescription = left.humanDescription || right.humanDescription;
-    left.extends = selectNotEmpty(left.extends, right.extends);
-    left.properties = selectNotEmpty(left.properties, right.properties);
-    left.schema = left.schema || right.schema;
-    left.isCodelist = left.isCodelist || right.isCodelist;
+  protected addPimInterpretation(
+    dataPsm: ObjectModelClass, pim: ObjectModelClass): void {
+    dataPsm.cimIri = pim.cimIri;
+    dataPsm.humanLabel = dataPsm.humanLabel || pim.humanLabel;
+    dataPsm.humanDescription = dataPsm.humanDescription || pim.humanDescription;
+    dataPsm.isCodelist = pim.isCodelist;
   }
 
-  protected addPimInterpretation(psm: ObjectModelClass, pim: ObjectModelClass): void {
-    psm.iris.push(...pim.iris);
-    psm.cimIri = pim.cimIri;
-    psm.humanLabel = psm.humanLabel || pim.humanLabel;
-    psm.humanDescription = psm.humanDescription || pim.humanDescription;
-    psm.isCodelist = pim.isCodelist;
-  }
-
-  loadClassFromPimClass(entity: ModelResource): ObjectModelClass {
-    if (this.pimClass[entity.id] !== undefined) {
-      return this.pimClass[entity.id];
+  async loadClassFromPimClass(pimClass: PimClass): Promise<ObjectModelClass> {
+    if (this.pimClass[pimClass.iri] !== undefined) {
+      return this.pimClass[pimClass.iri];
     }
-    if (!PimClass.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not pim:Class.`);
-    }
-    const pimClass = entity as PimClass;
-    const result = new ObjectModelClass();
-    this.pimClass[entity.id] = result;
-    this.pimClassToClass(pimClass, result);
-    const interpretation = this.loadClassFromCimIri(pimClass.pimInterpretation);
-    this.addCimInterpretation(result, interpretation);
+    const result = createObjectModelClass();
+    this.pimClass[pimClass.iri] = result;
+    await this.pimClassToClass(pimClass, result);
     return result;
   }
 
-  protected addCimInterpretation(pim: ObjectModelClass, cim: ObjectModelClass): void {
-    pim.iris.push(...cim.iris);
-    pim.cimIri = cim.cimIri;
-    pim.humanLabel = pim.humanLabel || cim.humanLabel;
-    pim.humanDescription = pim.humanDescription || cim.humanDescription;
-    pim.isCodelist = cim.isCodelist;
-  }
-
-  protected pimClassToClass(pimClass: PimClass, classData: ObjectModelClass): void {
-    classData.iris = [pimClass.id];
+  protected async pimClassToClass(
+    pimClass: PimClass, classData: ObjectModelClass,
+  ): Promise<void> {
+    classData.cimIri = pimClass.pimInterpretation;
+    classData.pimIri = pimClass.iri;
     classData.humanLabel = pimClass.pimHumanLabel;
     classData.humanDescription = pimClass.pimHumanDescription;
-    classData.extends = pimClass.pimIsa
-      .map(iri => this.entities[iri])
-      .map(entity => this.loadClassFromPimClass(entity));
-    classData.properties = [];
-  }
-
-  loadClassFromCimIri(iri: string): ObjectModelClass {
-    const entity = this.entities[iri];
-    if (!CimEntity.is(entity)) {
-      throw new Error(
-        ` ${entity.id} with types [${entity.rdfTypes}] is not cim:Entity.`);
+    for (const iri of pimClass.pimExtends) {
+      const resource = await this.reader.readResource(iri);
+      if (!isPimClass(resource)) {
+        continue;
+      }
+      const parentClassData = await this.loadClassFromPimClass(resource);
+      classData.extends.push(parentClassData);
     }
-    const result = new ObjectModelClass();
-    this.cimEntityToClass(entity as CimEntity, result);
-    return result;
+    // We do not load properties here, but we may need to in future. As of
+    // nbw there is no easy way how to list all properties for given class.
   }
 
-  protected cimEntityToClass(cimEntity: CimEntity, classData: ObjectModelClass): void {
-    classData.iris = [cimEntity.id];
-    classData.cimIri = cimEntity.id;
-    classData.humanLabel = cimEntity.cimHumanLabel;
-    classData.humanDescription = cimEntity.cimHumanDescription;
-    classData.isCodelist = cimEntity.cimIsCodelist;
-  }
-
-}
-
-function selectNotEmpty<T>(first: T[], second: T[]): T[] {
-  if (first === undefined || first.length === 0) {
-    return second;
-  }
-  return first;
 }

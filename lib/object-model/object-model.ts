@@ -1,29 +1,69 @@
 export type LanguageString = { [language: string]: string };
 
 /**
- * Schema is the root object that is used to identify a collection of classes,
- *
+ * Schema is the root object that is used to identify a collection of classes.
+ * We can see schema as a diagram that contains the class definitions.
  */
-export class ObjectModelSchema extends ObjectModelResource {
+export interface ObjectModelSchema {
 
   /**
-   * Root classes as specified by the schema.
+   * IRI of parent entity in the data-psm level.
    */
-  roots: ObjectModelClass[] = [];
+  psmIri?: string;
+
+  /**
+   * Label used by a computer, can be used as for example as a name of
+   * a property in JSON.
+   */
+  technicalLabel?: string;
+
+  /**
+   * Label visible to a human reader.
+   */
+  humanLabel?: LanguageString;
+
+  /**
+   * Description visible to a human reader.
+   */
+  humanDescription?: LanguageString;
+
+  /**
+   * Root classes as specified by the data-psm schema.
+   */
+  roots: ObjectModelClass[];
 
   /**
    * All classes in the schema including the root classes.
    */
-  classes: ObjectModelClass[] = [];
+  classes: ObjectModelClass[];
 
 }
 
-export class ObjectModelResource {
+export function createObjectModelSchema(): ObjectModelSchema {
+  return {
+    "roots": [],
+    "classes": [],
+  };
+}
 
+/**
+ * Base class for each entity, even for schema, in the object model.
+ */
+export interface ObjectModelResource {
+
+  /**
+   * The cim level is optional as the pim level may not have an interpretation.
+   */
   cimIri?: string;
 
+  /**
+   * The pim level is optional is data-psm level may not have an interpretation.
+   */
   pimIri?: string;
 
+  /**
+   * IRI of parent entity in the data-psm level.
+   */
   psmIri?: string;
 
   /**
@@ -44,76 +84,104 @@ export class ObjectModelResource {
 
 }
 
-export class ObjectModelClass extends ObjectModelResource {
+export interface ObjectModelClass extends ObjectModelResource {
 
-  static readonly TYPE: string = "object-model-class";
-
-  readonly type: string = ObjectModelClass.TYPE;
+  /**
+   * Used for type checking.
+   */
+  type: string;
 
   /**
    * Class can extend other classes, the properties of other classes
    * are not included in this class.
    */
-  extends: ObjectModelClass [] = [];
+  extends: ObjectModelClass [];
 
   /**
-   * Properties declared on this class directly.
+   * Properties declared on this class directly. The list is ordered.
    */
-  properties: ObjectModelProperty[] = [];
+  properties: ObjectModelProperty[];
 
-  static is(object: unknown): object is ObjectModelClass {
-    return object?.type === ObjectModelClass.TYPE;
-  }
-
-  static as(resource: unknown): ObjectModelClass {
-    return resource as ObjectModelClass;
-  }
+  /**
+   * If set to true values of this class are available in a codelist.
+   */
+  isCodelist: boolean;
 
 }
 
-export class ObjectModelProperty extends ObjectModelResource {
+const ObjectModelClassType = "object-model-class";
+
+export function isObjectModelClass(
+  object: unknown,
+): object is ObjectModelClass {
+  return object?.type === ObjectModelClassType;
+}
+
+export function createObjectModelClass(): ObjectModelClass {
+  return {
+    "type": ObjectModelClassType,
+    "extends": [],
+    "properties": [],
+    "isCodelist": false,
+  };
+}
+
+export interface ObjectModelProperty extends ObjectModelResource {
 
   /**
    * A single property can have multiple types, for example by inheritance
-   * or choice.
+   * or data-psm choice.
    */
-  dataTypes: DataType[] = [];
+  dataTypes: (ObjectModelClass | ObjectModelPrimitive)[];
 
-  cardinality: Interval = {
-    min: 1,
-    max: 1
-  }
+  cardinality: Interval;
 
 }
 
-type DataType = ObjectModelClass | ObjectModelPrimitive;
+export function createObjectModelProperty(): ObjectModelProperty {
+  return {
+    "dataTypes": [],
+    "cardinality": {
+      "min": 0,
+    },
+  };
+}
 
-type Interval = {
+interface Interval {
+
   min: number;
+
   /**
    * If not set there is no upper bound.
    */
   max?: number;
-};
 
-export class ObjectModelPrimitive extends ObjectModelResource {
+}
 
-  static readonly TYPE: string = "primitive-data-type";
+export interface ObjectModelPrimitive extends ObjectModelResource {
 
-  readonly type: string = ObjectModelPrimitive.TYPE;
+  /**
+   * Used for type checking.
+   */
+  type: string;
 
   /**
    * IRI of the data type like http://www.w3.org/2001/XMLSchema#string .
    */
-  iri: string;
-
-  static is(object: unknown): object is ObjectModelPrimitive {
-    return object?.type === ObjectModelClass.TYPE;
-  }
-
-  static as(resource: unknown): ObjectModelPrimitive {
-    return resource as ObjectModelPrimitive;
-  }
+  dataType?: string;
 
 }
 
+const ObjectModelPrimitiveType = "primitive-data-type";
+
+export function isObjectModelPrimitive(
+  object: unknown,
+): object is ObjectModelPrimitive {
+  return object?.type === ObjectModelPrimitiveType;
+}
+
+export function createObjectModelPrimitive(): ObjectModelPrimitive {
+  return {
+    "type": ObjectModelPrimitiveType,
+  };
+}

@@ -1,10 +1,10 @@
-import {RdfSourceWrap, RdfResourceAdapter} from "../../../core/adapter/rdf";
+import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
 import {CoreResource} from "../../../core";
 import {asDataPsmChoice} from "../../model";
 import {loadDataPsmResource} from "./data-psm-resource-adapter";
 import * as PSM from "./data-psm-vocabulary";
 
-export class DataPsmChoiceAdapter implements RdfResourceAdapter {
+export class DataPsmChoiceAdapter implements RdfResourceLoader {
 
   async loadResource(
     source: RdfSourceWrap, resource: CoreResource,
