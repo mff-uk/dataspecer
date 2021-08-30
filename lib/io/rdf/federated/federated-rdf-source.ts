@@ -48,6 +48,6 @@ export class FederatedSource implements RdfSource {
 }
 
 function addValues(values: RdfObject[], newValues: RdfObject[]) {
-  // TODO Here wa may consider to keep only unique values.
+  // TODO Here we may consider to keep only unique values.
   values.push(...newValues);
 }
