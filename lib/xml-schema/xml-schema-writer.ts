@@ -51,12 +51,12 @@ function xmlEscape(text: string): string {
 }
 
 function writeSchemaHeader(stream: WriteStream, ctx: WriterContext) {
-  stream.write('${ctx.lineStart}<?xml version="1.0" encoding="utf-8"?>\n');
-  stream.write('${ctx.lineStart}<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" version="1.1">\n');
+  stream.write(`${ctx.lineStart}<?xml version="1.0" encoding="utf-8"?>\n`);
+  stream.write(`${ctx.lineStart}<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" version="1.1">\n`);
 }
 
 function writeSchemaFooter(stream: WriteStream, ctx: WriterContext) {
-  stream.write('${ctx.lineStart}</xs:schema>\n');
+  stream.write(`${ctx.lineStart}</xs:schema>\n`);
 }
 
 function writeElements(model: XmlSchema, stream: WriteStream, ctx: WriterContext) {
@@ -72,22 +72,22 @@ function writeElement(elem: XmlSchemaElement, cnt: XmlSchemaComplexContent, stre
   if (type != null) {
     stream.write(` type="${xmlEscape(type.name)}"/>\n`);
   } else {
-    stream.write('>\n');
+    stream.write(">\n");
     if (type.complexDefinition != null) {
       writeComplexType(type.complexDefinition, stream, ctx.indent());
     } else if (type.simpleDefinition != null) {
       writeSimpleType(type.simpleDefinition, stream, ctx.indent());
     }
-    stream.write('${ctx.lineStart}</xs:element>\n');
+    stream.write(`${ctx.lineStart}</xs:element>\n`);
   }
 }
 
 function writeComplexType(def: XmlSchemaComplexType, stream: WriteStream, ctx: WriterContext) {
   stream.write(`${ctx.lineStart}<xs:complexType`);
   if (def.mixed) {
-    stream.write(' mixed="true"');
+    stream.write(` mixed="true"`);
   }
-  stream.write('>\n');
+  stream.write(">\n");
   if (def.xsType != null) {
     writeComplexContent(def, null, stream, ctx.indent());
   }
@@ -102,7 +102,7 @@ function writeComplexContentAttributes(cnt: XmlSchemaComplexContent, stream: Wri
       stream.write(` minOccurs="${card.min}"`);
     }
     if (card.max != 1) {
-      stream.write(` maxOccurs="${card.max ?? 'unbounded'}"`);
+      stream.write(` maxOccurs="${card.max ?? "unbounded"}"`);
     }
   }
 }
@@ -110,7 +110,7 @@ function writeComplexContentAttributes(cnt: XmlSchemaComplexContent, stream: Wri
 function writeComplexContent(def: XmlSchemaComplexType, cnt: XmlSchemaComplexContent, stream: WriteStream, ctx: WriterContext) {
   stream.write(`${ctx.lineStart}<xs:${def.xsType}`);
   writeComplexContentAttributes(cnt, stream);
-  stream.write('>\n');
+  stream.write(">\n");
   writeComplexTypes(def, stream, ctx.indent());
   stream.write(`${ctx.lineStart}</xs:${def.xsType}>\n`);
 }

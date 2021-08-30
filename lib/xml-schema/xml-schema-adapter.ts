@@ -71,10 +71,10 @@ const simpleTypeMap: Record<string, string> = {
 
 };
 
-const xsdNamespace = 'http://www.w3.org/2001/XMLSchema#';
+const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
 function primitiveContent(cls: ObjectModelPrimitive): string {
   return cls.dataType.startsWith(xsdNamespace) ?
-    'xs:' + cls.dataType.substr(xsdNamespace.length) :
+    "xs:" + cls.dataType.substr(xsdNamespace.length) :
     simpleTypeMap[cls.dataType];
 }
