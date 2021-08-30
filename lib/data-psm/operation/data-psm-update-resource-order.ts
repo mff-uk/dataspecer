@@ -1,4 +1,4 @@
-import {CoreResource, CoreOperation} from "../../core";
+import {CoreOperation, CoreResource} from "../../core";
 
 export interface DataPsmUpdateResourceOrder extends CoreOperation {
 
@@ -6,7 +6,10 @@ export interface DataPsmUpdateResourceOrder extends CoreOperation {
 
   dataPsmResourceToMove?: string;
 
-  dataPsmMoveAfter?: string;
+  /**
+   * Set null to move to the first position.
+   */
+  dataPsmMoveAfter?: string | null;
 
 }
 
