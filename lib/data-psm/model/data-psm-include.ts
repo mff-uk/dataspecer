@@ -15,9 +15,10 @@ export const DataPsmIncludeType = "data-psm-include";
 
 
 export function isDataPsmInclude(
-  resource: CoreResource,
+  resource: unknown,
 ): resource is DataPsmInclude {
-  return resource.types.includes(DataPsmIncludeType);
+  return resource !== null
+    && resource?.types?.includes(DataPsmIncludeType);
 }
 
 export function asDataPsmInclude(

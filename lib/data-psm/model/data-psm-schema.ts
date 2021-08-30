@@ -27,9 +27,10 @@ export interface DataPsmSchema extends DataPsmTechnicalResource {
 export const DataPsmSchemaType = "data-psm-schema";
 
 export function isDataPsmSchema(
-  resource: CoreResource,
+  resource: unknown,
 ): resource is DataPsmSchema {
-  return resource.types.includes(DataPsmSchemaType);
+  return resource !== null
+    && resource?.types?.includes(DataPsmSchemaType);
 }
 
 export function asDataPsmSchema(
