@@ -1,10 +1,10 @@
-import {RdfSourceWrap, RdfResourceAdapter} from "../../../core/adapter/rdf";
+import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
 import {CoreResource} from "../../../core";
 import {PimAssociationEnd, asPimAssociationEnd} from "../../model";
 import {loadPimResource} from "./pim-resource-adapter";
 import * as PIM from "./pim-vocabulary";
 
-export class PimAssociationEndAdapter implements RdfResourceAdapter {
+export class PimAssociationEndAdapter implements RdfResourceLoader {
 
   async loadResource(
     source: RdfSourceWrap, resource: CoreResource,

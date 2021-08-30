@@ -1,11 +1,11 @@
-import {createCoreResource} from "../../core";
+import {CoreResourceReader, createCoreResource} from "../../core";
 import {
   asDataPsmUpdateSchemaRoots,
 } from "../operation";
 import {
   executeDataPsmUpdateSchemaRoots,
 } from "./data-psm-update-schema-roots-executor";
-import {wrapResourcesWithReader} from "./data-psm-executor-utils-spec";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Set data PSM class as a schema root.", async () => {
   const operation =
@@ -29,16 +29,21 @@ test("Set data PSM class as a schema root.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
       "types": ["data-psm-schema"],
       "dataPsmRoots": operation.dataPsmRoots,
       "dataPsmParts": ["http://class"],
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
-  expect(actual.deletedResource).toEqual([]);
+  });
+  expect(actual.deleted).toEqual([]);
 });
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
+}

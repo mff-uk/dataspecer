@@ -1,6 +1,6 @@
 import {
-  CoreModelReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createCoreResource, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmCreateClass} from "../operation";
 import {loadDataPsmSchema} from "./data-psm-executor-utils";
@@ -8,11 +8,11 @@ import {asDataPsmClass} from "../model";
 
 export async function executesDataPsmCreateClass(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmCreateClass,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
@@ -29,5 +29,5 @@ export async function executesDataPsmCreateClass(
   result.dataPsmParts = [];
 
   schema.dataPsmParts = [...schema.dataPsmParts, iri];
-  return createSuccessOperationResult([schema, result]);
+  return createSuccessOperationResult([result], [schema]);
 }

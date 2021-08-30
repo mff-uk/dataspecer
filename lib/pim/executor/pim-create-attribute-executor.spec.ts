@@ -1,10 +1,11 @@
 import {
   CoreResource,
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {asPimCreateAttribute} from "../operation";
 import {executePimCreateAttribute} from "./pim-create-attribute-executor";
+import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create attribute.", async () => {
   const operation = asPimCreateAttribute(createCoreResource());
@@ -33,12 +34,8 @@ test("Create attribute.", async () => {
     wrapResourcesWithReader(before),
     operation);
 
-  const expected = {
-    "http://schema": {
-      "iri": "http://schema",
-      "types": ["pim-schema"],
-      "pimParts": ["http://class", "http://localhost/1"],
-    },
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-attribute"],
@@ -49,25 +46,19 @@ test("Create attribute.", async () => {
       "pimOwnerClass": operation.pimOwnerClass,
       "pimDatatype": operation.pimDatatype,
     },
-  };
-
-  expect(actual.failed).toBeFalsy();
-  expect(actual.changedResources).toEqual(expected);
+  });
+  expect(actual.changed).toEqual({
+    "http://schema": {
+      "iri": "http://schema",
+      "types": ["pim-schema"],
+      "pimParts": ["http://class", "http://localhost/1"],
+    },
+  });
+  expect(actual.deleted).toEqual([]);
 });
 
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
-): CoreModelReader {
-
-  return new class implements CoreModelReader {
-
-    listResources(): Promise<string[]> {
-      return Promise.resolve(Object.keys(resources));
-    }
-
-    readResource(iri: string): Promise<CoreResource> {
-      return Promise.resolve(resources[iri]);
-    }
-
-  };
+): CoreResourceReader {
+  return new ReadOnlyMemoryStore(resources);
 }

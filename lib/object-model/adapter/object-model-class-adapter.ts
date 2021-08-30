@@ -1,12 +1,12 @@
 import {createObjectModelClass, ObjectModelClass} from "../object-model";
 import {ObjectModelPropertyAdapter} from "./object-model-property-adapter";
-import {CoreModelReader} from "../../core";
+import {CoreResourceReader} from "../../core";
 import {DataPsmClass, isDataPsmClass} from "../../data-psm/model";
 import {isPimClass, PimClass} from "../../pim/model";
 
 export class ObjectModelClassAdapter {
 
-  readonly reader: CoreModelReader;
+  readonly reader: CoreResourceReader;
 
   readonly psmClass: Record<string, ObjectModelClass> = {};
 
@@ -14,7 +14,7 @@ export class ObjectModelClassAdapter {
 
   readonly propertyAdapter: ObjectModelPropertyAdapter;
 
-  constructor(reader: CoreModelReader) {
+  constructor(reader: CoreResourceReader) {
     this.reader = reader;
     this.propertyAdapter = new ObjectModelPropertyAdapter(reader, this);
   }

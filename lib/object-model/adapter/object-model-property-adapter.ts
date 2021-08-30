@@ -1,4 +1,4 @@
-import {CoreModelReader, CoreResource} from "../../core";
+import {CoreResourceReader, CoreResource} from "../../core";
 import {
   createObjectModelPrimitive,
   createObjectModelProperty, ObjectModelPrimitive,
@@ -18,7 +18,7 @@ import {
 
 export class ObjectModelPropertyAdapter {
 
-  readonly reader: CoreModelReader;
+  readonly reader: CoreResourceReader;
 
   readonly psmAttribute: Record<string, ObjectModelProperty> = {};
 
@@ -31,7 +31,7 @@ export class ObjectModelPropertyAdapter {
   readonly classAdapter: ObjectModelClassAdapter;
 
   constructor(
-    reader: CoreModelReader,
+    reader: CoreResourceReader,
     classAdapter: ObjectModelClassAdapter,
   ) {
     this.reader = reader;

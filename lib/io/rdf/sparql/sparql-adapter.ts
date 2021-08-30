@@ -13,7 +13,9 @@ export async function fetchRdfQuadsBySparqlConstruct(
   return await parseRdfQuadsWithN3(content);
 }
 
-export function createSparqlQueryUrl(endpoint: string, query: string, format: string): string {
+export function createSparqlQueryUrl(
+  endpoint: string, query: string, format: string
+): string {
   return endpoint
     + "?format=" + encodeURIComponent(format)
     + "&query=" + encodeURIComponent(query);

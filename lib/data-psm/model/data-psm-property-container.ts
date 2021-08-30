@@ -14,9 +14,10 @@ export interface DataPsmPropertyContainer extends DataPsmHumanReadableResource {
 export const DataPsmPropertyContainerType = "data-psm-property-container";
 
 export function isDataPsmPropertyContainer(
-  resource: CoreResource,
+  resource: unknown,
 ): resource is DataPsmPropertyContainer {
-  return resource.types.includes(DataPsmPropertyContainerType);
+  return resource !== null
+    && resource?.types?.includes(DataPsmPropertyContainerType);
 }
 
 export function asDataPsmPropertyContainer(

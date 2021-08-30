@@ -12,10 +12,10 @@ export interface CoreResource {
 
   /**
    * In order to allow identification of all resources they must all use
-   * named nodes. Blank nodes are not allowed. This property may
-   * not be set for new objects.
+   * named nodes. Blank nodes are not allowed. This property can
+   * be set to null for new objects.
    */
-  iri?: string;
+  iri: string | null;
 
   /**
    * Types used by core model. Single resource can be of multiple
@@ -25,7 +25,7 @@ export interface CoreResource {
 
 }
 
-export function createCoreResource(iri?: string) {
+export function createCoreResource(iri: string | null = null) {
   return {
     "iri": iri,
     "types": [],

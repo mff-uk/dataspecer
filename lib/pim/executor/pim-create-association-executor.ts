@@ -1,9 +1,9 @@
 import {
-  OperationResult,
+  ExecutorResult,
   createErrorOperationResult,
   createEmptySuccessOperationResult,
   createSuccessOperationResult,
-  CoreModelReader,
+  CoreResourceReader,
   CreateNewIdentifier,
   createCoreResource,
 } from "../../core";
@@ -13,9 +13,9 @@ import {loadPimSchema} from "./pim-executor-utils";
 
 export async function executesPimCreateAssociation(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimCreateAssociation,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const left = asPimAssociationEnd(createCoreResource());
   left.iri = createNewIdentifier("association-end");
   left.pimPart = operation.pimAssociationEnds[0];
@@ -47,22 +47,22 @@ export async function executesPimCreateAssociation(
   }
 
   const schema = await loadPimSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
 
   schema.pimParts = [...schema.pimParts, result.iri, left.iri, right.iri];
 
-  return createSuccessOperationResult([result, schema, left, right]);
+  return createSuccessOperationResult([result, left, right], [schema]);
 }
 
 async function verityAssociationEnd(
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   iri: string,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const resource = await modelReader.readResource(iri);
-  if (resource === undefined) {
+  if (resource === null) {
     return createErrorOperationResult(
       "Missing owner class.");
   }

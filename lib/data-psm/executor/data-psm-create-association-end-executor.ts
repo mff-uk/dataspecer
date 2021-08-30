@@ -1,6 +1,6 @@
 import {
-  CoreModelReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createCoreResource, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {
   DataPsmCreateAssociationEnd,
@@ -10,17 +10,17 @@ import {asDataPsmAssociationEnd} from "../model";
 
 export async function executesDataPsmCreateAssociationEnd(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmCreateAssociationEnd,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
-  if (owner === undefined) {
+  if (owner === null) {
     return createErrorOperationResult(
       "Missing owner class.");
   }
@@ -37,5 +37,5 @@ export async function executesDataPsmCreateAssociationEnd(
 
   schema.dataPsmParts = [...schema.dataPsmParts, iri];
 
-  return createSuccessOperationResult([schema, owner, result]);
+  return createSuccessOperationResult([result], [schema, owner]);
 }

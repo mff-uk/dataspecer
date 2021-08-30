@@ -1,10 +1,10 @@
-import {RdfSourceWrap, RdfResourceAdapter} from "../../../core/adapter/rdf";
+import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
 import {CoreResource} from "../../../core";
 import {asDataPsmAttribute} from "../../model";
 import {loadDataPsmResource} from "./data-psm-resource-adapter";
 import * as PSM from "./data-psm-vocabulary";
 
-export class DataPsmAttributeAdapter implements RdfResourceAdapter {
+export class DataPsmAttributeAdapter implements RdfResourceLoader {
 
   async loadResource(
     source: RdfSourceWrap, resource: CoreResource,
@@ -18,7 +18,7 @@ export class DataPsmAttributeAdapter implements RdfResourceAdapter {
     const loadFromPim = await loadDataPsmResource(source, result);
     //
     result.dataPsmDatatype = await source.node(PSM.HAS_DATA_TYPE);
-    return [...loadFromPim, ...result.dataPsmDatatype];
+    return [...loadFromPim, result.dataPsmDatatype];
   }
 
 }

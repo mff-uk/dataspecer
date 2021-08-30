@@ -1,1 +1,1 @@
-export * from "./operation-executor";
+export * from "./executor-result";

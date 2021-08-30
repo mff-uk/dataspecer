@@ -1,32 +1,28 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader,
+  createErrorOperationResult,
+  CreateNewIdentifier,
+  createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceOrder} from "../operation";
 import {loadDataPsmClass, loadDataPsmResource} from "./data-psm-executor-utils";
+import {DataPsmClass} from "../model";
 
 export async function executeDataPsmUpdateResourceOrder(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceOrder,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const resourceToMove =
     await loadDataPsmResource(modelReader, operation.dataPsmResourceToMove);
-  if (resourceToMove === undefined) {
+  if (resourceToMove === null) {
     return createErrorOperationResult(
       "Missing resource to move.");
   }
 
-  const resourceToMoveAfter =
-    await loadDataPsmResource(modelReader, operation.dataPsmMoveAfter);
-  if (resourceToMoveAfter === undefined) {
-    return createErrorOperationResult(
-      "Missing resource to move after.");
-  }
-
   const ownerClass =
     await loadDataPsmClass(modelReader, operation.dataPsmOwnerClass);
-  if (ownerClass === undefined) {
+  if (ownerClass === null) {
     return createErrorOperationResult(
       "Missing class resource.");
   }
@@ -42,6 +38,30 @@ export async function executeDataPsmUpdateResourceOrder(
     ...ownerClass.dataPsmParts.slice(indexToMove + 1),
   ];
 
+  if (operation.dataPsmMoveAfter == null) {
+    moveToFirstPosition(ownerClass, partsWithoutTheOneToMove, operation);
+  } else {
+    moveAfter(ownerClass, partsWithoutTheOneToMove, operation);
+  }
+  return createSuccessOperationResult([], [ownerClass]);
+}
+
+function moveToFirstPosition(
+  ownerClass: DataPsmClass,
+  partsWithoutTheOneToMove: string[],
+  operation: DataPsmUpdateResourceOrder
+) {
+  ownerClass.dataPsmParts = [
+    operation.dataPsmResourceToMove,
+    ...partsWithoutTheOneToMove
+  ];
+}
+
+function moveAfter(
+  ownerClass: DataPsmClass,
+  partsWithoutTheOneToMove: string[],
+  operation: DataPsmUpdateResourceOrder
+) {
   const indexToMoveAfter =
     partsWithoutTheOneToMove.indexOf(operation.dataPsmMoveAfter);
   if (indexToMoveAfter === -1) {
@@ -53,6 +73,4 @@ export async function executeDataPsmUpdateResourceOrder(
     operation.dataPsmResourceToMove,
     ...partsWithoutTheOneToMove.slice(indexToMoveAfter + 1),
   ];
-
-  return createSuccessOperationResult([ownerClass]);
 }

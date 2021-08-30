@@ -1,23 +1,23 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmDeleteAttribute} from "../operation";
 import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
 
 export async function executesDataPsmDeleteAttribute(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmDeleteAttribute,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
-  if (owner === undefined) {
+  if (owner === null) {
     return createErrorOperationResult(
       "Missing owner class.");
   }
@@ -31,5 +31,5 @@ export async function executesDataPsmDeleteAttribute(
     owner.dataPsmParts.filter(iri => iri !== operation.dataPsmAttribute);
 
   return createSuccessOperationResult(
-    [schema, owner], [operation.dataPsmAttribute]);
+    [], [schema, owner], [operation.dataPsmAttribute]);
 }

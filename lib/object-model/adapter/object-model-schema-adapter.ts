@@ -3,7 +3,7 @@ import {
   createObjectModelSchema, isObjectModelClass,
 } from "../object-model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
-import {CoreModelReader} from "../../core";
+import {CoreResourceReader} from "../../core";
 import {
   isDataPsmSchema,
   asDataPsmSchema,
@@ -14,13 +14,13 @@ import {
 
 export class ObjectModelSchemaAdapter {
 
-  readonly reader: CoreModelReader;
+  readonly reader: CoreResourceReader;
 
   readonly schemas: Record<string, ObjectModelSchema> = {};
 
   readonly classAdapter: ObjectModelClassAdapter;
 
-  constructor(reader: CoreModelReader) {
+  constructor(reader: CoreResourceReader) {
     this.reader = reader;
     this.classAdapter = new ObjectModelClassAdapter(reader);
   }

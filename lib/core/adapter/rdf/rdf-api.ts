@@ -1,5 +1,3 @@
-import {CoreResource} from "../../core-resource";
-import {RdfSourceWrap} from "./rdf-source-wrap";
 
 export enum RdfTermType {
   BlankNode = "BlankNode",
@@ -9,14 +7,21 @@ export enum RdfTermType {
 }
 
 export interface RdfQuad {
+
   subject: RdfNode;
+
   predicate: RdfNode;
+
   object: RdfObject;
+
   graph: RdfNode;
+
 }
 
 export class RdfNode {
+
   termType: string;
+
   value: string;
 
   static namedNode(iri: string) {
@@ -36,10 +41,14 @@ export class RdfNode {
 }
 
 export class RdfObject {
+
   termType: string;
+
   value: string;
-  datatype?: RdfNode;
-  language?: string;
+
+  datatype: RdfNode | null;
+
+  language: string | null;
 
   static isNotNode(object: RdfObject): boolean {
     return !this.isNode(object);
@@ -56,6 +65,9 @@ export class RdfObject {
 
 }
 
+/**
+ * This interface should be implemented by sources of RDF data.
+ */
 export interface RdfSource {
 
   property(iri: string, predicate: string): Promise<RdfObject[]>;
@@ -64,18 +76,12 @@ export interface RdfSource {
 
 }
 
-export interface RdfResourceAdapter {
+/**
+ * This interface should be implemented by RDF sinks, which can write
+ * RDF data.
+ */
+export interface RdfSink {
 
-  /**
-   * Tries to load data into the given resource. If the resource is not of
-   * expected type do nothing and return empty array.
-   *
-   * @param source Source of the data.
-   * @param resource Resource to load data into.
-   * @return IRRs of resources to load.
-   */
-  loadResource(
-    source: RdfSourceWrap, resource: CoreResource
-  ): Promise<string[]>;
+  write(quads: RdfQuad): Promise<void>;
 
 }

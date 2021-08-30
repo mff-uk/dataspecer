@@ -1,17 +1,17 @@
 import {
-  CoreModelReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, OperationResult,
+  CoreResourceReader, createErrorOperationResult,
+  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
 } from "../../core";
 import {DataPsmUpdateSchemaRoots} from "../operation";
 import {loadDataPsmSchema} from "./data-psm-executor-utils";
 
 export async function executeDataPsmUpdateSchemaRoots(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: DataPsmUpdateSchemaRoots,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
-  if (schema === undefined) {
+  if (schema === null) {
     return createErrorOperationResult(
       "Missing schema object.");
   }
@@ -20,5 +20,5 @@ export async function executeDataPsmUpdateSchemaRoots(
 
   schema.dataPsmRoots = [...operation.dataPsmRoots];
 
-  return createSuccessOperationResult([schema]);
+  return createSuccessOperationResult([], [schema]);
 }

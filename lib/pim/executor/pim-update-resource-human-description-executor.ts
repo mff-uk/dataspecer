@@ -1,20 +1,20 @@
 import {
-  CoreModelReader,
+  CoreResourceReader,
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult,
+  ExecutorResult,
 } from "../../core";
 import {PimUpdateResourceHumanDescription} from "../operation";
 import {loadPimResource} from "./pim-executor-utils";
 
 export async function executePimUpdateResourceHumanDescription(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimUpdateResourceHumanDescription,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const psmResource = await loadPimResource(modelReader, operation.pimResource);
-  if (psmResource === undefined) {
+  if (psmResource === null) {
     return createErrorOperationResult(
       "Missing PIM resource.");
   }
@@ -22,5 +22,5 @@ export async function executePimUpdateResourceHumanDescription(
     ...psmResource,
     "pimHumanDescription": operation.pimHumanDescription,
   };
-  return createSuccessOperationResult([result], []);
+  return createSuccessOperationResult([], [result]);
 }

@@ -1,15 +1,20 @@
 import {CoreResource} from "../core-resource";
 
-export interface CoreModelReader {
+export interface CoreResourceReader {
 
   /**
-   * Return IRIs of all resources in the diagram.
+   * Return IRIs of all resources.
    */
   listResources(): Promise<string[]>;
 
   /**
+   * Return IRIs of all resources with given RDF type.
+   */
+  listResourcesOfType(typeIri: string): Promise<string[]>;
+
+  /**
    * Return representation of a particular resources.
    */
-  readResource(iri: string): Promise<CoreResource>;
+  readResource(iri: string): Promise<CoreResource | null>;
 
 }

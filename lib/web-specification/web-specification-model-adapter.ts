@@ -55,7 +55,7 @@ export interface LinkFactory {
 
 }
 
-export function createWebSpecificationFromObjectModel(
+export function objectModelToWebSpecification(
   schema: ObjectModelSchema,
   rootClassSelector: RootClassSelector,
   stringSelector: StringSelector,

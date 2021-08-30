@@ -15,9 +15,10 @@ export interface DataPsmAssociationEnd extends DataPsmResource {
 export const DataPsmAssociationEndType = "data-psm-association-end";
 
 export function isDataPsmAssociationEnd(
-  resource: CoreResource,
+  resource: unknown,
 ): resource is DataPsmAssociationEnd {
-  return resource.types.includes(DataPsmAssociationEndType);
+  return resource !== null
+    && resource?.types?.includes(DataPsmAssociationEndType);
 }
 
 export function asDataPsmAssociationEnd(

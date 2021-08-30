@@ -1,23 +1,23 @@
 import {PimCreateSchema} from "../operation";
 import {asPimSchema} from "../model";
 import {
-  CoreModelReader,
+  CoreResourceReader,
   createCoreResource,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult,
+  ExecutorResult,
 } from "../../core";
 
 export async function executePimCreateSchema(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimCreateSchema,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const iri = operation.pimNewIri || createNewIdentifier("schema");
 
   const result = asPimSchema(createCoreResource(iri));
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
 
-  return createSuccessOperationResult([result]);
+  return createSuccessOperationResult([result], []);
 }

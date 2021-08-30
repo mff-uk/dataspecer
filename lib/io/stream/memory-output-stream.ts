@@ -4,8 +4,9 @@ export class MemoryOutputStream implements OutputStream {
 
     private content = "";
 
-    async write(chunk: string): Promise<void> {
+    write(chunk: string) {
       this.content += chunk;
+      return Promise.resolve();
     }
 
     getContent(): string {

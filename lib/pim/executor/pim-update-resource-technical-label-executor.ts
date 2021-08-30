@@ -1,20 +1,20 @@
 import {
-  CoreModelReader,
+  CoreResourceReader,
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  OperationResult,
+  ExecutorResult,
 } from "../../core";
 import {PimUpdateResourceTechnicalLabel} from "../operation";
 import {loadPimResource} from "./pim-executor-utils";
 
 export async function executePimUpdateResourceTechnicalLabel(
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreModelReader,
+  modelReader: CoreResourceReader,
   operation: PimUpdateResourceTechnicalLabel,
-): Promise<OperationResult> {
+): Promise<ExecutorResult> {
   const psmResource = await loadPimResource(modelReader, operation.pimResource);
-  if (psmResource === undefined) {
+  if (psmResource === null) {
     return createErrorOperationResult(
       "Missing PIM resource.");
   }
@@ -22,5 +22,5 @@ export async function executePimUpdateResourceTechnicalLabel(
     ...psmResource,
     "pimTechnicalLabel": operation.pimTechnicalLabel,
   };
-  return createSuccessOperationResult([result], []);
+  return createSuccessOperationResult([], [result]);
 }
