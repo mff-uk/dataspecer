@@ -1,6 +1,6 @@
 import {
   CoreResourceReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
+  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmCreateAttribute} from "../operation";
 import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
@@ -10,17 +10,17 @@ export async function executesDataPsmCreateAttribute(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmCreateAttribute,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
     return createErrorOperationResult(
-      "Missing schema object.");
+      operation, "Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
   if (owner === null) {
     return createErrorOperationResult(
-      "Missing owner class: '" + operation.dataPsmOwner + "'.");
+      operation, "Missing owner class: '" + operation.dataPsmOwner + "'.");
   }
 
   // TODO Check that target exists.
@@ -37,5 +37,6 @@ export async function executesDataPsmCreateAttribute(
 
   schema.dataPsmParts = [...schema.dataPsmParts, iri];
 
-  return createSuccessOperationResult([result], [schema, owner]);
+  return createSuccessOperationResult(
+    operation, [result], [schema, owner]);
 }

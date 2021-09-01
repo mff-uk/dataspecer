@@ -1,9 +1,12 @@
 import {CoreResource} from "../core-resource";
+import {CoreOperation, CoreOperationResult} from "../operation";
 
 /**
  * Instance of this class must be returned by all operation executors.
+ * As executor and store should live in the same memory space this class
+ * is not designed to be serialized in any way.
  */
-export interface ExecutorResult {
+export interface CoreExecutorResult {
 
   /**
    * Map of created resources.
@@ -32,35 +35,34 @@ export interface ExecutorResult {
    */
   message: string | null;
 
+  /**
+   * This field can be used to return operation specific result. It
+   * must be set the failed is false.
+   */
+  operationResult: CoreOperationResult | null;
+
 }
 
 export type CreateNewIdentifier = (resourceType: string) => string;
 
 export function createErrorOperationResult(
-  message: string
-): ExecutorResult {
+  operation: CoreOperation, message: string
+): CoreExecutorResult {
   return {
     "created": {},
     "changed": {},
     "deleted": [],
     "failed": true,
     "message": message,
-  };
-}
-
-export function createEmptySuccessOperationResult(): ExecutorResult {
-  return {
-    "created": {},
-    "changed": {},
-    "deleted": [],
-    "failed": false,
-    "message": null,
+    "operationResult": null,
   };
 }
 
 export function createSuccessOperationResult(
+  operation: CoreOperation,
   created: CoreResource[], changed: CoreResource[], deleted: string[] = [],
-): ExecutorResult {
+  operationProperties: Record<string, unknown> = {},
+): CoreExecutorResult {
   const createdMap = {};
   created.forEach(resource => createdMap[resource.iri] = resource);
   const changedMap = {};
@@ -71,5 +73,23 @@ export function createSuccessOperationResult(
     "deleted": deleted,
     "failed": false,
     "message": null,
+    "operationResult": createOperationResult(
+      operation, created, changed, deleted, operationProperties),
+  };
+}
+
+function createOperationResult(
+  operation: CoreOperation,
+  created: CoreResource[], changed: CoreResource[], deleted: string[],
+  operationProperties: Record<string, unknown>,
+): CoreOperationResult {
+  return {
+    "types": [],
+    ...operationProperties,
+    // User can ont change properties bellow.
+    "operation": operation,
+    "created": created.map(resource => resource.iri),
+    "changed": changed.map(resource => resource.iri),
+    "deleted": deleted,
   };
 }

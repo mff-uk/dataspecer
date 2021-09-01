@@ -1,4 +1,4 @@
-import {CoreResource} from "../../core";
+import {CoreOperationResult, CoreResource} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
 
 export interface DataPsmCreateAssociationEnd extends DataPsmCreate {
@@ -26,4 +26,28 @@ export function asDataPsmCreateAssociationEnd(
   }
   resource.types.push(DataPsmCreateAssociationEndType);
   return resource as DataPsmCreateAssociationEnd;
+}
+
+export interface DataPsmCreateAssociationEndResult extends CoreOperationResult {
+
+  createdDataPsmAssociationEnd: string;
+
+}
+
+export const DataPsmCreateAssociationEndResultType =
+  "data-psm-action-create-association-end-result";
+
+export function isDataPsmCreateAssociationEndResult(
+  resource: CoreOperationResult,
+): resource is DataPsmCreateAssociationEndResult {
+  return resource.types.includes(DataPsmCreateAssociationEndResultType);
+}
+
+export function createDataPsmCreateAssociationEndResultProperties(
+  createdDataPsmAssociationEnd: string,
+) {
+  return {
+    "types": [DataPsmCreateAssociationEndResultType],
+    "createdDataPsmAssociationEnd": createdDataPsmAssociationEnd,
+  };
 }

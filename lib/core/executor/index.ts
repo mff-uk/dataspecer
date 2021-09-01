@@ -1,1 +1,1 @@
-export * from "./executor-result";
+export * from "./core-executor-result";

@@ -3,7 +3,7 @@ import {
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
 } from "../../core";
 import {isPimAttribute} from "../model";
 import {PimUpdateAttributeDatatype} from "../operation";
@@ -12,20 +12,21 @@ export async function executePimUpdateAttributeDataType(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimUpdateAttributeDatatype,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const attributeResource =
     await modelReader.readResource(operation.pimAttribute);
   if (attributeResource === null) {
     return createErrorOperationResult(
-      "Missing attribute object.");
+      operation, "Missing attribute object.");
   }
   if (!isPimAttribute(attributeResource)) {
     return createErrorOperationResult(
-      "Object to is not an attribute.");
+      operation, "Object to is not an attribute.");
   }
   const result = {
     ...attributeResource,
     "pimDatatype": operation.pimDatatype,
   };
-  return createSuccessOperationResult([], [result]);
+  return createSuccessOperationResult(
+    operation, [], [result]);
 }

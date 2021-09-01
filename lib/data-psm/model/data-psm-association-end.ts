@@ -1,4 +1,4 @@
-import {CoreResource} from "../../core";
+import {CoreOperationResult, CoreResource} from "../../core";
 import {DataPsmResource} from "./data-psm-resource";
 
 /**

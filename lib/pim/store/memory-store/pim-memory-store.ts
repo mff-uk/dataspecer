@@ -5,7 +5,7 @@ import {
   CoreOperation,
   CoreResource,
   CreateNewIdentifier,
-  assert, assertNot,
+  assert, assertNot, clone,
 } from "../../../core";
 import {asPimCreateSchema, isPimCreateSchema} from "../../operation";
 import {executePimOperation} from "../../executor";
@@ -56,21 +56,15 @@ export class PimMemoryStore
       throw new Error("Operation failed: " + operationResult.message);
     }
 
-    const resultOperation = this.addOperation(operation);
+    const storedOperation = this.addOperation(operation);
     this.resources = {
       ...this.resources,
       ...operationResult.changed,
       ...operationResult.created,
     };
-    operationResult.deleted
-      .forEach((iri) => delete this.resources[iri]);
-
-    return {
-      "operation": resultOperation,
-      "created": Object.keys(operationResult.created),
-      "changed": Object.keys(operationResult.changed),
-      "deleted": operationResult.deleted,
-    };
+    operationResult.deleted.forEach((iri) => delete this.resources[iri]);
+    operationResult.operationResult.operation = storedOperation;
+    return operationResult.operationResult;
   }
 
   protected applyFirstOperation(operation: CoreOperation) {
@@ -85,8 +79,7 @@ export class PimMemoryStore
   }
 
   protected addOperation<T extends CoreOperation>(operation: T): T {
-    // TODO Replace with deep clone.
-    const result = {...operation} as T;
+    const result = clone(operation);
     assertNot(this.baseIri === undefined, "Base IRI is not defined.");
     result.iri = this.baseIri + "/operation/" + this.createUniqueIdentifier();
     this.operations.push(result);

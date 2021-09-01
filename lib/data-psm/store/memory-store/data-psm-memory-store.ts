@@ -5,7 +5,7 @@ import {
   CoreOperation,
   CoreResource,
   CreateNewIdentifier,
-  assert, assertNot,
+  assert, assertNot, clone,
 } from "../../../core";
 import {asDataPsmCreateSchema, isDataPsmCreateSchema} from "../../operation";
 import {executeDataPsmOperation} from "../../executor";
@@ -55,22 +55,18 @@ export class DataPsmMemoryStore
     if (operationResult.failed) {
       throw new Error("Operation failed: " + operationResult.message);
     }
-
-    const resultOperation = this.addOperation(operation);
+    if (operationResult.operationResult === null) {
+      throw new Error("Operation result is missing.");
+    }
+    const storedOperation = this.addOperation(operation);
     this.resources = {
       ...this.resources,
       ...operationResult.changed,
       ...operationResult.created,
     };
-    operationResult.deleted
-      .forEach((iri) => delete this.resources[iri]);
-
-    return {
-      "operation": resultOperation,
-      "created": Object.keys(operationResult.created),
-      "changed": Object.keys(operationResult.changed),
-      "deleted": operationResult.deleted,
-    };
+    operationResult.deleted.forEach((iri) => delete this.resources[iri]);
+    operationResult.operationResult.operation = storedOperation;
+    return operationResult.operationResult;
   }
 
   protected applyFirstOperation(operation: CoreOperation) {
@@ -85,8 +81,7 @@ export class DataPsmMemoryStore
   }
 
   protected addOperation<T extends CoreOperation>(operation: T): T {
-    // TODO Replace with deep clone.
-    const result = {...operation} as T;
+    const result = clone(operation);
     assertNot(this.baseIri === undefined, "Base IRI is not defined.");
     result.iri = this.baseIri + "/operation/" + this.createUniqueIdentifier();
     this.operations.push(result);

@@ -4,7 +4,7 @@ import {
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
 } from "../../core";
 import {
   asPimAssociation,
@@ -16,16 +16,16 @@ export async function executePimDeleteAssociation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimDeleteAssociation,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const associationResource =
     await modelReader.readResource(operation.pimAssociation);
   if (associationResource === null) {
     return createErrorOperationResult(
-      "Missing association object.");
+      operation, "Missing association object.");
   }
   if (!isPimAssociation(associationResource)) {
     return createErrorOperationResult(
-      "Object to delete is not an association.");
+      operation, "Object to delete is not an association.");
   }
   const associationObject = asPimAssociation(associationResource);
 
@@ -40,10 +40,10 @@ export async function executePimDeleteAssociation(
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
     return createErrorOperationResult(
-      "Missing schema object.");
+      operation, "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(iri => !iriToRemove.includes(iri));
 
   return createSuccessOperationResult(
-    [], [schema], iriToRemove);
+    operation, [], [schema], iriToRemove);
 }

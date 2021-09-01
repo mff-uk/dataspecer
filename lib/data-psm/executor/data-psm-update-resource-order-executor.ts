@@ -2,7 +2,7 @@ import {
   CoreResourceReader,
   createErrorOperationResult,
   CreateNewIdentifier,
-  createSuccessOperationResult, ExecutorResult,
+  createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceOrder} from "../operation";
 import {loadDataPsmClass, loadDataPsmResource} from "./data-psm-executor-utils";
@@ -12,26 +12,26 @@ export async function executeDataPsmUpdateResourceOrder(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceOrder,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const resourceToMove =
     await loadDataPsmResource(modelReader, operation.dataPsmResourceToMove);
   if (resourceToMove === null) {
     return createErrorOperationResult(
-      "Missing resource to move.");
+      operation, "Missing resource to move.");
   }
 
   const ownerClass =
     await loadDataPsmClass(modelReader, operation.dataPsmOwnerClass);
   if (ownerClass === null) {
     return createErrorOperationResult(
-      "Missing class resource.");
+      operation, "Missing class resource.");
   }
 
   const indexToMove =
     ownerClass.dataPsmParts.indexOf(operation.dataPsmResourceToMove);
   if (indexToMove === -1) {
     return createErrorOperationResult(
-      "Resource to move is not part of the class.");
+      operation, "Resource to move is not part of the class.");
   }
   const partsWithoutTheOneToMove = [
     ...ownerClass.dataPsmParts.slice(0, indexToMove),
@@ -43,7 +43,8 @@ export async function executeDataPsmUpdateResourceOrder(
   } else {
     moveAfter(ownerClass, partsWithoutTheOneToMove, operation);
   }
-  return createSuccessOperationResult([], [ownerClass]);
+  return createSuccessOperationResult(
+    operation, [], [ownerClass]);
 }
 
 function moveToFirstPosition(
@@ -66,7 +67,7 @@ function moveAfter(
     partsWithoutTheOneToMove.indexOf(operation.dataPsmMoveAfter);
   if (indexToMoveAfter === -1) {
     return createErrorOperationResult(
-      "Resource to move after is not part of the class.");
+      operation, "Resource to move after is not part of the class.");
   }
   ownerClass.dataPsmParts = [
     ...partsWithoutTheOneToMove.slice(0, indexToMoveAfter + 1),

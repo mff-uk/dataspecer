@@ -8,6 +8,11 @@ import {CoreOperation} from "./core-operation";
 export interface CoreOperationResult {
 
   /**
+   * Determine specialization of the operation result.
+   */
+  types: string[];
+
+  /**
    * Operation as stored in the model, specifically with added IRI.
    */
   operation: CoreOperation;

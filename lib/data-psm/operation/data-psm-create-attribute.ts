@@ -1,4 +1,4 @@
-import {CoreResource} from "../../core";
+import {CoreOperationResult, CoreResource} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
 
 export interface DataPsmCreateAttribute extends DataPsmCreate {
@@ -25,4 +25,28 @@ export function asDataPsmCreateAttribute(
   }
   resource.types.push(DataPsmCreateAttributeType);
   return resource as DataPsmCreateAttribute;
+}
+
+export interface DataPsmCreateAttributeResult extends CoreOperationResult {
+
+  createdDataPsmAttribute: string;
+
+}
+
+export const DataPsmCreateAttributeResultType =
+  "psm-attribute-end-result";
+
+export function isDataPsmCreateAttributeResult(
+  resource: CoreOperationResult,
+): resource is DataPsmCreateAttributeResult {
+  return resource.types.includes(DataPsmCreateAttributeResultType);
+}
+
+export function createDataPsmCreateAttributeResultProperties(
+  createdDataPsmAttribute: string,
+) {
+  return {
+    "types": [DataPsmCreateAttributeResultType],
+    "createdDataPsmAttribute": createdDataPsmAttribute,
+  };
 }

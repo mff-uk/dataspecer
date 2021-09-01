@@ -3,7 +3,13 @@ import {
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
-import {asPimCreateAttribute} from "../operation";
+import {
+  asPimCreateAttribute,
+  isPimCreateAssociationResult,
+  isPimCreateAttributeResult,
+  PimCreateAssociationResult,
+  PimCreateAttributeResult
+} from "../operation";
 import {executePimCreateAttribute} from "./pim-create-attribute-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
@@ -55,6 +61,9 @@ test("Create attribute.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
+  expect(isPimCreateAttributeResult(actual.operationResult)).toBeTruthy();
+  const result = actual.operationResult as PimCreateAttributeResult;
+  expect(result.createdPimAttribute).toEqual("http://localhost/1");
 });
 
 function wrapResourcesWithReader(
