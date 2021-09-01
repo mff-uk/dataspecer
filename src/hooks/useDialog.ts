@@ -7,13 +7,12 @@ import {useToggle} from "./useToggle";
  * and specification of dynamic_parameter and returns
  *  - a component having only other_parameters
  *  - a close functions, which closes the dialog
- *  - an open({dynamic_parameter: type_of_dynamic_parameter}) function taking argument that will be set and dialog opened
- * @param dialog
- * @param static_type
+ *  - an open({dynamic_parameter: type_of_dynamic_parameter}) function taking argument that will be set and dialog
+ * opened
  */
-export const useDialog = <Property extends keyof Parameters, Parameters extends {isOpen: boolean, close: () => void}>(dialog: React.FC<Parameters>, static_type: Property) => {
+export const useDialog = <Property extends keyof Parameters, Parameters extends {isOpen: boolean, close: () => void}>(dialog: React.FC<Parameters>, static_type: Property[], initialState: Pick<Parameters, Property> | undefined = undefined) => {
     const toggle = useToggle();
-    const [state, setState] = useState<Pick<Parameters, Property>>();
+    const [state, setState] = useState<Pick<Parameters, Property>>(initialState as Pick<Parameters, Property>);
 
     const open = useCallback((data: Pick<Parameters, Property>) => {
         setState(data);

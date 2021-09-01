@@ -1,15 +1,14 @@
-import {PimAttribute, PsmAssociation, Store} from "model-driven-data";
 import React, {useState} from "react";
 import {Button, Dialog, DialogContent, DialogTitle, Grid, TextField, Typography} from "@material-ui/core";
+import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {DataPsmAssociationEnd} from "model-driven-data/data-psm/model";
+import {PimAssociationEnd} from "model-driven-data/pim/model";
 
 interface Parameters {
-    store: Store,
-    association: PsmAssociation | null,
+    dataPsmAssociationEndIri: string,
 
     isOpen: boolean,
     close: () => void,
-
-    updateTechnicalLabel: (association: PsmAssociation, label: string) => void,
 }
 
 const valueStyle = {
@@ -17,15 +16,15 @@ const valueStyle = {
     wordBreak: "break-all",
 } as React.CSSProperties;
 
-export const AssociationDetailDialog: React.FC<Parameters> = ({store, association, isOpen, close, updateTechnicalLabel}) => {
-    const [technicalLabel, setTechnicalLabel] = useState<string>(association?.psmTechnicalLabel || "");
+export const DataPsmAssociationDetailDialog: React.FC<Parameters> = ({dataPsmAssociationEndIri, isOpen, close}) => {
+    const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd, isLoading} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
 
-    const interpretation = association?.psmInterpretation ? store[association?.psmInterpretation] as PimAttribute : null;
+    const [technicalLabel, setTechnicalLabel] = useState<string>(dataPsmAssociationEndIri?.psmTechnicalLabel || "");
 
     const saveLabel = () => {
-        if (!association) return;
+        if (!dataPsmAssociationEndIri) return;
         close();
-        updateTechnicalLabel(association, technicalLabel);
+        updateTechnicalLabel(dataPsmAssociationEndIri, technicalLabel);
     };
 
     return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
@@ -59,12 +58,12 @@ export const AssociationDetailDialog: React.FC<Parameters> = ({store, associatio
 
         </DialogContent>
         <DialogContent>
-            <div><strong>Label: </strong>{association?.psmHumanLabel?.cs ? <pre>{association.psmHumanLabel.cs}</pre> : <em>no label</em>}</div>
-            <div><strong>Description: </strong>{association?.psmHumanDescription?.cs ? <pre>{association.psmHumanDescription.cs}</pre> : <em>no description</em>}</div>
+            <div><strong>Label: </strong>{dataPsmAssociationEndIri?.psmHumanLabel?.cs ? <pre>{dataPsmAssociationEndIri.psmHumanLabel.cs}</pre> : <em>no label</em>}</div>
+            <div><strong>Description: </strong>{dataPsmAssociationEndIri?.psmHumanDescription?.cs ? <pre>{dataPsmAssociationEndIri.psmHumanDescription.cs}</pre> : <em>no description</em>}</div>
         </DialogContent>
         <DialogContent>
             <Typography variant={"h6"} gutterBottom>Interpretation</Typography>
-            {association?.psmInterpretation ?
+            {dataPsmAssociationEndIri?.psmInterpretation ?
                 <>
                     <div><strong>Label: </strong>{interpretation?.pimHumanLabel?.cs ? <span style={valueStyle}>{interpretation.pimHumanLabel.cs}</span> : <em>no label</em>}</div>
                     <div><strong>Description: </strong>{interpretation?.pimHumanDescription?.cs ? <span style={valueStyle}>{interpretation.pimHumanDescription.cs}</span> : <em>no description</em>}</div>

@@ -1,22 +1,23 @@
 import {
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    List,
-    ListItem,
-    ListItemText,
-    TextField,
-    Typography
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Typography
 } from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
-import {IdProvider, PimClass, Slovnik, SlovnikPimMetadata} from 'model-driven-data';
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
-import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
 import {useTranslation} from "react-i18next";
+import {PimClass} from "model-driven-data/pim/model";
+import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
+import {StoreContext} from "../App";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selected: (cls: PimClass) => void}> = ({isOpen, close, selected}) => {
+    const {cim} = React.useContext(StoreContext);
     const classes = useStyles();
     const [findResults, updateFindResults] = useState<PimClass[]>([]);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
@@ -42,12 +44,10 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         subject.subscribe(() => setError(false));
         subject.pipe(
             debounceTime(200)
-        ).subscribe( term => {
+        ).subscribe(term => {
             if (term) {
-                const idProvider = new IdProvider();
-                const adapter = new Slovnik(idProvider);
                 setLoading(true);
-                adapter.search(term).then(result => {
+                cim.cimAdapter.search(term).then(result => {
                     updateFindResults(result);
                     setLoading(false);
                 }).catch(error => {
@@ -66,7 +66,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
     }, []);
 
     const onChange = (e: any) => {
-        if(subject) {
+        if (subject) {
             return subject.next(e.target.value);
         }
     };
@@ -77,16 +77,21 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         </DialogTitle>
         <DialogContent dividers>
             <Box display={"flex"}>
-                <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange} error={isError} />
-                {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30} />}
+                <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange}
+                           error={isError}/>
+                {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30}/>}
             </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">
-                {findResults.map((result: PimClass & SlovnikPimMetadata)  =>
-                    <ListItem button key={result.id} onClick={() => {selected(result); close();}}>
-                        <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={result.pimHumanDescription?.cs}>{result.pimHumanDescription?.cs}</Typography>}>
+                {findResults.map((result: PimClass) =>
+                    <ListItem button key={result.pimInterpretation} onClick={() => {
+                        selected(result);
+                        close();
+                    }}>
+                        <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
+                                                             title={result.pimHumanDescription?.cs}>{result.pimHumanDescription?.cs}</Typography>}>
                             <strong>{result.pimHumanLabel?.cs}</strong>
                             {" "}
-                            <GlossaryNote entity={result as SlovnikPimMetadata} />
+                            <SlovnikGovCzGlossary cimResourceIri={result.pimInterpretation as string} />
                         </ListItemText>
                     </ListItem>
                 )}

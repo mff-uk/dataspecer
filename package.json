@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.60",
     "@reduxjs/toolkit": "^1.5.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -15,6 +16,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-redux": "^7.1.7",
     "array-move": "^3.0.1",
+    "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
     "file-dialog": "^0.0.8",
     "file-saver": "^2.0.5",

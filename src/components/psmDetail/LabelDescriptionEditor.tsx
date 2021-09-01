@@ -13,9 +13,9 @@ import {
     TextField,
     Typography
 } from "@material-ui/core";
-import {LanguageString} from "model-driven-data";
 import React, {useCallback, useEffect, useState} from "react";
 import TranslateIcon from '@material-ui/icons/Translate';
+import {LanguageString} from "model-driven-data/core";
 
 export interface LabelAndDescriptionLanguageStrings {
     label: LanguageString;

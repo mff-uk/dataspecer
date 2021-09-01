@@ -1,86 +1,68 @@
-import React, {useEffect, useMemo, useState} from "react";
-import {IconButton, List, ListItem, ListItemText, Tooltip, Typography} from "@material-ui/core";
+import React from "react";
+import {List, ListItem, ListItemText, Tooltip, Typography} from "@material-ui/core";
 import {LoadingDialog} from "../helper/LoadingDialog";
-import {IdProvider, PimClass, Slovnik, SlovnikPimMetadata, Store} from "model-driven-data";
-import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
+import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";
 import {LanguageStringText} from "../helper/LanguageStringComponents";
-import InfoTwoToneIcon from "@material-ui/icons/InfoTwoTone";
-import {useDialog} from "../../hooks/useDialog";
-import {PimClassDetailDialog} from "../pimDetail/pimClassDetailDialog";
+import {PimClass} from "model-driven-data/pim/model";
+import {StoreContext} from "../App";
+import {CoreResourceReader} from "model-driven-data/core";
+import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 
 interface AncestorSelectorPanelParameters {
-    forCimId: string,
-    selectedAncestorCimId: string | null,
-    selectAncestorCim: (cimId: string) => void,
+    forCimClassIri: string,
+    selectedAncestorCimIri: string | null,
+    selectAncestorCimIri: (ancestorCimIri: string) => void,
 }
 
-const topologicalSort = (classes: PimClass[], startFrom: string) => {
-    let notVisited = [...classes];
+const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<PimClass[]> => {
+    const sorted: PimClass[] = [];
+    const queue: string[] = [rootIri];
+    const visited = new Set<string>();
 
-    const result: PimClass[] = [];
+    let processed: string | undefined;
+    while (processed = queue.shift()) {
+        if (visited.has(processed)) {
+            continue;
+        }
+        visited.add(processed);
 
-    const visit = (cls: PimClass) => {
-        if (!notVisited.includes(cls)) return;
-        notVisited = notVisited.filter(x => x !== cls);
-        cls.pimIsa.map(parent => classes.find(c => c.id === parent)).filter((x): x is PimClass => x !== undefined).map(visit);
-        result.push(cls);
-    };
-    
-    const start = classes.find(c => c.id === startFrom);
-    if (start) visit(start);
-
-    let cls: PimClass | undefined = notVisited[0];
-    while (cls) {
-        visit(cls);
-        cls = notVisited[0];
+        const resource = await modelReader.readResource(processed) as PimClass;
+        console.warn(resource);
+        sorted.push(resource);
+        queue.push(...(resource.pimExtends ?? []));
     }
 
-    return result.reverse();
-};
+    return sorted;
+}
 
-export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimId, selectedAncestorCimId, selectAncestorCim}) => {
-    const [loading, setLoading] = useState(true);
-    const [ancestors, setAncestors] = useState<Store>({});
-    const classDialog = useDialog(PimClassDetailDialog, "cls");
+export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimClassIri, selectedAncestorCimIri, selectAncestorCimIri}) => {
+    // const classDialog = useDialog(PimClassDetailDialog, "cls");
 
     const {t} = useTranslation("interpretedSurrounding");
-
-    useEffect(() => {
-        if (forCimId) {
-            setLoading(true);
-            setAncestors({});
-
-            const slovnik = new Slovnik(new IdProvider());
-            slovnik.getHierarchy(forCimId).then(result => {
-                setAncestors(result);
-                setLoading(false);
-            });
-        }
-    }, [forCimId]);
-
-    const sorted = useMemo(() => topologicalSort(Object.values(ancestors) as PimClass[], forCimId), [ancestors, forCimId]);
+    const {cim} = React.useContext(StoreContext);
+    const [sorted, loading] = useAsyncMemo(async () => await BFS(await cim.cimAdapter.getFullHierarchy(forCimClassIri), cim.iriProvider.cimToPim(forCimClassIri)), [cim.cimAdapter, forCimClassIri]);
 
     return <>
         <Typography variant={"h6"}>{t("ancestors title")}</Typography>
         {loading ? <LoadingDialog /> :
             <List component="nav" aria-label="main mailbox folders" dense>
-                {sorted.map(ancestor =>
-                    <Tooltip open={(ancestor.pimHumanDescription && Object.values(ancestor.pimHumanDescription).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.pimHumanDescription} />} placement="left" key={ancestor.id}>
-                        <ListItem button selected={ancestor.pimInterpretation === (selectedAncestorCimId ?? forCimId)} onClick={() => ancestor.pimInterpretation && selectAncestorCim(ancestor.pimInterpretation)}>
+                {sorted && sorted.map(ancestor =>
+                    <Tooltip open={(ancestor.pimHumanDescription && Object.values(ancestor.pimHumanDescription).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.pimHumanDescription} />} placement="left" key={ancestor.iri}>
+                        <ListItem button selected={ancestor.pimInterpretation === (selectedAncestorCimIri ?? forCimClassIri)} onClick={() => ancestor.pimInterpretation && selectAncestorCimIri(ancestor.pimInterpretation)}>
                             <ListItemText
                                 primary={<>
                                     <LanguageStringText from={ancestor.pimHumanLabel} />
                                     {" "}
-                                    <IconButton size="small" onClick={(event) => {classDialog.open({cls: ancestor}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                    {/*<IconButton size="small" onClick={(event) => {classDialog.open({cls: ancestor}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                 </>}
-                                secondary={<GlossaryNote entity={ancestor as SlovnikPimMetadata}/>}
+                                secondary={<SlovnikGovCzGlossary cimResourceIri={ancestor.pimInterpretation as string}/>}
                             />
                         </ListItem>
                     </Tooltip>
                 )}
             </List>
         }
-        <classDialog.component store={ancestors} />
+        {/*<classDialog.component store={ancestors} />*/}
     </>;
 };

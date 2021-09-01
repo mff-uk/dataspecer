@@ -1,6 +1,6 @@
 import React, {ReactElement} from "react";
-import {LanguageString} from "model-driven-data";
 import {useTranslation} from "react-i18next";
+import {LanguageString} from "model-driven-data/core";
 
 export const LanguageStringFallback: React.FC<{
     from?: LanguageString,

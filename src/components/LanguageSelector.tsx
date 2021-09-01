@@ -13,7 +13,7 @@ export const LanguageSelector: React.FC = () => {
 
     const setLanguage = (language: string) => {
         close();
-        i18n.changeLanguage(language);
+        i18n.changeLanguage(language).then(null);
     };
 
     return <>

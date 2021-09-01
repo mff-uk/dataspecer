@@ -6,35 +6,24 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-    IconButton,
     ListItem,
     ListItemIcon,
     ListItemText,
     Typography
 } from "@material-ui/core";
 import React, {useCallback, useEffect, useState} from "react";
-import {
-    IdProvider,
-    PimAssociation,
-    PimAttribute,
-    PimClass,
-    PsmClass,
-    Slovnik,
-    SlovnikPimMetadata,
-    Store
-} from 'model-driven-data';
-import {GlossaryNote} from "../slovnik.gov.cz/GlossaryNote";
+import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
-import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useTranslation} from "react-i18next";
-import InfoTwoToneIcon from '@material-ui/icons/InfoTwoTone';
-import {useDialog} from "../../hooks/useDialog";
-import {PimAttributeDetailDialog} from "../pimDetail/pimAttributeDetailDialog";
-import {PimClassDetailDialog} from "../pimDetail/pimClassDetailDialog";
-import {PimAssociationDetailDialog} from "../pimDetail/pimAssociationDetailDialog";
-
-type EntityType = PimAssociation | PimAttribute;
+import {DataPsmClass} from "model-driven-data/data-psm/model";
+import {CoreResource, CoreResourceReader} from "model-driven-data/core";
+import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {isPimAssociation, isPimAttribute, PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
+import {StoreContext} from "../App";
+import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
+import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -44,68 +33,99 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-interface AddInterpretedSurroundingDialogProperties {
-    store: Store,
-    isOpen: boolean,
-    close: () => void,
-    selected: (forClass: PsmClass, store: Store, attributes: PimAttribute[], associations: PimAssociation[]) => void,
-    psmClass: PsmClass | null
+const useFilterForResource = <Resource extends CoreResource>(modelReader: CoreResourceReader | undefined, filter: (resource: CoreResource) => Promise<boolean>) => {
+    const [resources] = useAsyncMemo<Resource[]>(async () => {
+        const allResourcesIri = await modelReader?.listResources() as string[];
+        const newAttributes: Resource[] = [];
+
+        if (allResourcesIri) {
+            for (const resourceIri of allResourcesIri) {
+                const resource = await modelReader?.readResource(resourceIri) as CoreResource;
+                if (await filter(resource)) {
+                    newAttributes.push(resource as Resource);
+                }
+            }
+        }
+
+        return newAttributes;
+    }, [modelReader]);
+
+    return resources;
 }
 
-export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({store, isOpen, close, selected, psmClass}) => {
+interface AddInterpretedSurroundingDialogProperties {
+    isOpen: boolean,
+    close: () => void,
+
+    dataPsmClassIri: string,
+
+    selected: (forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: CoreResource[]) => void,
+}
+
+export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({isOpen, close, selected, dataPsmClassIri}) => {
     const styles = useStyles();
     const {t} = useTranslation("interpretedSurrounding");
 
-    // @ts-ignore
-    const cimId: string = psmClass ? (store[psmClass?.psmInterpretation] as PimClass).pimInterpretation : "";
+    const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const cimClassIri = pimClass?.pimInterpretation;
+
+    const {cim} = React.useContext(StoreContext);
 
     // For which CIM iris the loading is in progress
-    const [currentCIM, setCurrentCIM] = useState<string>("");
-    const [surroundings, setSurroundings] = useState<Record<string, Store | undefined>>({});
+    const [currentCimClassIri, setCurrentCimClassIri] = useState<string>("");
+    const [surroundings, setSurroundings] = useState<Record<string, CoreResourceReader | undefined>>({});
 
-    const switchToCim = useCallback ((cim: string) => {
-        setCurrentCIM(cim);
-        if (!surroundings.hasOwnProperty(cim)) {
-            setSurroundings({...surroundings, [cim]: undefined});
+    /**
+     * There can be multiple classes from the class hierarchy. A user can switch between them to select from which
+     * class the user can select attributes and associations.
+     */
+    const switchCurrentCimClassIri = useCallback((newCurrentCimClassIri: string) => {
+        setCurrentCimClassIri(newCurrentCimClassIri);
+        if (!surroundings.hasOwnProperty(newCurrentCimClassIri)) {
+            setSurroundings({...surroundings, [newCurrentCimClassIri]: undefined});
 
-            const slovnik = new Slovnik(new IdProvider());
-            slovnik.getSurroundings(cim).then(result => {
-                setSurroundings({...surroundings, [cim]: result});
+            cim.cimAdapter.getSurroundings(newCurrentCimClassIri).then(result => {
+                setSurroundings({...surroundings, [newCurrentCimClassIri]: result});
             });
         }
-    }, [surroundings]);
+    }, [surroundings, cim.cimAdapter]);
 
-    const [selectedEntities, setSelectedEntities] = useState<EntityType[]>([]);
-    const toggleSelectedEntities = (entity: EntityType) => () => {
-        if (selectedEntities.includes(entity)) {
-            setSelectedEntities(selectedEntities.filter(a => a !== entity));
+    const [selectedResources, setSelectedResources] = useState<CoreResource[]>([]);
+    const toggleSelectedResources = (resource: CoreResource) => () => {
+        if (selectedResources.includes(resource)) {
+            setSelectedResources(selectedResources.filter(a => a !== resource));
         } else {
-            setSelectedEntities([...selectedEntities, entity])
+            setSelectedResources([...selectedResources, resource])
         }
     };
 
+    // Opens the root class CIM
     useEffect(() => {
-        if (isOpen) {
-            switchToCim(cimId);
+        if (isOpen && cimClassIri) {
+            switchCurrentCimClassIri(cimClassIri);
         } else {
-            setSelectedEntities([]);
+            setSelectedResources([]);
             setSurroundings({});
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, cimId]); // change of switchToCim should not trigger this effect
+    }, [isOpen, cimClassIri]); // change of switchCurrentCimClassIri should not trigger this effect
 
-    const attributeDetail = useDialog(PimAttributeDetailDialog, "attribute");
-    const classDialog = useDialog(PimClassDetailDialog, "cls");
-    const associationDialog = useDialog(PimAssociationDetailDialog, "association");
+    // const attributeDetail = useDialog(PimAttributeDetailDialog, "attribute");
+    // const classDialog = useDialog(PimClassDetailDialog, "cls");
+    // const associationDialog = useDialog(PimAssociationDetailDialog, "association");
 
-    if (!psmClass) return null;
 
-    const currentSurroundings = surroundings[currentCIM];
+    const currentSurroundings = surroundings[currentCimClassIri];
 
-    const attributes = currentSurroundings ? Object.values(currentSurroundings).filter(PimAttribute.is) : [];
-    const associations = currentSurroundings ? Object.values(currentSurroundings).filter(PimAssociation.is) : [];
-    const forwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[0].pimParticipant && (currentSurroundings[a.pimEnd[0].pimParticipant] as PimClass)?.pimInterpretation === currentCIM) : [];
-    const backwardAssociations = currentSurroundings ? associations.filter(a => a.pimEnd[1].pimParticipant && (currentSurroundings[a.pimEnd[1].pimParticipant] as PimClass)?.pimInterpretation === currentCIM) : [];
+    const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => isPimAttribute(resource));
+    const forwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
+        isPimAssociation(resource) && (await currentSurroundings?.readResource(resource.pimEnd[0]) as PimClass)?.pimInterpretation === currentCimClassIri
+    );
+    const backwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
+        isPimAssociation(resource) && (await currentSurroundings?.readResource(resource.pimEnd[1]) as PimClass)?.pimInterpretation === currentCimClassIri
+    );
+
+    if (!cimClassIri) return null;
 
     return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
@@ -115,20 +135,20 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         <DialogContent dividers>
             <Grid container spacing={3}>
                 <Grid item xs={3} className={styles.ancestorPane}>
-                    <AncestorSelectorPanel forCimId={cimId} selectedAncestorCimId={currentCIM} selectAncestorCim={switchToCim} />
+                    <AncestorSelectorPanel forCimClassIri={cimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} />
                 </Grid>
                 <Grid item xs={9}>
-                    {surroundings[currentCIM] === undefined && <LoadingDialog />}
+                    {surroundings[currentCimClassIri] === undefined && <LoadingDialog />}
 
-                    {surroundings[currentCIM] === undefined ||
+                    {surroundings[currentCimClassIri] === undefined ||
                         <>
                             <Typography variant={"h6"}>{t("attributes")}</Typography>
                             {attributes && attributes.map((entity: PimAttribute) =>
-                                <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedEntities.includes(entity)}
+                                            checked={selectedResources.includes(entity)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -136,9 +156,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                     <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
-                                        <GlossaryNote entity={entity as SlovnikPimMetadata} />
+                                        <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string} />
                                         {" "}
-                                        <IconButton size="small" onClick={(event) => {attributeDetail.open({attribute: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                        {/*<IconButton size="small" onClick={(event) => {attributeDetail.open({attribute: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                     </ListItemText>
                                 </ListItem>
                             )}
@@ -148,11 +168,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                             <Typography variant={"h6"}>{t("associations")}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedEntities.includes(entity)}
+                                            checked={selectedResources.includes(entity)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -160,53 +180,54 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                     <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
-                                        <GlossaryNote entity={entity as SlovnikPimMetadata}/>
+                                        <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string}/>
                                         {" "}
-                                        <IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                        {/*<IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                         {" "}
-                                        {entity.pimEnd[1].pimParticipant && currentSurroundings &&
+                                        {/*entity.pimEnd[1].pimParticipant && currentSurroundings &&
                                         <span>({(currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass).pimHumanLabel?.cs}
                                             ){" "}
                                             <IconButton size="small" onClick={(event) => {entity.pimEnd[1].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                             </span>
-                                        }
+                                        */}
                                     </ListItemText>
                                 </ListItem>
                             )}
 
-                            {forwardAssociations.length === 0 &&
+                            {(!forwardAssociations || forwardAssociations.length === 0) &&
                             <Typography color={"textSecondary"}>{t("no associations")}</Typography>
                             }
 
                             <Typography variant={"h6"}>{t("backward associations")}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.id} role={undefined} dense button onClick={toggleSelectedEntities(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedEntities.includes(entity)}
+                                            checked={selectedResources.includes(entity)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
                                     </ListItemIcon>
                                     <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
-                                        {entity.pimEnd[0].pimParticipant && <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass).pimHumanLabel?.cs}
+                                        {/*{entity.pimEnd[0].pimParticipant && <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass).pimHumanLabel?.cs}
                                             ){" "}
                                             <IconButton size="small" onClick={(event) => {currentSurroundings && entity.pimEnd[0].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                             </span>}
-                                        {" "}
+                                        {" "}*/}
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
-                                        <GlossaryNote entity={entity as SlovnikPimMetadata}/>
+                                        <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string}/>
                                         {" "}
-                                        <IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                                        {/*<IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                     </ListItemText>
                                 </ListItem>
                             )}
 
-                            {backwardAssociations.length === 0 &&
+                            {(!backwardAssociations || backwardAssociations.length === 0) &&
                             <Typography color={"textSecondary"}>{t("no backward associations")}</Typography>
                             }
+
                         </>
                     }
                 </Grid>
@@ -215,15 +236,15 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         <DialogActions>
             <Button onClick={close} color="primary">{t("close button")}</Button>
             <Button
-                onClick={() => {close(); currentSurroundings && selected(psmClass, Object.fromEntries((Object.values(surroundings).filter(v => v !== undefined) as Store[]).map(Object.entries).flat()), selectedEntities.filter(PimAttribute.is), selectedEntities.filter(PimAssociation.is))}}
-                disabled={selectedEntities.length === 0}
+                onClick={() => {close(); currentSurroundings && selected(dataPsmClass as DataPsmClass, new FederatedModelReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]), selectedResources)}}
+                disabled={selectedResources.length === 0}
                 color="secondary">
                 {t("confirm button")}
             </Button>
         </DialogActions>
 
-        <attributeDetail.component store={store} />
-        <classDialog.component store={store} />
-        <associationDialog.component store={store} />
+        {/*<attributeDetail.component store={store} />*/}
+        {/*<classDialog.component store={store} />*/}
+        {/*<associationDialog.component store={store} />*/}
     </Dialog>;
 };

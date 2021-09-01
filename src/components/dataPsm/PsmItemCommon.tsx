@@ -1,11 +1,21 @@
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
-import {PsmClass} from "model-driven-data";
 
-export interface PsmItemCommonAttributes {
-    id: string;
+/**
+ * Component properties for both AssociationEnds and Attributes.
+ */
+export interface DataPsmClassPartItemProperties {
+    /**
+     * Resource to render.
+     */
+    dataPsmResourceIri: string;
+
+    /**
+     * Owning class
+     */
+    parentDataPsmClassIri: string;
+
     dragHandleProps?: DraggableProvidedDragHandleProps;
-    parent?: PsmClass;
     index?: number;
 }
 
@@ -49,6 +59,7 @@ export const useItemStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             margin: "0 .25rem",
             fontSize: "1rem"
-        }
+        },
+        loading: {}
     }),
 );
