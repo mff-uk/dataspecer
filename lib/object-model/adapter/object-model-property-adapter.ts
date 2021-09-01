@@ -12,7 +12,7 @@ import {
   isDataPsmAttribute, isDataPsmClass,
 } from "../../data-psm/model";
 import {
-  isPimAssociation, isPimAssociationEnd,
+  isPimAssociationEnd,
   isPimAttribute, PimAssociationEnd, PimAttribute,
 } from "../../pim/model";
 
@@ -94,7 +94,7 @@ export class ObjectModelPropertyAdapter {
 
   protected psmAttributeToPrimitive(
     dataPsmAttribute: DataPsmAttribute, primitiveData: ObjectModelPrimitive,
-  ) {
+  ): void {
     primitiveData.dataType = dataPsmAttribute.dataPsmDatatype;
   }
 
@@ -115,7 +115,7 @@ export class ObjectModelPropertyAdapter {
     if (this.psmAssociation[dataPsmAssociationEnd.iri] !== undefined) {
       return this.psmAssociation[dataPsmAssociationEnd.iri];
     }
-    const result = new createObjectModelProperty();
+    const result = createObjectModelProperty();
     this.psmAssociation[dataPsmAssociationEnd.iri] = result;
     // As of now we do not address the cardinality, so we leave it to default.
     await this.psmAssociationEndToProperty(dataPsmAssociationEnd, result);

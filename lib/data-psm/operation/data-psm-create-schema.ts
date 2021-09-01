@@ -1,4 +1,8 @@
-import {CoreOperationResult, CoreResource, LanguageString} from "../../core";
+import {
+  CoreResource,
+  CoreTyped,
+  LanguageString,
+} from "../../core";
 
 export interface DataPsmCreateSchema extends CoreResource {
 
@@ -33,7 +37,7 @@ export function asDataPsmCreateSchema(
   return resource as DataPsmCreateSchema;
 }
 
-export interface DataPsmCreateSchemaResult extends CoreOperationResult {
+export interface DataPsmCreateSchemaResult extends CoreTyped {
 
   createdDataPsmSchema: string;
 
@@ -43,14 +47,14 @@ export const DataPsmCreateSchemaResultType =
   "psm-action-create-schema-result";
 
 export function isDataPsmCreateSchemaResult(
-  resource: CoreOperationResult,
+  resource: CoreTyped,
 ): resource is DataPsmCreateSchemaResult {
   return resource.types.includes(DataPsmCreateSchemaResultType);
 }
 
 export function createDataPsmCreateSchemaResultProperties(
   createdDataPsmSchema: string,
-) {
+): DataPsmCreateSchemaResult {
   return {
     "types": [DataPsmCreateSchemaResultType],
     "createdDataPsmSchema": createdDataPsmSchema,

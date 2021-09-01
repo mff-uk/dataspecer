@@ -11,7 +11,7 @@ import {asDataPsmCreateSchema, isDataPsmCreateSchema} from "../../operation";
 import {executeDataPsmOperation} from "../../executor";
 
 export class DataPsmMemoryStore
-  implements CoreResourceReader, CoreResourceWriter {
+implements CoreResourceReader, CoreResourceWriter {
 
   private operations: CoreOperation[] = [];
 
@@ -55,9 +55,7 @@ export class DataPsmMemoryStore
     if (operationResult.failed) {
       throw new Error("Operation failed: " + operationResult.message);
     }
-    if (operationResult.operationResult === null) {
-      throw new Error("Operation result is missing.");
-    }
+
     const storedOperation = this.addOperation(operation);
     this.resources = {
       ...this.resources,
@@ -65,11 +63,16 @@ export class DataPsmMemoryStore
       ...operationResult.created,
     };
     operationResult.deleted.forEach((iri) => delete this.resources[iri]);
-    operationResult.operationResult.operation = storedOperation;
-    return operationResult.operationResult;
+    return {
+      ...(operationResult.operationResult ?? {"types": []}),
+      "created": Object.keys(operationResult.created),
+      "changed": Object.keys(operationResult.changed),
+      "deleted": operationResult.deleted,
+      "operation": storedOperation,
+    };
   }
 
-  protected applyFirstOperation(operation: CoreOperation) {
+  protected applyFirstOperation(operation: CoreOperation): void {
     assert(
       isDataPsmCreateSchema(operation),
       "The first operation must create a schema.");
@@ -88,7 +91,7 @@ export class DataPsmMemoryStore
     return result;
   }
 
-  protected createUniqueIdentifier() {
+  protected createUniqueIdentifier(): string {
     return "xxxx-xxxx-yxxx".replace(/[xy]/g, function (pattern) {
       const code = Math.random() * 16 | 0;
       const result = pattern == "x" ? code : (code & 0x3 | 0x8);

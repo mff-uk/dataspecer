@@ -1,4 +1,4 @@
-import {CoreOperationResult, CoreResource} from "../../core";
+import { CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
 
 export interface PimCreateAssociation extends PimCreate {
@@ -27,7 +27,7 @@ export function asPimCreateAssociation(
   return result;
 }
 
-export interface PimCreateAssociationResult extends CoreOperationResult  {
+export interface PimCreateAssociationResult extends CoreTyped {
 
   createdPimAssociation: string;
 
@@ -39,15 +39,15 @@ export const PimCreateAssociationResultType =
   "pim-action-create-association-result";
 
 export function isPimCreateAssociationResult(
-  resource: CoreOperationResult,
+  resource: CoreTyped,
 ): resource is PimCreateAssociationResult {
   return resource.types.includes(PimCreateAssociationResultType);
 }
 
 export function createPimCreateAssociationResultProperties(
-  createdPimAssociation:string,
+  createdPimAssociation: string,
   createdPimAssociationEnds: string[],
-) {
+): PimCreateAssociationResult {
   return {
     "types": [PimCreateAssociationResultType],
     "createdPimAssociation": createdPimAssociation,

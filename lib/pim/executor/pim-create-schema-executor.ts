@@ -1,6 +1,6 @@
 import {
   createPimCreateSchemaResultProperties,
-  PimCreateSchema
+  PimCreateSchema,
 } from "../operation";
 import {asPimSchema} from "../model";
 import {
@@ -23,6 +23,6 @@ export async function executePimCreateSchema(
   result.pimHumanDescription = operation.pimHumanDescription;
 
   return createSuccessOperationResult(
-    operation, [result], [], [],
+    [result], [], [],
     createPimCreateSchemaResultProperties(result.iri));
 }

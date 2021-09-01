@@ -59,7 +59,7 @@ describe("Change order in data PSM class.", () => {
           "http://attribute/0", "http://attribute/2",
           "http://attribute/1", "http://attribute/3",
         ],
-      }
+      },
     });
     expect(actual.deleted).toEqual([]);
   });

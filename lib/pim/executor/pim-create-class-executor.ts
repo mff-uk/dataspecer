@@ -1,6 +1,6 @@
 import {
   createPimCreateClassResultProperties,
-  PimCreateClass
+  PimCreateClass,
 } from "../operation";
 import {asPimClass} from "../model";
 import {
@@ -28,12 +28,11 @@ export async function executePimCreateClass(
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   schema.pimParts = [...schema.pimParts, result.iri];
 
   return createSuccessOperationResult(
-    operation, [result], [schema], [],
+    [result], [schema], [],
     createPimCreateClassResultProperties(result.iri));
 }

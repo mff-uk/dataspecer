@@ -20,21 +20,21 @@ export async function executePimDeleteAttribute(
     await modelReader.readResource(operation.pimAttribute);
   if (attributeResource === null) {
     return createErrorOperationResult(
-      operation, "Missing attribute object.");
+      "Missing attribute object.");
   }
   if (!isPimAttribute(attributeResource)) {
     return createErrorOperationResult(
-      operation, "Object to delete is not an attribute.");
+      "Object to delete is not an attribute.");
   }
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
     return createErrorOperationResult(
-      operation, "Missing schema object.");
+      "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(
     iri => iri !== operation.pimAttribute);
 
   return createSuccessOperationResult(
-    operation, [], [schema], [operation.pimAttribute]);
+    [], [schema], [operation.pimAttribute]);
 }

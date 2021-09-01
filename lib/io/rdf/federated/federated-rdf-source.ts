@@ -1,4 +1,4 @@
-import {RdfSource, RdfObject} from "../rdf-api";
+import {RdfSource, RdfObject, RdfNode} from "../rdf-api";
 
 export class FederatedSource implements RdfSource {
 
@@ -34,7 +34,7 @@ export class FederatedSource implements RdfSource {
     return Promise.resolve(result);
   }
 
-  async reverseProperty(predicate: string, iri: string): Promise<RdfObject[]> {
+  async reverseProperty(predicate: string, iri: string): Promise<RdfNode[]> {
     const result = [];
     for (const source of this.sources) {
       addValues(result, await source.reverseProperty(predicate, iri));
@@ -47,7 +47,7 @@ export class FederatedSource implements RdfSource {
 
 }
 
-function addValues(values: RdfObject[], newValues: RdfObject[]) {
+function addValues<T>(values: T[], newValues: T[]) {
   // TODO Here we may consider to keep only unique values.
   values.push(...newValues);
 }

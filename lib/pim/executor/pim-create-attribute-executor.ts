@@ -1,6 +1,6 @@
 import {
   createPimCreateAttributeResultProperties,
-  PimCreateAttribute
+  PimCreateAttribute,
 } from "../operation";
 import {asPimAttribute} from "../model";
 import {
@@ -30,8 +30,7 @@ export async function executePimCreateAttribute(
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   schema.pimParts = [...schema.pimParts, result.iri];
 
@@ -39,10 +38,10 @@ export async function executePimCreateAttribute(
   const ownerClass = await modelReader.readResource(
     operation.pimOwnerClass);
   if (ownerClass === null) {
-    return createErrorOperationResult(operation, "Missing owner class");
+    return createErrorOperationResult("Missing owner class");
   }
 
   return createSuccessOperationResult(
-    operation, [result], [schema], [],
+    [result], [schema], [],
     createPimCreateAttributeResultProperties(result.iri));
 }

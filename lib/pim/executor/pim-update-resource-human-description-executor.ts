@@ -15,13 +15,11 @@ export async function executePimUpdateResourceHumanDescription(
 ): Promise<CoreExecutorResult> {
   const psmResource = await loadPimResource(modelReader, operation.pimResource);
   if (psmResource === null) {
-    return createErrorOperationResult(
-      operation, "Missing PIM resource.");
+    return createErrorOperationResult("Missing PIM resource.");
   }
   const result = {
     ...psmResource,
     "pimHumanDescription": operation.pimHumanDescription,
   };
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

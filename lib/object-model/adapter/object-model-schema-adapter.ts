@@ -36,7 +36,7 @@ export class ObjectModelSchemaAdapter {
     this.schemas[psmSchema.iri] = result;
     await this.psmSchemaToSchema(psmSchema, result);
     for (const schema of Object.values(this.schemas)) {
-      this.collectClasses(result);
+      this.collectClasses(schema);
     }
     return result;
   }

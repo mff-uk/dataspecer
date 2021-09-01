@@ -2,15 +2,15 @@ import {OutputStream} from "./output-stream";
 
 export class MemoryOutputStream implements OutputStream {
 
-    private content = "";
+  private content = "";
 
-    write(chunk: string) {
-      this.content += chunk;
-      return Promise.resolve();
-    }
+  write(chunk: string): Promise<void> {
+    this.content += chunk;
+    return Promise.resolve();
+  }
 
-    getContent(): string {
-      return this.content;
-    }
+  getContent(): string {
+    return this.content;
+  }
 
 }

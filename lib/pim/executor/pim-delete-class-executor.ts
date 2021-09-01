@@ -23,50 +23,48 @@ export async function executePimDeleteClass(
     await modelReader.readResource(operation.pimClass);
   if (classResource === null) {
     return createErrorOperationResult(
-      operation, "Missing class object.");
+      "Missing class object.");
   }
   if (!isPimClass(classResource)) {
     return createErrorOperationResult(
-      operation, "Object to delete is not an class.");
+      "Object to delete is not an class.");
   }
 
-  const usageCheck = await checkIsNotUsed(
-    operation, modelReader, operation.pimClass);
-  if (usageCheck?.failed) {
+  const usageCheck = await checkIsNotUsed(modelReader, operation.pimClass);
+  if (usageCheck !== null) {
     return usageCheck;
   }
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
     return createErrorOperationResult(
-      operation, "Missing schema object.");
+      "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(
     iri => iri !== operation.pimClass);
 
   return createSuccessOperationResult(
-    operation, [], [schema], [operation.pimClass]);
+    [], [schema], [operation.pimClass]);
 }
 
 async function checkIsNotUsed(
-  operation: PimDeleteClass,
   modelReader: CoreResourceReader,
-  classIri: string): Promise<CoreExecutorResult | undefined> {
+  classIri: string): Promise<CoreExecutorResult | null> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isPimAttribute(resource)) {
       const attributeResource = asPimAttribute(resource);
       if (attributeResource.pimOwnerClass === classIri) {
         return createErrorOperationResult(
-          operation, "Class has an attribute.");
+          "Class has an attribute.");
       }
     } else if (isPimAssociationEnd(resource)) {
       const associationEndResource = asPimAssociationEnd(resource);
       if (associationEndResource.pimPart === classIri) {
         return createErrorOperationResult(
-          operation, "Class is used by an association.");
+          "Class is used by an association.");
       }
     }
   }
-  return undefined;
+  return null;
 }

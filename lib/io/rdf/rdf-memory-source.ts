@@ -1,4 +1,4 @@
-import {RdfSource, RdfQuad, RdfObject, RdfTermType} from "./rdf-api";
+import {RdfSource, RdfQuad, RdfObject, RdfTermType, RdfNode} from "./rdf-api";
 
 /**
  * Can be used as a base class for sources that load chunk of data
@@ -8,8 +8,7 @@ export class RdfMemorySource implements RdfSource {
 
   protected quads: RdfQuad[] = [];
 
-  protected RdfMemorySource() {
-
+  protected constructor() {
   }
 
   async property(iri: string, predicate: string): Promise<RdfObject[]> {
@@ -39,15 +38,15 @@ export class RdfMemorySource implements RdfSource {
    * the blank nodes identifiers with URL.
    */
   protected static prefixBlankNodes(
-    quads: RdfQuad[], prefix:string
-  ) : RdfQuad[] {
+    quads: RdfQuad[], prefix: string,
+  ): RdfQuad[] {
 
     // Insert URL into the blank node name.
     const sanitizeUrl = (url: string) =>
       url.startsWith("_:") ? url + ":" + prefix : url;
 
     // If value is blank node sanitize the value, else return the value.
-    const sanitizeObject = <T> (value: T) =>
+    const sanitizeObject = <T extends RdfNode>(value: T) =>
       value.termType === RdfTermType.BlankNode ? {
         ...value,
         "value": sanitizeUrl(value.value),

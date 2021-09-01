@@ -21,11 +21,11 @@ export async function executePimDeleteAssociation(
     await modelReader.readResource(operation.pimAssociation);
   if (associationResource === null) {
     return createErrorOperationResult(
-      operation, "Missing association object.");
+      "Missing association object.");
   }
   if (!isPimAssociation(associationResource)) {
     return createErrorOperationResult(
-      operation, "Object to delete is not an association.");
+      "Object to delete is not an association.");
   }
   const associationObject = asPimAssociation(associationResource);
 
@@ -40,10 +40,10 @@ export async function executePimDeleteAssociation(
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
     return createErrorOperationResult(
-      operation, "Missing schema object.");
+      "Missing schema object.");
   }
   schema.pimParts = schema.pimParts.filter(iri => !iriToRemove.includes(iri));
 
   return createSuccessOperationResult(
-    operation, [], [schema], iriToRemove);
+    [], [schema], iriToRemove);
 }

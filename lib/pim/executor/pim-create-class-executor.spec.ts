@@ -1,12 +1,10 @@
 import {
-  CoreResource,
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {
   asPimCreateClass,
-  isPimCreateAttributeResult,
-  isPimCreateClassResult, PimCreateAttributeResult, PimCreateClassResult
+  isPimCreateClassResult, PimCreateClassResult,
 } from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
@@ -28,7 +26,7 @@ test("Create class.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateClass(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 

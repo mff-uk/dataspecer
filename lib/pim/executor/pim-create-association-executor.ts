@@ -8,7 +8,7 @@ import {
 } from "../../core";
 import {
   createPimCreateAssociationResultProperties,
-  PimCreateAssociation
+  PimCreateAssociation,
 } from "../operation";
 import {asPimAssociation, asPimAssociationEnd, isPimClass} from "../model";
 import {loadPimSchema} from "./pim-executor-utils";
@@ -46,21 +46,19 @@ export async function executesPimCreateAssociation(
 
   if (operation.pimAssociationEnds.length !== 2) {
     return createErrorOperationResult(
-      operation,
       "Invalid number of ends for an association. Expected " +
       "2 given" + operation.pimAssociationEnds.length + ".");
   }
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   schema.pimParts = [...schema.pimParts, result.iri, left.iri, right.iri];
 
   return createSuccessOperationResult(
-    operation, [result, left, right], [schema], [],
+    [result, left, right], [schema], [],
     createPimCreateAssociationResultProperties(
       result.iri, [left.iri, right.iri]));
 }
@@ -72,12 +70,11 @@ async function verityAssociationEnd(
 ): Promise<CoreExecutorResult | undefined> {
   const resource = await modelReader.readResource(iri);
   if (resource === null) {
-    return createErrorOperationResult(
-      operation, "Missing owner class.");
+    return createErrorOperationResult("Missing owner class.");
   }
   if (!isPimClass(resource)) {
     return createErrorOperationResult(
-      operation, "Missing association end must be a class.");
+      "Missing association end must be a class.");
   }
   // TODO Check that the association is part of the schema.
   return undefined;

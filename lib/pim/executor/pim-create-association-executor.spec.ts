@@ -4,7 +4,7 @@ import {
 } from "../../core";
 import {
   asPimCreateAssociation,
-  isPimCreateAssociationResult, PimCreateAssociationResult
+  isPimCreateAssociationResult, PimCreateAssociationResult,
 } from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
@@ -35,7 +35,7 @@ test("Create association.", async () => {
 
   let counter = 0;
   const actual = await executesPimCreateAssociation(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 

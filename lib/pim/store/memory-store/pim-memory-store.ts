@@ -11,7 +11,7 @@ import {asPimCreateSchema, isPimCreateSchema} from "../../operation";
 import {executePimOperation} from "../../executor";
 
 export class PimMemoryStore
-  implements CoreResourceReader, CoreResourceWriter {
+implements CoreResourceReader, CoreResourceWriter {
 
   private operations: CoreOperation[] = [];
 
@@ -63,11 +63,16 @@ export class PimMemoryStore
       ...operationResult.created,
     };
     operationResult.deleted.forEach((iri) => delete this.resources[iri]);
-    operationResult.operationResult.operation = storedOperation;
-    return operationResult.operationResult;
+    return {
+      ...(operationResult.operationResult ?? {"types": []}),
+      "created": Object.keys(operationResult.created),
+      "changed": Object.keys(operationResult.changed),
+      "deleted": operationResult.deleted,
+      "operation": storedOperation,
+    };
   }
 
-  protected applyFirstOperation(operation: CoreOperation) {
+  protected applyFirstOperation(operation: CoreOperation): void {
     assert(
       isPimCreateSchema(operation),
       "The first operation must create a schema.");
@@ -86,7 +91,7 @@ export class PimMemoryStore
     return result;
   }
 
-  protected createUniqueIdentifier() {
+  protected createUniqueIdentifier(): string {
     return "xxxx-xxxx-yxxx".replace(/[xy]/g, function (pattern) {
       const code = Math.random() * 16 | 0;
       const result = pattern == "x" ? code : (code & 0x3 | 0x8);

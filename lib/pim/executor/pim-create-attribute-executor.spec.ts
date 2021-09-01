@@ -1,14 +1,11 @@
 import {
-  CoreResource,
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
 import {
   asPimCreateAttribute,
-  isPimCreateAssociationResult,
   isPimCreateAttributeResult,
-  PimCreateAssociationResult,
-  PimCreateAttributeResult
+  PimCreateAttributeResult,
 } from "../operation";
 import {executePimCreateAttribute} from "./pim-create-attribute-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
@@ -36,7 +33,7 @@ test("Create attribute.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateAttribute(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 

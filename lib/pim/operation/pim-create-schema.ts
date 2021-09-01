@@ -1,10 +1,8 @@
 import {
   CoreOperation,
-  CoreOperationResult,
-  CoreResource,
-  LanguageString
+  CoreResource, CoreTyped,
+  LanguageString,
 } from "../../core";
-import {PimCreateClassResultType} from "./pim-create-class";
 
 export interface PimCreateSchema extends CoreOperation {
 
@@ -39,7 +37,7 @@ export function asPimCreateSchema(
   return resource as PimCreateSchema;
 }
 
-export interface PimCreateSchemaResult extends CoreOperationResult  {
+export interface PimCreateSchemaResult extends CoreTyped {
 
   createdPimSchema: string;
 
@@ -49,14 +47,14 @@ export const PimCreateSchemaResultType =
   "pim-action-create-schema-result";
 
 export function isPimCreateSchemaResult(
-  resource: CoreOperationResult,
+  resource: CoreTyped,
 ): resource is PimCreateSchemaResult {
   return resource.types.includes(PimCreateSchemaResultType);
 }
 
 export function createPimCreateSchemaResultProperties(
-  createdPimSchema:string,
-) {
+  createdPimSchema: string,
+): PimCreateSchemaResult {
   return {
     "types": [PimCreateSchemaResultType],
     "createdPimSchema": createdPimSchema,

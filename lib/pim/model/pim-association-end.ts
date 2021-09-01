@@ -13,10 +13,10 @@ export interface PimAssociationEnd extends PimResource {
 const PimAssociationEndType = "pim-association-end";
 
 export function isPimAssociationEnd(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is PimAssociationEnd {
   return resource !== null
-    && resource?.types?.includes(PimAssociationEndType);
+    && resource.types.includes(PimAssociationEndType);
 }
 
 export function asPimAssociationEnd(resource: CoreResource): PimAssociationEnd {

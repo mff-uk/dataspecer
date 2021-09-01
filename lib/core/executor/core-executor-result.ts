@@ -1,5 +1,4 @@
-import {CoreResource} from "../core-resource";
-import {CoreOperation, CoreOperationResult} from "../operation";
+import {CoreResource, CoreTyped} from "../core-resource";
 
 /**
  * Instance of this class must be returned by all operation executors.
@@ -36,17 +35,18 @@ export interface CoreExecutorResult {
   message: string | null;
 
   /**
-   * This field can be used to return operation specific result. It
-   * must be set the failed is false.
+   * This field can be used to return operation specific result. The
+   * properties are merged to the operation result returned by the
+   * CoreResourceWriter.
    */
-  operationResult: CoreOperationResult | null;
+  operationResult: CoreTyped | null;
 
 }
 
 export type CreateNewIdentifier = (resourceType: string) => string;
 
 export function createErrorOperationResult(
-  operation: CoreOperation, message: string
+  message: string,
 ): CoreExecutorResult {
   return {
     "created": {},
@@ -59,9 +59,8 @@ export function createErrorOperationResult(
 }
 
 export function createSuccessOperationResult(
-  operation: CoreOperation,
   created: CoreResource[], changed: CoreResource[], deleted: string[] = [],
-  operationProperties: Record<string, unknown> = {},
+  operationProperties: CoreTyped | null = null,
 ): CoreExecutorResult {
   const createdMap = {};
   created.forEach(resource => createdMap[resource.iri] = resource);
@@ -73,23 +72,6 @@ export function createSuccessOperationResult(
     "deleted": deleted,
     "failed": false,
     "message": null,
-    "operationResult": createOperationResult(
-      operation, created, changed, deleted, operationProperties),
-  };
-}
-
-function createOperationResult(
-  operation: CoreOperation,
-  created: CoreResource[], changed: CoreResource[], deleted: string[],
-  operationProperties: Record<string, unknown>,
-): CoreOperationResult {
-  return {
-    "types": [],
-    ...operationProperties,
-    // User can ont change properties bellow.
-    "operation": operation,
-    "created": created.map(resource => resource.iri),
-    "changed": changed.map(resource => resource.iri),
-    "deleted": deleted,
+    "operationResult": operationProperties,
   };
 }

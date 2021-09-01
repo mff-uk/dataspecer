@@ -12,14 +12,12 @@ export async function executesDataPsmDeleteAttribute(
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
   if (owner === null) {
-    return createErrorOperationResult(
-      operation, "Missing owner class.");
+    return createErrorOperationResult("Missing owner class.");
   }
 
   // TODO Check that deleted resource is part of the class and schema.
@@ -31,5 +29,5 @@ export async function executesDataPsmDeleteAttribute(
     owner.dataPsmParts.filter(iri => iri !== operation.dataPsmAttribute);
 
   return createSuccessOperationResult(
-    operation, [], [schema, owner], [operation.dataPsmAttribute]);
+    [], [schema, owner], [operation.dataPsmAttribute]);
 }

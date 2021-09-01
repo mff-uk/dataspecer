@@ -1,16 +1,12 @@
 import {CoreOperation} from "./core-operation";
+import {CoreTyped} from "../core-resource";
 
 /**
  * Base class for operation results as should be returned by CoreResourceWriter.
  * Operations may specialize this class to provide more detailed data, yet
  * it is highly recommended to also handle this base version.
  */
-export interface CoreOperationResult {
-
-  /**
-   * Determine specialization of the operation result.
-   */
-  types: string[];
+export interface CoreOperationResult extends CoreTyped {
 
   /**
    * Operation as stored in the model, specifically with added IRI.

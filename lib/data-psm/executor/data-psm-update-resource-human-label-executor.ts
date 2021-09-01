@@ -13,10 +13,8 @@ export async function executeDataPsmUpdateResourceHumanLabel(
   const result =
     await loadDataPsmHumanReadable(modelReader, operation.dataPsmResource);
   if (result === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

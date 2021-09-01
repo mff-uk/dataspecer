@@ -12,14 +12,12 @@ export async function executeDataPsmUpdateSchemaRoots(
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   // TODO Check that all roots exists.
 
   schema.dataPsmRoots = [...operation.dataPsmRoots];
 
-  return createSuccessOperationResult(
-    operation, [], [schema]);
+  return createSuccessOperationResult([], [schema]);
 }

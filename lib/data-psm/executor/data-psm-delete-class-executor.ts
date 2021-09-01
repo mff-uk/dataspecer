@@ -13,20 +13,17 @@ export async function executesDataPsmDeleteClass(
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   const classToDelete =
     await loadDataPsmClass(modelReader, operation.dataPsmClass);
   if (classToDelete === null) {
-    return createErrorOperationResult(
-      operation, "Missing class to delete.");
+    return createErrorOperationResult("Missing class to delete.");
   }
 
   if (classToDelete.dataPsmParts.length > 0) {
-    return createErrorOperationResult(
-      operation, "Only empty class can be deleted.");
+    return createErrorOperationResult("Only empty class can be deleted.");
   }
 
   // TODO Check that no other class extends this class.
@@ -36,6 +33,5 @@ export async function executesDataPsmDeleteClass(
   schema.dataPsmParts =
     schema.dataPsmParts.filter(iri => iri !== operation.dataPsmClass);
 
-  return createSuccessOperationResult(
-    operation, [], [schema], [operation.dataPsmClass]);
+  return createSuccessOperationResult([], [schema], [operation.dataPsmClass]);
 }

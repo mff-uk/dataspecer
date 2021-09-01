@@ -3,11 +3,8 @@ import {
 } from "../../core";
 import {
   asPimCreateSchema,
-  isPimCreateClassResult,
   isPimCreateSchemaResult,
-  PimCreateClassResult,
-  PimCreateSchema,
-  PimCreateSchemaResult
+  PimCreateSchemaResult,
 } from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
 
@@ -19,7 +16,7 @@ test("Create schema.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateSchema(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     undefined,
     operation);
 

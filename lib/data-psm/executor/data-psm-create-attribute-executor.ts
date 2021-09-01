@@ -13,14 +13,13 @@ export async function executesDataPsmCreateAttribute(
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
   if (owner === null) {
     return createErrorOperationResult(
-      operation, "Missing owner class: '" + operation.dataPsmOwner + "'.");
+      "Missing owner class: '" + operation.dataPsmOwner + "'.");
   }
 
   // TODO Check that target exists.
@@ -37,6 +36,5 @@ export async function executesDataPsmCreateAttribute(
 
   schema.dataPsmParts = [...schema.dataPsmParts, iri];
 
-  return createSuccessOperationResult(
-    operation, [result], [schema, owner]);
+  return createSuccessOperationResult( [result], [schema, owner]);
 }

@@ -20,13 +20,15 @@ export async function saveReSpecToDirectory(
   const outputStream = fileSystem.createWriteStream(
     path.join(directory, name + ".html"));
 
-  const result = new Promise<void>( (accept, reject) => {
+  const result = new Promise<void>((accept, reject) => {
     outputStream.on("close", accept);
     outputStream.on("error", reject);
   });
 
   const stream = {
-    write: async chunk => await outputStream.write(chunk),
+    write: async chunk => {
+      await outputStream.write(chunk);
+    },
   } as OutputStream;
 
   await writeReSpec(model, stream);
@@ -115,7 +117,7 @@ function currentDate() {
 }
 
 async function writeBody(
-  model: ReSpec, stream: OutputStream
+  model: ReSpec, stream: OutputStream,
 ): Promise<void> {
   await stream.write("\n  </body>");
   await writeIntroduction(model, stream);
@@ -125,7 +127,7 @@ async function writeBody(
 }
 
 async function writeIntroduction(
-  model: ReSpec, stream: OutputStream
+  model: ReSpec, stream: OutputStream,
 ): Promise<void> {
   await stream.write(`
     <section id="abstract" class="introductory">
@@ -156,7 +158,7 @@ async function writeSpecification(
 }
 
 async function writeEntity(
-  entity: WebSpecificationEntity, stream: OutputStream
+  entity: WebSpecificationEntity, stream: OutputStream,
 ): Promise<void> {
   await stream.write(`
       <section id="${entity.anchor}">
@@ -192,7 +194,7 @@ async function writeFosProperty(
 }
 
 async function writePropertyTypes(
-  property: WebSpecificationProperty, stream: OutputStream
+  property: WebSpecificationProperty, stream: OutputStream,
 ): Promise<void> {
   const types = property.type
     .map(writePropertyType)
@@ -216,7 +218,7 @@ function writePropertyType(type: WebSpecificationType): string {
 }
 
 async function writePropertyHumanLabel(
-  property: WebSpecificationProperty, stream: OutputStream
+  property: WebSpecificationProperty, stream: OutputStream,
 ): Promise<void> {
   await stream.write(`
             <dt>Jméno</dt>
@@ -224,7 +226,7 @@ async function writePropertyHumanLabel(
 }
 
 async function writePropertyHumanDescription(
-  property: WebSpecificationProperty, stream: OutputStream
+  property: WebSpecificationProperty, stream: OutputStream,
 ): Promise<void> {
   if (isStringEmpty(property.humanDescription)) {
     return;
@@ -239,7 +241,7 @@ function isStringEmpty(content: string): boolean {
 }
 
 async function writeExamples(
-  model: ReSpec, stream: OutputStream
+  model: ReSpec, stream: OutputStream,
 ): Promise<void> {
   await stream.write(`
     <section id="příklady">

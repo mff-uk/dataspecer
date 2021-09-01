@@ -13,10 +13,8 @@ export async function executeDataPsmUpdateResourceHumanDescription(
   const result =
     await loadDataPsmHumanReadable(modelReader, operation.dataPsmResource);
   if (result === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

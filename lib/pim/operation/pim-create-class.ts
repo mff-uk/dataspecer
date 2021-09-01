@@ -1,6 +1,5 @@
-import {CoreOperationResult, CoreResource} from "../../core";
+import { CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
-import {PimCreateAttributeResultType} from "./pim-create-attribute";
 
 export interface PimCreateClass extends PimCreate {
 
@@ -28,7 +27,7 @@ export function asPimCreateClass(
   return result;
 }
 
-export interface PimCreateClassResult extends CoreOperationResult  {
+export interface PimCreateClassResult extends CoreTyped {
 
   createdPimClass: string;
 
@@ -38,14 +37,14 @@ export const PimCreateClassResultType =
   "pim-action-create-class-result";
 
 export function isPimCreateClassResult(
-  resource: CoreOperationResult,
+  resource: CoreTyped,
 ): resource is PimCreateClassResult {
   return resource.types.includes(PimCreateClassResultType);
 }
 
 export function createPimCreateClassResultProperties(
-  createdPimClass:string,
-) {
+  createdPimClass: string,
+): PimCreateClassResult {
   return {
     "types": [PimCreateClassResultType],
     "createdPimClass": createdPimClass,

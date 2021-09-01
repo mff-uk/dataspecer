@@ -25,10 +25,10 @@ export interface PimSchema extends CoreResource {
 const PimSchemaType = "pim-schema";
 
 export function isPimSchema(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is PimSchema {
   return resource !== null
-    && resource?.types?.includes(PimSchemaType);
+    && resource.types.includes(PimSchemaType);
 }
 
 export function asPimSchema(resource: CoreResource): PimSchema {

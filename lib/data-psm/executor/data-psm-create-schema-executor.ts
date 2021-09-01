@@ -17,5 +17,5 @@ export async function executesDataPsmCreateSchema(
   result.dataPsmParts = [];
   result.dataPsmRoots = [];
 
-  return createSuccessOperationResult(operation, [result], []);
+  return createSuccessOperationResult([result], []);
 }

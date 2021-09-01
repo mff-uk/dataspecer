@@ -13,12 +13,10 @@ export async function executeDataPsmUpdateResourceInterpretation(
   const result =
     await loadDataPsmResource(modelReader, operation.dataPsmResource);
   if (result === null) {
-    return createErrorOperationResult(
-      operation, "Missing resource object.");
+    return createErrorOperationResult("Missing resource object.");
   }
 
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
 
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

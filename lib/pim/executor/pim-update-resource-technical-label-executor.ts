@@ -15,13 +15,11 @@ export async function executePimUpdateResourceTechnicalLabel(
 ): Promise<CoreExecutorResult> {
   const psmResource = await loadPimResource(modelReader, operation.pimResource);
   if (psmResource === null) {
-    return createErrorOperationResult(
-      operation, "Missing PIM resource.");
+    return createErrorOperationResult("Missing PIM resource.");
   }
   const result = {
     ...psmResource,
     "pimTechnicalLabel": operation.pimTechnicalLabel,
   };
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

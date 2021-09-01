@@ -1,6 +1,5 @@
-import {CoreOperationResult, CoreResource} from "../../core";
+import { CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
-import {PimCreateAssociationResultType} from "./pim-create-association";
 
 export interface PimCreateAttribute extends PimCreate {
 
@@ -28,7 +27,7 @@ export function asPimCreateAttribute(
   return resource as PimCreateAttribute;
 }
 
-export interface PimCreateAttributeResult extends CoreOperationResult  {
+export interface PimCreateAttributeResult extends CoreTyped {
 
   createdPimAttribute: string;
 
@@ -38,14 +37,14 @@ export const PimCreateAttributeResultType =
   "pim-action-create-attribute-result";
 
 export function isPimCreateAttributeResult(
-  resource: CoreOperationResult,
+  resource: CoreTyped,
 ): resource is PimCreateAttributeResult {
   return resource.types.includes(PimCreateAttributeResultType);
 }
 
 export function createPimCreateAttributeResultProperties(
-  createdPimAttribute:string,
-) {
+  createdPimAttribute: string,
+): PimCreateAttributeResult {
   return {
     "types": [PimCreateAttributeResultType],
     "createdPimAttribute": createdPimAttribute,

@@ -13,10 +13,8 @@ export async function executeDataPsmUpdateResourceTechnicalLabel(
   const result =
     await loadDataPsmTechnicalResource(modelReader, operation.dataPsmResource);
   if (result === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
-  return createSuccessOperationResult(
-    operation, [], [result]);
+  return createSuccessOperationResult([], [result]);
 }

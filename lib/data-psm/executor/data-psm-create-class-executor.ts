@@ -13,8 +13,7 @@ export async function executesDataPsmCreateClass(
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      operation, "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   // TODO Check that all extends exists.
@@ -29,6 +28,5 @@ export async function executesDataPsmCreateClass(
   result.dataPsmParts = [];
 
   schema.dataPsmParts = [...schema.dataPsmParts, iri];
-  return createSuccessOperationResult(
-    operation, [result], [schema]);
+  return createSuccessOperationResult([result], [schema]);
 }
