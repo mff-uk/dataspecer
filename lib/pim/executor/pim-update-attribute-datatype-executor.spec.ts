@@ -1,5 +1,4 @@
 import {
-  CoreResource,
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
@@ -43,7 +42,7 @@ test("Update attribute datatype.", async () => {
       "types": ["pim-attribute"],
       "pimOwnerClass": "http://class",
       "pimDatatype": "xsd:integer",
-    }
+    },
   });
   expect(actual.deleted).toEqual([]);
 });

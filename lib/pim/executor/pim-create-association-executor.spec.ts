@@ -2,7 +2,10 @@ import {
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
-import {asPimCreateAssociation} from "../operation";
+import {
+  asPimCreateAssociation,
+  isPimCreateAssociationResult, PimCreateAssociationResult,
+} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
@@ -32,7 +35,7 @@ test("Create association.", async () => {
 
   let counter = 0;
   const actual = await executesPimCreateAssociation(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 
@@ -69,6 +72,12 @@ test("Create association.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
+  expect(isPimCreateAssociationResult(actual.operationResult)).toBeTruthy();
+  const result = actual.operationResult as PimCreateAssociationResult;
+  expect(result.createdPimAssociation).toEqual("http://localhost/3");
+  expect(result.createdPimAssociationEnds.sort()).toEqual([
+    "http://localhost/1", "http://localhost/2",
+  ]);
 });
 
 function wrapResourcesWithReader(

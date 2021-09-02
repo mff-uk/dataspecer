@@ -4,7 +4,7 @@ import {
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
 } from "../../core";
 import {
   asPimAssociation,
@@ -16,7 +16,7 @@ export async function executePimDeleteAssociation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimDeleteAssociation,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const associationResource =
     await modelReader.readResource(operation.pimAssociation);
   if (associationResource === null) {

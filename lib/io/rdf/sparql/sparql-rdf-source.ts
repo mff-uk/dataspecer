@@ -1,4 +1,4 @@
-import {RdfSource, RdfObject} from "../rdf-api";
+import {RdfSource, RdfObject, RdfNode} from "../rdf-api";
 import {fetchRdfQuadsBySparqlConstruct} from "./sparql-adapter";
 import {HttpFetch} from "../../fetch/fetch-api";
 
@@ -28,7 +28,7 @@ export class RdfSparqlSource implements RdfSource {
 
   async reverseProperty(
     predicate: string, iri: string,
-  ): Promise<RdfObject[]> {
+  ): Promise<RdfNode[]> {
     if (isBlankNode(iri)) {
       return [];
     }

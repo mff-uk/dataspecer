@@ -2,7 +2,7 @@ import {
   CoreOperation,
   CreateNewIdentifier,
   CoreResourceReader,
-  ExecutorResult,
+  CoreExecutorResult,
   createErrorOperationResult,
 } from "../../core";
 import * as Operations from "../operation";
@@ -20,7 +20,7 @@ export async function executePimOperation(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: CoreOperation,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   if (operation.types.length !== 1) {
     return createErrorOperationResult("Invalid operation");
   }

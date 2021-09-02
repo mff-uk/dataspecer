@@ -15,10 +15,10 @@ export interface PimClass extends PimResource {
 const PimClassType = "pim-class";
 
 export function isPimClass(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is PimClass {
   return resource !== null
-    && resource?.types?.includes(PimClassType);
+    && resource.types.includes(PimClassType);
 }
 
 export function asPimClass(resource: CoreResource): PimClass {

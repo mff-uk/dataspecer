@@ -1,7 +1,11 @@
 import {
   createCoreResource,
 } from "../../core";
-import {asPimCreateSchema} from "../operation";
+import {
+  asPimCreateSchema,
+  isPimCreateSchemaResult,
+  PimCreateSchemaResult,
+} from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
 
 test("Create schema.", async () => {
@@ -12,7 +16,7 @@ test("Create schema.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateSchema(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     undefined,
     operation);
 
@@ -28,6 +32,9 @@ test("Create schema.", async () => {
   });
   expect(actual.changed).toEqual({});
   expect(actual.deleted).toEqual([]);
+  expect(isPimCreateSchemaResult(actual.operationResult)).toBeTruthy();
+  const result = actual.operationResult as PimCreateSchemaResult;
+  expect(result.createdPimSchema).toEqual("http://localhost/1");
 });
 
 test("Create schema with given IRI.", async () => {
@@ -52,4 +59,7 @@ test("Create schema with given IRI.", async () => {
   });
   expect(actual.changed).toEqual({});
   expect(actual.deleted).toEqual([]);
+  expect(isPimCreateSchemaResult(actual.operationResult)).toBeTruthy();
+  const result = actual.operationResult as PimCreateSchemaResult;
+  expect(result.createdPimSchema).toEqual(operation.pimNewIri);
 });

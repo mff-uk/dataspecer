@@ -5,13 +5,13 @@ import {
   CoreOperation,
   CoreResource,
   CreateNewIdentifier,
-  assert, assertNot,
+  assert, assertNot, clone,
 } from "../../../core";
 import {asDataPsmCreateSchema, isDataPsmCreateSchema} from "../../operation";
 import {executeDataPsmOperation} from "../../executor";
 
 export class DataPsmMemoryStore
-  implements CoreResourceReader, CoreResourceWriter {
+implements CoreResourceReader, CoreResourceWriter {
 
   private operations: CoreOperation[] = [];
 
@@ -56,24 +56,23 @@ export class DataPsmMemoryStore
       throw new Error("Operation failed: " + operationResult.message);
     }
 
-    const resultOperation = this.addOperation(operation);
+    const storedOperation = this.addOperation(operation);
     this.resources = {
       ...this.resources,
       ...operationResult.changed,
       ...operationResult.created,
     };
-    operationResult.deleted
-      .forEach((iri) => delete this.resources[iri]);
-
+    operationResult.deleted.forEach((iri) => delete this.resources[iri]);
     return {
-      "operation": resultOperation,
+      ...(operationResult.operationResult ?? {"types": []}),
       "created": Object.keys(operationResult.created),
       "changed": Object.keys(operationResult.changed),
       "deleted": operationResult.deleted,
+      "operation": storedOperation,
     };
   }
 
-  protected applyFirstOperation(operation: CoreOperation) {
+  protected applyFirstOperation(operation: CoreOperation): void {
     assert(
       isDataPsmCreateSchema(operation),
       "The first operation must create a schema.");
@@ -85,15 +84,14 @@ export class DataPsmMemoryStore
   }
 
   protected addOperation<T extends CoreOperation>(operation: T): T {
-    // TODO Replace with deep clone.
-    const result = {...operation} as T;
+    const result = clone(operation);
     assertNot(this.baseIri === undefined, "Base IRI is not defined.");
     result.iri = this.baseIri + "/operation/" + this.createUniqueIdentifier();
     this.operations.push(result);
     return result;
   }
 
-  protected createUniqueIdentifier() {
+  protected createUniqueIdentifier(): string {
     return "xxxx-xxxx-yxxx".replace(/[xy]/g, function (pattern) {
       const code = Math.random() * 16 | 0;
       const result = pattern == "x" ? code : (code & 0x3 | 0x8);

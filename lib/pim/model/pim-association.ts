@@ -17,10 +17,10 @@ export interface PimAssociation extends PimResource {
 const PimAssociationType = "pim-association";
 
 export function isPimAssociation(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is PimAssociation {
   return resource !== null
-    && resource?.types?.includes(PimAssociationType);
+    && resource.types.includes(PimAssociationType);
 }
 
 export function asPimAssociation(resource: CoreResource): PimAssociation {

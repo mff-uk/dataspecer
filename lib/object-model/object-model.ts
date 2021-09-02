@@ -112,9 +112,9 @@ export interface ObjectModelClass extends ObjectModelResource {
 const ObjectModelClassType = "object-model-class";
 
 export function isObjectModelClass(
-  object: unknown,
+  object: any | null,
 ): object is ObjectModelClass {
-  return object?.type === ObjectModelClassType;
+  return object !== null && object?.type === ObjectModelClassType;
 }
 
 export function createObjectModelClass(): ObjectModelClass {
@@ -175,9 +175,9 @@ export interface ObjectModelPrimitive extends ObjectModelResource {
 const ObjectModelPrimitiveType = "primitive-data-type";
 
 export function isObjectModelPrimitive(
-  object: unknown,
+  object: any | null,
 ): object is ObjectModelPrimitive {
-  return object?.type === ObjectModelPrimitiveType;
+  return object != null && object?.type === ObjectModelPrimitiveType;
 }
 
 export function createObjectModelPrimitive(): ObjectModelPrimitive {

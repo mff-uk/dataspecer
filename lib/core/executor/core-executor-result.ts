@@ -1,9 +1,11 @@
-import {CoreResource} from "../core-resource";
+import {CoreResource, CoreTyped} from "../core-resource";
 
 /**
  * Instance of this class must be returned by all operation executors.
+ * As executor and store should live in the same memory space this class
+ * is not designed to be serialized in any way.
  */
-export interface ExecutorResult {
+export interface CoreExecutorResult {
 
   /**
    * Map of created resources.
@@ -32,35 +34,34 @@ export interface ExecutorResult {
    */
   message: string | null;
 
+  /**
+   * This field can be used to return operation specific result. The
+   * properties are merged to the operation result returned by the
+   * CoreResourceWriter.
+   */
+  operationResult: CoreTyped | null;
+
 }
 
 export type CreateNewIdentifier = (resourceType: string) => string;
 
 export function createErrorOperationResult(
-  message: string
-): ExecutorResult {
+  message: string,
+): CoreExecutorResult {
   return {
     "created": {},
     "changed": {},
     "deleted": [],
     "failed": true,
     "message": message,
-  };
-}
-
-export function createEmptySuccessOperationResult(): ExecutorResult {
-  return {
-    "created": {},
-    "changed": {},
-    "deleted": [],
-    "failed": false,
-    "message": null,
+    "operationResult": null,
   };
 }
 
 export function createSuccessOperationResult(
   created: CoreResource[], changed: CoreResource[], deleted: string[] = [],
-): ExecutorResult {
+  operationProperties: CoreTyped | null = null,
+): CoreExecutorResult {
   const createdMap = {};
   created.forEach(resource => createdMap[resource.iri] = resource);
   const changedMap = {};
@@ -71,5 +72,6 @@ export function createSuccessOperationResult(
     "deleted": deleted,
     "failed": false,
     "message": null,
+    "operationResult": operationProperties,
   };
 }

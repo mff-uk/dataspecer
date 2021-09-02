@@ -29,7 +29,7 @@ test("Create data PSM attribute.", async () => {
 
   let counter = 0;
   const actual = await executesDataPsmCreateAttribute(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 

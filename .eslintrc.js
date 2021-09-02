@@ -17,13 +17,20 @@ module.exports = {
     "comma-dangle": ["error", "always-multiline"],
     "linebreak-style": ["error", "unix"],
     "semi": ["error", "always"],
-    // As of now the tests need manual inspection. This should be removed
-    // later when we have stable inputs thus we can prepare expected
-    // values for the tests.
-    "jest/expect-expect": "off",
+    // Remove unused imports.
+    "unused-imports/no-unused-imports": "error",
+    // Allow empty private/protected constructors.
+    "@typescript-eslint/no-empty-function": ["error", {
+      "allow": [
+        "private-constructors", "protected-constructors",
+      ],
+    }],
+    // We use any a lot now, so there is no point in having the warning on.
+    "@typescript-eslint/no-explicit-any": ["off"],
   },
   "plugins": [
     "@typescript-eslint",
+    "unused-imports",
     "jest",
   ],
   "env": {
@@ -31,5 +38,5 @@ module.exports = {
     "browser": true,
     "es2020": true,
     "node": true,
-  }
+  },
 };

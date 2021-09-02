@@ -1,6 +1,6 @@
 import {
   CoreResourceReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
+  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmUpdateSchemaRoots} from "../operation";
 import {loadDataPsmSchema} from "./data-psm-executor-utils";
@@ -9,11 +9,10 @@ export async function executeDataPsmUpdateSchemaRoots(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmUpdateSchemaRoots,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   // TODO Check that all roots exists.

@@ -8,7 +8,8 @@
   "scripts": {
     "build": "webpack",
     "lint": "eslint --ignore-path .gitignore . --fix",
-    "test": "jest"
+    "test": "jest",
+    "tsc-watch": "tsc --watch"
   },
   "license": "MIT",
   "dependencies": {
@@ -36,6 +37,7 @@
     "babel-jest": "^27.0.5",
     "eslint": "^7.29.0",
     "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-unused-imports": "^1.1.4",
     "jest": "^27.0.5",
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.4",

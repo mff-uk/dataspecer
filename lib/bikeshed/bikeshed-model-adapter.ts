@@ -21,7 +21,7 @@ export function objectModelToBikeshed(schema: ObjectModelSchema): Bikeshed {
 }
 
 function loadBikeshedMetadata(
-  schema: ObjectModelSchema, specification: WebSpecification
+  schema: ObjectModelSchema, specification: WebSpecification,
 ): Record<string, string> {
   return {
     [BikeshedMetadataKeys.title]: specification.humanLabel,
@@ -31,5 +31,5 @@ function loadBikeshedMetadata(
     [BikeshedMetadataKeys.boilerplate]: "conformance no, copyright no",
     [BikeshedMetadataKeys.abstract]: specification.humanDescription,
     [BikeshedMetadataKeys.markup]: "markdown yes",
-  }
+  };
 }

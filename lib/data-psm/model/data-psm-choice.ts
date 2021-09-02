@@ -14,10 +14,10 @@ export const DataPsmChoiceType = "data-psm-choice";
 
 
 export function isDataPsmChoice(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is DataPsmChoice {
   return resource !== null
-    && resource?.types?.includes(DataPsmChoiceType);
+    && resource.types.includes(DataPsmChoiceType);
 }
 
 export function asDataPsmChoice(

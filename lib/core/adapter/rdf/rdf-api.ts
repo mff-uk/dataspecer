@@ -1,4 +1,3 @@
-
 export enum RdfTermType {
   BlankNode = "BlankNode",
   NamedNode = "NamedNode",
@@ -24,14 +23,14 @@ export class RdfNode {
 
   value: string;
 
-  static namedNode(iri: string) {
+  static namedNode(iri: string): RdfNode {
     return {
       "termType": RdfTermType.NamedNode,
       "value": iri,
     };
   }
 
-  static defaultGraph() {
+  static defaultGraph(): RdfNode {
     return {
       "termType": RdfTermType.DefaultGraph,
       "value": "",
@@ -40,11 +39,7 @@ export class RdfNode {
 
 }
 
-export class RdfObject {
-
-  termType: string;
-
-  value: string;
+export class RdfObject extends RdfNode {
 
   datatype: RdfNode | null;
 
@@ -72,7 +67,7 @@ export interface RdfSource {
 
   property(iri: string, predicate: string): Promise<RdfObject[]>;
 
-  reverseProperty(predicate: string, iri: string): Promise<RdfObject[]>;
+  reverseProperty(predicate: string, iri: string): Promise<RdfNode[]>;
 
 }
 

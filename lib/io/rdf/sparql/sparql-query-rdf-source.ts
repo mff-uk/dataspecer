@@ -19,7 +19,7 @@ export class SparqlQueryRdfSource extends RdfMemorySource {
 
   constructor(
     httpFetch: HttpFetch, endpoint: string, sparqlQuery: string,
-    format = "text/turtle"
+    format = "text/turtle",
   ) {
     super();
     this.httpFetch = httpFetch;

@@ -1,10 +1,13 @@
-import {PimCreateAttribute} from "../operation";
+import {
+  createPimCreateAttributeResultProperties,
+  PimCreateAttribute,
+} from "../operation";
 import {asPimAttribute} from "../model";
 import {
   createCoreResource,
   createErrorOperationResult,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
   CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
@@ -14,7 +17,7 @@ export async function executePimCreateAttribute(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimCreateAttribute,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const iri = operation.pimNewIri || createNewIdentifier("attribute");
 
   const result = asPimAttribute(createCoreResource(iri));
@@ -27,8 +30,7 @@ export async function executePimCreateAttribute(
 
   const schema = await loadPimSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
   schema.pimParts = [...schema.pimParts, result.iri];
 
@@ -39,5 +41,7 @@ export async function executePimCreateAttribute(
     return createErrorOperationResult("Missing owner class");
   }
 
-  return createSuccessOperationResult([result], [schema]);
+  return createSuccessOperationResult(
+    [result], [schema], [],
+    createPimCreateAttributeResultProperties(result.iri));
 }

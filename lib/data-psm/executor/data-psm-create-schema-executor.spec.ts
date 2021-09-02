@@ -14,7 +14,7 @@ test("Create data PSM schema.", async () => {
 
   let counter = 0;
   const actual = await executesDataPsmCreateSchema(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 

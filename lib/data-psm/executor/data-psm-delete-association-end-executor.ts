@@ -1,6 +1,6 @@
 import {
   CoreResourceReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
+  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmDeleteAssociationEnd} from "../operation";
 import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
@@ -9,17 +9,15 @@ export async function executesDataPsmDeleteAssociationEnd(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmDeleteAssociationEnd,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
   if (owner === null) {
-    return createErrorOperationResult(
-      "Missing owner class.");
+    return createErrorOperationResult("Missing owner class.");
   }
 
   // TODO Check that deleted resource is part of the class and schema.
