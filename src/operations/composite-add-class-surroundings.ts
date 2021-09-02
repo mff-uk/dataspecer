@@ -1,6 +1,6 @@
 import {MultipleOperationExecutor, StoreContainer} from "../ModelObserverContainer";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader, createCoreResource} from "model-driven-data/core";
+import {CoreResourceReader, createCoreResource} from "model-driven-data/core";
 import {isPimAssociation, isPimAttribute, PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {asPimCreateAssociation, asPimCreateAttribute, asPimCreateClass} from "model-driven-data/pim/operation";
 import {
@@ -12,18 +12,17 @@ import {
 export interface CompositeAddClassSurroundings {
     forDataPsmClass: DataPsmClass,
     sourcePimModel: CoreResourceReader,
-    resourcesToAdd: CoreResource[],
+    resourcesToAdd: string[],
 }
 
 export async function executeCompositeAddClassSurroundings(
     context: StoreContainer,
     operation: CompositeAddClassSurroundings,
 ): Promise<void> {
-    console.time("processAssociation");
-
     const executor = new MultipleOperationExecutor();
 
-    for (const resource of operation.resourcesToAdd) {
+    for (const resourceIri of operation.resourcesToAdd) {
+        const resource = await operation.sourcePimModel.readResource(resourceIri);
         if (isPimAttribute(resource)) {
             await processAttribute(context, operation, resource, executor);
         }
@@ -33,8 +32,6 @@ export async function executeCompositeAddClassSurroundings(
     }
 
     executor.commit();
-
-    console.timeEnd("processAssociation");
 }
 
 async function processAttribute(

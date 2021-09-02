@@ -1,6 +1,6 @@
 import {DataPsmResource} from "model-driven-data/data-psm/model";
 import {useDialog} from "./useDialog";
-import {LabelDescriptionEditor} from "../components/psmDetail/LabelDescriptionEditor";
+import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import React, {useCallback} from "react";
 import {StoreContext} from "../components/App";
 

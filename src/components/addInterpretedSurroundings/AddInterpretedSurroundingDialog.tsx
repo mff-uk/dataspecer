@@ -24,6 +24,7 @@ import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
+import {CompositeAddClassSurroundings} from "../../operations/composite-add-class-surroundings";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -59,7 +60,7 @@ interface AddInterpretedSurroundingDialogProperties {
 
     dataPsmClassIri: string,
 
-    selected: (forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: CoreResource[]) => void,
+    selected: (operation: CompositeAddClassSurroundings) => void,
 }
 
 export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({isOpen, close, selected, dataPsmClassIri}) => {
@@ -90,12 +91,15 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         }
     }, [surroundings, cim.cimAdapter]);
 
-    const [selectedResources, setSelectedResources] = useState<CoreResource[]>([]);
-    const toggleSelectedResources = (resource: CoreResource) => () => {
-        if (selectedResources.includes(resource)) {
-            setSelectedResources(selectedResources.filter(a => a !== resource));
+    /**
+     * List of selected resources is an array of the selected resource iris
+     */
+    const [selectedResources, setSelectedResources] = useState<string[]>([]);
+    const toggleSelectedResources = (pimResourceIri: string) => () => {
+        if (selectedResources.includes(pimResourceIri)) {
+            setSelectedResources(selectedResources.filter(a => a !== pimResourceIri));
         } else {
-            setSelectedResources([...selectedResources, resource])
+            setSelectedResources([...selectedResources, pimResourceIri])
         }
     };
 
@@ -109,11 +113,6 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, cimClassIri]); // change of switchCurrentCimClassIri should not trigger this effect
-
-    // const attributeDetail = useDialog(PimAttributeDetailDialog, "attribute");
-    // const classDialog = useDialog(PimClassDetailDialog, "cls");
-    // const associationDialog = useDialog(PimAssociationDetailDialog, "association");
-
 
     const currentSurroundings = surroundings[currentCimClassIri];
 
@@ -144,11 +143,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                         <>
                             <Typography variant={"h6"}>{t("attributes")}</Typography>
                             {attributes && attributes.map((entity: PimAttribute) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity)}
+                                            checked={selectedResources.includes(entity.iri as string)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -168,11 +167,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                             <Typography variant={"h6"}>{t("associations")}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity)}
+                                            checked={selectedResources.includes(entity.iri as string)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -200,11 +199,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                             <Typography variant={"h6"}>{t("backward associations")}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity)}
+                                            checked={selectedResources.includes(entity.iri as string)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -236,10 +235,14 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         <DialogActions>
             <Button onClick={close} color="primary">{t("close button")}</Button>
             <Button
-                onClick={() => {close(); currentSurroundings && selected(dataPsmClass as DataPsmClass, new FederatedModelReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]), selectedResources)}}
+                onClick={() => {close(); currentSurroundings && selected({
+                    resourcesToAdd: selectedResources,
+                    sourcePimModel: new FederatedModelReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
+                    forDataPsmClass: dataPsmClass as DataPsmClass
+                })}}
                 disabled={selectedResources.length === 0}
                 color="secondary">
-                {t("confirm button")}
+                {t("confirm button")} ({selectedResources.length})
             </Button>
         </DialogActions>
 

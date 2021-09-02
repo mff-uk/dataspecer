@@ -1,27 +1,20 @@
-import React, {useCallback, useRef, useState} from "react";
-import {Divider, Fab, ListItemIcon, Menu, MenuItem} from "@material-ui/core";
+import React, {useRef, useState} from "react";
+import {Fab, Menu} from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
-import {Store} from "model-driven-data";
-import copy from "copy-to-clipboard";
 import {useSnackbar} from 'notistack';
-import FileSaver from "file-saver";
-import fileDialog from "file-dialog";
 import {useTranslation} from "react-i18next";
-import SaveTwoToneIcon from '@material-ui/icons/SaveTwoTone';
-import AssignmentTwoToneIcon from '@material-ui/icons/AssignmentTwoTone';
-import OpenInBrowserTwoToneIcon from '@material-ui/icons/OpenInBrowserTwoTone';
 import {ReSpecArtifact} from "./ReSpecArtifact";
 
-export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store) => void}> = ({store, setStore}) => {
+export const GenerateArtifacts: React.FC = () => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId());
     const ref = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
     const {t} = useTranslation("artifacts");
 
-    const storeToClipboard = useCallback(() => {
+/*    const storeToClipboard = useCallback(() => {
         close();
         if (copy(JSON.stringify(store))) {
             enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
@@ -50,7 +43,7 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 enqueueSnackbar(t("snackbar load.fail"), {variant: "error"});
             }
         }
-    }, [close, enqueueSnackbar, setStore, t]);
+    }, [close, enqueueSnackbar, setStore, t]);*/
 
     return (
         <>
@@ -65,12 +58,12 @@ export const GenerateArtifacts: React.FC<{store: Store, setStore: (store: Store)
                 open={isOpen}
                 onClose={close}
             >
-                <MenuItem onClick={saveToFile}><ListItemIcon><SaveTwoToneIcon fontSize="small" /></ListItemIcon>{t("platform-model JSON as file")}</MenuItem>
+                {/*<MenuItem onClick={saveToFile}><ListItemIcon><SaveTwoToneIcon fontSize="small" /></ListItemIcon>{t("platform-model JSON as file")}</MenuItem>
                 <MenuItem onClick={storeToClipboard}><ListItemIcon><AssignmentTwoToneIcon fontSize="small" /></ListItemIcon>{t("platform-model JSON to clipboard")}</MenuItem>
                 <Divider />
                 <MenuItem onClick={fileToStore}><ListItemIcon><OpenInBrowserTwoToneIcon fontSize="small" /></ListItemIcon>{t("import platform-model JSON")}</MenuItem>
-                <Divider />
-                <ReSpecArtifact store={store} close={close} />
+                <Divider />*/}
+                <ReSpecArtifact close={close} />
             </Menu>
         </>
     );

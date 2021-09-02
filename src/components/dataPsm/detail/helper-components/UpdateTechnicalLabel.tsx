@@ -18,7 +18,6 @@ export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, i
   <Grid container spacing={2} alignItems="center">
     <Grid item xs={8}>
       <TextField
-          id="outlined-helperText"
           value={technicalLabel}
           onChange={event => setTechnicalLabel(event.target.value)}
           onKeyDown={event => {

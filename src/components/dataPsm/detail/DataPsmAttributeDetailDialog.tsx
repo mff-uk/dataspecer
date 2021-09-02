@@ -4,8 +4,8 @@ import {useTranslation} from "react-i18next";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmAttribute} from "model-driven-data/data-psm/model";
 import {PimAttribute} from "model-driven-data/pim/model";
-import {ComponentDataPsmAttribute} from "./components/ComponentDataPsmAttribute";
-import {ComponentPimAttribute} from "./components/ComponentPimAttribute";
+import {ComponentDataPsmResource} from "./components/ComponentDataPsmResource";
+import {ComponentPimResource} from "./components/ComponentPimResource";
 import {ComponentCimResource} from "./components/ComponentCimResource";
 import {useDetailStyles} from "./dataPsmDetailCommon";
 import CloseIcon from '@material-ui/icons/Close';
@@ -36,22 +36,22 @@ export const DataPsmAttributeDetailDialog: React.FC<Parameters> = ({dataPsmAttri
             <Grid container spacing={2} alignItems="flex-start" className={styles.fullContainer}>
                 <Grid container spacing={2} item xs={6}>
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             Data PSM attribute
                         </Typography>
-                        {dataPsmAttribute && <ComponentDataPsmAttribute dataPsmAttribute={dataPsmAttribute} isLoading={isLoading}/>}
+                        {dataPsmAttribute && <ComponentDataPsmResource dataPsmResource={dataPsmAttribute} isLoading={isLoading} showDatatype showIri showLabelAndDescription showTechnicalLabel/>}
                     </Grid>
                 </Grid>
                 <Grid container spacing={2} item xs={6}>
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             PIM attribute interpretation
                         </Typography>
-                        {pimAttribute && <ComponentPimAttribute pimAttribute={pimAttribute} isLoading={isLoading}/>}
+                        {pimAttribute && <ComponentPimResource pimResource={pimAttribute} isLoading={isLoading} showIri showLabelAndDescription />}
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2" className={"mt-3"}>
+                        <Typography variant="h5" component="h2" gutterBottom>
                             CIM attribute interpretation
                         </Typography>
                         {pimAttribute && pimAttribute.pimInterpretation && <ComponentCimResource cimResourceIri={pimAttribute.pimInterpretation}/>}

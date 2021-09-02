@@ -18,7 +18,6 @@ export const UpdateDataType: React.FC<{dataPsmAttribute: DataPsmAttribute, isLoa
   <Grid container spacing={2} alignItems="center">
     <Grid item xs={8}>
       <TextField
-          id="outlined-helperText"
           value={value}
           onChange={event => setValue(event.target.value)}
           onKeyDown={event => {

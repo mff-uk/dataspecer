@@ -28,7 +28,6 @@ const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<Pi
         visited.add(processed);
 
         const resource = await modelReader.readResource(processed) as PimClass;
-        console.warn(resource);
         sorted.push(resource);
         queue.push(...(resource.pimExtends ?? []));
     }

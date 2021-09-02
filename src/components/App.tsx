@@ -3,7 +3,7 @@ import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@material-ui
 import CssBaseline from "@material-ui/core/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
 import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
-//import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts.tsx_";
+import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
 // import {LabelAndDescriptionLanguageStrings} from "./psmDetail/LabelDescriptionEditor.tsx";
 import {LanguageSelector} from "./LanguageSelector";
@@ -11,15 +11,17 @@ import {Trans, useTranslation} from "react-i18next";
 import {CimAdapter, IriProvider, PrefixIriProvider} from "model-driven-data/cim";
 import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
-import {CoreResource, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
+import {CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
 import {PimMemoryStore} from "model-driven-data/pim/store/memory-store/pim-memory-store";
 import {DataPsmMemoryStore} from "model-driven-data/data-psm/store";
 import {PimClass} from "model-driven-data/pim/model";
 import {executeCompositeCreateSchema} from "../operations/composite-create-schema";
 import {ModelObserverContainer} from "../ModelObserverContainer";
 import {executeCompositeCreateRootClass} from "../operations/composite-create-root-class";
-import {executeCompositeAddClassSurroundings} from "../operations/composite-add-class-surroundings";
-import {DataPsmClass} from "model-driven-data/data-psm/model";
+import {
+    CompositeAddClassSurroundings,
+    executeCompositeAddClassSurroundings
+} from "../operations/composite-add-class-surroundings";
 import {CompositeDeleteAttribute, executeCompositeDeleteAttribute} from "../operations/composite-delete-attribute";
 import {CompositeUpdateOrder, executeCompositeUpdateOrder} from "../operations/composite-update-order";
 import {
@@ -38,9 +40,13 @@ import {
     CompositeDeleteAssociationClass,
     executeCompositeDeleteAssociationClass
 } from "../operations/composite-delete-association-class";
+import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
+import {coreResourcesToObjectModel} from "model-driven-data/object-model";
+import {objectModelToReSpec, writeReSpec} from "model-driven-data/respec";
+import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
 
 interface StoreContextInterface {
-    addSurroundings: (forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: CoreResource[]) => void,
+    addSurroundings: (operation: CompositeAddClassSurroundings) => void,
     setRootClass: (rootPimClass: PimClass) => void,
     dataPsm: CoreResourceReader,
     pim: CoreResourceReader,
@@ -58,6 +64,7 @@ interface StoreContextInterface {
     updatePimLabelAndDescription: (operation: CompositeUpdatePimLabelAndDescription) => void,
     updateResourceTechnicalLabel: (operation: CompositeUpdateResourceTechnicalLabel) => void,
     deleteAssociationClass:  (operation: CompositeDeleteAssociationClass) => void,
+    psmSchemas: string[];
 }
 
 // @ts-ignore
@@ -108,14 +115,7 @@ const App: React.FC = () => {
 
         setPsmSchemas([schemaIri]);
     }, [models]);
-    const addSurroundings = useCallback(async (forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: CoreResource[]) => {
-        console.log("addSurroundings");
-        await executeCompositeAddClassSurroundings(models, {
-            forDataPsmClass,
-            sourcePimModel,
-            resourcesToAdd,
-        });
-    },[models]);
+    const addSurroundings = useCallback(async (operation: CompositeAddClassSurroundings) => await executeCompositeAddClassSurroundings(models, operation),[models]);
     const deleteAttribute = useCallback((operation: CompositeDeleteAttribute) => executeCompositeDeleteAttribute(models, operation), [models]);
     const updateOrder = useCallback((operation: CompositeUpdateOrder) => executeCompositeUpdateOrder(models, operation), [models]);
     const updateDataPsmLabelAndDescription = useCallback((operation: CompositeUpdateDataPsmLabelAndDescription) => executeCompositeUpdateDataPsmLabelAndDescription(models, operation), [models]);
@@ -123,32 +123,17 @@ const App: React.FC = () => {
     const updateResourceTechnicalLabel = useCallback((operation: CompositeUpdateResourceTechnicalLabel) => executeCompositeUpdateResourceTechnicalLabel(models, operation), [models]);
     const deleteAssociationClass = useCallback((operation: CompositeDeleteAssociationClass) => executeCompositeDeleteAssociationClass(models, operation), [models]);
 
-    // todo debug function
-    useEffect(() => {
-        // @ts-ignore
-        window.DPSM = async () => {
-            const resources = await dataPsm.listResources();
-            for (const resourceIri of resources) {
-                const resource = await dataPsm.readResource(resourceIri);
-                console.info(resource);
-            }
-        };
-    }, [dataPsm]);
-
-    // todo debug function
-    useEffect(() => {
-        // @ts-ignore
-        window.PIM = async () => {
-            const resources = await pim.listResources();
-            for (const resourceIri of resources) {
-                const resource = await pim.readResource(resourceIri);
-                console.info(resource);
-            }
-        };
-    }, [pim]);
-
     // @ts-ignore
     useEffect(() => window.models = models, [models]);
+
+    const generate = async () => {
+        const fed = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
+        const objectModel = await coreResourcesToObjectModel(fed, psmSchemas[0] as string);
+        const respec = objectModelToReSpec(objectModel);
+        const stream = new MemoryOutputStream();
+        await writeReSpec(respec, stream);
+        console.log(stream.getContent());
+    }
 
     const storeContextData: StoreContextInterface = useMemo(() => ({
         deleteAttribute,
@@ -163,6 +148,7 @@ const App: React.FC = () => {
         updatePimLabelAndDescription,
         updateResourceTechnicalLabel,
         deleteAssociationClass,
+        psmSchemas,
     }), [
         deleteAttribute,
         addSurroundings,
@@ -176,6 +162,7 @@ const App: React.FC = () => {
         updatePimLabelAndDescription,
         updateResourceTechnicalLabel,
         deleteAssociationClass,
+        psmSchemas,
     ]);
 
 
@@ -205,8 +192,8 @@ const App: React.FC = () => {
                                 <Fab disabled={shi >= 0} size="small" color="secondary" onClick={forward}><RedoIcon /></Fab>
                             </ButtonGroup>
                         </div>
-                        <GenerateArtifacts store={store} setStore={setStore} />
                         */}
+                        <GenerateArtifacts />
                         <SetRootButton />
 
                     </Box>

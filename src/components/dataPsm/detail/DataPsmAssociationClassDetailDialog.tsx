@@ -4,8 +4,8 @@ import {useTranslation} from "react-i18next";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimAssociation, PimClass} from "model-driven-data/pim/model";
-import {ComponentDataPsmAttribute} from "./components/ComponentDataPsmAttribute";
-import {ComponentPimAttribute} from "./components/ComponentPimAttribute";
+import {ComponentDataPsmResource} from "./components/ComponentDataPsmResource";
+import {ComponentPimResource} from "./components/ComponentPimResource";
 import {ComponentCimResource} from "./components/ComponentCimResource";
 import {useDetailStyles} from "./dataPsmDetailCommon";
 import CloseIcon from '@material-ui/icons/Close';
@@ -37,24 +37,26 @@ export const DataPsmAssociationClassDetailDialog: React.FC<Parameters> = ({dataP
         <DialogContent>
             {isLoading && <LinearProgress />}
 
+            
+
             <Grid container spacing={2} alignItems="flex-start" className={styles.fullContainer}>
                 <Grid container spacing={2} item xs={6}>
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             Data PSM association
                         </Typography>
-                        {dataPsmAssociation && <ComponentDataPsmAttribute dataPsmAttribute={dataPsmAssociation} isLoading={isLoading}/>}
+                        {dataPsmAssociation && <ComponentDataPsmResource dataPsmResource={dataPsmAssociation} isLoading={isLoading} showIri showTechnicalLabel showLabelAndDescription />}
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             PIM association interpretation
                         </Typography>
-                        {pimAssociation && <ComponentPimAttribute pimAttribute={pimAssociation} isLoading={isLoading}/>}
+                        {pimAssociation && <ComponentPimResource pimResource={pimAssociation} isLoading={isLoading} showIri showLabelAndDescription />}
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2" className={"mt-3"}>
+                        <Typography variant="h5" component="h2" gutterBottom className={"mt-3"}>
                             CIM association interpretation
                         </Typography>
                         {pimAssociation && pimAssociation.pimInterpretation && <ComponentCimResource cimResourceIri={pimAssociation.pimInterpretation}/>}
@@ -62,21 +64,21 @@ export const DataPsmAssociationClassDetailDialog: React.FC<Parameters> = ({dataP
                 </Grid>
                 <Grid container spacing={2} item xs={6}>
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             Data PSM class
                         </Typography>
-                        {dataPsmClass && <ComponentDataPsmAttribute dataPsmAttribute={dataPsmClass} isLoading={isLoading}/>}
+                        {dataPsmClass && <ComponentDataPsmResource dataPsmResource={dataPsmClass} isLoading={isLoading} showIri showLabelAndDescription />}
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2">
+                        <Typography variant="h5" component="h2" gutterBottom>
                             PIM class interpretation
                         </Typography>
-                        {pimClass && <ComponentPimAttribute pimAttribute={pimClass} isLoading={isLoading}/>}
+                        {pimClass && <ComponentPimResource pimResource={pimClass} isLoading={isLoading} showIri showLabelAndDescription/>}
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Typography variant="h5" component="h2" className={"mt-3"}>
+                        <Typography variant="h5" component="h2" gutterBottom className={"mt-3"}>
                             CIM class interpretation
                         </Typography>
                         {pimClass && pimClass.pimInterpretation && <ComponentCimResource cimResourceIri={pimClass.pimInterpretation}/>}

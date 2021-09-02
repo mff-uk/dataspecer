@@ -1,5 +1,5 @@
 import {useDialog} from "./useDialog";
-import {LabelDescriptionEditor} from "../components/psmDetail/LabelDescriptionEditor";
+import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import React, {useCallback} from "react";
 import {StoreContext} from "../components/App";
 import {PimResource} from "model-driven-data/pim/model";

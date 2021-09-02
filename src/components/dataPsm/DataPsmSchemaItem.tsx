@@ -9,7 +9,7 @@ import {DataPsmSchema} from "model-driven-data/data-psm/model";
 import Skeleton from '@material-ui/lab/Skeleton';
 import {useDataPsm} from "../../hooks/useDataPsm";
 import {StoreContext} from "../App";
-import {LabelDescriptionEditor} from "../psmDetail/LabelDescriptionEditor";
+import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";
 import {useTranslation} from "react-i18next";
 

@@ -24,5 +24,8 @@ export const useDetailStyles = makeStyles((theme: Theme) =>
         top: theme.spacing(1),
         color: theme.palette.primary.contrastText,
       },
+      card: {
+        borderLeft: "3px solid " + theme.palette.primary.main,
+      }
     }),
 );
