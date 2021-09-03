@@ -67,7 +67,8 @@ async function processAssociation(
     const dom = await operation.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
     const rng = await operation.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
 
-    const otherAssociationEnd = dom.pimInterpretation === interpretedPimClass.pimInterpretation ? rng : dom;
+    const isRngNew = dom.pimInterpretation === interpretedPimClass.pimInterpretation;
+    const otherAssociationEnd = isRngNew ? rng : dom;
 
     // PIM the other class
 
@@ -78,19 +79,19 @@ async function processAssociation(
     // PIM association
 
     const pimCreateAssociation = asPimCreateAssociation({...association, types: [], iri: null});
-    pimCreateAssociation.pimAssociationEnds = (dom.pimInterpretation === interpretedPimClass.pimInterpretation) ? [operation.forDataPsmClass.dataPsmInterpretation as string, pimOtherClassIri] : [pimOtherClassIri, operation.forDataPsmClass.dataPsmInterpretation as string];
+    pimCreateAssociation.pimAssociationEnds = isRngNew ? [operation.forDataPsmClass.dataPsmInterpretation as string, pimOtherClassIri] : [pimOtherClassIri, operation.forDataPsmClass.dataPsmInterpretation as string];
     const pimCreateAssociationResult = await executor.applyOperation(context.pim, pimCreateAssociation);
 
-    // PSM the other class
+    // Data PSM the other class
 
     const dataPsmCreateClass = asDataPsmCreateClass(createCoreResource());
     dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
     const dataPsmCreateClassResult = await executor.applyOperation(context.dataPsm, dataPsmCreateClass);
 
-    // PSM association
+    // Data PSM association end
 
     const dataPsmCreateAssociationEnd = asDataPsmCreateAssociationEnd(createCoreResource());
-    dataPsmCreateAssociationEnd.dataPsmInterpretation = pimCreateAssociationResult.created[0] as string;
+    dataPsmCreateAssociationEnd.dataPsmInterpretation = pimCreateAssociationResult.created[isRngNew ? 2 : 1] as string; // todo use PimCreateAssociationResultProperties
     dataPsmCreateAssociationEnd.dataPsmPart = dataPsmCreateClassResult.created[0];
     dataPsmCreateAssociationEnd.dataPsmOwner = operation.forDataPsmClass.iri ?? undefined;
     await executor.applyOperation(context.dataPsm, dataPsmCreateAssociationEnd);
