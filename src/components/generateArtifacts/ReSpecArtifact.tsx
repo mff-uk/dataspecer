@@ -14,11 +14,8 @@ import {ModelObserverContainer} from "../../ModelObserverContainer";
 
 async function generateReSpec(models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}, psmSchemas: string[]): Promise<string> {
     const reader = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
-    console.info(reader, psmSchemas[0] as string);
     const objectModel = await coreResourcesToObjectModel(reader, psmSchemas[0] as string);
-    console.info(objectModel);
     const reSpec = objectModelToReSpec(objectModel);
-    console.info(reSpec);
     const stream = new MemoryOutputStream();
     await writeReSpec(reSpec, stream);
     return stream.getContent();
@@ -58,7 +55,6 @@ export const ReSpecArtifact: React.FC<{close: () => void}> = memo(({close}) => {
             }
         } catch (_) {
             enqueueSnackbar(t("snackbar ReSpec.fail"), {variant: "error"});
-            console.log(_);
         }
     }, [close, models, psmSchemas]);
 

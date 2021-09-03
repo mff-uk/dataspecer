@@ -29,8 +29,13 @@
     "snackbar ReSpec": {
       "fail": "Nelze vygenerovat ReSpec dokumentaci. Aktuálně nejsou známy žádné další informace."
     },
+    "snackbar Bikeshed": {
+      "fail": "Nelze vygenerovat Bikeshed dokumentaci. Aktuálně nejsou známy žádné další informace."
+    },
     "ReSpec preview": "náhled ReSpec dokumentace",
-    "ReSpec download": "uložit ReSpec dokumentaci"
+    "ReSpec download": "uložit ReSpec dokumentaci",
+    "Bikeshed preview external": "náhled Bikeshed dokumentace externí službou",
+    "Bikeshed download source": "uložit Bikeshed dokumentaci"
   },
   "psm": {
     "button delete": "odstranit",

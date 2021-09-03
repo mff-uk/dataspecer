@@ -1,11 +1,12 @@
 import React, {useRef, useState} from "react";
-import {Fab, Menu} from "@material-ui/core";
+import {Divider, Fab, Menu} from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
 import {useSnackbar} from 'notistack';
 import {useTranslation} from "react-i18next";
 import {ReSpecArtifact} from "./ReSpecArtifact";
+import {BikeshedArtifact} from "./BikeshedArtifact";
 
 export const GenerateArtifacts: React.FC = () => {
     const {isOpen, open, close} = useToggle();
@@ -64,6 +65,8 @@ export const GenerateArtifacts: React.FC = () => {
                 <MenuItem onClick={fileToStore}><ListItemIcon><OpenInBrowserTwoToneIcon fontSize="small" /></ListItemIcon>{t("import platform-model JSON")}</MenuItem>
                 <Divider />*/}
                 <ReSpecArtifact close={close} />
+                <Divider />
+                <BikeshedArtifact close={close} />
             </Menu>
         </>
     );

@@ -29,8 +29,13 @@
     "snackbar ReSpec": {
       "fail": "Unable to generate ReSpec documentation. No further info is provided."
     },
+    "snackbar Bikeshed": {
+      "fail": "Unable to generate Bikeshed documentation. No further info is provided."
+    },
     "ReSpec preview": "preview ReSpec documentation",
-    "ReSpec download": "save ReSpec documentation"
+    "ReSpec download": "save ReSpec documentation",
+    "Bikeshed preview external": "preview Bikeshed documentation in external service",
+    "Bikeshed download source": "save Bikeshed documentation"
   },
   "psm": {
     "button delete": "delete",
