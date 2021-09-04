@@ -59,6 +59,8 @@ export const ReSpecArtifact: React.FC<{close: () => void}> = memo(({close}) => {
     }, [close, models, psmSchemas]);
 
     return <>
+        <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>ReSpec</MenuItem>
+
         <MenuItem onClick={ReSpecPreview}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("ReSpec preview")}</MenuItem>
         <MenuItem onClick={ReSpecDownload}><ListItemIcon><DescriptionTwoToneIcon fontSize="small" /></ListItemIcon>{t("ReSpec download")}</MenuItem>
     </>;

@@ -15,9 +15,9 @@
   },
   "artifacts": {
     "button generate load artifacts": "Generate/Load artifacts",
-    "platform-model JSON as file" : "platform-model JSON as file",
-    "platform-model JSON to clipboard" : "platform-model JSON to clipboard",
-    "import platform-model JSON" :  "import platform-model JSON",
+    "models JSON as file" : "JSON model as file",
+    "models JSON to clipboard" : "JSON model to clipboard",
+    "import models JSON" :  "import JSON model",
     "snackbar load": {
       "ok": "Platform-model data loaded successfully",
       "fail": "Unable to load saved platform-model"
@@ -32,10 +32,15 @@
     "snackbar Bikeshed": {
       "fail": "Unable to generate Bikeshed documentation. No further info is provided."
     },
+    "snackbar object-model": {
+      "fail": "Unable to generate object model. No further info is provided."
+    },
     "ReSpec preview": "preview ReSpec documentation",
     "ReSpec download": "save ReSpec documentation",
     "Bikeshed preview external": "preview Bikeshed documentation in external service",
-    "Bikeshed download source": "save Bikeshed documentation"
+    "Bikeshed download source": "save Bikeshed documentation",
+    "object-model to clipboard": "object model to clipboard",
+    "object-model download": "object model as file"
   },
   "psm": {
     "button delete": "delete",

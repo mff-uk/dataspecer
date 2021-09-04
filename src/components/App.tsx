@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
@@ -62,6 +62,8 @@ interface StoreContextInterface {
     deleteAssociationClass: (operation: CompositeDeleteAssociationClass) => void,
     updateDataPsmAttributeDatatype: (operation: CompositeUpdateDataPsmAttributeDatatype) => void,
     psmSchemas: string[];
+    setModels: (models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}) => void;
+    setPsmSchemas: (schemas: string[]) => void;
 }
 
 function createNewModels() {
@@ -119,9 +121,6 @@ const App: React.FC = () => {
     const deleteAssociationClass = useCallback((operation: CompositeDeleteAssociationClass) => executeCompositeDeleteAssociationClass(models, operation), [models]);
     const updateDataPsmAttributeDatatype = useCallback((operation: CompositeUpdateDataPsmAttributeDatatype) => executeCompositeUpdateDataPsmAttributeDatatype(models, operation), [models]);
 
-    // @ts-ignore
-    useEffect(() => window.models = models, [models]);
-
     const storeContextData: StoreContextInterface = useMemo(() => ({
         deleteAttribute,
         addSurroundings,
@@ -135,6 +134,8 @@ const App: React.FC = () => {
         deleteAssociationClass,
         psmSchemas,
         updateDataPsmAttributeDatatype,
+        setModels,
+        setPsmSchemas,
     }), [
         deleteAttribute,
         addSurroundings,
@@ -148,6 +149,8 @@ const App: React.FC = () => {
         deleteAssociationClass,
         psmSchemas,
         updateDataPsmAttributeDatatype,
+        setModels,
+        setPsmSchemas,
     ]);
 
 

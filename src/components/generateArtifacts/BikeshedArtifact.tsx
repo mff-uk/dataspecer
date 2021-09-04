@@ -81,6 +81,8 @@ export const BikeshedArtifact: React.FC<{close: () => void}> = memo(({close}) =>
     }, [close, models, psmSchemas]);
 
     return <>
+        <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Bikeshed</MenuItem>
+
         <MenuItem onClick={BikeshedPreview}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("Bikeshed preview external")}</MenuItem>
         <MenuItem onClick={BikeshedDownload}><ListItemIcon><DescriptionTwoToneIcon fontSize="small" /></ListItemIcon>{t("Bikeshed download source")}</MenuItem>
     </>;
