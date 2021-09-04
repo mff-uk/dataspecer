@@ -5,13 +5,11 @@ import SetRootButton from "./cimSearch/SetRootButton";
 import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
 import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
-// import {LabelAndDescriptionLanguageStrings} from "./psmDetail/LabelDescriptionEditor.tsx";
 import {LanguageSelector} from "./LanguageSelector";
 import {Trans, useTranslation} from "react-i18next";
 import {CimAdapter, IriProvider, PrefixIriProvider} from "model-driven-data/cim";
 import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
-import {CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
 import {PimMemoryStore} from "model-driven-data/pim/store/memory-store/pim-memory-store";
 import {DataPsmMemoryStore} from "model-driven-data/data-psm/store";
 import {PimClass} from "model-driven-data/pim/model";
@@ -45,16 +43,9 @@ import {
     executeCompositeUpdateDataPsmAttributeDatatype
 } from "../operations/composite-update-data-psm-attribute-datatype";
 
-/*import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
-import {coreResourcesToObjectModel} from "model-driven-data/object-model";
-import {objectModelToReSpec, writeReSpec} from "model-driven-data/respec";
-import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";*/
-
 interface StoreContextInterface {
     addSurroundings: (operation: CompositeAddClassSurroundings) => void,
     setRootClass: (rootPimClass: PimClass) => void,
-    dataPsm: CoreResourceReader,
-    pim: CoreResourceReader,
     deleteAttribute: (operation: CompositeDeleteAttribute) => void,
     updateOrder: (operation: CompositeUpdateOrder) => void,
     cim: {
@@ -71,6 +62,13 @@ interface StoreContextInterface {
     deleteAssociationClass: (operation: CompositeDeleteAssociationClass) => void,
     updateDataPsmAttributeDatatype: (operation: CompositeUpdateDataPsmAttributeDatatype) => void,
     psmSchemas: string[];
+}
+
+function createNewModels() {
+    return {
+        pim: new ModelObserverContainer(new PimMemoryStore()),
+        dataPsm: new ModelObserverContainer(new DataPsmMemoryStore()),
+    };
 }
 
 // @ts-ignore
@@ -99,26 +97,17 @@ const App: React.FC = () => {
         return {iriProvider, cimAdapter};
     });
 
-    // PIM model
-
-    const [pim, setPim] = useState<CoreResourceReader & CoreResourceWriter>(new PimMemoryStore());
-
-    // data-PSM model
-
-    const [dataPsm, setDataPsm] = useState<CoreResourceReader & CoreResourceWriter>(new DataPsmMemoryStore());
+    const [models, setModels] = useState(createNewModels);
     const [psmSchemas, setPsmSchemas] = useState<string[]>([]);
-
-    const models = useMemo(() => ({
-        pim: new ModelObserverContainer(pim),
-        dataPsm: new ModelObserverContainer(dataPsm),
-    }), [pim, dataPsm]); // todo split to two memos
 
     // Define operations
 
     const setRootClass = useCallback(async (rootPimClass: PimClass) => {
+        setPsmSchemas([]);
+        const models = createNewModels();
+        setModels(models);
         const schemaIri = await executeCompositeCreateSchema(models, {pimBaseIri: "//pim/", dataPsmBaseIri: "//dataPsm/"});
         await executeCompositeCreateRootClass(models, {pimClass: rootPimClass});
-
         setPsmSchemas([schemaIri]);
     }, [models]);
     const addSurroundings = useCallback(async (operation: CompositeAddClassSurroundings) => await executeCompositeAddClassSurroundings(models, operation),[models]);
@@ -133,21 +122,10 @@ const App: React.FC = () => {
     // @ts-ignore
     useEffect(() => window.models = models, [models]);
 
-    const generate = async () => {
-        /*const fed = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
-        const objectModel = await coreResourcesToObjectModel(fed, psmSchemas[0] as string);
-        const respec = objectModelToReSpec(objectModel);
-        const stream = new MemoryOutputStream();
-        await writeReSpec(respec, stream);
-        console.log(stream.getContent());*/
-    }
-
     const storeContextData: StoreContextInterface = useMemo(() => ({
         deleteAttribute,
         addSurroundings,
         setRootClass,
-        dataPsm,
-        pim,
         cim,
         models,
         updateOrder,
@@ -161,8 +139,6 @@ const App: React.FC = () => {
         deleteAttribute,
         addSurroundings,
         setRootClass,
-        dataPsm,
-        pim,
         cim,
         models,
         updateOrder,
