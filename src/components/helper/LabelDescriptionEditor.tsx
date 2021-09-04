@@ -49,7 +49,12 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
 
     const callUpdate = useCallback(() => {
         close();
-        update({label, description});
+        const filteredLabel = Object.fromEntries(Object.entries(label).filter(([, b]) => b.length));
+        const filteredDescription = Object.fromEntries(Object.entries(description).filter(([, b]) => b.length));
+        update({
+            label: filteredLabel,
+            description: filteredDescription,
+        });
         }, [close, update, label, description]);
 
     useEffect(() => {

@@ -48,7 +48,9 @@
     "button inline save": "save",
     "button inline discard": "discard",
     "technical label": "technical label",
-    "datatype": "datatype"
+    "datatype": "datatype",
+    "backwards association": "backwards association",
+    "button edit labels": "edit labels"
   },
   "psmAttribute-dialog": {
     "title": "PSM attribute properties",

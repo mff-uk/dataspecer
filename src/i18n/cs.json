@@ -48,7 +48,9 @@
     "button inline save": "uložit",
     "button inline discard": "zahodit",
     "technical label": "technický popisek",
-    "datatype": "datový typ"
+    "datatype": "datový typ",
+    "backwards association": "zpětná asociace",
+    "button edit labels": "upravit popisek"
   },
   "psmAttribute-dialog": {
     "title": "Vlastnosti PSM atributu",

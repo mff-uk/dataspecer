@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useMemo} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -11,25 +11,60 @@ import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurround
 import {IconButton, Typography} from "@material-ui/core";
 import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
-import {useDataPsm} from "../../hooks/useDataPsm";
 import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {PimClass} from "model-driven-data/pim/model";
+import {isPimAssociation, PimAssociation, PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
 import {useDialog} from "../../hooks/useDialog";
 import {DataPsmAssociationClassDetailDialog} from "./detail/DataPsmAssociationClassDetailDialog";
 import {StoreContext} from "../App";
 import DeleteIcon from "@material-ui/icons/Delete";
 import {InlineEdit} from "./common/InlineEdit";
+import {LanguageString} from "model-driven-data/core";
+import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
+
+// todo temporary hotfix
+const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null) => {
+    const {models} = React.useContext(StoreContext);
+
+    return useAsyncMemo<PimAssociation | null | undefined>(async () => {
+        if (pimAssociationEndIri) {
+            const resources = await models.pim.model.listResources();
+            for (const resourceIri of resources) {
+                const resource = await models.pim.model.readResource(resourceIri);
+                if (isPimAssociation(resource)) {
+                    if (resource.pimEnd.includes(pimAssociationEndIri)) {
+                        return resource;
+                    }
+                }
+            }
+        }
+        return null;
+    }, [pimAssociationEndIri]);
+}
 
 /**
  * This component represents either PSM class or PSM association to a PSM class.
+ *
+ * **Data PSM association end** interprets **PIM association end** which belongs to **PIM association**.
  */
 export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
     const {deleteAssociationClass} = React.useContext(StoreContext);
 
-    const {dataPsmResource: dataPsmAssociationEnd, isLoading: associationLoading} = useDataPsm<DataPsmAssociationEnd>(dataPsmAssociationEndIri);
+    // Association ends
+    const {
+        dataPsmResource: dataPsmAssociationEnd,
+        pimResource: pimAssociationEnd,
+        isLoading: associationLoading
+    } = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+
+    // PIM Association and check if it is backward association
+
+    const [pimAssociation, pimAssociationIsLoading] = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
+    const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
+
     const dataPsmClassIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
     const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading: classLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const isLoading = associationLoading || classLoading;
@@ -47,6 +82,13 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
 
     const inlineEdit = useToggle();
 
+    // We need to decide whether there is a human label on DPSM association end or PIM association end.
+    // If no, we show a label of PIM association with extra information about the direction.
+
+    const associationEndHumanLabel: LanguageString = useMemo(() => ({...pimAssociationEnd?.pimHumanLabel, ...dataPsmAssociationEnd?.dataPsmHumanLabel}), [pimAssociationEnd?.pimHumanLabel, dataPsmAssociationEnd?.dataPsmHumanLabel]);
+    const hasHumanLabelOnAssociationEnd = Object.keys(associationEndHumanLabel).length > 0;
+
+
     return <li className={styles.li}>
         <Typography className={styles.root}>
             <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />
@@ -55,11 +97,24 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
                 <IconButton size={"small"} onClick={collapse.open}><ExpandLessIcon /></IconButton>
             }
             <span {...dragHandleProps} onDoubleClick={inlineEdit.isOpen ? inlineEdit.close : inlineEdit.open}>
-                <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
-                    {(label, description) =>
-                        <span title={description} className={styles.association}>{label}</span>
-                    }
-                </DataPsmGetLabelAndDescription>
+                {hasHumanLabelOnAssociationEnd ?
+                    <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
+                        {(label, description) =>
+                            <span title={description} className={styles.association}>{label}</span>
+                        }
+                    </DataPsmGetLabelAndDescription>
+                :
+                    <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel}>
+                        {label =>
+                            <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription}>
+                                {description => <>
+                                    {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
+                                    <span title={description} className={styles.association}>{label}</span>
+                                </>}
+                            </LanguageStringUndefineable>
+                        }
+                    </LanguageStringUndefineable>
+                }
                 {dataPsmClassIri && <>
                     {': '}
                     <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>

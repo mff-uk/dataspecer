@@ -6,8 +6,8 @@ import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpret
 export const DataPsmGetLabelAndDescription: React.FC<{dataPsmResourceIri: string, children: (label?: string, description?: string) => ReactElement}> = ({dataPsmResourceIri, children}) => {
     const {dataPsmResource, pimResource} = useDataPsmAndInterpretedPim(dataPsmResourceIri);
 
-    const labels = useMemo<LanguageString>(() => ({...dataPsmResource?.dataPsmHumanLabel, ...pimResource?.pimHumanLabel}), [dataPsmResource?.dataPsmHumanLabel, pimResource?.pimHumanLabel]);
-    const descriptions = useMemo<LanguageString>(() => ({...dataPsmResource?.dataPsmHumanDescription, ...pimResource?.pimHumanDescription}), [dataPsmResource?.dataPsmHumanDescription, pimResource?.pimHumanDescription]);
+    const labels = useMemo<LanguageString>(() => ({...pimResource?.pimHumanLabel, ...dataPsmResource?.dataPsmHumanLabel}), [dataPsmResource?.dataPsmHumanLabel, pimResource?.pimHumanLabel]);
+    const descriptions = useMemo<LanguageString>(() => ({...pimResource?.pimHumanDescription, ...dataPsmResource?.dataPsmHumanDescription}), [dataPsmResource?.dataPsmHumanDescription, pimResource?.pimHumanDescription]);
 
     return <LanguageStringUndefineable from={labels}>
         {label =>
