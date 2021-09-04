@@ -44,7 +44,11 @@
     "unlabeled": "unlabeled",
     "interpreted": "interpreted",
     "not interpreted": "not interpreted",
-    "cim resource": "CIM resource"
+    "cim resource": "CIM resource",
+    "button inline save": "save",
+    "button inline discard": "discard",
+    "technical label": "technical label",
+    "datatype": "datatype"
   },
   "psmAttribute-dialog": {
     "title": "PSM attribute properties",

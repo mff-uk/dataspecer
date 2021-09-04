@@ -3,7 +3,7 @@ import {MultipleOperationExecutor, StoreContainer} from "../ModelObserverContain
 import {asDataPsmUpdateResourceTechnicalLabel} from "model-driven-data/data-psm/operation";
 
 export interface CompositeUpdateResourceTechnicalLabel {
-  forDataPsmAttributeIri: string;
+  forDataPsmResourceIri: string;
   label: string;
 }
 
@@ -14,7 +14,7 @@ export async function executeCompositeUpdateResourceTechnicalLabel(
   const executor = new MultipleOperationExecutor();
 
   const dataPsmUpdateResourceTechnicalLabel = asDataPsmUpdateResourceTechnicalLabel(createCoreResource());
-  dataPsmUpdateResourceTechnicalLabel.dataPsmResource = operation.forDataPsmAttributeIri;
+  dataPsmUpdateResourceTechnicalLabel.dataPsmResource = operation.forDataPsmResourceIri;
   dataPsmUpdateResourceTechnicalLabel.dataPsmTechnicalLabel = operation.label;
   await executor.applyOperation(context.dataPsm, dataPsmUpdateResourceTechnicalLabel);
 

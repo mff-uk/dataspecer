@@ -15,6 +15,7 @@ import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedP
 import {StoreContext} from "../App";
 import {useDataPsm} from "../../hooks/useDataPsm";
 import {DataPsmAttributeDetailDialog} from "./detail/DataPsmAttributeDetailDialog";
+import {InlineEdit} from "./common/InlineEdit";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
@@ -29,29 +30,41 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({
         ownerClass,
     }), [dataPsmAttribute, ownerClass]);
 
+    const inlineEdit = useToggle();
+
     return <>
         <li className={classNames(styles.li, {[styles.loading]: isLoading})}>
-            <Typography className={styles.root}>
-                <RemoveIcon style={{verticalAlign: "middle"}} />
-                {' '}
-                <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAttributeIri}>
-                    {(label, description) =>
-                        <span {...dragHandleProps} title={description} className={styles.attribute}>{label}</span>
-                    }
-                </DataPsmGetLabelAndDescription>
+            {dataPsmAttribute &&
+                <Typography className={styles.root}>
+                    <RemoveIcon style={{verticalAlign: "middle"}} />
+                    {' '}
+                    <span {...dragHandleProps} onDoubleClick={inlineEdit.isOpen ? inlineEdit.close : inlineEdit.open}>
+                        <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAttributeIri}>
+                            {(label, description) =>
+                                <span title={description} className={styles.attribute}>{label}</span>
+                            }
+                        </DataPsmGetLabelAndDescription>
 
-                {!!(dataPsmAttribute?.dataPsmTechnicalLabel && dataPsmAttribute.dataPsmTechnicalLabel.length) &&
-                    <> (<span className={styles.technicalLabel}>{dataPsmAttribute.dataPsmTechnicalLabel}</span>)</>
-                }
+                        {inlineEdit.isOpen ? <>
+                            <InlineEdit close={inlineEdit.close}  dataPsmResource={dataPsmAttribute} resourceType={"attribute"}/>
+                        </> : <>
+                            {!!(dataPsmAttribute?.dataPsmTechnicalLabel && dataPsmAttribute.dataPsmTechnicalLabel.length) &&
+                                <> (<span className={styles.technicalLabel}>{dataPsmAttribute.dataPsmTechnicalLabel}</span>)</>
+                            }
 
-                {pimAttribute?.pimDatatype && pimAttribute.pimDatatype.length && <>
-                    {': '}
-                    <span className={styles.type}>{pimAttribute.pimDatatype}</span>
-                </>}
+                            {dataPsmAttribute?.dataPsmDatatype && dataPsmAttribute.dataPsmDatatype.length && <>
+                                {': '}
+                                <span className={styles.type}>{dataPsmAttribute.dataPsmDatatype}</span>
+                            </>}
+                        </>}
+                    </span>
 
-                <ActionButton onClick={dialog.open} icon={<EditIcon/>} label={t("button edit")}/>
-                {parentDataPsmClassIri && index !== undefined && <DataPsmDeleteButton onClick={del} />}
-            </Typography>
+                    {inlineEdit.isOpen || <>
+                        <ActionButton onClick={dialog.open} icon={<EditIcon/>} label={t("button edit")}/>
+                        {parentDataPsmClassIri && index !== undefined && <DataPsmDeleteButton onClick={del} />}
+                    </>}
+                </Typography>
+            }
         </li>
 
         <DataPsmAttributeDetailDialog dataPsmAttributeIri={dataPsmAttributeIri} isOpen={dialog.isOpen} close={dialog.close} />

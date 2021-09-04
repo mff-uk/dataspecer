@@ -44,7 +44,11 @@
     "unlabeled": "bez labelu",
     "interpreted": "interpretováno",
     "not interpreted": "neinterpretováno",
-    "cim resource": "CIM entita"
+    "cim resource": "CIM entita",
+    "button inline save": "uložit",
+    "button inline discard": "zahodit",
+    "technical label": "technický popisek",
+    "datatype": "datový typ"
   },
   "psmAttribute-dialog": {
     "title": "Vlastnosti PSM atributu",

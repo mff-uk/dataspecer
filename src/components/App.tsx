@@ -40,10 +40,15 @@ import {
     CompositeDeleteAssociationClass,
     executeCompositeDeleteAssociationClass
 } from "../operations/composite-delete-association-class";
-import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
+import {
+    CompositeUpdateDataPsmAttributeDatatype,
+    executeCompositeUpdateDataPsmAttributeDatatype
+} from "../operations/composite-update-data-psm-attribute-datatype";
+
+/*import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
 import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {objectModelToReSpec, writeReSpec} from "model-driven-data/respec";
-import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
+import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";*/
 
 interface StoreContextInterface {
     addSurroundings: (operation: CompositeAddClassSurroundings) => void,
@@ -63,7 +68,8 @@ interface StoreContextInterface {
     updateDataPsmLabelAndDescription: (operation: CompositeUpdateDataPsmLabelAndDescription) => void,
     updatePimLabelAndDescription: (operation: CompositeUpdatePimLabelAndDescription) => void,
     updateResourceTechnicalLabel: (operation: CompositeUpdateResourceTechnicalLabel) => void,
-    deleteAssociationClass:  (operation: CompositeDeleteAssociationClass) => void,
+    deleteAssociationClass: (operation: CompositeDeleteAssociationClass) => void,
+    updateDataPsmAttributeDatatype: (operation: CompositeUpdateDataPsmAttributeDatatype) => void,
     psmSchemas: string[];
 }
 
@@ -122,17 +128,18 @@ const App: React.FC = () => {
     const updatePimLabelAndDescription = useCallback((operation: CompositeUpdatePimLabelAndDescription) => executeCompositeUpdatePimLabelAndDescription(models, operation), [models]);
     const updateResourceTechnicalLabel = useCallback((operation: CompositeUpdateResourceTechnicalLabel) => executeCompositeUpdateResourceTechnicalLabel(models, operation), [models]);
     const deleteAssociationClass = useCallback((operation: CompositeDeleteAssociationClass) => executeCompositeDeleteAssociationClass(models, operation), [models]);
+    const updateDataPsmAttributeDatatype = useCallback((operation: CompositeUpdateDataPsmAttributeDatatype) => executeCompositeUpdateDataPsmAttributeDatatype(models, operation), [models]);
 
     // @ts-ignore
     useEffect(() => window.models = models, [models]);
 
     const generate = async () => {
-        const fed = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
+        /*const fed = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
         const objectModel = await coreResourcesToObjectModel(fed, psmSchemas[0] as string);
         const respec = objectModelToReSpec(objectModel);
         const stream = new MemoryOutputStream();
         await writeReSpec(respec, stream);
-        console.log(stream.getContent());
+        console.log(stream.getContent());*/
     }
 
     const storeContextData: StoreContextInterface = useMemo(() => ({
@@ -149,6 +156,7 @@ const App: React.FC = () => {
         updateResourceTechnicalLabel,
         deleteAssociationClass,
         psmSchemas,
+        updateDataPsmAttributeDatatype,
     }), [
         deleteAttribute,
         addSurroundings,
@@ -163,6 +171,7 @@ const App: React.FC = () => {
         updateResourceTechnicalLabel,
         deleteAssociationClass,
         psmSchemas,
+        updateDataPsmAttributeDatatype,
     ]);
 
 

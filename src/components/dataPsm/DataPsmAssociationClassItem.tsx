@@ -19,6 +19,7 @@ import {useDialog} from "../../hooks/useDialog";
 import {DataPsmAssociationClassDetailDialog} from "./detail/DataPsmAssociationClassDetailDialog";
 import {StoreContext} from "../App";
 import DeleteIcon from "@material-ui/icons/Delete";
+import {InlineEdit} from "./common/InlineEdit";
 
 /**
  * This component represents either PSM class or PSM association to a PSM class.
@@ -44,6 +45,8 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
         ownerClassIri: parentDataPsmClassIri,
     }), [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri]);
 
+    const inlineEdit = useToggle();
+
     return <li className={styles.li}>
         <Typography className={styles.root}>
             <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />
@@ -51,30 +54,38 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
                 <IconButton size={"small"} onClick={collapse.close}><ExpandMoreIcon /></IconButton> :
                 <IconButton size={"small"} onClick={collapse.open}><ExpandLessIcon /></IconButton>
             }
-            <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
-                {(label, description) =>
-                    <span {...dragHandleProps} title={description} className={styles.association}>{label}</span>
-                }
-            </DataPsmGetLabelAndDescription>
-            {dataPsmClassIri && <>
-                {': '}
-                <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
+            <span {...dragHandleProps} onDoubleClick={inlineEdit.isOpen ? inlineEdit.close : inlineEdit.open}>
+                <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
                     {(label, description) =>
-                        <span title={description} className={styles.class}>{label}</span>
+                        <span title={description} className={styles.association}>{label}</span>
                     }
                 </DataPsmGetLabelAndDescription>
-            </>}
+                {dataPsmClassIri && <>
+                    {': '}
+                    <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
+                        {(label, description) =>
+                            <span title={description} className={styles.class}>{label}</span>
+                        }
+                    </DataPsmGetLabelAndDescription>
+                </>}
 
-            {' '}
+                {inlineEdit.isOpen ?
+                    (dataPsmAssociationEnd && <InlineEdit close={inlineEdit.close} dataPsmResource={dataPsmAssociationEnd} resourceType={"associationEnd"} />)
+                : <>
+                    {' '}
 
-            {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
-            <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
-            }
+                    {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
+                    <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
+                    }
+                </>}
+            </span>
 
-            {dataPsmClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
-            {dataPsmAssociationEnd && <>
-                <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
-                <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
+            {inlineEdit.isOpen || <>
+                {dataPsmClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
+                {dataPsmAssociationEnd && <>
+                    <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
+                    <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
+                </>}
             </>}
         </Typography>
         {dataPsmClassIri ?

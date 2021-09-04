@@ -60,6 +60,20 @@ export const useItemStyles = makeStyles((theme: Theme) =>
             margin: "0 .25rem",
             fontSize: "1rem"
         },
-        loading: {}
+        loading: {},
+
+        attributeInlineEditForm: {
+          border: "1px solid " + theme.palette.primary.main,
+          background: "#FFFFBB",
+          margin: "0 .25rem",
+          padding: "0 .25rem"
+        },
+
+        associationInlineEditForm: {
+          border: "1px solid " + theme.palette.secondary.main,
+          background: "#FFFFBB",
+          margin: "0 .25rem",
+          padding: "0 .25rem"
+        }
     }),
 );

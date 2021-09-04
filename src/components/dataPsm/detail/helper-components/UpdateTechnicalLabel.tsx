@@ -9,7 +9,7 @@ export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, i
   useEffect(() => setTechnicalLabel(dataPsmResource.dataPsmTechnicalLabel ?? ""), [dataPsmResource.dataPsmTechnicalLabel]);
 
   const update = useCallback(() => updateResourceTechnicalLabel({
-    forDataPsmAttributeIri: dataPsmResource.iri as string,
+    forDataPsmResourceIri: dataPsmResource.iri as string,
     label: technicalLabel,
   }), [updateResourceTechnicalLabel, technicalLabel]);
 
