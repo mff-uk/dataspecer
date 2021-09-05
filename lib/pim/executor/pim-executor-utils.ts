@@ -1,10 +1,13 @@
+import {CoreResource, CoreResourceReader} from "../../core";
 import {
-  CoreResourceReader,
-  CoreResource,
-} from "../../core";
-import {
-  asPimSchema, isPimAssociation, isPimAttribute, isPimClass, isPimSchema,
-  PimResource, PimSchema,
+  asPimSchema,
+  isPimAssociation,
+  isPimAssociationEnd,
+  isPimAttribute,
+  isPimClass,
+  isPimSchema,
+  PimResource,
+  PimSchema,
 } from "../model";
 
 export async function loadPimSchema(
@@ -37,6 +40,7 @@ function isPimResource(
     return false;
   }
   return isPimAssociation(resource)
+    || isPimAssociationEnd(resource)
     || isPimAttribute(resource)
     || isPimClass(resource)
     || isPimSchema(resource);
