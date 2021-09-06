@@ -23,8 +23,8 @@ import {isPimAssociation, isPimAttribute, PimAssociation, PimAttribute, PimClass
 import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
 import {CompositeAddClassSurroundings} from "../../operations/composite-add-class-surroundings";
+import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -237,7 +237,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             <Button
                 onClick={() => {close(); currentSurroundings && selected({
                     resourcesToAdd: selectedResources,
-                    sourcePimModel: new FederatedModelReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
+                    sourcePimModel: new FederatedResourceReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
                     forDataPsmClass: dataPsmClass as DataPsmClass
                 })}}
                 disabled={selectedResources.length === 0}

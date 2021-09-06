@@ -6,13 +6,13 @@ import FileSaver from "file-saver";
 import {useSnackbar} from "notistack";
 import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
-import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
 import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {ModelObserverContainer} from "../../ModelObserverContainer";
 import copy from "copy-to-clipboard";
+import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
 
 async function generateObjectModel(models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}, psmSchemas: string[]) {
-    const reader = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
+    const reader = new FederatedResourceReader([models.pim.model, models.dataPsm.model]);
     return await coreResourcesToObjectModel(reader, psmSchemas[0] as string);
 }
 

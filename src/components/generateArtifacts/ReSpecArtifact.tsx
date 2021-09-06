@@ -6,14 +6,14 @@ import FileSaver from "file-saver";
 import {useSnackbar} from "notistack";
 import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
-import {FederatedModelReader} from "model-driven-data/io/model-reader/federated-model-reader";
 import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {objectModelToReSpec, writeReSpec} from "model-driven-data/respec";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
 import {ModelObserverContainer} from "../../ModelObserverContainer";
+import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
 
 async function generateReSpec(models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}, psmSchemas: string[]): Promise<string> {
-    const reader = new FederatedModelReader([models.pim.model, models.dataPsm.model]);
+    const reader = new FederatedResourceReader([models.pim.model, models.dataPsm.model]);
     const objectModel = await coreResourcesToObjectModel(reader, psmSchemas[0] as string);
     const reSpec = objectModelToReSpec(objectModel);
     const stream = new MemoryOutputStream();
