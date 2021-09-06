@@ -16,6 +16,7 @@ CONSTRUCT {
         rdfs:subPropertyOf ?parentRelation .
 
     ?domainElement a z:typ-objektu ;
+        rdfs:subClassOf ?ancestor ;
         skos:prefLabel ?domainLabel ;
         skos:definition ?domainDefinition ;
         skos:inScheme ?domainGlossary .

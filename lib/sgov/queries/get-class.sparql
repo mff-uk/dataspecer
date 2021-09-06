@@ -3,13 +3,14 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
   %NODE% a z:typ-objektu ;
+    rdfs:subClassOf ?ancestor ;
     skos:prefLabel ?label ;
     skos:definition ?definition;
     skos:inScheme ?glossary .
 } WHERE {
-  %NODE% a z:typ-objektu ;
-    skos:prefLabel ?label .
-
+  %NODE% a z:typ-objektu .
+  OPTIONAL { %NODE% skos:prefLabel ?label . }
+  OPTIONAL { %NODE% rdfs:subClassOf ?ancestor . }
   OPTIONAL { %NODE% skos:definition ?definition . }
   OPTIONAL { %NODE% skos:inScheme ?glossary . }
 }

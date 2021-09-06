@@ -13,5 +13,5 @@
     ],
     "allowSyntheticDefaultImports": true
   },
-  "include": ["lib"]
+  "include": ["lib", "@types"]
 }

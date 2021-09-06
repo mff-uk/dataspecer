@@ -1,18 +1,17 @@
 import {SgovAdapter} from "./sgov-adapter";
-import {httpFetch} from "../io/fetch/rdf-fetch-nodejs";
-import {PimClass} from "../platform-independent-model/model";
-import {ReadOnlyMemoryStore} from "../core/store/memory-store/read-only-memory-store";
-import {PrefixIdProvider} from "../cim/prefix-id-provider";
-import {IdProvider} from "../cim/id-provider";
-import {CimAdapter} from "../cim";
+import {httpFetch} from "../io/fetch/fetch-nodejs";
+import {PimClass} from "../pim/model";
+import {CimAdapter, IriProvider, PrefixIriProvider} from "../cim";
 import {FetchOptions} from "../io/fetch/fetch-api";
+import {CoreResourceReader} from "../core";
 
-let idProvider: IdProvider;
+let iriProvider: IriProvider;
 let adapter: CimAdapter;
 
 beforeAll(() => {
-  idProvider = new PrefixIdProvider();
-  adapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch, idProvider);
+  iriProvider = new PrefixIriProvider();
+  adapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch);
+  adapter.setIriProvider(iriProvider);
 });
 
 test("SgovAdapter.search()", async () => {
@@ -41,19 +40,19 @@ describe("SgovAdapter.getClass()", () => {
 
 describe("SgovAdapter.getSurroundings()", () => {
   const query = "https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba";
-  let store: ReadOnlyMemoryStore;
+  let store: CoreResourceReader;
 
   beforeAll(async () => {
     store = await adapter.getSurroundings(query);
   });
 
   test("inheritance", async () => {
-    const root = await store.readResource(idProvider.cimToPim(query)) as PimClass;
+    const root = await store.readResource(iriProvider.cimToPim(query)) as PimClass;
 
     expect(root.pimExtends).toEqual(expect.arrayContaining([
       "https://slovník.gov.cz/veřejný-sektor/pojem/člověk",
       "https://slovník.gov.cz/veřejný-sektor/pojem/subjekt-práva",
-    ].map(idProvider.cimToPim)));
+    ].map(iriProvider.cimToPim)));
   });
 
   test("attributes", async () => {
@@ -62,7 +61,7 @@ describe("SgovAdapter.getSurroundings()", () => {
     expect(resources).toEqual(expect.arrayContaining([
       "https://slovník.gov.cz/veřejný-sektor/pojem/příjmení",
       "https://slovník.gov.cz/veřejný-sektor/pojem/křestní-jméno",
-    ].map(idProvider.cimToPim)));
+    ].map(iriProvider.cimToPim)));
   });
 
   test("associations", async () => {
@@ -71,22 +70,24 @@ describe("SgovAdapter.getSurroundings()", () => {
     expect(resources).toEqual(expect.arrayContaining([
       "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/dopustil-se-přestupku-řízení-technicky-nezpůsobilého-vozidla",
       "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/přestupek",
-    ].map(idProvider.cimToPim)));
+    ].map(iriProvider.cimToPim)));
   });
 });
 
 describe("SgovAdapter.getClassGroup()", () => {
   test("uncached", async () => {
     // New instance of the adapter need to be created
-    const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch, idProvider);
-    const groups = await adapter.getClassGroup("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
+    const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch);
+    adapter.setIriProvider(iriProvider);
+    const groups = await adapter.getResourceGroup("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
     expect(groups).toContain("https://slovník.gov.cz/veřejný-sektor/glosář");
   });
 
-  test("cached", async () => {
+  test("cached by get class", async () => {
     const fetchContainer = {fetch: httpFetch};
     const proxyFetch = (url: string, fetchOptions: FetchOptions) => fetchContainer.fetch(url, fetchOptions);
-    const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", proxyFetch, idProvider);
+    const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", proxyFetch);
+    adapter.setIriProvider(iriProvider);
 
     await adapter.getClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
 
@@ -94,7 +95,23 @@ describe("SgovAdapter.getClassGroup()", () => {
       throw new Error("Fetch called.");
     };
 
-    const groups = await adapter.getClassGroup("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
+    const groups = await adapter.getResourceGroup("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
     expect(groups).toContain("https://slovník.gov.cz/veřejný-sektor/glosář");
+  });
+
+  test("cached by search", async () => {
+    const fetchContainer = {fetch: httpFetch};
+    const proxyFetch = (url: string, fetchOptions: FetchOptions) => fetchContainer.fetch(url, fetchOptions);
+    const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", proxyFetch);
+    adapter.setIriProvider(iriProvider);
+
+    await adapter.search("řidič");
+
+    fetchContainer.fetch = () => {
+      throw new Error("Fetch called.");
+    };
+
+    const groups = await adapter.getResourceGroup("https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/řidič");
+    expect(groups).toContain("https://slovník.gov.cz/legislativní/sbírka/361/2000/glosář");
   });
 });

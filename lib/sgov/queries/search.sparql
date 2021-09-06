@@ -1,10 +1,13 @@
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
 
 CONSTRUCT {
     <__search_results> <__has_search_result> ?node .
-	?node a z:typ-objektu ;
-    	<__order> ?len ;
+	?node
+		<__order> ?len ;
+		rdfs:subClassOf ?parent ;
 		skos:prefLabel ?label ;
 		skos:definition ?definition ;
 		skos:inScheme ?glossary .
@@ -13,6 +16,13 @@ CONSTRUCT {
 		skos:prefLabel ?label .
 	OPTIONAL { ?node skos:definition ?definition . }
 	OPTIONAL { ?node skos:inScheme ?glossary . }
+
+	OPTIONAL {
+		?node rdfs:subClassOf ?parent .
+		FILTER NOT EXISTS {
+			?parent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+		}
+	}
 
 	{
 		select ?node (MIN(strlen(str(?search_label)))  as ?len) WHERE {

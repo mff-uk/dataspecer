@@ -4,10 +4,11 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
-	?ancestor rdfs:subClassOf ?ancestorParent ;
+	?ancestor
+		rdfs:subClassOf ?ancestorParent ;
 		skos:prefLabel ?label ;
-		skos:inScheme ?glossary ;
-		skos:definition ?definition .
+		skos:definition ?definition ;
+		skos:inScheme ?glossary .
 } WHERE {
 	%NODE% rdfs:subClassOf* ?ancestor .
 	FILTER NOT EXISTS {
@@ -22,7 +23,7 @@ CONSTRUCT {
 		}
 	}
 
-	?ancestor skos:prefLabel ?label .
+	OPTIONAL { ?ancestor skos:prefLabel ?label . }
 	OPTIONAL { ?ancestor skos:definition ?definition }
 	OPTIONAL { ?ancestor skos:inScheme ?glossary }
 }

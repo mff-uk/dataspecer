@@ -1,1 +1,1 @@
-export * from "./read-only-memory-store";
+export {ReadOnlyMemoryStore} from "./read-only-memory-store";

@@ -1,16 +1,16 @@
 import {RdfObject, RdfSourceWrap} from "../../core/adapter/rdf";
-import {PimResource} from "../../platform-independent-model/model";
+import {PimResource} from "../../pim/model";
 import {LanguageString} from "../../core";
 import {SKOS} from "../sgov-vocabulary";
-import {IdProvider} from "../../cim/id-provider";
+import {IriProvider} from "../../cim/iri-provider";
 
 // todo move
 function RdfObjectsToLanguageString(objects: RdfObject[]): LanguageString {
   return Object.fromEntries(objects.map(o => [o.language, o.value]));
 }
 
-export async function loadSgovEntity(entity: RdfSourceWrap, idProvider: IdProvider): Promise<PimResource> {
-  const resource: PimResource = {types: []};
+export async function loadSgovEntity(entity: RdfSourceWrap, idProvider: IriProvider): Promise<PimResource> {
+  const resource: PimResource = {types: [], iri: null};
 
   // skos:prefLabel
   const prefLabel = await entity.property(SKOS.prefLabel);

@@ -18,6 +18,7 @@ CONSTRUCT {
         # (4) relationship to the parent association in the inheritance hierarchy END
 
     ?rangeElement a z:typ-objektu ;
+        rdfs:subClassOf ?ancestor ;
         skos:prefLabel ?rangeLabel ;
         skos:definition ?rangeDefinition ;
         skos:inScheme ?rangeGlossary .
