@@ -12,5 +12,6 @@
       "ES2020"
     ],
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "include": ["lib"]
 }

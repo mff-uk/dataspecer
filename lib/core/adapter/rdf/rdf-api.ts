@@ -58,6 +58,14 @@ export class RdfObject extends RdfNode {
     return object.termType === RdfTermType.Literal;
   }
 
+  static node(object: RdfNode): RdfObject {
+    return {
+      ...object,
+      datatype: null,
+      language: null,
+    };
+  }
+
 }
 
 /**
