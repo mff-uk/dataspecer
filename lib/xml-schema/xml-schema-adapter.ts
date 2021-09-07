@@ -1,80 +1,107 @@
-import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty, ObjectModelSchema, isObjectModelClass, isObjectModelPrimitive} from "../object-model/object-model";
+import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty,
+  ObjectModelSchema, isObjectModelClass, isObjectModelPrimitive} from "../object-model/object-model";
 import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaSimpleType} from "./xml-schema-model";
 
-export function schemaAsXmlSchema(schema: ObjectModelSchema): XmlSchema {
-  const result = new XmlSchema();
-  result.elements = Object.values(schema.roots).map(classElement);
-  return result;
-}
-
-function classElement(cls: ObjectModelClass): XmlSchemaElement {
-  const result = new XmlSchemaElement();
-  result.elementName = cls.technicalLabel;
-  result.type = {
-    complexDefinition: classType(cls)
-  }
-  return result;
-}
-
-function classType(cls: ObjectModelClass): XmlSchemaComplexType {
+export function objectModelSchemaToXmlSchema(schema: ObjectModelSchema): XmlSchema {
   return {
-    mixed: false,
-    xsType: "sequence",
-    contents: Object.values(cls.properties).map(propertyContent)
+    "targetNamespace": null,
+    "elements": Object.values(schema.roots).map(classToElement)
   };
 }
 
-function propertyContent(prop: ObjectModelProperty): XmlSchemaComplexContent {
+function classToElement(classData: ObjectModelClass): XmlSchemaElement {
   return {
-    cardinality: prop.cardinality,
-    element: propertyElement(prop)
+    "elementName": classData.technicalLabel,
+    "type": {
+      "name": null,
+      "complexDefinition": classToComplexType(classData),
+      "simpleDefinition": undefined
+    }
   };
 }
 
-function propertyElement(prop: ObjectModelProperty): XmlSchemaElement {
-  const result = new XmlSchemaElement();
-  result.elementName = prop.technicalLabel;
-  if (prop.dataTypes.length == 0) {
-    throw new Error(`Property ${prop.psmIri} has no specified types.`);
+function classToComplexType(classData: ObjectModelClass): XmlSchemaComplexType {
+  return {
+    "mixed": false,
+    "xsType": "sequence",
+    "contents": Object.values(classData.properties).map(propertyToComplexContent)
+  };
+}
+
+function propertyToComplexContent(propertyData: ObjectModelProperty): XmlSchemaComplexContent {
+  return {
+    "cardinality": propertyData.cardinality,
+    "element": propertyToElement(propertyData),
+    "complexType": undefined
+  };
+}
+
+function propertyToElement(propertyData: ObjectModelProperty): XmlSchemaElement {
+  if (propertyData.dataTypes.length === 0) {
+    throw new Error(`Property ${propertyData.psmIri} has no specified types.`);
   }
-  if (isObjectModelClass(prop.dataTypes[0])) {
+  // enforce the same type (class or datatype) for all types in the property range
+  if (isObjectModelClass(propertyData.dataTypes[0])) {
     // all must be class
-    if (!prop.dataTypes.every(isObjectModelClass)) {
-      throw new Error(`Property ${prop.psmIri} must use only class types.`);
+    if (propertyData.dataTypes.every(isObjectModelClass)) {
+      return {
+        "elementName": propertyData.technicalLabel,
+        "type": {
+          "name": null,
+          "complexDefinition": classPropertyToComplexType(propertyData),
+          "simpleDefinition": undefined
+        }
+      }
     }
-    result.type.complexDefinition = {
-      mixed: false,
-      xsType: "choice",
-      contents: Object.values(prop.dataTypes).map(classContent)
-    };
   }
-  if (isObjectModelPrimitive(prop.dataTypes[0])) {
+  else if (isObjectModelPrimitive(propertyData.dataTypes[0])) {
     // all must be primitive
-    if (!prop.dataTypes.every(isObjectModelPrimitive)) {
-      throw new Error(`Property ${prop.psmIri} must use only primitive types.`);
+    if (propertyData.dataTypes.every(isObjectModelPrimitive)) {
+      return {
+        "elementName": propertyData.technicalLabel,
+        "type": {
+          "name": null,
+          "complexDefinition": undefined,
+          "simpleDefinition": datatypePropertyToSimpleType(propertyData)
+        }
+      }
     }
-    result.type.simpleDefinition = {
-      xsType: "union",
-      contents: Object.values(prop.dataTypes).map(primitiveContent)
-    };
   }
-  return result;
+  throw new Error(`Property ${propertyData.psmIri} must use either only class types or only primitive types.`);
 }
 
-function classContent(cls: ObjectModelClass): XmlSchemaComplexContent {
+function classPropertyToComplexType(propertyData: ObjectModelProperty): XmlSchemaComplexType {
   return {
-    complexType: classType(cls)
+    "mixed": false,
+    "xsType": "choice",
+    "contents": Object.values(propertyData.dataTypes).map(classToComplexContent)
+  };
+}
+
+function datatypePropertyToSimpleType(propertyData: ObjectModelProperty): XmlSchemaSimpleType {
+  return {
+    "xsType": "union",
+    "contents": Object.values(propertyData.dataTypes).map(primitiveToQName)
+  };
+}
+
+function classToComplexContent(classData: ObjectModelClass): XmlSchemaComplexContent {
+  return {
+    "complexType": classToComplexType(classData),
+    "element": null,
+    "cardinality": null
   }
 }
 
+// temporary map from datatype URIs to QNames, if needed
 const simpleTypeMap: Record<string, string> = {
 
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
-function primitiveContent(cls: ObjectModelPrimitive): string {
-  return cls.dataType.startsWith(xsdNamespace) ?
-    "xs:" + cls.dataType.substr(xsdNamespace.length) :
-    simpleTypeMap[cls.dataType];
+function primitiveToQName(primitiveData: ObjectModelPrimitive): string {
+  return primitiveData.dataType.startsWith(xsdNamespace) ?
+    "xs:" + primitiveData.dataType.substr(xsdNamespace.length) :
+    simpleTypeMap[primitiveData.dataType];
 }

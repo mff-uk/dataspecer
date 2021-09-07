@@ -1,21 +1,21 @@
 export class XmlSchema {
   targetNamespace: string;
-  elements: XmlSchemaElement[] = [];
+  elements: XmlSchemaElement[];
 }
 
 export class XmlSchemaElement {
   elementName: string;
-  type: XmlSchemaType = new XmlSchemaType();
+  type: XmlSchemaType;
 }
 
 export class XmlSchemaType {
-  name?: string;
-  complexDefinition?: XmlSchemaComplexType;
-  simpleDefinition?: XmlSchemaSimpleType;
+  name: string | undefined;
+  complexDefinition: XmlSchemaComplexType | undefined;
+  simpleDefinition: XmlSchemaSimpleType | undefined;
 }
 
 export class XmlSchemaComplexType {
-  mixed: boolean = false;
+  mixed: boolean;
   xsType: string;
   contents: XmlSchemaComplexContent[];
 }
@@ -25,13 +25,14 @@ export class XmlSchemaSimpleType {
   contents: string[];
 }
 
+// copied from object-model
 interface Interval {
   min: number;
   max?: number;
 }
 
 export class XmlSchemaComplexContent {
-  element?: XmlSchemaElement;
-  complexType?: XmlSchemaComplexType;
-  cardinality?: Interval;
+  element: XmlSchemaElement | undefined;
+  complexType: XmlSchemaComplexType | undefined;
+  cardinality: Interval | undefined;
 }
