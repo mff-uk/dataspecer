@@ -38,7 +38,7 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({
                 <Typography className={styles.root}>
                     <RemoveIcon style={{verticalAlign: "middle"}} />
                     {' '}
-                    <span {...dragHandleProps} onDoubleClick={inlineEdit.isOpen ? inlineEdit.close : inlineEdit.open}>
+                    <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
                         <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAttributeIri}>
                             {(label, description) =>
                                 <span title={description} className={styles.attribute}>{label}</span>

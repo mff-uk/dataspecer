@@ -22,22 +22,26 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
   const [label, setLabel] = useState(dataPsmResource.dataPsmTechnicalLabel ?? "");
   const [datatype, setDatatype] = useState(resourceType === "attribute" ? (dataPsmAttribute.dataPsmDatatype ?? "") : "");
 
+  const process = async () => {
+    if (label !== dataPsmResource.dataPsmTechnicalLabel) {
+      await updateResourceTechnicalLabel({
+        label,
+        forDataPsmResourceIri: dataPsmResource.iri as string,
+      });
+    }
+    if (resourceType === "attribute" && datatype !== dataPsmAttribute.dataPsmDatatype) {
+      await updateDataPsmAttributeDatatype({
+        datatype,
+        forDataPsmAttributeIri: dataPsmResource.iri as string,
+      })
+    }
+    close();
+  };
+
   const keyDown = async (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      if (label !== dataPsmResource.dataPsmTechnicalLabel) {
-        await updateResourceTechnicalLabel({
-          label,
-          forDataPsmResourceIri: dataPsmResource.iri as string,
-        });
-      }
-      if (resourceType === "attribute" && datatype !== dataPsmAttribute.dataPsmDatatype) {
-        await updateDataPsmAttributeDatatype({
-          datatype,
-          forDataPsmAttributeIri: dataPsmResource.iri as string,
-        })
-      }
-      close();
+      await process();
     }
 
     if (event.key === "Escape") {
@@ -78,7 +82,7 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
           onKeyDown={keyDown}
       />
     </>}
-    <ActionButton onClick={close} icon={<CheckIcon/>} label={t("button inline save")}/>
+    <ActionButton onClick={process} icon={<CheckIcon/>} label={t("button inline save")}/>
     <ActionButton onClick={close} icon={<CloseIcon/>} label={t("button inline discard")}/>
   </span>;
 }

@@ -96,7 +96,7 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
                 <IconButton size={"small"} onClick={collapse.close}><ExpandMoreIcon /></IconButton> :
                 <IconButton size={"small"} onClick={collapse.open}><ExpandLessIcon /></IconButton>
             }
-            <span {...dragHandleProps} onDoubleClick={inlineEdit.isOpen ? inlineEdit.close : inlineEdit.open}>
+            <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
                 {hasHumanLabelOnAssociationEnd ?
                     <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
                         {(label, description) =>
