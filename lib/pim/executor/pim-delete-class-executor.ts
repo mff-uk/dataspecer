@@ -1,8 +1,8 @@
 import {
-  CoreResourceReader, createEmptySuccessOperationResult,
+  CoreResourceReader,
   createErrorOperationResult, CreateNewIdentifier,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
 } from "../../core";
 import {
   asPimAssociationEnd,
@@ -18,7 +18,7 @@ export async function executePimDeleteClass(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimDeleteClass,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const classResource =
     await modelReader.readResource(operation.pimClass);
   if (classResource === null) {
@@ -31,7 +31,7 @@ export async function executePimDeleteClass(
   }
 
   const usageCheck = await checkIsNotUsed(modelReader, operation.pimClass);
-  if (usageCheck.failed) {
+  if (usageCheck !== null) {
     return usageCheck;
   }
 
@@ -49,20 +49,22 @@ export async function executePimDeleteClass(
 
 async function checkIsNotUsed(
   modelReader: CoreResourceReader,
-  classIri: string): Promise<ExecutorResult> {
+  classIri: string): Promise<CoreExecutorResult | null> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (isPimAttribute(resource)) {
       const attributeResource = asPimAttribute(resource);
       if (attributeResource.pimOwnerClass === classIri) {
-        return createErrorOperationResult("Class has an attribute.");
+        return createErrorOperationResult(
+          "Class has an attribute.");
       }
     } else if (isPimAssociationEnd(resource)) {
       const associationEndResource = asPimAssociationEnd(resource);
       if (associationEndResource.pimPart === classIri) {
-        return createErrorOperationResult("Class is used by an association.");
+        return createErrorOperationResult(
+          "Class is used by an association.");
       }
     }
   }
-  return createEmptySuccessOperationResult();
+  return null;
 }

@@ -1,5 +1,4 @@
 import {
-  CoreResource,
   CoreResourceReader,
   createCoreResource,
 } from "../../core";

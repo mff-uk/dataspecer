@@ -2,7 +2,7 @@ import {
   CoreResourceReader,
   createErrorOperationResult,
   CreateNewIdentifier,
-  createSuccessOperationResult, ExecutorResult,
+  createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmUpdateResourceOrder} from "../operation";
 import {loadDataPsmClass, loadDataPsmResource} from "./data-psm-executor-utils";
@@ -12,19 +12,17 @@ export async function executeDataPsmUpdateResourceOrder(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmUpdateResourceOrder,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const resourceToMove =
     await loadDataPsmResource(modelReader, operation.dataPsmResourceToMove);
   if (resourceToMove === null) {
-    return createErrorOperationResult(
-      "Missing resource to move.");
+    return createErrorOperationResult("Missing resource to move.");
   }
 
   const ownerClass =
     await loadDataPsmClass(modelReader, operation.dataPsmOwnerClass);
   if (ownerClass === null) {
-    return createErrorOperationResult(
-      "Missing class resource.");
+    return createErrorOperationResult("Missing class resource.");
   }
 
   const indexToMove =
@@ -49,18 +47,18 @@ export async function executeDataPsmUpdateResourceOrder(
 function moveToFirstPosition(
   ownerClass: DataPsmClass,
   partsWithoutTheOneToMove: string[],
-  operation: DataPsmUpdateResourceOrder
+  operation: DataPsmUpdateResourceOrder,
 ) {
   ownerClass.dataPsmParts = [
     operation.dataPsmResourceToMove,
-    ...partsWithoutTheOneToMove
+    ...partsWithoutTheOneToMove,
   ];
 }
 
 function moveAfter(
   ownerClass: DataPsmClass,
   partsWithoutTheOneToMove: string[],
-  operation: DataPsmUpdateResourceOrder
+  operation: DataPsmUpdateResourceOrder,
 ) {
   const indexToMoveAfter =
     partsWithoutTheOneToMove.indexOf(operation.dataPsmMoveAfter);

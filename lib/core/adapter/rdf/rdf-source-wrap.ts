@@ -1,4 +1,4 @@
-import {RdfObject, RdfSource} from "./rdf-api";
+import {RdfNode, RdfObject, RdfSource} from "./rdf-api";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -34,7 +34,7 @@ export class RdfSourceWrap {
     return this.source.property(this.resource, predicate);
   }
 
-  async reverseProperty(predicate: string): Promise<RdfObject[]> {
+  async reverseProperty(predicate: string): Promise<RdfNode[]> {
     return this.source.reverseProperty(predicate, this.resource);
   }
 
@@ -63,7 +63,7 @@ export class RdfSourceWrap {
   }
 
   protected async loadList(
-    collector: RdfObject[], node: RdfObject
+    collector: RdfObject[], node: RdfObject,
   ): Promise<void> {
     const hasFirst = await this.source.property(node.value, HAS_FIRST);
     if (hasFirst.length !== 1) {
@@ -108,9 +108,7 @@ export class RdfSourceWrap {
   async reverseNode(predicate: string): Promise<string | null> {
     const values = await this.reverseProperty(predicate);
     for (const value of values) {
-      if (RdfObject.isNode(value)) {
-        return value.value;
-      }
+      return value.value;
     }
     return null;
   }

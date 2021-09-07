@@ -1,9 +1,11 @@
 import {
-  CoreResource,
   CoreResourceReader,
   createCoreResource,
 } from "../../core";
-import {asPimCreateClass} from "../operation";
+import {
+  asPimCreateClass,
+  isPimCreateClassResult, PimCreateClassResult,
+} from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
 import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
@@ -24,7 +26,7 @@ test("Create class.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateClass(
-    (name) => "http://localhost/" + ++counter,
+    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
     operation);
 
@@ -48,6 +50,9 @@ test("Create class.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
+  expect(isPimCreateClassResult(actual.operationResult)).toBeTruthy();
+  const result = actual.operationResult as PimCreateClassResult;
+  expect(result.createdPimClass).toEqual("http://localhost/1");
 });
 
 function wrapResourcesWithReader(

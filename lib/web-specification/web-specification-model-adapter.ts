@@ -277,7 +277,7 @@ export class DefaultLinkFactory implements LinkFactory {
   }
 
   propertyAnchor(
-    classData: ObjectModelClass, propertyData: ObjectModelProperty
+    classData: ObjectModelClass, propertyData: ObjectModelProperty,
   ): string {
     return "vlastnost-"
       + this.sanitizeForAnchor(classData.humanLabel)

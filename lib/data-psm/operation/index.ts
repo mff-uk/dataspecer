@@ -5,6 +5,7 @@ export * from "./data-psm-create-schema";
 export * from "./data-psm-delete-association-end";
 export * from "./data-psm-delete-attribute";
 export * from "./data-psm-delete-class";
+export * from "./data-psm-update-attribute-datatype";
 export * from "./data-psm-update-resource-interpretation";
 export * from "./data-psm-update-resource-human-description";
 export * from "./data-psm-update-resource-human-label";

@@ -4,13 +4,13 @@
     "moduleResolution": "node",
     "outDir": "./dist/",
     "module": "es2020",
-    "jsx": "react",
     "allowJs": true,
     "sourceMap": true,
     "declaration": true,
     "downlevelIteration": true,
     "lib": [
       "ES2020"
-    ]
-  }
+    ],
+  },
+  "include": ["lib"]
 }

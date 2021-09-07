@@ -1,6 +1,6 @@
 import {createReadStream} from "fs";
 import minipassFetch from "minipass-fetch";
-import {HttpFetch, FetchResponse, FetchOptions} from "./fetch-api";
+import {FetchOptions, FetchResponse, HttpFetch} from "./fetch-api";
 
 export const httpFetch: HttpFetch = function fetch(
   url: string, options: FetchOptions,
@@ -11,6 +11,7 @@ export const httpFetch: HttpFetch = function fetch(
     const headers = {
       "content-type": getFileContentType(path.substr(path.lastIndexOf("."))),
     };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new minipassFetch.Response(stream, {"headers": headers});
   } else {

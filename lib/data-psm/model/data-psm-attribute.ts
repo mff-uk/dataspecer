@@ -13,10 +13,10 @@ export interface DataPsmAttribute extends DataPsmResource {
 export const DataPsmAttributeType = "data-psm-attribute";
 
 export function isDataPsmAttribute(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is DataPsmAttribute {
   return resource !== null
-    && resource?.types?.includes(DataPsmAttributeType);
+    && resource.types.includes(DataPsmAttributeType);
 }
 
 export function asDataPsmAttribute(

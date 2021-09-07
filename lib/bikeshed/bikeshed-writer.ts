@@ -18,13 +18,15 @@ export async function saveBikeshedToDirectory(
   const outputStream = fileSystem.createWriteStream(
     path.join(directory, name + ".bs"));
 
-  const result = new Promise<void>( (accept, reject) => {
+  const result = new Promise<void>((accept, reject) => {
     outputStream.on("close", accept);
     outputStream.on("error", reject);
   });
 
   const stream = {
-    write: async chunk => await outputStream.write(chunk),
+    write: async chunk => {
+      await outputStream.write(chunk);
+    },
   } as OutputStream;
 
   await writeBikeshed(model, stream);
@@ -34,7 +36,7 @@ export async function saveBikeshedToDirectory(
 }
 
 export async function writeBikeshed(
-  model: Bikeshed, stream: OutputStream
+  model: Bikeshed, stream: OutputStream,
 ): Promise<void> {
   await writeMetadata(model.metadata, stream);
   await writeIntroduction(model, stream);
@@ -42,7 +44,7 @@ export async function writeBikeshed(
 }
 
 async function writeMetadata(
-  content: Record<string, string>, stream: OutputStream
+  content: Record<string, string>, stream: OutputStream,
 ) {
   await stream.write("<pre class='metadata'>\n");
   for (const [key, value] of Object.entries(content)) {
@@ -58,7 +60,7 @@ function sanitizeMultiline(string: string): string {
 }
 
 async function writeIntroduction(
-  specification: Bikeshed, stream: OutputStream
+  specification: Bikeshed, stream: OutputStream,
 ) {
   await stream.write("Introduction {#intro}\n=====================\n");
   await stream.write(specification.humanDescription);
@@ -66,7 +68,7 @@ async function writeIntroduction(
 }
 
 async function writeDataModel(
-  specification: WebSpecificationSchema, stream: OutputStream
+  specification: WebSpecificationSchema, stream: OutputStream,
 ) {
   await stream.write("Specifikace\n==========\n" +
     "V této sekci jsou definovány jednotlivé třídy a jejich vlastnosti.\n" +
@@ -80,7 +82,7 @@ async function writeDataModel(
 }
 
 async function writeEntity(
-  entity: WebSpecificationEntity, stream: OutputStream
+  entity: WebSpecificationEntity, stream: OutputStream,
 ) {
   await stream.write(entity.humanLabel);
   await stream.write(" {#" + entity.anchor + "}\n-------\n");
@@ -102,7 +104,7 @@ function isNotEmpty(string: string | undefined): boolean {
 }
 
 async function writeProperty(
-  property: WebSpecificationProperty, stream: OutputStream
+  property: WebSpecificationProperty, stream: OutputStream,
 ) {
   await stream.write("### " + property.technicalLabel + "\n");
 
@@ -126,7 +128,7 @@ async function writeProperty(
 }
 
 async function writePropertyType(
-  type: WebSpecificationType, writer: OutputStream
+  type: WebSpecificationType, writer: OutputStream,
 ) {
   await writer.write("\n:: ");
   const link = "[" + type.label + "](" + type.link + ")";

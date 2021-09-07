@@ -1,6 +1,6 @@
 import {
   CoreResourceReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, ExecutorResult,
+  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
 } from "../../core";
 import {DataPsmCreateClass} from "../operation";
 import {loadDataPsmSchema} from "./data-psm-executor-utils";
@@ -10,11 +10,10 @@ export async function executesDataPsmCreateClass(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: DataPsmCreateClass,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(modelReader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return createErrorOperationResult("Missing schema object.");
   }
 
   // TODO Check that all extends exists.

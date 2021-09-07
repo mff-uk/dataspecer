@@ -1,4 +1,4 @@
-import {CoreResource} from "../../core";
+import { CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
 
 export interface PimCreateClass extends PimCreate {
@@ -25,4 +25,28 @@ export function asPimCreateClass(
   const result = resource as PimCreateClass;
   result.pimExtends = result.pimExtends || [];
   return result;
+}
+
+export interface PimCreateClassResult extends CoreTyped {
+
+  createdPimClass: string;
+
+}
+
+export const PimCreateClassResultType =
+  "pim-action-create-class-result";
+
+export function isPimCreateClassResult(
+  resource: CoreTyped,
+): resource is PimCreateClassResult {
+  return resource.types.includes(PimCreateClassResultType);
+}
+
+export function createPimCreateClassResultProperties(
+  createdPimClass: string,
+): PimCreateClassResult {
+  return {
+    "types": [PimCreateClassResultType],
+    "createdPimClass": createdPimClass,
+  };
 }

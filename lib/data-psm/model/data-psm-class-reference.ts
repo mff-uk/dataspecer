@@ -17,10 +17,10 @@ export interface DataPsmClassReference extends CoreResource {
 export const DataPsmClassReferenceType = "data-psm-class-reference";
 
 export function isDataPsmClassReference(
-  resource: unknown,
+  resource: CoreResource | null,
 ): resource is DataPsmClassReference {
   return resource !== null
-    && resource?.types?.includes(DataPsmClassReferenceType);
+    && resource.types.includes(DataPsmClassReferenceType);
 }
 
 export function asDataPsmClassReference(

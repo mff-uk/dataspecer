@@ -3,7 +3,7 @@ import {
   createErrorOperationResult,
   CreateNewIdentifier,
   createSuccessOperationResult,
-  ExecutorResult,
+  CoreExecutorResult,
 } from "../../core";
 import {
   isPimAttribute,
@@ -15,7 +15,7 @@ export async function executePimDeleteAttribute(
   createNewIdentifier: CreateNewIdentifier,
   modelReader: CoreResourceReader,
   operation: PimDeleteAttribute,
-): Promise<ExecutorResult> {
+): Promise<CoreExecutorResult> {
   const attributeResource =
     await modelReader.readResource(operation.pimAttribute);
   if (attributeResource === null) {
