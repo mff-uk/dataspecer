@@ -93,16 +93,12 @@
     "title": "Class search",
     "placeholder": "Type IRI or search for label. You can even use regular expressions."
   },
-  "psmDetail": {
-    "no description": "Without the description in any language",
-    "attribute": {
-      "title text": "attribute"
-    },
-    "class": {
-      "title text": "class"
-    },
-    "association": {
-      "title text": "association"
-    }
+  "psm.detail": {
+    "technical label": "Technical label",
+    "update": "Update",
+    "datatype": "Datatype",
+    "language": "language",
+    "label": "label",
+    "description": "description"
   }
 }

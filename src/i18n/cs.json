@@ -93,16 +93,12 @@
     "title": "Vyhledání třídy",
     "placeholder": "Vložte IRI, nebo hledejte podle titulku. Lze používat regulární výrazy."
   },
-  "psmDetail": {
-    "no description": "Bez popisku v jakémkoli jazyce",
-    "attribute": {
-      "title text": "atribut"
-    },
-    "class": {
-      "title text": "třída"
-    },
-    "association": {
-      "title text": "asociace"
-    }
+  "psm.detail": {
+    "technical label": "Technický popisek",
+    "update": "Aktualizovat",
+    "datatype": "Datový typ",
+    "language": "jazyk",
+    "label": "titulek",
+    "description": "popisek"
   }
 }

@@ -2,8 +2,10 @@ import React, {useCallback, useEffect, useState} from "react";
 import {DataPsmResource} from "model-driven-data/data-psm/model";
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import {StoreContext} from "../../../App";
+import {useTranslation} from "react-i18next";
 
 export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, isLoading: boolean}> = ({dataPsmResource, isLoading}) => {
+  const {t} = useTranslation("psm.detail");
   const {updateResourceTechnicalLabel} = React.useContext(StoreContext);
   const [technicalLabel, setTechnicalLabel] = useState<string>("");
   useEffect(() => setTechnicalLabel(dataPsmResource.dataPsmTechnicalLabel ?? ""), [dataPsmResource.dataPsmTechnicalLabel]);
@@ -11,10 +13,10 @@ export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, i
   const update = useCallback(() => updateResourceTechnicalLabel({
     forDataPsmResourceIri: dataPsmResource.iri as string,
     label: technicalLabel,
-  }), [updateResourceTechnicalLabel, technicalLabel]);
+  }), [updateResourceTechnicalLabel, technicalLabel, dataPsmResource.iri]);
 
   return <>
-    <Typography variant="h6" component="h3">Technical label</Typography>
+    <Typography variant="h6" component="h3">{t("technical label")}</Typography>
   <Grid container spacing={2} alignItems="center">
     <Grid item xs={8}>
       <TextField
@@ -31,7 +33,7 @@ export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, i
       />
     </Grid>
     <Grid item xs={4}>
-      <Button color={(technicalLabel == (dataPsmResource.dataPsmTechnicalLabel ?? "")) ? "default" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>Update</Button>
+      <Button color={(technicalLabel == (dataPsmResource.dataPsmTechnicalLabel ?? "")) ? "default" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>{t("update")}</Button>
     </Grid>
   </Grid>
   </>;
