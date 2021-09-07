@@ -36,10 +36,10 @@ export class XmlSchemaComplexTypeDefinition {
 
 export class XmlSchemaSimpleTypeDefinition {
   xsType: string;
-  contents: string[];
+  contents: [prefix: string, localName: string][];
 }
 
-// copied from object-model
+// Copied from object-model.
 interface Interval {
   min: number;
   max?: number;

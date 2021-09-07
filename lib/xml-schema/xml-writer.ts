@@ -1,6 +1,7 @@
 import {WriteStream} from "fs";
 
 export interface XmlNamespaceMap {
+  getQName(namespacePrefix: string, elementName: string): string;
   getPrefixForUri(uri: string): string | undefined;
   getUriForPrefix(prefix: string): string | undefined;
   registerNamespace(prefix: string, uri: string): void;
@@ -52,6 +53,17 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
     }
     this.prefixToUri[prefix] = uri;
   }
+
+  getQName(namespacePrefix: string, localName: string): string {
+    if (namespacePrefix != null) {
+      if (this.getUriForPrefix(namespacePrefix) == null) {
+        throw new Error(`An unregistered namespace prefix ${namespacePrefix} was used.`);
+      }
+      return `${namespacePrefix}:${localName}`;
+    } else {
+      return localName;
+    }
+  }
 }
 
 // escapes XML AttValue (see https://www.w3.org/TR/xml/#NT-AttValue)
@@ -96,17 +108,6 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
   writeXmlDeclaration(version: string, encoding: string): void {
     this.leaveElementAttributes();
     this.writeLine(this.currentIndent + xml`<?xml version="${version}" encoding="${encoding}"?>`);
-  }
-
-  private getQName(namespacePrefix: string, elementName: string): string {
-    if (namespacePrefix != null) {
-      if (this.getUriForPrefix(namespacePrefix) == null) {
-        throw new Error(`An unregistered namespace prefix ${namespacePrefix} was used.`);
-      }
-      return `${namespacePrefix}:${elementName}`;
-    } else {
-      return elementName;
-    }
   }
   
   writeElementBegin(namespacePrefix: string, elementName: string): void {

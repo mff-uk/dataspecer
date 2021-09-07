@@ -118,7 +118,7 @@ function writeSimpleType(definition: XmlSchemaSimpleTypeDefinition, writer: XmlW
   writer.writeElementBegin("xs", "simpleType");
   if (definition.xsType != null) {
     writer.writeElementBegin("xs", definition.xsType);
-    writer.writeLocalAttributeValue("memberTypes", definition.contents.join(" "));
+    writer.writeLocalAttributeValue("memberTypes", definition.contents.map(name => writer.getQName(...name)).join(" "));
     writer.writeElementEnd("xs", definition.xsType);
   }
   writer.writeElementEnd("xs", "simpleType");

@@ -1,6 +1,6 @@
 import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty,
   ObjectModelSchema, isObjectModelClass, isObjectModelPrimitive} from "../object-model/object-model";
-import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexTypeDefinition, XmlSchemaElement,
+import {XmlSchema, XmlSchemaComplexTypeDefinition, XmlSchemaElement,
   XmlSchemaComplexType, XmlSchemaSimpleType, XmlSchemaType, XmlSchemaComplexContentType, XmlSchemaComplexContentElement} from "./xml-schema-model";
 
 export function objectModelSchemaToXmlSchema(schema: ObjectModelSchema): XmlSchema {
@@ -39,7 +39,7 @@ function propertyToElement(propertyData: ObjectModelProperty): XmlSchemaElement 
   if (propertyData.dataTypes.length === 0) {
     throw new Error(`Property ${propertyData.psmIri} has no specified types.`);
   }
-  // enforce the same type (class or datatype) for all types in the property range
+  // Enforce the same type (class or datatype) for all types in the property range.
   const result =
     propertyToElementCheckType(propertyData, isObjectModelClass, classPropertyToComplexType) ??
     propertyToElementCheckType(propertyData, isObjectModelPrimitive, datatypePropertyToSimpleType);
@@ -91,15 +91,15 @@ function classToComplexContent(classData: ObjectModelClass): XmlSchemaComplexCon
   }
 }
 
-// temporary map from datatype URIs to QNames, if needed
-const simpleTypeMap: Record<string, string> = {
+// Temporary map from datatype URIs to QNames, if needed.
+const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
 
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
-function primitiveToQName(primitiveData: ObjectModelPrimitive): string {
+function primitiveToQName(primitiveData: ObjectModelPrimitive): [prefix: string, localName: string] {
   return primitiveData.dataType.startsWith(xsdNamespace) ?
-    "xs:" + primitiveData.dataType.substr(xsdNamespace.length) :
+    ["xs", primitiveData.dataType.substr(xsdNamespace.length)] :
     simpleTypeMap[primitiveData.dataType];
 }
