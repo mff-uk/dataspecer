@@ -1,11 +1,14 @@
 import * as fileSystem from "fs";
-import {WriteStream} from "fs";
 import * as path from "path";
 
 import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexTypeDefinition,
   XmlSchemaElement, XmlSchemaSimpleTypeDefinition,
   xmlSchemaTypeIsComplex, xmlSchemaTypeIsSimple,
   xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsType} from "./xml-schema-model";
+
+import {XmlWriter, XmlWriteStreamWriter} from "./xml-writer";
+
+const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 
 export async function writeXmlSchema(
   model: XmlSchema, directory: string, name: string,
@@ -22,119 +25,101 @@ export async function writeXmlSchema(
     outputStream.on("error", reject);
   });
 
-  const context = new WriterContext(0, 2);
-  writeSchemaHeader(outputStream, context);
-  writeElements(model, outputStream, context.indent());
-  writeSchemaFooter(outputStream, context);
+  const writer = new XmlWriteStreamWriter(outputStream);
+  writeSchemaBegin(writer);
+  writeElements(model, writer);
+  writeSchemaEnd(writer);
   outputStream.end();
 
   return result;
 }
 
-class WriterContext {
-  indentLevel: number;
-  lineStart: string;
-  indentTabs: number;
-
-  constructor(indentLevel: number, indentTabs: number) {
-    this.indentLevel = indentLevel;
-    this.lineStart = "  ".repeat(this.indentLevel);
-    this.indentTabs = indentTabs;
-  }
-
-  indent(): WriterContext {
-    return new WriterContext(this.indentLevel + this.indentTabs, this.indentTabs);
-  }
+function writeSchemaBegin(writer: XmlWriter) {
+  writer.writeXmlDeclaration("1.0", "utf-8");
+  writer.registerNamespace("xs", xsNamespace);
+  writer.writeElementBegin("xs", "schema");
+  writer.writeNamespaceDeclaration("xs", xsNamespace);
+  writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
+  writer.writeLocalAttributeValue("version", "1.1");
 }
 
-function xmlEscape(text: string): string {
-  return text.replace(/[&<>"']/g, function(m) {
-    return `&#${m.charCodeAt(0)};`
-  });
+function writeSchemaEnd(writer: XmlWriter) {
+  writer.writeElementEnd("xs", "schema");
 }
 
-function writeSchemaHeader(stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}<?xml version="1.0" encoding="utf-8"?>\n`);
-  stream.write(`${context.lineStart}<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" version="1.1">\n`);
-}
-
-function writeSchemaFooter(stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}</xs:schema>\n`);
-}
-
-function writeElements(model: XmlSchema, stream: WriteStream, context: WriterContext) {
+function writeElements(model: XmlSchema, writer: XmlWriter) {
   for (const element of model.elements) {
-    writeElement(element, null, stream, context);
+    writeElement(element, null, writer);
   }
 }
 
-function writeElement(element: XmlSchemaElement, parentContent: XmlSchemaComplexContent | null, stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}<xs:element name="${xmlEscape(element.elementName)}"`);
-  writeAttributesForComplexContent(parentContent, stream);
+function writeElement(element: XmlSchemaElement, parentContent: XmlSchemaComplexContent | null, writer: XmlWriter) {
+  writer.writeElementBegin("xs", "element");
+  writer.writeLocalAttributeValue("name", element.elementName);
+  writeAttributesForComplexContent(parentContent, writer);
   const type = element.type;
   if (type != null) {
-    stream.write(` type="${xmlEscape(type.name)}"/>\n`);
+    writer.writeLocalAttributeValue("type", type.name);
   } else {
-    stream.write(">\n");
     if (xmlSchemaTypeIsComplex(type)) {
-      writeComplexType(type.complexDefinition, stream, context.indent());
+      writeComplexType(type.complexDefinition, writer);
     } else if (xmlSchemaTypeIsSimple(type)) {
-      writeSimpleType(type.simpleDefinition, stream, context.indent());
+      writeSimpleType(type.simpleDefinition, writer);
     }
-    stream.write(`${context.lineStart}</xs:element>\n`);
+    writer.writeElementEnd("xs", "element");
   }
 }
 
-function writeComplexType(definition: XmlSchemaComplexTypeDefinition, stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}<xs:complexType`);
+function writeComplexType(definition: XmlSchemaComplexTypeDefinition, writer: XmlWriter) {
+  writer.writeElementBegin("xs", "complexType");
   if (definition.mixed) {
-    stream.write(" mixed=\"true\"");
+    writer.writeLocalAttributeValue("mixed", "true");
   }
-  stream.write(">\n");
   if (definition.xsType != null) {
-    writeComplexContent(definition, null, stream, context.indent());
+    writeComplexContent(definition, null, writer);
   }
-  stream.write(`${context.lineStart}</xs:complexType>\n`);
+  writer.writeElementEnd("xs", "complexType");
 }
 
-function writeAttributesForComplexContent(content: XmlSchemaComplexContent | null, stream: WriteStream) {
+function writeAttributesForComplexContent(content: XmlSchemaComplexContent | null, writer: XmlWriter) {
   if (content != null) {
     return;
   }
   const cardinality = content.cardinality;
   if (cardinality != null) {
     if (cardinality.min !== 1) {
-      stream.write(` minOccurs="${cardinality.min}"`);
+      writer.writeLocalAttributeValue("minOccurs", cardinality.min.toString());
     }
     if (cardinality.max !== 1) {
-      stream.write(` maxOccurs="${cardinality.max ?? "unbounded"}"`);
+      writer.writeLocalAttributeValue("maxOccurs", cardinality.max?.toString() ?? "unbounded");
     }
   }
 }
 
-function writeComplexContent(definition: XmlSchemaComplexTypeDefinition, parentContent: XmlSchemaComplexContent | null, stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}<xs:${definition.xsType}`);
-  writeAttributesForComplexContent(parentContent, stream);
-  stream.write(">\n");
-  writeComplexTypes(definition, stream, context.indent());
-  stream.write(`${context.lineStart}</xs:${definition.xsType}>\n`);
+function writeComplexContent(definition: XmlSchemaComplexTypeDefinition, parentContent: XmlSchemaComplexContent | null, writer: XmlWriter) {
+  writer.writeElementBegin("xs", definition.xsType);
+  writeAttributesForComplexContent(parentContent, writer);
+  writeComplexTypes(definition, writer);
+  writer.writeElementEnd("xs", definition.xsType);
 }
 
-function writeComplexTypes(definition: XmlSchemaComplexTypeDefinition, stream: WriteStream, context: WriterContext) {
+function writeComplexTypes(definition: XmlSchemaComplexTypeDefinition, writer: XmlWriter) {
   for (const content of definition.contents) {
     if (xmlSchemaComplexContentIsElement(content)) {
-      writeElement(content.element, content, stream, context.indent());
+      writeElement(content.element, content, writer);
     }
     if (xmlSchemaComplexContentIsType(content)) {
-      writeComplexContent(content.complexType, content, stream, context.indent());
+      writeComplexContent(content.complexType, content, writer);
     }
   }
 }
 
-function writeSimpleType(definition: XmlSchemaSimpleTypeDefinition, stream: WriteStream, context: WriterContext) {
-  stream.write(`${context.lineStart}<xs:simpleType>\n`);
+function writeSimpleType(definition: XmlSchemaSimpleTypeDefinition, writer: XmlWriter) {
+  writer.writeElementBegin("xs", "simpleType");
   if (definition.xsType != null) {
-    stream.write(`${context.indent().lineStart}<xs:${definition.xsType} memberTypes="${xmlEscape(definition.contents.join(" "))}"/>\n`);
+    writer.writeElementBegin("xs", definition.xsType);
+    writer.writeLocalAttributeValue("memberTypes", definition.contents.join(" "));
+    writer.writeElementEnd("xs", definition.xsType);
   }
-  stream.write(`${context.lineStart}</xs:simpleType>\n`);
+  writer.writeElementEnd("xs", "simpleType");
 }
