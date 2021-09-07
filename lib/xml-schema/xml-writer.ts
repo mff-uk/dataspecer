@@ -1,4 +1,4 @@
-import {WriteStream} from "fs";
+import {OutputStream} from "../io/stream/output-stream";
 
 export interface XmlNamespaceMap {
   getQName(namespacePrefix: string, elementName: string): string;
@@ -8,15 +8,15 @@ export interface XmlNamespaceMap {
 }
 
 export interface XmlWriter extends XmlNamespaceMap {
-  writeXmlDeclaration(version: string, encoding: string): void;
-  writeElementBegin(namespacePrefix: string, elementName: string): void;
-  writeElementValue(namespacePrefix: string, elementName: string, elementValue: string): void;
-  writeAttributeValue(namespacePrefix: string, attributeName: string, attributeValue: string): void;
-  writeLocalAttributeValue(attributeName: string, attributeValue: string): void;
-  writeNamespaceDeclaration(prefix: string, uri: string): void;
-  writeComment(comment: string): void;
-  writeText(text: string): void;
-  writeElementEnd(namespacePrefix: string, elementName: string): void;
+  writeXmlDeclaration(version: string, encoding: string): Promise<void>;
+  writeElementBegin(namespacePrefix: string, elementName: string): Promise<void>;
+  writeElementValue(namespacePrefix: string, elementName: string, elementValue: string): Promise<void>;
+  writeAttributeValue(namespacePrefix: string, attributeName: string, attributeValue: string): Promise<void>;
+  writeLocalAttributeValue(attributeName: string, attributeValue: string): Promise<void>;
+  writeNamespaceDeclaration(prefix: string, uri: string): Promise<void>;
+  writeComment(comment: string): Promise<void>;
+  writeText(text: string): Promise<void>;
+  writeElementEnd(namespacePrefix: string, elementName: string): Promise<void>;
 }
 
 class XmlSimpleNamespaceMap implements XmlNamespaceMap {
@@ -86,8 +86,8 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
 
   private elementTagOpen: boolean = false;
 
-  protected abstract write(text: string): void;
-  protected abstract writeLine(text: string): void;
+  protected abstract write(text: string): Promise<void>;
+  protected abstract writeLine(text: string): Promise<void>;
 
   private indent(level: number): void {
     if (this.indentLevel + level < 0) {
@@ -97,82 +97,82 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
     this.currentIndent = this.indentSequence.repeat(this.indentLevel);
   }
 
-  private leaveElementAttributes(): void {
+  private async leaveElementAttributes(): Promise<void> {
     if (this.elementTagOpen) {
-      this.writeLine(xml`>`);
+      await this.writeLine(xml`>`);
       this.elementTagOpen = false;
       this.indent(1);
     }
   }
 
-  writeXmlDeclaration(version: string, encoding: string): void {
-    this.leaveElementAttributes();
-    this.writeLine(this.currentIndent + xml`<?xml version="${version}" encoding="${encoding}"?>`);
+  async writeXmlDeclaration(version: string, encoding: string): Promise<void> {
+    await this.leaveElementAttributes();
+    await this.writeLine(this.currentIndent + xml`<?xml version="${version}" encoding="${encoding}"?>`);
   }
   
-  writeElementBegin(namespacePrefix: string, elementName: string): void {
+  async writeElementBegin(namespacePrefix: string, elementName: string): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
-    this.leaveElementAttributes();
-    this.write(this.currentIndent + `<${qname}`);
+    await this.leaveElementAttributes();
+    await this.write(this.currentIndent + `<${qname}`);
   }
   
-  writeElementValue(namespacePrefix: string, elementName: string, elementValue: string): void {
+  async writeElementValue(namespacePrefix: string, elementName: string, elementValue: string): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
-    this.leaveElementAttributes();
-    this.writeLine(this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`);
+    await this.leaveElementAttributes();
+    await this.writeLine(this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`);
   }
   
-  writeAttributeValue(namespacePrefix: string, attributeName: string, attributeValue: string): void {
+  async writeAttributeValue(namespacePrefix: string, attributeName: string, attributeValue: string): Promise<void> {
     if (!this.elementTagOpen) {
       throw new Error("Attempting to write an attribute but no element is open.");
     }
     const qname = this.getQName(namespacePrefix, attributeName);
-    this.write(` ${qname}="${xmlEscape(attributeValue)}"`);
+    await this.write(` ${qname}="${xmlEscape(attributeValue)}"`);
   }
 
-  writeLocalAttributeValue(attributeName: string, attributeValue: string): void {
-    this.writeAttributeValue(null, attributeName, attributeValue);
+  async writeLocalAttributeValue(attributeName: string, attributeValue: string): Promise<void> {
+    await this.writeAttributeValue(null, attributeName, attributeValue);
   }
 
-  writeNamespaceDeclaration(prefix: string, uri: string): void {
-    this.writeAttributeValue("xmlns", prefix, uri);
+  async writeNamespaceDeclaration(prefix: string, uri: string): Promise<void> {
+    await this.writeAttributeValue("xmlns", prefix, uri);
   }
   
-  writeComment(comment: string): void {
-    this.leaveElementAttributes();
-    this.writeLine(this.currentIndent + `<!--${comment}-->`);
+  async writeComment(comment: string): Promise<void> {
+    await this.leaveElementAttributes();
+    await this.writeLine(this.currentIndent + `<!--${comment}-->`);
   }
   
-  writeText(text: string): void {
-    this.leaveElementAttributes();
-    this.write(xmlEscape(text));
+  async writeText(text: string): Promise<void> {
+    await this.leaveElementAttributes();
+    await this.write(xmlEscape(text));
   }
   
-  writeElementEnd(namespacePrefix: string, elementName: string): void {
+  async writeElementEnd(namespacePrefix: string, elementName: string): Promise<void> {
     if (this.elementTagOpen) {
-      this.writeLine("/>");
+      await this.writeLine("/>");
     } else {
       const qname = this.getQName(namespacePrefix, elementName);
       this.indent(-1);
-      this.writeLine(`</${qname}>`);
+      await this.writeLine(`</${qname}>`);
     }
   }
 }
 
-export class XmlWriteStreamWriter extends XmlIndentingTextWriter {
-  private readonly writer: WriteStream;
+export class XmlStreamWriter extends XmlIndentingTextWriter {
+  private readonly stream: OutputStream;
 
-  constructor(stream: WriteStream) {
+  constructor(stream: OutputStream) {
     super();
-    this.writer = stream;
+    this.stream = stream;
   }
 
-  protected write(text: string): void {
-    this.writer.write(text);
+  protected write(text: string): Promise<void> {
+    return this.stream.write(text);
   }
 
-  protected writeLine(text: string): void {
-    this.writer.write(text);
-    this.writer.write("\n");
+  protected async writeLine(text: string): Promise<void> {
+    await this.stream.write(text);
+    await this.stream.write("\n");
   }
 }
