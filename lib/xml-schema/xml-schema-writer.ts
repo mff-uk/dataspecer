@@ -2,8 +2,10 @@ import * as fileSystem from "fs";
 import {WriteStream} from "fs";
 import * as path from "path";
 
-import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexType,
-  XmlSchemaElement, XmlSchemaSimpleType} from "./xml-schema-model";
+import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexTypeDefinition,
+  XmlSchemaElement, XmlSchemaSimpleTypeDefinition,
+  xmlSchemaTypeIsComplex, xmlSchemaTypeIsSimple,
+  xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsType} from "./xml-schema-model";
 
 export async function writeXmlSchema(
   model: XmlSchema, directory: string, name: string,
@@ -66,24 +68,24 @@ function writeElements(model: XmlSchema, stream: WriteStream, context: WriterCon
   }
 }
 
-function writeElement(element: XmlSchemaElement, content: XmlSchemaComplexContent, stream: WriteStream, context: WriterContext) {
+function writeElement(element: XmlSchemaElement, parentContent: XmlSchemaComplexContent | null, stream: WriteStream, context: WriterContext) {
   stream.write(`${context.lineStart}<xs:element name="${xmlEscape(element.elementName)}"`);
-  writeComplexContentAttributes(content, stream);
+  writeAttributesForComplexContent(parentContent, stream);
   const type = element.type;
   if (type != null) {
     stream.write(` type="${xmlEscape(type.name)}"/>\n`);
   } else {
     stream.write(">\n");
-    if (type.complexDefinition != null) {
+    if (xmlSchemaTypeIsComplex(type)) {
       writeComplexType(type.complexDefinition, stream, context.indent());
-    } else if (type.simpleDefinition != null) {
+    } else if (xmlSchemaTypeIsSimple(type)) {
       writeSimpleType(type.simpleDefinition, stream, context.indent());
     }
     stream.write(`${context.lineStart}</xs:element>\n`);
   }
 }
 
-function writeComplexType(definition: XmlSchemaComplexType, stream: WriteStream, context: WriterContext) {
+function writeComplexType(definition: XmlSchemaComplexTypeDefinition, stream: WriteStream, context: WriterContext) {
   stream.write(`${context.lineStart}<xs:complexType`);
   if (definition.mixed) {
     stream.write(" mixed=\"true\"");
@@ -95,7 +97,7 @@ function writeComplexType(definition: XmlSchemaComplexType, stream: WriteStream,
   stream.write(`${context.lineStart}</xs:complexType>\n`);
 }
 
-function writeComplexContentAttributes(content: XmlSchemaComplexContent, stream: WriteStream) {
+function writeAttributesForComplexContent(content: XmlSchemaComplexContent | null, stream: WriteStream) {
   if (content != null) {
     return;
   }
@@ -110,26 +112,26 @@ function writeComplexContentAttributes(content: XmlSchemaComplexContent, stream:
   }
 }
 
-function writeComplexContent(definition: XmlSchemaComplexType, content: XmlSchemaComplexContent, stream: WriteStream, context: WriterContext) {
+function writeComplexContent(definition: XmlSchemaComplexTypeDefinition, parentContent: XmlSchemaComplexContent | null, stream: WriteStream, context: WriterContext) {
   stream.write(`${context.lineStart}<xs:${definition.xsType}`);
-  writeComplexContentAttributes(content, stream);
+  writeAttributesForComplexContent(parentContent, stream);
   stream.write(">\n");
   writeComplexTypes(definition, stream, context.indent());
   stream.write(`${context.lineStart}</xs:${definition.xsType}>\n`);
 }
 
-function writeComplexTypes(definition: XmlSchemaComplexType, stream: WriteStream, context: WriterContext) {
+function writeComplexTypes(definition: XmlSchemaComplexTypeDefinition, stream: WriteStream, context: WriterContext) {
   for (const content of definition.contents) {
-    if (content.element != null) {
+    if (xmlSchemaComplexContentIsElement(content)) {
       writeElement(content.element, content, stream, context.indent());
     }
-    if (content.complexType != null) {
+    if (xmlSchemaComplexContentIsType(content)) {
       writeComplexContent(content.complexType, content, stream, context.indent());
     }
   }
 }
 
-function writeSimpleType(definition: XmlSchemaSimpleType, stream: WriteStream, context: WriterContext) {
+function writeSimpleType(definition: XmlSchemaSimpleTypeDefinition, stream: WriteStream, context: WriterContext) {
   stream.write(`${context.lineStart}<xs:simpleType>\n`);
   if (definition.xsType != null) {
     stream.write(`${context.indent().lineStart}<xs:${definition.xsType} memberTypes="${xmlEscape(definition.contents.join(" "))}"/>\n`);

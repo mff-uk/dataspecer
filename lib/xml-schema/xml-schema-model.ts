@@ -10,17 +10,31 @@ export class XmlSchemaElement {
 
 export class XmlSchemaType {
   name: string | undefined;
-  complexDefinition: XmlSchemaComplexType | undefined;
-  simpleDefinition: XmlSchemaSimpleType | undefined;
 }
 
-export class XmlSchemaComplexType {
+export class XmlSchemaComplexType extends XmlSchemaType {
+  complexDefinition: XmlSchemaComplexTypeDefinition;
+}
+
+export class XmlSchemaSimpleType extends XmlSchemaType {
+  simpleDefinition: XmlSchemaSimpleTypeDefinition;
+}
+
+export function xmlSchemaTypeIsComplex(type: XmlSchemaType): type is XmlSchemaComplexType {
+  return (type as XmlSchemaComplexType).complexDefinition !== undefined;
+}
+
+export function xmlSchemaTypeIsSimple(type: XmlSchemaType): type is XmlSchemaSimpleType {
+  return (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
+}
+
+export class XmlSchemaComplexTypeDefinition {
   mixed: boolean;
   xsType: string;
   contents: XmlSchemaComplexContent[];
 }
 
-export class XmlSchemaSimpleType {
+export class XmlSchemaSimpleTypeDefinition {
   xsType: string;
   contents: string[];
 }
@@ -32,7 +46,21 @@ interface Interval {
 }
 
 export class XmlSchemaComplexContent {
-  element: XmlSchemaElement | undefined;
-  complexType: XmlSchemaComplexType | undefined;
   cardinality: Interval | undefined;
+}
+
+export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
+  element: XmlSchemaElement;
+}
+
+export class XmlSchemaComplexContentType extends XmlSchemaComplexContent {
+  complexType: XmlSchemaComplexTypeDefinition ;
+}
+
+export function xmlSchemaComplexContentIsElement(content: XmlSchemaComplexContent): content is XmlSchemaComplexContentElement {
+  return (content as XmlSchemaComplexContentElement).element !== undefined;
+}
+
+export function xmlSchemaComplexContentIsType(content: XmlSchemaComplexContent): content is XmlSchemaComplexContentType {
+  return (content as XmlSchemaComplexContentType).complexType !== undefined;
 }
