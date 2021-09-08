@@ -1,0 +1,17 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    %NODE% rdfs:subClassOf ?parent .
+    ?parent
+        rdfs:subClassOf ?ancestor ;
+        skos:prefLabel ?label ;
+        skos:definition ?definition ;
+        skos:inScheme ?glossary .
+} WHERE {
+    %NODE% rdfs:subClassOf ?parent .
+    OPTIONAL { ?parent rdfs:subClassOf ?ancestor }
+    OPTIONAL { ?parent skos:prefLabel ?label }
+    OPTIONAL { ?parent skos:definition ?definition }
+    OPTIONAL { ?parent skos:inScheme ?glossary }
+}
