@@ -9,6 +9,7 @@
     "build": "rm -rf dist && webpack && cp package.json dist && cd dist && npm pack",
     "build-windows": "(if exist dist rmdir dist /s /q) && webpack && copy package.json dist && cd dist && npm pack",
     "lint": "eslint --ignore-path .gitignore . --fix",
+    "lint-print-config": "eslint --print-config .eslintrc.js",
     "test": "jest",
     "tsc-watch": "tsc --watch"
   },

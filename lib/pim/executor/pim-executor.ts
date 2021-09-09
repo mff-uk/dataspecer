@@ -13,8 +13,12 @@ import {executePimCreateAttribute} from "./pim-create-attribute-executor";
 import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
 import {executePimDeleteAssociation} from "./pim-delete-association-executor";
-import {executePimUpdateResourceHumanLabel} from "./pim-update-resource-human-label-executor";
-import {executePimUpdateResourceHumanDescription} from "./pim-update-resource-human-description-executor";
+import {
+  executePimUpdateResourceHumanLabel,
+} from "./pim-update-resource-human-label-executor";
+import {
+  executePimUpdateResourceHumanDescription,
+} from "./pim-update-resource-human-description-executor";
 
 export async function executePimOperation(
   createNewIdentifier: CreateNewIdentifier,

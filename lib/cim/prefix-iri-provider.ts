@@ -1,18 +1,21 @@
 import {IriProvider} from "./iri-provider";
 
-const prefix = "pim:";
+const PREFIX = "pim:";
 
 export class PrefixIriProvider implements IriProvider {
+
   cimToPim(cimIri: string): string {
-    return prefix + cimIri;
+    return PREFIX + cimIri;
   }
 
   pimToCim(pimIri: string): string {
-    if (!pimIri.startsWith(prefix)) {
-      throw new Error(`Unable to convert PIM iri ${pimIri} to CIM iri. Expected ${prefix} prefix.`);
+    if (!pimIri.startsWith(PREFIX)) {
+      throw new Error(
+        `Unable to convert PIM iri ${pimIri} to CIM iri.`
+        + `Expected ${PREFIX} prefix.`);
     }
 
-    return pimIri.substr(prefix.length);
+    return pimIri.substr(PREFIX.length);
   }
 
 }

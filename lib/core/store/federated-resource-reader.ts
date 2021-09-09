@@ -4,9 +4,11 @@ import {CoreResource} from "../core-resource";
 /**
  * Resource reader combining multiple {@link CoreResourceReader} into one.
  *
- * Individual readers are expected to have different iris for different resources.
+ * Individual readers are expected to have different iris for different
+ * resources.
  */
 export class FederatedResourceReader implements CoreResourceReader {
+
   readonly models: CoreResourceReader[];
 
   constructor(models: CoreResourceReader[]) {
@@ -40,4 +42,5 @@ export class FederatedResourceReader implements CoreResourceReader {
     }
     return [...resources];
   }
+
 }
