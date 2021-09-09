@@ -1,6 +1,8 @@
 const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 const fs = require("fs");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 /**
  * Reads the lib directory and fills {@link files} object as entrypoint map
@@ -65,4 +67,13 @@ module.exports = {
   "resolve": {
     "extensions": [".ts", ".js", ".sparql"],
   },
+  "plugins": [
+    new CleanWebpackPlugin(),
+    new CopyWebpackPlugin({
+      "patterns": [{
+        "from": path.join(__dirname, "..", "package.json"),
+        "to": path.join(__dirname, "..", "dist"),
+      }],
+    }),
+  ]
 };
