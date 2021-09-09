@@ -56,22 +56,38 @@ async function writeHeader(
     <meta content="width=device-width,initial-scale=1" name="viewport" />
     <meta name="theme-color" content="#057fa5">
     <meta name="msapplication-TileColor" content="#057fa5">
-    <meta name="msapplication-TileImage" content="https://ofn.gov.cz/static/favicons/ms-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="https://ofn.gov.cz/static/favicons/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="https://ofn.gov.cz/static/favicons/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="https://ofn.gov.cz/static/favicons/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="https://ofn.gov.cz/static/favicons/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="https://ofn.gov.cz/static/favicons/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="https://ofn.gov.cz/static/favicons/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="https://ofn.gov.cz/static/favicons/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="https://ofn.gov.cz/static/favicons/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://ofn.gov.cz/static/favicons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="https://ofn.gov.cz/static/favicons/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://ofn.gov.cz/static/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="https://ofn.gov.cz/static/favicons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://ofn.gov.cz/static/favicons/favicon-16x16.png">
-    <link rel="manifest" href="https://ofn.gov.cz/static/favicons/manifest.json">
-    <script class="remove" src="https://ofn.gov.cz/static/js/respec-odcz.js"></script>
+    <meta name="msapplication-TileImage" 
+      content="https://ofn.gov.cz/static/favicons/ms-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="57x57" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" 
+      href="https://ofn.gov.cz/static/favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" 
+      href="https://ofn.gov.cz/static/favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" 
+      href="https://ofn.gov.cz/static/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" 
+      href="https://ofn.gov.cz/static/favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" 
+      href="https://ofn.gov.cz/static/favicons/favicon-16x16.png">
+    <link rel="manifest" 
+      href="https://ofn.gov.cz/static/favicons/manifest.json">
+    <script class="remove" 
+    src="https://ofn.gov.cz/static/js/respec-odcz.js"></script>
     <script class="remove">
         var respecConfig = {
             specStatus: "REC",
@@ -96,7 +112,8 @@ async function writeHeader(
                     href: "mailto:otevrenadata@mvcr.cz"
                 }]
             }],
-            thanks: "Tento dokument vznikl v rámci projektu OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983."
+            thanks: "Tento dokument vznikl v rámci projektu" 
+              + "OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983."
           };
     </script>
   </head>`);
@@ -147,8 +164,8 @@ async function writeSpecification(
       <p>
         V této sekci jsou definovány jednotlivé třídy a jejich vlastnosti. 
         Pro každou vlastnost je uveden její identifikátor, který je pro její
-        reprezentaci použit ve všech datových formátech, její název a datový typ.
-        Volitelně je uveden také popis a příklad. 
+        reprezentaci použit ve všech datových formátech, její název 
+        a datový typ. Volitelně je uveden také popis a příklad. 
       </p>
 `);
   for (const entity of specification.entities) {

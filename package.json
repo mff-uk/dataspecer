@@ -6,9 +6,9 @@
     "model-driven"
   ],
   "scripts": {
-    "build": "rm -rf dist && webpack && cp package.json dist && cd dist && npm pack",
-    "build-windows": "(if exist dist rmdir dist /s /q) && webpack && copy package.json dist && cd dist && npm pack",
+    "build": "webpack -c build/webpack.config.js && cd dist && npm pack",
     "lint": "eslint --ignore-path .gitignore . --fix",
+    "lint-print-config": "eslint --print-config .eslintrc.js",
     "test": "jest",
     "tsc-watch": "tsc --watch"
   },
@@ -28,11 +28,13 @@
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.23",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
-    "@types/jest": "^26.0.23",
     "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^9.0.1",
     "dts-bundle-generator": "^5.9.0",
     "eslint": "^7.29.0",
     "eslint-plugin-jest": "^24.3.6",

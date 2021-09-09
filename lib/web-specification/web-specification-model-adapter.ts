@@ -162,7 +162,8 @@ function convertPropertyPrimitive(
 function convertPropertyClass(
   context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationType {
-  const label = context.stringSelector(classData.humanLabel) || classData.psmIri;
+  const label =
+    context.stringSelector(classData.humanLabel) || classData.psmIri;
   if (classData.isCodelist) {
     return convertPropertyClassCodeList(context, classData, label);
   }

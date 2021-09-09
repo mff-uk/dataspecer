@@ -1,7 +1,9 @@
 import {CoreResourceReader, createCoreResource} from "../../core";
 import {asDataPsmUpdateAttributeDatatype} from "../operation";
-import {executeDataPsmUpdateAttributeDatatype} from "./data-psm-update-attribute-datatype-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import {
+  executeDataPsmUpdateAttributeDatatype,
+} from "./data-psm-update-attribute-datatype-executor";
+import {ReadOnlyMemoryStore} from "../../core";
 
 test("Update data PSM attribute datatype.", async () => {
   const operation =

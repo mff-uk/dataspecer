@@ -69,7 +69,10 @@ test("Create data PSM schema with class and attribute.", async () => {
     "types": ["data-psm-schema"],
     "dataPsmHumanLabel": dataPsmSchema.dataPsmHumanLabel,
     "dataPsmHumanDescription": dataPsmSchema.dataPsmHumanDescription,
-    "dataPsmParts": ["http://localhost/class/3", "http://localhost/attribute/5"],
+    "dataPsmParts": [
+      "http://localhost/class/3",
+      "http://localhost/attribute/5",
+    ],
     "dataPsmRoots": [],
   });
 
