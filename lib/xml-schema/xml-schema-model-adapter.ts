@@ -100,7 +100,7 @@ const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
 function primitiveToQName(primitiveData: ObjectModelPrimitive): [prefix: string, localName: string] {
   if (primitiveData.dataType == null) {
-    return ["xs", "string"];
+    return ["xs", "anySimpleType"];
   }
   return primitiveData.dataType.startsWith(xsdNamespace) ?
     ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
