@@ -1,6 +1,6 @@
 import {WebSpecification} from "../web-specification";
 
-export class Bikeshed extends  WebSpecification {
+export class Bikeshed extends WebSpecification {
 
   metadata: Record<string, string> = {};
 

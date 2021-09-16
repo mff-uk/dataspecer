@@ -1,0 +1,104 @@
+# see https://github.com/sstenchlak/schema-generator/issues/8
+DEFINE sql:signal-void-variables 0
+
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+    ?attribute a z:typ-vlastnosti ;
+        rdfs:domain %NODE% ;
+        skos:prefLabel ?attributeLabel ;
+        skos:definition ?attributeDefinition ;
+        skos:inScheme ?attributeGlossary ;
+        # (4) relationship to the parent attribute in the inheritance hierarchy START
+            rdfs:subPropertyOf ?parentAttribute .
+        # (4) relationship to the parent attribute in the inheritance hierarchy END
+} WHERE {
+    # (1) both directions START
+        {
+            ?attribute rdfs:subClassOf [
+                owl:allValuesFrom %NODE% ;
+                owl:onProperty z:je-vlastností
+            ] .
+        } UNION {
+            # (2) attributes inheriting their membership START
+                ?ancestorAttribute rdfs:subClassOf [
+                    owl:allValuesFrom %NODE% ;
+                    owl:onProperty z:je-vlastností
+                ] .
+                ?attribute rdfs:subClassOf+ ?ancestorAttribute .
+
+                # see https://github.com/sstenchlak/schema-generator/issues/11#issue-950901733
+                FILTER NOT EXISTS {
+                    ?attribute rdfs:subClassOf [
+                        owl:allValuesFrom [] ;
+                        owl:onProperty z:je-vlastností
+                    ] .
+                }
+            # (2) attributes inheriting their membership END
+        } UNION {
+            %NODE% rdfs:subClassOf [
+                owl:allValuesFrom  ?attribute ;
+                owl:onProperty z:má-vlastnost
+            ] .
+        } UNION {
+        # (2) attributes inheriting their membership START
+            %NODE% rdfs:subClassOf [
+                owl:allValuesFrom  ?ancestorAttribute ;
+                owl:onProperty z:má-vlastnost
+            ] .
+            ?attribute rdfs:subClassOf+ ?ancestorAttribute .
+        # (2) attributes inheriting their membership END
+        }
+    # (1) both directions END
+
+    ?attribute a z:typ-vlastnosti ;
+        skos:prefLabel ?attributeLabel ;
+        skos:inScheme ?attributeGlossary .
+
+    # (3) ignore complex CIM attributes START
+        OPTIONAL {
+            SELECT ?attribute (COUNT(*) AS ?count)
+            WHERE {
+                {
+                    ?restriction rdfs:subClassOf [
+                        owl:allValuesFrom ?attribute ;
+                        owl:onProperty z:je-vlastností
+                    ]
+                } UNION {
+                    ?restriction rdfs:subClassOf [
+                        owl:allValuesFrom ?ancestor ;
+                        owl:onProperty z:je-vlastností
+                    ] .
+                    ?attribute rdfs:subClassOf+ ?ancestor .
+                    FILTER (?ancestor NOT IN (<https://slovník.gov.cz/základní/pojem/vlastnost>, <https://slovník.gov.cz/základní/pojem/proměnný-prvek>, <https://slovník.gov.cz/základní/pojem/prvek>))
+                } UNION {
+                    ?attribute rdfs:subClassOf [
+                        owl:allValuesFrom [] ;
+                        owl:onProperty z:má-vlastnost
+                    ] .
+                } UNION {
+                    ?ancestor rdfs:subClassOf [
+                        owl:allValuesFrom [] ;
+                        owl:onProperty z:má-vlastnost
+                    ] .
+                    ?attribute rdfs:subClassOf+ ?ancestor .
+                    FILTER (?ancestor NOT IN (<https://slovník.gov.cz/základní/pojem/vlastnost>, <https://slovník.gov.cz/základní/pojem/proměnný-prvek>, <https://slovník.gov.cz/základní/pojem/prvek>))
+                }
+            }
+        }
+        FILTER(BOUND(?count)=false)
+    # (3) ignore complex CIM attributes END
+
+    OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+
+    # (4) relationship to the parent attribute in the inheritance hierarchy START
+        OPTIONAL {
+            ?attribute rdfs:subClassOf ?parentAttribute .
+            ?parentAttribute a z:typ-vlastnosti .
+            FILTER(?parentAttribute != <https://slovník.gov.cz/základní/pojem/vlastnost>)
+        }
+    # (4) relationship to the parent attribute in the inheritance hierarchy END
+}

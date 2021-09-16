@@ -1,5 +1,5 @@
 # About
-For more information please see [wiki](../../wiki/).
+For more information please see [documentation](./documentation/).
 
 ***
 

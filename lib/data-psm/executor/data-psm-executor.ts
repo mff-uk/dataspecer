@@ -6,20 +6,48 @@ import {
   CreateNewIdentifier,
 } from "../../core";
 import * as Operations from "../operation";
-import {executesDataPsmCreateAssociationEnd} from "./data-psm-create-association-end-executor";
-import {executesDataPsmCreateAttribute} from "./data-psm-create-attribute-executor";
-import {executesDataPsmCreateClass} from "./data-psm-create-class-executor";
-import {executesDataPsmCreateSchema} from "./data-psm-create-schema-executor";
-import {executesDataPsmDeleteAssociationEnd} from "./data-psm-delete-association-end-executor";
-import {executesDataPsmDeleteAttribute} from "./data-psm-delete-attribute-executor";
-import {executesDataPsmDeleteClass} from "./data-psm-delete-class-executor";
-import {executeDataPsmUpdateResourceHumanDescription} from "./data-psm-update-resource-human-description-executor";
-import {executeDataPsmUpdateResourceHumanLabel} from "./data-psm-update-resource-human-label-executor";
-import {executeDataPsmUpdateResourceInterpretation} from "./data-psm-update-resource-interpretation-executor";
-import {executeDataPsmUpdateResourceOrder} from "./data-psm-update-resource-order-executor";
-import {executeDataPsmUpdateResourceTechnicalLabel} from "./data-psm-update-resource-technical-label-executor";
-import {executeDataPsmUpdateSchemaRoots} from "./data-psm-update-schema-roots-executor";
-import {executeDataPsmUpdateAttributeDatatype} from "./data-psm-update-attribute-datatype-executor";
+import {
+  executesDataPsmCreateAssociationEnd,
+} from "./data-psm-create-association-end-executor";
+import {
+  executesDataPsmCreateAttribute,
+} from "./data-psm-create-attribute-executor";
+import {
+  executesDataPsmCreateClass,
+} from "./data-psm-create-class-executor";
+import {
+  executesDataPsmCreateSchema,
+} from "./data-psm-create-schema-executor";
+import {
+  executesDataPsmDeleteAssociationEnd,
+} from "./data-psm-delete-association-end-executor";
+import {
+  executesDataPsmDeleteAttribute,
+} from "./data-psm-delete-attribute-executor";
+import {
+  executesDataPsmDeleteClass,
+} from "./data-psm-delete-class-executor";
+import {
+  executeDataPsmUpdateResourceHumanDescription,
+} from "./data-psm-update-resource-human-description-executor";
+import {
+  executeDataPsmUpdateResourceHumanLabel,
+} from "./data-psm-update-resource-human-label-executor";
+import {
+  executeDataPsmUpdateResourceInterpretation,
+} from "./data-psm-update-resource-interpretation-executor";
+import {
+  executeDataPsmUpdateResourceOrder,
+} from "./data-psm-update-resource-order-executor";
+import {
+  executeDataPsmUpdateResourceTechnicalLabel,
+} from "./data-psm-update-resource-technical-label-executor";
+import {
+  executeDataPsmUpdateSchemaRoots,
+} from "./data-psm-update-schema-roots-executor";
+import {
+  executeDataPsmUpdateAttributeDatatype,
+} from "./data-psm-update-attribute-datatype-executor";
 
 export async function executeDataPsmOperation(
   createNewIdentifier: CreateNewIdentifier,

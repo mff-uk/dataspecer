@@ -1,0 +1,29 @@
+# see https://github.com/sstenchlak/schema-generator/issues/10
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+	?ancestor
+		rdfs:subClassOf ?ancestorParent ;
+		skos:prefLabel ?label ;
+		skos:definition ?definition ;
+		skos:inScheme ?glossary .
+} WHERE {
+	%NODE% rdfs:subClassOf* ?ancestor .
+	FILTER NOT EXISTS {
+		?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+	}
+
+	OPTIONAL {
+		?ancestor rdfs:subClassOf ?ancestorParent .
+		?ancestorParent skos:inScheme [] .
+		FILTER NOT EXISTS {
+			?ancestorParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+		}
+	}
+
+	OPTIONAL { ?ancestor skos:prefLabel ?label . }
+	OPTIONAL { ?ancestor skos:definition ?definition }
+	OPTIONAL { ?ancestor skos:inScheme ?glossary }
+}
