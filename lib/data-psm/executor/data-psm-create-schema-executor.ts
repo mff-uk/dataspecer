@@ -1,21 +1,30 @@
 import {
-  CoreResourceReader, createCoreResource,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CreateNewIdentifier,
+  CoreExecutorResult,
 } from "../../core";
 import {DataPsmCreateSchema} from "../operation";
-import {asDataPsmSchema} from "../model";
+import {DataPsmSchema} from "../model";
+import {loadDataPsmSchema} from "./data-psm-executor-utils";
 
-export async function executesDataPsmCreateSchema(
+export async function executeDataPsmCreateSchema(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmCreateSchema,
 ): Promise<CoreExecutorResult> {
-  const iri = operation.dataPsmNewIri || createNewIdentifier("schema");
-  const result = asDataPsmSchema(createCoreResource(iri));
+
+  const schema = await loadDataPsmSchema(reader);
+  if (schema !== null) {
+    return CoreExecutorResult.createError(
+      `Schema already exists '${schema.iri}'.`);
+  }
+
+  const iri = operation.dataPsmNewIri ?? createNewIdentifier("schema");
+  const result = new DataPsmSchema(iri);
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmParts = [];
   result.dataPsmRoots = [];
 
-  return createSuccessOperationResult([result], []);
+  return CoreExecutorResult.createSuccess([result], []);
 }

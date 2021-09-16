@@ -222,10 +222,10 @@ async function writePropertyTypes(
 }
 
 function writePropertyType(type: WebSpecificationType): string {
-  const linkElement = type.link === undefined ?
+  const linkElement = type.link === null ?
     "" : ` <a href="${type.link}">${type.label}</a>`;
 
-  if (type.codelistIri !== undefined) {
+  if (type.codelistIri !== null) {
     return "Číselník" + linkElement;
   }
   if (type.isClassValue) {
@@ -253,8 +253,8 @@ async function writePropertyHumanDescription(
               <dd>${property.humanDescription}</dd>`);
 }
 
-function isStringEmpty(content: string): boolean {
-  return content === undefined || content.trim().length === 0;
+function isStringEmpty(content: string | null): boolean {
+  return content === null || content.trim().length === 0;
 }
 
 async function writeExamples(

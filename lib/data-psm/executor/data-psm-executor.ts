@@ -1,120 +1,103 @@
-import {
-  CoreExecutorResult,
-  CoreOperation,
-  CoreResourceReader,
-  createErrorOperationResult,
-  CreateNewIdentifier,
-} from "../../core";
+import {CoreOperationExecutor} from "../../core";
 import * as Operations from "../operation";
 import {
-  executesDataPsmCreateAssociationEnd,
+  executeDataPsmCreateAssociationEnd,
 } from "./data-psm-create-association-end-executor";
 import {
-  executesDataPsmCreateAttribute,
+  executeDataPsmCreateAttribute,
 } from "./data-psm-create-attribute-executor";
 import {
-  executesDataPsmCreateClass,
+  executeDataPsmCreateClass,
 } from "./data-psm-create-class-executor";
 import {
-  executesDataPsmCreateSchema,
+  executeDataPsmCreateSchema,
 } from "./data-psm-create-schema-executor";
 import {
-  executesDataPsmDeleteAssociationEnd,
+  executeDataPsmDeleteAssociationEnd,
 } from "./data-psm-delete-association-end-executor";
 import {
-  executesDataPsmDeleteAttribute,
+  executeDataPsmDeleteAttribute,
 } from "./data-psm-delete-attribute-executor";
 import {
-  executesDataPsmDeleteClass,
+  executeDataPsmDeleteClass,
 } from "./data-psm-delete-class-executor";
 import {
-  executeDataPsmUpdateResourceHumanDescription,
-} from "./data-psm-update-resource-human-description-executor";
+  executeDataPsmSetHumanDescription,
+} from "./data-psm-set-human-description-executor";
 import {
-  executeDataPsmUpdateResourceHumanLabel,
-} from "./data-psm-update-resource-human-label-executor";
+  executeDataPsmSetHumanLabel,
+} from "./data-psm-set-human-label-executor";
 import {
-  executeDataPsmUpdateResourceInterpretation,
-} from "./data-psm-update-resource-interpretation-executor";
+  executeDataPsmSetInterpretation,
+} from "./data-psm-set-interpretation-executor";
 import {
-  executeDataPsmUpdateResourceOrder,
-} from "./data-psm-update-resource-order-executor";
+  executeDataPsmSetOrder,
+} from "./data-psm-set-order-executor";
 import {
-  executeDataPsmUpdateResourceTechnicalLabel,
-} from "./data-psm-update-resource-technical-label-executor";
+  executeDataPsmSetTechnicalLabel,
+} from "./data-psm-set-technical-label-executor";
 import {
-  executeDataPsmUpdateSchemaRoots,
-} from "./data-psm-update-schema-roots-executor";
+  executeDataPsmSetRoots,
+} from "./data-psm-set-roots-executor";
 import {
-  executeDataPsmUpdateAttributeDatatype,
-} from "./data-psm-update-attribute-datatype-executor";
+  executeDataPsmSetDatatype,
+} from "./data-psm-set-datatype-executor";
 
-export async function executeDataPsmOperation(
-  createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
-  operation: CoreOperation,
-): Promise<CoreExecutorResult> {
-  if (operation.types.length !== 1) {
-    return createErrorOperationResult("Invalid operation");
-  }
-  switch (operation.types[0]) {
-    case Operations.DataPsmCreateAssociationEndType:
-      return await executesDataPsmCreateAssociationEnd(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmCreateAssociationEnd(operation));
-    case Operations.DataPsmCreateAttributeType:
-      return await executesDataPsmCreateAttribute(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmCreateAttribute(operation));
-    case Operations.DataPsmCreateClassType:
-      return await executesDataPsmCreateClass(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmCreateClass(operation));
-    case Operations.DataPsmCreateSchemaType:
-      return await executesDataPsmCreateSchema(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmCreateSchema(operation));
-    case Operations.DataPsmDeleteAssociationEndType:
-      return await executesDataPsmDeleteAssociationEnd(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmDeleteAssociationEnd(operation));
-    case Operations.DataPsmDeleteAttributeType:
-      return await executesDataPsmDeleteAttribute(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmDeleteAttribute(operation));
-    case Operations.DataPsmDeleteClassType:
-      return await executesDataPsmDeleteClass(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmDeleteClass(operation));
-    case Operations.DataPsmUpdateAttributeDatatypeType:
-      return await executeDataPsmUpdateAttributeDatatype(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateAttributeDatatype(operation));
-    case Operations.DataPsmUpdateResourceHumanDescriptionType:
-      return await executeDataPsmUpdateResourceHumanDescription(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateResourceHumanDescription(operation));
-    case Operations.DataPsmUpdateResourceHumanLabelType:
-      return await executeDataPsmUpdateResourceHumanLabel(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateResourceHumanLabel(operation));
-    case Operations.DataPsmUpdateResourceInterpretationType:
-      return await executeDataPsmUpdateResourceInterpretation(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateResourceInterpretation(operation));
-    case Operations.DataPsmUpdateResourceOrderType:
-      return await executeDataPsmUpdateResourceOrder(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateResourceOrder(operation));
-    case Operations.DataPsmUpdateResourceTechnicalLabelType:
-      return await executeDataPsmUpdateResourceTechnicalLabel(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateResourceTechnicalLabel(operation));
-    case Operations.DataPsmUpdateSchemaRootsType:
-      return await executeDataPsmUpdateSchemaRoots(
-        createNewIdentifier, modelReader,
-        Operations.asDataPsmUpdateSchemaRoots(operation));
-    default:
-      return createErrorOperationResult("Unknown operation");
-  }
-}
+export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateAssociationEnd.is,
+    executeDataPsmCreateAssociationEnd,
+    Operations.DataPsmCreateAssociationEnd.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateAttribute.is,
+    executeDataPsmCreateAttribute,
+    Operations.DataPsmCreateAttribute.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateClass.is,
+    executeDataPsmCreateClass,
+    Operations.DataPsmCreateClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateSchema.is,
+    executeDataPsmCreateSchema,
+    Operations.DataPsmCreateSchema.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmDeleteAssociationEnd.is,
+    executeDataPsmDeleteAssociationEnd,
+    Operations.DataPsmDeleteAssociationEnd.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmDeleteAttribute.is,
+    executeDataPsmDeleteAttribute,
+    Operations.DataPsmDeleteAttribute.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmDeleteClass.is,
+    executeDataPsmDeleteClass,
+    Operations.DataPsmDeleteClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetDatatype.is,
+    executeDataPsmSetDatatype,
+    Operations.DataPsmSetDatatype.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetHumanDescription.is,
+    executeDataPsmSetHumanDescription,
+    Operations.DataPsmSetHumanDescription.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetHumanLabel.is,
+    executeDataPsmSetHumanLabel,
+    Operations.DataPsmSetHumanLabel.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetInterpretation.is,
+    executeDataPsmSetInterpretation,
+    Operations.DataPsmSetInterpretation.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetOrder.is,
+    executeDataPsmSetOrder,
+    Operations.DataPsmSetOrder.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetTechnicalLabel.is,
+    executeDataPsmSetTechnicalLabel,
+    Operations.DataPsmSetTechnicalLabel.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetRoots.is,
+    executeDataPsmSetRoots,
+    Operations.DataPsmSetRoots.TYPE),
+];

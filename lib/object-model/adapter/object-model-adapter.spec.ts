@@ -1,4 +1,4 @@
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import {ReadOnlyMemoryStore} from "../../core";
 import {coreResourcesToObjectModel} from "./object-model-adapter";
 import {CoreResource} from "../../core";
 
@@ -109,6 +109,6 @@ test("Load sample schema.", async () => {
     "classes": [expectedEmployee, expectedPerson],
   };
   const actual = await coreResourcesToObjectModel(
-    new ReadOnlyMemoryStore(input), "local:schema");
+    ReadOnlyMemoryStore.create(input), "local:schema");
   expect(actual).toEqual(expected);
 });

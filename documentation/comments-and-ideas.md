@@ -4,6 +4,15 @@ The benefit of having his page is to capture the reasons behind not doing someth
 The notes here should be similar to issues, where a modification is prosed.
 In addition, an argument why it was not implemented must be provided.
 
+## Null vs Undefined
+*2021.09.09*:
+We employ ```null``` to indicate missing value. 
+As a result, if a function can optionally return string the return type is ```string | null``` not ```string | undefined```.
+For a class/interface properties with ```null``` indicates possible missing value.
+For example ```technicalLabel: string | null``` indicates situation where the ```technicalLabel``` may be set to particular value or left empty.
+
+An exception to this rule is when a particular code deals with a third party code that require use of ```undefiend```.  
+
 ## Adapter naming
 *2021.08.26*:
 Adapter is a class, or a method that convert data from input type to output type. 
@@ -20,12 +29,27 @@ As libraries adds external dependencies it is always worth to consider implement
 ## Granular core interfaces/classes for model
 *2021.08.09*:
 As of now we have tree-like structure for base classes in data-psm, but similar is in pim model.
-Instead we may define three separate types (human-readable, interpretable and technical) and provide way to detect those types.
+Instead, we may define three separate types (human-readable, interpretable and technical) and provide way to detect those types.
 In order to make this work we would need to change the interfaces to classes, to implement the type detection.
 
 The disadvantage is that by assigning methods to the model objects we can not use ```as``` methods to simply cast the resources.
 This can be an issue as a single resource may have multiple types when loaded from RDF.
 Should we decide that each resource, IRI, can be of only one type, we may decide to convert the code to classes.
+
+*2021.09.13*:
+As a result of using ```null``` instead of ```undefined``` (see _Null vs Undefined_ *2021.09.09*) we need to set properties to null when an instance of a class is created.
+In order archive that we need the ```as``` methods to set all properties, by doing, so they become almost a factory methods.
+
+Once we start to use the business logic not only for loaders and generators it becomes clear, that handling object with multiple distinct types is impractical/too complicated.
+Therefore, we force each resource, object with identifier, to have only one type.
+This can easily be archived in the code, the only issue may come when loading RDF data. 
+But even with RDF it may still not be clear what is the meaning of such object and handling of interactions, for example delete of association which is also a class.
+
+This lead us to reverting our previous decision and forcing each object to have only one final type.
+Still we support inheritance meaning that object can have multiple types if they are linear specializations.
+
+As a part of this decision we migrate the interfaces back to classes, moving the ```as``` and ```is``` methods to the class as static methods.
+A model class MUST NOT have any non-static methods.
 
 ## Operations and inconsistent state
 *2021.07.28*:

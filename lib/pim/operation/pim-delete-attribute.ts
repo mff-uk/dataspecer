@@ -1,25 +1,18 @@
 import {CoreOperation, CoreResource} from "../../core";
 
-export interface PimDeleteAttribute extends CoreOperation {
+export class PimDeleteAttribute extends CoreOperation {
 
-  pimAttribute?: string;
+  static readonly TYPE = "pim-action-delete-attribute";
 
-}
+  pimAttribute: string | null = null;
 
-export const PimDeleteAttributeType = "pim-action-delete-attribute";
-
-export function isPimDeleteAttribute(
-  resource: CoreResource,
-): resource is PimDeleteAttribute {
-  return resource.types.includes(PimDeleteAttributeType);
-}
-
-export function asPimDeleteAttribute(
-  resource: CoreResource,
-): PimDeleteAttribute {
-  if (isPimDeleteAttribute(resource)) {
-    return resource as PimDeleteAttribute;
+  constructor() {
+    super();
+    this.types.push(PimDeleteAttribute.TYPE);
   }
-  resource.types.push(PimDeleteAttributeType);
-  return resource as PimDeleteAttribute;
+
+  static is(resource: CoreResource | null): resource is PimDeleteAttribute {
+    return resource?.types.includes(PimDeleteAttribute.TYPE);
+  }
+
 }

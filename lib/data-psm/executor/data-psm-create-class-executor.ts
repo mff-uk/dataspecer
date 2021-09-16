@@ -1,25 +1,36 @@
 import {
-  CoreResourceReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CoreExecutorResult,
+  CreateNewIdentifier, CoreResource,
 } from "../../core";
 import {DataPsmCreateClass} from "../operation";
-import {loadDataPsmSchema} from "./data-psm-executor-utils";
-import {asDataPsmClass} from "../model";
+import {
+  DataPsmExecutorResultFactory,
+  loadDataPsmSchema,
+} from "./data-psm-executor-utils";
+import {DataPsmClass} from "../model";
 
-export async function executesDataPsmCreateClass(
+export async function executeDataPsmCreateClass(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmCreateClass,
 ): Promise<CoreExecutorResult> {
-  const schema = await loadDataPsmSchema(modelReader);
+
+  const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
+    return DataPsmExecutorResultFactory.missingSchema();
   }
 
-  // TODO Check that all extends exists.
+  for (const iri of operation.dataPsmExtends) {
+    const resource = await reader.readResource(iri);
+    if (!DataPsmClass.is(resource)) {
+      return CoreExecutorResult.createError(
+        `Missing extended class: '${iri}'`);
+    }
+  }
 
-  const iri = operation.dataPsmNewIri || createNewIdentifier("class");
-  const result = asDataPsmClass(createCoreResource(iri));
+  const iri = operation.dataPsmNewIri ?? createNewIdentifier("class");
+  const result = new DataPsmClass(iri);
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
@@ -27,6 +38,8 @@ export async function executesDataPsmCreateClass(
   result.dataPsmExtends = operation.dataPsmExtends;
   result.dataPsmParts = [];
 
-  schema.dataPsmParts = [...schema.dataPsmParts, iri];
-  return createSuccessOperationResult([result], [schema]);
+  return CoreExecutorResult.createSuccess([result], [{
+    ...schema,
+    "dataPsmParts": [...schema.dataPsmParts, iri],
+  } as CoreResource]);
 }

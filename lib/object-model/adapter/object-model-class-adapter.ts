@@ -1,8 +1,8 @@
-import {createObjectModelClass, ObjectModelClass} from "../object-model";
+import {ObjectModelClass} from "../object-model";
 import {ObjectModelPropertyAdapter} from "./object-model-property-adapter";
 import {CoreResourceReader} from "../../core";
-import {DataPsmClass, isDataPsmClass} from "../../data-psm/model";
-import {isPimClass, PimClass} from "../../pim/model";
+import {DataPsmClass} from "../../data-psm/model";
+import {PimClass} from "../../pim/model";
 
 export class ObjectModelClassAdapter {
 
@@ -25,15 +25,15 @@ export class ObjectModelClassAdapter {
     if (this.psmClass[dataPsmClass.iri] !== undefined) {
       return this.psmClass[dataPsmClass.iri];
     }
-    const result = createObjectModelClass();
+    const result = new ObjectModelClass();
     this.psmClass[dataPsmClass.iri] = result;
     await this.psmClassToClass(dataPsmClass, result);
-    if (dataPsmClass.dataPsmInterpretation === undefined) {
+    if (dataPsmClass.dataPsmInterpretation === null) {
       return result;
     }
     const interpretationEntity =
       await this.reader.readResource(dataPsmClass.dataPsmInterpretation);
-    if (isPimClass(interpretationEntity)) {
+    if (PimClass.is(interpretationEntity)) {
       const interpretation =
         await this.loadClassFromPimClass(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
@@ -50,12 +50,12 @@ export class ObjectModelClassAdapter {
     dataPsmClass: DataPsmClass, classData: ObjectModelClass,
   ): Promise<void> {
     classData.psmIri = dataPsmClass.iri;
-    classData.technicalLabel  = dataPsmClass.dataPsmTechnicalLabel;
+    classData.technicalLabel = dataPsmClass.dataPsmTechnicalLabel;
     classData.humanLabel = dataPsmClass.dataPsmHumanLabel;
     classData.humanDescription = dataPsmClass.dataPsmHumanDescription;
     for (const iri of dataPsmClass.dataPsmExtends) {
       const resource = await this.reader.readResource(iri);
-      if (!isDataPsmClass(resource)) {
+      if (!DataPsmClass.is(resource)) {
         continue;
       }
       const parentClassData = await this.loadClassFromPsmClass(resource);
@@ -73,8 +73,8 @@ export class ObjectModelClassAdapter {
   protected addPimInterpretation(
     dataPsm: ObjectModelClass, pim: ObjectModelClass): void {
     dataPsm.cimIri = pim.cimIri;
-    dataPsm.humanLabel = dataPsm.humanLabel || pim.humanLabel;
-    dataPsm.humanDescription = dataPsm.humanDescription || pim.humanDescription;
+    dataPsm.humanLabel = dataPsm.humanLabel ?? pim.humanLabel;
+    dataPsm.humanDescription = dataPsm.humanDescription ?? pim.humanDescription;
     dataPsm.isCodelist = pim.isCodelist;
   }
 
@@ -82,7 +82,7 @@ export class ObjectModelClassAdapter {
     if (this.pimClass[pimClass.iri] !== undefined) {
       return this.pimClass[pimClass.iri];
     }
-    const result = createObjectModelClass();
+    const result = new ObjectModelClass();
     this.pimClass[pimClass.iri] = result;
     await this.pimClassToClass(pimClass, result);
     return result;
@@ -97,7 +97,7 @@ export class ObjectModelClassAdapter {
     classData.humanDescription = pimClass.pimHumanDescription;
     for (const iri of pimClass.pimExtends) {
       const resource = await this.reader.readResource(iri);
-      if (!isPimClass(resource)) {
+      if (!PimClass.is(resource)) {
         continue;
       }
       const parentClassData = await this.loadClassFromPimClass(resource);

@@ -1,52 +1,39 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
 
-export interface PimCreateClass extends PimCreate {
+export class PimCreateClass extends PimCreate {
 
-  pimExtends: string[];
+  static readonly TYPE = "pim-action-create-class";
 
-}
+  pimExtends: string[] = [];
 
-export const PimCreateClassType = "pim-action-create-class";
-
-export function isPimCreateClass(
-  resource: CoreResource,
-): resource is PimCreateClass {
-  return resource.types.includes(PimCreateClassType);
-}
-
-export function asPimCreateClass(
-  resource: CoreResource,
-): PimCreateClass {
-  if (isPimCreateClass(resource)) {
-    return resource as PimCreateClass;
+  constructor() {
+    super();
+    this.types.push(PimCreateClass.TYPE);
   }
-  resource.types.push(PimCreateClassType);
-  const result = resource as PimCreateClass;
-  result.pimExtends = result.pimExtends || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is PimCreateClass {
+    return resource?.types.includes(PimCreateClass.TYPE);
+  }
+
 }
 
-export interface PimCreateClassResult extends CoreTyped {
+export class PimCreateClassResult extends CoreOperationResult {
+
+  private static readonly TYPE = "pim-action-create-class-result";
 
   createdPimClass: string;
 
-}
+  constructor(createdPimClass: string) {
+    super();
+    this.types.push(PimCreateClassResult.TYPE);
+    this.createdPimClass = createdPimClass;
+  }
 
-export const PimCreateClassResultType =
-  "pim-action-create-class-result";
+  static is(
+    resource: CoreTyped,
+  ): resource is PimCreateClassResult {
+    return resource.types.includes(PimCreateClassResult.TYPE);
+  }
 
-export function isPimCreateClassResult(
-  resource: CoreTyped,
-): resource is PimCreateClassResult {
-  return resource.types.includes(PimCreateClassResultType);
-}
-
-export function createPimCreateClassResultProperties(
-  createdPimClass: string,
-): PimCreateClassResult {
-  return {
-    "types": [PimCreateClassResultType],
-    "createdPimClass": createdPimClass,
-  };
 }

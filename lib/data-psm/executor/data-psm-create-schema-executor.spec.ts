@@ -1,21 +1,20 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmCreateSchema} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmCreateSchema} from "../operation";
 import {
-  executesDataPsmCreateSchema,
+  executeDataPsmCreateSchema,
 } from "./data-psm-create-schema-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create data PSM schema.", async () => {
-  const operation = asDataPsmCreateSchema(createCoreResource());
+  const operation = new DataPsmCreateSchema();
   operation.dataPsmHumanLabel = {"en": "Label"};
   operation.dataPsmHumanDescription = {"en": "Desc"};
 
   const before = {};
 
   let counter = 0;
-  const actual = await executesDataPsmCreateSchema(
-    () => "http://localhost/" + ++counter,
+  const actual = await executeDataPsmCreateSchema(
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
@@ -25,6 +24,7 @@ test("Create data PSM schema.", async () => {
       "types": ["data-psm-schema"],
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
+      "dataPsmTechnicalLabel": null,
       "dataPsmRoots": [],
       "dataPsmParts": [],
     },
@@ -36,5 +36,5 @@ test("Create data PSM schema.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

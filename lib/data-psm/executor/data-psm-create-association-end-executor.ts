@@ -1,39 +1,47 @@
 import {
-  CoreResourceReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CreateNewIdentifier,
+  CoreExecutorResult, CoreResource,
 } from "../../core";
 import {
   DataPsmCreateAssociationEnd,
 } from "../operation";
-import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
-import {asDataPsmAssociationEnd} from "../model";
+import {
+  DataPsmExecutorResultFactory,
+  loadDataPsmClass,
+  loadDataPsmSchema,
+} from "./data-psm-executor-utils";
+import {DataPsmAssociationEnd} from "../model";
 
-export async function executesDataPsmCreateAssociationEnd(
+export async function executeDataPsmCreateAssociationEnd (
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmCreateAssociationEnd,
 ): Promise<CoreExecutorResult> {
-  const schema = await loadDataPsmSchema(modelReader);
+
+  const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
+    return DataPsmExecutorResultFactory.missingSchema();
   }
 
-  const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
+  const owner = await loadDataPsmClass(reader, operation.dataPsmOwner);
   if (owner === null) {
-    return createErrorOperationResult("Missing owner class.");
+    return DataPsmExecutorResultFactory.missingOwner(operation.dataPsmOwner);
   }
 
-  const iri = operation.dataPsmNewIri || createNewIdentifier("association");
-  const result = asDataPsmAssociationEnd(createCoreResource(iri));
+  const iri = operation.dataPsmNewIri ?? createNewIdentifier("association");
+  const result = new DataPsmAssociationEnd(iri);
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmPart = operation.dataPsmPart;
 
-  owner.dataPsmParts = [...owner.dataPsmParts, iri];
-
-  schema.dataPsmParts = [...schema.dataPsmParts, iri];
-
-  return createSuccessOperationResult([result], [schema, owner]);
+  return CoreExecutorResult.createSuccess([result], [{
+    ...schema,
+    "dataPsmParts": [...schema.dataPsmParts, iri],
+  } as CoreResource, {
+    ...owner,
+    "dataPsmParts": [...owner.dataPsmParts, iri],
+  } as CoreResource]);
 }

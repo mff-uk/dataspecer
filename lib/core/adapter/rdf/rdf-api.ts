@@ -19,6 +19,8 @@ export interface RdfQuad {
 
 export class RdfNode {
 
+  static readonly DEFAULT_GRAPH = "";
+
   termType: string;
 
   value: string;
@@ -33,7 +35,7 @@ export class RdfNode {
   static defaultGraph(): RdfNode {
     return {
       "termType": RdfTermType.DefaultGraph,
-      "value": "",
+      "value": RdfNode.DEFAULT_GRAPH,
     };
   }
 
@@ -56,14 +58,6 @@ export class RdfObject extends RdfNode {
 
   static isLiteral(object: RdfObject): boolean {
     return object.termType === RdfTermType.Literal;
-  }
-
-  static node(object: RdfNode): RdfObject {
-    return {
-      ...object,
-      datatype: null,
-      language: null,
-    };
   }
 
 }

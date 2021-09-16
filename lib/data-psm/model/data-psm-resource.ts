@@ -1,35 +1,31 @@
 import {CoreResource, LanguageString} from "../../core";
 
-export interface DataPsmHumanReadableResource extends CoreResource {
+export class DataPsmResource extends CoreResource {
 
   /**
    * Label used in human readable documents as a name for this resource.
    */
-  dataPsmHumanLabel?: LanguageString;
+  dataPsmHumanLabel: LanguageString | null = null;
 
   /**
    * Description, longer plain text, shown in human readable documents
    * as a description for this resource.
    */
-  dataPsmHumanDescription?: LanguageString;
-
-}
-
-export interface DataPsmTechnicalResource extends DataPsmHumanReadableResource {
+  dataPsmHumanDescription: LanguageString | null = null;
 
   /**
    * Label used by file formats, may represent a name of a property
    * in JSON or tag name in XML.
    */
-  dataPsmTechnicalLabel?: string;
-
-}
-
-export interface DataPsmResource extends DataPsmTechnicalResource {
+  dataPsmTechnicalLabel: string | null = null;
 
   /**
-   * Points to PIM level.
+   * Points to another level, most of the time PIM.
    */
-  dataPsmInterpretation?: string;
+  dataPsmInterpretation: string | null = null;
+
+  protected constructor(iri: string | null) {
+    super(iri);
+  }
 
 }

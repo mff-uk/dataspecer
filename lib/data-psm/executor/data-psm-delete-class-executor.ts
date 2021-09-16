@@ -1,37 +1,65 @@
 import {
-  CoreResourceReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CoreExecutorResult,
+  CreateNewIdentifier,
+  CoreResource,
 } from "../../core";
 import {DataPsmDeleteClass} from "../operation";
-import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
+import {
+  DataPsmExecutorResultFactory,
+  loadDataPsmClass,
+} from "./data-psm-executor-utils";
+import {DataPsmClass, DataPsmSchema} from "../model";
 
-
-export async function executesDataPsmDeleteClass(
+export async function executeDataPsmDeleteClass(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmDeleteClass,
 ): Promise<CoreExecutorResult> {
-  const schema = await loadDataPsmSchema(modelReader);
-  if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
+
+  let schema: DataPsmSchema | null = null;
+  const classes: DataPsmClass[] = [];
+  for (const iri of await reader.listResources()) {
+    const resource = await reader.readResource(iri);
+    if (DataPsmSchema.is(resource)) {
+      schema = resource;
+    }
+    if (DataPsmClass.is(resource)) {
+      classes.push(resource);
+    }
   }
 
-  const classToDelete =
-    await loadDataPsmClass(modelReader, operation.dataPsmClass);
+  if (schema === null) {
+    return DataPsmExecutorResultFactory.missingSchema();
+  }
+
+  const classToDelete = await loadDataPsmClass(
+    reader, operation.dataPsmClass);
   if (classToDelete === null) {
-    return createErrorOperationResult("Missing class to delete.");
+    return CoreExecutorResult.createError(
+      `Missing class '${operation.dataPsmClass}' to delete.`,
+    );
   }
 
   if (classToDelete.dataPsmParts.length > 0) {
-    return createErrorOperationResult("Only empty class can be deleted.");
+    return CoreExecutorResult.createError("Only empty class can be deleted.");
   }
 
-  // TODO Check that no other class extends this class.
+  for (const classItem of classes) {
+    if (classItem.dataPsmExtends.includes(operation.dataPsmClass)) {
+      return CoreExecutorResult.createError(
+        "Class is extended by other class.");
+    }
+  }
 
-  schema.dataPsmRoots =
-    schema.dataPsmRoots.filter(iri => iri !== operation.dataPsmClass);
-  schema.dataPsmParts =
-    schema.dataPsmParts.filter(iri => iri !== operation.dataPsmClass);
+  return CoreExecutorResult.createSuccess(
+    [], [{
+      ...schema,
+      "dataPsmRoots": removeValue(operation.dataPsmClass, schema.dataPsmRoots),
+      "dataPsmParts": removeValue(operation.dataPsmClass, schema.dataPsmParts),
+    } as CoreResource], [operation.dataPsmClass]);
+}
 
-  return createSuccessOperationResult([], [schema], [operation.dataPsmClass]);
+function removeValue<T>(valueToRemove: T, array: T[]): T[] {
+  return array.filter(value => value !== valueToRemove);
 }

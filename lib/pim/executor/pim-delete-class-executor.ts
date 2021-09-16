@@ -1,70 +1,60 @@
 import {
   CoreResourceReader,
-  createErrorOperationResult, CreateNewIdentifier,
-  createSuccessOperationResult,
   CoreExecutorResult,
+  CreateNewIdentifier, CoreResource,
 } from "../../core";
-import {
-  asPimAssociationEnd,
-  asPimAttribute,
-  isPimAssociationEnd,
-  isPimAttribute,
-  isPimClass,
-} from "../model";
 import {PimDeleteClass} from "../operation";
-import {loadPimSchema} from "./pim-executor-utils";
+import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
+import {
+  PimAssociationEnd,
+  PimAttribute,
+  PimClass,
+} from "../model";
 
 export async function executePimDeleteClass(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: PimDeleteClass,
 ): Promise<CoreExecutorResult> {
-  const classResource =
-    await modelReader.readResource(operation.pimClass);
-  if (classResource === null) {
-    return createErrorOperationResult(
-      "Missing class object.");
-  }
-  if (!isPimClass(classResource)) {
-    return createErrorOperationResult(
-      "Object to delete is not an class.");
+
+  const resource = await reader.readResource(operation.pimClass);
+  if (resource === null) {
+    return PimExecutorResultFactory.missing(operation.pimClass);
   }
 
-  const usageCheck = await checkIsNotUsed(modelReader, operation.pimClass);
-  if (usageCheck !== null) {
-    return usageCheck;
+  if (!PimClass.is(resource)) {
+    return PimExecutorResultFactory.invalidType(resource, "pim:class");
   }
 
-  const schema = await loadPimSchema(modelReader);
+  if (await isClassUsed(reader, operation.pimClass)) {
+    return CoreExecutorResult.createError("Class is used.");
+  }
+
+  const schema = await loadPimSchema(reader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return PimExecutorResultFactory.missingSchema();
   }
-  schema.pimParts = schema.pimParts.filter(
-    iri => iri !== operation.pimClass);
 
-  return createSuccessOperationResult(
-    [], [schema], [operation.pimClass]);
+  return CoreExecutorResult.createSuccess([], [{
+    ...schema,
+    "pimParts": schema.pimParts.filter(iri => iri !== operation.pimClass),
+  } as CoreResource], [operation.pimClass]);
 }
 
-async function checkIsNotUsed(
+async function isClassUsed(
   modelReader: CoreResourceReader,
-  classIri: string): Promise<CoreExecutorResult | null> {
+  classIri: string): Promise<boolean> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
-    if (isPimAttribute(resource)) {
-      const attributeResource = asPimAttribute(resource);
-      if (attributeResource.pimOwnerClass === classIri) {
-        return createErrorOperationResult(
-          "Class has an attribute.");
+    if (PimAttribute.is(resource)) {
+      if (resource.pimOwnerClass === classIri) {
+        return true;
       }
-    } else if (isPimAssociationEnd(resource)) {
-      const associationEndResource = asPimAssociationEnd(resource);
-      if (associationEndResource.pimPart === classIri) {
-        return createErrorOperationResult(
-          "Class is used by an association.");
+    } else if (PimAssociationEnd.is(resource)) {
+      if (resource.pimPart === classIri) {
+        return true;
       }
     }
   }
-  return null;
+  return false;
 }

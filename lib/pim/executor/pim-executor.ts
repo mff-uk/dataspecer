@@ -1,71 +1,62 @@
-import {
-  CoreOperation,
-  CreateNewIdentifier,
-  CoreResourceReader,
-  CoreExecutorResult,
-  createErrorOperationResult,
-} from "../../core";
+import {CoreOperationExecutor} from "../../core";
 import * as Operations from "../operation";
-import {executePimCreateSchema} from "./pim-create-schema-executor";
-import {executePimCreateClass} from "./pim-create-class-executor";
-import {executePimDeleteClass} from "./pim-delete-class-executor";
-import {executePimCreateAttribute} from "./pim-create-attribute-executor";
-import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
+import {executePimCreateAttribute} from "./pim-create-attribute-executor";
+import {executePimCreateClass} from "./pim-create-class-executor";
+import {executePimCreateSchema} from "./pim-create-schema-executor";
 import {executePimDeleteAssociation} from "./pim-delete-association-executor";
+import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
+import {executePimDeleteClass} from "./pim-delete-class-executor";
+import {executePimSetDataType} from "./pim-set-datatype-executor";
+import {executePimSetHumanLabel} from "./pim-set-human-label-executor";
 import {
-  executePimUpdateResourceHumanLabel,
-} from "./pim-update-resource-human-label-executor";
-import {
-  executePimUpdateResourceHumanDescription,
-} from "./pim-update-resource-human-description-executor";
+  executePimSetHumanDescription,
+} from "./pim-set-human-description-executor";
+import {executePimSetTechnicalLabel} from "./pim-set-technical-label-executor";
 
-export async function executePimOperation(
-  createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
-  operation: CoreOperation,
-): Promise<CoreExecutorResult> {
-  if (operation.types.length !== 1) {
-    return createErrorOperationResult("Invalid operation");
-  }
-  switch (operation.types[0]) {
-    case Operations.PimCreateSchemaType:
-      return await executePimCreateSchema(
-        createNewIdentifier, modelReader,
-        Operations.asPimCreateSchema(operation));
-    case Operations.PimCreateClassType:
-      return await executePimCreateClass(
-        createNewIdentifier, modelReader,
-        Operations.asPimCreateClass(operation));
-    case Operations.PimDeleteClassType:
-      return await executePimDeleteClass(
-        createNewIdentifier, modelReader,
-        Operations.asPimDeleteClass(operation));
-    case Operations.PimCreateAttributeType:
-      return await executePimCreateAttribute(
-        createNewIdentifier, modelReader,
-        Operations.asPimCreateAttribute(operation));
-    case Operations.PimDeleteAttributeType:
-      return await executePimDeleteAttribute(
-        createNewIdentifier, modelReader,
-        Operations.asPimDeleteAttribute(operation));
-    case Operations.PimCreateAssociationType:
-      return await executesPimCreateAssociation(
-        createNewIdentifier, modelReader,
-        Operations.asPimCreateAssociation(operation));
-    case Operations.PimDeleteAssociationType:
-      return await executePimDeleteAssociation(
-        createNewIdentifier, modelReader,
-        Operations.asPimDeleteAssociation(operation));
-    case Operations.PimUpdateResourceHumanLabelType:
-      return await executePimUpdateResourceHumanLabel(
-        createNewIdentifier, modelReader,
-        Operations.asPimUpdateResourceHumanLabel(operation));
-    case Operations.PimUpdateResourceHumanDescriptionType:
-      return await executePimUpdateResourceHumanDescription(
-        createNewIdentifier, modelReader,
-        Operations.asPimUpdateResourceHumanDescription(operation));
-    default:
-      return createErrorOperationResult("Unknown operation");
-  }
-}
+export const pimExecutors: CoreOperationExecutor<any>[] = [
+  CoreOperationExecutor.create(
+    Operations.PimCreateAssociation.is,
+    executesPimCreateAssociation,
+    Operations.PimCreateAssociation.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimCreateAttribute.is,
+    executePimCreateAttribute,
+    Operations.PimCreateAttribute.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimCreateClass.is,
+    executePimCreateClass,
+    Operations.PimCreateClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimCreateSchema.is,
+    executePimCreateSchema,
+    Operations.PimCreateSchema.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimDeleteAssociation.is,
+    executePimDeleteAssociation,
+    Operations.PimDeleteAssociation.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimDeleteAttribute.is,
+    executePimDeleteAttribute,
+    Operations.PimDeleteAttribute.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimDeleteClass.is,
+    executePimDeleteClass,
+    Operations.PimDeleteClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetDatatype.is,
+    executePimSetDataType,
+    Operations.PimSetDatatype.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetHumanLabel.is,
+    executePimSetHumanLabel,
+    Operations.PimSetHumanLabel.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetHumanDescription.is,
+    executePimSetHumanDescription,
+    Operations.PimSetHumanDescription.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetTechnicalLabel.is,
+    executePimSetTechnicalLabel,
+    Operations.PimSetTechnicalLabel.TYPE),
+];

@@ -1,15 +1,9 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {asPimDeleteAttribute} from "../operation";
-import {
-  executePimDeleteAttribute,
-} from "./pim-delete-attribute-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimDeleteAttribute} from "../operation";
+import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
 
 test("Delete attribute.", async () => {
-  const operation = asPimDeleteAttribute(createCoreResource());
+  const operation = new PimDeleteAttribute();
   operation.pimAttribute = "http://localhost/1";
 
   const before = {
@@ -27,9 +21,8 @@ test("Delete attribute.", async () => {
   };
 
   const actual = await executePimDeleteAttribute(
-    undefined,
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
@@ -48,5 +41,5 @@ test("Delete attribute.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

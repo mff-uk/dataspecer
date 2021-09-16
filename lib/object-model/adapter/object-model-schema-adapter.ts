@@ -1,16 +1,7 @@
-import {
-  ObjectModelSchema, ObjectModelClass,
-  createObjectModelSchema, isObjectModelClass,
-} from "../object-model";
+import {ObjectModelSchema, ObjectModelClass} from "../object-model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
 import {CoreResourceReader} from "../../core";
-import {
-  isDataPsmSchema,
-  asDataPsmSchema,
-  DataPsmSchema,
-  isDataPsmClass,
-  asDataPsmClass,
-} from "../../data-psm/model";
+import {DataPsmClass, DataPsmSchema} from "../../data-psm/model";
 
 export class ObjectModelSchemaAdapter {
 
@@ -26,13 +17,12 @@ export class ObjectModelSchemaAdapter {
   }
 
   async loadSchemaFromDataPsmSchema(iri: string):
-    Promise<ObjectModelSchema | undefined> {
-    const entity = await this.reader.readResource(iri);
-    if (!isDataPsmSchema(entity)) {
-      return undefined;
+    Promise<ObjectModelSchema | null> {
+    const psmSchema = await this.reader.readResource(iri);
+    if (!DataPsmSchema.is(psmSchema)) {
+      return null;
     }
-    const psmSchema = asDataPsmSchema(entity);
-    const result = createObjectModelSchema();
+    const result = new ObjectModelSchema();
     this.schemas[psmSchema.iri] = result;
     await this.psmSchemaToSchema(psmSchema, result);
     for (const schema of Object.values(this.schemas)) {
@@ -49,11 +39,10 @@ export class ObjectModelSchemaAdapter {
     objectSchema.humanLabel = dataPsmSchema.dataPsmHumanLabel;
     objectSchema.humanDescription = dataPsmSchema.dataPsmHumanDescription;
     for (const iri of dataPsmSchema.dataPsmRoots) {
-      const resource = await this.reader.readResource(iri);
-      if (!isDataPsmClass(resource)) {
+      const dataPsmClass = await this.reader.readResource(iri);
+      if (!DataPsmClass.is(dataPsmClass)) {
         continue;
       }
-      const dataPsmClass = asDataPsmClass(resource);
       const objectModelClass =
         await this.classAdapter.loadClassFromPsmClass(dataPsmClass);
       objectSchema.roots.push(objectModelClass);
@@ -73,7 +62,7 @@ export class ObjectModelSchemaAdapter {
       stack.push(...next.extends);
       for (const property of next.properties) {
         for (const dataType of property.dataTypes) {
-          if (isObjectModelClass(dataType)) {
+          if (ObjectModelClass.is(dataType)) {
             stack.push(dataType as ObjectModelClass);
           }
         }
@@ -83,5 +72,3 @@ export class ObjectModelSchemaAdapter {
   }
 
 }
-
-

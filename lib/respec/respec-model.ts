@@ -8,6 +8,6 @@ export class ReSpec extends WebSpecification {
 
 export class ReSpecMetadata {
 
-  title: string | undefined = undefined;
+  title: string | null = null;
 
 }

@@ -9,16 +9,16 @@ const HAS_REST = "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest";
 const RDF_NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 
 /**
- * Bind resource to particular RdfSource to make operation easier.
+ * Bind resource to particular {@link RdfSource} to make operation easier.
  */
 export class RdfSourceWrap {
 
-  private readonly resource: string;
+  readonly iri: string;
 
   private readonly source: RdfSource;
 
-  protected constructor(entity: string, source: RdfSource) {
-    this.resource = entity;
+  protected constructor(iri: string, source: RdfSource) {
+    this.iri = iri;
     this.source = source;
   }
 
@@ -26,16 +26,12 @@ export class RdfSourceWrap {
     return new RdfSourceWrap(resource, source);
   }
 
-  id(): string {
-    return this.resource;
-  }
-
   async property(predicate: string): Promise<RdfObject[]> {
-    return this.source.property(this.resource, predicate);
+    return this.source.property(this.iri, predicate);
   }
 
   async reverseProperty(predicate: string): Promise<RdfNode[]> {
-    return this.source.reverseProperty(predicate, this.resource);
+    return this.source.reverseProperty(predicate, this.iri);
   }
 
   /**
@@ -152,7 +148,7 @@ export class RdfSourceWrap {
     }
     const result = {};
     for (const title of literals) {
-      result[title.language || ""] = String(title.value);
+      result[title.language ?? ""] = String(title.value);
     }
     return result;
   }

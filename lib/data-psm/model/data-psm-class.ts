@@ -7,32 +7,21 @@ import {DataPsmResource} from "./data-psm-resource";
  * by doing so this class automatically and implicitly has inherit all the
  * other class attributes, choices, etc..
  */
-export interface DataPsmClass extends DataPsmResource {
+export class DataPsmClass extends DataPsmResource {
 
-  dataPsmExtends: string[];
+  private static readonly TYPE = "data-psm-class";
 
-  dataPsmParts: string[];
+  dataPsmExtends: string[] = [];
 
-}
+  dataPsmParts: string[] = [];
 
-export const DataPsmClassType = "data-psm-class";
-
-export function isDataPsmClass(
-  resource: CoreResource | null,
-): resource is DataPsmClass {
-  return resource !== null
-    && resource.types.includes(DataPsmClassType);
-}
-
-export function asDataPsmClass(
-  resource: CoreResource,
-): DataPsmClass {
-  if (isDataPsmClass(resource)) {
-    return resource as DataPsmClass;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmClass.TYPE);
   }
-  resource.types.push(DataPsmClassType);
-  const result = resource as DataPsmClass;
-  result.dataPsmExtends = result.dataPsmExtends || [];
-  result.dataPsmParts = result.dataPsmParts || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is DataPsmClass {
+    return resource?.types.includes(DataPsmClass.TYPE);
+  }
+
 }

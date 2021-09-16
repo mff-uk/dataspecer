@@ -1,15 +1,9 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {asPimDeleteAssociation} from "../operation";
-import {
-  executePimDeleteAssociation,
-} from "./pim-delete-association-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimDeleteAssociation} from "../operation";
+import {executePimDeleteAssociation} from "./pim-delete-association-executor";
 
 test("Delete association.", async () => {
-  const operation = asPimDeleteAssociation(createCoreResource());
+  const operation = new PimDeleteAssociation();
   operation.pimAssociation = "http://localhost/3";
 
   const before = {
@@ -39,9 +33,8 @@ test("Delete association.", async () => {
   };
 
   const actual = await executePimDeleteAssociation(
-    undefined,
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
@@ -64,5 +57,5 @@ test("Delete association.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

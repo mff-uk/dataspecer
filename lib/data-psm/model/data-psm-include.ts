@@ -5,30 +5,19 @@ import {CoreResource} from "../../core";
  * attribute or association end. This resource act as a syntactic sugar
  * and perform an include of given attribute list in place of this attribute.
  */
-export interface DataPsmInclude extends CoreResource {
+export class DataPsmInclude extends CoreResource {
 
-  dataPsmParts: string[];
+  private static readonly TYPE = "data-psm-include";
 
-}
+  dataPsmParts: string[] = [];
 
-export const DataPsmIncludeType = "data-psm-include";
-
-
-export function isDataPsmInclude(
-  resource: CoreResource | null,
-): resource is DataPsmInclude {
-  return resource !== null
-    && resource.types.includes(DataPsmIncludeType);
-}
-
-export function asDataPsmInclude(
-  resource: CoreResource,
-): DataPsmInclude {
-  if (isDataPsmInclude(resource)) {
-    return resource as DataPsmInclude;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmInclude.TYPE);
   }
-  resource.types.push(DataPsmIncludeType);
-  const result = resource as DataPsmInclude;
-  result.dataPsmParts = result.dataPsmParts || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is DataPsmInclude {
+    return resource?.types.includes(DataPsmInclude.TYPE);
+  }
+
 }

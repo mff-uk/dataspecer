@@ -1,4 +1,4 @@
-import {CoreResource, createCoreResource} from "../../core-resource";
+import {CoreResource} from "../../core-resource";
 import {RdfSourceWrap} from "./rdf-source-wrap";
 import {RdfSource} from "./rdf-api";
 
@@ -10,6 +10,9 @@ import {RdfSource} from "./rdf-api";
  */
 export class RdfAdapter {
 
+  /**
+   * The order determine priorities.
+   */
   readonly adapters: RdfResourceLoader [];
 
   constructor(adapters: RdfResourceLoader[]) {
@@ -23,34 +26,41 @@ export class RdfAdapter {
   async rdfToResources(
     source: RdfSource, iri: string,
   ): Promise<{ [iri: string]: CoreResource }> {
-    const nodesToLoad = [iri];
+    const nodesToLoad: (string | null | undefined)[] = [iri];
+    const nodesToNotLoad: Set<string> = new Set();
     const result = {};
     while (nodesToLoad.length > 0) {
       const next = nodesToLoad.pop();
-      if (next === undefined || result[next] !== undefined) {
+      if (next === null || next === undefined) {
         continue;
       }
-      const resource = createCoreResource(next);
-      result[resource.iri] = resource;
+      if (nodesToNotLoad.has(next)) {
+        continue;
+      }
+      nodesToNotLoad.add(next);
       const resourceSource = RdfSourceWrap.forIri(next, source);
-      const newToLoad = await this.loadNode(resourceSource, resource);
-      nodesToLoad.push(...newToLoad);
+      const loaded = await this.loadNode(resourceSource);
+      result[next] = loaded.resource;
+      nodesToLoad.push(...loaded.references);
     }
     return result;
   }
 
   /**
-   * Load only given resource.
+   * Load only given resource. We are optimistic and assume that only
+   * one loader can load the resource.
    */
   protected async loadNode(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
-    const result = [];
+    source: RdfSourceWrap,
+  ): Promise<RdfResourceLoaderResult | null> {
     for (const adapter of this.adapters) {
-      const newToLoad = await adapter.loadResource(source, resource);
-      result.push(...newToLoad);
+      const shouldLoad = await adapter.shouldLoadResource(source);
+      if (!shouldLoad) {
+        continue;
+      }
+      return await adapter.loadResource(source);
     }
-    return result;
+    return Promise.resolve<null>(null);
   }
 
 }
@@ -62,15 +72,25 @@ export class RdfAdapter {
 export interface RdfResourceLoader {
 
   /**
+   * Return true if given resource should be loaded using this loader.
+   */
+  shouldLoadResource(source: RdfSourceWrap): Promise<boolean>;
+
+  /**
    * Tries to load data into the given resource. If the resource is not of
    * expected type do nothing and return empty array.
    *
    * @param source Source of the data.
-   * @param resource Resource to load data into.
    * @return IRRs of resources to load.
    */
-  loadResource(
-    source: RdfSourceWrap, resource: CoreResource
-  ): Promise<string[]>;
+  loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult>;
+
+}
+
+export interface RdfResourceLoaderResult {
+
+  resource: CoreResource | null;
+
+  references: (string | null | undefined)[];
 
 }

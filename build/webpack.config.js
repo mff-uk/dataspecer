@@ -75,5 +75,5 @@ module.exports = {
         "to": path.join(__dirname, "..", "dist"),
       }],
     }),
-  ]
+  ],
 };

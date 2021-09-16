@@ -1,12 +1,11 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmCreateAttribute} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmCreateAttribute} from "../operation";
 import {
-  executesDataPsmCreateAttribute,
+  executeDataPsmCreateAttribute,
 } from "./data-psm-create-attribute-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create data PSM attribute.", async () => {
-  const operation = asDataPsmCreateAttribute(createCoreResource());
+  const operation = new DataPsmCreateAttribute();
   operation.dataPsmInterpretation = "attribute";
   operation.dataPsmTechnicalLabel = "name";
   operation.dataPsmHumanLabel = {"en": "Label"};
@@ -28,9 +27,9 @@ test("Create data PSM attribute.", async () => {
   };
 
   let counter = 0;
-  const actual = await executesDataPsmCreateAttribute(
-    () => "http://localhost/" + ++counter,
+  const actual = await executeDataPsmCreateAttribute(
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
@@ -65,5 +64,5 @@ test("Create data PSM attribute.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

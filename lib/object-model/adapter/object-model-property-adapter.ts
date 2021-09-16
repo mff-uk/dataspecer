@@ -1,20 +1,12 @@
 import {CoreResourceReader, CoreResource} from "../../core";
-import {
-  createObjectModelPrimitive,
-  createObjectModelProperty, ObjectModelPrimitive,
-  ObjectModelProperty,
-} from "../object-model";
+import {ObjectModelPrimitive, ObjectModelProperty} from "../object-model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
-  isDataPsmAssociationEnd,
-  isDataPsmAttribute, isDataPsmClass,
+  DataPsmClass,
 } from "../../data-psm/model";
-import {
-  isPimAssociationEnd,
-  isPimAttribute, PimAssociationEnd, PimAttribute,
-} from "../../pim/model";
+import {PimAssociationEnd, PimAttribute} from "../../pim/model";
 
 export class ObjectModelPropertyAdapter {
 
@@ -41,10 +33,10 @@ export class ObjectModelPropertyAdapter {
   async loadPropertyFromDataPsm(
     resource: CoreResource,
   ): Promise<ObjectModelProperty[]> {
-    if (isDataPsmAttribute(resource)) {
+    if (DataPsmAttribute.is(resource)) {
       return [await this.loadPropertyFromPsmAttribute(resource)];
     }
-    if (isDataPsmAssociationEnd(resource)) {
+    if (DataPsmAssociationEnd.is(resource)) {
       return [await this.loadPropertyFromPsmAssociationEnd(resource)];
     }
     throw new Error(
@@ -57,23 +49,23 @@ export class ObjectModelPropertyAdapter {
     if (this.psmAttribute[dataPsmAttribute.iri] !== undefined) {
       return this.psmAttribute[dataPsmAttribute.iri];
     }
-    const result = createObjectModelProperty();
+    const result = new ObjectModelProperty();
     this.psmAttribute[dataPsmAttribute.iri] = result;
     // As of now we do not address the cardinality, so we leave it to default.
     this.psmAttributeToProperty(dataPsmAttribute, result);
-    if (dataPsmAttribute.dataPsmInterpretation === undefined) {
+    if (dataPsmAttribute.dataPsmInterpretation === null) {
       return result;
     }
     const interpretationEntity =
       await this.reader.readResource(dataPsmAttribute.dataPsmInterpretation);
-    if (isPimAttribute(interpretationEntity)) {
+    if (PimAttribute.is(interpretationEntity)) {
       const interpretation =
         await this.loadPropertyFromPimAttribute(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
     } else {
       throw new Error(
-        ` ${interpretationEntity.iri} with types `
-        + `[${interpretationEntity.types}] is not psm:Attribute `
+        ` ${dataPsmAttribute.dataPsmInterpretation} with types `
+        + `${interpretationEntity?.types} is not psm:Attribute `
         + `interpretation for ${dataPsmAttribute.iri}.`);
     }
     return result;
@@ -87,7 +79,7 @@ export class ObjectModelPropertyAdapter {
     propertyData.humanDescription = dataPsmAttribute.dataPsmHumanDescription;
     propertyData.technicalLabel = dataPsmAttribute.dataPsmTechnicalLabel;
     //
-    const dataType = createObjectModelPrimitive();
+    const dataType = new ObjectModelPrimitive();
     this.psmAttributeToPrimitive(dataPsmAttribute, dataType);
     propertyData.dataTypes.push(dataType);
   }
@@ -103,9 +95,9 @@ export class ObjectModelPropertyAdapter {
   ): void {
     dataPsm.pimIri = pim.pimIri;
     dataPsm.cimIri = pim.cimIri;
-    dataPsm.humanLabel = dataPsm.humanLabel || pim.humanLabel;
-    dataPsm.humanDescription = dataPsm.humanDescription || pim.humanDescription;
-    dataPsm.technicalLabel = dataPsm.technicalLabel || pim.technicalLabel;
+    dataPsm.humanLabel = dataPsm.humanLabel ?? pim.humanLabel;
+    dataPsm.humanDescription = dataPsm.humanDescription ?? pim.humanDescription;
+    dataPsm.technicalLabel = dataPsm.technicalLabel ?? pim.technicalLabel;
     // PIM level has no impact on defined types.
   }
 
@@ -115,24 +107,24 @@ export class ObjectModelPropertyAdapter {
     if (this.psmAssociation[dataPsmAssociationEnd.iri] !== undefined) {
       return this.psmAssociation[dataPsmAssociationEnd.iri];
     }
-    const result = createObjectModelProperty();
+    const result = new ObjectModelProperty();
     this.psmAssociation[dataPsmAssociationEnd.iri] = result;
     // As of now we do not address the cardinality, so we leave it to default.
     await this.psmAssociationEndToProperty(dataPsmAssociationEnd, result);
-    if (dataPsmAssociationEnd.dataPsmInterpretation === undefined) {
+    if (dataPsmAssociationEnd.dataPsmInterpretation === null) {
       return result;
     }
     const interpretationEntity =
       await this.reader.readResource(
         dataPsmAssociationEnd.dataPsmInterpretation);
-    if (isPimAssociationEnd(interpretationEntity)) {
+    if (PimAssociationEnd.is(interpretationEntity)) {
       const interpretation =
         await this.loadPropertyFromPimAssociationEnd(interpretationEntity);
       this.addPimInterpretation(result, interpretation);
     } else {
       throw new Error(
-        ` ${interpretationEntity.iri} with types `
-        + `[${interpretationEntity.types}] is not psm:Association `
+        ` ${dataPsmAssociationEnd.dataPsmInterpretation} with types `
+        + `[${interpretationEntity?.types}] is not psm:Association `
         + `interpretation for ${dataPsmAssociationEnd.iri}.`);
     }
     return result;
@@ -150,14 +142,14 @@ export class ObjectModelPropertyAdapter {
     //
     const typeResource =
       await this.reader.readResource(dataPsmAssociationEnd.dataPsmPart);
-    if (isDataPsmClass(typeResource)) {
+    if (DataPsmClass.is(typeResource)) {
       const classType =
         await this.classAdapter.loadClassFromPsmClass(typeResource);
       propertyData.dataTypes.push(classType);
     } else {
       throw new Error(
-        ` ${typeResource.iri} with types `
-        + `[${typeResource.types}] is not psm:Class `
+        ` ${dataPsmAssociationEnd.dataPsmPart} with types `
+        + `[${typeResource?.types}] is not psm:Class `
         + `type for ${dataPsmAssociationEnd.iri}.`);
     }
   }
@@ -168,7 +160,7 @@ export class ObjectModelPropertyAdapter {
     if (this.pimAttribute[pimAttribute.iri] !== undefined) {
       return this.pimAttribute[pimAttribute.iri];
     }
-    const result = createObjectModelProperty();
+    const result = new ObjectModelProperty();
     this.pimAttribute[pimAttribute.iri] = result;
     this.pimAttributeToProperty(pimAttribute, result);
     return result;
@@ -191,7 +183,7 @@ export class ObjectModelPropertyAdapter {
     if (this.pimAssociation[pimAssociationEnd.iri] !== undefined) {
       return this.pimAssociation[pimAssociationEnd.iri];
     }
-    const result = createObjectModelProperty();
+    const result = new ObjectModelProperty();
     this.pimAssociation[pimAssociationEnd.iri] = result;
     this.pimAssociationToProperty(pimAssociationEnd, result);
     return result;
