@@ -56,8 +56,8 @@ export class ObjectModelPropertyAdapter {
     if (dataPsmAttribute.dataPsmInterpretation === null) {
       return result;
     }
-    const interpretationEntity =
-      await this.reader.readResource(dataPsmAttribute.dataPsmInterpretation);
+    const interpretationEntity = await this.reader.readResource(
+      dataPsmAttribute.dataPsmInterpretation);
     if (PimAttribute.is(interpretationEntity)) {
       const interpretation =
         await this.loadPropertyFromPimAttribute(interpretationEntity);
@@ -114,9 +114,8 @@ export class ObjectModelPropertyAdapter {
     if (dataPsmAssociationEnd.dataPsmInterpretation === null) {
       return result;
     }
-    const interpretationEntity =
-      await this.reader.readResource(
-        dataPsmAssociationEnd.dataPsmInterpretation);
+    const interpretationEntity = await this.reader.readResource(
+      dataPsmAssociationEnd.dataPsmInterpretation);
     if (PimAssociationEnd.is(interpretationEntity)) {
       const interpretation =
         await this.loadPropertyFromPimAssociationEnd(interpretationEntity);
