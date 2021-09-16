@@ -20,11 +20,15 @@ export class XmlSchemaSimpleType extends XmlSchemaType {
   simpleDefinition: XmlSchemaSimpleTypeDefinition;
 }
 
-export function xmlSchemaTypeIsComplex(type: XmlSchemaType): type is XmlSchemaComplexType {
+export function xmlSchemaTypeIsComplex(
+  type: XmlSchemaType,
+): type is XmlSchemaComplexType {
   return (type as XmlSchemaComplexType).complexDefinition !== undefined;
 }
 
-export function xmlSchemaTypeIsSimple(type: XmlSchemaType): type is XmlSchemaSimpleType {
+export function xmlSchemaTypeIsSimple(
+  type: XmlSchemaType,
+): type is XmlSchemaSimpleType {
   return (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
 }
 
@@ -57,10 +61,14 @@ export class XmlSchemaComplexContentType extends XmlSchemaComplexContent {
   complexType: XmlSchemaComplexTypeDefinition ;
 }
 
-export function xmlSchemaComplexContentIsElement(content: XmlSchemaComplexContent): content is XmlSchemaComplexContentElement {
+export function xmlSchemaComplexContentIsElement(
+  content: XmlSchemaComplexContent,
+): content is XmlSchemaComplexContentElement {
   return (content as XmlSchemaComplexContentElement).element !== undefined;
 }
 
-export function xmlSchemaComplexContentIsType(content: XmlSchemaComplexContent): content is XmlSchemaComplexContentType {
+export function xmlSchemaComplexContentIsType(
+  content: XmlSchemaComplexContent,
+): content is XmlSchemaComplexContentType {
   return (content as XmlSchemaComplexContentType).complexType !== undefined;
 }
