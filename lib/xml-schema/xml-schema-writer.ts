@@ -71,7 +71,7 @@ async function writeElement(element: XmlSchemaElement, parentContent: XmlSchemaC
   await writer.writeLocalAttributeValue("name", element.elementName);
   await writeAttributesForComplexContent(parentContent, writer);
   const type = element.type;
-  if (type != null) {
+  if (type.name != null) {
     await writer.writeLocalAttributeValue("type", type.name);
   } else {
     if (xmlSchemaTypeIsComplex(type)) {
@@ -95,7 +95,7 @@ async function writeComplexType(definition: XmlSchemaComplexTypeDefinition, writ
 }
 
 async function writeAttributesForComplexContent(content: XmlSchemaComplexContent | null, writer: XmlWriter): Promise<void> {
-  if (content != null) {
+  if (content == null) {
     return;
   }
   const cardinality = content.cardinality;

@@ -114,12 +114,15 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
     const qname = this.getQName(namespacePrefix, elementName);
     await this.leaveElementAttributes();
     await this.write(this.currentIndent + `<${qname}`);
+    this.elementTagOpen = true;
   }
   
   async writeElementValue(namespacePrefix: string, elementName: string, elementValue: string): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
     await this.leaveElementAttributes();
-    await this.writeLine(this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`);
+    if (elementValue != null) {
+      await this.writeLine(this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`);
+    }
   }
   
   async writeAttributeValue(namespacePrefix: string, attributeName: string, attributeValue: string): Promise<void> {
@@ -127,7 +130,9 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
       throw new Error("Attempting to write an attribute but no element is open.");
     }
     const qname = this.getQName(namespacePrefix, attributeName);
-    await this.write(` ${qname}="${xmlEscape(attributeValue)}"`);
+    if (attributeValue != null) {
+      await this.write(` ${qname}="${xmlEscape(attributeValue)}"`);
+    }
   }
 
   async writeLocalAttributeValue(attributeName: string, attributeValue: string): Promise<void> {
@@ -151,10 +156,11 @@ export abstract class XmlIndentingTextWriter extends XmlSimpleNamespaceMap imple
   async writeElementEnd(namespacePrefix: string, elementName: string): Promise<void> {
     if (this.elementTagOpen) {
       await this.writeLine("/>");
+      this.elementTagOpen = false;
     } else {
       const qname = this.getQName(namespacePrefix, elementName);
       this.indent(-1);
-      await this.writeLine(`</${qname}>`);
+      await this.writeLine(this.currentIndent + `</${qname}>`);
     }
   }
 }
