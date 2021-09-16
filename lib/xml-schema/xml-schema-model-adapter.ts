@@ -3,7 +3,7 @@ import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty,
 import {XmlSchema, XmlSchemaComplexTypeDefinition, XmlSchemaElement,
   XmlSchemaComplexType, XmlSchemaSimpleType, XmlSchemaType, XmlSchemaComplexContentType, XmlSchemaComplexContentElement} from "./xml-schema-model";
 
-export function objectModelSchemaToXmlSchema(schema: ObjectModelSchema): XmlSchema {
+export function objectModelToXmlSchema(schema: ObjectModelSchema): XmlSchema {
   return {
     "targetNamespace": null,
     "elements": Object.values(schema.roots).map(classToElement)
@@ -100,6 +100,6 @@ const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
 function primitiveToQName(primitiveData: ObjectModelPrimitive): [prefix: string, localName: string] {
   return primitiveData.dataType.startsWith(xsdNamespace) ?
-    ["xs", primitiveData.dataType.substr(xsdNamespace.length)] :
+    ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
     simpleTypeMap[primitiveData.dataType];
 }
