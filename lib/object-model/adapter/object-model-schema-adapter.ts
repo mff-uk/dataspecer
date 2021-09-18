@@ -44,7 +44,7 @@ export class ObjectModelSchemaAdapter {
         continue;
       }
       const objectModelClass =
-        await this.classAdapter.loadClassFromPsmClass(dataPsmClass);
+        await this.classAdapter.loadClassFromDataPsmClass(dataPsmClass);
       objectSchema.roots.push(objectModelClass);
     }
   }

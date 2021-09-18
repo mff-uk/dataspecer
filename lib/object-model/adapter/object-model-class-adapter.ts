@@ -19,7 +19,7 @@ export class ObjectModelClassAdapter {
     this.propertyAdapter = new ObjectModelPropertyAdapter(reader, this);
   }
 
-  async loadClassFromPsmClass(
+  async loadClassFromDataPsmClass(
     dataPsmClass: DataPsmClass,
   ): Promise<ObjectModelClass> {
     if (this.psmClass[dataPsmClass.iri] !== undefined) {
@@ -27,7 +27,7 @@ export class ObjectModelClassAdapter {
     }
     const result = new ObjectModelClass();
     this.psmClass[dataPsmClass.iri] = result;
-    await this.psmClassToClass(dataPsmClass, result);
+    await this.dataPsmClassToClass(dataPsmClass, result);
     if (dataPsmClass.dataPsmInterpretation === null) {
       return result;
     }
@@ -46,7 +46,7 @@ export class ObjectModelClassAdapter {
     return result;
   }
 
-  protected async psmClassToClass(
+  protected async dataPsmClassToClass(
     dataPsmClass: DataPsmClass, classData: ObjectModelClass,
   ): Promise<void> {
     classData.psmIri = dataPsmClass.iri;
@@ -58,7 +58,7 @@ export class ObjectModelClassAdapter {
       if (!DataPsmClass.is(resource)) {
         continue;
       }
-      const parentClassData = await this.loadClassFromPsmClass(resource);
+      const parentClassData = await this.loadClassFromDataPsmClass(resource);
       classData.extends.push(parentClassData);
     }
     classData.properties = [];
