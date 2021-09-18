@@ -5,9 +5,9 @@
  */
 export class WebSpecification {
 
-  humanLabel: string;
+  humanLabel: string | null;
 
-  humanDescription: string;
+  humanDescription: string | null;
 
   schemas: WebSpecificationSchema = new WebSpecificationSchema();
 
@@ -21,13 +21,13 @@ export class WebSpecificationSchema {
 
 export class WebSpecificationEntity {
 
-  humanLabel: string;
+  humanLabel: string | null;
 
-  humanDescription: string;
+  humanDescription: string | null;
 
-  anchor: string;
+  anchor: string | null;
 
-  classIri: string;
+  classIri: string | null;
 
   isCodelist: boolean;
 
@@ -37,13 +37,13 @@ export class WebSpecificationEntity {
 
 export class WebSpecificationProperty {
 
-  technicalLabel: string;
+  technicalLabel: string | null;
 
-  humanLabel: string;
+  humanLabel: string | null;
 
-  humanDescription: string;
+  humanDescription: string | null;
 
-  anchor: string;
+  anchor: string | null;
 
   type: WebSpecificationType[] = [];
 
@@ -51,7 +51,7 @@ export class WebSpecificationProperty {
 
 export class WebSpecificationType {
 
-  label: string;
+  label: string | null;
 
   isPrimitive: boolean;
 
