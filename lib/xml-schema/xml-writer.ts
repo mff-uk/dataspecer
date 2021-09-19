@@ -76,7 +76,9 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
   }
 }
 
-// escapes XML AttValue (see https://www.w3.org/TR/xml/#NT-AttValue)
+/**
+ * Escapes XML AttValue (see https://www.w3.org/TR/xml/#NT-AttValue)
+ */
 function xmlEscape(text: string): string {
   return text.replace(/[&<>"']/g, function(m) {
     return `&#${m.charCodeAt(0)};`;
@@ -137,8 +139,8 @@ export abstract class XmlIndentingTextWriter
     namespacePrefix: string, elementName: string, elementValue: string,
   ): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
-    await this.leaveElementAttributes();
     if (elementValue != null) {
+      await this.leaveElementAttributes();
       await this.writeLine(
         this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`,
       );

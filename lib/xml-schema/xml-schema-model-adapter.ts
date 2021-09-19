@@ -117,7 +117,9 @@ function classToComplexContent(
   };
 }
 
-// Temporary map from datatype URIs to QNames, if needed.
+/**
+ * Temporary map from datatype URIs to QNames, if needed.
+ */
 const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
 
 };

@@ -68,6 +68,9 @@ async function writeElements(
   }
 }
 
+/**
+ * Writes out an xs:element definition.
+ */
 async function writeElement(
   element: XmlSchemaElement,
   parentContent: XmlSchemaComplexContent | null, writer: XmlWriter,
@@ -82,12 +85,15 @@ async function writeElement(
     if (xmlSchemaTypeIsComplex(type)) {
       await writeComplexType(type.complexDefinition, writer);
     } else if (xmlSchemaTypeIsSimple(type)) {
-      await writeSimpleType(type.simpleDefinition, writer, true);
+      await writeSimpleType(type.simpleDefinition, true, writer);
     }
-    await writer.writeElementEnd("xs", "element");
   }
+  await writer.writeElementEnd("xs", "element");
 }
 
+/**
+ * Writes out an xs:complexType from its definition.
+ */
 async function writeComplexType(
   definition: XmlSchemaComplexTypeDefinition, writer: XmlWriter,
 ): Promise<void> {
@@ -96,11 +102,14 @@ async function writeComplexType(
     await writer.writeLocalAttributeValue("mixed", "true");
   }
   if (definition.xsType != null) {
-    await writeComplexContent(definition, null, writer, false);
+    await writeComplexContent(definition, null, false, writer);
   }
   await writer.writeElementEnd("xs", "complexType");
 }
 
+/**
+ * Writes out attributes shared by elements in an xs:complexType.
+ */
 async function writeAttributesForComplexContent(
   content: XmlSchemaComplexContent | null, writer: XmlWriter,
 ): Promise<void> {
@@ -122,10 +131,13 @@ async function writeAttributesForComplexContent(
   }
 }
 
+/**
+ * Writes out an aggregate element inside an xs:complexType.
+ */
 async function writeComplexContent(
   definition: XmlSchemaComplexTypeDefinition,
-  parentContent: XmlSchemaComplexContent | null, writer: XmlWriter,
-  allowCollapse: boolean,
+  parentContent: XmlSchemaComplexContent | null, allowCollapse: boolean,
+  writer: XmlWriter,
 ): Promise<void> {
   if (allowCollapse && definition.contents.length === 1) {
     await writeComplexTypes(definition, writer);
@@ -137,6 +149,9 @@ async function writeComplexContent(
   }
 }
 
+/**
+ * Writes out individual members of an xs:complexType element.
+ */
 async function writeComplexTypes(
   definition: XmlSchemaComplexTypeDefinition, writer: XmlWriter,
 ): Promise<void> {
@@ -145,14 +160,17 @@ async function writeComplexTypes(
       await writeElement(content.element, content, writer);
     }
     if (xmlSchemaComplexContentIsType(content)) {
-      await writeComplexContent(content.complexType, content, writer, true);
+      await writeComplexContent(content.complexType, content, true, writer);
     }
   }
 }
 
+/**
+ * Writes out an xs:simpleType from its definition.
+ */
 async function writeSimpleType(
-  definition: XmlSchemaSimpleTypeDefinition, writer: XmlWriter,
-  allowCollapse: boolean,
+  definition: XmlSchemaSimpleTypeDefinition, allowCollapse: boolean,
+  writer: XmlWriter,
 ): Promise<void> {
   const contents = definition.contents;
   if (allowCollapse && contents.length === 1) {
