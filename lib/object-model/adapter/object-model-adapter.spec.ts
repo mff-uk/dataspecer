@@ -74,6 +74,15 @@ test("Load sample schema.", async () => {
       "pimTechnicalLabel": "workFor",
       "pimInterpretation": null,
     } as CoreResource,
+    "local:pim:workFor-owner": {
+      "iri": "local:pim:workFor-owner",
+      "types": ["pim-association"],
+      "pimHumanLabel": null,
+      "pimHumanDescription": null,
+      "pimTechnicalLabel": null,
+      "pimInterpretation": null,
+      "pimEnd": ["local:pim:workFor"],
+    } as CoreResource,
   };
   const expectedPerson = {
     "cimIri": null,
@@ -129,7 +138,8 @@ test("Load sample schema.", async () => {
         "dataType": "xsd:integer",
         "technicalLabel": null,
         "humanDescription": null,
-        "humanLabel": null,      }],
+        "humanLabel": null,
+      }],
       "cardinality": {"min": 0, "max": null},
     }, {
       "psmIri": "local:worksFor",

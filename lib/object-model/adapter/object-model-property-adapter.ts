@@ -1,12 +1,15 @@
 import {CoreResourceReader, CoreResource} from "../../core";
-import {ObjectModelPrimitive, ObjectModelProperty} from "../object-model";
+import {
+  ObjectModelPrimitive,
+  ObjectModelProperty
+} from "../object-model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
 } from "../../data-psm/model";
-import {PimAssociationEnd, PimAttribute} from "../../pim/model";
+import {PimAssociation, PimAssociationEnd, PimAttribute} from "../../pim/model";
 
 export class ObjectModelPropertyAdapter {
 
@@ -14,13 +17,20 @@ export class ObjectModelPropertyAdapter {
 
   readonly psmAttribute: Record<string, ObjectModelProperty> = {};
 
-  readonly psmAssociation: Record<string, ObjectModelProperty> = {};
+  readonly psmAssociationEnd: Record<string, ObjectModelProperty> = {};
 
   readonly pimAttribute: Record<string, ObjectModelProperty> = {};
 
-  readonly pimAssociation: Record<string, ObjectModelProperty> = {};
+  readonly pimAssociationEnd: Record<string, ObjectModelProperty> = {};
 
   readonly classAdapter: ObjectModelClassAdapter;
+
+  /**
+   * Once loaded holds list of all associations, we need this list
+   * as we are otherwise unable to navigate from an association end
+   * to the association. The key to this structure is association-end IRI.
+   */
+  pimAssociationForEnd: Record<string, PimAssociation> | null = null;
 
   constructor(
     reader: CoreResourceReader,
@@ -34,16 +44,16 @@ export class ObjectModelPropertyAdapter {
     resource: CoreResource,
   ): Promise<ObjectModelProperty[]> {
     if (DataPsmAttribute.is(resource)) {
-      return [await this.loadPropertyFromPsmAttribute(resource)];
+      return [await this.loadPropertyFromDataPsmAttribute(resource)];
     }
     if (DataPsmAssociationEnd.is(resource)) {
-      return [await this.loadPropertyFromPsmAssociationEnd(resource)];
+      return [await this.loadPropertyFromDataPsmAssociationEnd(resource)];
     }
     throw new Error(
       ` ${resource.iri} with types [${resource.types}] is not psm property.`);
   }
 
-  protected async loadPropertyFromPsmAttribute(
+  protected async loadPropertyFromDataPsmAttribute(
     dataPsmAttribute: DataPsmAttribute,
   ): Promise<ObjectModelProperty> {
     if (this.psmAttribute[dataPsmAttribute.iri] !== undefined) {
@@ -101,14 +111,14 @@ export class ObjectModelPropertyAdapter {
     // PIM level has no impact on defined types.
   }
 
-  protected async loadPropertyFromPsmAssociationEnd(
+  protected async loadPropertyFromDataPsmAssociationEnd(
     dataPsmAssociationEnd: DataPsmAssociationEnd,
   ): Promise<ObjectModelProperty> {
-    if (this.psmAssociation[dataPsmAssociationEnd.iri] !== undefined) {
-      return this.psmAssociation[dataPsmAssociationEnd.iri];
+    if (this.psmAssociationEnd[dataPsmAssociationEnd.iri] !== undefined) {
+      return this.psmAssociationEnd[dataPsmAssociationEnd.iri];
     }
     const result = new ObjectModelProperty();
-    this.psmAssociation[dataPsmAssociationEnd.iri] = result;
+    this.psmAssociationEnd[dataPsmAssociationEnd.iri] = result;
     // As of now we do not address the cardinality, so we leave it to default.
     await this.psmAssociationEndToProperty(dataPsmAssociationEnd, result);
     if (dataPsmAssociationEnd.dataPsmInterpretation === null) {
@@ -143,7 +153,7 @@ export class ObjectModelPropertyAdapter {
       await this.reader.readResource(dataPsmAssociationEnd.dataPsmPart);
     if (DataPsmClass.is(typeResource)) {
       const classType =
-        await this.classAdapter.loadClassFromPsmClass(typeResource);
+        await this.classAdapter.loadClassFromDataPsmClass(typeResource);
       propertyData.dataTypes.push(classType);
     } else {
       throw new Error(
@@ -169,7 +179,7 @@ export class ObjectModelPropertyAdapter {
     pimAttribute: PimAttribute, propertyData: ObjectModelProperty,
   ): void {
     propertyData.cimIri = pimAttribute.pimInterpretation;
-    propertyData.psmIri = pimAttribute.iri;
+    propertyData.pimIri = pimAttribute.iri;
     propertyData.humanLabel = pimAttribute.pimHumanLabel;
     propertyData.humanDescription = pimAttribute.pimHumanDescription;
     propertyData.technicalLabel = pimAttribute.pimTechnicalLabel;
@@ -179,16 +189,52 @@ export class ObjectModelPropertyAdapter {
   protected async loadPropertyFromPimAssociationEnd(
     pimAssociationEnd: PimAssociationEnd,
   ): Promise<ObjectModelProperty> {
-    if (this.pimAssociation[pimAssociationEnd.iri] !== undefined) {
-      return this.pimAssociation[pimAssociationEnd.iri];
+    if (this.pimAssociationEnd[pimAssociationEnd.iri] !== undefined) {
+      return this.pimAssociationEnd[pimAssociationEnd.iri];
     }
     const result = new ObjectModelProperty();
-    this.pimAssociation[pimAssociationEnd.iri] = result;
-    this.pimAssociationToProperty(pimAssociationEnd, result);
+    this.pimAssociationEnd[pimAssociationEnd.iri] = result;
+    this.pimAssociationEndToProperty(pimAssociationEnd, result);
+    const pimAssociation = await this.loadPimAssociation(pimAssociationEnd.iri);
+    if (pimAssociation === null) {
+      throw new Error(`Missing association for '${pimAssociationEnd.iri}'.`);
+    }
+    this.pimAssociationToProperty(pimAssociation, result);
     return result;
   }
 
-  protected pimAssociationToProperty(
+  /**
+   * Load and return pim:association that own given pim:association-end.
+   */
+  protected async loadPimAssociation(
+    associationEnd: string
+  ): Promise<PimAssociation | null> {
+    if (this.pimAssociationForEnd === null) {
+      await this.loadPimAssociations();
+    }
+    return this.pimAssociationForEnd[associationEnd] ?? null;
+  }
+
+  /**
+   * Collect all pim:associations to class cache.
+   */
+  protected async loadPimAssociations() {
+    this.pimAssociationForEnd = {};
+    const candidates = await this.reader.listResourcesOfType("pim-association");
+    for (const iri of candidates) {
+      const resource = await this.reader.readResource(iri);
+      if (PimAssociation.is(resource)) {
+        for (const endIri of resource.pimEnd) {
+          this.pimAssociationForEnd[endIri] = resource;
+        }
+      } else {
+        throw new Error(
+          ` ${iri} with types [${resource?.types}] is not pim:Association `);
+      }
+    }
+  }
+
+  protected pimAssociationEndToProperty(
     pimAssociationEnd: PimAssociationEnd, propertyData: ObjectModelProperty,
   ): void {
     propertyData.pimIri = pimAssociationEnd.iri;
@@ -197,6 +243,21 @@ export class ObjectModelPropertyAdapter {
     propertyData.humanDescription = pimAssociationEnd.pimHumanDescription;
     propertyData.technicalLabel = pimAssociationEnd.pimTechnicalLabel;
     // PIM level has no impact on defined types.
+  }
+
+  protected pimAssociationToProperty(
+    pimAssociationEnd: PimAssociation, propertyData: ObjectModelProperty,
+  ): void {
+    // Keep any value that is set, use values from association only
+    // if no other is set.
+    propertyData.cimIri =
+      propertyData.cimIri ?? pimAssociationEnd.pimInterpretation;
+    propertyData.humanLabel =
+      propertyData.humanLabel ?? pimAssociationEnd.pimHumanLabel;
+    propertyData.humanDescription =
+      propertyData.humanDescription ?? pimAssociationEnd.pimHumanDescription;
+    propertyData.technicalLabel =
+      propertyData.technicalLabel ?? pimAssociationEnd.pimTechnicalLabel;
   }
 
 }

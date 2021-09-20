@@ -8,7 +8,8 @@ export interface CoreResourceReader {
   listResources(): Promise<string[]>;
 
   /**
-   * Return IRIs of all resources with given RDF type.
+   * Return IRIs of all resources with given resource type, this may not
+   * correspond to RDF IRI.
    */
   listResourcesOfType(typeIri: string): Promise<string[]>;
 
