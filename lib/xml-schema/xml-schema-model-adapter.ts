@@ -1,5 +1,6 @@
 import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty,
-  ObjectModelSchema, isObjectModelClass, isObjectModelPrimitive}
+  ObjectModelSchema, isObjectModelClass,
+  isObjectModelPrimitive, ObjectModelResource}
   from "../object-model/object-model";
 import {XmlSchema, XmlSchemaComplexTypeDefinition, XmlSchemaElement,
   XmlSchemaComplexType, XmlSchemaSimpleType, XmlSchemaType,
@@ -68,16 +69,14 @@ function propertyToElement(
 
 function propertyToElementCheckType(
   propertyData: ObjectModelProperty,
-  rangeChecker: (rangeType: ObjectModelClass | ObjectModelPrimitive) => boolean,
+  rangeChecker: (rangeType: ObjectModelResource) => boolean,
   typeConstructor: (propertyData: ObjectModelProperty) => XmlSchemaType,
 ): XmlSchemaElement | null {
-  if (rangeChecker(propertyData.dataTypes[0])) {
-    if (propertyData.dataTypes.every(rangeChecker)) {
-      return {
-        "elementName": propertyData.technicalLabel,
-        "type": typeConstructor(propertyData),
-      };
-    }
+  if (propertyData.dataTypes.every(rangeChecker)) {
+    return {
+      "elementName": propertyData.technicalLabel,
+      "type": typeConstructor(propertyData),
+    };
   }
   return null;
 }
