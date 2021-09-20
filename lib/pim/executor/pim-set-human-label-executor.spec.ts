@@ -1,0 +1,52 @@
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimSetHumanLabel} from "../operation";
+import {
+  executePimSetHumanLabel,
+} from "./pim-set-human-label-executor";
+
+test("Update resource human label.", async () => {
+  const operation = new PimSetHumanLabel(
+  );
+  operation.pimResource = "http://localhost/1";
+  operation.pimHumanLabel = {"cs": "Popis"};
+
+  const before = {
+    "http://schema": {
+      "iri": "http://schema",
+      "types": ["pim-schema"],
+      "pimParts": ["http://class", "http://localhost/1"],
+    },
+    "http://class": {
+      "iri": "http://class",
+      "types": ["pim-class"],
+    },
+    "http://localhost/1": {
+      "iri": "http://localhost/1",
+      "types": ["pim-attribute"],
+      "pimOwnerClass": "http://class",
+      "pimHumanLabel": {"en": "Label"},
+    },
+  };
+
+  const actual = await executePimSetHumanLabel(
+    wrapResourcesWithReader(before),
+    undefined, operation);
+
+  expect(actual.failed).toBeFalsy();
+  expect(actual.created).toEqual({});
+  expect(actual.changed).toEqual({
+    "http://localhost/1": {
+      "iri": "http://localhost/1",
+      "types": ["pim-attribute"],
+      "pimOwnerClass": "http://class",
+      "pimHumanLabel": {"cs": "Popis"},
+    },
+  });
+  expect(actual.deleted).toEqual([]);
+});
+
+function wrapResourcesWithReader(
+  resources: { [iri: string]: any },
+): CoreResourceReader {
+  return ReadOnlyMemoryStore.create(resources);
+}

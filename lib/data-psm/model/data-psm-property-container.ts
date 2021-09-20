@@ -1,33 +1,23 @@
 import {CoreResource} from "../../core";
-import {DataPsmHumanReadableResource} from "./data-psm-resource";
 
 /**
- * Represent a container with properties. Human labels can be attached as
- * a documentation.
+ * Represent a container with properties.
  */
-export interface DataPsmPropertyContainer extends DataPsmHumanReadableResource {
+export class DataPsmPropertyContainer extends CoreResource {
 
-  dataPsmParts: string[];
+  private static readonly TYPE = "data-psm-container";
+  
+  dataPsmParts: string[] = [];
 
-}
-
-export const DataPsmPropertyContainerType = "data-psm-property-container";
-
-export function isDataPsmPropertyContainer(
-  resource: CoreResource | null,
-): resource is DataPsmPropertyContainer {
-  return resource !== null
-    && resource.types.includes(DataPsmPropertyContainerType);
-}
-
-export function asDataPsmPropertyContainer(
-  resource: CoreResource,
-): DataPsmPropertyContainer {
-  if (isDataPsmPropertyContainer(resource)) {
-    return resource as DataPsmPropertyContainer;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmPropertyContainer.TYPE);
   }
-  resource.types.push(DataPsmPropertyContainerType);
-  const result = resource as DataPsmPropertyContainer;
-  result.dataPsmParts = result.dataPsmParts || [];
-  return result;
+
+  static is(
+    resource: CoreResource | null
+  ): resource is DataPsmPropertyContainer {
+    return resource?.types.includes(DataPsmPropertyContainer.TYPE);
+  }
+
 }

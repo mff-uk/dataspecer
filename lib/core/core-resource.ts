@@ -7,35 +7,24 @@ export type LanguageString = Record<string, string>;
 /**
  * Core object that support type control.
  */
-export interface CoreTyped {
+export class CoreTyped {
 
   /**
    * Types used by core model. Single resource can be of multiple
    * application types like PimClass, PimAttribute, etc..
    */
-  types: string[];
+  types: string[] = [];
 
-}
+  protected constructor() {
+  }
 
-export function isCoreTyped(
-  object: Record<string, any> | null,
-): object is CoreTyped {
-  return object !== null && typeof (object) === "object"
-    && Array.isArray(object.types);
-}
-
-
-export function createCoreTyped(): CoreTyped {
-  return {
-    "types": [],
-  };
 }
 
 /**
  * Define the a core resource for the model, this interface shall be
  * used as a base class for every other core entity/object.
  */
-export interface CoreResource extends CoreTyped {
+export class CoreResource extends CoreTyped {
 
   /**
    * In order to allow identification of all resources they must all use
@@ -44,19 +33,9 @@ export interface CoreResource extends CoreTyped {
    */
   iri: string | null;
 
-}
+  protected constructor(iri: string | null) {
+    super();
+    this.iri = iri;
+  }
 
-export function isCoreResource(
-  object: Record<string, any> | null,
-): object is CoreResource {
-  return object !== null && typeof (object) === "object"
-    && Array.isArray(object.types)
-    && object.iri !== undefined;
-}
-
-export function createCoreResource(iri: string | null = null): CoreResource {
-  return {
-    ...createCoreTyped(),
-    "iri": iri,
-  };
 }

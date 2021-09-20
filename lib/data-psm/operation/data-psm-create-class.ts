@@ -1,52 +1,39 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
 
-export interface DataPsmCreateClass extends DataPsmCreate {
+export class DataPsmCreateClass extends DataPsmCreate {
 
-  dataPsmExtends: string[];
+  static readonly TYPE = "data-psm-action-create-class";
 
-}
+  dataPsmExtends: string[] = [];
 
-export const DataPsmCreateClassType = "psm-action-create-class";
-
-export function isDataPsmCreateClass(
-  resource: CoreResource,
-): resource is DataPsmCreateClass {
-  return resource.types.includes(DataPsmCreateClassType);
-}
-
-export function asDataPsmCreateClass(
-  resource: CoreResource,
-): DataPsmCreateClass {
-  if (isDataPsmCreateClass(resource)) {
-    return resource as DataPsmCreateClass;
+  constructor() {
+    super();
+    this.types.push(DataPsmCreateClass.TYPE);
   }
-  resource.types.push(DataPsmCreateClassType);
-  const result = resource as DataPsmCreateClass;
-  result.dataPsmExtends = result.dataPsmExtends || [];
-  return result;
-}
 
-export interface DataPsmCreateClassResult extends CoreTyped {
-
-  createdDataPsmClass: string;
+  static is(resource: CoreResource | null): resource is DataPsmCreateClass {
+    return resource?.types.includes(DataPsmCreateClass.TYPE);
+  }
 
 }
 
-export const DataPsmCreateClassResultType =
-  "psm-action-create-class-result";
+export class DataPsmCreateClassResult extends CoreOperationResult {
 
-export function isDataPsmCreateClassResult(
-  resource: CoreTyped,
-): resource is DataPsmCreateClassResult {
-  return resource.types.includes(DataPsmCreateClassResultType);
-}
+  private static readonly TYPE = "psm-action-create-class-result";
 
-export function createDataPsmCreateClassResultProperties(
-  createdDataPsmClass: string,
-): DataPsmCreateClassResult {
-  return {
-    "types": [DataPsmCreateClassResultType],
-    "createdDataPsmClass": createdDataPsmClass,
-  };
+  readonly createdDataPsmClass: string;
+
+  protected constructor(dataPsmClass: string) {
+    super();
+    this.types.push(DataPsmCreateClassResult.TYPE);
+    this.createdDataPsmClass = dataPsmClass;
+  }
+
+  static is(
+    resource: CoreTyped | null,
+  ): resource is DataPsmCreateClassResult {
+    return resource?.types.includes(DataPsmCreateClassResult.TYPE);
+  }
+
 }

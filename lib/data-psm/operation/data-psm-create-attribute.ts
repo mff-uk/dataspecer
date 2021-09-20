@@ -1,52 +1,42 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
 
-export interface DataPsmCreateAttribute extends DataPsmCreate {
+export class DataPsmCreateAttribute extends DataPsmCreate {
 
-  dataPsmOwner?: string;
+  static readonly TYPE = "data-psm-action-create-attribute";
 
-  dataPsmDatatype?: string;
+  dataPsmOwner: string | null = null;
 
-}
+  dataPsmDatatype: string | null = null;
 
-export const DataPsmCreateAttributeType = "psm-action-create-attribute";
-
-export function isDataPsmCreateAttribute(
-  resource: CoreResource,
-): resource is DataPsmCreateAttribute {
-  return resource.types.includes(DataPsmCreateAttributeType);
-}
-
-export function asDataPsmCreateAttribute(
-  resource: CoreResource,
-): DataPsmCreateAttribute {
-  if (isDataPsmCreateAttribute(resource)) {
-    return resource as DataPsmCreateAttribute;
+  constructor() {
+    super();
+    this.types.push(DataPsmCreateAttribute.TYPE);
   }
-  resource.types.push(DataPsmCreateAttributeType);
-  return resource as DataPsmCreateAttribute;
-}
 
-export interface DataPsmCreateAttributeResult extends CoreTyped {
-
-  createdDataPsmAttribute: string;
+  static is(resource: CoreResource | null): resource is DataPsmCreateAttribute {
+    return resource?.types.includes(DataPsmCreateAttribute.TYPE);
+  }
 
 }
 
-export const DataPsmCreateAttributeResultType =
-  "psm-attribute-end-result";
+export class DataPsmCreateAttributeResult extends CoreOperationResult {
 
-export function isDataPsmCreateAttributeResult(
-  resource: CoreTyped,
-): resource is DataPsmCreateAttributeResult {
-  return resource.types.includes(DataPsmCreateAttributeResultType);
-}
+  private static readonly TYPE =
+    "psm-attribute-result";
 
-export function createDataPsmCreateAttributeResultProperties(
-  createdDataPsmAttribute: string,
-): DataPsmCreateAttributeResult {
-  return {
-    "types": [DataPsmCreateAttributeResultType],
-    "createdDataPsmAttribute": createdDataPsmAttribute,
-  };
+  readonly createdDataPsmAttribute: string;
+
+  constructor(dataPsmAttribute: string) {
+    super();
+    this.types.push(DataPsmCreateAttributeResult.TYPE);
+    this.createdDataPsmAttribute = dataPsmAttribute;
+  }
+
+  static is(
+    resource: CoreTyped | null,
+  ): resource is DataPsmCreateAttributeResult {
+    return resource?.types.includes(DataPsmCreateAttributeResult.TYPE);
+  }
+
 }

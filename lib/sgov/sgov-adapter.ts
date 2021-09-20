@@ -140,7 +140,7 @@ export class SgovAdapter implements CimAdapter {
     await Promise.all(sources.map(q => q.query()));
     const source = FederatedSource.createExhaustive(sources);
     const resources = await this.loadPimEntitiesGraphFromEntity(cimIri, source);
-    return new ReadOnlyMemoryStore(resources);
+    return ReadOnlyMemoryStore.create(resources);
   }
 
   public async getFullHierarchy(cimIri: string): Promise<ReadOnlyMemoryStore> {
@@ -152,7 +152,7 @@ export class SgovAdapter implements CimAdapter {
       this.httpFetch, this.endpoint, getHierarchyQuery(cimIri));
     await source.query();
     const resources = await this.loadPimEntitiesGraphFromEntity(cimIri, source);
-    return new ReadOnlyMemoryStore(resources);
+    return ReadOnlyMemoryStore.create(resources);
   }
 
   /**
@@ -260,9 +260,9 @@ export class SgovAdapter implements CimAdapter {
 
   protected async cacheResourceGroup(
     entity: RdfSourceWrap,
-  ): Promise<string[] | undefined> {
+  ): Promise<string[]> {
     const groups = await entity.nodes(SKOS.inScheme);
-    this.resourceGroupCache.set(entity.id(), groups);
+    this.resourceGroupCache.set(entity.iri, groups);
     return groups;
   }
 

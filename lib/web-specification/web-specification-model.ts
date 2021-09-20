@@ -64,11 +64,11 @@ export class WebSpecificationType {
   /**
    * Optional link to a type definition.
    */
-  link: string | undefined;
+  link: string | null;
 
   /**
    * IRI of a codelist if the value is from one.
    */
-  codelistIri: string | undefined;
+  codelistIri: string | null;
 
 }

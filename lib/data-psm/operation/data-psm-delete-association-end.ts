@@ -1,28 +1,22 @@
 import {CoreResource, CoreOperation} from "../../core";
 
-export interface DataPsmDeleteAssociationEnd extends CoreOperation {
+export class DataPsmDeleteAssociationEnd extends CoreOperation {
 
-  dataPsmOwner?: string;
+  static readonly TYPE = "psm-action-delete-association-end";
 
-  dataPsmAssociationEnd?: string;
+  dataPsmOwner: string | null = null;
 
-}
+  dataPsmAssociationEnd: string | null = null;
 
-export const DataPsmDeleteAssociationEndType =
-  "psm-action-delete-association-end";
-
-export function isDataPsmDeleteAssociationEnd(
-  resource: CoreResource,
-): resource is DataPsmDeleteAssociationEnd {
-  return resource.types.includes(DataPsmDeleteAssociationEndType);
-}
-
-export function asDataPsmDeleteAssociationEnd(
-  resource: CoreResource,
-): DataPsmDeleteAssociationEnd {
-  if (isDataPsmDeleteAssociationEnd(resource)) {
-    return resource as DataPsmDeleteAssociationEnd;
+  constructor() {
+    super();
+    this.types.push(DataPsmDeleteAssociationEnd.TYPE);
   }
-  resource.types.push(DataPsmDeleteAssociationEndType);
-  return resource as DataPsmDeleteAssociationEnd;
+
+  static is(
+    resource: CoreResource | null
+  ): resource is DataPsmDeleteAssociationEnd {
+    return resource.types.includes(DataPsmDeleteAssociationEnd.TYPE);
+  }
+
 }

@@ -1,12 +1,19 @@
-import {CoreResourceReader, CoreResource} from "../../../core";
 import {clone} from "../../utilities/clone";
+import {CoreResourceReader} from "../../core-reader";
+import {CoreResource} from "../../core-resource";
 
 export class ReadOnlyMemoryStore implements CoreResourceReader {
 
   private readonly resources: { [iri: string]: CoreResource };
 
-  constructor(resources: { [iri: string]: CoreResource }) {
+  protected constructor(resources: { [iri: string]: CoreResource }) {
     this.resources = resources;
+  }
+
+  static create(
+    resources: { [iri: string]: CoreResource },
+  ): ReadOnlyMemoryStore {
+    return new ReadOnlyMemoryStore(resources);
   }
 
   listResources(): Promise<string[]> {

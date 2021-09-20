@@ -6,27 +6,19 @@ import {PimResource} from "./pim-resource";
  * from the class. Instead the properties specify an owner class and the
  * associations ends points to classes.
  */
-export interface PimClass extends PimResource {
+export class PimClass extends PimResource {
 
-  pimExtends: string[];
+  private static readonly TYPE = "pim-class";
 
-}
+  pimExtends: string[] = [];
 
-const PimClassType = "pim-class";
-
-export function isPimClass(
-  resource: CoreResource | null,
-): resource is PimClass {
-  return resource !== null
-    && resource.types.includes(PimClassType);
-}
-
-export function asPimClass(resource: CoreResource): PimClass {
-  if (isPimClass(resource)) {
-    return resource as PimClass;
+  constructor(iri: string | null = null) {
+    super(iri);
+    this.types.push(PimClass.TYPE);
   }
-  resource.types.push(PimClassType);
-  const result = resource as PimClass;
-  result.pimExtends = result.pimExtends || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is PimClass {
+    return resource?.types.includes(PimClass.TYPE);
+  }
+
 }

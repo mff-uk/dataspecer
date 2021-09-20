@@ -4,184 +4,154 @@ export type LanguageString = { [language: string]: string };
  * Schema is the root object that is used to identify a collection of classes.
  * We can see schema as a diagram that contains the class definitions.
  */
-export interface ObjectModelSchema {
+export class ObjectModelSchema {
 
   /**
    * IRI of parent entity in the data-psm level.
    */
-  psmIri?: string;
+  psmIri: string | null = null;
 
   /**
    * Label used by a computer, can be used as for example as a name of
    * a property in JSON.
    */
-  technicalLabel?: string;
+  technicalLabel: string | null = null;
 
   /**
    * Label visible to a human reader.
    */
-  humanLabel?: LanguageString;
+  humanLabel: LanguageString | null = null;
 
   /**
    * Description visible to a human reader.
    */
-  humanDescription?: LanguageString;
+  humanDescription: LanguageString | null = null;
 
   /**
    * Root classes as specified by the data-psm schema.
    */
-  roots: ObjectModelClass[];
+  roots: ObjectModelClass[] = [];
 
   /**
    * All classes in the schema including the root classes.
    */
-  classes: ObjectModelClass[];
+  classes: ObjectModelClass[] = [];
 
-}
-
-export function createObjectModelSchema(): ObjectModelSchema {
-  return {
-    "roots": [],
-    "classes": [],
-  };
 }
 
 /**
  * Base class for each entity, even for schema, in the object model.
  */
-export interface ObjectModelResource {
+export class ObjectModelResource {
 
   /**
    * The cim level is optional as the pim level may not have an interpretation.
    */
-  cimIri?: string;
+  cimIri: string | null = null;
 
   /**
    * The pim level is optional is data-psm level may not have an interpretation.
    */
-  pimIri?: string;
+  pimIri: string | null = null;
 
   /**
    * IRI of parent entity in the data-psm level.
    */
-  psmIri?: string;
+  psmIri: string | null = null;
 
   /**
    * Label used by a computer, can be used as for example as a name of
    * a property in JSON.
    */
-  technicalLabel?: string;
+  technicalLabel: string | null = null;
 
   /**
    * Label visible to a human reader.
    */
-  humanLabel?: LanguageString;
+  humanLabel: LanguageString | null = null;
 
   /**
    * Description visible to a human reader.
    */
-  humanDescription?: LanguageString;
+  humanDescription: LanguageString | null = null;
 
 }
 
-export interface ObjectModelClass extends ObjectModelResource {
+export class ObjectModelClass extends ObjectModelResource {
+
+  private static readonly TYPE = "object-model-class";
 
   /**
    * Used for type checking.
    */
-  type: string;
+  type: string = ObjectModelClass.TYPE;
 
   /**
    * Class can extend other classes, the properties of other classes
    * are not included in this class.
    */
-  extends: ObjectModelClass [];
+  extends: ObjectModelClass [] = [];
 
   /**
    * Properties declared on this class directly. The list is ordered.
    */
-  properties: ObjectModelProperty[];
+  properties: ObjectModelProperty[] = [];
 
   /**
    * If set to true values of this class are available in a codelist.
    */
-  isCodelist: boolean;
+  isCodelist = false;
+
+  static is(object: any | null): object is ObjectModelClass {
+    return object !== null && object?.type === ObjectModelClass.TYPE;
+  }
 
 }
 
-const ObjectModelClassType = "object-model-class";
-
-export function isObjectModelClass(
-  object: any | null,
-): object is ObjectModelClass {
-  return object !== null && object?.type === ObjectModelClassType;
-}
-
-export function createObjectModelClass(): ObjectModelClass {
-  return {
-    "type": ObjectModelClassType,
-    "extends": [],
-    "properties": [],
-    "isCodelist": false,
-  };
-}
-
-export interface ObjectModelProperty extends ObjectModelResource {
+export class ObjectModelProperty extends ObjectModelResource {
 
   /**
    * A single property can have multiple types, for example by inheritance
    * or data-psm choice.
    */
-  dataTypes: (ObjectModelClass | ObjectModelPrimitive)[];
+  dataTypes: (ObjectModelClass | ObjectModelPrimitive)[] = [];
 
-  cardinality: Interval;
-
-}
-
-export function createObjectModelProperty(): ObjectModelProperty {
-  return {
-    "dataTypes": [],
-    "cardinality": {
-      "min": 0,
-    },
+  cardinality: ObjectModelInterval = {
+    "min": 0,
+    "max": null,
   };
+
 }
 
-interface Interval {
+export interface ObjectModelInterval {
 
   min: number;
 
   /**
    * If not set there is no upper bound.
    */
-  max?: number;
+  max: number | null;
 
 }
 
-export interface ObjectModelPrimitive extends ObjectModelResource {
+export class ObjectModelPrimitive extends ObjectModelResource {
+
+  private static readonly TYPE = "primitive-data-type";
 
   /**
    * Used for type checking.
    */
-  type: string;
+  type: string = ObjectModelPrimitive.TYPE;
 
   /**
    * IRI of the data type like http://www.w3.org/2001/XMLSchema#string .
    */
-  dataType?: string;
+  dataType: string | null;
 
-}
+  static function
 
-const ObjectModelPrimitiveType = "primitive-data-type";
+  static is(object: any | null): object is ObjectModelPrimitive {
+    return object != null && object?.type === ObjectModelPrimitive.TYPE;
+  }
 
-export function isObjectModelPrimitive(
-  object: any | null,
-): object is ObjectModelPrimitive {
-  return object != null && object?.type === ObjectModelPrimitiveType;
-}
-
-export function createObjectModelPrimitive(): ObjectModelPrimitive {
-  return {
-    "type": ObjectModelPrimitiveType,
-  };
 }

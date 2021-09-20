@@ -1,16 +1,9 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {
-  asPimCreateAssociation,
-  isPimCreateAssociationResult, PimCreateAssociationResult,
-} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimCreateAssociation, PimCreateAssociationResult} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create association.", async () => {
-  const operation = asPimCreateAssociation(createCoreResource());
+  const operation = new PimCreateAssociation();
   operation.pimInterpretation = "attribute";
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
@@ -35,8 +28,8 @@ test("Create association.", async () => {
 
   let counter = 0;
   const actual = await executesPimCreateAssociation(
-    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
@@ -53,11 +46,19 @@ test("Create association.", async () => {
     "http://localhost/2": {
       "iri": "http://localhost/2",
       "types": ["pim-association-end"],
+      "pimInterpretation": null,
+      "pimHumanDescription": null,
+      "pimHumanLabel":null,
+      "pimTechnicalLabel": null,
       "pimPart": "http://right",
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
       "types": ["pim-association-end"],
+      "pimInterpretation": null,
+      "pimHumanDescription": null,
+      "pimHumanLabel":null,
+      "pimTechnicalLabel": null,
       "pimPart": "http://left",
     },
   });
@@ -72,7 +73,7 @@ test("Create association.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateAssociationResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateAssociationResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateAssociationResult;
   expect(result.createdPimAssociation).toEqual("http://localhost/3");
   expect(result.createdPimAssociationEnds.sort()).toEqual([
@@ -83,5 +84,5 @@ test("Create association.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

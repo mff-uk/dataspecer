@@ -1,28 +1,29 @@
-import {
-  createPimCreateSchemaResultProperties,
-  PimCreateSchema,
-} from "../operation";
-import {asPimSchema} from "../model";
+import {PimCreateSchema, PimCreateSchemaResult} from "../operation";
 import {
   CoreResourceReader,
-  createCoreResource,
   CreateNewIdentifier,
-  createSuccessOperationResult,
   CoreExecutorResult,
 } from "../../core";
+import {loadPimSchema} from "./pim-executor-utils";
+import {PimSchema} from "../model";
 
 export async function executePimCreateSchema(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: PimCreateSchema,
 ): Promise<CoreExecutorResult> {
-  const iri = operation.pimNewIri || createNewIdentifier("schema");
 
-  const result = asPimSchema(createCoreResource(iri));
+  const schema = await loadPimSchema(reader);
+  if (schema !== null) {
+    return CoreExecutorResult.createError(
+      `Schema already exists '${schema.iri}'.`);
+  }
+
+  const iri = operation.pimNewIri ?? createNewIdentifier("schema");
+  const result = new PimSchema(iri);
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
 
-  return createSuccessOperationResult(
-    [result], [], [],
-    createPimCreateSchemaResultProperties(result.iri));
+  return CoreExecutorResult.createSuccess(
+    [result], [], [], new PimCreateSchemaResult(result.iri));
 }

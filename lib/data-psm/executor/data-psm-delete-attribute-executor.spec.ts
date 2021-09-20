@@ -1,12 +1,11 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmDeleteAttribute} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmDeleteAttribute} from "../operation";
 import {
-  executesDataPsmDeleteAttribute,
+  executeDataPsmDeleteAttribute,
 } from "./data-psm-delete-attribute-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Delete data PSM attribute.", async () => {
-  const operation = asDataPsmDeleteAttribute(createCoreResource());
+  const operation = new DataPsmDeleteAttribute();
   operation.dataPsmOwner = "http://class";
   operation.dataPsmAttribute = "http://attribute";
 
@@ -27,10 +26,9 @@ test("Delete data PSM attribute.", async () => {
     },
   };
 
-  const actual = await executesDataPsmDeleteAttribute(
-    undefined,
+  const actual = await executeDataPsmDeleteAttribute(
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
@@ -52,5 +50,5 @@ test("Delete data PSM attribute.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

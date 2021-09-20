@@ -3,8 +3,6 @@ import {
   ObjectModelSchema,
   ObjectModelProperty,
   ObjectModelPrimitive,
-  isObjectModelClass,
-  isObjectModelPrimitive,
 } from "../object-model";
 import {
   WebSpecification,
@@ -38,7 +36,7 @@ export type RootClassSelector =
   (classData: ObjectModelClass) => boolean;
 
 export type StringSelector =
-  (string: Record<string, string> | undefined) => string;
+  (string: Record<string, string> | null) => string;
 
 export interface LinkFactory {
 
@@ -128,9 +126,9 @@ function convertPropertyData(
     context.stringSelector(propertyData.humanDescription);
   result.anchor = context.linkFactory.propertyAnchor(owner, propertyData);
   for (const dataType of propertyData.dataTypes) {
-    if (isObjectModelPrimitive(dataType)) {
+    if (ObjectModelPrimitive.is(dataType)) {
       result.type.push(convertPropertyPrimitive(context, dataType));
-    } else if (isObjectModelClass(dataType)) {
+    } else if (ObjectModelClass.is(dataType)) {
       result.type.push(convertPropertyClass(context, dataType));
     } else {
       throw new Error(
@@ -155,7 +153,7 @@ function convertPropertyPrimitive(
     "isPrimitive": true,
     "isClassValue": false,
     "link": dataType,
-    "codelistIri": undefined,
+    "codelistIri": null,
   };
 }
 
@@ -163,7 +161,7 @@ function convertPropertyClass(
   context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationType {
   const label =
-    context.stringSelector(classData.humanLabel) || classData.psmIri;
+    context.stringSelector(classData.humanLabel) ?? classData.psmIri;
   if (classData.isCodelist) {
     return convertPropertyClassCodeList(context, classData, label);
   }
@@ -175,7 +173,7 @@ function convertPropertyClass(
     "isPrimitive": false,
     "isClassValue": false,
     "link": context.linkFactory.classLink(classData),
-    "codelistIri": undefined,
+    "codelistIri": null,
   };
 }
 
@@ -187,7 +185,7 @@ function convertPropertyClassCodeList(
     "isPrimitive": false,
     "isClassValue": false,
     "link": context.linkFactory.codeListLink(classData),
-    "codelistIri": classData.isCodelist ? classData.cimIri : undefined,
+    "codelistIri": classData.isCodelist ? classData.cimIri : null,
   };
 }
 
@@ -207,7 +205,7 @@ function convertPropertyClassValue(
     "isPrimitive": false,
     "isClassValue": true,
     "link": context.linkFactory.valueClassLink(classData),
-    "codelistIri": classData.isCodelist ? classData.cimIri : undefined,
+    "codelistIri": classData.isCodelist ? classData.cimIri : null,
   };
 }
 
@@ -220,7 +218,7 @@ export function defaultRootSelector(classData: ObjectModelClass): boolean {
 }
 
 export function defaultStringSelector(
-  str: Record<string, string> | undefined): string {
+  str: Record<string, string> | null): string {
   if (str === undefined || str === null) {
     return "";
   }
@@ -267,14 +265,16 @@ export class DefaultLinkFactory implements LinkFactory {
       [classData.psmIri, classData.pimIri, classData.cimIri]);
   }
 
-  protected firstNamedNode(resources: string[]): string | undefined {
+  protected firstNamedNode(
+    resources: (string | null | undefined)[],
+  ): string | null {
     for (const resource of resources) {
-      if (resource === undefined || resource.startsWith("_")) {
+      if (resource?.startsWith("_")) {
         continue;
       }
       return resource;
     }
-    return undefined;
+    return null;
   }
 
   propertyAnchor(

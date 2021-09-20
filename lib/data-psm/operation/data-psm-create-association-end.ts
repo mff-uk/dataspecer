@@ -1,53 +1,44 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
 
-export interface DataPsmCreateAssociationEnd extends DataPsmCreate {
+export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
-  dataPsmOwner?: string;
+  static readonly TYPE = "data-psm-action-create-association-end";
 
-  dataPsmPart?: string;
+  dataPsmOwner: string | null = null;
 
-}
+  dataPsmPart: string | null = null;
 
-export const DataPsmCreateAssociationEndType =
-  "data-psm-action-create-association-end";
-
-export function isDataPsmCreateAssociationEnd(
-  resource: CoreResource,
-): resource is DataPsmCreateAssociationEnd {
-  return resource.types.includes(DataPsmCreateAssociationEndType);
-}
-
-export function asDataPsmCreateAssociationEnd(
-  resource: CoreResource,
-): DataPsmCreateAssociationEnd {
-  if (isDataPsmCreateAssociationEnd(resource)) {
-    return resource as DataPsmCreateAssociationEnd;
+  constructor() {
+    super();
+    this.types.push(DataPsmCreateAssociationEnd.TYPE);
   }
-  resource.types.push(DataPsmCreateAssociationEndType);
-  return resource as DataPsmCreateAssociationEnd;
+
+  static is(
+    resource: CoreResource | null
+  ): resource is DataPsmCreateAssociationEnd {
+    return resource?.types.includes(DataPsmCreateAssociationEnd.TYPE);
+  }
+
 }
 
-export interface DataPsmCreateAssociationEndResult extends CoreTyped {
+export class DataPsmCreateAssociationEndResult extends CoreOperationResult {
 
-  createdDataPsmAssociationEnd: string;
+  private static readonly TYPE =
+    "data-psm-action-create-association-end-result";
 
-}
+  readonly createdDataPsmAssociationEnd: string;
 
-export const DataPsmCreateAssociationEndResultType =
-  "data-psm-action-create-association-end-result";
+  protected constructor(dataPsmAssociationEnd: string) {
+    super();
+    this.types.push(DataPsmCreateAssociationEndResult.TYPE);
+    this.createdDataPsmAssociationEnd = dataPsmAssociationEnd;
+  }
 
-export function isDataPsmCreateAssociationEndResult(
-  resource: CoreTyped,
-): resource is DataPsmCreateAssociationEndResult {
-  return resource.types.includes(DataPsmCreateAssociationEndResultType);
-}
+  static is(
+    resource: CoreTyped | null,
+  ): resource is DataPsmCreateAssociationEndResult {
+    return resource?.types.includes(DataPsmCreateAssociationEndResult.TYPE);
+  }
 
-export function createDataPsmCreateAssociationEndResultProperties(
-  createdDataPsmAssociationEnd: string,
-): DataPsmCreateAssociationEndResult {
-  return {
-    "types": [DataPsmCreateAssociationEndResultType],
-    "createdDataPsmAssociationEnd": createdDataPsmAssociationEnd,
-  };
 }

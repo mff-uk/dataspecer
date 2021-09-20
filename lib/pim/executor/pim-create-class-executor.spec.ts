@@ -1,16 +1,9 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {
-  asPimCreateClass,
-  isPimCreateClassResult, PimCreateClassResult,
-} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimCreateClass,PimCreateClassResult} from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create class.", async () => {
-  const operation = asPimCreateClass(createCoreResource());
+  const operation = new PimCreateClass();
   operation.pimInterpretation = "class-type";
   operation.pimTechnicalLabel = "my-class";
   operation.pimHumanLabel = {"en": "Label"};
@@ -26,8 +19,8 @@ test("Create class.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateClass(
-    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
@@ -50,7 +43,7 @@ test("Create class.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateClassResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateClassResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateClassResult;
   expect(result.createdPimClass).toEqual("http://localhost/1");
 });
@@ -58,5 +51,5 @@ test("Create class.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

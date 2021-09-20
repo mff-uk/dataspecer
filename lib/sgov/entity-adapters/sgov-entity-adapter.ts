@@ -4,26 +4,15 @@ import {LanguageString} from "../../core";
 import {SKOS} from "../sgov-vocabulary";
 import {IriProvider} from "../../cim";
 
-export async function loadSgovEntity(
-  entity: RdfSourceWrap, idProvider: IriProvider,
-): Promise<PimResource> {
-  const resource: PimResource = {types: [], iri: null};
-
-  // skos:prefLabel
+export async function loadSgovEntityToResource(
+  entity: RdfSourceWrap, idProvider: IriProvider, resource: PimResource,
+): Promise<void> {
   const prefLabel = await entity.property(SKOS.prefLabel);
   resource.pimHumanLabel = rdfObjectsToLanguageString(prefLabel);
-
-  // skos:definition
   const definition = await entity.property(SKOS.definition);
   resource.pimHumanDescription = rdfObjectsToLanguageString(definition);
-
-  // interpretation
-  resource.pimInterpretation = entity.id();
-
-  // id
+  resource.pimInterpretation = entity.iri;
   resource.iri = idProvider.cimToPim(resource.pimInterpretation);
-
-  return resource;
 }
 
 function rdfObjectsToLanguageString(objects: RdfObject[]): LanguageString {

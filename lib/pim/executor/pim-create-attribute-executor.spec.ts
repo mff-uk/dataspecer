@@ -1,17 +1,9 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {
-  asPimCreateAttribute,
-  isPimCreateAttributeResult,
-  PimCreateAttributeResult,
-} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimCreateAttribute, PimCreateAttributeResult} from "../operation";
 import {executePimCreateAttribute} from "./pim-create-attribute-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
 
 test("Create attribute.", async () => {
-  const operation = asPimCreateAttribute(createCoreResource());
+  const operation = new PimCreateAttribute();
   operation.pimInterpretation = "attribute";
   operation.pimTechnicalLabel = "name";
   operation.pimHumanLabel = {"en": "Label"};
@@ -33,8 +25,8 @@ test("Create attribute.", async () => {
 
   let counter = 0;
   const actual = await executePimCreateAttribute(
-    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
@@ -58,7 +50,7 @@ test("Create attribute.", async () => {
     },
   });
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateAttributeResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateAttributeResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateAttributeResult;
   expect(result.createdPimAttribute).toEqual("http://localhost/1");
 });
@@ -66,5 +58,5 @@ test("Create attribute.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

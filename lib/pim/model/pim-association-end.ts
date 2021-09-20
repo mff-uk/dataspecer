@@ -2,27 +2,22 @@ import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
 
 /**
- * Specify one end of the association that points to a class.
+ * Specify one end of the association that points to a data type definition,
+ * most likely a class.
  */
-export interface PimAssociationEnd extends PimResource {
+export class PimAssociationEnd extends PimResource {
 
-  pimPart?: string;
+  private static readonly TYPE = "pim-association-end";
 
-}
+  pimPart: string | null = null;
 
-const PimAssociationEndType = "pim-association-end";
-
-export function isPimAssociationEnd(
-  resource: CoreResource | null,
-): resource is PimAssociationEnd {
-  return resource !== null
-    && resource.types.includes(PimAssociationEndType);
-}
-
-export function asPimAssociationEnd(resource: CoreResource): PimAssociationEnd {
-  if (isPimAssociationEnd(resource)) {
-    return resource as PimAssociationEnd;
+  constructor(iri: string | null = null) {
+    super(iri);
+    this.types.push(PimAssociationEnd.TYPE);
   }
-  resource.types.push(PimAssociationEndType);
-  return resource as PimAssociationEnd;
+
+  static is(resource: CoreResource | null): resource is PimAssociationEnd {
+    return resource?.types.includes(PimAssociationEnd.TYPE);
+  }
+
 }

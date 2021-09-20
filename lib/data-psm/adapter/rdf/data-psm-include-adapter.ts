@@ -1,24 +1,27 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {asDataPsmInclude} from "../../model";
-import {loadDataPsmResource} from "./data-psm-resource-adapter";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {DataPsmInclude} from "../../model";
 import * as PSM from "./data-psm-vocabulary";
 
 export class DataPsmIncludeAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PSM.INCLUDES)) {
-      return [];
-    }
-    //
-    const result = asDataPsmInclude(resource);
-    const loadFromPim = await loadDataPsmResource(source, result);
-    //
+    return types.includes(PSM.INCLUDES);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new DataPsmInclude(source.iri);
     result.dataPsmParts = await source.nodesExtended(PSM.HAS_PART);
-    return [...loadFromPim, ...result.dataPsmParts];
+    return {
+      "resource": result,
+      "references": [
+        ...result.dataPsmParts,
+      ],
+    };
   }
 
 }

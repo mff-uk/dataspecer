@@ -6,27 +6,19 @@ import {DataPsmResource} from "./data-psm-resource";
  * ends. An association end can point to a class and any other resource
  * that can be resolved into one or more classes.
  */
-export interface DataPsmAssociationEnd extends DataPsmResource {
+export class DataPsmAssociationEnd extends DataPsmResource {
 
-  dataPsmPart?: string;
+  private static readonly TYPE = "data-psm-association-end";
 
-}
+  dataPsmPart: string | null = null;
 
-export const DataPsmAssociationEndType = "data-psm-association-end";
-
-export function isDataPsmAssociationEnd(
-  resource: CoreResource | null,
-): resource is DataPsmAssociationEnd {
-  return resource !== null
-    && resource.types.includes(DataPsmAssociationEndType);
-}
-
-export function asDataPsmAssociationEnd(
-  resource: CoreResource,
-): DataPsmAssociationEnd {
-  if (isDataPsmAssociationEnd(resource)) {
-    return resource as DataPsmAssociationEnd;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmAssociationEnd.TYPE);
   }
-  resource.types.push(DataPsmAssociationEndType);
-  return resource as DataPsmAssociationEnd;
+
+  static is(resource: CoreResource | null): resource is DataPsmAssociationEnd {
+    return resource?.types.includes(DataPsmAssociationEnd.TYPE);
+  }
+
 }
