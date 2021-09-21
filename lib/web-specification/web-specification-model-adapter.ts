@@ -100,19 +100,18 @@ function loadReSpecSpecificationClassData(
 function loadClassDataProperties(
   context: AdapterContext, classData: ObjectModelClass,
 ): WebSpecificationProperty[] {
-  const result = {};
+  const result = [];
   // We first load all properties based on the inheritance.
   for (const extendedClass of classData.extends) {
-    for (const property of loadClassDataProperties(context, extendedClass)) {
-      result[property.technicalLabel] = property;
-    }
+    const propertiesData = loadClassDataProperties(context, extendedClass);
+    result.push(...propertiesData);
   }
   // Next we override them with this class definitions.
   for (const property of classData.properties) {
     const propertyData = convertPropertyData(context, classData, property);
-    result[propertyData.technicalLabel] = propertyData;
+    result.push(propertyData);
   }
-  return Object.values(result);
+  return result;
 }
 
 function convertPropertyData(
