@@ -148,8 +148,6 @@ export class ObjectModelPrimitive extends ObjectModelResource {
    */
   dataType: string | null;
 
-  static function
-
   static is(object: any | null): object is ObjectModelPrimitive {
     return object != null && object?.type === ObjectModelPrimitive.TYPE;
   }
