@@ -13,9 +13,10 @@ import classNames from "classnames";
 import {PimAttribute} from "model-driven-data/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {StoreContext} from "../App";
-import {useDataPsm} from "../../hooks/useDataPsm";
 import {DataPsmAttributeDetailDialog} from "./detail/DataPsmAttributeDetailDialog";
 import {InlineEdit} from "./common/InlineEdit";
+import {useResource} from "../../hooks/useResource";
+import {DeleteAttribute} from "../../operations/delete-attribute";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
@@ -23,12 +24,9 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
 
-    const {deleteAttribute} = React.useContext(StoreContext);
-    const {dataPsmResource: ownerClass} = useDataPsm<DataPsmClass>(parentDataPsmClassIri);
-    const del = useCallback(() => dataPsmAttribute && ownerClass && deleteAttribute({
-        attribute: dataPsmAttribute,
-        ownerClass,
-    }), [dataPsmAttribute, ownerClass]);
+    const {store} = React.useContext(StoreContext);
+    const {resource: ownerClass} = useResource<DataPsmClass>(parentDataPsmClassIri);
+    const del = useCallback(() => dataPsmAttribute && ownerClass && store.executeOperation(new DeleteAttribute(dataPsmAttribute, ownerClass)), [dataPsmAttribute, ownerClass]);
 
     const inlineEdit = useToggle();
 

@@ -17,14 +17,12 @@ import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {isPimAssociation, isPimAttribute, PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
+import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {CompositeAddClassSurroundings} from "../../operations/composite-add-class-surroundings";
-import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -60,7 +58,11 @@ interface AddInterpretedSurroundingDialogProperties {
 
     dataPsmClassIri: string,
 
-    selected: (operation: CompositeAddClassSurroundings) => void,
+    selected: (operation: {
+        resourcesToAdd: string[],
+        sourcePimModel: CoreResourceReader,
+        forDataPsmClass: DataPsmClass
+    }) => void,
 }
 
 export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({isOpen, close, selected, dataPsmClassIri}) => {
@@ -116,12 +118,12 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
     const currentSurroundings = surroundings[currentCimClassIri];
 
-    const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => isPimAttribute(resource));
+    const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => PimAttribute.is(resource));
     const forwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
-        isPimAssociation(resource) && (await currentSurroundings?.readResource(resource.pimEnd[0]) as PimClass)?.pimInterpretation === currentCimClassIri
+        PimAssociation.is(resource) && (await currentSurroundings?.readResource(resource.pimEnd[0]) as PimClass)?.pimInterpretation === currentCimClassIri
     );
     const backwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
-        isPimAssociation(resource) && (await currentSurroundings?.readResource(resource.pimEnd[1]) as PimClass)?.pimInterpretation === currentCimClassIri
+        PimAssociation.is(resource) && (await currentSurroundings?.readResource(resource.pimEnd[1]) as PimClass)?.pimInterpretation === currentCimClassIri
     );
 
     if (!cimClassIri) return null;
@@ -237,7 +239,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             <Button
                 onClick={() => {close(); currentSurroundings && selected({
                     resourcesToAdd: selectedResources,
-                    sourcePimModel: new FederatedResourceReader(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
+                    sourcePimModel: ReadOnlyFederatedStore.createLazy(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
                     forDataPsmClass: dataPsmClass as DataPsmClass
                 })}}
                 disabled={selectedResources.length === 0}

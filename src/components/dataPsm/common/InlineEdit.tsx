@@ -7,6 +7,8 @@ import {InputBase} from "@material-ui/core";
 import {ActionButton} from "./ActionButton";
 import CheckIcon from "@material-ui/icons/Check";
 import CloseIcon from "@material-ui/icons/Close";
+import {SetTechnicalLabel} from "../../../operations/set-technical-label";
+import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 
 /**
  * Renders inline form to edit technical label and datatype optionally
@@ -14,7 +16,7 @@ import CloseIcon from "@material-ui/icons/Close";
 export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmResource, resourceType: "attribute" | "associationEnd"}> = ({close, dataPsmResource, resourceType}) => {
   const dataPsmAttribute = dataPsmResource as DataPsmAttribute;
 
-  const {updateResourceTechnicalLabel, updateDataPsmAttributeDatatype} = React.useContext(StoreContext);
+  const {store} = React.useContext(StoreContext);
 
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
@@ -24,16 +26,10 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
 
   const process = async () => {
     if (label !== dataPsmResource.dataPsmTechnicalLabel) {
-      await updateResourceTechnicalLabel({
-        label,
-        forDataPsmResourceIri: dataPsmResource.iri as string,
-      });
+      await store.executeOperation(new SetTechnicalLabel(dataPsmResource.iri as string, label));
     }
     if (resourceType === "attribute" && datatype !== dataPsmAttribute.dataPsmDatatype) {
-      await updateDataPsmAttributeDatatype({
-        datatype,
-        forDataPsmAttributeIri: dataPsmResource.iri as string,
-      })
+      await store.executeOperation(new SetDataPsmDatatype(dataPsmResource.iri as string, datatype));
     }
     close();
   };

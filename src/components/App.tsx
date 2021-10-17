@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from "react";
-import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
 import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
@@ -10,149 +10,64 @@ import {Trans, useTranslation} from "react-i18next";
 import {CimAdapter, IriProvider, PrefixIriProvider} from "model-driven-data/cim";
 import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
-import {PimMemoryStore} from "model-driven-data/pim/store/memory-store/pim-memory-store";
-import {DataPsmMemoryStore} from "model-driven-data/data-psm/store";
-import {PimClass} from "model-driven-data/pim/model";
-import {executeCompositeCreateSchema} from "../operations/composite-create-schema";
-import {ModelObserverContainer} from "../ModelObserverContainer";
-import {executeCompositeCreateRootClass} from "../operations/composite-create-root-class";
-import {
-    CompositeAddClassSurroundings,
-    executeCompositeAddClassSurroundings
-} from "../operations/composite-add-class-surroundings";
-import {CompositeDeleteAttribute, executeCompositeDeleteAttribute} from "../operations/composite-delete-attribute";
-import {CompositeUpdateOrder, executeCompositeUpdateOrder} from "../operations/composite-update-order";
-import {
-    CompositeUpdateDataPsmLabelAndDescription,
-    executeCompositeUpdateDataPsmLabelAndDescription
-} from "../operations/composite-update-data-psm-label-and-description";
-import {
-    CompositeUpdatePimLabelAndDescription,
-    executeCompositeUpdatePimLabelAndDescription
-} from "../operations/composite-update-pim-label-and-description";
-import {
-    CompositeUpdateResourceTechnicalLabel,
-    executeCompositeUpdateResourceTechnicalLabel
-} from "../operations/composite-update-resource-technical-label";
-import {
-    CompositeDeleteAssociationClass,
-    executeCompositeDeleteAssociationClass
-} from "../operations/composite-delete-association-class";
-import {
-    CompositeUpdateDataPsmAttributeDatatype,
-    executeCompositeUpdateDataPsmAttributeDatatype
-} from "../operations/composite-update-data-psm-attribute-datatype";
-
-interface StoreContextInterface {
-    addSurroundings: (operation: CompositeAddClassSurroundings) => void,
-    setRootClass: (rootPimClass: PimClass) => void,
-    deleteAttribute: (operation: CompositeDeleteAttribute) => void,
-    updateOrder: (operation: CompositeUpdateOrder) => void,
-    cim: {
-        iriProvider: IriProvider,
-        cimAdapter: CimAdapter,
-    },
-    models: {
-        pim: ModelObserverContainer,
-        dataPsm: ModelObserverContainer,
-    },
-    updateDataPsmLabelAndDescription: (operation: CompositeUpdateDataPsmLabelAndDescription) => void,
-    updatePimLabelAndDescription: (operation: CompositeUpdatePimLabelAndDescription) => void,
-    updateResourceTechnicalLabel: (operation: CompositeUpdateResourceTechnicalLabel) => void,
-    deleteAssociationClass: (operation: CompositeDeleteAssociationClass) => void,
-    updateDataPsmAttributeDatatype: (operation: CompositeUpdateDataPsmAttributeDatatype) => void,
-    psmSchemas: string[];
-    setModels: (models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}) => void;
-    setPsmSchemas: (schemas: string[]) => void;
-}
-
-function createNewModels() {
-    return {
-        pim: new ModelObserverContainer(new PimMemoryStore()),
-        dataPsm: new ModelObserverContainer(new DataPsmMemoryStore()),
-    };
-}
+import {StoreContextInterface} from "./StoreContextInterface";
+import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
+import {MemoryStore} from "model-driven-data/core";
+import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
+import {pimExecutors} from "model-driven-data/pim/executor";
+import {ObservableCachedCoreResourceReaderWriter} from "../store/observable-cached-core-resource-reader-writer";
+import {CreateSchema} from "../operations/create-schema";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
 
-// const createCIMEntity = (iri: string, store: Store): Store => ({...store, [iri]: CimEntity.as(new CimEntity(iri))});
-
 const App: React.FC = () => {
     const { t } = useTranslation('ui');
 
-    /**
-     * For the given type of CIM (type + URL) the application stores
-     *  - Instance of the adapter to the CIM
-     *
-     * For the given workspace the application stores
-     *  - PIM model
-     *  - data-PSM model and list of schemas todo: a single schema?
-     */
-
-      // CIM adapter and ID provider for CIM adapter
-
-    const [cim, setCim] = useState<{ cimAdapter: CimAdapter, iriProvider: IriProvider }>(() => {
+    const [cim] = useState<{ cimAdapter: CimAdapter, iriProvider: IriProvider }>(() => {
         const iriProvider = new PrefixIriProvider();
         const cimAdapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch);
         cimAdapter.setIriProvider(iriProvider);
         return {iriProvider, cimAdapter};
     });
 
-    const [models, setModels] = useState(createNewModels);
     const [psmSchemas, setPsmSchemas] = useState<string[]>([]);
 
-    // Define operations
+    const [store, setStore] = useState<FederatedObservableCoreModelReaderWriter>(new FederatedObservableCoreModelReaderWriter());
 
-    const setRootClass = useCallback(async (rootPimClass: PimClass) => {
+    const initializeSchema = useCallback(async () => {
         setPsmSchemas([]);
-        const models = createNewModels();
-        setModels(models);
-        const schemaIri = await executeCompositeCreateSchema(models, {pimBaseIri: "//pim/", dataPsmBaseIri: "//dataPsm/"});
-        await executeCompositeCreateRootClass(models, {pimClass: rootPimClass});
-        setPsmSchemas([schemaIri]);
-    }, [models]);
-    const addSurroundings = useCallback(async (operation: CompositeAddClassSurroundings) => await executeCompositeAddClassSurroundings(models, operation),[models]);
-    const deleteAttribute = useCallback((operation: CompositeDeleteAttribute) => executeCompositeDeleteAttribute(models, operation), [models]);
-    const updateOrder = useCallback((operation: CompositeUpdateOrder) => executeCompositeUpdateOrder(models, operation), [models]);
-    const updateDataPsmLabelAndDescription = useCallback((operation: CompositeUpdateDataPsmLabelAndDescription) => executeCompositeUpdateDataPsmLabelAndDescription(models, operation), [models]);
-    const updatePimLabelAndDescription = useCallback((operation: CompositeUpdatePimLabelAndDescription) => executeCompositeUpdatePimLabelAndDescription(models, operation), [models]);
-    const updateResourceTechnicalLabel = useCallback((operation: CompositeUpdateResourceTechnicalLabel) => executeCompositeUpdateResourceTechnicalLabel(models, operation), [models]);
-    const deleteAssociationClass = useCallback((operation: CompositeDeleteAssociationClass) => executeCompositeDeleteAssociationClass(models, operation), [models]);
-    const updateDataPsmAttributeDatatype = useCallback((operation: CompositeUpdateDataPsmAttributeDatatype) => executeCompositeUpdateDataPsmAttributeDatatype(models, operation), [models]);
 
-    const storeContextData: StoreContextInterface = useMemo(() => ({
-        deleteAttribute,
-        addSurroundings,
-        setRootClass,
-        cim,
-        models,
-        updateOrder,
-        updateDataPsmLabelAndDescription,
-        updatePimLabelAndDescription,
-        updateResourceTechnicalLabel,
-        deleteAssociationClass,
+        const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
+        const observableCachedMemoryStore = new ObservableCachedCoreResourceReaderWriter(memoryStore);
+        store.addStore(observableCachedMemoryStore);
+
+        const schemaOperation = new CreateSchema("//pim/", "//dataPsm/");
+        await store.executeOperation(schemaOperation);
+        setPsmSchemas([schemaOperation.createdDataPsmSchema as string]);
+        console.info("New DataPsm schema created.", schemaOperation.createdDataPsmSchema);
+        // @ts-ignore
+        window.store = store;
+        console.info("Store saved to window.store");
+    }, []);
+
+    const storeContext: StoreContextInterface = useMemo(() => ({
+        store,
+        setStore,
+
         psmSchemas,
-        updateDataPsmAttributeDatatype,
-        setModels,
         setPsmSchemas,
+
+        cim,
     }), [
-        deleteAttribute,
-        addSurroundings,
-        setRootClass,
-        cim,
-        models,
-        updateOrder,
-        updateDataPsmLabelAndDescription,
-        updatePimLabelAndDescription,
-        updateResourceTechnicalLabel,
-        deleteAssociationClass,
-        psmSchemas,
-        updateDataPsmAttributeDatatype,
-        setModels,
-        setPsmSchemas,
-    ]);
+        store,
+        setStore,
 
+        psmSchemas,
+        setPsmSchemas,
+
+        cim,
+    ]);
 
     return <>
         <SnackbarProvider maxSnack={5}>
@@ -167,23 +82,16 @@ const App: React.FC = () => {
                     </Box>
                 </Toolbar>
             </AppBar>
-            <StoreContext.Provider value={storeContextData}>
+            <StoreContext.Provider value={storeContext}>
                 <Container>
                     <Box height="30px"/>
                     <Box display="flex" flexDirection="row" justifyContent="space-between">
                         <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-
-                        {/*
-                        <div>
-                            <ButtonGroup>
-                                <Fab disabled={sh.length + shi <= 1} size="small" color="secondary" onClick={back}><UndoIcon /></Fab>
-                                <Fab disabled={shi >= 0} size="small" color="secondary" onClick={forward}><RedoIcon /></Fab>
-                            </ButtonGroup>
-                        </div>
-                        */}
                         <GenerateArtifacts />
                         <SetRootButton />
-
+                        <Fab variant="extended" size="medium" color="primary" onClick={initializeSchema}>
+                            Schema
+                        </Fab>
                     </Box>
                     {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
                     {psmSchemas.length === 0 &&

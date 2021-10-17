@@ -3,17 +3,16 @@ import {DataPsmResource} from "model-driven-data/data-psm/model";
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import {StoreContext} from "../../../App";
 import {useTranslation} from "react-i18next";
+import {SetTechnicalLabel} from "../../../../operations/set-technical-label";
 
 export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, isLoading: boolean}> = ({dataPsmResource, isLoading}) => {
   const {t} = useTranslation("psm.detail");
-  const {updateResourceTechnicalLabel} = React.useContext(StoreContext);
+  const {store} = React.useContext(StoreContext);
   const [technicalLabel, setTechnicalLabel] = useState<string>("");
   useEffect(() => setTechnicalLabel(dataPsmResource.dataPsmTechnicalLabel ?? ""), [dataPsmResource.dataPsmTechnicalLabel]);
 
-  const update = useCallback(() => updateResourceTechnicalLabel({
-    forDataPsmResourceIri: dataPsmResource.iri as string,
-    label: technicalLabel,
-  }), [updateResourceTechnicalLabel, technicalLabel, dataPsmResource.iri]);
+  const update = useCallback(() => store.executeOperation(new SetTechnicalLabel(dataPsmResource.iri as string, technicalLabel)),
+      [store, technicalLabel, dataPsmResource.iri]);
 
   return <>
     <Typography variant="h6" component="h3">{t("technical label")}</Typography>

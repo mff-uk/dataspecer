@@ -3,8 +3,8 @@ import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beau
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@material-ui/core";
 import {DataPsmAssociationClassItem} from "./DataPsmAssociationClassItem";
-import {DataPsmClass, isDataPsmAssociationEnd, isDataPsmAttribute} from "model-driven-data/data-psm/model";
-import {useDataPsm} from "../../hooks/useDataPsm";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
+import {useResource} from "../../hooks/useResource";
 
 interface DataPsmResourceSwitchProperties {
     dataPsmResourceIri: string,
@@ -18,13 +18,13 @@ interface DataPsmResourceSwitchProperties {
  * render it. During the update, it will remembers the last type to not discard the subtree.
  */
 const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((props) => {
-    const {dataPsmResource} = useDataPsm(props.dataPsmResourceIri);
+    const {resource: dataPsmResource} = useResource(props.dataPsmResourceIri);
 
     if (!dataPsmResource) {
         return <div {...props.dragHandleProps}>Error or loading for the first time</div>;
-    } else if (isDataPsmAttribute(dataPsmResource)) {
+    } else if (DataPsmAttribute.is(dataPsmResource)) {
         return <DataPsmAttributeItem {...props}/>;
-    } else if (isDataPsmAssociationEnd(dataPsmResource)) {
+    } else if (DataPsmAssociationEnd.is(dataPsmResource)) {
         return <DataPsmAssociationClassItem {...props} />;
     } else {
         return <div {...props.dragHandleProps}>Unsupported resource</div>;
@@ -35,7 +35,7 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
  * Renders parts (class attributes and class associations) for specified class.
  */
 export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = ({dataPsmClassIri, isOpen}) => {
-    const {dataPsmResource: dataPsmClass, isLoading} = useDataPsm<DataPsmClass>(dataPsmClassIri);
+    const {resource: dataPsmClass, isLoading} = useResource<DataPsmClass>(dataPsmClassIri);
 
     return <Collapse in={true} unmountOnExit>
         <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri}>

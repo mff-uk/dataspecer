@@ -1,4 +1,4 @@
-import {OperationExecutor} from "./operation-executor";
+import {OperationExecutor, StoreDescriptor} from "./operation-executor";
 import {CoreOperation, CoreOperationResult} from "model-driven-data/core";
 
 /**
@@ -15,14 +15,14 @@ export interface ComplexOperation {
 export class ComplexOperationFromCoreOperation implements ComplexOperation {
     public operationResult: CoreOperationResult | null = null;
     private readonly operation: CoreOperation;
-    private readonly forResource: string;
+    private readonly storeDescriptor: StoreDescriptor;
 
-    constructor(operation: CoreOperation, forResource: string) {
+    constructor(operation: CoreOperation, storeDescriptor: StoreDescriptor) {
         this.operation = operation;
-        this.forResource = forResource;
+        this.storeDescriptor = storeDescriptor;
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
-        this.operationResult = await executor.applyOperation(this.operation, this.forResource);
+        this.operationResult = await executor.applyOperation(this.operation, this.storeDescriptor);
     }
 }

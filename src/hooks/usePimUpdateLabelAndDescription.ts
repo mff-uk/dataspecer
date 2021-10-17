@@ -3,9 +3,10 @@ import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEdito
 import React, {useCallback} from "react";
 import {StoreContext} from "../components/App";
 import {PimResource} from "model-driven-data/pim/model";
+import {SetPimLabelAndDescription} from "../operations/set-pim-label-and-description";
 
 export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
-  const {updatePimLabelAndDescription} = React.useContext(StoreContext);
+  const {store} = React.useContext(StoreContext);
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
   const open = useCallback(() => {
     updateLabels.open({
@@ -14,11 +15,7 @@ export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
         description: pimResource.pimHumanDescription ?? {},
       },
       update: data => {
-        updatePimLabelAndDescription({
-          forPimResourceIri: pimResource.iri as string,
-          label: data.label,
-          description: data.description,
-        });
+        store.executeOperation(new SetPimLabelAndDescription(pimResource.iri as string, data.label, data.description)).then();
       },
     });
   }, [pimResource.pimHumanLabel, pimResource.pimHumanDescription]);

@@ -13,7 +13,7 @@ import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {isPimAssociation, PimAssociation, PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
+import {PimAssociation, PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
 import {useDialog} from "../../hooks/useDialog";
 import {DataPsmAssociationClassDetailDialog} from "./detail/DataPsmAssociationClassDetailDialog";
 import {StoreContext} from "../App";
@@ -22,17 +22,18 @@ import {InlineEdit} from "./common/InlineEdit";
 import {LanguageString} from "model-driven-data/core";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
+import {DeleteAssociationClass} from "../../operations/delete-association-class";
 
-// todo temporary hotfix
+// todo This hook is just temporary until we fix problem with accessing the association from its association end.
 const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null) => {
-    const {models} = React.useContext(StoreContext);
+    const {store} = React.useContext(StoreContext);
 
-    return useAsyncMemo<PimAssociation | null | undefined>(async () => {
+    return useAsyncMemo<PimAssociation | null>(async () => {
         if (pimAssociationEndIri) {
-            const resources = await models.pim.model.listResources();
+            const resources = await store.listResources();
             for (const resourceIri of resources) {
-                const resource = await models.pim.model.readResource(resourceIri);
-                if (isPimAssociation(resource)) {
+                const resource = await store.readResource(resourceIri);
+                if (PimAssociation.is(resource)) {
                     if (resource.pimEnd.includes(pimAssociationEndIri)) {
                         return resource;
                     }
@@ -51,7 +52,7 @@ const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | n
 export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
-    const {deleteAssociationClass} = React.useContext(StoreContext);
+    const {store} = React.useContext(StoreContext);
 
     // Association ends
     const {
@@ -74,11 +75,9 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
     const detail = useDialog(DataPsmAssociationClassDetailDialog, ["dataPsmAssociationIri", "dataPsmClassIri"], {dataPsmAssociationIri: "", dataPsmClassIri: ""});
     const detailOpen = useCallback(() => detail.open({dataPsmAssociationIri: dataPsmAssociationEndIri, dataPsmClassIri: dataPsmClassIri as string}), [dataPsmAssociationEndIri, dataPsmClassIri]);
 
-    const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass && deleteAssociationClass({
-        association: dataPsmAssociationEnd,
-        child: dataPsmClass,
-        ownerClassIri: parentDataPsmClassIri,
-    }), [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri]);
+    const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
+            store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
+        [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri]);
 
     const inlineEdit = useToggle();
 
@@ -104,9 +103,9 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
                         }
                     </DataPsmGetLabelAndDescription>
                 :
-                    <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel}>
+                    <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
                         {label =>
-                            <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription}>
+                            <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
                                 {description => <>
                                     {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
                                     <span title={description} className={styles.association}>{label}</span>

@@ -3,7 +3,7 @@ import React from "react";
 import {LanguageString} from "model-driven-data/core";
 import {useTranslation} from "react-i18next";
 
-export const LabelDescriptionTable: React.FC<{label: LanguageString | undefined, description: LanguageString | undefined}> = ({label, description}) => {
+export const LabelDescriptionTable: React.FC<{label: LanguageString | null, description: LanguageString | null}> = ({label, description}) => {
   const {t} = useTranslation("psm.detail");
   const languages = [...new Set([...Object.keys(label ?? {}), ...Object.keys(description ?? {})])].sort();
 

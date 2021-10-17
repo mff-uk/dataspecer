@@ -3,9 +3,10 @@ import {useDialog} from "./useDialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import React, {useCallback} from "react";
 import {StoreContext} from "../components/App";
+import {SetDataPsmLabelAndDescription} from "../operations/set-data-psm-label-and-description";
 
 export const useDataPsmUpdateLabelAndDescription = (dataPsmResource: DataPsmResource) => {
-  const {updateDataPsmLabelAndDescription} = React.useContext(StoreContext);
+  const {store} = React.useContext(StoreContext);
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
   const open = useCallback(() => {
     updateLabels.open({
@@ -14,11 +15,7 @@ export const useDataPsmUpdateLabelAndDescription = (dataPsmResource: DataPsmReso
         description: dataPsmResource.dataPsmHumanDescription ?? {},
       },
       update: data => {
-        updateDataPsmLabelAndDescription({
-          forDataPsmResourceIri: dataPsmResource.iri as string,
-          label: data.label,
-          description: data.description,
-        });
+        store.executeOperation(new SetDataPsmLabelAndDescription(dataPsmResource.iri as string, data.label, data.description)).then();
       },
     });
   }, [dataPsmResource.dataPsmHumanLabel, dataPsmResource.dataPsmHumanDescription]);

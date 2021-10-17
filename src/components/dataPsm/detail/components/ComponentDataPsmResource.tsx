@@ -1,5 +1,5 @@
 import React from "react";
-import {DataPsmResource} from "model-driven-data/data-psm/model";
+import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/model";
 import {Button, Card, CardContent, Grid, LinearProgress, Typography} from "@material-ui/core";
 import {useDetailStyles} from "../dataPsmDetailCommon";
 import {LabelDescriptionTable} from "../helper-components/LabelDescriptionTable";
@@ -50,7 +50,7 @@ export const ComponentDataPsmResource: React.FC<ComponentDataPsmResourceProperti
         {/* Datatype */}
         {other.showDatatype &&
           <Grid item xs={12}>
-            <UpdateDataType dataPsmAttribute={dataPsmResource} isLoading={isLoading} />
+            <UpdateDataType dataPsmAttribute={dataPsmResource as DataPsmAttribute} isLoading={isLoading} />
           </Grid>
         }
 

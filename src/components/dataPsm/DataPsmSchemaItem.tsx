@@ -1,5 +1,5 @@
 import {Fab, Paper, Typography} from "@material-ui/core";
-import React, {useCallback} from "react";
+import React, {useCallback, useContext} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
@@ -7,11 +7,13 @@ import {DataPsmRootClassItem} from "./DataPsmRootClassItem";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {DataPsmSchema} from "model-driven-data/data-psm/model";
 import Skeleton from '@material-ui/lab/Skeleton';
-import {useDataPsm} from "../../hooks/useDataPsm";
-import {StoreContext} from "../App";
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";
 import {useTranslation} from "react-i18next";
+import {useResource} from "../../hooks/useResource";
+import {StoreContext} from "../App";
+import {SetOrder} from "../../operations/set-order";
+import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -22,10 +24,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsmSchemaIri}) => {
-  const {updateOrder, updateDataPsmLabelAndDescription} = React.useContext(StoreContext);
-  const {dataPsmResource: dataPsmSchema} = useDataPsm<DataPsmSchema>(dataPsmSchemaIri);
+  const {resource: dataPsmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
+  const {store} = useContext(StoreContext);
 
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
+
   const openUpdateLabelsDialog = useCallback(() => {
     updateLabels.open({
       data: {
@@ -33,26 +36,21 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         description: dataPsmSchema?.dataPsmHumanDescription ?? {},
       },
       update: data => {
-        updateDataPsmLabelAndDescription({
-          forDataPsmResourceIri: dataPsmSchemaIri,
-          label: data.label,
-          description: data.description,
-        });
+        store.executeOperation(new SetDataPsmLabelAndDescription(dataPsmSchemaIri, data.label, data.description)).then();
       },
     });
   }, [dataPsmSchema]);
 
   const styles = useStyles();
 
+  /**
+   * When moving items anywhere inside the panel of the current dataPsm schema.
+   */
   const itemsDragged = useCallback(({draggableId, destination}: DropResult) => {
     if (destination) {
-      updateOrder({
-        parentDataPsmClassIri: destination.droppableId,
-        movedDataPsmResourceIri: draggableId,
-        newIndexPosition: destination.index
-      });
+      store.executeOperation(new SetOrder(destination.droppableId, draggableId, destination.index)).then();
     }
-  }, [updateOrder]);
+  }, [store]);
 
   const {t} = useTranslation("psm");
 

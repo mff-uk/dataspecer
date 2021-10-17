@@ -6,7 +6,7 @@ import {uniqueId} from "lodash";
 import {useTranslation} from "react-i18next";
 import {ReSpecArtifact} from "./ReSpecArtifact";
 import {BikeshedArtifact} from "./BikeshedArtifact";
-import {SaveLoad} from "./SaveLoad";
+//import {SaveLoad} from "./SaveLoad";
 import {ObjectModelArtifact} from "./ObjectModelArtifact";
 
 export const GenerateArtifacts: React.FC = () => {
@@ -28,8 +28,8 @@ export const GenerateArtifacts: React.FC = () => {
                 open={isOpen}
                 onClose={close}
             >
-                <SaveLoad close={close} />
-                <Divider />
+                {/*<SaveLoad close={close} />
+                <Divider />*/}
                 <ReSpecArtifact close={close} />
                 <Divider />
                 <BikeshedArtifact close={close} />

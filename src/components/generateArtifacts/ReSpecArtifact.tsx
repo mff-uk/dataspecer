@@ -9,12 +9,10 @@ import {StoreContext} from "../App";
 import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {objectModelToReSpec, writeReSpec} from "model-driven-data/respec";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
-import {ModelObserverContainer} from "../../ModelObserverContainer";
-import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
+import {CoreResourceReader} from "model-driven-data/core";
 
-async function generateReSpec(models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}, psmSchemas: string[]): Promise<string> {
-    const reader = new FederatedResourceReader([models.pim.model, models.dataPsm.model]);
-    const objectModel = await coreResourcesToObjectModel(reader, psmSchemas[0] as string);
+async function generateReSpec(reader: CoreResourceReader, fromSchema: string): Promise<string> {
+    const objectModel = await coreResourcesToObjectModel(reader, fromSchema);
     const reSpec = objectModelToReSpec(objectModel);
     const stream = new MemoryOutputStream();
     await writeReSpec(reSpec, stream);
@@ -27,11 +25,11 @@ async function generateReSpec(models: {pim: ModelObserverContainer, dataPsm: Mod
 export const ReSpecArtifact: React.FC<{close: () => void}> = memo(({close}) => {
     const {enqueueSnackbar} = useSnackbar();
     const {t} = useTranslation("artifacts");
-    const {models, psmSchemas} = React.useContext(StoreContext);
+    const {store, psmSchemas} = React.useContext(StoreContext);
 
     const ReSpecPreview = useCallback(async () => {
         try {
-            const reSpec = await generateReSpec(models, psmSchemas);
+            const reSpec = await generateReSpec(store, psmSchemas[0]); // todo let user select which schema
             close();
             if (reSpec) {
                 const win = window.open("", "ReSpec documentation", "resizable,scrollbars,status");
@@ -43,11 +41,11 @@ export const ReSpecArtifact: React.FC<{close: () => void}> = memo(({close}) => {
         } catch (_) {
             enqueueSnackbar(t("snackbar ReSpec.fail"), {variant: "error"});
         }
-    }, [close, models, psmSchemas]);
+    }, [close, store, psmSchemas]);
 
     const ReSpecDownload = useCallback(async () => {
         try {
-            const reSpec = await generateReSpec(models, psmSchemas);
+            const reSpec = await generateReSpec(store, psmSchemas[0]); // todo let user select which schema
             close();
             if (reSpec) {
                 const data = new Blob([reSpec], {type: "text/html;charset=utf-8"});
@@ -56,7 +54,7 @@ export const ReSpecArtifact: React.FC<{close: () => void}> = memo(({close}) => {
         } catch (_) {
             enqueueSnackbar(t("snackbar ReSpec.fail"), {variant: "error"});
         }
-    }, [close, models, psmSchemas]);
+    }, [close, store, psmSchemas]);
 
     return <>
         <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>ReSpec</MenuItem>

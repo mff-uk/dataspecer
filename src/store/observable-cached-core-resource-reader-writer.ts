@@ -1,20 +1,25 @@
 import {CoreOperation, CoreOperationResult, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
 import {ComplexOperation} from "./complex-operation";
-import {OperationExecutor} from "./operation-executor";
+import {OperationExecutor, StoreDescriptor} from "./operation-executor";
 import {ObservableCoreResourceReaderWriter, Subscriber} from "./observable-core-resource-reader-writer";
 import {CoreResourceLink} from "./core-resource-link";
 
 class OperationExecutorForSingleStore implements OperationExecutor {
     public changed: Set<string> = new Set<string>();
     public deleted: Set<string> = new Set<string>();
-    private store: CoreResourceWriter & CoreResourceReader;
+    public store: ObservableCoreResourceReaderWriter;
 
-    constructor(store: CoreResourceWriter & CoreResourceReader) {
+    private rawStore: CoreResourceWriter & CoreResourceReader;
+
+    constructor(rawStore: CoreResourceWriter & CoreResourceReader, store: ObservableCoreResourceReaderWriter) {
+        this.rawStore = rawStore;
         this.store = store;
     }
 
-    async applyOperation(operation: CoreOperation, forResource: string): Promise<CoreOperationResult> {
-        const result = await this.store.applyOperation(operation);
+    async applyOperation(operation: CoreOperation, storeDescriptor: StoreDescriptor): Promise<CoreOperationResult> {
+        // We will ignore the value in storeDescriptor
+
+        const result = await this.rawStore.applyOperation(operation);
         result.changed.forEach(i => this.changed.add(i));
         result.deleted.forEach(i => this.deleted.add(i));
 
@@ -26,18 +31,25 @@ class OperationExecutorForSingleStore implements OperationExecutor {
  * Wraps a single model-driven-data store into {@link ObservableCoreResourceReaderWriter} and caches all the subscribed
  * resources.
  */
-export class ObservableCachedCoreResourceReaderWriter implements ObservableCoreResourceReaderWriter {
+export class ObservableCachedCoreResourceReaderWriter extends ObservableCoreResourceReaderWriter {
     // model-driven-data store
     protected readonly store: CoreResourceReader & CoreResourceWriter;
-
     // list of subscribed IRIs and subscribers to them
     protected subscriptions = new Map<string, Set<Subscriber>>();
-
     // Cache of all resources used by at least one subscriber.
     protected resourceCache: Map<string, CoreResourceLink> = new Map();
 
     constructor(store: CoreResourceReader & CoreResourceWriter) {
+        super();
         this.store = store;
+    }
+
+    listResourcesOfType(typeIri: string): Promise<string[]> {
+        return this.store.listResourcesOfType(typeIri);
+    }
+
+    listResources(): Promise<string[]> {
+        return this.store.listResources();
     }
 
     /**
@@ -72,7 +84,7 @@ export class ObservableCachedCoreResourceReaderWriter implements ObservableCoreR
     }
 
     async executeOperation(operation: ComplexOperation): Promise<void> {
-        const executor = new OperationExecutorForSingleStore(this.store);
+        const executor = new OperationExecutorForSingleStore(this.store, this);
         await operation.execute(executor);
         this.reloadResources([...executor.changed]);
         this.markAsDeleted([...executor.deleted]);

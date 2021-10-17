@@ -8,9 +8,8 @@ import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
 import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
-import {ModelObserverContainer} from "../../ModelObserverContainer";
 import {objectModelToBikeshed, writeBikeshed} from "model-driven-data/bikeshed";
-import {FederatedResourceReader} from "model-driven-data/core/store/federated-resource-reader";
+import {CoreResourceReader} from "model-driven-data/core";
 
 function openWindowWithPost(url: string, data: Record<string, string>) {
     const form = document.createElement("form");
@@ -32,9 +31,8 @@ function openWindowWithPost(url: string, data: Record<string, string>) {
     document.body.removeChild(form);
 }
 
-async function generateBikeshed(models: {pim: ModelObserverContainer, dataPsm: ModelObserverContainer}, psmSchemas: string[]): Promise<string> {
-    const reader = new FederatedResourceReader([models.pim.model, models.dataPsm.model]);
-    const objectModel = await coreResourcesToObjectModel(reader, psmSchemas[0] as string);
+async function generateBikeshed(reader: CoreResourceReader, fromSchema: string): Promise<string> {
+    const objectModel = await coreResourcesToObjectModel(reader, fromSchema);
     const bikeshed = objectModelToBikeshed(objectModel);
     const stream = new MemoryOutputStream();
     await writeBikeshed(bikeshed, stream);
@@ -47,11 +45,11 @@ async function generateBikeshed(models: {pim: ModelObserverContainer, dataPsm: M
 export const BikeshedArtifact: React.FC<{close: () => void}> = memo(({close}) => {
     const {enqueueSnackbar} = useSnackbar();
     const {t} = useTranslation("artifacts");
-    const {models, psmSchemas} = React.useContext(StoreContext);
+    const {store, psmSchemas} = React.useContext(StoreContext);
 
     const BikeshedPreview = useCallback(async () => {
         try {
-            const bikeshed = await generateBikeshed(models, psmSchemas);
+            const bikeshed = await generateBikeshed(store, psmSchemas[0]); // todo let user select which schema
             close();
             if (bikeshed) {
                 openWindowWithPost("https://api.csswg.org/bikeshed/", {
@@ -65,11 +63,11 @@ export const BikeshedArtifact: React.FC<{close: () => void}> = memo(({close}) =>
         } catch (_) {
             enqueueSnackbar(t("snackbar Bikeshed.fail"), {variant: "error"});
         }
-    }, [close, models, psmSchemas]);
+    }, [close, store, psmSchemas]);
 
     const BikeshedDownload = useCallback(async () => {
         try {
-            const bikeshed = await generateBikeshed(models, psmSchemas);
+            const bikeshed = await generateBikeshed(store, psmSchemas[0]); // todo let user select which schema
             close();
             if (bikeshed) {
                 const data = new Blob([bikeshed], {type: "text/html;charset=utf-8"});
@@ -78,7 +76,7 @@ export const BikeshedArtifact: React.FC<{close: () => void}> = memo(({close}) =>
         } catch (_) {
             enqueueSnackbar(t("snackbar Bikeshed.fail"), {variant: "error"});
         }
-    }, [close, models, psmSchemas]);
+    }, [close, store, psmSchemas]);
 
     return <>
         <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Bikeshed</MenuItem>

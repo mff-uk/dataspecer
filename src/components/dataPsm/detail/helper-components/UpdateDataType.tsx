@@ -3,17 +3,16 @@ import {DataPsmAttribute} from "model-driven-data/data-psm/model";
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import {StoreContext} from "../../../App";
 import {useTranslation} from "react-i18next";
+import {SetDataPsmDatatype} from "../../../../operations/set-data-psm-datatype";
 
 export const UpdateDataType: React.FC<{dataPsmAttribute: DataPsmAttribute, isLoading: boolean}> = ({dataPsmAttribute, isLoading}) => {
   const {t} = useTranslation("psm.detail");
-  const {updateDataPsmAttributeDatatype} = React.useContext(StoreContext);
+  const {store} = React.useContext(StoreContext);
   const [value, setValue] = useState<string>("");
   useEffect(() => setValue(dataPsmAttribute.dataPsmDatatype ?? ""), [dataPsmAttribute.dataPsmDatatype]);
 
-  const update = useCallback(() => updateDataPsmAttributeDatatype({
-    forDataPsmAttributeIri: dataPsmAttribute.iri as string,
-    datatype: value
-  }), [updateDataPsmAttributeDatatype, value, dataPsmAttribute.iri]);
+  const update = useCallback(() => store.executeOperation(new SetDataPsmDatatype(dataPsmAttribute.iri as string, value))
+      , [store, value, dataPsmAttribute.iri]);
 
   return <>
     <Typography variant="h6" component="h3">{t("datatype")}</Typography>

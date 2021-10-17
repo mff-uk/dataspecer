@@ -1,7 +1,7 @@
 import {CoreResourceLink} from "./core-resource-link";
 import {ComplexOperation, ComplexOperationFromCoreOperation} from "./complex-operation";
 import {ObservableCoreResourceReaderWriter, Subscriber} from "./observable-core-resource-reader-writer";
-import {OperationExecutor} from "./operation-executor";
+import {OperationExecutor, StoreDescriptor} from "./operation-executor";
 import {CoreOperation, CoreOperationResult} from "model-driven-data/core";
 
 type SubscriptionType = {
@@ -15,10 +15,12 @@ type SubscriptionType = {
 class OperationExecutorForFederatedStore implements OperationExecutor {
     public changed: Set<string> = new Set<string>();
     public deleted: Set<string> = new Set<string>();
-    applyOperation: (operation: CoreOperation, forResource: string) => Promise<CoreOperationResult>;
+    public applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>;
+    public readonly store: ObservableCoreResourceReaderWriter;
 
-    constructor(applyOperation: (operation: CoreOperation, forResource: string) => Promise<CoreOperationResult>) {
+    constructor(applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>, store: ObservableCoreResourceReaderWriter) {
         this.applyOperation = applyOperation;
+        this.store = store;
     };
 }
 
@@ -26,7 +28,7 @@ class OperationExecutorForFederatedStore implements OperationExecutor {
  * Combines multiple {@link ObservableCoreResourceReaderWriter} into one with proper distribution of operations and
  * subscriptions.
  */
-export class FederatedObservableCoreModelReaderWriter implements ObservableCoreResourceReaderWriter {
+export class FederatedObservableCoreModelReaderWriter extends ObservableCoreResourceReaderWriter {
     private subscriptions: Map<string, SubscriptionType> = new Map();
     private stores: ObservableCoreResourceReaderWriter[] = [];
 
@@ -84,18 +86,37 @@ export class FederatedObservableCoreModelReaderWriter implements ObservableCoreR
     }
 
     async executeOperation(operation: ComplexOperation) {
-        const executor = new OperationExecutorForFederatedStore(async (operation, forResource) => {
-            const store = await this.getOriginatedStoreForResource(forResource);
-            if (!store) {
-                throw new Error(`Unable to execute an operation because ${forResource} has not been found in any store.`);
-            }
-            const complexOperationFromCoreOperation = new ComplexOperationFromCoreOperation(operation, forResource);
+        const executor = new OperationExecutorForFederatedStore(async (operation, storeDescriptor) => {
+            // todo store descriptor is ignored for now
+
+            // const store = await this.getOriginatedStoreForResource(forResource);
+            // if (!store) {
+            //     throw new Error(`Unable to execute an operation because ${forResource} has not been found in any store.`);
+            // }
+            const store = this.stores[0];
+            const complexOperationFromCoreOperation = new ComplexOperationFromCoreOperation(operation, storeDescriptor);
             await store.executeOperation(complexOperationFromCoreOperation);
 
             return complexOperationFromCoreOperation.operationResult as CoreOperationResult;
-        });
+        }, this);
 
         await operation.execute(executor);
+    }
+
+    async listResources(): Promise<string[]> {
+        const resources = new Set<string>();
+        for (const store of this.stores) {
+            (await store.listResources()).forEach(resource => resources.add(resource));
+        }
+        return [...resources];
+    }
+
+    async listResourcesOfType(typeIri: string): Promise<string[]> {
+        const resources = new Set<string>();
+        for (const store of this.stores) {
+            (await store.listResourcesOfType(typeIri)).forEach(resource => resources.add(resource));
+        }
+        return [...resources];
     }
 
     private subscriber: Subscriber = (iri, resource, store) => {
@@ -119,7 +140,7 @@ export class FederatedObservableCoreModelReaderWriter implements ObservableCoreR
         for (const [store, coreResourceLink] of entry.storeValues) {
             if (!coreResourceLink.isLoading && coreResourceLink.resource) {
                 if (validCoreResourceLink) {
-                    throw new Error("problem");
+                    throw new Error(`Multiple stores responded for ${iri}. Currently, positive responses are accepted from only single store.`);
                 }
                 validCoreResourceLink = coreResourceLink.resource;
                 originatedStore = store;
@@ -129,10 +150,12 @@ export class FederatedObservableCoreModelReaderWriter implements ObservableCoreR
             }
         }
 
-        const newIsLoading = isLoading;
-        const newCurrentValue = validCoreResourceLink ??
-        isLoading ? entry.currentValue.resource : null;
 
+        const newIsLoading = isLoading && !validCoreResourceLink; // Loading is set to true only if the resource has not been found yet.
+        const newCurrentValue = validCoreResourceLink ??
+        (isLoading ? entry.currentValue.resource : null);
+
+        // Check if new* values differs from others
         if (entry.currentValue.isLoading !== newIsLoading || entry.currentValue.resource !== newCurrentValue) {
             entry.currentValue = {
                 resource: newCurrentValue,

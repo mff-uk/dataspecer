@@ -1,5 +1,6 @@
 import {ComplexOperation} from "./complex-operation";
 import {CoreResourceLink} from "./core-resource-link";
+import {CoreResource, CoreResourceReader} from "model-driven-data/core";
 
 export type Subscriber = (iri: string, resource: CoreResourceLink, store: ObservableCoreResourceReaderWriter) => void;
 
@@ -10,8 +11,24 @@ export type Subscriber = (iri: string, resource: CoreResourceLink, store: Observ
  *
  * Allows to execute complex operations on the store.
  */
-export interface ObservableCoreResourceReaderWriter {
-    addSubscriber(iri: string, subscriber: Subscriber): void;
-    removeSubscriber(iri: string, subscriber: Subscriber): void;
-    executeOperation(operation: ComplexOperation): Promise<void>;
+export abstract class ObservableCoreResourceReaderWriter implements CoreResourceReader {
+    abstract addSubscriber(iri: string, subscriber: Subscriber): void;
+    abstract removeSubscriber(iri: string, subscriber: Subscriber): void;
+    abstract executeOperation(operation: ComplexOperation): Promise<void>;
+
+    readResource(iri: string): Promise<CoreResource|null> {
+        return new Promise(resolve => {
+            const subscriber: Subscriber = (iri1, resource) => {
+                if (!resource.isLoading) {
+                    this.removeSubscriber(iri, subscriber);
+                    resolve(resource.resource);
+                }
+            }
+            this.addSubscriber(iri, subscriber);
+        });
+    };
+
+    abstract listResources(): Promise<string[]>;
+
+    abstract listResourcesOfType(typeIri: string): Promise<string[]>;
 }

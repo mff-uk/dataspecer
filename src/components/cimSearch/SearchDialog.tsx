@@ -1,14 +1,14 @@
 import {
-  Box,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Typography
+    Box,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
+    Typography
 } from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
@@ -18,6 +18,8 @@ import {useTranslation} from "react-i18next";
 import {PimClass} from "model-driven-data/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {StoreContext} from "../App";
+//import {SelectGlossaryButton} from "../slovnik.gov.cz/selectGlossary/SelectGlossaryButton";
+//import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selected: (cls: PimClass) => void}> = ({isOpen, close, selected}) => {
-    const {cim} = React.useContext(StoreContext);
+    const {cim/*, filteredOutGroups*/} = React.useContext(StoreContext);
     const classes = useStyles();
     const [findResults, updateFindResults] = useState<PimClass[]>([]);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
@@ -71,6 +73,24 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         }
     };
 
+/*    const [wrapped] = useAsyncMemo<[{resource: PimClass, group: string[]}[], string[]]>(async () => {
+        const wrappedResults = [];
+        const groups = [];
+        for (const resource of findResults) {
+            const group = await cim.cimAdapter.getResourceGroup(resource.pimInterpretation as string);
+            wrappedResults.push({
+               resource,
+               group,
+            });
+            groups.push(...group);
+        }
+
+        return [wrappedResults, groups];
+    }, [findResults, cim.cimAdapter]);
+
+    const wrappedResources = wrapped?.[0] ?? [];
+    const foundGroups = wrapped?.[1] ?? [];*/
+
     return <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={isOpen} fullWidth maxWidth={"md"}>
         <DialogTitle id="customized-dialog-title">
             {t("title")}
@@ -80,8 +100,10 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                 <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange}
                            error={isError}/>
                 {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30}/>}
+                {/*<SelectGlossaryButton style={{marginLeft: "1rem"}} foundGroups={foundGroups} />*/}
             </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">
+                {/*{wrappedResources.filter(r => !filteredOutGroups.some(fo => r.group.some(g => g.startsWith(fo)))).map(({resource: result}) =>*/}
                 {findResults.map((result: PimClass) =>
                     <ListItem button key={result.pimInterpretation} onClick={() => {
                         selected(result);

@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {LanguageString} from "model-driven-data/core";
 
 export const LanguageStringFallback: React.FC<{
-    from?: LanguageString,
+    from: LanguageString | null,
     fallback?: ReactElement,
     children: (text: string, lang?: string) => ReactElement,
 }> = ({from, fallback, children}) => {
@@ -23,8 +23,8 @@ export const LanguageStringFallback: React.FC<{
 };
 
 export const LanguageStringUndefineable: React.FC<{
-    from?: LanguageString,
+    from: LanguageString | null,
     children: (text: string|undefined, lang?: string) => ReactElement,
 }> = ({from, children}) => <LanguageStringFallback from={from} fallback={children(undefined, undefined)}>{children}</LanguageStringFallback>;
 
-export const LanguageStringText: React.FC<{from?: LanguageString}> = ({from}) => <LanguageStringFallback from={from}>{text => <>{text}</>}</LanguageStringFallback>;
+export const LanguageStringText: React.FC<{from: LanguageString | null}> = ({from}) => <LanguageStringFallback from={from}>{text => <>{text}</>}</LanguageStringFallback>;
