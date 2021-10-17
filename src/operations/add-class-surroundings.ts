@@ -9,6 +9,7 @@ import {
 import {PimCreateAssociation, PimCreateAttribute, PimCreateClass} from "model-driven-data/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 
 export class AddClassSurroundings implements ComplexOperation {
     private readonly forDataPsmClass: DataPsmClass;
@@ -44,9 +45,7 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmStoreSelector: StoreDescriptor,
     ) {
         const pimCreateAttribute = new PimCreateAttribute();
-        pimCreateAttribute.pimHumanLabel = attribute.pimHumanLabel;
-        pimCreateAttribute.pimHumanDescription = attribute.pimHumanDescription;
-        // todo add missing properties
+        copyPimPropertiesFromResourceToOperation(attribute, pimCreateAttribute);
         pimCreateAttribute.pimOwnerClass = this.forDataPsmClass.dataPsmInterpretation;
         const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
 
@@ -69,23 +68,19 @@ export class AddClassSurroundings implements ComplexOperation {
         const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
 
         const isRngNew = dom.pimInterpretation === interpretedPimClass.pimInterpretation;
-        const otherAssociationEnd = isRngNew ? rng : dom;
+        const otherAssociationEndClass = isRngNew ? rng : dom;
 
         // PIM the other class
 
         const pimCreateClass = new PimCreateClass();
-        pimCreateClass.pimHumanLabel = otherAssociationEnd.pimHumanLabel;
-        pimCreateClass.pimHumanDescription = otherAssociationEnd.pimHumanDescription;
-        // todo add missing properties
+        copyPimPropertiesFromResourceToOperation(otherAssociationEndClass, pimCreateClass);
         const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
         const pimOtherClassIri = pimCreateClassResult.created[0] as string;
 
         // PIM association
 
         const pimCreateAssociation = new PimCreateAssociation();
-        pimCreateAssociation.pimHumanDescription = association.pimHumanDescription;
-        pimCreateAssociation.pimHumanLabel = association.pimHumanLabel;
-        // todo add missing properties
+        copyPimPropertiesFromResourceToOperation(association, pimCreateAssociation);
         pimCreateAssociation.pimAssociationEnds = isRngNew ? [this.forDataPsmClass.dataPsmInterpretation as string, pimOtherClassIri] : [pimOtherClassIri, this.forDataPsmClass.dataPsmInterpretation as string];
         const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
 
