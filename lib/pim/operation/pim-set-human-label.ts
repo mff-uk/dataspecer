@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation, LanguageString} from "../../core";
 
 export class PimSetHumanLabel extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-human-label";
+  static readonly TYPE = "pim-action-set-human-label";
 
   pimResource: string | null = null;
 

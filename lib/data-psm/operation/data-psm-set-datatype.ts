@@ -2,7 +2,7 @@ import {CoreOperation, CoreResource} from "../../core";
 
 export class DataPsmSetDatatype extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-attribute-datatype";
+  static readonly TYPE = "data-psm-action-set-datatype";
 
   dataPsmAttribute: string | null = null;
 

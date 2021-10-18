@@ -2,7 +2,7 @@ import {CoreOperation, CoreResource} from "../../core";
 
 export class DataPsmSetRoots extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-schema-roots";
+  static readonly TYPE = "data-psm-action-set-roots";
 
   /**
    * New value of the schema roots property.

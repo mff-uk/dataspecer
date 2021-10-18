@@ -2,8 +2,7 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export class DataPsmSetInterpretation extends CoreOperation {
 
-  static readonly TYPE =
-    "psm-action-update-association-end-interpretation";
+  static readonly TYPE = "data-psm-action-set-interpretation";
 
   dataPsmResource: string | null = null;
 

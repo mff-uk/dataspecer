@@ -2,7 +2,7 @@ import {CoreOperation, CoreResource} from "../../core";
 
 export class DataPsmSetOrder extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-order";
+  static readonly TYPE = "data-psm-action-set-order";
 
   dataPsmOwnerClass: string | null = null;
 

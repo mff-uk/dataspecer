@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export class PimSetTechnicalLabel extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-technical-label";
+  static readonly TYPE = "pim-action-set-technical-label";
 
   pimResource: string | null = null;
 

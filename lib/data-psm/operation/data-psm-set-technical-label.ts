@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export class DataPsmSetTechnicalLabel extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-technical-label";
+  static readonly TYPE = "data-psm-action-set-technical-label";
 
   dataPsmResource: string | null = null;
 
