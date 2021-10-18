@@ -59,7 +59,7 @@ interface AddInterpretedSurroundingDialogProperties {
     dataPsmClassIri: string,
 
     selected: (operation: {
-        resourcesToAdd: string[],
+        resourcesToAdd: [string, boolean][],
         sourcePimModel: CoreResourceReader,
         forDataPsmClass: DataPsmClass
     }) => void,
@@ -94,14 +94,15 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     }, [surroundings, cim.cimAdapter]);
 
     /**
-     * List of selected resources is an array of the selected resource iris
+     * List of selected resources is an array of the selected resource iris and orientation.
+     * true = the orientation is outgoing
      */
-    const [selectedResources, setSelectedResources] = useState<string[]>([]);
-    const toggleSelectedResources = (pimResourceIri: string) => () => {
-        if (selectedResources.includes(pimResourceIri)) {
-            setSelectedResources(selectedResources.filter(a => a !== pimResourceIri));
+    const [selectedResources, setSelectedResources] = useState<[string, boolean][]>([]);
+    const toggleSelectedResources = (pimResourceIri: string, orientation: boolean) => () => {
+        if (selectedResources.some(([i, o]) => i === pimResourceIri && o === orientation)) {
+            setSelectedResources(selectedResources.filter(([i, o]) => i !== pimResourceIri || o !== orientation));
         } else {
-            setSelectedResources([...selectedResources, pimResourceIri])
+            setSelectedResources([...selectedResources, [pimResourceIri, orientation]]);
         }
     };
 
@@ -145,11 +146,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                         <>
                             <Typography variant={"h6"}>{t("attributes")}</Typography>
                             {attributes && attributes.map((entity: PimAttribute) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, true)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity.iri as string)}
+                                            checked={selectedResources.some(([i, o]) => i === entity.iri as string && o)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -169,11 +170,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                             <Typography variant={"h6"}>{t("associations")}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, true)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity.iri as string)}
+                                            checked={selectedResources.some(([i, o]) => i === entity.iri as string && o)}
                                             tabIndex={-1}
                                             disableRipple
                                         />
@@ -201,11 +202,11 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
                             <Typography variant={"h6"}>{t("backward associations")}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string)}>
+                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, false)}>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedResources.includes(entity.iri as string)}
+                                            checked={selectedResources.some(([i, o]) => i === entity.iri as string && !o)}
                                             tabIndex={-1}
                                             disableRipple
                                         />

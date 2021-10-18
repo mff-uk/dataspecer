@@ -28,6 +28,6 @@ export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataP
             {cimClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
         </Typography>
 
-        {dataPsmClass && <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={false}/>}
+        {dataPsmClass && <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={true}/>}
     </li>;
 };

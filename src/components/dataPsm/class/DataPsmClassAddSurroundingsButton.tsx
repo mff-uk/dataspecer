@@ -15,7 +15,7 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
     const surroundingDialog = useToggle();
 
     const addSurroundings = useCallback((operation: {
-                                         resourcesToAdd: string[],
+                                         resourcesToAdd: [string, boolean][],
                                          sourcePimModel: CoreResourceReader,
                                          forDataPsmClass: DataPsmClass
                                      }) => {

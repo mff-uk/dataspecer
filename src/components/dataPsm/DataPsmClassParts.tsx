@@ -37,7 +37,7 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
 export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = ({dataPsmClassIri, isOpen}) => {
     const {resource: dataPsmClass, isLoading} = useResource<DataPsmClass>(dataPsmClassIri);
 
-    return <Collapse in={true} unmountOnExit>
+    return <Collapse in={isOpen} unmountOnExit>
         <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri}>
             {provided =>
                 <ul ref={provided.innerRef} {...provided.droppableProps}>
