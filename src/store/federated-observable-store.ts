@@ -85,6 +85,10 @@ export class FederatedObservableCoreModelReaderWriter extends ObservableCoreReso
 
     }
 
+    getStores(): ObservableCoreResourceReaderWriter[] {
+        return this.stores;
+    }
+
     async executeOperation(operation: ComplexOperation) {
         const executor = new OperationExecutorForFederatedStore(async (operation, storeDescriptor) => {
             // todo store descriptor is ignored for now

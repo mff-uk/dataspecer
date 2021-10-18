@@ -34,14 +34,6 @@ export class AddClassSurroundings implements ComplexOperation {
         this.forDataPsmClass = forDataPsmClass;
         this.sourcePimModel = sourcePimModel;
         this.resourcesToAdd = resourcesToAdd;
-
-        console.log("Operation AddClassSurroundings, forDataPsmClass, sourcePimModel, resourcesToAdd");
-        // @ts-ignore
-        window.forDataPsmClass = forDataPsmClass;
-        // @ts-ignore
-        window.sourcePimModel = sourcePimModel;
-        // @ts-ignore
-        window.resourcesToAdd = resourcesToAdd;
     }
 
     async execute(executor: OperationExecutor): Promise<void> {

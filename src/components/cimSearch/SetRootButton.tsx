@@ -7,13 +7,30 @@ import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
 import {PimClass} from "model-driven-data/pim/model";
 import {CreateRootClass} from "../../operations/create-root-class";
+import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
+import {CreateSchema} from "../../operations/create-schema";
+import {MemoryStore} from "model-driven-data/core";
+import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
+import {pimExecutors} from "model-driven-data/pim/executor";
 
 const SetRootButton: React.FC = () => {
-    const {store} = React.useContext(StoreContext);
+    const {store, setPsmSchemas} = React.useContext(StoreContext);
     const {isOpen, open, close} = useToggle();
     const {t} = useTranslation("ui");
 
-    const setRootClass = useCallback((cls: PimClass) => {
+    const setRootClass = useCallback(async (cls: PimClass) => {
+        setPsmSchemas([]);
+
+        store.getStores().forEach(s => store.removeStore(s));
+
+        const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
+        const observableCachedMemoryStore = new ObservableCachedCoreResourceReaderWriter(memoryStore);
+        store.addStore(observableCachedMemoryStore);
+
+        const schemaOperation = new CreateSchema("//pim/", "//dataPsm/");
+        await store.executeOperation(schemaOperation);
+        setPsmSchemas([schemaOperation.createdDataPsmSchema as string]);
+
         store.executeOperation(new CreateRootClass(cls)).then();
     }, [store]);
 

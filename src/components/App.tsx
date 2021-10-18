@@ -1,5 +1,5 @@
-import React, {useCallback, useMemo, useState} from "react";
-import {AppBar, Box, Container, Divider, Fab, Toolbar, Typography} from "@material-ui/core";
+import React, {useMemo, useState} from "react";
+import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
 import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
@@ -12,11 +12,6 @@ import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
 import {StoreContextInterface} from "./StoreContextInterface";
 import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
-import {MemoryStore} from "model-driven-data/core";
-import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
-import {pimExecutors} from "model-driven-data/pim/executor";
-import {ObservableCachedCoreResourceReaderWriter} from "../store/observable-cached-core-resource-reader-writer";
-import {CreateSchema} from "../operations/create-schema";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -34,22 +29,6 @@ const App: React.FC = () => {
     const [psmSchemas, setPsmSchemas] = useState<string[]>([]);
 
     const [store, setStore] = useState<FederatedObservableCoreModelReaderWriter>(new FederatedObservableCoreModelReaderWriter());
-
-    const initializeSchema = useCallback(async () => {
-        setPsmSchemas([]);
-
-        const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
-        const observableCachedMemoryStore = new ObservableCachedCoreResourceReaderWriter(memoryStore);
-        store.addStore(observableCachedMemoryStore);
-
-        const schemaOperation = new CreateSchema("//pim/", "//dataPsm/");
-        await store.executeOperation(schemaOperation);
-        setPsmSchemas([schemaOperation.createdDataPsmSchema as string]);
-        console.info("New DataPsm schema created.", schemaOperation.createdDataPsmSchema);
-        // @ts-ignore
-        window.store = store;
-        console.info("Store saved to window.store");
-    }, []);
 
     const storeContext: StoreContextInterface = useMemo(() => ({
         store,
@@ -89,9 +68,6 @@ const App: React.FC = () => {
                         <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
                         <GenerateArtifacts />
                         <SetRootButton />
-                        <Fab variant="extended" size="medium" color="primary" onClick={initializeSchema}>
-                            Schema
-                        </Fab>
                     </Box>
                     {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
                     {psmSchemas.length === 0 &&
