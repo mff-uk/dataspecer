@@ -2,7 +2,7 @@ import {CoreOperation, CoreResource} from "../../core";
 
 export class PimSetDatatype extends CoreOperation {
 
-  static readonly TYPE = "pim-action-update-datatype";
+  static readonly TYPE = "pim-action-set-datatype";
 
   pimAttribute: string | null = null;
 

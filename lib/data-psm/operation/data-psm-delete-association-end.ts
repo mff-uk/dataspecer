@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation} from "../../core";
 
 export class DataPsmDeleteAssociationEnd extends CoreOperation {
 
-  static readonly TYPE = "psm-action-delete-association-end";
+  static readonly TYPE = "data-psm-action-delete-association-end";
 
   dataPsmOwner: string | null = null;
 

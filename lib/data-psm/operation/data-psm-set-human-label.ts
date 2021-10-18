@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation, LanguageString} from "../../core";
 
 export class DataPsmSetHumanLabel extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-human-label";
+  static readonly TYPE = "data-psm-action-set-human-label";
 
   dataPsmResource: string | null = null;
 

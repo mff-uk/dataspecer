@@ -2,7 +2,7 @@ import {CoreResource, CoreOperation, LanguageString} from "../../core";
 
 export class PimSetHumanDescription extends CoreOperation {
 
-  static readonly TYPE = "psm-action-update-human-description";
+  static readonly TYPE = "pim-action-set-human-description";
 
   pimResource: string | null = null;
 
