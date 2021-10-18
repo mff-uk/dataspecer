@@ -11,13 +11,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 _You need to manually build and link model-driven-data library:_
 
-1. Clone [model-driven-data (mdd) library](https://github.com/sstenchlak/model-driven-data) to a separate directory.
-2. Build the model-driven-data library by running `npm install` and `npm run build` in the mdd directory.
-3. Link the package by running `npm link` in the mdd directory.
+1. Clone this repository with submodules. `git clone --recurse-submodules ...`
+2. Build the model-driven-data library by running `npm install` and `npm run build` in the `./model-driven-data/` directory.
 
 _To build the project:_
 
-4. In the project directory run `npm install` and `npm link model-driven-data` to install all the dependencies and link the mdd library.
+4. In the project directory run `npm install` to install all the dependencies and link the mdd library.
 5. Run `npm run build` to build the project. All generated files are in the `buid` directory.
    Alternatively, you can run live server by `npm run start`.
    
