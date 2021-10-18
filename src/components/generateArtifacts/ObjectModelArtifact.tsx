@@ -19,7 +19,7 @@ export const ObjectModelArtifact: React.FC<{close: () => void}> = memo(({close})
 
     const objectModelDownload = useCallback(async () => {
         try {
-            const objectModelSchema = JSON.stringify(await coreResourcesToObjectModel(store, psmSchemas[0]));
+            const objectModelSchema = JSON.stringify(await coreResourcesToObjectModel(store, psmSchemas[0]), null, 4);
             close();
             if (objectModelSchema) {
                 const data = new Blob([objectModelSchema], {type: "text/json;charset=utf-8"});
@@ -32,7 +32,7 @@ export const ObjectModelArtifact: React.FC<{close: () => void}> = memo(({close})
 
     const storeToClipboard = useCallback(async () => {
         close();
-        if (copy(JSON.stringify(await coreResourcesToObjectModel(store, psmSchemas[0])))) {
+        if (copy(JSON.stringify(await coreResourcesToObjectModel(store, psmSchemas[0]), null, 4))) {
             enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
         } else {
             enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
