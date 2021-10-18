@@ -6,3 +6,4 @@
 node_modules/
 test-output/
 dist/
+!.github/
