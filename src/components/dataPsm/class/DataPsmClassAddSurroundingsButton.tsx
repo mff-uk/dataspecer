@@ -11,7 +11,7 @@ import {AddClassSurroundings} from "../../../operations/add-class-surroundings";
 
 export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
     const {store} = React.useContext(StoreContext);
-    const {t} = useTranslation("psm");
+    const {t, i18n} = useTranslation("psm");
     const surroundingDialog = useToggle();
 
     const addSurroundings = useCallback((operation: {
@@ -19,7 +19,13 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
                                          sourcePimModel: CoreResourceReader,
                                          forDataPsmClass: DataPsmClass
                                      }) => {
-        store.executeOperation(new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd)).then();
+        const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd);
+        addClassSurroundings.labelRules = {
+            languages: i18n.languages as string[],
+            namingConvention: "kebab-case",
+            specialCharacters: "remove-all",
+        };
+        store.executeOperation(addClassSurroundings).then();
     }, [store]);
 
     return <>

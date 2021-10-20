@@ -1,6 +1,6 @@
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {CoreResourceReader} from "model-driven-data/core";
-import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
+import {PimAssociation, PimAttribute, PimClass, PimResource} from "model-driven-data/pim/model";
 import {
     DataPsmCreateAssociationEnd,
     DataPsmCreateAttribute,
@@ -10,6 +10,9 @@ import {PimCreateAssociation, PimCreateAttribute, PimCreateClass} from "model-dr
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
+import {camelCase, kebabCase, snakeCase, upperFirst} from "lodash";
+import {selectLanguage} from "../utils/selectLanguage";
+import {removeDiacritics} from "../utils/remove-diacritics";
 
 /**
  * With each association, the direction of the association must be specified. Suppose we have class Person representing
@@ -21,6 +24,11 @@ import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimProperti
  *     source class. Therefore all the inheritance is flattened.
  */
 export class AddClassSurroundings implements ComplexOperation {
+    public labelRules: {
+        languages: string[],
+        namingConvention: "camelCase" | "PascalCase" | "kebab-case" | "snake_case",
+        specialCharacters: "allow" | "remove-diacritics" | "remove-all",
+    } | null = null;
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, boolean][];
@@ -53,6 +61,32 @@ export class AddClassSurroundings implements ComplexOperation {
         }
     }
 
+    private getTechnicalLabelFromPim(pimResource: PimResource): string | undefined {
+        if (this.labelRules === null) return undefined;
+
+        let text = selectLanguage(pimResource.pimHumanLabel ?? {}, this.labelRules.languages);
+
+        if (text === undefined) return undefined;
+
+        switch (this.labelRules.specialCharacters) {
+            case "remove-all":
+                text = removeDiacritics(text);
+                text = text.replace(/[^a-zA-Z0-9-_\s]/g, "");
+                break;
+            case "remove-diacritics":
+                text = removeDiacritics(text);
+        }
+
+        switch (this.labelRules.namingConvention) {
+            case "snake_case": text = snakeCase(text); break
+            case "kebab-case": text = kebabCase(text); break
+            case "camelCase": text = camelCase(text); break
+            case "PascalCase": text = upperFirst(camelCase(text)); break
+        }
+
+        return text;
+    }
+
     private async processAttribute(
         attribute: PimAttribute,
         executor: OperationExecutor,
@@ -69,6 +103,7 @@ export class AddClassSurroundings implements ComplexOperation {
         const dataPsmCreateAttribute = new DataPsmCreateAttribute();
         dataPsmCreateAttribute.dataPsmInterpretation = pimCreateAttributeResult.created[0];
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
+        dataPsmCreateAttribute.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(attribute) ?? null;
         await executor.applyOperation(dataPsmCreateAttribute, dataPsmStoreSelector);
     }
 
@@ -111,6 +146,7 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAssociationEnd.dataPsmInterpretation = pimCreateAssociationResult.created[orientation ? 2 : 1] as string; // todo use PimCreateAssociationResultProperties
         dataPsmCreateAssociationEnd.dataPsmPart = dataPsmCreateClassResult.created[0];
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
+        dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
         await executor.applyOperation(dataPsmCreateAssociationEnd, dataPsmStoreSelector);
     }
 }
