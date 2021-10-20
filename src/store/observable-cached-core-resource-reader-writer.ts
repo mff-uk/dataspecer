@@ -33,7 +33,7 @@ class OperationExecutorForSingleStore implements OperationExecutor {
  */
 export class ObservableCachedCoreResourceReaderWriter extends ObservableCoreResourceReaderWriter {
     // model-driven-data store
-    protected readonly store: CoreResourceReader & CoreResourceWriter;
+    public readonly store: CoreResourceReader & CoreResourceWriter;
     // list of subscribed IRIs and subscribers to them
     protected subscriptions = new Map<string, Set<Subscriber>>();
     // Cache of all resources used by at least one subscriber.

@@ -6,7 +6,7 @@
     "title": "Generátor schémat",
     "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
     "set root element button": "Zvolit kořen",
-    "no schema text": "Začněte kliknutím na tlačíko zvolit kořen."
+    "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1>, nebo načtěte soubor s modelem pomocí tlačítka s ikonou <3/>."
   },
   "ui.iri_copy": {
     "text": "zkopírovat",
@@ -100,5 +100,14 @@
     "language": "jazyk",
     "label": "titulek",
     "description": "popisek"
+  },
+  "save-restore": {
+    "file without name": "nepojmenované schéma",
+    "save to file": "uložit",
+    "import from file": "načíst",
+    "snackbar load": {
+      "ok": "Soubor úspěšně načten.",
+      "fail": "Nepodařilo se načíst soubor. Je možné, že byl vygenerován ve verzi, která již není podporována."
+    }
   }
 }

@@ -12,6 +12,8 @@ import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
 import {StoreContextInterface} from "./StoreContextInterface";
 import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
+import {SaveRestore} from "./save-restore";
+import OpenInBrowserTwoToneIcon from "@material-ui/icons/OpenInBrowserTwoTone";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -67,11 +69,16 @@ const App: React.FC = () => {
                     <Box display="flex" flexDirection="row" justifyContent="space-between">
                         <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
                         <GenerateArtifacts />
+                        <SaveRestore />
                         <SetRootButton />
                     </Box>
                     {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
                     {psmSchemas.length === 0 &&
-                        <Typography color={"textSecondary"}>{t("no schema text")}</Typography>
+                        <Typography color={"textSecondary"}>
+                            <Trans i18nKey="no schema text" t={t}>
+                                _ <strong /> _ <OpenInBrowserTwoToneIcon fontSize="small" /> _
+                            </Trans>
+                        </Typography>
                     }
                     <Divider style={{margin: "1rem 0 1rem 0"}} />
                     <Trans i18nKey="footer report bug" t={t}>

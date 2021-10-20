@@ -6,18 +6,20 @@ import {uniqueId} from "lodash";
 import {useTranslation} from "react-i18next";
 import {ReSpecArtifact} from "./ReSpecArtifact";
 import {BikeshedArtifact} from "./BikeshedArtifact";
-//import {SaveLoad} from "./SaveLoad";
 import {ObjectModelArtifact} from "./ObjectModelArtifact";
+import {StoreContext} from "../App";
 
 export const GenerateArtifacts: React.FC = () => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId());
     const ref = useRef(null);
     const {t} = useTranslation("artifacts");
+    const {psmSchemas} = React.useContext(StoreContext);
+
 
     return (
         <>
-            <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref}>
+            <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref} disabled={psmSchemas.length === 0}>
                 {t("button generate load artifacts")}
                 <ExpandMoreIcon />
             </Fab>
@@ -28,8 +30,6 @@ export const GenerateArtifacts: React.FC = () => {
                 open={isOpen}
                 onClose={close}
             >
-                {/*<SaveLoad close={close} />
-                <Divider />*/}
                 <ReSpecArtifact close={close} />
                 <Divider />
                 <BikeshedArtifact close={close} />

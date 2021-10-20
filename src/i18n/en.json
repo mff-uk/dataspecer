@@ -6,7 +6,7 @@
     "title": "Schema Generator",
     "footer report bug": "Report a bug on <1>GitHub</1>",
     "set root element button": "Set root element",
-    "no schema text": "Start by clicking on set root element button."
+    "no schema text": "Start by clicking on <1>set root element</1> button or load a previously saved file by clicking on <3 /> icon."
   },
   "ui.iri_copy": {
     "text": "copy",
@@ -100,5 +100,14 @@
     "language": "language",
     "label": "label",
     "description": "description"
+  },
+  "save-restore": {
+    "file without name": "unnamed schema",
+    "save to file": "save",
+    "import from file": "load",
+    "snackbar load": {
+      "ok": "File loaded successfully.",
+      "fail": "Unable to load file. Probably the version the file was created with stopped being supported."
+    }
   }
 }
