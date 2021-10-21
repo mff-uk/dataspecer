@@ -1,5 +1,5 @@
 import React from "react";
-import {List, ListItem, ListItemText, Tooltip, Typography} from "@material-ui/core";
+import {List, ListItem, ListItemText, Tooltip, Typography} from "@mui/material";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";

@@ -8,10 +8,11 @@ import {
     ListItem,
     ListItemText,
     TextField,
+    Theme,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import React, {useEffect, useState} from "react";
-import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@mui/styles';
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
 import {useTranslation} from "react-i18next";

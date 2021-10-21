@@ -1,6 +1,6 @@
 import React, {useCallback} from "react";
-import {Fab} from "@material-ui/core";
-import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
+import {Fab} from "@mui/material";
+import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {SearchDialog} from "./SearchDialog";
 import {useToggle} from "../../hooks/useToggle";
 import {useTranslation} from "react-i18next";

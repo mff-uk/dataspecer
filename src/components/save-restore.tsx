@@ -1,8 +1,8 @@
 import React, {useCallback} from "react";
-import {Fab} from "@material-ui/core";
+import {Fab} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import SaveTwoToneIcon from "@material-ui/icons/SaveTwoTone";
-import OpenInBrowserTwoToneIcon from "@material-ui/icons/OpenInBrowserTwoTone";
+import SaveTwoToneIcon from "@mui/icons-material/SaveTwoTone";
+import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {useSnackbar} from "notistack";
 import {StoreContext} from "./App";
 import {restoreState, saveState} from "../save/save-state";
@@ -22,7 +22,7 @@ export const SaveRestore: React.FC = () => {
             dataPsmSchemas: psmSchemas,
         });
         const blob = new Blob([data], {type: "application/gzip;charset=utf-8"});
-        FileSaver.saveAs(blob, (await getNameForSchema(store, psmSchemas[0], i18n.languages) ?? t("file without name")) + ".sgen", {autoBom: false});
+        FileSaver.saveAs(blob, ((await getNameForSchema(store, psmSchemas[0], i18n.languages)) ?? t("file without name")) + ".sgen", {autoBom: false});
     }, [store, psmSchemas, i18n.languages]);
 
 

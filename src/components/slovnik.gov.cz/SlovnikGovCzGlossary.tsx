@@ -1,7 +1,8 @@
 import React from "react";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import {createStyles, makeStyles} from "@mui/styles";
 import {StoreContext} from "../App";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {Theme} from "@mui/material";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

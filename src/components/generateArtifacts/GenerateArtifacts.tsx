@@ -1,6 +1,6 @@
 import React, {useRef, useState} from "react";
-import {Divider, Fab, Menu} from "@material-ui/core";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {Divider, Fab, Menu} from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
 import {useTranslation} from "react-i18next";

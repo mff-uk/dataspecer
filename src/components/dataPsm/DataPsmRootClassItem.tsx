@@ -2,11 +2,10 @@ import React from "react";
 import {useItemStyles} from "./PsmItemCommon";
 import {DataPsmClassParts} from "./DataPsmClassParts";
 import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
-import {Typography} from "@material-ui/core";
+import {Skeleton, Typography} from "@mui/material";
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimClass} from "model-driven-data/pim/model";
-import {Skeleton} from "@material-ui/lab";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 
 export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {

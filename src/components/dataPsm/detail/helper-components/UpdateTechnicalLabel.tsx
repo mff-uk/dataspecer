@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {DataPsmResource} from "model-driven-data/data-psm/model";
-import {Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, Grid, TextField, Typography} from "@mui/material";
 import {StoreContext} from "../../../App";
 import {useTranslation} from "react-i18next";
 import {SetTechnicalLabel} from "../../../../operations/set-technical-label";
@@ -32,7 +32,7 @@ export const UpdateTechnicalLabel: React.FC<{dataPsmResource: DataPsmResource, i
       />
     </Grid>
     <Grid item xs={4}>
-      <Button color={(technicalLabel == (dataPsmResource.dataPsmTechnicalLabel ?? "")) ? "default" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>{t("update")}</Button>
+      <Button color={(technicalLabel == (dataPsmResource.dataPsmTechnicalLabel ?? "")) ? "inherit" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>{t("update")}</Button>
     </Grid>
   </Grid>
   </>;

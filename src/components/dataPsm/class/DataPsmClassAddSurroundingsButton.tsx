@@ -1,5 +1,5 @@
 import React, {useCallback} from "react";
-import AddIcon from "@material-ui/icons/Add";
+import AddIcon from "@mui/icons-material/Add";
 import {AddInterpretedSurroundingDialog} from "../../addInterpretedSurroundings/AddInterpretedSurroundingDialog";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";

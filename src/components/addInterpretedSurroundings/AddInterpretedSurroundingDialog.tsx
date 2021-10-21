@@ -9,12 +9,13 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    Theme,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import React, {useCallback, useEffect, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";

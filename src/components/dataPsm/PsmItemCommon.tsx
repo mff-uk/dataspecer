@@ -1,5 +1,6 @@
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Theme} from "@mui/material";
 
 /**
  * Component properties for both AssociationEnds and Attributes.

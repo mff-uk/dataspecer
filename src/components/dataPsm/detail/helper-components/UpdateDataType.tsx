@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {DataPsmAttribute} from "model-driven-data/data-psm/model";
-import {Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, Grid, TextField, Typography} from "@mui/material";
 import {StoreContext} from "../../../App";
 import {useTranslation} from "react-i18next";
 import {SetDataPsmDatatype} from "../../../../operations/set-data-psm-datatype";
@@ -32,7 +32,7 @@ export const UpdateDataType: React.FC<{dataPsmAttribute: DataPsmAttribute, isLoa
         />
       </Grid>
       <Grid item xs={4}>
-        <Button color={(value == (dataPsmAttribute.dataPsmDatatype ?? "")) ? "default" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>{t("update")}</Button>
+        <Button color={(value == (dataPsmAttribute.dataPsmDatatype ?? "")) ? "inherit" : "primary"} fullWidth variant="contained" size={"small"} disabled={isLoading} onClick={update}>{t("update")}</Button>
       </Grid>
     </Grid>
   </>;

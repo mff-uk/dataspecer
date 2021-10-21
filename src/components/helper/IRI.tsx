@@ -1,10 +1,10 @@
 import React, {memo, useCallback} from "react";
-import {Box, Button, Typography} from "@material-ui/core";
-import FileCopyIcon from "@material-ui/icons/FileCopy";
+import {Box, Button, Theme, Typography} from "@mui/material";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 import {useSnackbar} from "notistack";
 import copyToClipboard from "copy-to-clipboard";
 import {useTranslation} from "react-i18next";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import {createStyles, makeStyles} from "@mui/styles";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

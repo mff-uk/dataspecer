@@ -1,4 +1,4 @@
-import {Table, TableBody, TableCell, TableHead, TableRow} from "@material-ui/core";
+import {Table, TableBody, TableCell, TableHead, TableRow} from "@mui/material";
 import React from "react";
 import {LanguageString} from "model-driven-data/core";
 import {useTranslation} from "react-i18next";

@@ -1,7 +1,7 @@
 import React, {memo, useCallback} from "react";
-import {ListItemIcon, MenuItem} from "@material-ui/core";
-import FindInPageTwoToneIcon from "@material-ui/icons/FindInPageTwoTone";
-import DescriptionTwoToneIcon from "@material-ui/icons/DescriptionTwoTone";
+import {ListItemIcon, MenuItem} from "@mui/material";
+import FindInPageTwoToneIcon from "@mui/icons-material/FindInPageTwoTone";
+import DescriptionTwoToneIcon from "@mui/icons-material/DescriptionTwoTone";
 import FileSaver from "file-saver";
 import {useSnackbar} from "notistack";
 import {useTranslation} from "react-i18next";

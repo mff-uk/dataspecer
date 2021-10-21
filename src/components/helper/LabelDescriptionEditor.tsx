@@ -12,9 +12,9 @@ import {
     ListItemText,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import React, {useCallback, useEffect, useState} from "react";
-import TranslateIcon from '@material-ui/icons/Translate';
+import TranslateIcon from '@mui/icons-material/Translate';
 import {LanguageString} from "model-driven-data/core";
 
 export interface LabelAndDescriptionLanguageStrings {
@@ -66,71 +66,73 @@ export const LabelDescriptionEditor: React.FC<LabelDescriptionEditorParameters> 
         setLang(sorted.length ? sorted[0] : "");
     }, [sourceLabel, sourceDescription, setAvailableLangs, setLabel, setDescription]);
 
-    return <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
-        <DialogTitle id="customized-dialog-title">
-            Edit label and description
-        </DialogTitle>
-        <DialogContent dividers>
-            <Grid container spacing={4} alignItems="center">
-                <Grid item xs={5}>
-                    <List component="nav">
-                        {availableLangs.map(l =>
-                            <ListItem button selected={l === lang} onClick={() => setLang(l)} key={l}><ListItemIcon><TranslateIcon /></ListItemIcon><ListItemText primary={l} /></ListItem>
-                        )}
-                        <ListItem>
+    return (
+        <Dialog onClose={close} open={isOpen} maxWidth={"sm"} fullWidth>
+            <DialogTitle id="customized-dialog-title">
+                Edit label and description
+            </DialogTitle>
+            <DialogContent dividers>
+                <Grid container spacing={4} alignItems="center">
+                    <Grid item xs={5}>
+                        <List component="nav">
+                            {availableLangs.map(l =>
+                                <ListItem button selected={l === lang} onClick={() => setLang(l)} key={l}><ListItemIcon><TranslateIcon /></ListItemIcon><ListItemText primary={l} /></ListItem>
+                            )}
+                            <ListItem>
+                                <TextField
+                                    variant="standard"
+                                    fullWidth
+                                    value={newLang}
+                                    onChange={e => setNewLang(e.target.value)}
+                                    error={availableLangs.includes(newLang)}
+                                    onKeyDown={event => {
+                                        if (event.key === "Enter") {
+                                            event.preventDefault();
+                                            newLang.length && !availableLangs.includes(newLang) && addNewLang();
+                                        }
+                                    }}
+                                />
+                                <Box mx={1} />
+                                <Button color={"primary"} disabled={!newLang.length || availableLangs.includes(newLang)} onClick={addNewLang}>add</Button>
+                            </ListItem>
+                        </List>
+                    </Grid>
+                    {lang.length ?
+                        <Grid item xs={7}>
                             <TextField
-                                variant="standard"
+                                label="Label"
+                                variant="filled"
                                 fullWidth
-                                value={newLang}
-                                onChange={e => setNewLang(e.target.value)}
-                                error={availableLangs.includes(newLang)}
-                                onKeyDown={event => {
-                                    if (event.key === "Enter") {
-                                        event.preventDefault();
-                                        newLang.length && !availableLangs.includes(newLang) && addNewLang();
-                                    }
-                                }}
+                                value={label[lang] ?? ""}
+                                onChange={e => setLabel({...label, [lang]: e.target.value})}
                             />
-                            <Box mx={1} />
-                            <Button color={"primary"} disabled={!newLang.length || availableLangs.includes(newLang)} onClick={addNewLang}>add</Button>
-                        </ListItem>
-                    </List>
+                            <Box my={3}/>
+                            <TextField
+                                label="Description"
+                                variant="outlined"
+                                multiline
+                                fullWidth
+                                rows={3}
+                                maxRows={10}
+                                value={description[lang] ?? ""}
+                                onChange={e => setDescription({...description, [lang]: e.target.value})}
+                            />
+                        </Grid>
+                        :
+                        <Grid item xs={7} style={{textAlign: "center"}}>
+                            <Typography color={"textSecondary"}>Select a language first.</Typography>
+                        </Grid>
+                    }
                 </Grid>
-                {lang.length ?
-                    <Grid item xs={7}>
-                        <TextField
-                            label="Label"
-                            variant="filled"
-                            fullWidth
-                            value={label[lang] ?? ""}
-                            onChange={e => setLabel({...label, [lang]: e.target.value})}
-                        />
-                        <Box my={3}/>
-                        <TextField
-                            label="Description"
-                            variant="outlined"
-                            multiline
-                            fullWidth
-                            rows={3}
-                            rowsMax={10}
-                            value={description[lang] ?? ""}
-                            onChange={e => setDescription({...description, [lang]: e.target.value})}
-                        />
-                    </Grid>
-                    :
-                    <Grid item xs={7} style={{textAlign: "center"}}>
-                        <Typography color={"textSecondary"}>Select a language first.</Typography>
-                    </Grid>
-                }
-            </Grid>
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={close} color="primary">
-                Cancel
-            </Button>
-            <Button onClick={callUpdate} color="primary" autoFocus>
-                Save
-            </Button>
-        </DialogActions>
-    </Dialog>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={close} color="primary">
+                    Cancel
+                </Button>
+                <Button onClick={callUpdate} color="primary" autoFocus>
+                    Save
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 };

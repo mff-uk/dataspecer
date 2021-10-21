@@ -1,6 +1,6 @@
 import React from "react";
 import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/model";
-import {Button, Card, CardContent, Grid, LinearProgress, Typography} from "@material-ui/core";
+import {Button, Card, CardContent, Grid, LinearProgress, Typography} from "@mui/material";
 import {useDetailStyles} from "../dataPsmDetailCommon";
 import {LabelDescriptionTable} from "../helper-components/LabelDescriptionTable";
 import {useTranslation} from "react-i18next";

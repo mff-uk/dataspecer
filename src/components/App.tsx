@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from "react";
-import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@material-ui/core";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
 import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
 import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
@@ -13,7 +13,7 @@ import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
 import {StoreContextInterface} from "./StoreContextInterface";
 import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
 import {SaveRestore} from "./save-restore";
-import OpenInBrowserTwoToneIcon from "@material-ui/icons/OpenInBrowserTwoTone";
+import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -58,7 +58,7 @@ const App: React.FC = () => {
                     <Typography variant="h6">
                         {t("title")}
                     </Typography>
-                    <Box display="flex" flexGrow="1" justifyContent="flex-end">
+                    <Box display="flex" sx={{flexGrow: 1}} justifyContent="flex-end">
                         <LanguageSelector />
                     </Box>
                 </Toolbar>

@@ -1,6 +1,6 @@
 import React from "react";
 import {useTranslation} from "react-i18next";
-import DeleteIcon from "@material-ui/icons/Delete";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {ActionButton} from "../common/ActionButton";
 
 export const DataPsmDeleteButton: React.FC<{onClick: () => void}> = ({onClick}) => {

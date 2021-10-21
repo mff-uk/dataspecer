@@ -1,7 +1,7 @@
 import React, {memo} from "react";
 import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beautiful-dnd";
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
-import {Collapse} from "@material-ui/core";
+import {Collapse} from "@mui/material";
 import {DataPsmAssociationClassItem} from "./DataPsmAssociationClassItem";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useResource} from "../../hooks/useResource";

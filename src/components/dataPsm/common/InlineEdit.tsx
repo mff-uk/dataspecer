@@ -3,10 +3,10 @@ import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/mode
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";
-import {InputBase} from "@material-ui/core";
+import {InputBase} from "@mui/material";
 import {ActionButton} from "./ActionButton";
-import CheckIcon from "@material-ui/icons/Check";
-import CloseIcon from "@material-ui/icons/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 

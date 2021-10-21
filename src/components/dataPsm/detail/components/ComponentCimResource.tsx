@@ -1,5 +1,5 @@
 import React from "react";
-import {Card, CardContent} from "@material-ui/core";
+import {Card, CardContent} from "@mui/material";
 import {IRI} from "../../../helper/IRI";
 import {useDetailStyles} from "../dataPsmDetailCommon";
 

@@ -1,12 +1,12 @@
 import React, {useCallback} from "react";
-import {Typography} from "@material-ui/core";
-import EditIcon from '@material-ui/icons/Edit';
+import {Typography} from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import {useToggle} from "../../hooks/useToggle";
 import {DataPsmClassPartItemProperties, useItemStyles} from "./PsmItemCommon";
 import {useTranslation} from "react-i18next";
 import {DataPsmDeleteButton} from "./class/DataPsmDeleteButton";
 import {ActionButton} from "./common/ActionButton";
-import RemoveIcon from '@material-ui/icons/Remove';
+import RemoveIcon from '@mui/icons-material/Remove';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import classNames from "classnames";

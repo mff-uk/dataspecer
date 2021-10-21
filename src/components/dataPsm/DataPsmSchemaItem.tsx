@@ -1,12 +1,12 @@
-import {Fab, Paper, Typography} from "@material-ui/core";
+import {Fab, Paper, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext} from "react";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmRootClassItem} from "./DataPsmRootClassItem";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "model-driven-data/data-psm/model";
-import Skeleton from '@material-ui/lab/Skeleton';
+import Skeleton from '@mui/material/Skeleton';
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";
 import {useTranslation} from "react-i18next";

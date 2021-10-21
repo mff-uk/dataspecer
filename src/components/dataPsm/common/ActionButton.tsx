@@ -1,5 +1,5 @@
 import React from "react";
-import {Button} from "@material-ui/core";
+import {Button} from "@mui/material";
 import {useItemStyles} from "../PsmItemCommon";
 
 interface ActionButtonParameters {
