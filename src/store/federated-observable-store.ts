@@ -37,7 +37,7 @@ export class FederatedObservableCoreModelReaderWriter extends ObservableCoreReso
             this.subscriptions.set(iri, {
                 currentValue: {
                     resource: null,
-                    isLoading: true,
+                    isLoading: this.stores.length > 0,
                 },
                 storeValues: new Map(),
                 subscribers: [],
