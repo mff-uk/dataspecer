@@ -1,0 +1,30 @@
+{
+  "button modify translations": "",
+  "button reload resource": "",
+  "confirm changes": "",
+  "discard changes": "",
+  "in all languages": "",
+  "label datatype": "",
+  "label technical label": "",
+  "no translations": "",
+  "resource": {
+    "fail": "",
+    "loading": "",
+    "ok": ""
+  },
+  "some translations other sources": "",
+  "tab association": "",
+  "tab basic info": "",
+  "tab class": "",
+  "tab data psm": "",
+  "tab data psm association end": "",
+  "tab data psm child": "",
+  "tab pim": "",
+  "tab pim association": "",
+  "tab pim association end": "",
+  "tab pim child": "",
+  "tab range class": "",
+  "tab store": "",
+  "tab title association": "",
+  "tab title range class": ""
+}

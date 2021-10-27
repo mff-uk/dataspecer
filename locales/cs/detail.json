@@ -1,0 +1,30 @@
+{
+  "button modify translations": "Upravit překlady",
+  "button reload resource": "Znovunačíst položku",
+  "confirm changes": "Zapsat změny",
+  "discard changes": "Zahodit změny",
+  "in all languages": "Ve všech jazycích",
+  "label datatype": "Datový typ",
+  "label technical label": "Technický popisek",
+  "no translations": "žádné překlady nejsou k dispozici",
+  "resource": {
+    "fail": "nelze načíst",
+    "loading": "načítá se",
+    "ok": "úspěšně načtena"
+  },
+  "some translations other sources": "některé překlady mohou pocházet z jiných zdrojů",
+  "tab association": "asociace",
+  "tab basic info": "základní informace",
+  "tab class": "třída",
+  "tab data psm": "data psm",
+  "tab data psm association end": "data psm konec asociace",
+  "tab data psm child": "data psm potomek",
+  "tab pim": "pim",
+  "tab pim association": "pim asociace",
+  "tab pim association end": "pim konec asociace",
+  "tab pim child": "pim potomek",
+  "tab range class": "ukazovaná třída",
+  "tab store": "store",
+  "tab title association": "asociace",
+  "tab title range class": "ukazovaná třída"
+}

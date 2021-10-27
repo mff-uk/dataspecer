@@ -1,0 +1,11 @@
+{
+  "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
+  "iri_copy": {
+    "fail": "Nepodařilo se zkopírovat IRI do schránky",
+    "success": "IRI zkopírováno do schránky",
+    "text": "zkopírovat"
+  },
+  "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1>, nebo načtěte soubor s modelem pomocí tlačítka s ikonou <3/>.",
+  "set root element button": "Zvolit kořen",
+  "title": "Generátor schémat"
+}

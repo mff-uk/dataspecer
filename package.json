@@ -41,7 +41,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "extract-languages": "i18next"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -63,6 +64,8 @@
     "@types/lodash": "^4.14.170",
     "@types/pako": "^1.0.2",
     "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/webpack-env": "^1.16.3",
+    "i18next-parser": "^5.0.0",
     "typescript": "^4.3.4"
   }
 }
