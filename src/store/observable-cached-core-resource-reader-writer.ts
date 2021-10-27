@@ -44,6 +44,10 @@ export class ObservableCachedCoreResourceReaderWriter extends ObservableCoreReso
         this.store = store;
     }
 
+    forceReload(iri: string) {
+        this.reloadResources([iri]);
+    }
+
     listResourcesOfType(typeIri: string): Promise<string[]> {
         return this.store.listResourcesOfType(typeIri);
     }

@@ -15,6 +15,7 @@ export abstract class ObservableCoreResourceReaderWriter implements CoreResource
     abstract addSubscriber(iri: string, subscriber: Subscriber): void;
     abstract removeSubscriber(iri: string, subscriber: Subscriber): void;
     abstract executeOperation(operation: ComplexOperation): Promise<void>;
+    abstract forceReload(iri: string): void;
 
     readResource(iri: string): Promise<CoreResource|null> {
         return new Promise(resolve => {

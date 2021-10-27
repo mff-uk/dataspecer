@@ -85,6 +85,14 @@ export class FederatedObservableCoreModelReaderWriter extends ObservableCoreReso
 
     }
 
+    forceReload(iri: string) {
+        this.stores.forEach(store => store.forceReload(iri));
+    }
+
+    optimizeGetCachedValue(iri: string) {
+        return this.subscriptions.get(iri)?.currentValue;
+    }
+
     getStores(): ObservableCoreResourceReaderWriter[] {
         return this.stores;
     }
