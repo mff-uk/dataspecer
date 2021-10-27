@@ -2,12 +2,16 @@ import React from "react";
 import {createStyles, makeStyles} from "@mui/styles";
 import {StoreContext} from "../App";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {Theme} from "@mui/material";
+import {alpha, Theme} from "@mui/material";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            color: theme.palette.secondary.main
+            color: theme.palette.primary.main,
+            marginLeft: ".5rem",
+            background: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+            padding: ".2rem .5rem",
+            borderRadius: theme.shape.borderRadius
         },
     }),
 );

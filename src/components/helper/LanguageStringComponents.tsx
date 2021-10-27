@@ -5,7 +5,7 @@ import {LanguageString} from "model-driven-data/core";
 export const LanguageStringFallback: React.FC<{
     from: LanguageString | null,
     fallback?: ReactElement,
-    children: (text: string, lang?: string) => ReactElement,
+    children?: (text: string, lang?: string) => ReactElement,
 }> = ({from, fallback, children}) => {
     const {i18n} = useTranslation();
 
@@ -14,7 +14,7 @@ export const LanguageStringFallback: React.FC<{
 
         for (const tryLang of toTry) {
             if (from[tryLang] && from[tryLang].length) {
-                return children(from[tryLang], tryLang);
+                return children ? children(from[tryLang], tryLang) : <>{from[tryLang]}</>;
             }
         }
     }

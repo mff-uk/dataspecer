@@ -34,7 +34,7 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
 /**
  * Renders parts (class attributes and class associations) for specified class.
  */
-export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = ({dataPsmClassIri, isOpen}) => {
+export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = memo(({dataPsmClassIri, isOpen}) => {
     const {resource: dataPsmClass, isLoading} = useResource<DataPsmClass>(dataPsmClassIri);
 
     return <Collapse in={isOpen} unmountOnExit>
@@ -53,4 +53,4 @@ export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boole
             }
         </Droppable>
     </Collapse>;
-};
+});

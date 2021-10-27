@@ -14,6 +14,7 @@ import {StoreContextInterface} from "./StoreContextInterface";
 import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
 import {SaveRestore} from "./save-restore";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
+import {DialogAppProvider} from "./dialog-app-provider";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -52,40 +53,42 @@ const App: React.FC = () => {
 
     return <>
         <SnackbarProvider maxSnack={5}>
-            <CssBaseline />
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6">
-                        {t("title")}
-                    </Typography>
-                    <Box display="flex" sx={{flexGrow: 1}} justifyContent="flex-end">
-                        <LanguageSelector />
-                    </Box>
-                </Toolbar>
-            </AppBar>
-            <StoreContext.Provider value={storeContext}>
-                <Container>
-                    <Box height="30px"/>
-                    <Box display="flex" flexDirection="row" justifyContent="space-between">
-                        <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-                        <GenerateArtifacts />
-                        <SaveRestore />
-                        <SetRootButton />
-                    </Box>
-                    {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
-                    {psmSchemas.length === 0 &&
-                        <Typography color={"textSecondary"}>
-                            <Trans i18nKey="no schema text" t={t}>
-                                _ <strong /> _ <OpenInBrowserTwoToneIcon fontSize="small" /> _
-                            </Trans>
+            <DialogAppProvider>
+                <CssBaseline />
+                <AppBar position="static">
+                    <Toolbar>
+                        <Typography variant="h6">
+                            {t("title")}
                         </Typography>
-                    }
-                    <Divider style={{margin: "1rem 0 1rem 0"}} />
-                    <Trans i18nKey="footer report bug" t={t}>
-                        Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
-                    </Trans>
-                </Container>
-            </StoreContext.Provider>
+                        <Box display="flex" sx={{flexGrow: 1}} justifyContent="flex-end">
+                            <LanguageSelector />
+                        </Box>
+                    </Toolbar>
+                </AppBar>
+                <StoreContext.Provider value={storeContext}>
+                    <Container>
+                        <Box height="30px"/>
+                        <Box display="flex" flexDirection="row" justifyContent="space-between">
+                            <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
+                            <GenerateArtifacts />
+                            <SaveRestore />
+                            <SetRootButton />
+                        </Box>
+                        {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
+                        {psmSchemas.length === 0 &&
+                            <Typography color={"textSecondary"}>
+                                <Trans i18nKey="no schema text" t={t}>
+                                    _ <strong /> _ <OpenInBrowserTwoToneIcon fontSize="small" /> _
+                                </Trans>
+                            </Typography>
+                        }
+                        <Divider style={{margin: "1rem 0 1rem 0"}} />
+                        <Trans i18nKey="footer report bug" t={t}>
+                            Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
+                        </Trans>
+                    </Container>
+                </StoreContext.Provider>
+            </DialogAppProvider>
         </SnackbarProvider>
     </>;
 };

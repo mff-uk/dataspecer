@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from "react";
+import React, {memo, useCallback, useMemo} from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -13,43 +13,23 @@ import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {PimAssociation, PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
+import {PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
 import {useDialog} from "../../hooks/useDialog";
-import {DataPsmAssociationClassDetailDialog} from "./detail/DataPsmAssociationClassDetailDialog";
+import {DataPsmAssociationToClassDetailDialog} from "../detail/data-psm-association-to-class-detail-dialog";
 import {StoreContext} from "../App";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {InlineEdit} from "./common/InlineEdit";
 import {LanguageString} from "model-driven-data/core";
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
-
-// todo This hook is just temporary until we fix problem with accessing the association from its association end.
-const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null) => {
-    const {store} = React.useContext(StoreContext);
-
-    return useAsyncMemo<PimAssociation | null>(async () => {
-        if (pimAssociationEndIri) {
-            const resources = await store.listResources();
-            for (const resourceIri of resources) {
-                const resource = await store.readResource(resourceIri);
-                if (PimAssociation.is(resource)) {
-                    if (resource.pimEnd.includes(pimAssociationEndIri)) {
-                        return resource;
-                    }
-                }
-            }
-        }
-        return null;
-    }, [pimAssociationEndIri]);
-}
+import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
 
 /**
  * This component represents either PSM class or PSM association to a PSM class.
  *
  * **Data PSM association end** interprets **PIM association end** which belongs to **PIM association**.
  */
-export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
+export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
     const {store} = React.useContext(StoreContext);
@@ -63,7 +43,7 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
 
     // PIM Association and check if it is backward association
 
-    const [pimAssociation, pimAssociationIsLoading] = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
+    const {resource: pimAssociation, isLoading: pimAssociationIsLoading} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
     const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
 
     const dataPsmClassIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
@@ -72,8 +52,8 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
 
     const collapse = useToggle(true);
 
-    const detail = useDialog(DataPsmAssociationClassDetailDialog, ["dataPsmAssociationIri", "dataPsmClassIri"], {dataPsmAssociationIri: "", dataPsmClassIri: ""});
-    const detailOpen = useCallback(() => detail.open({dataPsmAssociationIri: dataPsmAssociationEndIri, dataPsmClassIri: dataPsmClassIri as string}), [dataPsmAssociationEndIri, dataPsmClassIri]);
+    const detail = useDialog(DataPsmAssociationToClassDetailDialog, ["parentIri", "iri"], {parentIri: "", iri: ""});
+    const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, dataPsmClassIri]);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
             store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
@@ -149,4 +129,4 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
         }
         <detail.component />
     </li>;
-};
+});

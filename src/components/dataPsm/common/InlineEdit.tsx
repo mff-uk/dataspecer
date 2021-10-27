@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {memo, useState} from "react";
 import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/model";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
@@ -13,7 +13,7 @@ import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 /**
  * Renders inline form to edit technical label and datatype optionally
  */
-export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmResource, resourceType: "attribute" | "associationEnd"}> = ({close, dataPsmResource, resourceType}) => {
+export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmResource, resourceType: "attribute" | "associationEnd"}> = memo(({close, dataPsmResource, resourceType}) => {
   const dataPsmAttribute = dataPsmResource as DataPsmAttribute;
 
   const {store} = React.useContext(StoreContext);
@@ -81,4 +81,4 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
     <ActionButton onClick={process} icon={<CheckIcon/>} label={t("button inline save")}/>
     <ActionButton onClick={close} icon={<CloseIcon/>} label={t("button inline discard")}/>
   </span>;
-}
+});

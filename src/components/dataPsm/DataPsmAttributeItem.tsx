@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {memo, useCallback} from "react";
 import {Typography} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import {useToggle} from "../../hooks/useToggle";
@@ -13,12 +13,12 @@ import classNames from "classnames";
 import {PimAttribute} from "model-driven-data/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {StoreContext} from "../App";
-import {DataPsmAttributeDetailDialog} from "./detail/DataPsmAttributeDetailDialog";
+import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-dialog";
 import {InlineEdit} from "./common/InlineEdit";
 import {useResource} from "../../hooks/useResource";
 import {DeleteAttribute} from "../../operations/delete-attribute";
 
-export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
+export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
     const dialog = useToggle();
     const {t} = useTranslation("psm");
@@ -65,6 +65,6 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = ({
             }
         </li>
 
-        <DataPsmAttributeDetailDialog dataPsmAttributeIri={dataPsmAttributeIri} isOpen={dialog.isOpen} close={dialog.close} />
+        <DataPsmAttributeDetailDialog iri={dataPsmAttributeIri} isOpen={dialog.isOpen} close={dialog.close} />
     </>;
-};
+});

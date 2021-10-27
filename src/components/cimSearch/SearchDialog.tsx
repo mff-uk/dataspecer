@@ -4,6 +4,7 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    IconButton,
     List,
     ListItem,
     ListItemText,
@@ -11,7 +12,7 @@ import {
     Theme,
     Typography
 } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {createStyles, makeStyles} from '@mui/styles';
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
@@ -19,8 +20,15 @@ import {useTranslation} from "react-i18next";
 import {PimClass} from "model-driven-data/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {StoreContext} from "../App";
-//import {SelectGlossaryButton} from "../slovnik.gov.cz/selectGlossary/SelectGlossaryButton";
-//import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
+import {useDialog} from "../../hooks/useDialog";
+import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
+import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
+import {CoreResourceReader, CoreResourceWriter, ReadOnlyMemoryStore} from "model-driven-data/core";
+import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
+import SearchIcon from '@mui/icons-material/Search';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
+import {CloseDialogButton} from "../detail/components/close-dialog-button";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -33,13 +41,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selected: (cls: PimClass) => void}> = ({isOpen, close, selected}) => {
-    const {cim/*, filteredOutGroups*/} = React.useContext(StoreContext);
+    const {cim} = React.useContext(StoreContext);
     const classes = useStyles();
-    const [findResults, updateFindResults] = useState<PimClass[]>([]);
+    const [findResults, updateFindResults] = useState<PimClass[] | null>(null);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const {t} = useTranslation("search-dialog");
+
+    const detailDialog = useDialog(PimClassDetailDialog, ["iri"]);
+
+    // Following code creates a new store context containing downloaded data. This allow us to use standard application
+    // components which render dialogs and other stuff
+
+    const storeContext = useContext(StoreContext);
+    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    useEffect(() => {
+        const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []));
+        const observableStore = new ObservableCachedCoreResourceReaderWriter(readOnlyMemoryStore as unknown as CoreResourceReader & CoreResourceWriter);
+        store.addStore(observableStore);
+        return () => store.removeStore(observableStore);
+    }, [findResults]);
 
     useEffect(() => {
         const subject = new BehaviorSubject('');
@@ -59,7 +82,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                     setLoading(false);
                 });
             } else {
-                updateFindResults([]);
+                updateFindResults(null);
             }
         });
 
@@ -74,38 +97,26 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         }
     };
 
-/*    const [wrapped] = useAsyncMemo<[{resource: PimClass, group: string[]}[], string[]]>(async () => {
-        const wrappedResults = [];
-        const groups = [];
-        for (const resource of findResults) {
-            const group = await cim.cimAdapter.getResourceGroup(resource.pimInterpretation as string);
-            wrappedResults.push({
-               resource,
-               group,
-            });
-            groups.push(...group);
-        }
-
-        return [wrappedResults, groups];
-    }, [findResults, cim.cimAdapter]);
-
-    const wrappedResources = wrapped?.[0] ?? [];
-    const foundGroups = wrapped?.[1] ?? [];*/
-
     return <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={isOpen} fullWidth maxWidth={"md"}>
-        <DialogTitle id="customized-dialog-title">
+        <DialogTitle>
             {t("title")}
+
+            <CloseDialogButton onClick={close} />
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent>
             <Box display={"flex"}>
                 <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange}
-                           error={isError}/>
-                {loading && <CircularProgress style={{marginLeft: "1rem"}} size={30}/>}
-                {/*<SelectGlossaryButton style={{marginLeft: "1rem"}} foundGroups={foundGroups} />*/}
+                           error={isError} variant={"standard"}/>
+                <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={loading ? "indeterminate" : "determinate"}/>
             </Box>
-            <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders">
-                {/*{wrappedResources.filter(r => !filteredOutGroups.some(fo => r.group.some(g => g.startsWith(fo)))).map(({resource: result}) =>*/}
-                {findResults.map((result: PimClass) =>
+            <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders"
+                   sx={{
+                       overflow: 'auto',
+                       maxHeight: 500,
+                       height: 500
+                   }}
+            >
+                {findResults && findResults.map((result: PimClass) =>
                     <ListItem button key={result.pimInterpretation} onClick={() => {
                         selected(result);
                         close();
@@ -114,11 +125,33 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                                                              title={result.pimHumanDescription?.cs}>{result.pimHumanDescription?.cs}</Typography>}>
                             <strong>{result.pimHumanLabel?.cs}</strong>
                             {" "}
-                            <SlovnikGovCzGlossary cimResourceIri={result.pimInterpretation as string} />
+                            <SlovnikGovCzGlossary cimResourceIri={result.pimInterpretation as string}/>
                         </ListItemText>
+                        <IconButton onClick={e => {
+                            e.stopPropagation();
+                            detailDialog.open({iri: result.iri as string})
+                        }}>
+                            <InfoTwoToneIcon/>
+                        </IconButton>
                     </ListItem>
                 )}
+
+                {(!findResults || findResults.length === 0) &&
+                <Box sx={{
+                    height: 300,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: (theme) => theme.palette.grey[500],
+                    flexDirection: "column",
+                }}>
+                    {!findResults && <><SearchIcon sx={{display: "block", height: "4rem", width: "4rem"}} />{t('info panel start typing')}</>}
+                    {findResults && <><SearchOffIcon sx={{display: "block", height: "4rem", width: "4rem"}} />{t('info panel nothing found')}</>}
+                </Box>}
             </List>
         </DialogContent>
+        <StoreContext.Provider value={NewStoreContext}>
+            <detailDialog.component />
+        </StoreContext.Provider>
     </Dialog>;
 };

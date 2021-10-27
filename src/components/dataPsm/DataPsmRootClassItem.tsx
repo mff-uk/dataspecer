@@ -7,12 +7,21 @@ import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescript
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimClass} from "model-driven-data/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {ActionButton} from "./common/ActionButton";
+import EditIcon from "@mui/icons-material/Edit";
+import {useDialog} from "../../hooks/useDialog";
+import {DataPsmClassDetailDialog} from "../detail/data-psm-class-detail-dialog";
+import {useTranslation} from "react-i18next";
 
 export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
     const styles = useItemStyles();
 
     const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const cimClassIri = pimClass?.pimInterpretation;
+
+    const detailDialog = useDialog(DataPsmClassDetailDialog, [], {});
+    const {t} = useTranslation("psm");
+
 
     return <li className={styles.li}>
         <Typography className={styles.root}>
@@ -25,8 +34,10 @@ export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataP
                 </DataPsmGetLabelAndDescription>
             }
             {cimClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
+            <ActionButton onClick={() => detailDialog.open({})} icon={<EditIcon/>} label={t("button edit")}/>
         </Typography>
 
         {dataPsmClass && <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={true}/>}
+        <detailDialog.component iri={dataPsmClassIri} />
     </li>;
 };

@@ -1,13 +1,18 @@
-import React from "react";
-import {List, ListItem, ListItemText, Tooltip, Typography} from "@mui/material";
+import React, {useContext, useEffect, useMemo, useState} from "react";
+import {IconButton, List, ListItem, ListItemText, Tooltip, Typography} from "@mui/material";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";
-import {LanguageStringText} from "../helper/LanguageStringComponents";
+import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStringComponents";
 import {PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
-import {CoreResourceReader} from "model-driven-data/core";
+import {CoreResourceReader, CoreResourceWriter, ReadOnlyMemoryStore} from "model-driven-data/core";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
+import {useDialog} from "../../hooks/useDialog";
+import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
+import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
+import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
 
 interface AncestorSelectorPanelParameters {
     forCimClassIri: string,
@@ -42,6 +47,23 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
     const {cim} = React.useContext(StoreContext);
     const [sorted, loading] = useAsyncMemo(async () => await BFS(await cim.cimAdapter.getFullHierarchy(forCimClassIri), cim.iriProvider.cimToPim(forCimClassIri)), [cim.cimAdapter, forCimClassIri]);
 
+    const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
+
+    // Following code creates a new store context containing downloaded data. This allow us to use standard application
+    // components which render dialogs and other stuff
+
+    const storeContext = useContext(StoreContext);
+    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    useEffect(() => {
+        if (sorted) {
+            const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(sorted.map(r => [r.iri, r])));
+            const observableStore = new ObservableCachedCoreResourceReaderWriter(readOnlyMemoryStore as unknown as CoreResourceReader & CoreResourceWriter);
+            store.addStore(observableStore);
+            return () => store.removeStore(observableStore);
+        }
+    }, [sorted]);
+
     return <>
         <Typography variant={"h6"}>{t("ancestors title")}</Typography>
         {loading ? <LoadingDialog /> :
@@ -50,18 +72,18 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
                     <Tooltip open={(ancestor.pimHumanDescription && Object.values(ancestor.pimHumanDescription).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.pimHumanDescription} />} placement="left" key={ancestor.iri}>
                         <ListItem button selected={ancestor.pimInterpretation === (selectedAncestorCimIri ?? forCimClassIri)} onClick={() => ancestor.pimInterpretation && selectAncestorCimIri(ancestor.pimInterpretation)}>
                             <ListItemText
-                                primary={<>
-                                    <LanguageStringText from={ancestor.pimHumanLabel} />
-                                    {" "}
-                                    {/*<IconButton size="small" onClick={(event) => {classDialog.open({cls: ancestor}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
-                                </>}
+                                primary={<LanguageStringFallback from={ancestor.pimHumanLabel} fallback={<i>unnamed</i>} />}
                                 secondary={<SlovnikGovCzGlossary cimResourceIri={ancestor.pimInterpretation as string}/>}
                             />
+                           <IconButton size="small" onClick={(event) => {ClassDetailDialog.open({iri: ancestor.iri as string}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                         </ListItem>
                     </Tooltip>
                 )}
             </List>
         }
-        {/*<classDialog.component store={ancestors} />*/}
+
+        <StoreContext.Provider value={NewStoreContext}>
+            <ClassDetailDialog.component />
+        </StoreContext.Provider>
     </>;
 };

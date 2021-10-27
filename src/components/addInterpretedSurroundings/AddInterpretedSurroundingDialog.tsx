@@ -6,24 +6,31 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
+    IconButton,
     ListItem,
     ListItemIcon,
     ListItemText,
     Theme,
     Typography
 } from "@mui/material";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader, CoreResourceWriter, ReadOnlyFederatedStore} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
+import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
+import {useDialog} from "../../hooks/useDialog";
+import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
+import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
+import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -79,6 +86,26 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     const [currentCimClassIri, setCurrentCimClassIri] = useState<string>("");
     const [surroundings, setSurroundings] = useState<Record<string, CoreResourceReader | undefined>>({});
 
+    const AttributeDetailDialog = useDialog(PimAttributeDetailDialog, ["iri"]);
+    const AssociationToClassDetailDialog = useDialog(PimAssociationToClassDetailDialog, ["iri", "parentIri", "orientation"]);
+
+    // Following code creates a new store context containing downloaded data. This allow us to use standard application
+    // components which render dialogs and other stuff
+
+    const storeContext = useContext(StoreContext);
+    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    useEffect(() => {
+        const observableStore: ObservableCachedCoreResourceReaderWriter[] = [];
+        for (const iri in surroundings) {
+            if (surroundings[iri]) {
+                observableStore.push(new ObservableCachedCoreResourceReaderWriter(surroundings[iri] as unknown as CoreResourceReader & CoreResourceWriter));
+            }
+        }
+        observableStore.forEach(s => store.addStore(s));
+        return () => observableStore.forEach(s => store.removeStore(s));
+    }, [surroundings]);
+
     /**
      * There can be multiple classes from the class hierarchy. A user can switch between them to select from which
      * class the user can select attributes and associations.
@@ -130,7 +157,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
     if (!cimClassIri) return null;
 
-    return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"md"}>
+    return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"lg"}>
         <DialogTitle id="customized-dialog-title">
             {t("title")}
         </DialogTitle>
@@ -160,9 +187,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                         <strong>{entity.pimHumanLabel?.cs}</strong>
                                         {" "}
                                         <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string} />
-                                        {" "}
-                                        {/*<IconButton size="small" onClick={(event) => {attributeDetail.open({attribute: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                     </ListItemText>
+
+                                    <IconButton size="small" onClick={event => {AttributeDetailDialog.open({iri: entity.iri as string}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                 </ListItem>
                             )}
                             {attributes && attributes.length === 0 &&
@@ -194,6 +221,8 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                             </span>
                                         */}
                                     </ListItemText>
+
+                                    <IconButton size="small" onClick={event => {AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: true}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                 </ListItem>
                             )}
 
@@ -224,6 +253,8 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                                         {" "}
                                         {/*<IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
                                     </ListItemText>
+
+                                    <IconButton size="small" onClick={event => {AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: false}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                                 </ListItem>
                             )}
 
@@ -250,8 +281,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             </Button>
         </DialogActions>
 
-        {/*<attributeDetail.component store={store} />*/}
-        {/*<classDialog.component store={store} />*/}
-        {/*<associationDialog.component store={store} />*/}
+        <StoreContext.Provider value={NewStoreContext}>
+            <AttributeDetailDialog.component />
+            <AssociationToClassDetailDialog.component />
+        </StoreContext.Provider>
     </Dialog>;
 };
