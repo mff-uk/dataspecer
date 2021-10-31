@@ -1,11 +1,17 @@
-import React, {memo, useCallback, useState} from "react";
+import React, {memo, useCallback, useEffect, useState} from "react";
 import {DataPsmAssociationEnd, DataPsmAttribute} from "model-driven-data/data-psm/model";
 import {StoreContext} from "../../App";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
-import {Button, Grid, TextField} from "@mui/material";
+import {Box, Button, Grid, TextField} from "@mui/material";
 import {useResource} from "../../../hooks/useResource";
 import {useTranslation} from "react-i18next";
+import {
+    DatatypeSelector,
+    DatatypeSelectorValueType,
+    getIriFromDatatypeSelectorValue
+} from "../../helper/datatype-selector";
+import XsdDatatypes from "../../../utils/xsd-datatypes.json";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri, close}) => {
     const {store} = React.useContext(StoreContext);
@@ -13,8 +19,18 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const {resource: dataPsmAttributeOrAssociation} = useResource<DataPsmAttribute | DataPsmAssociationEnd>(iri);
     const isAttribute = DataPsmAttribute.is(dataPsmAttributeOrAssociation);
 
-    const [technicalLabel, setTechnicalLabel] = useState<string>(dataPsmAttributeOrAssociation?.dataPsmTechnicalLabel ?? "");
-    const [datatype, setDatatype] = useState<string>(isAttribute ? (dataPsmAttributeOrAssociation.dataPsmDatatype ?? "") : "");
+    const [technicalLabel, setTechnicalLabel] = useState<string>("");
+    const [datatype, setDatatype] = useState<DatatypeSelectorValueType>("");
+
+    useEffect(() => {
+        setTechnicalLabel(dataPsmAttributeOrAssociation?.dataPsmTechnicalLabel ?? "");
+
+        if (isAttribute) {
+            const datatype = dataPsmAttributeOrAssociation?.dataPsmDatatype ?? "";
+            const foundDatatype = XsdDatatypes.find(type => type.iri === datatype);
+            setDatatype(foundDatatype ?? datatype);
+        }
+    }, [dataPsmAttributeOrAssociation]);
 
     const {t} = useTranslation("detail");
 
@@ -27,15 +43,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 await store.executeOperation(new SetTechnicalLabel(dataPsmAttributeOrAssociation.iri as string, technicalLabel));
             }
 
-            if (isAttribute && dataPsmAttributeOrAssociation.dataPsmDatatype !== datatype) {
-                await store.executeOperation(new SetDataPsmDatatype(dataPsmAttributeOrAssociation.iri as string, datatype));
+            if (isAttribute && dataPsmAttributeOrAssociation.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype)) {
+                await store.executeOperation(new SetDataPsmDatatype(dataPsmAttributeOrAssociation.iri as string, getIriFromDatatypeSelectorValue(datatype) ?? ""));
             }
         }
 
         close();
     }, [dataPsmAttributeOrAssociation?.iri, technicalLabel, datatype]);
 
-    const changed = (dataPsmAttributeOrAssociation && (dataPsmAttributeOrAssociation.dataPsmTechnicalLabel === technicalLabel) && (!isAttribute || dataPsmAttributeOrAssociation.dataPsmDatatype === datatype)) ?? false;
+    const changed = (dataPsmAttributeOrAssociation &&
+        ((dataPsmAttributeOrAssociation.dataPsmTechnicalLabel ?? "") === (technicalLabel ?? "")) &&
+        (!isAttribute || (dataPsmAttributeOrAssociation.dataPsmDatatype ?? "") === (getIriFromDatatypeSelectorValue(datatype) ?? ""))) ?? false;
 
     return <>
 
@@ -56,36 +74,9 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             }}
         />
 
-        {isAttribute &&
-            <TextField
-                margin="dense"
-                label={t('label datatype')}
-                fullWidth
-                variant="filled"
-                value={datatype}
-                onChange={event => setDatatype(event.target.value)}
-                onKeyDown={event => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        onConfirm().then();
-                    }
-                }}
-            />
-        }
-
-        {/*<FormControl fullWidth variant="filled" sx={{ mt: 2 }}>
-         <InputLabel id="demo-simple-select-label">Datatype</InputLabel>
-         <Select
-         id="demo-simple-select"
-         labelId="demo-simple-select-label"
-         label="Datatype"
-         fullWidth
-         >
-         <MenuItem value={10}>Ten</MenuItem>
-         <MenuItem value={20}>Twenty</MenuItem>
-         <MenuItem value={30}>Thirty</MenuItem>
-         </Select>
-         </FormControl>*/}
+        {isAttribute && <Box sx={{pt: 2}}>
+            <DatatypeSelector value={datatype} onChange={setDatatype} options={XsdDatatypes} />
+        </Box>}
 
         <Grid container sx={{pt: 2}} spacing={2}>
             <Grid item xs={6}>
