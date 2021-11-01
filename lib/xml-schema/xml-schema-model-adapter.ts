@@ -1,11 +1,20 @@
-import {ObjectModelClass, ObjectModelPrimitive, ObjectModelProperty,
-  ObjectModelSchema, isObjectModelClass,
-  isObjectModelPrimitive, ObjectModelResource}
-  from "../object-model/object-model";
-import {XmlSchema, XmlSchemaComplexTypeDefinition, XmlSchemaElement,
-  XmlSchemaComplexType, XmlSchemaSimpleType, XmlSchemaType,
-  XmlSchemaComplexContentType, XmlSchemaComplexContentElement}
-  from "./xml-schema-model";
+import {
+  ObjectModelClass,
+  ObjectModelPrimitive,
+  ObjectModelProperty,
+  ObjectModelResource,
+  ObjectModelSchema,
+} from "../object-model";
+import {
+  XmlSchema,
+  XmlSchemaComplexContentElement,
+  XmlSchemaComplexContentType,
+  XmlSchemaComplexType,
+  XmlSchemaComplexTypeDefinition,
+  XmlSchemaElement,
+  XmlSchemaSimpleType,
+  XmlSchemaType,
+} from "./xml-schema-model";
 
 export function objectModelToXmlSchema(schema: ObjectModelSchema): XmlSchema {
   return {
@@ -54,9 +63,9 @@ function propertyToElement(
   // for all types in the property range.
   const result =
     propertyToElementCheckType(
-      propertyData, isObjectModelClass, classPropertyToComplexType,
+      propertyData, ObjectModelClass.is, classPropertyToComplexType,
     ) ?? propertyToElementCheckType(
-      propertyData, isObjectModelPrimitive, datatypePropertyToSimpleType,
+      propertyData, ObjectModelPrimitive.is, datatypePropertyToSimpleType,
     );
   if (result == null) {
     throw new Error(
