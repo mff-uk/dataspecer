@@ -7,7 +7,6 @@ import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
 import {PimClass} from "model-driven-data/pim/model";
 import {CreateRootClass} from "../../operations/create-root-class";
-import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
 import {CreateSchema} from "../../operations/create-schema";
 import {MemoryStore} from "model-driven-data/core";
 import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
@@ -24,8 +23,10 @@ const SetRootButton: React.FC = () => {
         store.getStores().forEach(s => store.removeStore(s));
 
         const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
-        const observableCachedMemoryStore = new ObservableCachedCoreResourceReaderWriter(memoryStore);
-        store.addStore(observableCachedMemoryStore);
+        store.addStore({
+            store: memoryStore,
+            metadata: {},
+        });
 
         const schemaOperation = new CreateSchema("//pim/", "//dataPsm/");
         await store.executeOperation(schemaOperation);

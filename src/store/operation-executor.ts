@@ -1,5 +1,4 @@
-import {CoreOperation, CoreOperationResult} from "model-driven-data/core";
-import {ObservableCoreResourceReaderWriter} from "./observable-core-resource-reader-writer";
+import {CoreOperation, CoreOperationResult, CoreResourceReader} from "model-driven-data/core";
 
 export interface StoreDescriptor {
     type: string;
@@ -31,10 +30,12 @@ export class StoreByPropertyDescriptor implements StoreDescriptor {
     }
 }
 
+/**
+ * This class is passed to {@link ComplexOperation} as an executor for operations. One {@link CoreResourceReader} is
+ * provided as the only way how operation can read resources before modifying them. Modifications are performed
+ * by calling applyOperation method where the correct store must be specified.
+ */
 export interface OperationExecutor {
-    changed: Set<string>;
-    deleted: Set<string>;
-    store: ObservableCoreResourceReaderWriter;
-
+    store: CoreResourceReader;
     applyOperation(operation: CoreOperation, store: StoreDescriptor): Promise<CoreOperationResult>;
 }

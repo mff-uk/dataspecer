@@ -1,124 +1,145 @@
 import {CoreResourceLink} from "./core-resource-link";
-import {ComplexOperation, ComplexOperationFromCoreOperation} from "./complex-operation";
-import {ObservableCoreResourceReaderWriter, Subscriber} from "./observable-core-resource-reader-writer";
+import {ComplexOperation} from "./complex-operation";
 import {OperationExecutor, StoreDescriptor} from "./operation-executor";
-import {CoreOperation, CoreOperationResult} from "model-driven-data/core";
+import {
+    CoreOperation,
+    CoreOperationResult,
+    CoreResource,
+    CoreResourceReader,
+    CoreResourceWriter
+} from "model-driven-data/core";
 
-type SubscriptionType = {
-    currentValue: CoreResourceLink,
-    originatedStore: ObservableCoreResourceReaderWriter | null,
+export interface StoreWithMetadata {
+    store: CoreResourceReader & (CoreResourceWriter | {});
+    metadata: object;
+}
 
-    storeValues: Map<ObservableCoreResourceReaderWriter, CoreResourceLink>,
-    subscribers: Subscriber[],
-};
+export type Subscriber = (iri: string, resource: CoreResourceLink) => void;
 
-class OperationExecutorForFederatedStore implements OperationExecutor {
-    public changed: Set<string> = new Set<string>();
-    public deleted: Set<string> = new Set<string>();
+interface Subscription {
+    // Computed property from store values.
+    currentValue: CoreResourceLink;
+    originatedStore: StoreWithMetadata | null;
+
+    /**
+     * The {@link CoreResourceLink} is used differently here. We only need to distinguish the following states:
+     *  - resource is being loaded (the {@link CoreResourceLink.resource} is irrelevant
+     *  - store already responded
+     */
+    storeValues: Map<StoreWithMetadata, CoreResourceLink | null>;
+
+    subscribers: Subscriber[];
+}
+
+class OperationExecutorForFederatedObservableStore implements OperationExecutor {
     public applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>;
-    public readonly store: ObservableCoreResourceReaderWriter;
+    public store: CoreResourceReader;
 
-    constructor(applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>, store: ObservableCoreResourceReaderWriter) {
+    constructor(applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>, store: CoreResourceReader) {
         this.applyOperation = applyOperation;
         this.store = store;
     };
 }
 
-/**
- * Combines multiple {@link ObservableCoreResourceReaderWriter} into one with proper distribution of operations and
- * subscriptions.
- */
-export class FederatedObservableCoreModelReaderWriter extends ObservableCoreResourceReaderWriter {
-    private subscriptions: Map<string, SubscriptionType> = new Map();
-    private stores: ObservableCoreResourceReaderWriter[] = [];
+export class FederatedObservableStore implements CoreResourceReader {
+    private stores: StoreWithMetadata[] = [];
+    private subscriptions: Map<string, Subscription> = new Map();
+    // This store is passed to operations to read resources that are internally cached
+    private readonly storeForOperations: CoreResourceReader;
+
+    // We will use lazy loading of resources during the operation execution. Only if needed the check method is called
+    private resourcesToCheckAfterOperation: Set<string> = new Set();
+
+    constructor() {
+        this.storeForOperations = {
+            readResource: iri => {
+                if (this.resourcesToCheckAfterOperation.has(iri)) {
+                    // todo this is not optimal because it triggers all subscribers, but this can be ignored if operations do not request resources all over again
+                    this.check(iri);
+                    this.resourcesToCheckAfterOperation.delete(iri);
+                }
+                return this.readResource(iri);
+            },
+            listResourcesOfType: typeIri => this.listResourcesOfType(typeIri),
+            listResources: () => this.listResources(),
+        }
+    }
+
+    addStore(store: StoreWithMetadata) {
+        if (this.stores.includes(store)) {
+            throw new Error("Store already presented in FederatedObservableCoreModelReaderWriter.");
+        }
+
+        this.stores.push(store);
+
+        for (const [iri, subscription] of this.subscriptions) {
+            subscription.storeValues.set(store, null);
+            this.check(iri);
+        }
+    }
+
+    removeStore(store: StoreWithMetadata) {
+        if (!this.stores.includes(store)) {
+            throw new Error("Unable to remove store from FederatedObservableCoreModelReaderWriter because it does not exists.");
+        }
+
+        this.stores = this.stores.filter(s => s !== store);
+        this.subscriptions.forEach((subscription,iri) => {
+            subscription.storeValues.delete(store);
+            this.check(iri);
+        });
+    }
 
     addSubscriber(iri: string, subscriber: Subscriber) {
         if (!this.subscriptions.has(iri)) {
             this.subscriptions.set(iri, {
                 currentValue: {
                     resource: null,
-                    isLoading: this.stores.length > 0,
+                    isLoading: false,
                 },
-                storeValues: new Map(),
+                storeValues: new Map(this.stores.map(s => [s, null])),
                 subscribers: [],
                 originatedStore: null,
             });
 
-            this.stores.forEach(store => store.addSubscriber(iri, this.subscriber));
+            this.check(iri); // ask every store
         }
 
-        const entry = this.subscriptions.get(iri) as SubscriptionType;
+        const subscription = this.subscriptions.get(iri) as Subscription;
 
-        entry.subscribers.push(subscriber);
-        subscriber(iri, entry.currentValue, this);
+        subscription.subscribers.push(subscriber);
+        subscriber(iri, subscription.currentValue);
     }
 
     removeSubscriber(iri: string, subscriber: Subscriber) {
-        const entry = this.subscriptions.get(iri) as SubscriptionType;
+        const entry = this.subscriptions.get(iri) as Subscription;
         entry.subscribers = entry.subscribers.filter(s => s !== subscriber);
         if (entry.subscribers.length === 0) {
-            this.stores.forEach(store => store.removeSubscriber(iri, this.subscriber));
             this.subscriptions.delete(iri);
         }
     }
 
-    addStore(store: ObservableCoreResourceReaderWriter) {
-        if (this.stores.includes(store)) {
-            throw new Error("Store already presented in FederatedObservableCoreModelReaderWriter.");
-        }
-
-        this.stores.push(store);
-        this.subscriptions.forEach((_,iri) => store.addSubscriber(iri, this.subscriber));
-    }
-
-    removeStore(store: ObservableCoreResourceReaderWriter) {
-        if (!this.stores.includes(store)) {
-            throw new Error("Unable to remove store from FederatedObservableCoreModelReaderWriter because it does not exists.");
-        }
-
-        this.stores = this.stores.filter(s => s !== store);
-        this.subscriptions.forEach((entry,iri) => {
-            store.removeSubscriber(iri, this.subscriber);
-            entry.storeValues.delete(store);
-            this.triggerChange(iri);
-        });
-
-    }
-
     forceReload(iri: string) {
-        this.stores.forEach(store => store.forceReload(iri));
+        const subscription = this.subscriptions.get(iri);
+
+        if (subscription) {
+            subscription.storeValues = new Map<StoreWithMetadata, CoreResourceLink | null>(this.stores.map(s => [s, null]));
+            this.check(iri);
+        }
     }
 
     optimizeGetCachedValue(iri: string) {
         return this.subscriptions.get(iri)?.currentValue;
     }
 
-    getStores(): ObservableCoreResourceReaderWriter[] {
+    getStores(): StoreWithMetadata[] {
         return this.stores;
-    }
-
-    async executeOperation(operation: ComplexOperation) {
-        const executor = new OperationExecutorForFederatedStore(async (operation, storeDescriptor) => {
-            // todo store descriptor is ignored for now
-
-            // const store = await this.getOriginatedStoreForResource(forResource);
-            // if (!store) {
-            //     throw new Error(`Unable to execute an operation because ${forResource} has not been found in any store.`);
-            // }
-            const store = this.stores[0];
-            const complexOperationFromCoreOperation = new ComplexOperationFromCoreOperation(operation, storeDescriptor);
-            await store.executeOperation(complexOperationFromCoreOperation);
-
-            return complexOperationFromCoreOperation.operationResult as CoreOperationResult;
-        }, this);
-
-        await operation.execute(executor);
     }
 
     async listResources(): Promise<string[]> {
         const resources = new Set<string>();
         for (const store of this.stores) {
-            (await store.listResources()).forEach(resource => resources.add(resource));
+            (await store.store.listResources()).forEach(resource => resources.add(resource));
         }
         return [...resources];
     }
@@ -126,77 +147,131 @@ export class FederatedObservableCoreModelReaderWriter extends ObservableCoreReso
     async listResourcesOfType(typeIri: string): Promise<string[]> {
         const resources = new Set<string>();
         for (const store of this.stores) {
-            (await store.listResourcesOfType(typeIri)).forEach(resource => resources.add(resource));
+            (await store.store.listResourcesOfType(typeIri)).forEach(resource => resources.add(resource));
         }
         return [...resources];
     }
 
-    private subscriber: Subscriber = (iri, resource, store) => {
-        const entry = this.subscriptions.get(iri);
-        if (!entry) {
-            throw new Error("problem");
-        }
-        entry.storeValues.set(store, resource);
-        this.triggerChange(iri);
+    readResource(iri: string): Promise<CoreResource|null> {
+        return new Promise(resolve => {
+            const subscriber: Subscriber = (iri1, resource) => {
+                if (!resource.isLoading) {
+                    this.removeSubscriber(iri, subscriber);
+                    resolve(resource.resource);
+                }
+            }
+            this.addSubscriber(iri, subscriber);
+        });
     };
 
-    private triggerChange(iri: string) {
-        const entry = this.subscriptions.get(iri);
-        if (!entry) {
-            throw new Error("problem");
+    async executeOperation(operation: ComplexOperation) {
+        const executor = new OperationExecutorForFederatedObservableStore(this.applyOperationForExecutor, this.storeForOperations);
+        try {
+            await operation.execute(executor);
+        } catch (e) {
+            console.warn("Operation failed", e);
         }
 
-        let isLoading = false;
-        let validCoreResourceLink = null;
-        let originatedStore = null;
-        for (const [store, coreResourceLink] of entry.storeValues) {
-            if (!coreResourceLink.isLoading && coreResourceLink.resource) {
-                if (validCoreResourceLink) {
-                    throw new Error(`Multiple stores responded for ${iri}. Currently, positive responses are accepted from only single store.`);
-                }
-                validCoreResourceLink = coreResourceLink.resource;
-                originatedStore = store;
+        for (const iri of this.resourcesToCheckAfterOperation) {
+            const subscription = this.subscriptions.get(iri);
+            if (subscription) {
+                this.check(iri);
             }
-            if (coreResourceLink.isLoading) {
+        }
+        this.resourcesToCheckAfterOperation.clear();
+    }
+
+    private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {
+        // todo store descriptor is ignored for now and the first store is chosen for every operation
+        const store = this.stores[0];
+
+        const result = await (store.store as CoreResourceWriter).applyOperation(operation);
+
+        for (const changedIri of result.changed) {
+            const subscription = this.subscriptions.get(changedIri);
+            if (subscription && subscription.storeValues.has(store)) {
+                subscription.storeValues.set(store, null);
+                // this.check(changedIri);
+                this.resourcesToCheckAfterOperation.add(changedIri);
+            }
+        }
+
+        for (const deletedIri of result.deleted) {
+            const subscription = this.subscriptions.get(deletedIri);
+            if (subscription && subscription.storeValues.has(store)) {
+                subscription.storeValues.set(store, {
+                    isLoading: false,
+                    resource: null,
+                });
+                // this.check(deletedIri);
+                this.resourcesToCheckAfterOperation.add(deletedIri);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This function is called when list of stores is changed or whether a store started or ended loading. The purpose
+     * of this function is to keep everything in consistent state.
+     * @param iri
+     * @private
+     */
+    private check(iri: string) {
+        const subscription = this.subscriptions.get(iri) as Subscription;
+
+        let forStore: StoreWithMetadata | null = null;
+        let value: CoreResource | null = null;
+        let isLoading: boolean = false;
+
+        for (let [store, link] of subscription.storeValues) {
+            if (!link) {
+                // We need to fetch new value
+                store.store.readResource(iri).then(resource => {
+                    const subscription = this.subscriptions.get(iri);
+                    // The store and the subscription still must exists
+                    if (subscription && subscription.storeValues.has(store)) {
+                        const entry = subscription.storeValues.get(store) as CoreResourceLink;
+                        entry.resource = resource;
+                        entry.isLoading = false;
+                        this.check(iri);
+                    }
+                });
+
+                link = {resource: null, isLoading: true};
+                subscription.storeValues.set(store, link);
+            }
+
+            if (link.isLoading) {
                 isLoading = true;
+            } else {
+                if (link.resource) {
+                    // We know the resource
+                    if (value) {
+                        console.info(`First store and value:`, forStore, value);
+                        console.info(`Second store and value:`, store, link.resource);
+                        throw new Error(`Multiple stores responded for ${iri}. Currently, positive responses are accepted from only single store.`);
+                    }
+
+                    forStore = store;
+                    value = link.resource;
+                }
             }
         }
 
-
-        const newIsLoading = isLoading && !validCoreResourceLink; // Loading is set to true only if the resource has not been found yet.
-        const newCurrentValue = validCoreResourceLink ??
-        (isLoading ? entry.currentValue.resource : null);
+        const newIsLoading = isLoading && !value; // Loading is set to true only if the resource has not been found yet.
+        const newCurrentValue = value ??
+            (isLoading ? subscription.currentValue.resource : null);
 
         // Check if new* values differs from others
-        if (entry.currentValue.isLoading !== newIsLoading || entry.currentValue.resource !== newCurrentValue) {
-            entry.currentValue = {
+        if (subscription.currentValue.isLoading !== newIsLoading || subscription.currentValue.resource !== newCurrentValue) {
+            subscription.currentValue = {
                 resource: newCurrentValue,
                 isLoading: newIsLoading,
             }
 
-            entry.subscribers.forEach(s => s(iri, entry.currentValue, this));
+            subscription.subscribers.forEach(s => s(iri, subscription.currentValue));
         }
-        entry.originatedStore = originatedStore;
-    }
-
-    private async getOriginatedStoreForResource(iri: string): Promise<ObservableCoreResourceReaderWriter | null> {
-        const store = this.subscriptions.get(iri)?.originatedStore;
-        if (store) {
-            return store;
-        }
-
-        return new Promise(resolve => {
-            const subscriber = (iri: string, resource: CoreResourceLink) => {
-                if (!resource.isLoading) {
-                    const store = this.subscriptions.get(iri)?.originatedStore;
-                    this.removeSubscriber(iri, subscriber);
-                    resolve(store ?? null);
-                }
-            };
-
-            this.addSubscriber(iri, subscriber);
-        });
-
-
+        subscription.originatedStore = forStore;
     }
 }

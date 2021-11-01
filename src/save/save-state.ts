@@ -1,15 +1,14 @@
 import pako from "pako";
-import {ObservableCachedCoreResourceReaderWriter} from "../store/observable-cached-core-resource-reader-writer";
 import {CoreOperation, CoreResource, MemoryStore} from "model-driven-data/core";
-import {ObservableCoreResourceReaderWriter} from "../store/observable-core-resource-reader-writer";
 import {pimExecutors} from "model-driven-data/pim/executor";
 import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
+import {StoreWithMetadata} from "../store/federated-observable-store";
 
 /**
  * All data that can be saved and restored
  */
 interface ApplicationState {
-    stores: ObservableCoreResourceReaderWriter[];
+    stores: StoreWithMetadata[];
     dataPsmSchemas: string[];
 }
 
@@ -20,9 +19,9 @@ interface ApplicationState {
 export function saveState({stores, dataPsmSchemas}: ApplicationState): Uint8Array {
     const fileStores: SaveFileStore[] = [];
 
-    for (const subStore of stores) {
-        // Every subStore is ObservableCachedCoreResourceReaderWriter and contains memory store
-        const memoryStore = (subStore as ObservableCachedCoreResourceReaderWriter).store as unknown as {
+    for (const store of stores) {
+        // Every store.store is memory store
+        const memoryStore = store.store as unknown as {
             baseIri: string;
             operations: CoreOperation[];
             resources: { [iri: string]: CoreResource };
@@ -56,7 +55,7 @@ export function restoreState(data: Uint8Array): ApplicationState {
     const text = new TextDecoder().decode(rawData);
     const object = JSON.parse(text) as SaveFile;
 
-    const stores: ObservableCoreResourceReaderWriter[] = [];
+    const stores: StoreWithMetadata[] = [];
 
     for (const store of object.data.stores) {
         if (V1StandardMemoryStore.is(store)) {
@@ -70,7 +69,10 @@ export function restoreState(data: Uint8Array): ApplicationState {
             memoryStoreTyped.operations = store.operations;
             memoryStoreTyped.resources = store.resources;
 
-            stores.push(new ObservableCachedCoreResourceReaderWriter(memoryStore));
+            stores.push({
+                store: memoryStore,
+                metadata: {},
+            });
         }
     }
 

@@ -1,7 +1,7 @@
-import {ObservableCoreResourceReaderWriter} from "../store/observable-core-resource-reader-writer";
 import {DataPsmClass, DataPsmSchema} from "model-driven-data/data-psm/model";
 import {PimClass} from "model-driven-data/pim/model";
 import {selectLanguage} from "./selectLanguage";
+import {FederatedObservableStore} from "../store/federated-observable-store";
 
 /**
  * For a given schema, store and languages, it tries to find a most suitable name for the current schema.
@@ -9,7 +9,7 @@ import {selectLanguage} from "./selectLanguage";
  * @param dataPsmSchemaIri
  * @param languages
  */
-export async function getNameForSchema(store: ObservableCoreResourceReaderWriter, dataPsmSchemaIri: string, languages: readonly string[]): Promise<string | undefined> {
+export async function getNameForSchema(store: FederatedObservableStore, dataPsmSchemaIri: string, languages: readonly string[]): Promise<string | undefined> {
     let name: string | undefined;
 
     const dataPsmSchema = await store.readResource(dataPsmSchemaIri) as DataPsmSchema;

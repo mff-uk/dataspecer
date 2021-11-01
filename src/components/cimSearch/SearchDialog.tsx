@@ -23,12 +23,11 @@ import {StoreContext} from "../App";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
-import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
-import {CoreResourceReader, CoreResourceWriter, ReadOnlyMemoryStore} from "model-driven-data/core";
-import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
+import {ReadOnlyMemoryStore} from "model-driven-data/core";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
+import {FederatedObservableStore} from "../../store/federated-observable-store";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -55,13 +54,16 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
     // components which render dialogs and other stuff
 
     const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const [store] = useState(() => new FederatedObservableStore());
     const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
     useEffect(() => {
         const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []));
-        const observableStore = new ObservableCachedCoreResourceReaderWriter(readOnlyMemoryStore as unknown as CoreResourceReader & CoreResourceWriter);
-        store.addStore(observableStore);
-        return () => store.removeStore(observableStore);
+        const storeWithMetadata = {
+            store: readOnlyMemoryStore,
+            metadata: {},
+        };
+        store.addStore(storeWithMetadata);
+        return () => store.removeStore(storeWithMetadata);
     }, [findResults]);
 
     useEffect(() => {

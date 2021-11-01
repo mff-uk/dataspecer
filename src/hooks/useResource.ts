@@ -2,7 +2,7 @@ import {CoreResource} from "model-driven-data/core";
 import React, {useCallback, useEffect, useState} from "react";
 import {StoreContext} from "../components/App";
 import {CoreResourceLink} from "../store/core-resource-link";
-import {Subscriber} from "../store/observable-core-resource-reader-writer";
+import {Subscriber} from "../store/federated-observable-store";
 
 export const useResource = <ResourceType extends CoreResource>(iri: string | null) => {
     const {store} = React.useContext(StoreContext);

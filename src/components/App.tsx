@@ -11,10 +11,10 @@ import {CimAdapter, IriProvider, PrefixIriProvider} from "model-driven-data/cim"
 import {SgovAdapter} from "model-driven-data/sgov";
 import {httpFetch} from "model-driven-data/io/fetch/fetch-browser";
 import {StoreContextInterface} from "./StoreContextInterface";
-import {FederatedObservableCoreModelReaderWriter} from "../store/federated-observable-store";
 import {SaveRestore} from "./save-restore";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
+import {FederatedObservableStore} from "../store/federated-observable-store";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -31,7 +31,7 @@ const App: React.FC = () => {
 
     const [psmSchemas, setPsmSchemas] = useState<string[]>([]);
 
-    const [store, setStore] = useState<FederatedObservableCoreModelReaderWriter>(new FederatedObservableCoreModelReaderWriter());
+    const [store, setStore] = useState<FederatedObservableStore>(new FederatedObservableStore());
 
     const storeContext: StoreContextInterface = useMemo(() => ({
         store,

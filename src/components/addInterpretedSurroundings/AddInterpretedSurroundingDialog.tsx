@@ -19,18 +19,17 @@ import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader, CoreResourceWriter, ReadOnlyFederatedStore} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
-import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
 import {useDialog} from "../../hooks/useDialog";
 import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
+import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -93,17 +92,20 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     // components which render dialogs and other stuff
 
     const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const [store] = useState(() => new FederatedObservableStore());
     const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
     useEffect(() => {
-        const observableStore: ObservableCachedCoreResourceReaderWriter[] = [];
+        const stores: StoreWithMetadata[] = [];
         for (const iri in surroundings) {
             if (surroundings[iri]) {
-                observableStore.push(new ObservableCachedCoreResourceReaderWriter(surroundings[iri] as unknown as CoreResourceReader & CoreResourceWriter));
+                stores.push({
+                    store: surroundings[iri] as CoreResourceReader,
+                    metadata: {},
+                });
             }
         }
-        observableStore.forEach(s => store.addStore(s));
-        return () => observableStore.forEach(s => store.removeStore(s));
+        stores.forEach(s => store.addStore(s));
+        return () => stores.forEach(s => store.removeStore(s));
     }, [surroundings]);
 
     /**

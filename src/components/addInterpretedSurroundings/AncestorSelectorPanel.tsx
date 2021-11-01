@@ -6,13 +6,12 @@ import {useTranslation} from "react-i18next";
 import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStringComponents";
 import {PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
-import {CoreResourceReader, CoreResourceWriter, ReadOnlyMemoryStore} from "model-driven-data/core";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "model-driven-data/core";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
-import {FederatedObservableCoreModelReaderWriter} from "../../store/federated-observable-store";
-import {ObservableCachedCoreResourceReaderWriter} from "../../store/observable-cached-core-resource-reader-writer";
+import {FederatedObservableStore} from "../../store/federated-observable-store";
 
 interface AncestorSelectorPanelParameters {
     forCimClassIri: string,
@@ -53,14 +52,17 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
     // components which render dialogs and other stuff
 
     const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableCoreModelReaderWriter());
+    const [store] = useState(() => new FederatedObservableStore());
     const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
     useEffect(() => {
         if (sorted) {
             const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(sorted.map(r => [r.iri, r])));
-            const observableStore = new ObservableCachedCoreResourceReaderWriter(readOnlyMemoryStore as unknown as CoreResourceReader & CoreResourceWriter);
-            store.addStore(observableStore);
-            return () => store.removeStore(observableStore);
+            const storeWithMetadata = {
+                store: readOnlyMemoryStore,
+                metadata: {},
+            };
+            store.addStore(storeWithMetadata);
+            return () => store.removeStore(storeWithMetadata);
         }
     }, [sorted]);
 
