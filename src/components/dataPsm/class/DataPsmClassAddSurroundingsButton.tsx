@@ -23,7 +23,7 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
         addClassSurroundings.labelRules = {
             languages: i18n.languages as string[],
             namingConvention: "kebab-case",
-            specialCharacters: "remove-all",
+            specialCharacters: "allow",
         };
         store.executeOperation(addClassSurroundings).then();
     }, [store]);

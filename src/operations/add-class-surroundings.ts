@@ -10,7 +10,6 @@ import {PimCreateAssociation, PimCreateAttribute, PimCreateClass} from "model-dr
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
-import {camelCase, kebabCase, snakeCase, upperFirst} from "lodash";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
 
@@ -77,11 +76,13 @@ export class AddClassSurroundings implements ComplexOperation {
                 text = removeDiacritics(text);
         }
 
+        const lowercaseWords = text.replace(/\s+/g, " ").split(" ").map(w => w.toLowerCase());
+
         switch (this.labelRules.namingConvention) {
-            case "snake_case": text = snakeCase(text); break
-            case "kebab-case": text = kebabCase(text); break
-            case "camelCase": text = camelCase(text); break
-            case "PascalCase": text = upperFirst(camelCase(text)); break
+            case "snake_case": text = lowercaseWords.join("_"); break
+            case "kebab-case": text = lowercaseWords.join("-"); break
+            case "camelCase": text = lowercaseWords.map((w, index) => index > 0 ? w[0].toUpperCase() + w.substring(1) : w).join(""); break
+            case "PascalCase": text = lowercaseWords.map(w => w[0].toUpperCase()).join(""); break
         }
 
         return text;
