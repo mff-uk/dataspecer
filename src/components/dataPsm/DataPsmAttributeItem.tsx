@@ -17,6 +17,7 @@ import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-
 import {InlineEdit} from "./common/InlineEdit";
 import {useResource} from "../../hooks/useResource";
 import {DeleteAttribute} from "../../operations/delete-attribute";
+import {Datatype} from "./common/Datatype";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
@@ -51,8 +52,8 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
                             }
 
                             {dataPsmAttribute?.dataPsmDatatype && dataPsmAttribute.dataPsmDatatype.length && <>
-                                {': '}
-                                <span className={styles.type}>{dataPsmAttribute.dataPsmDatatype}</span>
+                                {' : '}
+                                <Datatype iri={dataPsmAttribute.dataPsmDatatype} className={styles.type} />
                             </>}
                         </>}
                     </span>
