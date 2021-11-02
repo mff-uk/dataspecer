@@ -11,6 +11,7 @@ import {DialogParameters} from "../dialog-parameters";
 import {useLabelAndDescription} from "../../hooks/use-label-and-description";
 import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
+import {Show} from "../helper/Show";
 
 export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = memo(({iri, isOpen, close}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
@@ -35,7 +36,7 @@ export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParame
                 <Tab label={t('tab store')} />
             </Tabs>
 
-            {tab === 0 && <BasicInfo iri={iri} label={label} description={description} close={close} />}
+            <Show when={tab === 0}><BasicInfo iri={iri} label={label} description={description} close={close} /></Show>
             {tab === 1 && <>
                 <Tabs value={storeTab} onChange={(e, ch) => setStoreTab(ch)} sx={{ mb: 3 }}>
                     <Tab label={t('tab data psm')} />

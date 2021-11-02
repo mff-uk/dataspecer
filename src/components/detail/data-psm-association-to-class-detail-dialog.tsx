@@ -15,6 +15,7 @@ import {DialogParameters} from "../dialog-parameters";
 import {useLabelAndDescription} from "../../hooks/use-label-and-description";
 import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
+import {Show} from "../helper/Show";
 
 export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string} & DialogParameters> = memo(({parentIri, iri, isOpen, close}) => {
     const associationEnd = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(iri);
@@ -65,8 +66,8 @@ export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string,
                     <Tab label={t('tab store')} />
                 </Tabs>
 
-                {tab === 0 && <DataPsmAssociationEndCard iri={iri} onClose={close} />}
-                {tab === 1 && associationEnd?.dataPsmResource?.dataPsmPart && <DataPsmClassCard iri={associationEnd?.dataPsmResource?.dataPsmPart as string} onClose={close} />}
+                <Show when={tab === 0}><DataPsmAssociationEndCard iri={iri} onClose={close} /></Show>
+                <Show when={tab === 1}>{associationEnd?.dataPsmResource?.dataPsmPart && <DataPsmClassCard iri={associationEnd?.dataPsmResource?.dataPsmPart as string} onClose={close} />}</Show>
                 {tab === 2 && <>
                     <Box sx={{my: 3}}>
                         <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
