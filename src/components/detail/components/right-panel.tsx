@@ -11,7 +11,7 @@ import {
     DatatypeSelectorValueType,
     getIriFromDatatypeSelectorValue
 } from "../../helper/datatype-selector";
-import KnownDatatypes from "../../../utils/known-datatypes.json";
+import {knownDatatypes} from "../../../utils/known-datatypes";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri, close}) => {
     const {store} = React.useContext(StoreContext);
@@ -27,7 +27,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
         if (isAttribute) {
             const datatype = dataPsmAttributeOrAssociation?.dataPsmDatatype ?? "";
-            const foundDatatype = KnownDatatypes.find(type => type.iri === datatype);
+            const foundDatatype = knownDatatypes.find(type => type.iri === datatype);
             setDatatype(foundDatatype ?? datatype);
         }
     }, [dataPsmAttributeOrAssociation]);
@@ -75,7 +75,10 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         />
 
         {isAttribute && <Box sx={{pt: 2}}>
-            <DatatypeSelector value={datatype} onChange={setDatatype} options={KnownDatatypes} />
+            <DatatypeSelector value={datatype} onChange={setDatatype} options={knownDatatypes} onEnter={event => {
+                event.preventDefault();
+                onConfirm().then();
+            }} />
         </Box>}
 
         <Grid container sx={{pt: 2}} spacing={2}>

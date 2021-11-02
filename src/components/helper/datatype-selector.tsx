@@ -1,21 +1,16 @@
 import React, {FormEvent, memo} from "react";
 import {Autocomplete, Box, Chip, IconButton, TextField, Typography} from "@mui/material";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import {useTranslation} from "react-i18next";
-
-interface KnownDatatype {
-    prefLabel: string;
-    prefix: string;
-    localPart: string;
-    documentation: string;
-    iri: string;
-}
+import {KnownDatatype} from "../../utils/known-datatypes";
+import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
+import {Datatype} from "../dataPsm/common/Datatype";
 
 export type DatatypeSelectorValueType = string | KnownDatatype;
 
 interface DatatypeSelectorParameters {
     value: DatatypeSelectorValueType;
     onChange: (value: DatatypeSelectorValueType) => void;
+    onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void,
 
     options: KnownDatatype[];
 }
@@ -35,7 +30,7 @@ export const getIriFromDatatypeSelectorValue = (value: string | KnownDatatype | 
  * Because user may want to set a type whose prefix is a well-known type (for example string-only-ascii vs string) we
  * must not immediately replace the user text with well-known types. Therefore the complexity of value prop.
  */
-export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({value, onChange, options}) => {
+export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({value, onChange, options, onEnter}) => {
     const {t} = useTranslation("detail");
 
     // Whether the value is non-null object
@@ -56,26 +51,26 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
 
         renderOption={(props, option: KnownDatatype) => (
             <Box component="li" {...props} sx={{display: "flex", gap: "1rem"}}>
-                <Box>
-                    {option.prefix}:<strong>{option.localPart}</strong>
-                </Box>
-                <Typography color={"gray"} sx={{flexGrow: 1, textOverflow: 'ellipsis', overflow: "hidden"}}>
+                <Datatype iri={option.iri} style={{whiteSpace: "nowrap"}} />
+                <Typography color={"gray"} sx={{flexGrow: 1, textOverflow: 'ellipsis', overflow: "hidden", whiteSpace: "nowrap"}}>
                     {option.iri}
                 </Typography>
-                <IconButton href={option.documentation} target="_blank">
-                    <OpenInNewIcon/>
-                </IconButton>
+                {option.documentation &&
+                    <IconButton href={option.documentation} target="_blank">
+                        <InfoTwoToneIcon/>
+                    </IconButton>
+                }
             </Box>
         )}
         // Used for searching.
-        getOptionLabel={datatype => `${datatype.prefix}:${datatype.localPart}\0${datatype.iri}\0${datatype.prefLabel}`}
+        getOptionLabel={datatype => `${datatype.prefix}:${datatype.localPart}\0${datatype.iri}\0${Object.values(datatype.label ?? {}).join("\0")}`}
         renderInput={(params) => {
             return <TextField
                 {...params}
                 label={t('label datatype')}
                 InputProps={{
                     ...params.InputProps,
-                    startAdornment: valueIsKnown ? <Chip size="small" color="primary" label={value.prefix + ":" + value.localPart} onDelete={() => {
+                    startAdornment: valueIsKnown ? <Chip size="small" color="primary" label={<Datatype iri={value.iri} />} onDelete={() => {
                         onChange("")
                     }}/> : null,
                 }}
@@ -91,11 +86,14 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
                         if (event.key === "Backspace" && valueIsKnown) {
                             onChange("");
                         }
+                        if (event.key === "Enter" && valueIsKnown && onEnter) {
+                            onEnter(event);
+                            return;
+                        }
                         if (params.inputProps.onKeyDown) {
                             params.inputProps.onKeyDown(event);
                         }
                     }
-
                 }}
                 variant="filled"
             />
