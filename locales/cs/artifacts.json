@@ -1,22 +1,10 @@
 {
-  "Bikeshed download source": "uložit Bikeshed dokumentaci",
-  "Bikeshed preview external": "náhled Bikeshed dokumentace externí službou",
   "button generate load artifacts": "Vygenerovat/Načíst artefakty",
-  "object-model download": "object model jako soubor",
-  "object-model to clipboard": "object model do schránky",
-  "ReSpec download": "uložit ReSpec dokumentaci",
-  "ReSpec preview": "náhled ReSpec dokumentace",
-  "snackbar Bikeshed": {
-    "fail": "Nelze vygenerovat Bikeshed dokumentaci. Aktuálně nejsou známy žádné další informace."
-  },
+  "copy": "zkopírovat",
+  "download": "stáhnout",
+  "preview": "náhled",
   "snackbar copied to clipboard": {
-    "failed": "Nepodařilo se zkopírovat platform-model do schránky",
+    "failed": "Kopírování do schránky selhalo",
     "ok": "Zkopírováno do schránky"
-  },
-  "snackbar object-model": {
-    "fail": "Nelze vygenerovat object model. Aktuálně nejsou známy žádné další informace."
-  },
-  "snackbar ReSpec": {
-    "fail": "Nelze vygenerovat ReSpec dokumentaci. Aktuálně nejsou známy žádné další informace."
   }
 }

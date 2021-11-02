@@ -1,22 +1,10 @@
 {
-  "Bikeshed download source": "save Bikeshed documentation",
-  "Bikeshed preview external": "preview Bikeshed documentation in external service",
   "button generate load artifacts": "Generate/Load artifacts",
-  "object-model download": "object model as file",
-  "object-model to clipboard": "object model to clipboard",
-  "ReSpec download": "save ReSpec documentation",
-  "ReSpec preview": "preview ReSpec documentation",
-  "snackbar Bikeshed": {
-    "fail": "Unable to generate Bikeshed documentation. No further info is provided."
-  },
+  "copy": "copy",
+  "download": "download",
+  "preview": "preview",
   "snackbar copied to clipboard": {
     "failed": "Unable to copy to clipboard",
     "ok": "Copied to clipboard"
-  },
-  "snackbar object-model": {
-    "fail": "Unable to generate object model. No further info is provided."
-  },
-  "snackbar ReSpec": {
-    "fail": "Unable to generate ReSpec documentation. No further info is provided."
   }
 }
