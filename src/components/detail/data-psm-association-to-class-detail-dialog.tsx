@@ -23,8 +23,8 @@ export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string,
     const childClass = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(associationEnd?.dataPsmResource?.dataPsmPart ?? null);
 
     const [associationEndLabel, associationEndDescription] = useLabelAndDescription(associationEnd.dataPsmResource, associationEnd.pimResource);
-    const wholeAssociationLabel = useMemo(() => ({...association.resource?.pimHumanLabel, ...associationEndLabel}), [associationEnd.pimResource?.pimHumanLabel, associationEndLabel]);
-    const wholeAssociationDescription = useMemo(() => ({...association.resource?.pimHumanDescription, ...associationEndDescription}), [associationEnd.pimResource?.pimHumanDescription, associationEndDescription]);
+    const wholeAssociationLabel = useMemo(() => ({...association.resource?.pimHumanLabel, ...associationEndLabel}), [association.resource?.pimHumanLabel, associationEndLabel]);
+    const wholeAssociationDescription = useMemo(() => ({...association.resource?.pimHumanDescription, ...associationEndDescription}), [association.resource?.pimHumanDescription, associationEndDescription]);
     const [childClassLabel, childClassDescription] = useLabelAndDescription(childClass.dataPsmResource, childClass.pimResource);
 
     const [tab, setTab] = React.useState(0);

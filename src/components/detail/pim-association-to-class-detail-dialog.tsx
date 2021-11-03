@@ -12,7 +12,7 @@ import {CloseDialogButton} from "./components/close-dialog-button";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string, orientation: boolean} & DialogParameters> = memo(({parentIri, iri, orientation, isOpen, close}) => {
-    const {resource: parent} = useResource<PimClass>(parentIri);
+    // const {resource: parent} = useResource<PimClass>(parentIri);
     const {resource: association} = useResource<PimAssociation>(iri);
     const {t, i18n} = useTranslation("detail");
 
@@ -42,18 +42,12 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
                     <InDifferentLanguages
                         label={association?.pimHumanLabel ?? {}}
                         description={association?.pimHumanDescription ?? {}}
-                        resourceType="pim"
-                        iri={iri}
-                        disableEditing
                     />
                 </Grid>
                 <Grid item xs={6}>
                     {childIri && <InDifferentLanguages
                         label={child?.pimHumanLabel ?? {}}
                         description={child?.pimHumanDescription ?? {}}
-                        resourceType="pim"
-                        iri={childIri}
-                        disableEditing
                     />}
                 </Grid>
             </Grid>

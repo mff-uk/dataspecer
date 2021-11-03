@@ -13,14 +13,12 @@ export const DataPsmAssociationEndCard: React.FC<{ iri: string, onClose: () => v
     const association = usePimAssociationFromPimAssociationEnd(associationEnd.dataPsmResource?.dataPsmInterpretation ?? null);
 
     const [associationEndLabel, associationEndDescription] = useLabelAndDescription(associationEnd.dataPsmResource, associationEnd.pimResource);
-    const label = useMemo(() => ({...association.resource?.pimHumanLabel, ...associationEndLabel}), [associationEnd.pimResource?.pimHumanLabel, associationEndLabel]);
-    const description = useMemo(() => ({...association.resource?.pimHumanDescription, ...associationEndDescription}), [associationEnd.pimResource?.pimHumanDescription, associationEndDescription]);
+    const label = useMemo(() => ({...association.resource?.pimHumanLabel, ...associationEndLabel}), [association.resource?.pimHumanLabel, associationEndLabel]);
+    const description = useMemo(() => ({...association.resource?.pimHumanDescription, ...associationEndDescription}), [association.resource?.pimHumanDescription, associationEndDescription]);
 
     return <Grid container spacing={5} sx={{pt: 3}}>
         <Grid item xs={6}>
-            {associationEnd.pimResource?.iri &&
-            <InDifferentLanguages label={label} description={description} resourceType="pim"
-                                  iri={associationEnd.pimResource.iri}/>}
+            <InDifferentLanguages label={label} description={description} resourceType="dataPsm" iri={iri}/>
         </Grid>
         <Grid item xs={6}>
             <RightPanel iri={iri} close={onClose}/>

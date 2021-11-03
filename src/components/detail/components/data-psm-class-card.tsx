@@ -13,8 +13,7 @@ export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> =
 
     return <Grid container spacing={5} sx={{pt: 3}}>
         <Grid item xs={6}>
-            {resources.dataPsmResource?.dataPsmInterpretation && <InDifferentLanguages label={label} description={description}
-                                   iri={resources.dataPsmResource.dataPsmInterpretation as string} resourceType="pim"/>}
+            <InDifferentLanguages label={label} description={description} iri={iri} resourceType="dataPsm"/>
         </Grid>
         <Grid item xs={6}>
             <RightPanel iri={iri} close={onClose}/>

@@ -14,12 +14,19 @@ interface Properties {
     label: LanguageString,
     description: LanguageString,
 
-    resourceType: "pim" | "dataPsm",
-    iri: string,
-    disableEditing?: boolean;
+    // The IRI of the resource at which the user can change translations. If null, no button is shown
+    iri?: string,
+    resourceType?: "pim" | "dataPsm",
 }
 
-export const InDifferentLanguages: React.FC<Properties> = memo(({label, description, resourceType, iri, disableEditing}) => {
+/**
+ * This component shows human label and description in all languages based on provided label and description. This is
+ * used by other components that know from which resources should be the translations extracted.
+ *
+ * Furthermore, if iri is provided, user is able to change a label and description of this specified iri of type
+ * resourceType. Therefore the parent component may also decide which resource is editable in this simplified form.
+ */
+export const InDifferentLanguages: React.FC<Properties> = memo(({label, description, resourceType, iri}) => {
     const {store} = React.useContext(StoreContext);
     const {updateLabels} = React.useContext(DialogAppProviderContext);
     const {t} = useTranslation("detail");
@@ -32,7 +39,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
         }]))
     }, [label, description]);
 
-    const resource = useResource(iri);
+    const resource = useResource(iri ?? null);
     const currentLabel = (resourceType === "pim") ? (resource.resource as PimClass)?.pimHumanLabel : (resource.resource as DataPsmClass)?.dataPsmHumanLabel;
     const currentDescription = (resourceType === "pim") ? (resource.resource as PimClass)?.pimHumanDescription : (resource.resource as DataPsmClass)?.dataPsmHumanDescription;
 
@@ -42,12 +49,12 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
                 label: currentLabel ?? {},
                 description: currentDescription ?? {},
             },
-            update: data => store.executeOperation((resourceType === "pim") ?
+            update: data => iri && (store.executeOperation((resourceType === "pim") ?
                 new SetPimLabelAndDescription(iri, data.label, data.description) :
-                new SetDataPsmLabelAndDescription(iri, data.label, data.description)
+                new SetDataPsmLabelAndDescription(iri, data.label, data.description))
             ),
         });
-    }, [label, description]);
+    }, [label, description, iri]);
 
     return <>
         <Typography variant="subtitle1" component="h2">
@@ -103,7 +110,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
         </Typography>
         }
 
-        {!disableEditing && <Button
+        {resource && <Button
             sx={{ml: "auto", mt: 1}}
             style={{display: "block"}}
             variant="contained"

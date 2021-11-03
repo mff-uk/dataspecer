@@ -30,9 +30,6 @@ export const PimAttributeDetailDialog: React.FC<{iri: string} & DialogParameters
                     <InDifferentLanguages
                         label={resource?.pimHumanLabel ?? {}}
                         description={resource?.pimHumanDescription ?? {}}
-                        resourceType="pim"
-                        iri={iri}
-                        disableEditing
                     />
                 </Grid>
                 <Grid item xs={6}>
