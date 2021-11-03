@@ -1,7 +1,9 @@
 {
   "button generate load artifacts": "Generate/Load artifacts",
+  "close": "close",
   "copy": "copy",
   "download": "download",
+  "live preview": "live preview",
   "preview": "preview",
   "snackbar copied to clipboard": {
     "failed": "Unable to copy to clipboard",

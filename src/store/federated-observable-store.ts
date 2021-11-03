@@ -46,9 +46,9 @@ export class FederatedObservableStore implements CoreResourceReader {
     private subscriptions: Map<string, Subscription> = new Map();
     // This store is passed to operations to read resources that are internally cached
     private readonly storeForOperations: CoreResourceReader;
-
     // We will use lazy loading of resources during the operation execution. Only if needed the check method is called
     private resourcesToCheckAfterOperation: Set<string> = new Set();
+    private eventListeners: Map<string, Set<() => void>> = new Map();
 
     constructor() {
         this.storeForOperations = {
@@ -179,6 +179,26 @@ export class FederatedObservableStore implements CoreResourceReader {
             }
         }
         this.resourcesToCheckAfterOperation.clear();
+
+        this.eventListeners.get("afterOperationExecuted")?.forEach(l => l());
+    }
+
+    public addEventListener(event: string, listener: () => void) {
+        let entry = this.eventListeners.get(event);
+        if (!entry) {
+            entry = new Set();
+            this.eventListeners.set(event, entry);
+        }
+
+        entry.add(listener);
+    }
+
+    public removeEventListener(event: string, listener: () => void) {
+        let entry = this.eventListeners.get(event) as Set<() => void>;
+        entry.delete(listener);
+        if (entry.size === 0) {
+            this.eventListeners.delete(event);
+        }
     }
 
     private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {

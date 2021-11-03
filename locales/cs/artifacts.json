@@ -1,7 +1,9 @@
 {
   "button generate load artifacts": "Vygenerovat/Načíst artefakty",
+  "close": "zavřít",
   "copy": "zkopírovat",
   "download": "stáhnout",
+  "live preview": "živý náhled",
   "preview": "náhled",
   "snackbar copied to clipboard": {
     "failed": "Kopírování do schránky selhalo",

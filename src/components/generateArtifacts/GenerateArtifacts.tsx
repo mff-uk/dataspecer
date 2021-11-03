@@ -5,7 +5,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
     Divider,
     Fab,
     ListItemIcon,
@@ -34,6 +33,7 @@ import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const [component, setComponent] = useState<ReactElement | null>(null);
+    const {t} = useTranslation("artifacts");
     useEffect(() => {
         if (content) {
             setComponent(null);
@@ -42,44 +42,46 @@ const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>
     }, [content]);
 
     return <Dialog open={isOpen} onClose={close} maxWidth="lg" fullWidth>
-        <DialogTitle>
-            Preview
-        </DialogTitle>
         <DialogContent>
-            {component ?? "loading"}
+            {component ?? null}
         </DialogContent>
         <DialogActions>
-            <Button onClick={close}>Close</Button>
+            <Button onClick={close}>{t("close")}</Button>
         </DialogActions>
     </Dialog>
 });
 
-function useCopyToClipboard() {
+function useCopyToClipboard(close: () => void) {
     const {psmSchemas, store} = React.useContext(StoreContext);
     const {enqueueSnackbar} = useSnackbar();
     const {t} = useTranslation("artifacts");
     return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>) => {
+        close();
         if (copy(await getArtifact(store, psmSchemas[0]))) {
             enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
         } else {
             enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
         }
-    }, []);
+    }, [close, psmSchemas, store, enqueueSnackbar, t]);
 }
 
-function useSaveToFile() {
+function useSaveToFile(close: () => void) {
     const {psmSchemas, store} = React.useContext(StoreContext);
     const {i18n} = useTranslation("artifacts");
     return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>, extension: string, mime: string) => {
+        close();
         const artifact = await getArtifact(store, psmSchemas[0]);
         const name = await getNameForSchema(store, psmSchemas[0], i18n.languages);
         const data = new Blob([artifact], {type: mime});
         FileSaver.saveAs(data, name + "." + extension, {autoBom: false});
-    }, []);
+    }, [close, psmSchemas, store]);
 }
 
 
-export const GenerateArtifacts: React.FC = () => {
+export const GenerateArtifacts: React.FC<{
+    artifactPreview: ((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null,
+    setArtifactPreview: (value: () => (((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null)) => void
+}> = ({setArtifactPreview, artifactPreview}) => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId());
     const ref = useRef(null);
@@ -88,8 +90,8 @@ export const GenerateArtifacts: React.FC = () => {
 
     const Preview = useDialog(PreviewDialog, ["content"]);
 
-    const copy = useCopyToClipboard();
-    const save = useSaveToFile();
+    const copy = useCopyToClipboard(close);
+    const save = useSaveToFile(close);
 
     return (
         <>
@@ -111,7 +113,8 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("download")}
                     </MenuItem>
                     <MenuItem onClick={() => {
-                        GetPreviewBikeshedArtifact(store, psmSchemas[0])
+                        close();
+                        GetPreviewBikeshedArtifact(store, psmSchemas[0]);
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetBikeshedArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
@@ -128,6 +131,7 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("download")}
                     </MenuItem>
                     <MenuItem onClick={() => {
+                        close();
                         Preview.open({content: GetPreviewComponentObjectModelArtifact(store, psmSchemas[0])});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(getObjectModelArtifact)}>
@@ -135,6 +139,11 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("copy")}
                     </MenuItem>
                 </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentObjectModelArtifact ? null : GetPreviewComponentObjectModelArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)
+                </MenuItem>
 
                 <Divider />
 
@@ -145,6 +154,7 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("download")}
                     </MenuItem>
                     <MenuItem onClick={() => {
+                        close();
                         Preview.open({content: GetPreviewComponentJsonSchemaArtifact(store, psmSchemas[0])});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetJsonSchemaArtifact)}>
@@ -152,6 +162,10 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("copy")}
                     </MenuItem>
                 </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentJsonSchemaArtifact ? null : GetPreviewComponentJsonSchemaArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
                 <Divider />
 
@@ -162,6 +176,7 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("download")}
                     </MenuItem>
                     <MenuItem onClick={() => {
+                        close();
                         Preview.open({content: GetPreviewComponentXsdArtifact(store, psmSchemas[0])});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetXsdArtifact)}>
@@ -169,6 +184,10 @@ export const GenerateArtifacts: React.FC = () => {
                         {t("copy")}
                     </MenuItem>
                 </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
             </Menu>
 

@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, {ReactElement, useMemo, useState} from "react";
 import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import SetRootButton from "./cimSearch/SetRootButton";
@@ -15,6 +15,8 @@ import {SaveRestore} from "./save-restore";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
 import {FederatedObservableStore} from "../store/federated-observable-store";
+import {CoreResourceReader} from "model-driven-data/core";
+import {ArtifactPreview} from "./generateArtifacts/artifact-preview";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -32,6 +34,8 @@ const App: React.FC = () => {
     const [psmSchemas, setPsmSchemas] = useState<string[]>([]);
 
     const [store, setStore] = useState<FederatedObservableStore>(new FederatedObservableStore());
+
+    const [artifactPreview, setArtifactPreview] = useState<((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null>(null);
 
     const storeContext: StoreContextInterface = useMemo(() => ({
         store,
@@ -70,11 +74,18 @@ const App: React.FC = () => {
                         <Box height="30px"/>
                         <Box display="flex" flexDirection="row" justifyContent="space-between">
                             <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-                            <GenerateArtifacts />
+                            <GenerateArtifacts artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
                             <SaveRestore />
                             <SetRootButton />
                         </Box>
-                        {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
+                    </Container>
+                    <Box sx={{display: "flex"}}>
+                        <Container>
+                            {psmSchemas.map(schema => <DataPsmSchemaItem key={schema} dataPsmSchemaIri={schema}/>)}
+                        </Container>
+                        <ArtifactPreview artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
+                    </Box>
+                    <Container>
                         {psmSchemas.length === 0 &&
                             <Typography color={"textSecondary"}>
                                 <Trans i18nKey="no schema text" t={t}>
