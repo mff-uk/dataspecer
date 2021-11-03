@@ -4,6 +4,11 @@ import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
 import {CoreResourceReader} from "model-driven-data/core";
 import {objectModelToXmlSchema, writeXmlSchema} from "model-driven-data/xml-schema";
+import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
+import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
+import {githubGist} from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
+SyntaxHighlighter.registerLanguage("xml", xml);
 
 async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
     const objectModel = await coreResourcesToObjectModel(reader, fromSchema);
@@ -26,8 +31,8 @@ export async function GetPreviewComponentXsdArtifact(reader: CoreResourceReader,
     if (!xsd) {
         throw new Error("No schema returned");
     }
-    return <Box sx={{whiteSpace: "pre"}}>
+    return <Box>
         <Typography variant="h5" sx={{mb: 2}}>XSD Schema</Typography>
-        {xsd}
+        <SyntaxHighlighter language="xml" style={githubGist}>{xsd}</SyntaxHighlighter>
     </Box>;
 }
