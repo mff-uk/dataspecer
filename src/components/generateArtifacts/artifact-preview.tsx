@@ -1,6 +1,6 @@
 import React, {ReactElement, useEffect, useState} from "react";
 import {CoreResourceReader} from "model-driven-data/core";
-import {Container, Fab, Paper} from "@mui/material";
+import {Alert, Container, Fab, Paper} from "@mui/material";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {StoreContext} from "../App";
 import {useTranslation} from "react-i18next";
@@ -23,7 +23,11 @@ export const ArtifactPreview: React.FC<{
 
     const component = useAsyncMemo(async () => {
         if (artifactPreview) {
-            return await artifactPreview(store, psmSchemas[0]);
+            try {
+                return await artifactPreview(store, psmSchemas[0]);
+            } catch (error) {
+                return <Alert severity="error"><strong>{t("error mdd")}</strong><br />{(error as Error).message}</Alert>;
+            }
         }
         return null;
     }, [artifactPreview, store, psmSchemas, storeState]);
@@ -39,7 +43,7 @@ export const ArtifactPreview: React.FC<{
                 size="small"
                 color="primary"
                 aria-label="edit"
-                style={{float: "right"}}
+                style={{float: "right", marginLeft: "2rem"}}
                 onClick={() => setArtifactPreview(null)}
             >
                 <CloseIcon />{" "}

@@ -3,6 +3,7 @@
   "close": "close",
   "copy": "copy",
   "download": "download",
+  "error mdd": "Error on the model-driven-data library side",
   "live preview": "live preview",
   "preview": "preview",
   "snackbar copied to clipboard": {

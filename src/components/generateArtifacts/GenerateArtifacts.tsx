@@ -1,5 +1,6 @@
-import React, {memo, ReactElement, useCallback, useEffect, useRef, useState} from "react";
+import React, {memo, ReactElement, useCallback, useRef, useState} from "react";
 import {
+    Alert,
     Box,
     Button,
     Dialog,
@@ -30,15 +31,19 @@ import {CoreResourceReader} from "model-driven-data/core";
 import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
+import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
-    const [component, setComponent] = useState<ReactElement | null>(null);
     const {t} = useTranslation("artifacts");
-    useEffect(() => {
+    const component = useAsyncMemo(async () => {
         if (content) {
-            setComponent(null);
-            content.then(setComponent);
+            try {
+                return await content;
+            } catch (error) {
+                return <Alert severity="error"><strong>{t("error mdd")}</strong><br />{(error as Error).message}</Alert>;
+            }
         }
+        return null;
     }, [content]);
 
     return <Dialog open={isOpen} onClose={close} maxWidth="lg" fullWidth>
@@ -57,10 +62,18 @@ function useCopyToClipboard(close: () => void) {
     const {t} = useTranslation("artifacts");
     return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>) => {
         close();
-        if (copy(await getArtifact(store, psmSchemas[0]))) {
-            enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
-        } else {
-            enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
+        let value: string | undefined = undefined;
+        try {
+            value = await getArtifact(store, psmSchemas[0]);
+        } catch (error) {
+            enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
+        }
+        if (value !== undefined) {
+            if (copy(value)) {
+                enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
+            } else {
+                enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
+            }
         }
     }, [close, psmSchemas, store, enqueueSnackbar, t]);
 }
@@ -68,13 +81,22 @@ function useCopyToClipboard(close: () => void) {
 function useSaveToFile(close: () => void) {
     const {psmSchemas, store} = React.useContext(StoreContext);
     const {i18n} = useTranslation("artifacts");
+    const {t} = useTranslation("artifacts");
+    const {enqueueSnackbar} = useSnackbar();
     return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>, extension: string, mime: string) => {
         close();
-        const artifact = await getArtifact(store, psmSchemas[0]);
-        const name = await getNameForSchema(store, psmSchemas[0], i18n.languages);
-        const data = new Blob([artifact], {type: mime});
-        FileSaver.saveAs(data, name + "." + extension, {autoBom: false});
-    }, [close, psmSchemas, store]);
+        let artifact: string | undefined = undefined;
+        try {
+            artifact = await getArtifact(store, psmSchemas[0]);
+        } catch (error) {
+            enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
+        }
+        if (artifact !== undefined) {
+            const name = await getNameForSchema(store, psmSchemas[0], i18n.languages);
+            const data = new Blob([artifact], {type: mime});
+            FileSaver.saveAs(data, name + "." + extension, {autoBom: false});
+        }
+    }, [close, psmSchemas, store, enqueueSnackbar]);
 }
 
 
