@@ -1,0 +1,49 @@
+@startuml
+
+package "Specification manager" {
+  usecase "Create new specification" as createSpecification
+  usecase "Edit specification metadata" as editMetadata
+  usecase "Create PSM" as createPsm
+  usecase "Edit PSM metadata" as editPsmMetadata
+  usecase "Open PSM editor" as openPsmEditor
+  note left
+    Parameters:
+    * PSM location
+    * PIM location
+    * Location of shared CIM specifications
+  end note 
+
+} 
+
+newpage
+
+package "PSM editor" {
+  usecase "Select existing shared specification for a PSM class"
+  note left
+    Elements with existing CIM
+    specifications are higlighted.
+
+    User do not select particular PSM, 
+    only a specification.
+  end note
+}
+
+newpage
+
+package "Generator" {
+  usecase "Generate JsonSchema" as generateJson
+  usecase "Generate CSVW" as generateCsvw
+  usecase "Generate BikeShed" as generateBikeShef
+  usecase "Generate XML specification" as generateXml
+  usecase "Generate OFN" as generateOfn
+  note left 
+    Re-used parts are represented as
+    links to correspondings specifications.
+  end note
+  generateOfn --> generateJson
+  generateOfn --> generateCsvw
+  generateOfn --> generateBikeShef
+  generateOfn --> generateXml
+}
+
+@enduml

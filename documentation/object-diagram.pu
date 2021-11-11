@@ -1,0 +1,31 @@
+@startuml
+
+object  "Specification" as specification {
+
+}
+
+note  "Each specification defines\nstructures for root elements of PSM." as N001
+N001 .. specification
+
+object  "Specification Metadata" as metadata {
+  label
+  type : [ofn]
+  visibility : [shared, public, private]
+}
+specification o- metadata
+
+object  "Platform Independent Model" as pim {
+
+}
+specification o- pim
+
+object  "Platform Specific Model" as psm {
+
+}
+specification o-- "*" psm 
+
+object "Data Platform Specific Model" as dataPsm {
+}
+psm <|- dataPsm 
+
+@enduml
