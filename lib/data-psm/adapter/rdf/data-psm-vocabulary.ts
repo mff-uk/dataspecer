@@ -20,17 +20,9 @@ export const ATTRIBUTE = PSM + "Attribute";
 
 export const ASSOCIATION_END = PSM + "AssociationEnd";
 
-export const INCLUDES = PSM + "Includes";
-
-export const CHOICE = PSM + "Choice";
-
 export const CLASS_REFERENCE = PSM + "ClassReference";
 
 export const HAS_REFERS_TO = PSM + "refersTo";
-
-export const HAS_SCHEMA = PSM + "schema";
-
-export const PROPERTY_CONTAINER = PSM + "PropertyContainer";
 
 const DCTERMS = "http://purl.org/dc/terms/";
 
