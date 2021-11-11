@@ -42,6 +42,12 @@ import {
 import {
   executeDataPsmSetDatatype,
 } from "./data-psm-set-datatype-executor";
+import {
+  executeDataPsmCreateClassReference
+} from "./data-psm-create-class-reference-executor";
+import {
+  executeDataPsmDeleteClassReference
+} from "./data-psm-delete-class-reference-executor";
 
 export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
   CoreOperationExecutor.create(
@@ -56,6 +62,10 @@ export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
     Operations.DataPsmCreateClass.is,
     executeDataPsmCreateClass,
     Operations.DataPsmCreateClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateClassReference.is,
+    executeDataPsmCreateClassReference,
+    Operations.DataPsmCreateClassReference.TYPE),
   CoreOperationExecutor.create(
     Operations.DataPsmCreateSchema.is,
     executeDataPsmCreateSchema,
@@ -72,6 +82,10 @@ export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
     Operations.DataPsmDeleteClass.is,
     executeDataPsmDeleteClass,
     Operations.DataPsmDeleteClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmDeleteClassReference.is,
+    executeDataPsmDeleteClassReference,
+    Operations.DataPsmDeleteClassReference.TYPE),
   CoreOperationExecutor.create(
     Operations.DataPsmSetDatatype.is,
     executeDataPsmSetDatatype,
