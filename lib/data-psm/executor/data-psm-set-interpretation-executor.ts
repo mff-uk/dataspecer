@@ -8,7 +8,6 @@ import {DataPsmSetInterpretation} from "../operation";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
-  DataPsmChoice,
   DataPsmClass,
 } from "../model";
 
@@ -38,6 +37,5 @@ export async function executeDataPsmSetInterpretation(
 function hasInterpretation(resource: CoreResource) {
   return DataPsmAssociationEnd.is(resource)
     || DataPsmAttribute.is(resource)
-    || DataPsmChoice.is(resource)
     || DataPsmClass.is(resource);
 }

@@ -8,14 +8,9 @@ export class DataPsmClassReference extends CoreResource {
   private static readonly TYPE = "data-psm-class-reference";
 
   /**
-   * IRI of class in another schema.
+   * IRI of external specification to load the definition from.
    */
-  dataPsmRefersTo: string | null = null;
-
-  /**
-   * IRI of the other schema.
-   */
-  dataPsmSchema: string | null = null;
+  dataPsmSpecification: string | null = null;
 
   constructor(iri:string | null = null) {
     super(iri);

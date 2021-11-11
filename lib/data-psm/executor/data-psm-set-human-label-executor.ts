@@ -10,7 +10,6 @@ import {
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
-  DataPsmChoice,
   DataPsmClass, DataPsmSchema,
 } from "../model";
 
@@ -39,7 +38,6 @@ export async function executeDataPsmSetHumanLabel(
 function hasHumanLabel(resource: CoreResource) {
   return DataPsmAssociationEnd.is(resource)
     || DataPsmAttribute.is(resource)
-    || DataPsmChoice.is(resource)
     || DataPsmClass.is(resource)
     || DataPsmSchema.is(resource);
 }

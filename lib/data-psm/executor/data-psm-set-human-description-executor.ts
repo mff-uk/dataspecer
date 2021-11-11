@@ -8,8 +8,8 @@ import {DataPsmSetHumanDescription} from "../operation";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
-  DataPsmChoice,
-  DataPsmClass, DataPsmSchema,
+  DataPsmClass,
+  DataPsmSchema,
 } from "../model";
 
 export async function executeDataPsmSetHumanDescription(
@@ -37,7 +37,6 @@ export async function executeDataPsmSetHumanDescription(
 function hasHumanDescription(resource: CoreResource) {
   return DataPsmAssociationEnd.is(resource)
     || DataPsmAttribute.is(resource)
-    || DataPsmChoice.is(resource)
     || DataPsmClass.is(resource)
     || DataPsmSchema.is(resource);
 }

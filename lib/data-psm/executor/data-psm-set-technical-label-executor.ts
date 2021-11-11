@@ -10,8 +10,8 @@ import {
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
-  DataPsmChoice,
-  DataPsmClass, DataPsmSchema,
+  DataPsmClass,
+  DataPsmSchema,
 } from "../model";
 
 export async function executeDataPsmSetTechnicalLabel(
@@ -39,7 +39,6 @@ export async function executeDataPsmSetTechnicalLabel(
 function hasTechnicalLabel(resource: CoreResource) {
   return DataPsmAssociationEnd.is(resource)
     || DataPsmAttribute.is(resource)
-    || DataPsmChoice.is(resource)
     || DataPsmClass.is(resource)
     || DataPsmSchema.is(resource);
 }
