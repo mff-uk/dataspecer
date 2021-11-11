@@ -1,6 +1,7 @@
 import * as Operations from "../operation";
 import {MemoryStore} from "../../core";
 import {pimExecutors} from "../executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create PIM schema with class and attribute.", async () => {
   let counter = 0;
@@ -54,7 +55,7 @@ test("Create PIM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/schema/1")).toEqual({
     "iri": "http://localhost/schema/1",
-    "types": ["pim-schema"],
+    "types": [PIM.SCHEMA],
     "pimHumanLabel": pimSchema.pimHumanLabel,
     "pimHumanDescription": pimSchema.pimHumanDescription,
     "pimParts": ["http://localhost/class/3", "http://localhost/attribute/5"],
@@ -62,7 +63,7 @@ test("Create PIM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/class/3")).toEqual({
     "iri": "http://localhost/class/3",
-    "types": ["pim-class"],
+    "types": [PIM.CLASS],
     "pimInterpretation": pimClass.pimInterpretation,
     "pimTechnicalLabel": pimClass.pimTechnicalLabel,
     "pimHumanLabel": pimClass.pimHumanLabel,
@@ -72,7 +73,7 @@ test("Create PIM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/attribute/5")).toEqual({
     "iri": "http://localhost/attribute/5",
-    "types": ["pim-attribute"],
+    "types": [PIM.ATTRIBUTE],
     "pimInterpretation": pimAttribute.pimInterpretation,
     "pimTechnicalLabel": pimAttribute.pimTechnicalLabel,
     "pimHumanLabel": pimAttribute.pimHumanLabel,

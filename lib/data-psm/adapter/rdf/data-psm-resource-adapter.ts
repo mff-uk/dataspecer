@@ -1,6 +1,6 @@
 import {RdfSourceWrap} from "../../../core/adapter/rdf";
 import {DataPsmResource} from "../../model";
-import * as PSM from "./data-psm-vocabulary";
+import * as PSM from "../../data-psm-vocabulary";
 
 export async function loadDataPsmResource(
   source: RdfSourceWrap, dataPsmResource: DataPsmResource,

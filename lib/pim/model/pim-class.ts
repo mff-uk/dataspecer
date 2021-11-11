@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * Represents a class. On the PIM level the properties are not pointed to
@@ -8,7 +9,7 @@ import {PimResource} from "./pim-resource";
  */
 export class PimClass extends PimResource {
 
-  private static readonly TYPE = "pim-class";
+  private static readonly TYPE = PIM.CLASS;
 
   pimExtends: string[] = [];
 

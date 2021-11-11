@@ -3,6 +3,7 @@ import {DataPsmCreateClass} from "../operation";
 import {
   executeDataPsmCreateClass,
 } from "./data-psm-create-class-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM class.", async () => {
   const operation = new DataPsmCreateClass();
@@ -15,12 +16,12 @@ test("Create data PSM class.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://base"],
     },
     "http://base": {
       "iri": "http://base",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -34,7 +35,7 @@ test("Create data PSM class.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmInterpretation": operation.dataPsmInterpretation,
       "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
@@ -46,7 +47,7 @@ test("Create data PSM class.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": [
         "http://base", "http://localhost/1",
       ],

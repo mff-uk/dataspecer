@@ -3,6 +3,7 @@ import {DataPsmCreateAssociationEnd} from "../operation";
 import {
   executeDataPsmCreateAssociationEnd,
 } from "./data-psm-create-association-end-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM association-end.", async () => {
   const operation = new DataPsmCreateAssociationEnd();
@@ -15,12 +16,12 @@ test("Create data PSM association-end.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   };
@@ -35,7 +36,7 @@ test("Create data PSM association-end.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-association-end"],
+      "types": [PSM.ASSOCIATION_END],
       "dataPsmInterpretation": operation.dataPsmInterpretation,
       "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
@@ -46,12 +47,12 @@ test("Create data PSM association-end.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://localhost/1"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://localhost/1"],
     },
   });

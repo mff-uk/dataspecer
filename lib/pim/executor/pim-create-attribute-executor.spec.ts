@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimCreateAttribute, PimCreateAttributeResult} from "../operation";
 import {executePimCreateAttribute} from "./pim-create-attribute-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create attribute.", async () => {
   const operation = new PimCreateAttribute();
@@ -14,12 +15,12 @@ test("Create attribute.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
   };
 
@@ -33,7 +34,7 @@ test("Create attribute.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+      "types": [PIM.ATTRIBUTE],
       "pimInterpretation": operation.pimInterpretation,
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
@@ -45,7 +46,7 @@ test("Create attribute.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://class", "http://localhost/1"],
     },
   });

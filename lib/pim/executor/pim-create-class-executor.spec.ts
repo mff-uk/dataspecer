@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimCreateClass,PimCreateClassResult} from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create class.", async () => {
   const operation = new PimCreateClass();
@@ -12,7 +13,7 @@ test("Create class.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [],
     },
   };
@@ -27,7 +28,7 @@ test("Create class.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
       "pimInterpretation": operation.pimInterpretation,
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
@@ -38,7 +39,7 @@ test("Create class.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://localhost/1"],
     },
   });

@@ -1,8 +1,9 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetOrder extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-order";
+  static readonly TYPE = PSM.SET_ORDER;
 
   dataPsmOwnerClass: string | null = null;
 

@@ -1,6 +1,7 @@
 import * as Operations from "../operation";
 import {MemoryStore} from "../../core";
 import {dataPsmExecutors} from "../executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM schema with class and attribute.", async () => {
   let counter = 0;
@@ -54,7 +55,7 @@ test("Create data PSM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/schema/1")).toEqual({
     "iri": "http://localhost/schema/1",
-    "types": ["data-psm-schema"],
+    "types": [PSM.SCHEMA],
     "dataPsmHumanLabel": dataPsmSchema.dataPsmHumanLabel,
     "dataPsmHumanDescription": dataPsmSchema.dataPsmHumanDescription,
     "dataPsmTechnicalLabel": null,
@@ -67,7 +68,7 @@ test("Create data PSM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/class/3")).toEqual({
     "iri": "http://localhost/class/3",
-    "types": ["data-psm-class"],
+    "types": [PSM.CLASS],
     "dataPsmInterpretation": dataPsmClass.dataPsmInterpretation,
     "dataPsmTechnicalLabel": dataPsmClass.dataPsmTechnicalLabel,
     "dataPsmHumanLabel": dataPsmClass.dataPsmHumanLabel,
@@ -78,7 +79,7 @@ test("Create data PSM schema with class and attribute.", async () => {
 
   expect(await store.readResource("http://localhost/attribute/5")).toEqual({
     "iri": "http://localhost/attribute/5",
-    "types": ["data-psm-attribute"],
+    "types": [PSM.ATTRIBUTE],
     "dataPsmInterpretation": dataPsmAttribute.dataPsmInterpretation,
     "dataPsmTechnicalLabel": dataPsmAttribute.dataPsmTechnicalLabel,
     "dataPsmHumanLabel": dataPsmAttribute.dataPsmHumanLabel,

@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimDeleteAssociation} from "../operation";
 import {executePimDeleteAssociation} from "./pim-delete-association-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Delete association.", async () => {
   const operation = new PimDeleteAssociation();
@@ -9,7 +10,7 @@ test("Delete association.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [
         "http://class", "http://left", "http://right",
         "http://localhost/3", "http://localhost/1", "http://localhost/2",
@@ -17,17 +18,17 @@ test("Delete association.", async () => {
     },
     "http://localhost/3": {
       "iri": "http://localhost/3",
-      "types": ["pim-association"],
+      "types": [PIM.ASSOCIATION],
       "pimEnd": ["http://localhost/1", "http://localhost/2"],
     },
     "http://localhost/2": {
       "iri": "http://localhost/2",
-      "types": ["pim-association-end"],
+      "types": [PIM.ASSOCIATION_END],
       "pimPart": "http://right",
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-association-end"],
+      "types": [PIM.ASSOCIATION_END],
       "pimPart": "http://left",
     },
   };
@@ -41,7 +42,7 @@ test("Delete association.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [
         "http://class", "http://left", "http://right",
       ],

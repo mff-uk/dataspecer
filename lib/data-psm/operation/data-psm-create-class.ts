@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateClass extends DataPsmCreate {
 
-  static readonly TYPE = "data-psm-action-create-class";
+  static readonly TYPE = PSM.CREATE_CLASS;
 
   dataPsmExtends: string[] = [];
 
@@ -20,7 +21,7 @@ export class DataPsmCreateClass extends DataPsmCreate {
 
 export class DataPsmCreateClassResult extends CoreOperationResult {
 
-  private static readonly TYPE = "psm-action-create-class-result";
+  static readonly TYPE = PSM.CREATE_CLASS_RESULT;
 
   readonly createdDataPsmClass: string;
 

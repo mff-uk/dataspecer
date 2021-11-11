@@ -3,10 +3,11 @@ import {
   CoreResource, CoreTyped,
   LanguageString,
 } from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 export class PimCreateSchema extends CoreOperation {
 
-  static readonly TYPE = "pim-action-create-schema";
+  static readonly TYPE = PIM.CREATE_SCHEMA;
 
   /**
    * IRI of the newly created object.
@@ -30,7 +31,7 @@ export class PimCreateSchema extends CoreOperation {
 
 export class PimCreateSchemaResult extends CoreOperationResult {
 
-  private static readonly TYPE = "pim-action-create-schema-result";
+  static readonly TYPE = PIM.CREATE_SCHEMA_RESULT;
 
   createdPimSchema: string;
 

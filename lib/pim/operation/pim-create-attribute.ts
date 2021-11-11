@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
+import * as PIM from "../pim-vocabulary";
 
 export class PimCreateAttribute extends PimCreate {
 
-  static readonly TYPE = "pim-action-create-attribute";
+  static readonly TYPE = PIM.CREATE_ATTRIBUTE;
 
   pimOwnerClass: string | null = null;
 
@@ -22,7 +23,7 @@ export class PimCreateAttribute extends PimCreate {
 
 export class PimCreateAttributeResult extends CoreOperationResult {
 
-  private static readonly TYPE = "pim-action-create-attribute-result";
+  static readonly TYPE = PIM.CREATE_ATTRIBUTE_RESULT;
 
   createdPimAttribute: string;
 

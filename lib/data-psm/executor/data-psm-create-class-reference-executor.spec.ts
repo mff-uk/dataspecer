@@ -4,6 +4,7 @@ import {
   executeDataPsmCreateClass,
 } from "./data-psm-create-class-executor";
 import {executeDataPsmCreateClassReference} from "./data-psm-create-class-reference-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM class reference.", async () => {
   const operation = new DataPsmCreateClassReference();
@@ -12,7 +13,7 @@ test("Create data PSM class reference.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://base"],
     },
   };
@@ -27,14 +28,14 @@ test("Create data PSM class reference.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-class-reference"],
+      "types": [PSM.CLASS_REFERENCE],
       "dataPsmSpecification": operation.dataPsmSpecification,
     },
   });
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": [
         "http://base", "http://localhost/1",
       ],

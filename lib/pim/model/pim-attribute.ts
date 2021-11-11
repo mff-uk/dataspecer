@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * An attribute is a primitive property that belongs to a class. It may be
@@ -7,7 +8,7 @@ import {PimResource} from "./pim-resource";
  */
 export class PimAttribute extends PimResource {
 
-  private static readonly TYPE = "pim-attribute";
+  private static readonly TYPE = PIM.ATTRIBUTE;
 
   pimDatatype: string | null = null;
 

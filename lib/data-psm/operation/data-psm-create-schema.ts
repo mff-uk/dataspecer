@@ -4,10 +4,11 @@ import {
   CoreTyped,
   LanguageString,
 } from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateSchema extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-create-schema";
+  static readonly TYPE = PSM.CREATE_SCHEMA;
   
   /**
    * IRI of the newly created object.
@@ -31,7 +32,7 @@ export class DataPsmCreateSchema extends CoreOperation {
 
 export class DataPsmCreateSchemaResult extends CoreOperationResult {
 
-  private static readonly TYPE = "psm-action-create-class-result";
+  static readonly TYPE = PSM.CREATE_SCHEMA_RESULT;
 
   readonly createdDataPsmSchema: string;
 

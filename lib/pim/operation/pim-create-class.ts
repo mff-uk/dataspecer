@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
+import * as PIM from "../pim-vocabulary";
 
 export class PimCreateClass extends PimCreate {
 
-  static readonly TYPE = "pim-action-create-class";
+  static readonly TYPE = PIM.CREATE_CLASS;
 
   pimExtends: string[] = [];
 
@@ -20,7 +21,7 @@ export class PimCreateClass extends PimCreate {
 
 export class PimCreateClassResult extends CoreOperationResult {
 
-  private static readonly TYPE = "pim-action-create-class-result";
+  static readonly TYPE = PIM.CREATE_CLASS_RESULT;
 
   createdPimClass: string;
 

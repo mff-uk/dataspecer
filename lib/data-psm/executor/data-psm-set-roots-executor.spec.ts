@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {DataPsmSetRoots} from "../operation";
 import {executeDataPsmSetRoots} from "./data-psm-set-roots-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Set data PSM class as a schema root.", async () => {
   const operation = new DataPsmSetRoots();
@@ -9,12 +10,12 @@ test("Set data PSM class as a schema root.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -27,7 +28,7 @@ test("Set data PSM class as a schema root.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmRoots": operation.dataPsmRoots,
       "dataPsmParts": ["http://class"],
     },

@@ -3,6 +3,7 @@ import {DataPsmDeleteAttribute} from "../operation";
 import {
   executeDataPsmDeleteAttribute,
 } from "./data-psm-delete-attribute-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM attribute.", async () => {
   const operation = new DataPsmDeleteAttribute();
@@ -12,17 +13,17 @@ test("Delete data PSM attribute.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://attribute"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://attribute"],
     },
     "http://attribute": {
       "iri": "http://attribute",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
     },
   };
 
@@ -35,12 +36,12 @@ test("Delete data PSM attribute.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   });

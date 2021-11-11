@@ -4,7 +4,7 @@ import {
   RdfResourceLoaderResult,
 } from "../../../core/adapter/rdf";
 import { DataPsmSchema} from "../../model";
-import * as PSM from "./data-psm-vocabulary";
+import * as PSM from "../../data-psm-vocabulary";
 
 export class DataPsmSchemaAdapter implements RdfResourceLoader {
 

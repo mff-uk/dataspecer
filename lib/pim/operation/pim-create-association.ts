@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
+import * as PIM from "../pim-vocabulary";
 
 export class PimCreateAssociation extends PimCreate {
 
-  static readonly TYPE = "pim-action-create-association";
+  static readonly TYPE = PIM.CREATE_ASSOCIATION;
 
   pimAssociationEnds: string[];
 
@@ -20,7 +21,7 @@ export class PimCreateAssociation extends PimCreate {
 
 export class PimCreateAssociationResult extends CoreOperationResult {
 
-  private static readonly TYPE = "pim-action-create-association-result";
+  static readonly TYPE = PIM.CREATE_ASSOCIATION_RESULT;
 
   createdPimAssociation: string;
 

@@ -5,7 +5,7 @@ import {
 } from "../../../core/adapter/rdf";
 import {PimAssociationEnd} from "../../model";
 import {loadPimResource} from "./pim-resource-adapter";
-import * as PIM from "./pim-vocabulary";
+import * as PIM from "../../pim-vocabulary";
 
 export class PimAssociationEndAdapter implements RdfResourceLoader {
 

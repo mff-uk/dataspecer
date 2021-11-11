@@ -3,6 +3,7 @@ import {DataPsmCreateAttribute} from "../operation";
 import {
   executeDataPsmCreateAttribute,
 } from "./data-psm-create-attribute-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM attribute.", async () => {
   const operation = new DataPsmCreateAttribute();
@@ -16,12 +17,12 @@ test("Create data PSM attribute.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   };
@@ -36,7 +37,7 @@ test("Create data PSM attribute.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
       "dataPsmInterpretation": operation.dataPsmInterpretation,
       "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
@@ -47,14 +48,14 @@ test("Create data PSM attribute.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": [
         "http://class", "http://localhost/1",
       ],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://localhost/1"],
     },
   });

@@ -1,4 +1,5 @@
 import {CoreResource, LanguageString} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmResource extends CoreResource {
 

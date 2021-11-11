@@ -3,6 +3,7 @@ import {DataPsmSetInterpretation} from "../operation";
 import {
   executeDataPsmSetInterpretation,
 } from "./data-psm-set-interpretation-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM resource interpretation.", async () => {
   const operation = new DataPsmSetInterpretation();
@@ -12,7 +13,7 @@ test("Update data PSM resource interpretation.", async () => {
   const before = {
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -25,7 +26,7 @@ test("Update data PSM resource interpretation.", async () => {
   expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmInterpretation": operation.dataPsmInterpretation,
     },
   });

@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
-  static readonly TYPE = "data-psm-action-create-association-end";
+  static readonly TYPE = PSM.CREATE_ASSOCIATION_END;
 
   dataPsmOwner: string | null = null;
 
@@ -24,8 +25,7 @@ export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
 export class DataPsmCreateAssociationEndResult extends CoreOperationResult {
 
-  private static readonly TYPE =
-    "data-psm-action-create-association-end-result";
+  static readonly TYPE = PSM.CREATE_ASSOCIATION_END_RESULT;
 
   readonly createdDataPsmAssociationEnd: string;
 

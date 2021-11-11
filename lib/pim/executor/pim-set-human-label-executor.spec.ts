@@ -3,6 +3,7 @@ import {PimSetHumanLabel} from "../operation";
 import {
   executePimSetHumanLabel,
 } from "./pim-set-human-label-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Update resource human label.", async () => {
   const operation = new PimSetHumanLabel(
@@ -13,16 +14,16 @@ test("Update resource human label.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://class", "http://localhost/1"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+      "types": [PIM.ATTRIBUTE],
       "pimOwnerClass": "http://class",
       "pimHumanLabel": {"en": "Label"},
     },
@@ -37,7 +38,7 @@ test("Update resource human label.", async () => {
   expect(actual.changed).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+      "types": [PIM.ATTRIBUTE],
       "pimOwnerClass": "http://class",
       "pimHumanLabel": {"cs": "Popis"},
     },

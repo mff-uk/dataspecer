@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimDeleteClass} from "../operation";
 import {executePimDeleteClass} from "./pim-delete-class-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Delete class.", async () => {
   const operation = new PimDeleteClass();
@@ -9,14 +10,14 @@ test("Delete class.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [
         "http://localhost/1",
       ],
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
   };
 
@@ -29,7 +30,7 @@ test("Delete class.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [],
     },
   });

@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * Specify one end of the association that points to a data type definition,
@@ -7,7 +8,7 @@ import {PimResource} from "./pim-resource";
  */
 export class PimAssociationEnd extends PimResource {
 
-  private static readonly TYPE = "pim-association-end";
+  private static readonly TYPE = PIM.ASSOCIATION_END;
 
   pimPart: string | null = null;
 

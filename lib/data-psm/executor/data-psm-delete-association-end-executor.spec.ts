@@ -3,6 +3,7 @@ import {DataPsmDeleteAssociationEnd} from "../operation";
 import {
   executeDataPsmDeleteAssociationEnd,
 } from "./data-psm-delete-association-end-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM association-end.", async () => {
   const operation = new DataPsmDeleteAssociationEnd();
@@ -12,17 +13,17 @@ test("Delete data PSM association-end.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://association-end"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://association-end"],
     },
     "http://association-end": {
       "iri": "http://association-end",
-      "types": ["data-psm-association-end"],
+      "types": [PSM.ASSOCIATION_END],
     },
   };
 
@@ -35,12 +36,12 @@ test("Delete data PSM association-end.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   });

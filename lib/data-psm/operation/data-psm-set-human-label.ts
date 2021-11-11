@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation, LanguageString} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetHumanLabel extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-human-label";
+  static readonly TYPE = PSM.SET_HUMAN_LABEL;
 
   dataPsmResource: string | null = null;
 

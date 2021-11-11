@@ -3,6 +3,7 @@ import {DataPsmSetHumanDescription} from "../operation";
 import {
   executeDataPsmSetHumanDescription,
 } from "./data-psm-set-human-description-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM resource human description.", async () => {
   const operation = new DataPsmSetHumanDescription();
@@ -12,7 +13,7 @@ test("Update data PSM resource human description.", async () => {
   const before = {
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -25,7 +26,7 @@ test("Update data PSM resource human description.", async () => {
   expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
     },
   });

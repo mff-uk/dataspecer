@@ -1,8 +1,9 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 export class PimDeleteAttribute extends CoreOperation {
 
-  static readonly TYPE = "pim-action-delete-attribute";
+  static readonly TYPE = PIM.DELETE_ATTRIBUTE;
 
   pimAttribute: string | null = null;
 

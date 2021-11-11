@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 export class PimSetTechnicalLabel extends CoreOperation {
 
-  static readonly TYPE = "pim-action-set-technical-label";
+  static readonly TYPE = PIM.SET_TECHNICAL_LABEL;
 
   pimResource: string | null = null;
 

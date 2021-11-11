@@ -1,9 +1,10 @@
 import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {DataPsmCreate} from "./data-psm-create";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateAttribute extends DataPsmCreate {
 
-  static readonly TYPE = "data-psm-action-create-attribute";
+  static readonly TYPE = PSM.CREATE_ATTRIBUTE;
 
   dataPsmOwner: string | null = null;
 
@@ -22,8 +23,7 @@ export class DataPsmCreateAttribute extends DataPsmCreate {
 
 export class DataPsmCreateAttributeResult extends CoreOperationResult {
 
-  private static readonly TYPE =
-    "psm-attribute-result";
+  static readonly TYPE = PSM.CREATE_ATTRIBUTE_RESULT;
 
   readonly createdDataPsmAttribute: string;
 

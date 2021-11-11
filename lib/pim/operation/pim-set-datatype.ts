@@ -1,8 +1,9 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 export class PimSetDatatype extends CoreOperation {
 
-  static readonly TYPE = "pim-action-set-datatype";
+  static readonly TYPE = PIM.SET_DATATYPE;
 
   pimAttribute: string | null = null;
 

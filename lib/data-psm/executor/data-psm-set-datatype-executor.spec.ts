@@ -3,6 +3,7 @@ import {DataPsmSetDatatype} from "../operation";
 import {
   executeDataPsmSetDatatype,
 } from "./data-psm-set-datatype-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM attribute datatype.", async () => {
   const operation = new DataPsmSetDatatype();
@@ -12,7 +13,7 @@ test("Update data PSM attribute datatype.", async () => {
   const before = {
     "http://attribute": {
       "iri": "http://attribute",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
     },
   };
 
@@ -25,7 +26,7 @@ test("Update data PSM attribute datatype.", async () => {
   expect(actual.changed).toEqual({
     "http://attribute": {
       "iri": "http://attribute",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
       "dataPsmDatatype": operation.dataPsmDatatype,
     },
   });

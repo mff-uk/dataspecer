@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmDeleteAttribute extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-delete-attribute";
+  static readonly TYPE = PSM.DELETE_ATTRIBUTE;
 
   dataPsmOwner: string | null = null;
 

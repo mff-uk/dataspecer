@@ -1,8 +1,9 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetRoots extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-roots";
+  static readonly TYPE = PSM.SET_ROOTS;
 
   /**
    * New value of the schema roots property.

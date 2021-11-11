@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmDeleteAssociationEnd extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-delete-association-end";
+  static readonly TYPE = PSM.DELETE_ASSOCIATION_END;
 
   dataPsmOwner: string | null = null;
 

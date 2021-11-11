@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetInterpretation extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-interpretation";
+  static readonly TYPE = PSM.SET_INTERPRETATION;
 
   dataPsmResource: string | null = null;
 

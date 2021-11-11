@@ -1,12 +1,14 @@
 import {ReadOnlyMemoryStore} from "../../core";
 import {coreResourcesToObjectModel} from "./object-model-adapter";
 import {CoreResource} from "../../core";
+import * as PSM from "../../data-psm/data-psm-vocabulary";
+import * as PIM from "../../pim/pim-vocabulary";
 
 test("Load sample schema.", async () => {
   const input = {
     "local:schema": {
       "iri": "local:schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmHumanLabel": {
         "cs": "Schéma",
         "en": "Schema",
@@ -18,7 +20,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:Person": {
       "iri": "local:Person",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmHumanLabel": null,
       "dataPsmHumanDescription": null,
       "dataPsmTechnicalLabel": "person",
@@ -28,7 +30,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:Employee": {
       "iri": "local:Employee",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmHumanLabel": null,
       "dataPsmHumanDescription": null,
       "dataPsmTechnicalLabel": "employee",
@@ -38,7 +40,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:name": {
       "iri": "local:name",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
       "dataPsmHumanLabel": null,
       "dataPsmHumanDescription": null,
       "dataPsmTechnicalLabel": "name",
@@ -47,7 +49,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:salary": {
       "iri": "local:salary",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
       "dataPsmHumanLabel": null,
       "dataPsmHumanDescription": null,
       "dataPsmTechnicalLabel": "salary",
@@ -56,7 +58,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:worksFor": {
       "iri": "local:worksFor",
-      "types": ["data-psm-association-end"],
+      "types": [PSM.ASSOCIATION_END],
       "dataPsmHumanLabel": null,
       "dataPsmHumanDescription": null,
       "dataPsmTechnicalLabel": "workFor",
@@ -65,7 +67,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:pim:workFor": {
       "iri": "local:pim:workFor",
-      "types": ["pim-association-end"],
+      "types": [PIM.ASSOCIATION_END],
       "pimHumanLabel": {
         "cs": "Pracuje pro",
         "en": "Work for",
@@ -76,7 +78,7 @@ test("Load sample schema.", async () => {
     } as CoreResource,
     "local:pim:workFor-owner": {
       "iri": "local:pim:workFor-owner",
-      "types": ["pim-association"],
+      "types": [PIM.ASSOCIATION],
       "pimHumanLabel": null,
       "pimHumanDescription": null,
       "pimTechnicalLabel": null,

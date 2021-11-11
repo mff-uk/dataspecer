@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {DataPsmResource} from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary";
 
 /**
  * On the PSM level the complex properties are represented as association
@@ -8,7 +9,7 @@ import {DataPsmResource} from "./data-psm-resource";
  */
 export class DataPsmAssociationEnd extends DataPsmResource {
 
-  private static readonly TYPE = "data-psm-association-end";
+  private static readonly TYPE = PSM.ASSOCIATION_END;
 
   dataPsmPart: string | null = null;
 

@@ -3,6 +3,7 @@ import {DataPsmSetHumanLabel} from "../operation";
 import {
   executeDataPsmSetHumanLabel,
 } from "./data-psm-set-human-label-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM resource human label.", async () => {
   const operation = new DataPsmSetHumanLabel();
@@ -12,7 +13,7 @@ test("Update data PSM resource human label.", async () => {
   const before = {
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -25,7 +26,7 @@ test("Update data PSM resource human label.", async () => {
   expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
     },
   });

@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation, LanguageString} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 export class PimSetHumanDescription extends CoreOperation {
 
-  static readonly TYPE = "pim-action-set-human-description";
+  static readonly TYPE = PIM.SET_HUMAN_DESCRIPTION;
 
   pimResource: string | null = null;
 

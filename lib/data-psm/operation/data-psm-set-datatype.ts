@@ -1,8 +1,9 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetDatatype extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-datatype";
+  static readonly TYPE = PSM.SET_DATATYPE;
 
   dataPsmAttribute: string | null = null;
 

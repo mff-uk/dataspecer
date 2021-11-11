@@ -1,12 +1,13 @@
 import {CoreResource} from "../../core";
 import {DataPsmResource} from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary";
 
 /**
  * An attribute is a primitive property. It may be a string, integer etc.
  */
 export class DataPsmAttribute extends DataPsmResource {
 
-  private static readonly TYPE = "data-psm-attribute";
+  private static readonly TYPE = PSM.ATTRIBUTE;
 
   dataPsmDatatype: string | null = null;
 

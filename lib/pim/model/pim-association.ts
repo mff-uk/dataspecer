@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * An association connects two entities, but it does not point to entities
@@ -10,7 +11,7 @@ import {PimResource} from "./pim-resource";
  */
 export class PimAssociation extends PimResource {
 
-  private static readonly TYPE = "pim-association";
+  private static readonly TYPE = PIM.ASSOCIATION;
 
   pimEnd: string[];
 

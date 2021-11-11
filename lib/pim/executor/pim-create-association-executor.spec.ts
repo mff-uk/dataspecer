@@ -1,6 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimCreateAssociation, PimCreateAssociationResult} from "../operation";
 import {executesPimCreateAssociation} from "./pim-create-association-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create association.", async () => {
   const operation = new PimCreateAssociation();
@@ -13,16 +14,16 @@ test("Create association.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://class", "http://left", "http://right"],
     },
     "http://left": {
       "iri": "http://left",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
     "http://right": {
       "iri": "http://right",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
   };
 
@@ -36,7 +37,7 @@ test("Create association.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/3": {
       "iri": "http://localhost/3",
-      "types": ["pim-association"],
+      "types": [PIM.ASSOCIATION],
       "pimInterpretation": operation.pimInterpretation,
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
@@ -45,7 +46,7 @@ test("Create association.", async () => {
     },
     "http://localhost/2": {
       "iri": "http://localhost/2",
-      "types": ["pim-association-end"],
+      "types": [PIM.ASSOCIATION_END],
       "pimInterpretation": null,
       "pimHumanDescription": null,
       "pimHumanLabel":null,
@@ -54,7 +55,7 @@ test("Create association.", async () => {
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-association-end"],
+      "types": [PIM.ASSOCIATION_END],
       "pimInterpretation": null,
       "pimHumanDescription": null,
       "pimHumanLabel":null,
@@ -65,7 +66,7 @@ test("Create association.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [
         "http://class", "http://left", "http://right",
         "http://localhost/3", "http://localhost/1", "http://localhost/2",

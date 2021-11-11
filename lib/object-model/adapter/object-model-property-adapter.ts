@@ -10,6 +10,7 @@ import {
   DataPsmClass,
 } from "../../data-psm/model";
 import {PimAssociation, PimAssociationEnd, PimAttribute} from "../../pim/model";
+import * as PIM from "../../pim/pim-vocabulary";
 
 export class ObjectModelPropertyAdapter {
 
@@ -220,7 +221,7 @@ export class ObjectModelPropertyAdapter {
    */
   protected async loadPimAssociations() {
     this.pimAssociationForEnd = {};
-    const candidates = await this.reader.listResourcesOfType("pim-association");
+    const candidates = await this.reader.listResourcesOfType(PIM.ASSOCIATION);
     for (const iri of candidates) {
       const resource = await this.reader.readResource(iri);
       if (PimAssociation.is(resource)) {

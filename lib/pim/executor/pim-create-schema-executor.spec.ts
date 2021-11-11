@@ -2,6 +2,7 @@ import {PimCreateSchema, PimCreateSchemaResult} from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
 import {MemoryStore} from "../../core";
 import {dataPsmExecutors} from "../../data-psm/executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create schema.", async () => {
   const operation = new PimCreateSchema();
@@ -20,7 +21,7 @@ test("Create schema.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/schema/1": {
       "iri": "http://localhost/schema/1",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
@@ -50,7 +51,7 @@ test("Create schema with given IRI.", async () => {
   expect(actual.created).toEqual({
     [operation.pimNewIri]: {
       "iri": operation.pimNewIri,
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],

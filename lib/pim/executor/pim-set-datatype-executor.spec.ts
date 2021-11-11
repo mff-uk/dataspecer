@@ -1,8 +1,7 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
 import {PimSetDatatype} from "../operation";
-import {
-  executePimSetDataType,
-} from "./pim-set-datatype-executor";
+import {executePimSetDataType} from "./pim-set-datatype-executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Update attribute datatype.", async () => {
   const operation = new PimSetDatatype();
@@ -12,16 +11,16 @@ test("Update attribute datatype.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://class", "http://localhost/1"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+      "types": [PIM.ATTRIBUTE],
       "pimOwnerClass": "http://class",
       "pimDatatype": "xsd:string",
     },
@@ -36,7 +35,7 @@ test("Update attribute datatype.", async () => {
   expect(actual.changed).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-attribute"],
+      "types": [PIM.ATTRIBUTE],
       "pimOwnerClass": "http://class",
       "pimDatatype": "xsd:integer",
     },

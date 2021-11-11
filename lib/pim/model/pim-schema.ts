@@ -1,4 +1,5 @@
 import {CoreResource, LanguageString} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * Represents a schema, diagram, on PIM level. Schema on this level
@@ -7,7 +8,7 @@ import {CoreResource, LanguageString} from "../../core";
  */
 export class PimSchema extends CoreResource {
 
-  private static readonly TYPE = "pim-schema";
+  private static readonly TYPE = PIM.SCHEMA;
 
   /**
    * Label used in human readable documents as a name for this resource.

@@ -4,7 +4,7 @@ import {
   RdfResourceLoaderResult,
 } from "../../../core/adapter/rdf";
 import {PimSchema} from "../../model";
-import * as PIM from "./pim-vocabulary";
+import * as PIM from "../../pim-vocabulary";
 
 export class PimSchemaAdapter implements RdfResourceLoader {
 

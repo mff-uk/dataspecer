@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation, LanguageString} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetHumanDescription extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-human-description";
+  static readonly TYPE = PSM.SET_HUMAN_DESCRIPTION;
 
   dataPsmResource: string | null = null;
 

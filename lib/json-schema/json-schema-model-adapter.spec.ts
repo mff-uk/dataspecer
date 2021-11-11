@@ -5,12 +5,14 @@ import {
 } from "../object-model";
 import {CoreResource, ReadOnlyMemoryStore} from "../core";
 import {MemoryOutputStream} from "../io/stream/memory-output-stream";
+import * as PSM from "../data-psm/data-psm-vocabulary";
+import * as PIM from "../pim/pim-vocabulary";
 
 test("Convert to json-schema.", async () => {
   const resources = {
     "pim:schema/001": {
       "types": [
-        "pim-schema"
+        PIM.SCHEMA
       ],
       "iri": "pim:schema/001",
       "pimParts": [
@@ -33,7 +35,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:class/002": {
       "types": [
-        "pim-class"
+        PIM.CLASS
       ],
       "iri": "pim:class/002",
       "pimExtends": [],
@@ -45,7 +47,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:class/003": {
       "types": [
-        "pim-class"
+        PIM.CLASS
       ],
       "iri": "pim:class/003",
       "pimExtends": [],
@@ -57,7 +59,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association/004": {
       "types": [
-        "pim-association"
+        PIM.ASSOCIATION
       ],
       "iri": "pim:association/004",
       "pimEnd": [
@@ -74,21 +76,21 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association-end/005": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/005",
       "pimPart": "pim:class/002"
     },
     "pim:association-end/006": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/006",
       "pimPart": "pim:class/003"
     },
     "pim:attribute/007": {
       "types": [
-        "pim-attribute"
+        PIM.ATTRIBUTE
       ],
       "iri": "pim:attribute/007",
       "pimInterpretation": "https:slovník.gov.cz/datový/sportoviště/pojem/podmínky-užívání",
@@ -102,7 +104,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:attribute/008": {
       "types": [
-        "pim-attribute"
+        PIM.ATTRIBUTE
       ],
       "iri": "pim:attribute/008",
       "pimInterpretation": "https:slovník.gov.cz/datový/sportoviště/pojem/provozní-řád",
@@ -116,7 +118,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:class/009": {
       "types": [
-        "pim-class"
+        PIM.CLASS
       ],
       "iri": "pim:class/009",
       "pimExtends": [],
@@ -130,7 +132,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association/010": {
       "types": [
-        "pim-association"
+        PIM.ASSOCIATION
       ],
       "iri": "pim:association/010",
       "pimEnd": [
@@ -147,21 +149,21 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association-end/011": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/011",
       "pimPart": "pim:class/009"
     },
     "pim:association-end/012": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/012",
       "pimPart": "pim:class/002"
     },
     "pim:class/013": {
       "types": [
-        "pim-class"
+        PIM.CLASS
       ],
       "iri": "pim:class/013",
       "pimExtends": [],
@@ -175,7 +177,7 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association/014": {
       "types": [
-        "pim-association"
+        PIM.ASSOCIATION
       ],
       "iri": "pim:association/014",
       "pimEnd": [
@@ -192,21 +194,21 @@ test("Convert to json-schema.", async () => {
     },
     "pim:association-end/015": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/015",
       "pimPart": "pim:class/013"
     },
     "pim:association-end/016": {
       "types": [
-        "pim-association-end"
+        PIM.ASSOCIATION_END
       ],
       "iri": "pim:association-end/016",
       "pimPart": "pim:class/002"
     },
     "dataPsm:schema/017": {
       "types": [
-        "data-psm-schema"
+        PSM.SCHEMA
       ],
       "iri": "dataPsm:schema/017",
       "dataPsmRoots": [
@@ -226,7 +228,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:class/018": {
       "types": [
-        "data-psm-class"
+        PSM.CLASS
       ],
       "iri": "dataPsm:class/018",
       "dataPsmExtends": [],
@@ -241,7 +243,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:class/019": {
       "types": [
-        "data-psm-class"
+        PSM.CLASS
       ],
       "iri": "dataPsm:class/019",
       "dataPsmExtends": [],
@@ -250,7 +252,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:association/020": {
       "types": [
-        "data-psm-association-end"
+        PSM.ASSOCIATION_END
       ],
       "iri": "dataPsm:association/020",
       "dataPsmInterpretation": "pim:association-end/006",
@@ -258,21 +260,21 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:attribute/023": {
       "types": [
-        "data-psm-attribute"
+        PSM.ATTRIBUTE
       ],
       "iri": "dataPsm:attribute/023",
       "dataPsmInterpretation": "pim:attribute/007"
     },
     "dataPsm:attribute/021": {
       "types": [
-        "data-psm-attribute"
+        PSM.ATTRIBUTE
       ],
       "iri": "dataPsm:attribute/021",
       "dataPsmInterpretation": "pim:attribute/008"
     },
     "dataPsm:class/024": {
       "types": [
-        "data-psm-class"
+        PSM.CLASS
       ],
       "iri": "dataPsm:class/024",
       "dataPsmExtends": [],
@@ -281,7 +283,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:association/022": {
       "types": [
-        "data-psm-association-end"
+        PSM.ASSOCIATION_END
       ],
       "iri": "dataPsm:association/022",
       "dataPsmInterpretation": "pim:association-end/011",
@@ -289,7 +291,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:class/025": {
       "types": [
-        "data-psm-class"
+        PSM.CLASS
       ],
       "iri": "dataPsm:class/025",
       "dataPsmExtends": [],
@@ -298,7 +300,7 @@ test("Convert to json-schema.", async () => {
     },
     "dataPsm:association/026": {
       "types": [
-        "data-psm-association-end"
+        PSM.ASSOCIATION_END
       ],
       "iri": "dataPsm:association/026",
       "dataPsmInterpretation": "pim:association-end/015",

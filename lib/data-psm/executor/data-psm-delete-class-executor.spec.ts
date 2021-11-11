@@ -3,6 +3,7 @@ import {DataPsmDeleteClass} from "../operation";
 import {
   executeDataPsmDeleteClass,
 } from "./data-psm-delete-class-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM class.", async () => {
   const operation = new DataPsmDeleteClass();
@@ -11,13 +12,13 @@ test("Delete data PSM class.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmRoots": ["http://class"],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmExtends": [],
       "dataPsmParts": [],
     },
@@ -32,7 +33,7 @@ test("Delete data PSM class.", async () => {
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmRoots": [],
       "dataPsmParts": [],
     },

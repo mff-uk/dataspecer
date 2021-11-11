@@ -3,6 +3,7 @@ import {DataPsmCreateSchema} from "../operation";
 import {
   executeDataPsmCreateSchema,
 } from "./data-psm-create-schema-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM schema.", async () => {
   const operation = new DataPsmCreateSchema();
@@ -21,7 +22,7 @@ test("Create data PSM schema.", async () => {
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
       "dataPsmTechnicalLabel": null,

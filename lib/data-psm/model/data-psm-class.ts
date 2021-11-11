@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {DataPsmResource} from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary";
 
 /**
  * Class on the PSM level points to all its parts, e.g.: association ends,
@@ -9,7 +10,7 @@ import {DataPsmResource} from "./data-psm-resource";
  */
 export class DataPsmClass extends DataPsmResource {
 
-  private static readonly TYPE = "data-psm-class";
+  private static readonly TYPE = PSM.CLASS;
 
   dataPsmExtends: string[] = [];
 

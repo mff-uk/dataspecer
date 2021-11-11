@@ -3,6 +3,7 @@ import {DataPsmSetTechnicalLabel} from "../operation";
 import {
   executeDataPsmSetTechnicalLabel,
 } from "./data-psm-set-technical-label-executor";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM resource technical label.", async () => {
   const operation = new DataPsmSetTechnicalLabel();
@@ -12,7 +13,7 @@ test("Update data PSM resource technical label.", async () => {
   const before = {
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
     },
   };
 
@@ -25,7 +26,7 @@ test("Update data PSM resource technical label.", async () => {
   expect(actual.changed).toEqual({
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
     },
   });

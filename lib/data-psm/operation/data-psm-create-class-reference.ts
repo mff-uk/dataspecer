@@ -4,10 +4,11 @@ import {
   CoreResource,
   CoreTyped
 } from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateClassReference extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-create-class-reference";
+  static readonly TYPE = PSM.CREATE_CLASS_REFERENCE;
 
   dataPsmNewIri: string | null = null;
 
@@ -31,7 +32,7 @@ export class DataPsmCreateClassReference extends CoreOperation {
 
 export class DataPsmCreateClassReferenceResult extends CoreOperationResult {
 
-  private static readonly TYPE = "psm-action-create-class-result";
+  static readonly TYPE = PSM.CREATE_CLASS_REFERENCE_RESULT;
 
   readonly createdDataPsmClassReference: string;
 

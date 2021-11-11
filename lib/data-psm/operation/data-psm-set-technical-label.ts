@@ -1,8 +1,9 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetTechnicalLabel extends CoreOperation {
 
-  static readonly TYPE = "data-psm-action-set-technical-label";
+  static readonly TYPE = PSM.SET_TECHNICAL_LABEL;
 
   dataPsmResource: string | null = null;
 
