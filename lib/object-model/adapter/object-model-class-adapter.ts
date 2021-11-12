@@ -1,4 +1,4 @@
-import {ObjectModelClass} from "../object-model";
+import {ObjectModelClass} from "../model";
 import {ObjectModelPropertyAdapter} from "./object-model-property-adapter";
 import {CoreResourceReader} from "../../core";
 import {DataPsmClass} from "../../data-psm/model";

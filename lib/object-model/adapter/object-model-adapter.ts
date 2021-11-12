@@ -1,5 +1,5 @@
 import {CoreResourceReader} from "../../core";
-import {ObjectModelSchema} from "../object-model";
+import {ObjectModelSchema} from "../model";
 import {ObjectModelSchemaAdapter} from "./object-model-schema-adapter";
 
 export async function coreResourcesToObjectModel(

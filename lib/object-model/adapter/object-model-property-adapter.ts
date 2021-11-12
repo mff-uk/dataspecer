@@ -2,7 +2,7 @@ import {CoreResourceReader, CoreResource} from "../../core";
 import {
   ObjectModelPrimitive,
   ObjectModelProperty
-} from "../object-model";
+} from "../model";
 import {ObjectModelClassAdapter} from "./object-model-class-adapter";
 import {
   DataPsmAssociationEnd,

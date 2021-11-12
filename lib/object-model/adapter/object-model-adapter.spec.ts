@@ -111,10 +111,13 @@ test("Load sample schema.", async () => {
         "technicalLabel": null,
         "humanDescription": null,
         "humanLabel": null,
+        "metadata": {},
       }],
       "cardinality": {"min": 0, "max": null},
+      "metadata": {},
     }],
     "isCodelist": false,
+    "metadata": {},
   };
   const expectedEmployee = {
     "cimIri": null,
@@ -141,8 +144,10 @@ test("Load sample schema.", async () => {
         "technicalLabel": null,
         "humanDescription": null,
         "humanLabel": null,
+        "metadata": {},
       }],
       "cardinality": {"min": 0, "max": null},
+      "metadata": {},
     }, {
       "psmIri": "local:worksFor",
       "pimIri": "local:pim:workFor",
@@ -155,8 +160,10 @@ test("Load sample schema.", async () => {
       "humanDescription": null,
       "dataTypes": [expectedPerson],
       "cardinality": {"min": 0, "max": null},
+      "metadata": {},
     }],
     "isCodelist": false,
+    "metadata": {},
   };
   const expected = {
     "humanLabel": {

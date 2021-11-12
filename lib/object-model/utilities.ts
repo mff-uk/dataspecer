@@ -1,6 +1,5 @@
-import {
-  ObjectModelClass, ObjectModelProperty, LanguageString,
-} from "./object-model";
+import {ObjectModelClass, ObjectModelProperty} from "./model";
+import {LanguageString} from "../core";
 
 export type StringSelector = (string: LanguageString | null) => string;
 
