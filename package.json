@@ -9,6 +9,9 @@
     "build": "webpack -c build/webpack.config.js && cd dist && npm pack",
     "lint": "eslint --ignore-path .gitignore . --fix",
     "lint-print-config": "eslint --print-config .eslintrc.js",
+    "pretest": "webpack -c build/webpack.config.js",
+    "spec": "jest \"^(.*\/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
+    "integration": "jest \"^(.*\/)*(.*\\.)*(test)\\.[jt]s$\" --passWithNoTests",
     "test": "jest",
     "tsc-watch": "tsc --watch"
   },
