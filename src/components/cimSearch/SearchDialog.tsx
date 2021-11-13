@@ -108,7 +108,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         <DialogContent>
             <Box display={"flex"}>
                 <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange}
-                           error={isError} variant={"standard"}/>
+                           error={isError} variant={"standard"} autoComplete="off" />
                 <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={loading ? "indeterminate" : "determinate"}/>
             </Box>
             <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders"
