@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../database/database.db"
+}
+
+model Specification {
+  id       String    @id
+  name     String?
+  pimStore String
+  DataPsm  DataPsm[]
+}
+
+model DataPsm {
+  id              String        @id
+  name            String?
+  store           String
+  specification   Specification @relation(fields: [specificationId], references: [id])
+  specificationId String
+}
