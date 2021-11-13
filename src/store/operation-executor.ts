@@ -1,4 +1,5 @@
 import {CoreOperation, CoreOperationResult, CoreResourceReader} from "model-driven-data/core";
+import {_CoreResourceReader_WithMissingMethods} from "./federated-observable-store";
 
 export interface StoreDescriptor {
     type: string;
@@ -36,6 +37,6 @@ export class StoreByPropertyDescriptor implements StoreDescriptor {
  * by calling applyOperation method where the correct store must be specified.
  */
 export interface OperationExecutor {
-    store: CoreResourceReader;
+    store: _CoreResourceReader_WithMissingMethods;
     applyOperation(operation: CoreOperation, store: StoreDescriptor): Promise<CoreOperationResult>;
 }

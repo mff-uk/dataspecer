@@ -1,6 +1,7 @@
 import {CoreResourceLink} from "./core-resource-link";
 import {ComplexOperation} from "./complex-operation";
 import {OperationExecutor, StoreDescriptor} from "./operation-executor";
+import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {
     CoreOperation,
     CoreOperationResult,
@@ -13,6 +14,9 @@ export interface StoreWithMetadata {
     store: CoreResourceReader & (CoreResourceWriter | {});
     metadata: object;
 }
+
+// todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
+export type _CoreResourceReader_WithMissingMethods = CoreResourceReader & Pick<FederatedObservableStore, "getPimHavingInterpretation">;
 
 export type Subscriber = (iri: string, resource: CoreResourceLink) => void;
 
@@ -33,19 +37,19 @@ interface Subscription {
 
 class OperationExecutorForFederatedObservableStore implements OperationExecutor {
     public applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>;
-    public store: CoreResourceReader;
+    public store: _CoreResourceReader_WithMissingMethods;
 
-    constructor(applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>, store: CoreResourceReader) {
+    constructor(applyOperation: (operation: CoreOperation, storeDescriptor: StoreDescriptor) => Promise<CoreOperationResult>, store: _CoreResourceReader_WithMissingMethods) {
         this.applyOperation = applyOperation;
         this.store = store;
     };
 }
 
-export class FederatedObservableStore implements CoreResourceReader {
+export class FederatedObservableStore implements _CoreResourceReader_WithMissingMethods {
     private stores: StoreWithMetadata[] = [];
     private subscriptions: Map<string, Subscription> = new Map();
     // This store is passed to operations to read resources that are internally cached
-    private readonly storeForOperations: CoreResourceReader;
+    private readonly storeForOperations: _CoreResourceReader_WithMissingMethods;
     // We will use lazy loading of resources during the operation execution. Only if needed the check method is called
     private resourcesToCheckAfterOperation: Set<string> = new Set();
     private eventListeners: Map<string, Set<() => void>> = new Map();
@@ -62,6 +66,7 @@ export class FederatedObservableStore implements CoreResourceReader {
             },
             listResourcesOfType: typeIri => this.listResourcesOfType(typeIri),
             listResources: () => this.listResources(),
+            getPimHavingInterpretation: (pimInterpretation: string, storeDescriptor: StoreDescriptor) => this.getPimHavingInterpretation(pimInterpretation, storeDescriptor),
         }
     }
 
@@ -199,6 +204,54 @@ export class FederatedObservableStore implements CoreResourceReader {
         if (entry.size === 0) {
             this.eventListeners.delete(event);
         }
+    }
+
+    /**
+     * For the given CIM iri and store descriptor it returns a single IRI of PIM resource of that store whose
+     * interpretation is the given CIM iri. If no such resource exists, null is returned.
+     * @param pimInterpretation
+     * @param storeDescriptor
+     */
+    async getPimHavingInterpretation(pimInterpretation: string, storeDescriptor: StoreDescriptor): Promise<string | null> {
+        // todo storeDescriptor is ignored
+        const store = this.stores[0];
+
+        // Fast search
+        const visitedResources = new Set<string>();
+        for (const [iri, subscription] of this.subscriptions) {
+            if (!subscription.currentValue.isLoading &&
+                subscription.currentValue.resource &&
+                subscription.originatedStore === store) {
+
+                visitedResources.add(iri);
+                if ((PimAssociation.is(subscription.currentValue.resource)
+                    || PimAttribute.is(subscription.currentValue.resource)
+                    || PimClass.is(subscription.currentValue.resource)) &&
+                    subscription.currentValue.resource.pimInterpretation === pimInterpretation
+                ) {
+                    return iri;
+                }
+            }
+        }
+
+        // Search the rest
+        const allResources = await store.store.listResources();
+        for (const iri of allResources) {
+            if (visitedResources.has(iri)) {
+                continue;
+            }
+
+            const resource = await this.readResource(iri);
+            if ((PimAssociation.is(resource)
+                    || PimAttribute.is(resource)
+                    || PimClass.is(resource)) &&
+                resource.pimInterpretation === pimInterpretation
+            ) {
+                return iri;
+            }
+        }
+
+        return null;
     }
 
     private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {

@@ -17,6 +17,9 @@ interface AncestorSelectorPanelParameters {
     forCimClassIri: string,
     selectedAncestorCimIri: string | null,
     selectAncestorCimIri: (ancestorCimIri: string) => void,
+
+    hierarchyStore: CoreResourceReader | null;
+    setHierarchyStore: (reader: CoreResourceReader) => void;
 }
 
 const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<PimClass[]> => {
@@ -39,12 +42,18 @@ const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<Pi
     return sorted;
 }
 
-export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimClassIri, selectedAncestorCimIri, selectAncestorCimIri}) => {
-    // const classDialog = useDialog(PimClassDetailDialog, "cls");
-
+export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimClassIri, selectedAncestorCimIri, selectAncestorCimIri, hierarchyStore, setHierarchyStore}) => {
     const {t} = useTranslation("interpretedSurrounding");
     const {cim} = React.useContext(StoreContext);
-    const [sorted, loading] = useAsyncMemo(async () => await BFS(await cim.cimAdapter.getFullHierarchy(forCimClassIri), cim.iriProvider.cimToPim(forCimClassIri)), [cim.cimAdapter, forCimClassIri]);
+    const [sorted, loading] = useAsyncMemo(async () => hierarchyStore ? await BFS(hierarchyStore, cim.iriProvider.cimToPim(forCimClassIri)) : null, [hierarchyStore]);
+
+    useEffect(() => {
+        let isActive = true;
+        cim.cimAdapter.getFullHierarchy(forCimClassIri).then(s => isActive && setHierarchyStore(s));
+        return () => {
+            isActive = false;
+        };
+    }, [cim.cimAdapter, forCimClassIri]);
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 
@@ -68,7 +77,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
 
     return <>
         <Typography variant={"h6"}>{t("ancestors title")}</Typography>
-        {loading ? <LoadingDialog /> :
+        {(loading || hierarchyStore === null) ? <LoadingDialog /> :
             <List component="nav" aria-label="main mailbox folders" dense>
                 {sorted && sorted.map(ancestor =>
                     <Tooltip open={(ancestor.pimHumanDescription && Object.values(ancestor.pimHumanDescription).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.pimHumanDescription} />} placement="left" key={ancestor.iri}>

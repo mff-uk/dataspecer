@@ -88,6 +88,8 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     const AttributeDetailDialog = useDialog(PimAttributeDetailDialog, ["iri"]);
     const AssociationToClassDetailDialog = useDialog(PimAssociationToClassDetailDialog, ["iri", "parentIri", "orientation"]);
 
+    const [hierarchyStore, setHierarchyStore] = useState<CoreResourceReader | null>(null);
+
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
 
@@ -167,7 +169,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         <DialogContent dividers>
             <Grid container spacing={3}>
                 <Grid item xs={3} className={styles.ancestorPane}>
-                    <AncestorSelectorPanel forCimClassIri={cimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} />
+                    <AncestorSelectorPanel forCimClassIri={cimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} hierarchyStore={hierarchyStore} setHierarchyStore={setHierarchyStore} />
                 </Grid>
                 <Grid item xs={9}>
                     {surroundings[currentCimClassIri] === undefined && <LoadingDialog />}
@@ -272,11 +274,16 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
         <DialogActions>
             <Button onClick={close} color="primary">{t("close button")}</Button>
             <Button
-                onClick={() => {close(); currentSurroundings && selected({
-                    resourcesToAdd: selectedResources,
-                    sourcePimModel: ReadOnlyFederatedStore.createLazy(Object.values(surroundings).filter(s => s !== undefined) as CoreResourceReader[]),
-                    forDataPsmClass: dataPsmClass as DataPsmClass
-                })}}
+                onClick={() => {
+                    close();
+                    const surroundingsStores = Object.values(surroundings).filter((s => s !== undefined) as (s: CoreResourceReader | undefined) => s is CoreResourceReader);
+                    const allStores = hierarchyStore !== null ? [hierarchyStore, ...surroundingsStores] : surroundingsStores;
+                    selected({
+                        resourcesToAdd: selectedResources,
+                        sourcePimModel: ReadOnlyFederatedStore.createLazy(allStores),
+                        forDataPsmClass: dataPsmClass as DataPsmClass
+                    });
+                }}
                 disabled={selectedResources.length === 0}
                 color="secondary">
                 {t("confirm button")} ({selectedResources.length})

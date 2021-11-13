@@ -1,12 +1,12 @@
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {CoreResourceReader} from "model-driven-data/core";
-import {PimAssociation, PimAttribute, PimClass, PimResource} from "model-driven-data/pim/model";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "model-driven-data/pim/model";
 import {
     DataPsmCreateAssociationEnd,
     DataPsmCreateAttribute,
     DataPsmCreateClass
 } from "model-driven-data/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimCreateClass} from "model-driven-data/pim/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimCreateClass, PimSetExtends} from "model-driven-data/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
@@ -28,6 +28,7 @@ export class AddClassSurroundings implements ComplexOperation {
         namingConvention: "camelCase" | "PascalCase" | "kebab-case" | "snake_case",
         specialCharacters: "allow" | "remove-diacritics" | "remove-all",
     } | null = null;
+
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, boolean][];
@@ -48,14 +49,24 @@ export class AddClassSurroundings implements ComplexOperation {
         const dataPsmStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.iri as string);
         const interpretedPimClass = await executor.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
 
+        let correspondingSourcePimClass: PimClass | null = null;
+        let allResources = await this.sourcePimModel.listResources();
+        for (const iri of allResources) {
+            const resource = await this.sourcePimModel.readResource(iri);
+            if (PimClass.is(resource) && resource.pimInterpretation === interpretedPimClass.pimInterpretation) {
+                correspondingSourcePimClass = resource;
+                break;
+            }
+        }
+
         for (const [resourceIri, orientation] of this.resourcesToAdd) {
             const resource = await this.sourcePimModel.readResource(resourceIri);
             if (PimAttribute.is(resource)) {
                 console.assert(orientation, `Attribute ${resourceIri} should not have a reverse orientation.`);
-                await this.processAttribute(resource, executor, pimStoreSelector, dataPsmStoreSelector);
+                await this.processAttribute(resource, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
             }
             if (PimAssociation.is(resource)) {
-                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, interpretedPimClass);
+                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
             }
         }
     }
@@ -93,16 +104,17 @@ export class AddClassSurroundings implements ComplexOperation {
         executor: OperationExecutor,
         pimStoreSelector: StoreDescriptor,
         dataPsmStoreSelector: StoreDescriptor,
+        correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
-        const pimCreateAttribute = new PimCreateAttribute();
-        copyPimPropertiesFromResourceToOperation(attribute, pimCreateAttribute);
-        pimCreateAttribute.pimOwnerClass = this.forDataPsmClass.dataPsmInterpretation;
-        const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
+        const ownerClass = await this.sourcePimModel.readResource(attribute.pimOwnerClass as string) as PimClass;
+        await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, ownerClass, pimStoreSelector, executor);
+
+        const pimAttributeIri = await this.createPimAttributeIfMissing(attribute, pimStoreSelector, executor);
 
         // PSM attribute
 
         const dataPsmCreateAttribute = new DataPsmCreateAttribute();
-        dataPsmCreateAttribute.dataPsmInterpretation = pimCreateAttributeResult.created[0];
+        dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAttribute.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(attribute) ?? null;
         await executor.applyOperation(dataPsmCreateAttribute, dataPsmStoreSelector);
@@ -114,26 +126,20 @@ export class AddClassSurroundings implements ComplexOperation {
         executor: OperationExecutor,
         pimStoreSelector: StoreDescriptor,
         dataPsmStoreSelector: StoreDescriptor,
-        interpretedPimClass: PimClass, // "parent" PIM class
+        correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
         const dom = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
         const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
 
+        const thisAssociationEndClass = orientation ? dom : rng;
         const otherAssociationEndClass = orientation ? rng : dom;
 
-        // PIM the other class
+        // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
+        await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
 
-        const pimCreateClass = new PimCreateClass();
-        copyPimPropertiesFromResourceToOperation(otherAssociationEndClass, pimCreateClass);
-        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
-        const pimOtherClassIri = pimCreateClassResult.created[0] as string;
+        const pimOtherClassIri = await this.createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
 
-        // PIM association
-
-        const pimCreateAssociation = new PimCreateAssociation();
-        copyPimPropertiesFromResourceToOperation(association, pimCreateAssociation);
-        pimCreateAssociation.pimAssociationEnds = orientation ? [this.forDataPsmClass.dataPsmInterpretation as string, pimOtherClassIri] : [pimOtherClassIri, this.forDataPsmClass.dataPsmInterpretation as string];
-        const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
+        const {associationIri, associationEnds} = await this.createPimAssociationIfMissing(association, pimStoreSelector, executor);
 
         // Data PSM the other class
 
@@ -144,10 +150,172 @@ export class AddClassSurroundings implements ComplexOperation {
         // Data PSM association end
 
         const dataPsmCreateAssociationEnd = new DataPsmCreateAssociationEnd();
-        dataPsmCreateAssociationEnd.dataPsmInterpretation = pimCreateAssociationResult.created[orientation ? 2 : 1] as string; // todo use PimCreateAssociationResultProperties
+        dataPsmCreateAssociationEnd.dataPsmInterpretation = associationEnds[orientation ? 1 : 0] as string; // todo use PimCreateAssociationResultProperties
         dataPsmCreateAssociationEnd.dataPsmPart = dataPsmCreateClassResult.created[0];
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
         await executor.applyOperation(dataPsmCreateAssociationEnd, dataPsmStoreSelector);
+    }
+
+    private async createPimClassIfMissing(
+        resource: PimClass,
+        pimStoreSelector: StoreDescriptor,
+        executor: OperationExecutor,
+    ): Promise<string> {
+        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+
+        if (existingPimIri) {
+            // todo it does not perform any checks
+            return existingPimIri;
+        }
+
+        const pimCreateClass = new PimCreateClass();
+        copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
+        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
+        return pimCreateClassResult.created[0] as string;
+    }
+
+    private async createPimAttributeIfMissing(
+        resource: PimAttribute,
+        pimStoreSelector: StoreDescriptor,
+        executor: OperationExecutor,
+    ): Promise<string> {
+        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+
+        if (existingPimIri) {
+            // todo it does not perform any checks
+            return existingPimIri;
+        }
+
+        const ownerClassSource = await this.sourcePimModel.readResource(resource.pimOwnerClass as string) as PimClass;
+        const ownerClassIri = await executor.store.getPimHavingInterpretation(ownerClassSource.pimInterpretation as string, pimStoreSelector);
+        if (ownerClassIri === null) {
+            throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
+        }
+
+        const pimCreateAttribute = new PimCreateAttribute();
+        copyPimPropertiesFromResourceToOperation(resource, pimCreateAttribute);
+        pimCreateAttribute.pimOwnerClass = ownerClassIri;
+        const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
+        return pimCreateAttributeResult.created[0];
+    }
+
+    /**
+     * Takes a current PimResource and creates it in the store if not exists. If it exists, it does not perform any
+     * checks so it suppose the CIM is immutable.
+     * @param resource Fresh PimResource to add to the store
+     * @param store
+     * @param pimStoreSelector
+     * @param executor
+     * @return IRI of PimResource in the store
+     */
+    private async createPimAssociationIfMissing(
+        resource: PimAssociation,
+        pimStoreSelector: StoreDescriptor,
+        executor: OperationExecutor,
+    ): Promise<{
+        associationIri: string,
+        associationEnds: string[]
+    }> {
+        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+
+        if (existingPimIri) {
+            // todo it does not perform any checks
+            const association = await executor.store.readResource(existingPimIri) as PimAssociation;
+            return {
+                associationIri: existingPimIri,
+                associationEnds: association.pimEnd,
+            }
+        }
+
+        // iris to PIM classes
+        const pimEnd = [];
+        for (const endIri of resource.pimEnd) {
+            const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
+            //const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
+            const localPimIri = await executor.store.getPimHavingInterpretation(endPim.pimInterpretation as string, pimStoreSelector);
+            if (localPimIri === null) {
+                throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
+            }
+            pimEnd.push(localPimIri);
+        }
+
+        const pimCreateAssociation = new PimCreateAssociation();
+        copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
+        pimCreateAssociation.pimAssociationEnds = pimEnd;
+        const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
+        return {
+            associationIri: pimCreateAssociationResult.created[0],
+            associationEnds: pimCreateAssociationResult.created.slice(1)
+        }
+    }
+
+    /**
+     * This function creates all necessary PIM classes in a way that there will be correct extends hierarchy between
+     * more generic class represented by {@param toClass} and more specific class represented by {@param fromClass}.
+     * @param fromClass
+     * @param toClass
+     * @private
+     */
+    private async createExtendsHierarchyFromTo(
+        fromClass: PimClass,
+        toClass: PimClass,
+        pimStoreSelector: StoreDescriptor,
+        executor: OperationExecutor,
+    ): Promise<void> {
+        // Find all classes which needs to be created or checked in order from most generic to most specific.
+        const classesToProcess = new Set<string>();
+
+        // DFS
+        const traverseFunction = async (currentClass: PimClass, path: Set<string> = new Set()): Promise<boolean> => {
+            let success = currentClass.iri === toClass.iri;
+
+            if (currentClass !== toClass) {
+                path.add(currentClass.iri as string);
+                for (const ext of currentClass.pimExtends) {
+                    const extClass = await this.sourcePimModel.readResource(ext) as PimClass;
+                    if (path.has(extClass.iri as string)) {
+                        continue
+                    }
+                    if (await traverseFunction(extClass, path)) {
+                        success = true;
+                    }
+                }
+                path.delete(currentClass.iri as string);
+            }
+
+            if (success) {
+                classesToProcess.add(currentClass.iri as string);
+            }
+            return success;
+        }
+
+        await traverseFunction(fromClass);
+
+        // Create each class and fix its extends
+        for (const classToProcessIri of classesToProcess) {
+            const classToProcess = await this.sourcePimModel.readResource(classToProcessIri) as PimClass;
+
+            const iri = await this.createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
+            const localClass = await executor.store.readResource(iri) as PimClass;
+
+            // PIM iris in local store
+            const missingPimExtends: string[] = [];
+
+            for (const extendsIri of classToProcess.pimExtends.filter(e => classesToProcess.has(e))) {
+                const ext = await this.sourcePimModel.readResource(extendsIri) as PimClass;
+                const extLocalIri = await executor.store.getPimHavingInterpretation(ext.pimInterpretation as string, pimStoreSelector) as string;
+                if (!localClass.pimExtends.includes(extLocalIri)) {
+                    missingPimExtends.push(extLocalIri);
+                }
+            }
+
+            if (missingPimExtends.length > 0) {
+                const pimSetExtends = new PimSetExtends();
+                pimSetExtends.pimResource = iri;
+                pimSetExtends.pimExtends = [...localClass.pimExtends, ...missingPimExtends];
+                await executor.applyOperation(pimSetExtends, pimStoreSelector);
+            }
+        }
     }
 }
