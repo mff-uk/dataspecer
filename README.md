@@ -17,7 +17,8 @@ _You need to manually build and link model-driven-data library:_
 _To build the project:_
 
 4. In the project directory run `npm install` to install all the dependencies and link the mdd library.
-5. Run `npm run build` to build the project. All generated files are in the `buid` directory.
+5. Run `npm install ./model-driven-data/dist/model-driven-data*.tgz`
+6. Run `npm run build` to build the project. All generated files are in the `buid` directory.
    Alternatively, you can run live server by `npm run start`.
    
 ---
