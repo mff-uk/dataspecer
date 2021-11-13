@@ -13,6 +13,7 @@ import {
   executePimSetHumanDescription,
 } from "./pim-set-human-description-executor";
 import {executePimSetTechnicalLabel} from "./pim-set-technical-label-executor";
+import {executePimSetExtends} from "./pim-set-extends-executor";
 
 export const pimExecutors: CoreOperationExecutor<any>[] = [
   CoreOperationExecutor.create(
@@ -47,6 +48,10 @@ export const pimExecutors: CoreOperationExecutor<any>[] = [
     Operations.PimSetDatatype.is,
     executePimSetDataType,
     Operations.PimSetDatatype.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetExtends.is,
+    executePimSetExtends,
+    Operations.PimSetExtends.TYPE),
   CoreOperationExecutor.create(
     Operations.PimSetHumanLabel.is,
     executePimSetHumanLabel,

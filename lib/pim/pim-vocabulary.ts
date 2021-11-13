@@ -56,6 +56,8 @@ export const DELETE_CLASS = PIM + "DeleteClass";
 
 export const SET_DATATYPE = PIM + "SetDataType";
 
+export const SET_EXTENDS = PIM + "SetExtends";
+
 export const SET_HUMAN_DESCRIPTION = PIM + "SetHumanDescription";
 
 export const SET_HUMAN_LABEL = PIM + "SetHumanLabel";
