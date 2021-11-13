@@ -2,13 +2,14 @@ import * as React from "react";
 import {memo, useContext} from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import {Card, CardContent, Grid, Typography} from "@mui/material/";
+import {Box, Card, CardContent, Grid, Typography} from "@mui/material/";
 import CheckIcon from "@mui/icons-material/Check";
 import WarningIcon from '@mui/icons-material/Warning';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useResource} from "../../../hooks/useResource";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
+import {ObjectDump} from "../../helper/object-dump";
 
 /**
  * Renders a part of UI dealing with everything about a specific resource which is located in the store. Specifically
@@ -75,6 +76,10 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
                     </Card>
                 </Grid>
             </Grid>
+
+            <Box sx={{mt: 2}}>
+                <ObjectDump obj={resource?.resource} />
+            </Box>
         </div>
     );
 });

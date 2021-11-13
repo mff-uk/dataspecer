@@ -32,6 +32,7 @@ import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {GetPreviewComponentStoreArtifact} from "./StoreArtifact";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");
@@ -166,6 +167,16 @@ export const GenerateArtifacts: React.FC<{
                     setArtifactPreview(() => artifactPreview === GetPreviewComponentObjectModelArtifact ? null : GetPreviewComponentObjectModelArtifact);
                 }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)
                 </MenuItem>
+
+                <Divider />
+
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Store</MenuItem>
+                <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => {
+                        close();
+                        Preview.open({content: GetPreviewComponentStoreArtifact(store)});
+                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                </Box>
 
                 <Divider />
 
