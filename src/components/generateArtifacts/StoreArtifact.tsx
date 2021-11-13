@@ -21,3 +21,10 @@ export async function GetPreviewComponentStoreArtifact(reader: CoreResourceReade
         {resources.filter((resource => resource !== null) as (r: CoreResource | null) => r is CoreResource).map(resource => <ResourceArtifact resource={resource} />)}
     </Box>;
 }
+
+export async function GetStoreArtifact(reader: CoreResourceReader): Promise<string> {
+    const resourcesIri = await reader.listResources();
+    const resources = await Promise.all(resourcesIri.map(iri => reader.readResource(iri))) as CoreResource[];
+    const obj = Object.fromEntries(resources.map(r => [r.iri, r]));
+    return JSON.stringify(obj, null, 2);
+}

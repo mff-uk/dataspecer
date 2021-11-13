@@ -32,7 +32,7 @@ import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {GetPreviewComponentStoreArtifact} from "./StoreArtifact";
+import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");
@@ -172,10 +172,18 @@ export const GenerateArtifacts: React.FC<{
 
                 <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Store</MenuItem>
                 <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => save(GetStoreArtifact, "json", "text/json;charset=utf-8")}>
+                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("download")}
+                    </MenuItem>
                     <MenuItem onClick={() => {
                         close();
                         Preview.open({content: GetPreviewComponentStoreArtifact(store)});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                    <MenuItem onClick={() => copy(GetStoreArtifact)}>
+                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("copy")}
+                    </MenuItem>
                 </Box>
 
                 <Divider />

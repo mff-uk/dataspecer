@@ -27,7 +27,7 @@ export const SaveRestore: React.FC = () => {
 
 
     const importFromFile = useCallback(async () => {
-        const files = await fileDialog();
+        const files = await fileDialog({accept: ".sgen"});
         if (files.length) {
             try {
                 const file = files[0];
