@@ -25,14 +25,14 @@ export class CreateRootClass implements ComplexOperation {
         const pimCreateClass = new PimCreateClass();
         copyPimPropertiesFromResourceToOperation(this.pimClass, pimCreateClass);
         pimCreateClass.pimExtends = this.pimClass.pimExtends;
-        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, new StoreByPropertyDescriptor("pim"));
+        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, new StoreByPropertyDescriptor(["pim", "root"]));
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimCreateClassResult.created[0];
-        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, new StoreByPropertyDescriptor("dataPsm"));
+        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, new StoreByPropertyDescriptor(["data-psm", "root"]));
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();
         dataPsmUpdateSchemaRoots.dataPsmRoots = [dataPsmCreateClassResult.created[0]];
-        await executor.applyOperation(dataPsmUpdateSchemaRoots, new StoreByPropertyDescriptor("dataPsm"));
+        await executor.applyOperation(dataPsmUpdateSchemaRoots, new StoreByPropertyDescriptor(["data-psm", "root"]));
     }
 }

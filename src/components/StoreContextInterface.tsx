@@ -1,5 +1,6 @@
 import {CimAdapter, IriProvider} from "model-driven-data/cim";
 import {FederatedObservableStore} from "../store/federated-observable-store";
+import {Configuration} from "../configuration/configuration";
 
 export interface StoreContextInterface {
     // The store having all the resources
@@ -16,4 +17,6 @@ export interface StoreContextInterface {
         iriProvider: IriProvider,
         cimAdapter: CimAdapter,
     };
+
+    configuration?: Configuration,
 }

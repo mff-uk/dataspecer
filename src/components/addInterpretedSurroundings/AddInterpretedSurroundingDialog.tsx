@@ -1,18 +1,4 @@
-import {
-    Button,
-    Checkbox,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Grid,
-    IconButton,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Theme,
-    Typography
-} from "@mui/material";
+import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
@@ -30,6 +16,7 @@ import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
 import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
+import {StoreMetadataTag} from "../../configuration/configuration";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -102,7 +89,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             if (surroundings[iri]) {
                 stores.push({
                     store: surroundings[iri] as CoreResourceReader,
-                    metadata: {},
+                    metadata: {
+                        tags: ["cim-as-pim"] as StoreMetadataTag[]
+                    },
                 });
             }
         }

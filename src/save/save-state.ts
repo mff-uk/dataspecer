@@ -71,7 +71,9 @@ export function restoreState(data: Uint8Array): ApplicationState {
 
             stores.push({
                 store: memoryStore,
-                metadata: {},
+                metadata: {
+                    tags: ["root", "data-psm", "pim"]
+                },
             });
         }
     }

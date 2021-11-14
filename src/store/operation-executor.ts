@@ -1,5 +1,6 @@
 import {CoreOperation, CoreOperationResult, CoreResourceReader} from "model-driven-data/core";
 import {_CoreResourceReader_WithMissingMethods} from "./federated-observable-store";
+import {StoreMetadataTag} from "../configuration/configuration";
 
 export interface StoreDescriptor {
     type: string;
@@ -20,9 +21,9 @@ export class StoreHavingResourceDescriptor implements StoreDescriptor {
 
 export class StoreByPropertyDescriptor implements StoreDescriptor {
     type = "StoreByPropertyDescriptor";
-    property: string;
+    property: StoreMetadataTag[];
 
-    constructor(property: string) {
+    constructor(property: StoreMetadataTag[]) {
         this.property = property;
     }
 

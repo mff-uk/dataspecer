@@ -1,18 +1,13 @@
 import {CoreResourceLink} from "./core-resource-link";
 import {ComplexOperation} from "./complex-operation";
-import {OperationExecutor, StoreDescriptor} from "./operation-executor";
+import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "./operation-executor";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
-import {
-    CoreOperation,
-    CoreOperationResult,
-    CoreResource,
-    CoreResourceReader,
-    CoreResourceWriter
-} from "model-driven-data/core";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
+import {ConfigurationStoreMetadata} from "../configuration/configuration";
 
 export interface StoreWithMetadata {
     store: CoreResourceReader & (CoreResourceWriter | {});
-    metadata: object;
+    metadata: ConfigurationStoreMetadata;
 }
 
 // todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
@@ -213,8 +208,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
      * @param storeDescriptor
      */
     async getPimHavingInterpretation(pimInterpretation: string, storeDescriptor: StoreDescriptor): Promise<string | null> {
-        // todo storeDescriptor is ignored
-        const store = this.stores[0];
+        const store = await this.getStoreByStoreDescriptor(storeDescriptor);
 
         // Fast search
         const visitedResources = new Set<string>();
@@ -255,8 +249,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
     }
 
     private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {
-        // todo store descriptor is ignored for now and the first store is chosen for every operation
-        const store = this.stores[0];
+        const store = await this.getStoreByStoreDescriptor(storeDescriptor);
 
         const result = await (store.store as CoreResourceWriter).applyOperation(operation);
 
@@ -346,5 +339,54 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
             subscription.subscribers.forEach(s => s(iri, subscription.currentValue));
         }
         subscription.originatedStore = forStore;
+    }
+
+    private async getStoreByStoreDescriptor(storeDescriptor: StoreDescriptor): Promise<StoreWithMetadata> {
+        let foundStores: Set<StoreWithMetadata> = new Set<StoreWithMetadata>();
+
+        if (StoreHavingResourceDescriptor.is(storeDescriptor)) {
+            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.originatedStore;
+            if (originatedStore) {
+                foundStores.add(originatedStore);
+            } else {
+                foundStores.add(await new Promise(resolve => {
+                    const subscriber: Subscriber = (iri1, resource) => {
+                        if (!resource.isLoading) {
+                            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.originatedStore;
+                            this.removeSubscriber(storeDescriptor.resource, subscriber);
+                            if (!originatedStore) {
+                                console.log("resource from StoreHavingResourceDescriptor", storeDescriptor.resource);
+                                throw new Error("Unable to find resource specified by the store descriptor and therefore no store matches the criteria. This probably means, that the application does not know which store should be used for writing.");
+                            }
+                            resolve(originatedStore as StoreWithMetadata);
+                        }
+                    }
+                    this.addSubscriber(storeDescriptor.resource, subscriber);
+                }));
+            }
+
+        } else if (StoreByPropertyDescriptor.is(storeDescriptor)) {
+            for (const store of this.stores) {
+                if (storeDescriptor.property.every(p => store.metadata.tags.includes(p as any))) {
+                    foundStores.add(store);
+                }
+            }
+        } else {
+            console.log("store descriptor:", storeDescriptor);
+            throw new Error("Unknown store descriptor.");
+        }
+
+        if (foundStores.size === 0) {
+            console.log("store descriptor:", storeDescriptor);
+            throw new Error("No store matches provided store descriptor. This probably means, that the application does not know which store should be used for writing.");
+        }
+
+        if (foundStores.size > 1) {
+            console.log("store descriptor:", storeDescriptor);
+            console.log("matching stores:", foundStores);
+            throw new Error("Multiple store matches provided store descriptor. This probably means, that the application does not know which store should be used for writing.");
+        }
+
+        return foundStores.values().next().value;
     }
 }

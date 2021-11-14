@@ -13,20 +13,24 @@ import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
 import {pimExecutors} from "model-driven-data/pim/executor";
 
 const SetRootButton: React.FC = () => {
-    const {store, setPsmSchemas} = React.useContext(StoreContext);
+    const {store, setPsmSchemas, configuration, psmSchemas} = React.useContext(StoreContext);
     const {isOpen, open, close} = useToggle();
     const {t} = useTranslation("ui");
 
     const setRootClass = useCallback(async (cls: PimClass) => {
         setPsmSchemas([]);
 
-        store.getStores().forEach(s => store.removeStore(s));
+        if (!configuration) {
+            store.getStores().forEach(s => store.removeStore(s));
 
-        const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
-        store.addStore({
-            store: memoryStore,
-            metadata: {},
-        });
+            const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
+            store.addStore({
+                store: memoryStore,
+                metadata: {
+                    tags: ["pim", "data-psm", "root"],
+                },
+            });
+        }
 
         const schemaOperation = new CreateSchema("//pim/", "//dataPsm/");
         await store.executeOperation(schemaOperation);
@@ -37,10 +41,12 @@ const SetRootButton: React.FC = () => {
 
     return (
         <>
-            <Fab variant="extended" size="medium" color="primary" onClick={open}>
-                <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
-                {t("set root element button")}
-            </Fab>
+            {(configuration === undefined || psmSchemas.length === 0) &&
+                <Fab variant="extended" size="medium" color="primary" onClick={open}>
+                    <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
+                    {t("set root element button")}
+                </Fab>
+            }
             <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
         </>
     );

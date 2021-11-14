@@ -1,17 +1,4 @@
-import {
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    TextField,
-    Theme,
-    Typography
-} from "@mui/material";
+import {Box, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemText, TextField, Theme, Typography} from "@mui/material";
 import React, {useContext, useEffect, useMemo, useState} from "react";
 import {createStyles, makeStyles} from '@mui/styles';
 import {BehaviorSubject} from "rxjs";
@@ -28,6 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
 import {FederatedObservableStore} from "../../store/federated-observable-store";
+import {StoreMetadataTag} from "../../configuration/configuration";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -60,7 +48,9 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []));
         const storeWithMetadata = {
             store: readOnlyMemoryStore,
-            metadata: {},
+            metadata: {
+                tags: ["cim-as-pim"] as StoreMetadataTag[]
+            },
         };
         store.addStore(storeWithMetadata);
         return () => store.removeStore(storeWithMetadata);

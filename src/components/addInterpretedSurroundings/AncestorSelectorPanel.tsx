@@ -12,6 +12,7 @@ import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
 import {FederatedObservableStore} from "../../store/federated-observable-store";
+import {StoreMetadataTag} from "../../configuration/configuration";
 
 interface AncestorSelectorPanelParameters {
     forCimClassIri: string,
@@ -68,8 +69,11 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
             const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(sorted.map(r => [r.iri, r])));
             const storeWithMetadata = {
                 store: readOnlyMemoryStore,
-                metadata: {},
+                metadata: {
+                    tags: ["cim-as-pim"] as StoreMetadataTag[]
+                },
             };
+
             store.addStore(storeWithMetadata);
             return () => store.removeStore(storeWithMetadata);
         }

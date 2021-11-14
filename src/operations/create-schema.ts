@@ -15,10 +15,10 @@ export class CreateSchema implements ComplexOperation {
 
     async execute(executor: OperationExecutor): Promise<void> {
         const pimCreateSchema = new PimCreateSchema();
-        await executor.applyOperation(pimCreateSchema, new StoreByPropertyDescriptor("pim"));
+        await executor.applyOperation(pimCreateSchema, new StoreByPropertyDescriptor(["pim", "root"]));
 
         const dataPsmCreateSchema = new DataPsmCreateSchema();
-        const result = await executor.applyOperation(dataPsmCreateSchema, new StoreByPropertyDescriptor("dataPsm"));
+        const result = await executor.applyOperation(dataPsmCreateSchema, new StoreByPropertyDescriptor(["data-psm", "root"]));
 
         this.createdDataPsmSchema = result.created[0];
     }
