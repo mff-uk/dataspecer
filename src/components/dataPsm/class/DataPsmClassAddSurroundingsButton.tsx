@@ -15,11 +15,12 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
     const surroundingDialog = useToggle();
 
     const addSurroundings = useCallback((operation: {
-                                         resourcesToAdd: [string, boolean][],
-                                         sourcePimModel: CoreResourceReader,
-                                         forDataPsmClass: DataPsmClass
-                                     }) => {
-        const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd);
+        resourcesToAdd: [string, boolean][],
+        sourcePimModel: CoreResourceReader,
+        forDataPsmClass: DataPsmClass,
+        replaceClassWithReference: boolean,
+     }) => {
+        const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd, operation.replaceClassWithReference);
         addClassSurroundings.labelRules = {
             languages: i18n.languages as string[],
             namingConvention: "kebab-case",

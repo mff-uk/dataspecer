@@ -11,7 +11,7 @@ import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurround
 import {IconButton, Typography} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
-import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "model-driven-data/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
 import {useDialog} from "../../hooks/useDialog";
@@ -23,37 +23,47 @@ import {LanguageString} from "model-driven-data/core";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
 import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
+import {useResource} from "../../hooks/useResource";
 
 /**
- * This component represents either PSM class or PSM association to a PSM class.
+ * This component handles rendering of data PSM association end item in the tree representation.
  *
- * **Data PSM association end** interprets **PIM association end** which belongs to **PIM association**.
+ * Because the association end itself is not that interesting, this component also renders the class
+ * or class reference the association end points to. Class reference is a reference to another class
+ * and again, the class reference itself is not so so interesting, therefore the class is shown.
  */
-export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
+export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
     const {store} = React.useContext(StoreContext);
 
-    // Association ends
-    const {
-        dataPsmResource: dataPsmAssociationEnd,
-        pimResource: pimAssociationEnd,
-        isLoading: associationLoading
-    } = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+    // association end
+
+    const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd, isLoading: associationLoading} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
 
     // PIM Association and check if it is backward association
 
     const {resource: pimAssociation, isLoading: pimAssociationIsLoading} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
     const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
 
-    const dataPsmClassIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
-    const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading: classLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
-    const isLoading = associationLoading || classLoading;
+    // range class or range class reference with class
 
-    const collapse = useToggle(true);
+    const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
+    const {resource: associationPointsTo, isLoading: associationPointsToIsLoading} = useResource(associationPointsToIri);
+    // Whether the association points to a class reference or just a normal class
+    const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo);
+
+    const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmSpecification : associationPointsToIri;
+    const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading: classLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+
+    //
+
+    const isLoading = associationLoading || classLoading || associationPointsToIsLoading;
+
+    const collapseIsOpen = useToggle(true);
 
     const detail = useDialog(DataPsmAssociationToClassDetailDialog, ["parentIri", "iri"], {parentIri: "", iri: ""});
-    const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, dataPsmClassIri]);
+    const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, associationPointsToIri]);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
             store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
@@ -71,9 +81,9 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
     return <li className={styles.li}>
         <Typography className={styles.root}>
             <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />
-            {collapse.isOpen ?
-                <IconButton size={"small"} onClick={collapse.close}><ExpandMoreIcon /></IconButton> :
-                <IconButton size={"small"} onClick={collapse.open}><ExpandLessIcon /></IconButton>
+            {collapseIsOpen.isOpen ?
+                <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
+                <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
             }
             <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
                 {hasHumanLabelOnAssociationEnd ?
@@ -96,6 +106,7 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
                 }
                 {dataPsmClassIri && <>
                     {': '}
+                    {isClassReference && `[${t("refers to")}] `}
                     <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
                         {(label, description) =>
                             <span title={description} className={styles.class}>{label}</span>
@@ -123,7 +134,7 @@ export const DataPsmAssociationClassItem: React.FC<DataPsmClassPartItemPropertie
             </>}
         </Typography>
         {dataPsmClassIri ?
-            <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={collapse.isOpen}/>
+            <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={collapseIsOpen.isOpen}/>
             :
             <>Loading parts</>
         }

@@ -1,17 +1,16 @@
-import {DataPsmClass} from "model-driven-data/data-psm/model";
+import {DataPsmClass, DataPsmSchema} from "model-driven-data/data-psm/model";
 import {CoreResourceReader} from "model-driven-data/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "model-driven-data/pim/model";
-import {
-    DataPsmCreateAssociationEnd,
-    DataPsmCreateAttribute,
-    DataPsmCreateClass
-} from "model-driven-data/data-psm/operation";
+import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass, DataPsmCreateClassReference} from "model-driven-data/data-psm/operation";
 import {PimCreateAssociation, PimCreateAttribute, PimCreateClass, PimSetExtends} from "model-driven-data/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
+import {SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
+
+const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["linked"]);
 
 /**
  * With each association, the direction of the association must be specified. Suppose we have class Person representing
@@ -32,16 +31,21 @@ export class AddClassSurroundings implements ComplexOperation {
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, boolean][];
+    // todo this is only temporary until the dialog is created
+    private readonly replaceClassWithReference: boolean;
 
     /**
      * @param forDataPsmClass
      * @param sourcePimModel
      * @param resourcesToAdd true - the edge is outgoing (from source to this resource)
+     * @param replaceClassWithReference - whether it should try to find existing class instead of creating a new one
      */
-    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][]) {
+    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][], replaceClassWithReference: boolean) {
         this.forDataPsmClass = forDataPsmClass;
         this.sourcePimModel = sourcePimModel;
         this.resourcesToAdd = resourcesToAdd;
+        this.replaceClassWithReference = replaceClassWithReference;
+        console.log("OPERATION CREATED WITH ", replaceClassWithReference);
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
@@ -137,21 +141,60 @@ export class AddClassSurroundings implements ComplexOperation {
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
 
+        let psmEndRefersToIri: string | null = null;
+
+        // Try to replace the range class with a reference
+        if (this.replaceClassWithReference && otherAssociationEndClass.pimInterpretation) {
+            // List all PSM schemas from linked stores
+            const schemas = await executor.store.listResourcesOfType(SCHEMA, LINKED_STORE_DESCRIPTOR);
+
+            let foundExistingDataPsm: string | null = null;
+
+            schema:
+                for (const schemaIri of schemas) {
+                    const schema = await executor.store.readResource(schemaIri) as DataPsmSchema;
+                    if (schema === null) continue;
+                    for (const rootIri of schema.dataPsmRoots) {
+                        const root = await executor.store.readResource(rootIri) as DataPsmClass;
+                        if (root === null || root.dataPsmInterpretation === null) continue;
+                        const pim = await executor.store.readResource(root.dataPsmInterpretation) as PimClass;
+                        if (pim === null) continue;
+                        if (pim.pimInterpretation === otherAssociationEndClass.pimInterpretation) {
+                            foundExistingDataPsm = rootIri;
+                            break schema;
+                        }
+                    }
+                }
+
+            if (foundExistingDataPsm) {
+                const dataPsmCreateClassReference = new DataPsmCreateClassReference();
+                dataPsmCreateClassReference.dataPsmSpecification = foundExistingDataPsm;
+                const dataPsmCreateClassReferenceResult = await executor.applyOperation(dataPsmCreateClassReference, dataPsmStoreSelector);
+                psmEndRefersToIri = dataPsmCreateClassReferenceResult.created[0];
+            }
+        }
+
+        // Pim other class is created always. Mainly because of the association on PIM level.
         const pimOtherClassIri = await this.createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
 
+        // We did not succeed with re-using existing subtree. Lets create one
+        if (psmEndRefersToIri === null) {
+
+            // Data PSM the other class
+
+            const dataPsmCreateClass = new DataPsmCreateClass();
+            dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
+            const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
+            psmEndRefersToIri = dataPsmCreateClassResult.created[0];
+        }
+
         const {associationIri, associationEnds} = await this.createPimAssociationIfMissing(association, pimStoreSelector, executor);
-
-        // Data PSM the other class
-
-        const dataPsmCreateClass = new DataPsmCreateClass();
-        dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
-        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
 
         // Data PSM association end
 
         const dataPsmCreateAssociationEnd = new DataPsmCreateAssociationEnd();
-        dataPsmCreateAssociationEnd.dataPsmInterpretation = associationEnds[orientation ? 1 : 0] as string; // todo use PimCreateAssociationResultProperties
-        dataPsmCreateAssociationEnd.dataPsmPart = dataPsmCreateClassResult.created[0];
+        dataPsmCreateAssociationEnd.dataPsmInterpretation = associationEnds[orientation ? 1 : 0] as string;
+        dataPsmCreateAssociationEnd.dataPsmPart = psmEndRefersToIri;
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
         await executor.applyOperation(dataPsmCreateAssociationEnd, dataPsmStoreSelector);

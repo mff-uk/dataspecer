@@ -2,7 +2,7 @@ import React, {memo} from "react";
 import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beautiful-dnd";
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@mui/material";
-import {DataPsmAssociationClassItem} from "./DataPsmAssociationClassItem";
+import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useResource} from "../../hooks/useResource";
 
@@ -25,7 +25,7 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
     } else if (DataPsmAttribute.is(dataPsmResource)) {
         return <DataPsmAttributeItem {...props}/>;
     } else if (DataPsmAssociationEnd.is(dataPsmResource)) {
-        return <DataPsmAssociationClassItem {...props} />;
+        return <DataPsmAssociationEndItem {...props} />;
     } else {
         return <div {...props.dragHandleProps}>Unsupported resource</div>;
     }

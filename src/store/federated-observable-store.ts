@@ -11,7 +11,7 @@ export interface StoreWithMetadata {
 }
 
 // todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
-export type _CoreResourceReader_WithMissingMethods = CoreResourceReader & Pick<FederatedObservableStore, "getPimHavingInterpretation">;
+export type _CoreResourceReader_WithMissingMethods = Omit<CoreResourceReader, "listResourcesOfType"> & Pick<FederatedObservableStore, "getPimHavingInterpretation" | "listResourcesOfType">;
 
 export type Subscriber = (iri: string, resource: CoreResourceLink) => void;
 
@@ -59,7 +59,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
                 }
                 return this.readResource(iri);
             },
-            listResourcesOfType: typeIri => this.listResourcesOfType(typeIri),
+            listResourcesOfType: (typeIri, storeDescriptor: StoreDescriptor | undefined = undefined) => this.listResourcesOfType(typeIri, storeDescriptor),
             listResources: () => this.listResources(),
             getPimHavingInterpretation: (pimInterpretation: string, storeDescriptor: StoreDescriptor) => this.getPimHavingInterpretation(pimInterpretation, storeDescriptor),
         }
@@ -144,9 +144,10 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         return [...resources];
     }
 
-    async listResourcesOfType(typeIri: string): Promise<string[]> {
+    async listResourcesOfType(typeIri: string, storeDescriptor: StoreDescriptor | undefined = undefined): Promise<string[]> {
+        const stores = storeDescriptor ? await this.getStoresByStoreDescriptor(storeDescriptor) : this.stores;
         const resources = new Set<string>();
-        for (const store of this.stores) {
+        for (const store of stores) {
             (await store.store.listResourcesOfType(typeIri)).forEach(resource => resources.add(resource));
         }
         return [...resources];
@@ -208,7 +209,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
      * @param storeDescriptor
      */
     async getPimHavingInterpretation(pimInterpretation: string, storeDescriptor: StoreDescriptor): Promise<string | null> {
-        const store = await this.getStoreByStoreDescriptor(storeDescriptor);
+        const store = await this.getSingleStoreByStoreDescriptor(storeDescriptor);
 
         // Fast search
         const visitedResources = new Set<string>();
@@ -249,7 +250,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
     }
 
     private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {
-        const store = await this.getStoreByStoreDescriptor(storeDescriptor);
+        const store = await this.getSingleStoreByStoreDescriptor(storeDescriptor);
 
         const result = await (store.store as CoreResourceWriter).applyOperation(operation);
 
@@ -341,7 +342,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         subscription.originatedStore = forStore;
     }
 
-    private async getStoreByStoreDescriptor(storeDescriptor: StoreDescriptor): Promise<StoreWithMetadata> {
+    private async getStoresByStoreDescriptor(storeDescriptor: StoreDescriptor): Promise<StoreWithMetadata[]> {
         let foundStores: Set<StoreWithMetadata> = new Set<StoreWithMetadata>();
 
         if (StoreHavingResourceDescriptor.is(storeDescriptor)) {
@@ -376,17 +377,22 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
             throw new Error("Unknown store descriptor.");
         }
 
-        if (foundStores.size === 0) {
+        return [...foundStores];
+    }
+
+    private async getSingleStoreByStoreDescriptor(storeDescriptor: StoreDescriptor): Promise<StoreWithMetadata> {
+        const foundStores = await this.getStoresByStoreDescriptor(storeDescriptor);
+        if (foundStores.length === 0) {
             console.log("store descriptor:", storeDescriptor);
             throw new Error("No store matches provided store descriptor. This probably means, that the application does not know which store should be used for writing.");
         }
 
-        if (foundStores.size > 1) {
+        if (foundStores.length > 1) {
             console.log("store descriptor:", storeDescriptor);
             console.log("matching stores:", foundStores);
             throw new Error("Multiple store matches provided store descriptor. This probably means, that the application does not know which store should be used for writing.");
         }
 
-        return foundStores.values().next().value;
+        return foundStores[0];
     }
 }
