@@ -5,6 +5,7 @@ import axios from "axios";
 import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import {CreateDataPsm} from "./create-data-psm";
 import {StoreSize} from "./store-size";
+import {LinkSpecification} from "./link-specification";
 
 console.log(process.env);
 
@@ -118,6 +119,31 @@ export const Specification: React.FC<{}> = ({}) => {
                                         color={"error"}
                                         onClick={() => deleteDataPsm(dataPsm.id)}>Delete</Button>
                                 </Box>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </TableContainer>
+
+        <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
+            <Typography variant="h5" component="div" gutterBottom>Linked specifications</Typography>
+            {specificationId && <LinkSpecification reload={reloadSpecification} specificationId={specificationId}/>}
+        </Box>
+        <TableContainer component={Paper} sx={{mt: 3}}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Specification name</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {specification?.data.linkedSpecification.map((specification: any) =>
+                        <TableRow key={specification.id}>
+                            <TableCell component="th" scope="row" sx={{width: "25%"}}>
+                                <Typography sx={{fontWeight: "bold"}}>
+                                    {specification.name}
+                                </Typography>
                             </TableCell>
                         </TableRow>
                     )}
