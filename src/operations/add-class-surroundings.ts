@@ -2,13 +2,14 @@ import {DataPsmClass, DataPsmSchema} from "model-driven-data/data-psm/model";
 import {CoreResourceReader} from "model-driven-data/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "model-driven-data/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass, DataPsmCreateClassReference} from "model-driven-data/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimCreateClass, PimSetExtends} from "model-driven-data/pim/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimSetExtends} from "model-driven-data/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
 import {SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
+import {createPimClassIfMissing} from "./helper/pim";
 
 const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["linked"]);
 
@@ -45,7 +46,6 @@ export class AddClassSurroundings implements ComplexOperation {
         this.sourcePimModel = sourcePimModel;
         this.resourcesToAdd = resourcesToAdd;
         this.replaceClassWithReference = replaceClassWithReference;
-        console.log("OPERATION CREATED WITH ", replaceClassWithReference);
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
@@ -175,7 +175,7 @@ export class AddClassSurroundings implements ComplexOperation {
         }
 
         // Pim other class is created always. Mainly because of the association on PIM level.
-        const pimOtherClassIri = await this.createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
+        const pimOtherClassIri = await createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
 
         // We did not succeed with re-using existing subtree. Lets create one
         if (psmEndRefersToIri === null) {
@@ -198,24 +198,6 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
         await executor.applyOperation(dataPsmCreateAssociationEnd, dataPsmStoreSelector);
-    }
-
-    private async createPimClassIfMissing(
-        resource: PimClass,
-        pimStoreSelector: StoreDescriptor,
-        executor: OperationExecutor,
-    ): Promise<string> {
-        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
-
-        if (existingPimIri) {
-            // todo it does not perform any checks
-            return existingPimIri;
-        }
-
-        const pimCreateClass = new PimCreateClass();
-        copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
-        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
-        return pimCreateClassResult.created[0] as string;
     }
 
     private async createPimAttributeIfMissing(
@@ -339,7 +321,7 @@ export class AddClassSurroundings implements ComplexOperation {
         for (const classToProcessIri of classesToProcess) {
             const classToProcess = await this.sourcePimModel.readResource(classToProcessIri) as PimClass;
 
-            const iri = await this.createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
+            const iri = await createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
             const localClass = await executor.store.readResource(iri) as PimClass;
 
             // PIM iris in local store

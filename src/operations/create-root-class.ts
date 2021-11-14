@@ -1,9 +1,8 @@
 import {PimClass} from "model-driven-data/pim/model";
-import {PimCreateClass} from "model-driven-data/pim/operation";
-import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 import {DataPsmCreateClass, DataPsmSetRoots} from "model-driven-data/data-psm/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor} from "../store/operation-executor";
+import {createPimClassIfMissing} from "./helper/pim";
 
 /**
  * For the given pimClass as the operation, it creates a new schema and new PIM and DataPSM classes representing the
@@ -22,13 +21,10 @@ export class CreateRootClass implements ComplexOperation {
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
-        const pimCreateClass = new PimCreateClass();
-        copyPimPropertiesFromResourceToOperation(this.pimClass, pimCreateClass);
-        pimCreateClass.pimExtends = this.pimClass.pimExtends;
-        const pimCreateClassResult = await executor.applyOperation(pimCreateClass, new StoreByPropertyDescriptor(["pim", "root"]));
+        const pimClassIri = await createPimClassIfMissing(this.pimClass, new StoreByPropertyDescriptor(["pim", "root"]), executor);
 
         const dataPsmCreateClass = new DataPsmCreateClass();
-        dataPsmCreateClass.dataPsmInterpretation = pimCreateClassResult.created[0];
+        dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
         const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, new StoreByPropertyDescriptor(["data-psm", "root"]));
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();

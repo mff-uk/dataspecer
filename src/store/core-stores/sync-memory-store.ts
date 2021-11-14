@@ -49,7 +49,6 @@ export class SyncMemoryStore implements CoreResourceReader, CoreResourceWriter {
     }
 
     async loadStore() {
-        console.log(this.remoteUrl);
         const fetchData = await fetch(this.remoteUrl, {method: 'GET', headers});
         const rawObject = await fetchData.json();
 

@@ -1,7 +1,5 @@
 import {DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
-import {PimAttribute} from "model-driven-data/pim/model";
 import {DataPsmDeleteAttribute} from "model-driven-data/data-psm/operation";
-import {PimDeleteAttribute} from "model-driven-data/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 
@@ -20,14 +18,11 @@ export class DeleteAttribute implements ComplexOperation {
     dataPsmDeleteAttribute.dataPsmOwner = this.ownerClass.iri as string;
     await executor.applyOperation(dataPsmDeleteAttribute, new StoreHavingResourceDescriptor(this.attribute.iri as string));
 
-    // todo: should the PIM be deleted automatically?
-    if (this.attribute.dataPsmInterpretation) {
-      const pimAttribute = await executor.store.readResource(this.attribute.dataPsmInterpretation) as PimAttribute;
-
-      const pimDeleteAttribute = new PimDeleteAttribute();
-      pimDeleteAttribute.pimAttribute = pimAttribute.iri ?? null;
-      pimDeleteAttribute.parent = pimAttribute.pimOwnerClass;
-      await executor.applyOperation(pimDeleteAttribute, new StoreHavingResourceDescriptor(this.attribute.dataPsmInterpretation));
-    }
+    // const pimAttribute = await executor.store.readResource(this.attribute.dataPsmInterpretation) as PimAttribute;
+    //
+    // const pimDeleteAttribute = new PimDeleteAttribute();
+    // pimDeleteAttribute.pimAttribute = pimAttribute.iri ?? null;
+    // pimDeleteAttribute.parent = pimAttribute.pimOwnerClass;
+    // await executor.applyOperation(pimDeleteAttribute, new StoreHavingResourceDescriptor(this.attribute.dataPsmInterpretation));
   }
 }
