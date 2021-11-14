@@ -11,7 +11,7 @@ export const getSpecification = async (request: express.Request, response: expre
         where: {
             id: request.params.specificationId,
         },
-        include: {DataPsm: true}
+        include: {DataPsm: true, linkedSpecification: true}
     })));
 }
 
@@ -53,16 +53,24 @@ export const deleteSpecification = async (request: express.Request, response: ex
             id: request.params.specificationId,
         },
     });
-    storeModel.remove(specification.pimStore);
+    storeModel.remove(specification.pimStore).then(() => {});
 
     response.send(null);
 }
 
 export const modifySpecification = async (request: express.Request, response: express.Response) => {
-    await prisma.specification.delete({
-        where: {
-            id: request.params.specificationId,
-        },
-    });
+    if (request.body.linkedSpecifications) {
+        await prisma.specification.update({
+            where: {
+                id: request.params.specificationId,
+            },
+            data: {
+                linkedSpecification: {
+                    set: request.body.linkedSpecifications.map((id: string) => ({id}))
+                }
+            }
+        });
+    }
+
     response.send(null);
 }

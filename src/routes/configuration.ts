@@ -19,7 +19,15 @@ export const configurationByDataPsm = async (request: express.Request, response:
             id: request.params.dataPsmId,
         },
         include: {
-            specification: true
+            specification: {
+                include: {
+                    linkedSpecification: {
+                        include: {
+                            DataPsm: true
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -28,6 +36,14 @@ export const configurationByDataPsm = async (request: express.Request, response:
             stores: [
                 getStore(result.store, ["root", "data-psm"]),
                 getStore(result.specification.pimStore, ["root", "pim"]),
+                ...result.specification.linkedSpecification.map(specification =>
+                    getStore(specification.pimStore, ["pim", "linked"])
+                ),
+                ...result.specification.linkedSpecification.map(specification =>
+                    specification.DataPsm.map(pimStore =>
+                        getStore(pimStore.store, ["data-psm", "linked"])
+                    )
+                ).flat()
             ]
         }
         response.send(JSON.stringify(data));
