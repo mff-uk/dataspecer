@@ -11,7 +11,7 @@ export class StoreModel {
 
     async create(): Promise<string> {
         const name = uuidv4();
-        await writeFile(this.getStorePath(name) as string, "{}");
+        await writeFile(this.getStorePath(name) as string, "{\"operations\":[],\"resources\":{}}");
         return name;
     }
 

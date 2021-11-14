@@ -9,18 +9,23 @@ export const createDataPsm = async (request: express.Request, response: express.
             id: uuidv4(),
             name: String(request.body.name),
             store: dataPsmStore,
-            specificationId: request.params.storeId,
+            specification: {
+                connect: {
+                    id: request.params.specificationId
+                }
+            },
         },
     });
     await response.send(dataPsm);
 }
 
 export const deleteDataPsm = async (request: express.Request, response: express.Response) => {
-    await prisma.dataPsm.delete({
+    const result = await prisma.dataPsm.delete({
         where: {
             id: request.params.dataPsmId,
         },
     })
+    await storeModel.remove(result.store);
     response.sendStatus(204);
 }
 

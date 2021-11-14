@@ -1,3 +1,4 @@
 dist
 database
 node_modules
+.env

@@ -6,6 +6,15 @@ export const listSpecifications = async (request: express.Request, response: exp
     response.send(JSON.stringify(await prisma.specification.findMany({include: {DataPsm: true}})));
 }
 
+export const getSpecification = async (request: express.Request, response: express.Response) => {
+    response.send(JSON.stringify(await prisma.specification.findFirst({
+        where: {
+            id: request.params.specificationId,
+        },
+        include: {DataPsm: true}
+    })));
+}
+
 export const addSpecification = async (request: express.Request, response: express.Response) => {
     const pimStore = await storeModel.create();
 
@@ -21,17 +30,36 @@ export const addSpecification = async (request: express.Request, response: expre
 }
 
 export const deleteSpecification = async (request: express.Request, response: express.Response) => {
+    const allDataPsm = await prisma.dataPsm.findMany({
+        where: {
+            specification: {
+                id: request.params.specificationId
+            }
+        }
+    });
+
+    allDataPsm.forEach(dataPsm => storeModel.remove(dataPsm.store));
+
+    await prisma.dataPsm.deleteMany({
+        where: {
+            specification: {
+                id: request.params.specificationId,
+            }
+        }
+    });
+
     const specification = await prisma.specification.delete({
         where: {
             id: request.params.specificationId,
         },
     });
-    await storeModel.remove(specification.pimStore);
+    storeModel.remove(specification.pimStore);
+
     response.send(null);
 }
 
 export const modifySpecification = async (request: express.Request, response: express.Response) => {
-    const specification = await prisma.specification.delete({
+    await prisma.specification.delete({
         where: {
             id: request.params.specificationId,
         },
