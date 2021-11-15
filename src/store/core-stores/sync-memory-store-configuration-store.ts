@@ -22,6 +22,6 @@ export class SyncMemoryStoreConfigurationStoreBuilder {
     }
 
     build(): SyncMemoryStore {
-        return new SyncMemoryStore("//", [...dataPsmExecutors, ...pimExecutors], null, this.store.url);
+        return new SyncMemoryStore("https://ofn.gov.cz", [...dataPsmExecutors, ...pimExecutors], null, this.store.url);
     }
 }

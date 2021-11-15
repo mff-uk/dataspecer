@@ -23,7 +23,7 @@ const SetRootButton: React.FC = () => {
         if (!configuration) {
             store.getStores().forEach(s => store.removeStore(s));
 
-            const memoryStore = MemoryStore.create("//", [...dataPsmExecutors, ...pimExecutors]);
+            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors, ...pimExecutors]);
             store.addStore({
                 store: memoryStore,
                 metadata: {
