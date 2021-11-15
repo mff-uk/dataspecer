@@ -13,7 +13,7 @@ export interface StoreWithMetadata {
 // todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
 export type _CoreResourceReader_WithMissingMethods = Omit<CoreResourceReader, "listResourcesOfType"> & Pick<FederatedObservableStore, "getPimHavingInterpretation" | "listResourcesOfType">;
 
-export type Subscriber = (iri: string, resource: CoreResourceLink) => void;
+export type Subscriber = (iri: string, resource: CoreResourceLink, store: StoreWithMetadata | null) => void;
 
 interface Subscription {
     // Computed property from store values.
@@ -108,7 +108,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         const subscription = this.subscriptions.get(iri) as Subscription;
 
         subscription.subscribers.push(subscriber);
-        subscriber(iri, subscription.currentValue);
+        subscriber(iri, subscription.currentValue, subscription.originatedStore);
     }
 
     removeSubscriber(iri: string, subscriber: Subscriber) {
@@ -130,6 +130,10 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
 
     optimizeGetCachedValue(iri: string) {
         return this.subscriptions.get(iri)?.currentValue;
+    }
+
+    optimizeGetOriginatedStore(iri: string): StoreWithMetadata | null {
+        return this.subscriptions.get(iri)?.originatedStore ?? null;
     }
 
     getStores(): StoreWithMetadata[] {
@@ -337,7 +341,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
                 isLoading: newIsLoading,
             }
 
-            subscription.subscribers.forEach(s => s(iri, subscription.currentValue));
+            subscription.subscribers.forEach(s => s(iri, subscription.currentValue, subscription.originatedStore));
         }
         subscription.originatedStore = forStore;
     }

@@ -9,7 +9,12 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useResource} from "../../../hooks/useResource";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {ObjectDump} from "../../helper/object-dump";
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import {MemoryStore, ReadOnlyFederatedStore, ReadOnlyMemoryStore} from "model-driven-data/core";
+import {SyncMemoryStore} from "../../../store/core-stores/sync-memory-store";
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 
 /**
  * Renders a part of UI dealing with everything about a specific resource which is located in the store. Specifically
@@ -65,12 +70,30 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
                     <Card>
                         <CardContent>
                             <Typography variant="body2">
-                                <CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}
-                                Store lze upravovat. (není readonly)
-                            </Typography>
+                                {resource.store?.metadata.tags.includes("read-only") ?
+                                    <div><CloseOutlinedIcon color="error" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is read-only")}</div> :
+                                    <div><CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is editable")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("root") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag root")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("linked") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag linked")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("pim") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag pim")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("data-psm") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag data-psm")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("cim-as-pim") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag cim-as-pim")}</div>
+                                }
 
-                            <Typography variant="body2" sx={{ mt: 1 }}>
-                                Lokální memory store obsahující PIM a data PSM.
+                                {resource.store?.store instanceof MemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}MemoryStore</div>}
+                                {resource.store?.store instanceof ReadOnlyMemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}ReadOnlyMemoryStore</div>}
+                                {resource.store?.store instanceof SyncMemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}SyncMemoryStore</div>}
+                                {resource.store?.store instanceof ReadOnlyFederatedStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}ReadOnlyFederatedStore</div>}
                             </Typography>
                         </CardContent>
                     </Card>

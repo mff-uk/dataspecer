@@ -13,6 +13,13 @@
     "ok": "resource loaded successfully"
   },
   "some translations other sources": "Some of the translation may be from other resources.",
+  "store is editable": "Store can be modified",
+  "store is read-only": "Store is read-only",
+  "store metadata tag cim-as-pim": "PIM store as a dump of CIM",
+  "store metadata tag data-psm": "Data PSM store",
+  "store metadata tag linked": "Linked store (its resources may be referenced from the root store)",
+  "store metadata tag pim": "PIM store",
+  "store metadata tag root": "Root store (contains a root of a modeled tree)",
   "tab association": "association",
   "tab basic info": "basic info",
   "tab class": "class",

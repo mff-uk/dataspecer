@@ -70,7 +70,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
             const storeWithMetadata = {
                 store: readOnlyMemoryStore,
                 metadata: {
-                    tags: ["cim-as-pim"] as StoreMetadataTag[]
+                    tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
                 },
             };
 

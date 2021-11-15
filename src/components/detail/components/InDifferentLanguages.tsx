@@ -110,7 +110,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
         </Typography>
         }
 
-        {resource && <Button
+        {resource.resource && <Button
             sx={{ml: "auto", mt: 1}}
             style={{display: "block"}}
             variant="contained"

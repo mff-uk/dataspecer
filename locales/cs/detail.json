@@ -13,6 +13,13 @@
     "ok": "úspěšně načtena"
   },
   "some translations other sources": "některé překlady mohou pocházet z jiných zdrojů",
+  "store is editable": "Store je modifikovatelný",
+  "store is read-only": "Store je read-only",
+  "store metadata tag cim-as-pim": "PIM store jako dump CIMu",
+  "store metadata tag data-psm": "Data PSM store",
+  "store metadata tag linked": "Připojený store (jeho resources lze napojit na kořenový store)",
+  "store metadata tag pim": "PIM store",
+  "store metadata tag root": "Kořenový store (obsahuje kořen generovaného stromu)",
   "tab association": "asociace",
   "tab basic info": "základní informace",
   "tab class": "třída",

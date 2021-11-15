@@ -91,7 +91,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                 stores.push({
                     store: surroundings[iri] as CoreResourceReader,
                     metadata: {
-                        tags: ["cim-as-pim"] as StoreMetadataTag[]
+                        tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
                     },
                 });
             }

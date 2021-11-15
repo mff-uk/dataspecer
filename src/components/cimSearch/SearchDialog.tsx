@@ -49,7 +49,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         const storeWithMetadata = {
             store: readOnlyMemoryStore,
             metadata: {
-                tags: ["cim-as-pim"] as StoreMetadataTag[]
+                tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
             },
         };
         store.addStore(storeWithMetadata);
