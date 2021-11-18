@@ -54,6 +54,8 @@ export const DELETE_ATTRIBUTE = PIM + "DeleteAttribute";
 
 export const DELETE_CLASS = PIM + "DeleteClass";
 
+export const SET_CLASS_CODELIST = PIM + "SetClassCodelist";
+
 export const SET_DATATYPE = PIM + "SetDataType";
 
 export const SET_EXTENDS = PIM + "SetExtends";

@@ -8,6 +8,8 @@ export class PimCreateClass extends PimCreate {
 
   pimExtends: string[] = [];
 
+  pimIsCodelist: boolean = false;
+
   constructor() {
     super();
     this.types.push(PimCreateClass.TYPE);
