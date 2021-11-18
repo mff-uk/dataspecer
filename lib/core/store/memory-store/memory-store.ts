@@ -28,6 +28,7 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
     baseIri: string,
     executors: ExecutorMap,
     createNewIdentifier: CreateNewIdentifier | null) {
+    this.baseIri = baseIri;
     this.executors = executors;
     if (createNewIdentifier === null) {
       this.createNewIdentifier = (name) => {
