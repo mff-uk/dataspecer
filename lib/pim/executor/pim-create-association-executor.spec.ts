@@ -10,6 +10,7 @@ test("Create association.", async () => {
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
   operation.pimAssociationEnds = ["http://left", "http://right"];
+  operation.pimIsOriented = true;
 
   const before = {
     "http://schema": {
@@ -43,6 +44,7 @@ test("Create association.", async () => {
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimEnd": ["http://localhost/1", "http://localhost/2"],
+      "pimIsOriented": operation.pimIsOriented,
     },
     "http://localhost/2": {
       "iri": "http://localhost/2",

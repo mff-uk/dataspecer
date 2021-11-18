@@ -6,7 +6,9 @@ export class PimCreateAssociation extends PimCreate {
 
   static readonly TYPE = PIM.CREATE_ASSOCIATION;
 
-  pimAssociationEnds: string[];
+  pimAssociationEnds: string[] = [];
+
+  pimIsOriented: boolean = false;
 
   constructor() {
     super();

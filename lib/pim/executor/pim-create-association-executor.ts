@@ -48,6 +48,7 @@ export async function executesPimCreateAssociation(
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
   result.pimEnd = [left.iri, right.iri];
+  result.pimIsOriented = operation.pimIsOriented;
 
   if (operation.pimAssociationEnds.length !== 2) {
     return CoreExecutorResult.createError(

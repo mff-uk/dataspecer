@@ -15,6 +15,12 @@ export class PimAssociation extends PimResource {
 
   pimEnd: string[];
 
+  /**
+   * If true the order of ends in {@link pimEnd} is from start
+   * to end.
+   */
+  pimIsOriented: boolean = false;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(PimAssociation.TYPE);
