@@ -11,7 +11,7 @@ export class ReadOnlyFederatedStore implements CoreResourceReader {
 
   /**
    * The lazy version returns the first representation of a resource
-   * found.
+   * found in {@link readResource}.
    */
   static createLazy(readers: CoreResourceReader[]): ReadOnlyFederatedStore {
     return new ReadOnlyFederatedStore(readers);
@@ -20,7 +20,8 @@ export class ReadOnlyFederatedStore implements CoreResourceReader {
   async listResources(): Promise<string[]> {
     const resources = new Set<string>();
     for (const model of this.readers) {
-      (await model.listResources()).forEach(r => resources.add(r));
+      (await model.listResources())
+        .forEach(resource => resources.add(resource));
     }
     return [...resources];
   }
@@ -40,7 +41,8 @@ export class ReadOnlyFederatedStore implements CoreResourceReader {
   async listResourcesOfType(typeIri: string): Promise<string[]> {
     const resources = new Set<string>();
     for (const model of this.readers) {
-      (await model.listResourcesOfType(typeIri)).forEach(r => resources.add(r));
+      (await model.listResourcesOfType(typeIri))
+        .forEach(resource => resources.add(resource));
     }
     return [...resources];
   }
