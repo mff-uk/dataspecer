@@ -5,7 +5,7 @@ import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
@@ -17,6 +17,8 @@ import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
 import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
 import {StoreMetadataTag} from "../../configuration/configuration";
+import {LoadingButton} from "@mui/lab";
+import {createStoreResult} from "./create-store-result";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -57,6 +59,7 @@ interface AddInterpretedSurroundingDialogProperties {
         sourcePimModel: CoreResourceReader,
         forDataPsmClass: DataPsmClass,
         replaceClassWithReference: boolean,
+        ciselnikIri: string,
     }) => void,
 }
 
@@ -76,7 +79,10 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     const AttributeDetailDialog = useDialog(PimAttributeDetailDialog, ["iri"]);
     const AssociationToClassDetailDialog = useDialog(PimAssociationToClassDetailDialog, ["iri", "parentIri", "orientation"]);
 
+    // Contains store with class hierarchy - resources in the AncestorSelectorPanel
     const [hierarchyStore, setHierarchyStore] = useState<CoreResourceReader | null>(null);
+
+    const [resourcesBeingAddedLoading, setResourcesBeingAddedLoading] = useState<boolean>(false);
 
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
@@ -269,22 +275,25 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             <Box sx={{flexGrow: 1}} />
 
             <Button onClick={close} color="primary">{t("close button")}</Button>
-            <Button
-                onClick={() => {
-                    close();
-                    const surroundingsStores = Object.values(surroundings).filter((s => s !== undefined) as (s: CoreResourceReader | undefined) => s is CoreResourceReader);
-                    const allStores = hierarchyStore !== null ? [hierarchyStore, ...surroundingsStores] : surroundingsStores;
+            <LoadingButton
+                loading={resourcesBeingAddedLoading}
+                onClick={async () => {
+                    setResourcesBeingAddedLoading(true);
+                    const allStores = await createStoreResult(cim, hierarchyStore, surroundings, selectedResources);
                     selected({
                         resourcesToAdd: selectedResources,
-                        sourcePimModel: ReadOnlyFederatedStore.createLazy(allStores),
+                        sourcePimModel: allStores,
                         forDataPsmClass: dataPsmClass as DataPsmClass,
                         replaceClassWithReference: (configuration !== undefined) && replaceWithClassReference, // False if no configuration because it would not find anything
+                        ciselnikIri: cim.iriProvider.cimToPim("https://slovník.gov.cz/datový/číselníky/pojem/číselník"),
                     });
+                    close();
+                    setResourcesBeingAddedLoading(false);
                 }}
                 disabled={selectedResources.length === 0}
                 color="secondary">
                 {t("confirm button")} ({selectedResources.length})
-            </Button>
+            </LoadingButton>
         </DialogActions>
 
         <StoreContext.Provider value={NewStoreContext}>

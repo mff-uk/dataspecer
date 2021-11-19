@@ -24,6 +24,8 @@ import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
 import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
 import {useResource} from "../../hooks/useResource";
+import {usePimExtends} from "../../hooks/usePimExtends";
+import ListRoundedIcon from '@mui/icons-material/ListRounded';
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -56,6 +58,10 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmSpecification : associationPointsToIri;
     const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading: classLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
 
+    // Process extends of range class
+    const ancestorsOfRange = usePimExtends(pimClass?.iri ?? null);
+    const isCiselnik = Object.values(ancestorsOfRange).some(cls => cls.resource?.pimInterpretation === "https://slovník.gov.cz/datový/číselníky/pojem/číselník");
+
     //
 
     const isLoading = associationLoading || classLoading || associationPointsToIsLoading;
@@ -80,16 +86,18 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     return <li className={styles.li}>
         <Typography className={styles.root}>
-            <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />
-            {collapseIsOpen.isOpen ?
-                <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
-                <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
+            {isCiselnik ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
+            {isCiselnik ? " " :
+                (collapseIsOpen.isOpen ?
+                    <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
+                    <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
+                )
             }
             <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
                 {hasHumanLabelOnAssociationEnd ?
                     <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
                         {(label, description) =>
-                            <span title={description} className={styles.association}>{label}</span>
+                            <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
                         }
                     </DataPsmGetLabelAndDescription>
                 :
@@ -98,7 +106,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                             <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
                                 {description => <>
                                     {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                                    <span title={description} className={styles.association}>{label}</span>
+                                    <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
                                 </>}
                             </LanguageStringUndefineable>
                         }
@@ -126,7 +134,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
             </span>
 
             {inlineEdit.isOpen || <>
-                {dataPsmClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
+                {dataPsmClassIri && !isCiselnik && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
                 {dataPsmAssociationEnd && <>
                     <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
                     <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />

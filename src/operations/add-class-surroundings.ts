@@ -11,6 +11,13 @@ import {removeDiacritics} from "../utils/remove-diacritics";
 import {SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
 import {createPimClassIfMissing} from "./helper/pim";
 
+/**
+ * true - the resource is a range, false - the resource is a domain
+ * Represents an orientation of the association which will be added to the resource. Because the associations may link
+ * the resource with itself, we need to distinguish this two types of association.
+ */
+export type AssociationOrientation = boolean;
+
 const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["linked"]);
 
 /**
@@ -31,27 +38,31 @@ export class AddClassSurroundings implements ComplexOperation {
 
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
-    private readonly resourcesToAdd: [string, boolean][];
+    private readonly resourcesToAdd: [string, AssociationOrientation][];
     // todo this is only temporary until the dialog is created
     private readonly replaceClassWithReference: boolean;
+    private readonly ciselnikIri: string;
 
     /**
      * @param forDataPsmClass
      * @param sourcePimModel
      * @param resourcesToAdd true - the edge is outgoing (from source to this resource)
      * @param replaceClassWithReference - whether it should try to find existing class instead of creating a new one
+     * @param ciselnikIri - iri to PIM class číselník located in sourcePimModel store
      */
-    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][], replaceClassWithReference: boolean) {
+    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][], replaceClassWithReference: boolean, ciselnikIri: string) {
         this.forDataPsmClass = forDataPsmClass;
         this.sourcePimModel = sourcePimModel;
         this.resourcesToAdd = resourcesToAdd;
         this.replaceClassWithReference = replaceClassWithReference;
+        this.ciselnikIri = ciselnikIri;
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
         const pimStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.dataPsmInterpretation as string);
         const dataPsmStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.iri as string);
         const interpretedPimClass = await executor.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
+        const ciselnik = await this.sourcePimModel.readResource(this.ciselnikIri) as PimClass | null;
 
         let correspondingSourcePimClass: PimClass | null = null;
         let allResources = await this.sourcePimModel.listResources();
@@ -70,7 +81,7 @@ export class AddClassSurroundings implements ComplexOperation {
                 await this.processAttribute(resource, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
             }
             if (PimAssociation.is(resource)) {
-                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
+                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass, ciselnik);
             }
         }
     }
@@ -126,11 +137,12 @@ export class AddClassSurroundings implements ComplexOperation {
 
     private async processAssociation(
         association: PimAssociation,
-        orientation: boolean, // true if outgoing
+        orientation: AssociationOrientation, // true if outgoing
         executor: OperationExecutor,
         pimStoreSelector: StoreDescriptor,
         dataPsmStoreSelector: StoreDescriptor,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
+        ciselnik: PimClass | null,
     ) {
         const dom = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
         const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
@@ -140,6 +152,11 @@ export class AddClassSurroundings implements ComplexOperation {
 
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
+
+        // Add hierarchy to ciselnik if exists
+        if (orientation && ciselnik) {
+            await this.createExtendsHierarchyFromTo(rng, ciselnik, pimStoreSelector, executor);
+        }
 
         let psmEndRefersToIri: string | null = null;
 
