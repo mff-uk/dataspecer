@@ -10,16 +10,18 @@ CONSTRUCT {
 		skos:definition ?definition ;
 		skos:inScheme ?glossary .
 } WHERE {
-	%NODE% rdfs:subClassOf* ?ancestor .
-	FILTER NOT EXISTS {
-		?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
-	}
-
-	OPTIONAL {
-		?ancestor rdfs:subClassOf ?ancestorParent .
-		?ancestorParent skos:inScheme [] .
+	{
+		%NODE% rdfs:subClassOf* ?ancestor .
 		FILTER NOT EXISTS {
-			?ancestorParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+			?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+		}
+
+		OPTIONAL {
+			?ancestor rdfs:subClassOf ?ancestorParent .
+			?ancestorParent skos:inScheme [] .
+			FILTER NOT EXISTS {
+				?ancestorParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+			}
 		}
 	}
 
