@@ -1,9 +1,10 @@
-import {CoreResourceLink} from "./core-resource-link";
+import {Resource, ResourceInfo} from "./resource";
 import {ComplexOperation} from "./complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "./operation-executor";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
 import {ConfigurationStoreMetadata} from "../configuration/configuration";
+import {SyncMemoryStore} from "./core-stores/sync-memory-store";
 
 export interface StoreWithMetadata {
     store: CoreResourceReader & (CoreResourceWriter | {});
@@ -13,19 +14,18 @@ export interface StoreWithMetadata {
 // todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
 export type _CoreResourceReader_WithMissingMethods = Omit<CoreResourceReader, "listResourcesOfType"> & Pick<FederatedObservableStore, "getPimHavingInterpretation" | "listResourcesOfType">;
 
-export type Subscriber = (iri: string, resource: CoreResourceLink, store: StoreWithMetadata | null) => void;
-
+export type Subscriber = (iri: string, resource: Resource & ResourceInfo) => void;
+// The idea is that the old value stays if it makes sense
 interface Subscription {
     // Computed property from store values.
-    currentValue: CoreResourceLink;
-    originatedStore: StoreWithMetadata | null;
+    currentValue: Resource & ResourceInfo;
 
     /**
-     * The {@link CoreResourceLink} is used differently here. We only need to distinguish the following states:
-     *  - resource is being loaded (the {@link CoreResourceLink.resource} is irrelevant
+     * The {@link Resource} is used differently here. We only need to distinguish the following states:
+     *  - resource is being loaded (the {@link Resource.resource} is irrelevant
      *  - store already responded
      */
-    storeValues: Map<StoreWithMetadata, CoreResourceLink | null>;
+    storeValues: Map<StoreWithMetadata, Resource | null>;
 
     subscribers: Subscriber[];
 }
@@ -92,23 +92,13 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
 
     addSubscriber(iri: string, subscriber: Subscriber) {
         if (!this.subscriptions.has(iri)) {
-            this.subscriptions.set(iri, {
-                currentValue: {
-                    resource: null,
-                    isLoading: false,
-                },
-                storeValues: new Map(this.stores.map(s => [s, null])),
-                subscribers: [],
-                originatedStore: null,
-            });
-
-            this.check(iri); // ask every store
+            this.createSubscriptionForNewResource(iri);
         }
 
         const subscription = this.subscriptions.get(iri) as Subscription;
 
         subscription.subscribers.push(subscriber);
-        subscriber(iri, subscription.currentValue, subscription.originatedStore);
+        subscriber(iri, subscription.currentValue);
     }
 
     removeSubscriber(iri: string, subscriber: Subscriber) {
@@ -123,17 +113,24 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         const subscription = this.subscriptions.get(iri);
 
         if (subscription) {
-            subscription.storeValues = new Map<StoreWithMetadata, CoreResourceLink | null>(this.stores.map(s => [s, null]));
+            subscription.storeValues = new Map<StoreWithMetadata, Resource | null>(this.stores.map(s => [s, null]));
             this.check(iri);
         }
     }
 
-    optimizeGetCachedValue(iri: string) {
-        return this.subscriptions.get(iri)?.currentValue;
-    }
+    /**
+     * Returns the {@link Resource & ResourceInfo} for given iri
+     *
+     * By calling this method the caller guarantees that eventually it will subscribe.
+     * @param iri
+     */
+    optimizePreSubscribe<ResourceType extends CoreResource>(iri: string): Resource<ResourceType> & ResourceInfo {
+        if (!this.subscriptions.has(iri)) {
+            this.createSubscriptionForNewResource(iri);
+        }
 
-    optimizeGetOriginatedStore(iri: string): StoreWithMetadata | null {
-        return this.subscriptions.get(iri)?.originatedStore ?? null;
+        const subscription = this.subscriptions.get(iri) as Subscription;
+        return subscription.currentValue as Resource<ResourceType> & ResourceInfo;
     }
 
     getStores(): StoreWithMetadata[] {
@@ -178,7 +175,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         }
 
         for (const iri of this.resourcesToCheckAfterOperation) {
-            const subscription = this.subscriptions.get(iri);
+            const subscription = this.subscriptions.has(iri);
             if (subscription) {
                 this.check(iri);
             }
@@ -220,7 +217,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         for (const [iri, subscription] of this.subscriptions) {
             if (!subscription.currentValue.isLoading &&
                 subscription.currentValue.resource &&
-                subscription.originatedStore === store) {
+                subscription.currentValue.store === store) {
 
                 visitedResources.add(iri);
                 if ((PimAssociation.is(subscription.currentValue.resource)
@@ -251,6 +248,20 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
         }
 
         return null;
+    }
+
+    private createSubscriptionForNewResource(iri: string) {
+        this.subscriptions.set(iri, {
+            currentValue: {
+                resource: null,
+                isLoading: false,
+                store: null,
+            },
+            storeValues: new Map(this.stores.map(s => [s, null])),
+            subscribers: [],
+        });
+
+        this.check(iri); // ask every store
     }
 
     private applyOperationForExecutor = async (operation: CoreOperation, storeDescriptor: StoreDescriptor) => {
@@ -297,20 +308,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
 
         for (let [store, link] of subscription.storeValues) {
             if (!link) {
-                // We need to fetch new value
-                store.store.readResource(iri).then(resource => {
-                    const subscription = this.subscriptions.get(iri);
-                    // The store and the subscription still must exists
-                    if (subscription && subscription.storeValues.has(store)) {
-                        const entry = subscription.storeValues.get(store) as CoreResourceLink;
-                        entry.resource = resource;
-                        entry.isLoading = false;
-                        this.check(iri);
-                    }
-                });
-
-                link = {resource: null, isLoading: true};
-                subscription.storeValues.set(store, link);
+                link = this.storeReadResource(store, iri);
             }
 
             if (link.isLoading) {
@@ -335,29 +333,70 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
             (isLoading ? subscription.currentValue.resource : null);
 
         // Check if new* values differs from others
-        if (subscription.currentValue.isLoading !== newIsLoading || subscription.currentValue.resource !== newCurrentValue) {
+        if (
+            subscription.currentValue.isLoading !== newIsLoading ||
+            subscription.currentValue.resource !== newCurrentValue ||
+            subscription.currentValue.store !== forStore
+        ) {
             subscription.currentValue = {
                 resource: newCurrentValue,
                 isLoading: newIsLoading,
+                store: forStore,
             }
 
-            subscription.subscribers.forEach(s => s(iri, subscription.currentValue, subscription.originatedStore));
+            subscription.subscribers.forEach(s => s(iri, subscription.currentValue));
         }
-        subscription.originatedStore = forStore;
+    }
+
+    /**
+     * For given store and iri, start reloading the resource.
+     * @param storeWithMetadata
+     * @param iri
+     * @private
+     */
+    private storeReadResource(storeWithMetadata: StoreWithMetadata, iri: string) {
+        const subscription = this.subscriptions.get(iri) as Subscription;
+        const store = storeWithMetadata.store;
+
+        let resource: Resource;
+
+        if (store instanceof SyncMemoryStore) {
+            resource = {
+                resource: store.readResourceSync(iri),
+                isLoading: false,
+            }
+        } else {
+            // We need to fetch new value
+            store.readResource(iri).then(resource => {
+                const subscription = this.subscriptions.get(iri);
+                // The store and the subscription still must exists
+                if (subscription && subscription.storeValues.has(storeWithMetadata)) {
+                    const entry = subscription.storeValues.get(storeWithMetadata) as Resource;
+                    entry.resource = resource;
+                    entry.isLoading = false;
+                    this.check(iri);
+                }
+            });
+
+            resource = {resource: null, isLoading: true};
+        }
+
+        subscription.storeValues.set(storeWithMetadata, resource);
+        return resource;
     }
 
     private async getStoresByStoreDescriptor(storeDescriptor: StoreDescriptor): Promise<StoreWithMetadata[]> {
         let foundStores: Set<StoreWithMetadata> = new Set<StoreWithMetadata>();
 
         if (StoreHavingResourceDescriptor.is(storeDescriptor)) {
-            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.originatedStore;
+            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.currentValue.store;
             if (originatedStore) {
                 foundStores.add(originatedStore);
             } else {
                 foundStores.add(await new Promise(resolve => {
                     const subscriber: Subscriber = (iri1, resource) => {
                         if (!resource.isLoading) {
-                            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.originatedStore;
+                            const originatedStore = this.subscriptions.get(storeDescriptor.resource)?.currentValue.store;
                             this.removeSubscriber(storeDescriptor.resource, subscriber);
                             if (!originatedStore) {
                                 console.log("resource from StoreHavingResourceDescriptor", storeDescriptor.resource);

@@ -3,12 +3,13 @@ import React from "react";
 import {StoreContext} from "../App";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {PimAssociation} from "model-driven-data/pim/model";
-import {CoreResourceLink} from "../../store/core-resource-link";
+import {Resource, ResourceInfo} from "../../store/resource";
+import {useResource} from "../../hooks/useResource";
 
-export const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null): CoreResourceLink<PimAssociation> => {
+export const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null): Resource<PimAssociation> & ResourceInfo => {
     const {store} = React.useContext(StoreContext);
 
-    const [resource, isLoading] = useAsyncMemo<PimAssociation | null>(async () => {
+    const [resource] = useAsyncMemo<PimAssociation | null>(async () => {
         if (pimAssociationEndIri) {
             const resources = await store.listResources();
             for (const resourceIri of resources) {
@@ -23,8 +24,5 @@ export const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: str
         return null;
     }, [pimAssociationEndIri]);
 
-    return {
-        resource: resource ?? null,
-        isLoading,
-    }
+    return useResource<PimAssociation>(resource?.iri ?? null);
 }

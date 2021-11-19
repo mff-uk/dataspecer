@@ -36,6 +36,10 @@ export class SyncMemoryStore implements CoreResourceReader, CoreResourceWriter {
         return this.memoryStore.applyOperation(operation);
     }
 
+    readResourceSync(iri: string): CoreResource | null {
+        return this.memoryStore.resources[iri] ?? null;
+    }
+
     /**
      * Saves content of the store to the Internet
      */

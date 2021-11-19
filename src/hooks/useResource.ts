@@ -1,41 +1,27 @@
 import {CoreResource} from "model-driven-data/core";
 import React, {useCallback, useEffect, useState} from "react";
 import {StoreContext} from "../components/App";
-import {CoreResourceLink} from "../store/core-resource-link";
-import {StoreWithMetadata, Subscriber} from "../store/federated-observable-store";
+import {Resource, ResourceInfo} from "../store/resource";
+import {Subscriber} from "../store/federated-observable-store";
+
+const loadingEmptyLink = {
+    resource: null,
+    isLoading: true, // The whole idea is that if IRI is null, that means that some other resource is being loaded, therefore transitively also this resource is loading
+    store: null,
+}
 
 export const useResource = <ResourceType extends CoreResource>(iri: string | null) => {
     const {store} = React.useContext(StoreContext);
-    const [state, setState] = useState<CoreResourceLink<ResourceType> & {store: StoreWithMetadata | null}>(() => {
+    const [state, setState] = useState<Resource<ResourceType> & ResourceInfo>(() => {
         if (iri) {
-            const cached = store.optimizeGetCachedValue(iri) as CoreResourceLink<ResourceType>;
-            if (cached) {
-                return {
-                    ...cached,
-                    store: store.optimizeGetOriginatedStore(iri),
-                };
-            }
+            return store.optimizePreSubscribe<ResourceType>(iri);
         }
 
-        return {
-            resource: null,
-            isLoading: true,
-            store: null,
-        }
+        return loadingEmptyLink;
     });
 
-    const [stateInjector] = useState({state});
-    stateInjector.state = state;
-
-    const subscriber = useCallback<Subscriber>((_, resource, store) => {
-        const state = stateInjector.state;
-        if (resource.resource === state.resource && resource.isLoading === state.isLoading && store === state.store) {
-            return;
-        }
-        setState({
-            ...(resource as CoreResourceLink<ResourceType>),
-            store
-        });
+    const subscriber = useCallback<Subscriber>((_, resource) => {
+        setState(resource as Resource<ResourceType> & ResourceInfo);
     }, []);
 
     useEffect(() => {
@@ -44,11 +30,7 @@ export const useResource = <ResourceType extends CoreResource>(iri: string | nul
             store.addSubscriber(iri, subscriber);
             return () => oldStore.removeSubscriber(iri, subscriber);
         } else {
-            setState({
-                resource: null,
-                isLoading: false,
-                store: null,
-            });
+            setState(loadingEmptyLink);
         }
     }, [iri, store]);
 

@@ -61,7 +61,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         setSubject(subject);
         subject.subscribe(() => setError(false));
         subject.pipe(
-            debounceTime(200)
+            debounceTime(100)
         ).subscribe(term => {
             if (term) {
                 setLoading(true);
