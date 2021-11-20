@@ -2,9 +2,10 @@ import {Resource, ResourceInfo} from "./resource";
 import {ComplexOperation} from "./complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "./operation-executor";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
-import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "model-driven-data/core";
 import {ConfigurationStoreMetadata} from "../configuration/configuration";
 import {SyncMemoryStore} from "./core-stores/sync-memory-store";
+import {cloneResource} from "./clone-resource";
 
 export interface StoreWithMetadata {
     store: CoreResourceReader & (CoreResourceWriter | {});
@@ -362,7 +363,12 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
 
         if (store instanceof SyncMemoryStore) {
             resource = {
-                resource: store.readResourceSync(iri),
+                resource: cloneResource(store.readResourceSync(iri)),
+                isLoading: false,
+            }
+        } else if (store instanceof MemoryStore) {
+            resource = {
+                resource: cloneResource((store as unknown as {resources: {[iri: string]: CoreResource}}).resources[iri] ?? null),
                 isLoading: false,
             }
         } else {
@@ -372,7 +378,7 @@ export class FederatedObservableStore implements _CoreResourceReader_WithMissing
                 // The store and the subscription still must exists
                 if (subscription && subscription.storeValues.has(storeWithMetadata)) {
                     const entry = subscription.storeValues.get(storeWithMetadata) as Resource;
-                    entry.resource = resource;
+                    entry.resource = cloneResource(resource);
                     entry.isLoading = false;
                     this.check(iri);
                 }

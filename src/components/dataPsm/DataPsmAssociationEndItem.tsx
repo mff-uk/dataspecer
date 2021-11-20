@@ -83,7 +83,6 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const associationEndHumanLabel: LanguageString = useMemo(() => ({...pimAssociationEnd?.pimHumanLabel, ...dataPsmAssociationEnd?.dataPsmHumanLabel}), [pimAssociationEnd?.pimHumanLabel, dataPsmAssociationEnd?.dataPsmHumanLabel]);
     const hasHumanLabelOnAssociationEnd = Object.keys(associationEndHumanLabel).length > 0;
 
-
     return <li className={styles.li}>
         <Typography className={styles.root}>
             {isCiselnik ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}

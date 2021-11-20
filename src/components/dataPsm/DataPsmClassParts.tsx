@@ -18,10 +18,14 @@ interface DataPsmResourceSwitchProperties {
  * render it. During the update, it will remembers the last type to not discard the subtree.
  */
 const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((props) => {
-    const {resource: dataPsmResource} = useResource(props.dataPsmResourceIri);
+    const {resource: dataPsmResource, isLoading} = useResource(props.dataPsmResourceIri);
 
     if (!dataPsmResource) {
-        return <div {...props.dragHandleProps}>Error or loading for the first time</div>;
+        if (isLoading) {
+            return <div {...props.dragHandleProps}>Loading resource...</div>;
+        } else {
+            return <div {...props.dragHandleProps}>Unable to read resource {props.dataPsmResourceIri}</div>;
+        }
     } else if (DataPsmAttribute.is(dataPsmResource)) {
         return <DataPsmAttributeItem {...props}/>;
     } else if (DataPsmAssociationEnd.is(dataPsmResource)) {

@@ -10,8 +10,6 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import classNames from "classnames";
-import {PimAttribute} from "model-driven-data/pim/model";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {StoreContext} from "../App";
 import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-dialog";
 import {InlineEdit} from "./common/InlineEdit";
@@ -20,7 +18,8 @@ import {DeleteAttribute} from "../../operations/delete-attribute";
 import {Datatype} from "./common/Datatype";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
-    const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
+    //const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
+    const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
     const dialog = useToggle();
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
