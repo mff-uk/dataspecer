@@ -12,6 +12,7 @@ import {StoreModel} from "./models/StoreModel";
 import {createDataPsm, deleteDataPsm} from "./routes/dataPsm";
 import cors from "cors";
 import {configurationByDataPsm} from "./routes/configuration";
+import bodyParser from "body-parser";
 
 require('dotenv').config();
 
@@ -24,9 +25,10 @@ export const prisma = new PrismaClient();
 // Run express
 
 const application = express();
-application.use(express.json());
-application.use(express.urlencoded({ extended: true }));
 application.use(cors());
+application.use(bodyParser.json({limit: process.env.PAYLOAD_SIZE_LIMIT}));
+application.use(bodyParser.urlencoded({ extended: false, limit: process.env.PAYLOAD_SIZE_LIMIT }));
+application.use(bodyParser.urlencoded({ extended: true, limit: process.env.PAYLOAD_SIZE_LIMIT }));
 
 application.get('/specification', listSpecifications);
 application.post('/specification', addSpecification);

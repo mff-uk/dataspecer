@@ -36,7 +36,7 @@ export const configurationByDataPsm = async (request: express.Request, response:
         return;
     }
 
-    const reusesDataSpecifications = dataStructure?.belongsToDataSpecification.reusesDataSpecification ?? [];
+    const reusesDataSpecifications = [...dataStructure.belongsToDataSpecification.reusesDataSpecification] ?? [];
     let indexToCheck = 0;
     while (indexToCheck < reusesDataSpecifications.length) {
         const thisSpecification = reusesDataSpecifications[indexToCheck++];
@@ -73,14 +73,30 @@ export const configurationByDataPsm = async (request: express.Request, response:
         stores: [
             getStore(dataStructure.store, ["root", "data-psm"]),
             getStore(dataStructure.belongsToDataSpecification.pimStore, ["root", "pim"]),
-            ...reusesDataSpecifications.map(specification =>
-                getStore(specification.pimStore, ["pim", "linked", "read-only"])
+
+
+            ...dataStructure.belongsToDataSpecification.reusesDataSpecification.map(specification =>
+                getStore(specification.pimStore, ["pim", "reused", "read-only"])
             ),
-            ...reusesDataSpecifications.map(specification =>
+            ...dataStructure.belongsToDataSpecification.reusesDataSpecification.map(specification =>
                 specification.hasDataStructures.map(pimStore =>
-                    getStore(pimStore.store, ["data-psm", "linked", "read-only"])
+                    getStore(pimStore.store, ["data-psm", "reused", "read-only"])
                 )
-            ).flat()
+            ).flat(),
+
+
+            ...reusesDataSpecifications
+                .filter(spec => !dataStructure.belongsToDataSpecification.reusesDataSpecification.some(reusedSpec => reusedSpec.id === spec.id))
+                .map(specification =>
+                getStore(specification.pimStore, ["pim", "reused-recursively", "read-only"])
+            ),
+            ...reusesDataSpecifications
+                .filter(spec => !dataStructure.belongsToDataSpecification.reusesDataSpecification.some(reusedSpec => reusedSpec.id === spec.id))
+                .map(specification =>
+                specification.hasDataStructures.map(pimStore =>
+                    getStore(pimStore.store, ["data-psm", "reused-recursively", "read-only"])
+                )
+            ).flat(),
         ]
     }
     response.send(JSON.stringify(data));
