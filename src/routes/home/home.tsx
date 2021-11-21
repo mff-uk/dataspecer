@@ -4,10 +4,11 @@ import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHe
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
 import {CreateSpecification} from "./create-specification";
+import {DataSpecification} from "../../interfaces/data-specification";
 
-export const Home: React.FC<{}> = ({}) => {
-    const [specifications, isLoading, reloadSpecifications]
-        = useAsyncMemoWithTrigger(() => axios.get(`${process.env.REACT_APP_BACKEND}/specification`), []);
+export const Home: React.FC<{}> = () => {
+    const [specifications, , reloadSpecifications]
+        = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${process.env.REACT_APP_BACKEND}/specification`), []);
 
     const deleteSpecification = useCallback(async (id: string) => {
         await axios.delete(`${process.env.REACT_APP_BACKEND}/specification/${id}`);
@@ -18,7 +19,7 @@ export const Home: React.FC<{}> = ({}) => {
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
             <Typography variant="h4" component="div" gutterBottom>
-                List of available specifications
+                List of data specifications
             </Typography>
             <CreateSpecification reload={reloadSpecifications}/>
         </Box>
@@ -33,7 +34,7 @@ export const Home: React.FC<{}> = ({}) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specifications?.data?.map((row: any) => (
+                    {specifications?.data?.map(row => (
                         <TableRow
                             key={row.name}
                             sx={{'&:last-child td, &:last-child th': {border: 0}}}

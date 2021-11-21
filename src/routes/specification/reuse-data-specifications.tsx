@@ -4,19 +4,18 @@ import {useToggle} from "../../use-toggle";
 import axios from "axios";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import PowerIcon from '@mui/icons-material/Power';
+import {DataSpecification} from "../../interfaces/data-specification";
 
-export const LinkSpecification: React.FC<{ reload: (() => void) | undefined, specificationId: string }>
+export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefined, specificationId: string }>
     = ({
            reload,
            specificationId
        }) => {
     const dialog = useToggle();
-    const [name, setName] = useState<string>("");
 
-    const [specifications, isLoading, reloadSpecifications]
-        = useAsyncMemoWithTrigger(() => axios.get(`${process.env.REACT_APP_BACKEND}/specification`), []);
+    const [specifications] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${process.env.REACT_APP_BACKEND}/specification`), []);
 
-    const [specification, isLoading2, reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), []);
+    const [specification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), []);
 
     const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
     const handleToggle = (value: string) => () => {
@@ -34,7 +33,7 @@ export const LinkSpecification: React.FC<{ reload: (() => void) | undefined, spe
 
     useEffect(() => {
         if (specification) {
-            setSelectedSpecificationIds(specification.data.linkedSpecification.map((linked: any) => linked.id));
+            setSelectedSpecificationIds(specification.data.reusesDataSpecification.map(linked => linked.id));
         }
     }, [specification]);
 
@@ -44,18 +43,18 @@ export const LinkSpecification: React.FC<{ reload: (() => void) | undefined, spe
         });
         reload?.();
         dialog.close();
-    }, [reload, dialog, name, specificationId]);
+    }, [reload, dialog, specificationId, selectedSpecificationIds]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
             <PowerIcon sx={{mr: 1}}/>
-            Set linked specifications
+            Set reused data specifications
         </Fab>
         <Dialog open={dialog.isOpen} onClose={dialog.close} maxWidth={"xs"} fullWidth>
-            <DialogTitle>Create new data PSM</DialogTitle>
+            <DialogTitle>Reuse data specifications</DialogTitle>
             <DialogContent>
                 <List>
-                    {specification && specifications?.data?.filter((spec: any) => spec.id !== specificationId).map((spec: any) => {
+                    {specification && specifications?.data?.filter(spec => spec.id !== specificationId).map(spec => {
                         return (
                             <ListItem key={spec.id} disablePadding>
                                 <ListItemButton role={undefined} onClick={handleToggle(spec.id)} dense>
@@ -75,7 +74,7 @@ export const LinkSpecification: React.FC<{ reload: (() => void) | undefined, spe
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={save} fullWidth variant="contained">Link</Button>
+                <Button onClick={save} fullWidth variant="contained">Reuse selected data specifications</Button>
             </DialogActions>
         </Dialog>
     </>

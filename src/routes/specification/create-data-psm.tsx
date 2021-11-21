@@ -16,15 +16,16 @@ export const CreateDataPsm: React.FC<{ reload: (() => void) | undefined, specifi
         await axios.post(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`, {name});
         reload?.();
         dialog.close();
+        setName("");
     }, [reload, dialog, name, specificationId]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
             <AddIcon sx={{mr: 1}}/>
-            Create new data PSM
+            Create new
         </Fab>
         <Dialog open={dialog.isOpen} onClose={dialog.close} maxWidth={"xs"} fullWidth>
-            <DialogTitle>Create new data PSM</DialogTitle>
+            <DialogTitle>Create new data structure</DialogTitle>
             <DialogContent>
                 <TextField
                     autoFocus
@@ -35,6 +36,12 @@ export const CreateDataPsm: React.FC<{ reload: (() => void) | undefined, specifi
                     variant="standard"
                     value={name}
                     onChange={e => setName(e.target.value)}
+                    onKeyDown={event => {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            create().then();
+                        }
+                    }}
                 />
             </DialogContent>
             <DialogActions>
