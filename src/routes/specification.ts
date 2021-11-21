@@ -3,22 +3,22 @@ import {prisma, storeModel} from "../main";
 import { v4 as uuidv4 } from 'uuid';
 
 export const listSpecifications = async (request: express.Request, response: express.Response) => {
-    response.send(JSON.stringify(await prisma.specification.findMany({include: {DataPsm: true}})));
+    response.send(JSON.stringify(await prisma.dataSpecification.findMany({include: {hasDataStructures: true}})));
 }
 
 export const getSpecification = async (request: express.Request, response: express.Response) => {
-    response.send(JSON.stringify(await prisma.specification.findFirst({
+    response.send(JSON.stringify(await prisma.dataSpecification.findFirst({
         where: {
             id: request.params.specificationId,
         },
-        include: {DataPsm: true, linkedSpecification: true}
+        include: {hasDataStructures: true, reusesDataSpecification: true}
     })));
 }
 
 export const addSpecification = async (request: express.Request, response: express.Response) => {
     const pimStore = await storeModel.create();
 
-    const specification = await prisma.specification.create({
+    const specification = await prisma.dataSpecification.create({
         data: {
             id: uuidv4(),
             pimStore: pimStore,
@@ -30,9 +30,9 @@ export const addSpecification = async (request: express.Request, response: expre
 }
 
 export const deleteSpecification = async (request: express.Request, response: express.Response) => {
-    const allDataPsm = await prisma.dataPsm.findMany({
+    const allDataPsm = await prisma.dataStructure.findMany({
         where: {
-            specification: {
+            belongsToDataSpecification: {
                 id: request.params.specificationId
             }
         }
@@ -40,15 +40,15 @@ export const deleteSpecification = async (request: express.Request, response: ex
 
     allDataPsm.forEach(dataPsm => storeModel.remove(dataPsm.store));
 
-    await prisma.dataPsm.deleteMany({
+    await prisma.dataStructure.deleteMany({
         where: {
-            specification: {
+            belongsToDataSpecification: {
                 id: request.params.specificationId,
             }
         }
     });
 
-    const specification = await prisma.specification.delete({
+    const specification = await prisma.dataSpecification.delete({
         where: {
             id: request.params.specificationId,
         },
@@ -60,12 +60,12 @@ export const deleteSpecification = async (request: express.Request, response: ex
 
 export const modifySpecification = async (request: express.Request, response: express.Response) => {
     if (request.body.linkedSpecifications) {
-        await prisma.specification.update({
+        await prisma.dataSpecification.update({
             where: {
                 id: request.params.specificationId,
             },
             data: {
-                linkedSpecification: {
+                reusesDataSpecification: {
                     set: request.body.linkedSpecifications.map((id: string) => ({id}))
                 }
             }

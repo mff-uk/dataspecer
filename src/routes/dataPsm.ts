@@ -4,12 +4,12 @@ import {v4 as uuidv4} from "uuid";
 
 export const createDataPsm = async (request: express.Request, response: express.Response) => {
     const dataPsmStore = await storeModel.create();
-    const dataPsm = await prisma.dataPsm.create({
+    const dataPsm = await prisma.dataStructure.create({
         data: {
             id: uuidv4(),
             name: String(request.body.name),
             store: dataPsmStore,
-            specification: {
+            belongsToDataSpecification: {
                 connect: {
                     id: request.params.specificationId
                 }
@@ -20,7 +20,7 @@ export const createDataPsm = async (request: express.Request, response: express.
 }
 
 export const deleteDataPsm = async (request: express.Request, response: express.Response) => {
-    const result = await prisma.dataPsm.delete({
+    const result = await prisma.dataStructure.delete({
         where: {
             id: request.params.dataPsmId,
         },
