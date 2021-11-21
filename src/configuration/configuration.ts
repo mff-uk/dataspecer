@@ -23,4 +23,4 @@ export interface ConfigurationStoreMetadata {
     tags: StoreMetadataTag[];
 }
 
-export type StoreMetadataTag = ("root" | "pim" | "data-psm" | "cim-as-pim" | "linked" | "read-only");
+export type StoreMetadataTag = ("root" | "pim" | "data-psm" | "cim-as-pim" | "reused" | "reused-recursively" | "read-only");

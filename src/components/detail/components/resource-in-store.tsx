@@ -77,8 +77,11 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
                                 {resource.store?.metadata.tags.includes("root") &&
                                 <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag root")}</div>
                                 }
-                                {resource.store?.metadata.tags.includes("linked") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag linked")}</div>
+                                {resource.store?.metadata.tags.includes("reused") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag reused")}</div>
+                                }
+                                {resource.store?.metadata.tags.includes("reused-recursively") &&
+                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag reused-recursively")}</div>
                                 }
                                 {resource.store?.metadata.tags.includes("pim") &&
                                 <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag pim")}</div>

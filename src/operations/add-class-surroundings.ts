@@ -18,7 +18,7 @@ import {createPimClassIfMissing} from "./helper/pim";
  */
 export type AssociationOrientation = boolean;
 
-const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["linked"]);
+const REUSED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["reused"]);
 
 /**
  * With each association, the direction of the association must be specified. Suppose we have class Person representing
@@ -163,7 +163,7 @@ export class AddClassSurroundings implements ComplexOperation {
         // Try to replace the range class with a reference
         if (this.replaceClassWithReference && otherAssociationEndClass.pimInterpretation) {
             // List all PSM schemas from linked stores
-            const schemas = await executor.store.listResourcesOfType(SCHEMA, LINKED_STORE_DESCRIPTOR);
+            const schemas = await executor.store.listResourcesOfType(SCHEMA, REUSED_STORE_DESCRIPTOR);
 
             let foundExistingDataPsm: string | null = null;
 
