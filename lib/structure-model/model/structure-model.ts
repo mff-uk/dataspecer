@@ -1,23 +1,17 @@
+import {LanguageString} from "../../core";
+import {StructureModelClass} from "./structure-model-class";
+
 /**
  * Schema is the root object that is used to identify a collection of classes.
  * We can see schema as a diagram that contains the class definitions.
  */
-import {LanguageString} from "../../core";
-import {ObjectModelClass} from "./object-model-class";
-
-export class ObjectModelSchema {
+export class StructureModel {
 
   /**
    * PSM level entity IRI. The schema exists only on PSM level thus
    * there are no IRS of PIM or CIM.
    */
   psmIri: string | null = null;
-
-  /**
-   * Label used by a computer, can be used as for example as a name of
-   * a property in JSON.
-   */
-  technicalLabel: string | null = null;
 
   /**
    * Label visible to a human reader.
@@ -29,14 +23,23 @@ export class ObjectModelSchema {
    */
   humanDescription: LanguageString | null = null;
 
+  technicalLabel: string | null = null;
+
   /**
    * Root classes as specified by the data-psm schema.
    */
-  roots: ObjectModelClass[] = [];
+  roots: string[] = [];
 
   /**
-   * All classes in the schema including the root classes.
+   * All classes in the schema including the root classes, stored
+   * under PSM IRI.
    */
-  classes: ObjectModelClass[] = [];
+  classes: { [iri: string]: StructureModelClass } = {};
+
+  /**
+   * Specification this schema was loaded from. This can be provided by the
+   * user or set by ClassReference.
+   */
+  specification: string | null = null;
 
 }

@@ -1,8 +1,5 @@
 import {OutputStream} from "../io/stream/output-stream";
-import {
-  JsonArrayWriter,
-  JsonObjectWriter,
-} from "./json-writer";
+import {JsonArrayWriter, JsonObjectWriter} from "./json-writer";
 
 class StringJsonWriterContext {
 
@@ -52,7 +49,7 @@ class StringJsonObjectWriter implements JsonObjectWriter {
   }
 
   valueIfNotNull(
-    key:string, value: string | number | boolean | null
+    key: string, value: string | number | boolean | null
   ): Promise<void> {
     if (value === null) {
       return;
@@ -60,20 +57,20 @@ class StringJsonObjectWriter implements JsonObjectWriter {
     return this.value(key, value);
   }
 
-  value(key:string, value: string | number | boolean | null): Promise<void> {
+  value(key: string, value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
     this.context.buffer += `"${key}":` + valueToString(value);
     return this.context.flush();
   }
 
-  object(key:string): JsonObjectWriter {
+  object(key: string): JsonObjectWriter {
     this.context.writeSeparator();
     this.context.buffer += `"${key}":{`;
     this.context.openComplex();
     return new StringJsonObjectWriter(this.context);
   }
 
-  array(key:string): JsonArrayWriter {
+  array(key: string): JsonArrayWriter {
     this.context.writeSeparator();
     this.context.buffer += `"${key}":[`;
     this.context.openComplex();

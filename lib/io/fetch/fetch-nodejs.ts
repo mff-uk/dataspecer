@@ -32,6 +32,8 @@ function getFileContentType(extension: string): string | undefined {
       return "application/n-triples";
     case "nq":
       return "application/n-quads";
+    case "json":
+      return "application/json";
     default:
       return undefined;
   }

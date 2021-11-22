@@ -1,10 +1,10 @@
 import {
-  ObjectModelClass,
-  ObjectModelPrimitive,
-  ObjectModelProperty,
-  ObjectModelResource,
-  ObjectModelSchema,
-} from "../object-model";
+  StructureModelClass,
+  StructureModelPrimitiveType,
+  StructureModelProperty,
+  StructureModel,
+  StructureModelType, StructureModelComplexType,
+} from "../structure-model";
 import {
   XmlSchema,
   XmlSchemaComplexContentElement,
@@ -15,46 +15,70 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaType,
 } from "./xml-schema-model";
+import {OFN} from "../well-known";
 
-export function objectModelToXmlSchema(schema: ObjectModelSchema): XmlSchema {
+type ClassMap = Record<string, StructureModelClass>;
+
+export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
+  const classMap: ClassMap = collectClassMap(schema);
   return {
     "targetNamespace": null,
-    "elements": Object.values(schema.roots).map(classToElement),
+    "elements": schema.roots
+      .map(iri => classMap[iri])
+      .map(classData => classToElement(classMap, classData)),
   };
 }
 
-function classToElement(classData: ObjectModelClass): XmlSchemaElement {
+function collectClassMap(schema: StructureModel): ClassMap {
+  const result: ClassMap = {};
+  for (const classData of Object.values(schema.classes)) {
+    result[classData.psmIri] = classData;
+  }
+  return result;
+}
+
+function classToElement(
+  classMap: ClassMap,
+  classData: StructureModelClass
+): XmlSchemaElement {
   return {
     "elementName": classData.technicalLabel,
     "type": {
       "name": null,
-      "complexDefinition": classToComplexType(classData),
+      "complexDefinition": classToComplexType(classMap, classData),
     } as XmlSchemaComplexType,
   };
 }
 
 function classToComplexType(
-  classData: ObjectModelClass,
+  classMap: ClassMap,
+  classData: StructureModelClass,
 ): XmlSchemaComplexTypeDefinition {
   return {
     "mixed": false,
     "xsType": "sequence",
-    "contents":
-      Object.values(classData.properties).map(propertyToComplexContent),
+    "contents": classData.properties.map(
+      property => propertyToComplexContent(classMap, property)
+    ),
   };
 }
 
 function propertyToComplexContent(
-  propertyData: ObjectModelProperty,
+  classMap: ClassMap,
+  propertyData: StructureModelProperty,
 ): XmlSchemaComplexContentElement {
   return {
-    "cardinality": propertyData.cardinality,
-    "element": propertyToElement(propertyData),
+    "cardinality": {
+      "min": propertyData.cardinalityMin,
+      "max": propertyData.cardinalityMax,
+    },
+    "element": propertyToElement(classMap, propertyData),
   };
 }
 
 function propertyToElement(
-  propertyData: ObjectModelProperty,
+  classMap: ClassMap,
+  propertyData: StructureModelProperty,
 ): XmlSchemaElement {
   if (propertyData.dataTypes.length === 0) {
     throw new Error(`Property ${propertyData.psmIri} has no specified types.`);
@@ -63,10 +87,14 @@ function propertyToElement(
   // for all types in the property range.
   const result =
     propertyToElementCheckType(
-      propertyData, ObjectModelClass.is, classPropertyToComplexType,
-    ) ?? propertyToElementCheckType(
-      propertyData, ObjectModelPrimitive.is, datatypePropertyToSimpleType,
-    );
+      propertyData,
+      type => type.isAssociation(),
+      type => classPropertyToComplexType(classMap, type))
+    ??
+    propertyToElementCheckType(
+      propertyData,
+      type => type.isAttribute(),
+      datatypePropertyToSimpleType);
   if (result == null) {
     throw new Error(
       `Property ${propertyData.psmIri} must use either only `
@@ -77,9 +105,9 @@ function propertyToElement(
 }
 
 function propertyToElementCheckType(
-  propertyData: ObjectModelProperty,
-  rangeChecker: (rangeType: ObjectModelResource) => boolean,
-  typeConstructor: (propertyData: ObjectModelProperty) => XmlSchemaType,
+  propertyData: StructureModelProperty,
+  rangeChecker: (rangeType: StructureModelType) => boolean,
+  typeConstructor: (propertyData: StructureModelProperty) => XmlSchemaType,
 ): XmlSchemaElement | null {
   if (propertyData.dataTypes.every(rangeChecker)) {
     return {
@@ -91,36 +119,40 @@ function propertyToElementCheckType(
 }
 
 function classPropertyToComplexType(
-  propertyData: ObjectModelProperty,
+  classMap: ClassMap,
+  propertyData: StructureModelProperty,
 ): XmlSchemaComplexType {
+  const dataTypes: StructureModelComplexType[] = propertyData.dataTypes as any;
   return {
     "name": null,
     "complexDefinition": {
       "mixed": false,
       "xsType": "choice",
-      "contents":
-        Object.values(propertyData.dataTypes).map(classToComplexContent),
+      "contents": dataTypes
+        .map(dataType => classMap[dataType.psmClassIri])
+        .map(classData => classToComplexContent(classMap, classData))
     },
   };
 }
 
 function datatypePropertyToSimpleType(
-  propertyData: ObjectModelProperty,
+  propertyData: StructureModelProperty,
 ): XmlSchemaSimpleType {
   return {
     "name": null,
     "simpleDefinition": {
       "xsType": "union",
-      "contents": Object.values(propertyData.dataTypes).map(primitiveToQName),
+      "contents": propertyData.dataTypes.map(primitiveToQName),
     },
   };
 }
 
 function classToComplexContent(
-  classData: ObjectModelClass,
+  classMap: ClassMap,
+  classData: StructureModelClass,
 ): XmlSchemaComplexContentType {
   return {
-    "complexType": classToComplexType(classData),
+    "complexType": classToComplexType(classMap, classData),
     "cardinality": null,
   };
 }
@@ -128,14 +160,12 @@ function classToComplexContent(
 /**
  * Temporary map from datatype URIs to QNames, if needed.
  */
-const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
-
-};
+const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {};
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
 function primitiveToQName(
-  primitiveData: ObjectModelPrimitive,
+  primitiveData: StructureModelPrimitiveType,
 ): [prefix: string, localName: string] {
   if (primitiveData.dataType == null) {
     return ["xs", "anySimpleType"];

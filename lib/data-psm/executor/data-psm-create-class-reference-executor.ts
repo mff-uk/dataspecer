@@ -25,6 +25,7 @@ export async function executeDataPsmCreateClassReference(
   const iri = operation.dataPsmNewIri ?? createNewIdentifier("class-reference");
   const result = new DataPsmClassReference(iri);
   result.dataPsmSpecification = operation.dataPsmSpecification;
+  result.dataPsmClass = operation.dataPsmClass;
 
   return CoreExecutorResult.createSuccess([result], [{
     ...schema,

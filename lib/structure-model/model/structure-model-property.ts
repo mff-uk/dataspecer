@@ -1,15 +1,7 @@
-/**
- * Base class for each entity, even for schema, in the object model.
- */
 import {LanguageString} from "../../core";
+import {StructureModelType} from "./structure-model-type";
 
-
-export class ObjectModelResource {
-
-  /**
-   * The cim level is optional as the pim level may not have an interpretation.
-   */
-  cimIri: string | null = null;
+export class StructureModelProperty {
 
   /**
    * The pim level is optional is data-psm level may not have an interpretation.
@@ -37,12 +29,10 @@ export class ObjectModelResource {
    */
   humanDescription: LanguageString | null = null;
 
-  /**
-   * Any resource have have additional set of metadata that
-   * are used by a specific algorithm. An example are additional fields
-   * generated as a part of the documentation.
-   */
-  metadata: {[key:string]: unknown} = {};
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
+
+  dataTypes: StructureModelType[] = [];
 
 }
-

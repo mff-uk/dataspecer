@@ -10,12 +10,20 @@ export class DataPsmCreateClassReference extends CoreOperation {
 
   static readonly TYPE = PSM.CREATE_CLASS_REFERENCE;
 
-  dataPsmNewIri: string | null = null;
-
   /**
    * IRI of the newly created object.
    */
+  dataPsmNewIri: string | null = null;
+
+  /**
+   * IRI of a specification.
+   */
   dataPsmSpecification: string | null = null;
+
+  /**
+   * IRI of the PSM class.
+   */
+  dataPsmClass: string | null = null;
 
   constructor() {
     super();

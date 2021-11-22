@@ -1,35 +1,31 @@
-import {ObjectModelSchema} from "../object-model";
 import {Bikeshed, BikeshedMetadataKeys} from "./bikeshed-model";
-import {
-  defaultStringSelector,
-  objectModelToWebSpecification,
-  defaultRootSelector,
-  DefaultLinkFactory,
-  WebSpecification,
-} from "../web-specification";
+import {WebSpecification} from "../web-specification";
 
-export function objectModelToBikeshed(schema: ObjectModelSchema): Bikeshed {
+export function webSpecificationToBikeshed(
+  webSpecification: WebSpecification
+): Bikeshed {
   const result = new Bikeshed();
-  const specification = objectModelToWebSpecification(
-    schema, defaultRootSelector, defaultStringSelector,
-    new DefaultLinkFactory(schema));
-  result.humanLabel = specification.humanLabel;
-  result.humanDescription = specification.humanDescription;
-  result.schemas = specification.schemas;
-  result.metadata = loadBikeshedMetadata(schema, specification);
+  result.humanLabel = webSpecification.humanLabel;
+  result.humanDescription = webSpecification.humanDescription;
+  result.conceptual = webSpecification.conceptual;
+  result.structures = webSpecification.structures;
+  result.metadata = loadBikeshedMetadata(webSpecification);
   return result;
 }
 
 function loadBikeshedMetadata(
-  schema: ObjectModelSchema, specification: WebSpecification,
+  webSpecification: WebSpecification
 ): Record<string, string> {
   return {
-    [BikeshedMetadataKeys.title]: specification.humanLabel,
-    [BikeshedMetadataKeys.shortname]: specification.humanLabel,
+    [BikeshedMetadataKeys.title]: webSpecification.humanLabel ?? "-",
+    [BikeshedMetadataKeys.shortname]: webSpecification.humanLabel ?? "-",
     [BikeshedMetadataKeys.status]: "LS",
     [BikeshedMetadataKeys.editor]: "Model-Driven Generator",
     [BikeshedMetadataKeys.boilerplate]: "conformance no, copyright no",
-    [BikeshedMetadataKeys.abstract]: specification.humanDescription,
+    [BikeshedMetadataKeys.abstract]:
+    `Tento dokument je otevřenou formální normou ve smyslu <a href="https://www.zakonyprolidi.cz/cs/1999-106#p3-9">§ 3 odst. 9 zákona č. 106/1999 Sb., o svobodném přístupu k informacím</a>, pro zveřejňování číselníků.`
+    + `Norma popisuje konceptuální model číselníků a stanovuje podobu jejich reprezentace ve strojově čítelné podobě ve formátech JSON-LD [[json-ld11]], a tedy i JSON [[ECMA-404]], a CSV [[rfc4180]] v denormalizované i normalizované podobě.`
+    + `Jednotlivé způsoby reprezentace číselníků také demonstruje na příkladech.`,
     [BikeshedMetadataKeys.markup]: "markdown yes",
   };
 }

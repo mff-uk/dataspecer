@@ -69,6 +69,8 @@ test("Create PIM schema with class and attribute.", async () => {
     "pimHumanLabel": pimClass.pimHumanLabel,
     "pimHumanDescription": pimClass.pimHumanDescription,
     "pimExtends": pimClass.pimExtends,
+    "pimCodelistUrl": [],
+    "pimIsCodelist": false,
   });
 
   expect(await store.readResource("http://localhost/attribute/5")).toEqual({

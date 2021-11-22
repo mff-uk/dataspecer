@@ -8,7 +8,7 @@ export class PimSetClassCodelist extends CoreOperation {
 
   pimClass: string | null = null;
 
-  isCodeList: boolean = false;
+  pimIsCodeList: boolean = false;
 
   pimCodelistUrl: string[] = [];
 

@@ -6,3 +6,4 @@ export * from "./operation";
 export * from "./store";
 export * from "./utilities/assert";
 export * from "./utilities/clone";
+export * from "./utilities/string-selector";
