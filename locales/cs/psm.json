@@ -6,7 +6,16 @@
   "button edit labels": "upravit popisek",
   "button inline discard": "zahodit",
   "button inline save": "uložit",
+  "cancel": "zrušit",
   "datatype": "datový typ",
+  "no description": "bez popisku",
+  "no label": "bez titulku",
   "refers to": "odkazuje na",
+  "replace": "nahradit",
+  "replace association with reference": {
+    "help": "Zvolte jedno z následujících schémat pro nahrazení konce asociace za odkaz na třídu, jež je kořenem zvoleného schématu.",
+    "title": "Nahradit konec asociace referencí na třídu"
+  },
+  "replace with reference": "nahradit referencí",
   "technical label": "technický popisek"
 }

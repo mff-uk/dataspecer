@@ -26,6 +26,7 @@ import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from
 import {useResource} from "../../hooks/useResource";
 import {usePimExtends} from "../../hooks/usePimExtends";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
+import {ReplaceAssociationEndWithReference} from "./replace-association-with-reference/replace-association-end-with-reference";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -137,6 +138,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                 {dataPsmAssociationEnd && <>
                     <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
                     <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
+                    <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} />
                 </>}
             </>}
         </Typography>

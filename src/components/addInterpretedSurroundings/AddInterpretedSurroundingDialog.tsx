@@ -1,4 +1,4 @@
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
+import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
@@ -58,7 +58,6 @@ interface AddInterpretedSurroundingDialogProperties {
         resourcesToAdd: [string, boolean][],
         sourcePimModel: CoreResourceReader,
         forDataPsmClass: DataPsmClass,
-        replaceClassWithReference: boolean,
         ciselnikIri: string,
     }) => void,
 }
@@ -70,7 +69,7 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const cimClassIri = pimClass?.pimInterpretation;
 
-    const {cim, configuration} = React.useContext(StoreContext);
+    const {cim} = React.useContext(StoreContext);
 
     // For which CIM iris the loading is in progress
     const [currentCimClassIri, setCurrentCimClassIri] = useState<string>("");
@@ -154,8 +153,6 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
     const backwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
         PimAssociation.is(resource) && (await currentSurroundings?.readResource(resource.pimEnd[1]) as PimClass)?.pimInterpretation === currentCimClassIri
     );
-
-    const [replaceWithClassReference, setReplaceWithClassReference] = useState<boolean>(true);
 
     if (!cimClassIri) return null;
 
@@ -270,10 +267,6 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             </Grid>
         </DialogContent>
         <DialogActions>
-            {/* This checkbox is shown only if configuration is presented, because only in that scenario it makes sense to ask for this option. */}
-            {configuration && <FormControlLabel sx={{mx: 0}} control={<Checkbox checked={replaceWithClassReference} onChange={e => setReplaceWithClassReference(e.target.checked)} />} label={t("replace with class reference checkbox")}/>}
-            <Box sx={{flexGrow: 1}} />
-
             <Button onClick={close} color="primary">{t("close button")}</Button>
             <LoadingButton
                 loading={resourcesBeingAddedLoading}
@@ -284,7 +277,6 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
                         resourcesToAdd: selectedResources,
                         sourcePimModel: allStores,
                         forDataPsmClass: dataPsmClass as DataPsmClass,
-                        replaceClassWithReference: (configuration !== undefined) && replaceWithClassReference, // False if no configuration because it would not find anything
                         ciselnikIri: cim.iriProvider.cimToPim("https://slovník.gov.cz/datový/číselníky/pojem/číselník"),
                     });
                     close();

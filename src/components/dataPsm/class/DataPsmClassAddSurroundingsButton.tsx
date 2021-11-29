@@ -18,10 +18,9 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
         resourcesToAdd: [string, boolean][],
         sourcePimModel: CoreResourceReader,
         forDataPsmClass: DataPsmClass,
-        replaceClassWithReference: boolean,
         ciselnikIri: string,
      }) => {
-        const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd, operation.replaceClassWithReference, operation.ciselnikIri);
+        const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd, operation.ciselnikIri);
         addClassSurroundings.labelRules = {
             languages: i18n.languages as string[],
             namingConvention: "kebab-case",
