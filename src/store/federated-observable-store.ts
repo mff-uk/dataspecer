@@ -12,6 +12,10 @@ export interface StoreWithMetadata {
     metadata: ConfigurationStoreMetadata;
 }
 
+export function isReadOnly(store: StoreWithMetadata | null): boolean {
+    return store !== null && store.metadata.tags.includes("read-only");
+}
+
 // todo: This is temporary until the method for reverse lookup is implemented into the CoreResourceReader
 export type _CoreResourceReader_WithMissingMethods = Omit<CoreResourceReader, "listResourcesOfType"> & Pick<FederatedObservableStore, "getPimHavingInterpretation" | "listResourcesOfType">;
 

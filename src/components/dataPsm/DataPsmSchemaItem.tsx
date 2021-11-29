@@ -14,6 +14,7 @@ import {useResource} from "../../hooks/useResource";
 import {StoreContext} from "../App";
 import {SetOrder} from "../../operations/set-order";
 import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
+import {isReadOnly} from "../../store/federated-observable-store";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -24,7 +25,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsmSchemaIri}) => {
-  const {resource: dataPsmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
+  const {resource: dataPsmSchema, store: schemaStore} = useResource<DataPsmSchema>(dataPsmSchemaIri);
+  const readOnly = isReadOnly(schemaStore);
   const {store} = useContext(StoreContext);
 
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
@@ -56,17 +58,19 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
-        <Fab
-            variant="extended"
-            size="small"
-            color="primary"
-            aria-label="edit"
-            style={{float: "right"}}
-            onClick={openUpdateLabelsDialog}
-        >
-            <EditIcon />{" "}
-            {t("button edit labels")}
-        </Fab>
+        {readOnly ||
+          <Fab
+              variant="extended"
+              size="small"
+              color="primary"
+              aria-label="edit"
+              style={{float: "right"}}
+              onClick={openUpdateLabelsDialog}
+          >
+              <EditIcon />{" "}
+              {t("button edit labels")}
+          </Fab>
+        }
         <updateLabels.component />
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel}>{text => <Typography variant="h5">{text}</Typography>}</LanguageStringFallback>
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>

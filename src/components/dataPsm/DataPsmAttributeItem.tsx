@@ -16,10 +16,13 @@ import {InlineEdit} from "./common/InlineEdit";
 import {useResource} from "../../hooks/useResource";
 import {DeleteAttribute} from "../../operations/delete-attribute";
 import {Datatype} from "./common/Datatype";
+import {isReadOnly} from "../../store/federated-observable-store";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
     //const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
-    const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
+    const {resource: dataPsmAttribute, isLoading, store: dataPsmAttributeStore} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
+    const readOnly = isReadOnly(dataPsmAttributeStore);
+
     const dialog = useToggle();
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
@@ -36,7 +39,7 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
                 <Typography className={styles.root}>
                     <RemoveIcon style={{verticalAlign: "middle"}} />
                     {' '}
-                    <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
+                    <span {...dragHandleProps} onDoubleClick={readOnly ? () => null : inlineEdit.open}>
                         <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAttributeIri}>
                             {(label, description) =>
                                 <span title={description} className={styles.attribute}>{label}</span>
@@ -59,7 +62,9 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
 
                     {inlineEdit.isOpen || <>
                         <ActionButton onClick={dialog.open} icon={<EditIcon/>} label={t("button edit")}/>
-                        {parentDataPsmClassIri && index !== undefined && <DataPsmDeleteButton onClick={del} />}
+                        {readOnly ||
+                            (parentDataPsmClassIri && index !== undefined && <DataPsmDeleteButton onClick={del} />)
+                        }
                     </>}
                 </Typography>
             }

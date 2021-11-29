@@ -27,6 +27,7 @@ import {useResource} from "../../hooks/useResource";
 import {usePimExtends} from "../../hooks/usePimExtends";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
 import {ReplaceAssociationEndWithReference} from "./replace-association-with-reference/replace-association-end-with-reference";
+import {isReadOnly} from "../../store/federated-observable-store";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -42,7 +43,8 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     // association end
 
-    const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd, isLoading: associationLoading} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+    const {dataPsmResource: dataPsmAssociationEnd, dataPsmResourceStore, pimResource: pimAssociationEnd, isLoading: associationLoading} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+    const readOnly = isReadOnly(dataPsmResourceStore);
 
     // PIM Association and check if it is backward association
 
@@ -67,7 +69,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     const isLoading = associationLoading || classLoading || associationPointsToIsLoading;
 
-    const collapseIsOpen = useToggle(true);
+    const collapseIsOpen = useToggle(!isClassReference); /** Uses {@link useStateWithMutableInitial} */
 
     const detail = useDialog(DataPsmAssociationToClassDetailDialog, ["parentIri", "iri"], {parentIri: "", iri: ""});
     const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, associationPointsToIri]);
@@ -93,7 +95,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                     <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
                 )
             }
-            <span {...dragHandleProps} onDoubleClick={inlineEdit.open}>
+            <span {...dragHandleProps} onDoubleClick={readOnly ? () => null : inlineEdit.open}>
                 {hasHumanLabelOnAssociationEnd ?
                     <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
                         {(label, description) =>
@@ -134,11 +136,13 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
             </span>
 
             {inlineEdit.isOpen || <>
-                {dataPsmClassIri && !isCiselnik && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
+                {dataPsmClassIri && !isCiselnik && !readOnly && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
                 {dataPsmAssociationEnd && <>
                     <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
-                    <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
-                    <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} />
+                    {readOnly || <>
+                        <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
+                        <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} />
+                    </>}
                 </>}
             </>}
         </Typography>

@@ -5,6 +5,7 @@ import {Collapse} from "@mui/material";
 import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useResource} from "../../hooks/useResource";
+import {isReadOnly} from "../../store/federated-observable-store";
 
 interface DataPsmResourceSwitchProperties {
     dataPsmResourceIri: string,
@@ -39,16 +40,17 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
  * Renders parts (class attributes and class associations) for specified class.
  */
 export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = memo(({dataPsmClassIri, isOpen}) => {
-    const {resource: dataPsmClass, isLoading} = useResource<DataPsmClass>(dataPsmClassIri);
+    const {resource: dataPsmClass, store} = useResource<DataPsmClass>(dataPsmClassIri);
+    const readOnly = isReadOnly(store);
 
     return <Collapse in={isOpen} unmountOnExit>
-        <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri}>
+        <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri} isDropDisabled={readOnly}>
             {provided =>
                 <ul ref={provided.innerRef} {...provided.droppableProps}>
                     {dataPsmClass?.dataPsmParts?.map((part, index) => <Draggable index={index} key={part} draggableId={part}>
                         {provided =>
                             <div ref={provided.innerRef} {...provided.draggableProps}>
-                                <DataPsmResourceSwitch dataPsmResourceIri={part} dragHandleProps={provided.dragHandleProps} parentDataPsmClassIri={dataPsmClassIri} index={index}/>
+                                <DataPsmResourceSwitch dataPsmResourceIri={part} dragHandleProps={readOnly ? undefined : provided.dragHandleProps} parentDataPsmClassIri={dataPsmClassIri} index={index} />
                             </div>
                         }
                     </Draggable>)}

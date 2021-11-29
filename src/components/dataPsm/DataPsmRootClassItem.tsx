@@ -12,11 +12,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import {useDialog} from "../../hooks/useDialog";
 import {DataPsmClassDetailDialog} from "../detail/data-psm-class-detail-dialog";
 import {useTranslation} from "react-i18next";
+import {isReadOnly} from "../../store/federated-observable-store";
 
 export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
     const styles = useItemStyles();
 
-    const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const readOnly = isReadOnly(dataPsmResourceStore);
     const cimClassIri = pimClass?.pimInterpretation;
 
     const detailDialog = useDialog(DataPsmClassDetailDialog, [], {});
@@ -33,7 +35,7 @@ export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataP
                     }
                 </DataPsmGetLabelAndDescription>
             }
-            {cimClassIri && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
+            {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
             <ActionButton onClick={() => detailDialog.open({})} icon={<EditIcon/>} label={t("button edit")}/>
         </Typography>
 

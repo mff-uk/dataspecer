@@ -13,7 +13,9 @@ export const useDataPsmAndInterpretedPim = <DataPsmResourceType extends DataPsmR
 
     return {
         dataPsmResource: dataPsmResource.resource,
+        dataPsmResourceStore: dataPsmResource.store,
         pimResource: pimResource.resource,
+        pimResourceStore: pimResource.store,
         isLoading: dataPsmResource.isLoading || pimResource.isLoading,
     };
 }
