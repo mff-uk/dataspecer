@@ -70,6 +70,8 @@ export const SET_INTERPRETATION = PSM + "SetInterpretation";
 
 export const SET_ORDER = PSM + "SetOrder";
 
+export const SET_PART = PSM + "SetPart";
+
 export const SET_ROOTS = PSM + "SetRoots";
 
 export const SET_TECHNICAL_LABEL = PSM + "SetTechnicalLabel";
