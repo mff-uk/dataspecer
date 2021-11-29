@@ -1,7 +1,4 @@
 {
-  "name": "schema-generator",
-  "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@emotion/css": "^11.5.0",
     "@emotion/react": "^11.5.0",
@@ -43,7 +40,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "extract-languages": "i18next"
+    "extract-languages": "i18next",
+    "update-mdd": "npm install model-driven-data/dist/model-driven-data-0.0.1.tgz"
   },
   "eslintConfig": {
     "extends": "react-app"
