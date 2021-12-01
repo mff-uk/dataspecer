@@ -12,5 +12,6 @@ export * from "./data-psm-set-interpretation";
 export * from "./data-psm-set-human-description";
 export * from "./data-psm-set-human-label";
 export * from "./data-psm-set-order";
+export * from "./data-psm-set-part";
 export * from "./data-psm-set-roots";
 export * from "./data-psm-set-technical-label";
