@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {DataPsmTechnicalResource} from "./data-psm-resource";
+import {CoreResource, LanguageString} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
 /**
  * Originally the schema point only to root classes. The rest of the diagram
@@ -16,33 +16,38 @@ import {DataPsmTechnicalResource} from "./data-psm-resource";
  * all resources in the schema. A class can then be optionally added
  * to the list of root classes.
  */
-export interface DataPsmSchema extends DataPsmTechnicalResource {
+export class DataPsmSchema extends CoreResource {
 
-  dataPsmRoots: string[];
+  private static readonly TYPE = PSM.SCHEMA;
 
-  dataPsmParts: string[];
+  /**
+   * Label used in human readable documents as a name for this resource.
+   */
+  dataPsmHumanLabel: LanguageString | null = null;
 
-}
+  /**
+   * Description, longer plain text, shown in human readable documents
+   * as a description for this resource.
+   */
+  dataPsmHumanDescription: LanguageString | null = null;
 
-export const DataPsmSchemaType = "data-psm-schema";
+  /**
+   * Label used by file formats, may represent a name of a property
+   * in JSON or tag name in XML.
+   */
+  dataPsmTechnicalLabel: string | null = null;
 
-export function isDataPsmSchema(
-  resource: CoreResource | null,
-): resource is DataPsmSchema {
-  return resource !== null
-    && resource.types.includes(DataPsmSchemaType);
-}
+  dataPsmRoots: string[] = [];
 
-export function asDataPsmSchema(
-  resource: CoreResource,
-): DataPsmSchema {
-  if (isDataPsmSchema(resource)) {
-    return resource as DataPsmSchema;
+  dataPsmParts: string[] = [];
+
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmSchema.TYPE);
   }
-  resource.types.push(DataPsmSchemaType);
-  const result = resource as DataPsmSchema;
-  result.dataPsmHumanLabel = result.dataPsmHumanLabel || {};
-  result.dataPsmRoots = result.dataPsmRoots || [];
-  result.dataPsmParts = result.dataPsmParts || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is DataPsmSchema {
+    return resource?.types.includes(DataPsmSchema.TYPE);
+  }
+
 }

@@ -1,6 +1,6 @@
-import {WebSpecification} from "../web-specification";
+import {DocumentationModel} from "../documentation-model";
 
-export class Bikeshed extends  WebSpecification {
+export class Bikeshed extends DocumentationModel {
 
   metadata: Record<string, string> = {};
 

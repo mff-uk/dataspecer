@@ -1,16 +1,10 @@
-import {
-  CoreResourceReader,
-  createCoreResource,
-} from "../../core";
-import {
-  asPimCreateClass,
-  isPimCreateClassResult, PimCreateClassResult,
-} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {PimCreateClass,PimCreateClassResult} from "../operation";
 import {executePimCreateClass} from "./pim-create-class-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import * as PIM from "../pim-vocabulary";
 
 test("Create class.", async () => {
-  const operation = asPimCreateClass(createCoreResource());
+  const operation = new PimCreateClass();
   operation.pimInterpretation = "class-type";
   operation.pimTechnicalLabel = "my-class";
   operation.pimHumanLabel = {"en": "Label"};
@@ -19,38 +13,40 @@ test("Create class.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": [],
     },
   };
 
   let counter = 0;
   const actual = await executePimCreateClass(
-    () => "http://localhost/" + ++counter,
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["pim-class"],
+      "types": [PIM.CLASS],
       "pimInterpretation": operation.pimInterpretation,
       "pimTechnicalLabel": operation.pimTechnicalLabel,
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimExtends": [],
+      "pimCodelistUrl": [],
+      "pimIsCodelist": false,
     },
   });
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimParts": ["http://localhost/1"],
     },
   });
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateClassResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateClassResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateClassResult;
   expect(result.createdPimClass).toEqual("http://localhost/1");
 });
@@ -58,5 +54,5 @@ test("Create class.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

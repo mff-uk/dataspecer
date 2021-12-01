@@ -1,18 +1,22 @@
 import {LanguageString, CoreOperation} from "../../core";
 
-export interface DataPsmCreate extends CoreOperation {
+export class DataPsmCreate extends CoreOperation {
 
   /**
    * IRI of the newly created object.
    */
-  dataPsmNewIri?:string;
+  dataPsmNewIri: string | null = null;
 
-  dataPsmInterpretation?: string;
+  dataPsmInterpretation: string | null = null;
 
-  dataPsmTechnicalLabel?: string;
+  dataPsmTechnicalLabel: string | null = null;
 
-  dataPsmHumanLabel?: LanguageString
+  dataPsmHumanLabel: LanguageString | null = null;
 
-  dataPsmHumanDescription?: LanguageString;
+  dataPsmHumanDescription: LanguageString | null = null;
+
+  protected constructor() {
+    super();
+  }
 
 }

@@ -1,52 +1,42 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
+import * as PIM from "../pim-vocabulary";
 
-export interface PimCreateAttribute extends PimCreate {
+export class PimCreateAttribute extends PimCreate {
 
-  pimOwnerClass?: string;
+  static readonly TYPE = PIM.CREATE_ATTRIBUTE;
 
-  pimDatatype?: string;
+  pimOwnerClass: string | null = null;
 
-}
+  pimDatatype: string | null = null;
 
-export const PimCreateAttributeType = "pim-action-create-attribute";
-
-export function isPimCreateAttribute(
-  resource: CoreResource,
-): resource is PimCreateAttribute {
-  return resource.types.includes(PimCreateAttributeType);
-}
-
-export function asPimCreateAttribute(
-  resource: CoreResource,
-): PimCreateAttribute {
-  if (isPimCreateAttribute(resource)) {
-    return resource as PimCreateAttribute;
+  constructor() {
+    super();
+    this.types.push(PimCreateAttribute.TYPE);
   }
-  resource.types.push(PimCreateAttributeType);
-  return resource as PimCreateAttribute;
+
+  static is(resource: CoreResource | null): resource is PimCreateAttribute {
+    return resource?.types.includes(PimCreateAttribute.TYPE);
+  }
+
 }
 
-export interface PimCreateAttributeResult extends CoreTyped {
+export class PimCreateAttributeResult extends CoreOperationResult {
+
+  static readonly TYPE = PIM.CREATE_ATTRIBUTE_RESULT;
 
   createdPimAttribute: string;
 
-}
+  constructor(createdPimAttribute: string) {
+    super();
+    this.types.push(PimCreateAttributeResult.TYPE);
+    this.createdPimAttribute = createdPimAttribute;
+  }
 
-export const PimCreateAttributeResultType =
-  "pim-action-create-attribute-result";
+  static is(
+    resource: CoreTyped,
+  ): resource is PimCreateAttributeResult {
+    return resource.types.includes(PimCreateAttributeResult.TYPE);
+  }
 
-export function isPimCreateAttributeResult(
-  resource: CoreTyped,
-): resource is PimCreateAttributeResult {
-  return resource.types.includes(PimCreateAttributeResultType);
-}
-
-export function createPimCreateAttributeResultProperties(
-  createdPimAttribute: string,
-): PimCreateAttributeResult {
-  return {
-    "types": [PimCreateAttributeResultType],
-    "createdPimAttribute": createdPimAttribute,
-  };
 }

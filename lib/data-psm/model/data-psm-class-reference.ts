@@ -1,34 +1,27 @@
 import {CoreResource} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
-export interface DataPsmClassReference extends CoreResource {
+/**
+ * Allow us to reference a class in another schema.
+ */
+export class DataPsmClassReference extends CoreResource {
+
+  private static readonly TYPE = PSM.CLASS_REFERENCE;
 
   /**
-   * IRI of class in another schema.
+   * IRI of external specification to load the definition from.
    */
-  dataPsmRefersTo?:string;
+  dataPsmSpecification: string | null = null;
 
-  /**
-   * IRI of the other schema.
-   */
-  dataPsmSchema?:string;
+  dataPsmClass: string | null = null;
 
-}
-
-export const DataPsmClassReferenceType = "data-psm-class-reference";
-
-export function isDataPsmClassReference(
-  resource: CoreResource | null,
-): resource is DataPsmClassReference {
-  return resource !== null
-    && resource.types.includes(DataPsmClassReferenceType);
-}
-
-export function asDataPsmClassReference(
-  resource: CoreResource,
-): DataPsmClassReference {
-  if (isDataPsmClassReference(resource)) {
-    return resource as DataPsmClassReference;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmClassReference.TYPE);
   }
-  resource.types.push(DataPsmClassReferenceType);
-  return resource as DataPsmClassReference;
+
+  static is(resource: CoreResource | null): resource is DataPsmClassReference {
+    return resource?.types.includes(DataPsmClassReference.TYPE);
+  }
+
 }

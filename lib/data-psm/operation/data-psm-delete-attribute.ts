@@ -1,28 +1,23 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
-export interface DataPsmDeleteAttribute extends CoreOperation {
+export class DataPsmDeleteAttribute extends CoreOperation {
 
-  dataPsmOwner?: string;
+  static readonly TYPE = PSM.DELETE_ATTRIBUTE;
 
-  dataPsmAttribute?: string;
+  dataPsmOwner: string | null = null;
 
-}
+  dataPsmAttribute: string | null = null;
 
-export const DataPsmDeleteAttributeType =
-  "psm-action-delete-attribute";
-
-export function isDataPsmDeleteAttribute(
-  resource: CoreResource,
-): resource is DataPsmDeleteAttribute {
-  return resource.types.includes(DataPsmDeleteAttributeType);
-}
-
-export function asDataPsmDeleteAttribute(
-  resource: CoreResource,
-): DataPsmDeleteAttribute {
-  if (isDataPsmDeleteAttribute(resource)) {
-    return resource as DataPsmDeleteAttribute;
+  constructor() {
+    super();
+    this.types.push(DataPsmDeleteAttribute.TYPE);
   }
-  resource.types.push(DataPsmDeleteAttributeType);
-  return resource as DataPsmDeleteAttribute;
+
+  static is(
+    resource: CoreResource | null,
+  ): resource is DataPsmDeleteAttribute {
+    return resource?.types.includes(DataPsmDeleteAttribute.TYPE);
+  }
+
 }

@@ -1,56 +1,48 @@
-import { CoreResource, CoreTyped} from "../../core";
+import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
 import {PimCreate} from "./pim-create";
+import * as PIM from "../pim-vocabulary";
 
-export interface PimCreateAssociation extends PimCreate {
+export class PimCreateAssociation extends PimCreate {
 
-  pimAssociationEnds: string[];
+  static readonly TYPE = PIM.CREATE_ASSOCIATION;
 
-}
+  pimAssociationEnds: string[] = [];
 
-export const PimCreateAssociationType = "pim-action-create-association";
+  pimIsOriented: boolean = false;
 
-export function isPimCreateAssociation(
-  resource: CoreResource,
-): resource is PimCreateAssociation {
-  return resource.types.includes(PimCreateAssociationType);
-}
-
-export function asPimCreateAssociation(
-  resource: CoreResource,
-): PimCreateAssociation {
-  if (isPimCreateAssociation(resource)) {
-    return resource as PimCreateAssociation;
+  constructor() {
+    super();
+    this.types.push(PimCreateAssociation.TYPE);
   }
-  resource.types.push(PimCreateAssociationType);
-  const result = resource as PimCreateAssociation;
-  result.pimAssociationEnds = result.pimAssociationEnds || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is PimCreateAssociation {
+    return resource?.types.includes(PimCreateAssociation.TYPE);
+  }
+
 }
 
-export interface PimCreateAssociationResult extends CoreTyped {
+export class PimCreateAssociationResult extends CoreOperationResult {
+
+  static readonly TYPE = PIM.CREATE_ASSOCIATION_RESULT;
 
   createdPimAssociation: string;
 
   createdPimAssociationEnds: string[];
 
-}
+  constructor(
+    createdPimAssociation: string,
+    createdPimAssociationEnds: string[],
+  ) {
+    super();
+    this.types.push(PimCreateAssociationResult.TYPE);
+    this.createdPimAssociation = createdPimAssociation;
+    this.createdPimAssociationEnds = createdPimAssociationEnds;
+  }
 
-export const PimCreateAssociationResultType =
-  "pim-action-create-association-result";
+  static is(
+    resource: CoreTyped | null,
+  ): resource is PimCreateAssociationResult {
+    return resource?.types.includes(PimCreateAssociationResult.TYPE);
+  }
 
-export function isPimCreateAssociationResult(
-  resource: CoreTyped,
-): resource is PimCreateAssociationResult {
-  return resource.types.includes(PimCreateAssociationResultType);
-}
-
-export function createPimCreateAssociationResultProperties(
-  createdPimAssociation: string,
-  createdPimAssociationEnds: string[],
-): PimCreateAssociationResult {
-  return {
-    "types": [PimCreateAssociationResultType],
-    "createdPimAssociation": createdPimAssociation,
-    "createdPimAssociationEnds": createdPimAssociationEnds,
-  };
 }

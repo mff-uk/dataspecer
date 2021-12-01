@@ -1,18 +1,22 @@
 import {LanguageString, CoreOperation} from "../../core";
 
-export interface PimCreate extends CoreOperation {
+export class PimCreate extends CoreOperation {
 
   /**
    * IRI of the newly created object.
    */
-  pimNewIri?:string;
+  pimNewIri: string | null = null;
 
-  pimInterpretation?: string;
+  pimInterpretation: string | null = null;
 
-  pimTechnicalLabel?: string;
+  pimTechnicalLabel: string | null = null;
 
-  pimHumanLabel?: LanguageString;
+  pimHumanLabel: LanguageString | null = null;
 
-  pimHumanDescription?: LanguageString;
+  pimHumanDescription: LanguageString | null = null;
+
+  protected constructor() {
+    super();
+  }
 
 }

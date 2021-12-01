@@ -1,42 +1,35 @@
 import {CoreResource, LanguageString} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * Represents a schema, diagram, on PIM level. Schema on this level
  * must contains a reference to all it's parts: classes, associations,
  * and attributes.
  */
-export interface PimSchema extends CoreResource {
+export class PimSchema extends CoreResource {
+
+  private static readonly TYPE = PIM.SCHEMA;
 
   /**
    * Label used in human readable documents as a name for this resource.
    */
-  pimHumanLabel?: LanguageString;
+  pimHumanLabel: LanguageString | null = null;
 
   /**
    * Description, longer plain text, shown in human readable documents
    * as a description for this resource.
    */
-  pimHumanDescription?: LanguageString;
+  pimHumanDescription: LanguageString | null = null;
 
-  pimParts: string[];
+  pimParts: string[] = [];
 
-}
-
-const PimSchemaType = "pim-schema";
-
-export function isPimSchema(
-  resource: CoreResource | null,
-): resource is PimSchema {
-  return resource !== null
-    && resource.types.includes(PimSchemaType);
-}
-
-export function asPimSchema(resource: CoreResource): PimSchema {
-  if (isPimSchema(resource)) {
-    return resource as PimSchema;
+  constructor(iri: string | null = null) {
+    super(iri);
+    this.types.push(PimSchema.TYPE);
   }
-  resource.types.push(PimSchemaType);
-  const result = resource as PimSchema;
-  result.pimParts = result.pimParts || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is PimSchema {
+    return resource?.types.includes(PimSchema.TYPE);
+  }
+
 }

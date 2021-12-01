@@ -1,24 +1,29 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {asDataPsmAssociationEnd} from "../../model";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {DataPsmAssociationEnd} from "../../model";
 import {loadDataPsmResource} from "./data-psm-resource-adapter";
-import * as PSM from "./data-psm-vocabulary";
+import * as PSM from "../../data-psm-vocabulary";
 
 export class DataPsmAssociationEndAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PSM.ASSOCIATION_END)) {
-      return [];
-    }
-    //
-    const result = asDataPsmAssociationEnd(resource);
-    const loadFromPim = await loadDataPsmResource(source, result);
-    //
+    return types.includes(PSM.ASSOCIATION_END);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new DataPsmAssociationEnd(source.iri);
     result.dataPsmPart = await source.node(PSM.HAS_PARTICIPANT);
-    return [...loadFromPim, result.dataPsmPart];
+    return {
+      "resource": result,
+      "references": [
+        ...await loadDataPsmResource(source, result),
+        result.dataPsmPart,
+      ],
+    };
   }
 
 }

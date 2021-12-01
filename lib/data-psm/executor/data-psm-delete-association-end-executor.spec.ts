@@ -1,48 +1,47 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmDeleteAssociationEnd} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmDeleteAssociationEnd} from "../operation";
 import {
-  executesDataPsmDeleteAssociationEnd,
+  executeDataPsmDeleteAssociationEnd,
 } from "./data-psm-delete-association-end-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM association-end.", async () => {
-  const operation = asDataPsmDeleteAssociationEnd(createCoreResource());
+  const operation = new DataPsmDeleteAssociationEnd();
   operation.dataPsmOwner = "http://class";
   operation.dataPsmAssociationEnd = "http://association-end";
 
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://association-end"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://association-end"],
     },
     "http://association-end": {
       "iri": "http://association-end",
-      "types": ["data-psm-association-end"],
+      "types": [PSM.ASSOCIATION_END],
     },
   };
 
-  const actual = await executesDataPsmDeleteAssociationEnd(
-    undefined,
+  const actual = await executeDataPsmDeleteAssociationEnd(
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   });
@@ -52,5 +51,5 @@ test("Delete data PSM association-end.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

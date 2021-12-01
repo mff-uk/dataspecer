@@ -1,23 +1,26 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {asDataPsmClassReference} from "../../model";
-import * as PSM from "./data-psm-vocabulary";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {DataPsmClassReference} from "../../model";
+import * as PSM from "../../data-psm-vocabulary";
 
-export class PsmClassAdapter implements RdfResourceLoader {
+export class DataPsmClassReferenceAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PSM.CLASS_REFERENCE)) {
-      return [];
-    }
-    //
-    const result = asDataPsmClassReference(resource);
-    //
-    result.dataPsmRefersTo = await source.node(PSM.HAS_REFERS_TO);
-    result.dataPsmSchema = await source.node(PSM.HAS_SCHEMA);
-    return [result.dataPsmRefersTo, result.dataPsmSchema];
+    return types.includes(PSM.CLASS_REFERENCE);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new DataPsmClassReference(source.iri);
+    result.dataPsmSpecification = await source.node(PSM.HAS_REFERS_TO);
+    return {
+      "resource": result,
+      // We do not load the other resources as they are in different schema.
+      "references": [],
+    };
   }
 
 }

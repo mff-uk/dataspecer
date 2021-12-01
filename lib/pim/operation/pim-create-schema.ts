@@ -1,62 +1,50 @@
 import {
-  CoreOperation,
+  CoreOperation, CoreOperationResult,
   CoreResource, CoreTyped,
   LanguageString,
 } from "../../core";
+import * as PIM from "../pim-vocabulary";
 
-export interface PimCreateSchema extends CoreOperation {
+export class PimCreateSchema extends CoreOperation {
+
+  static readonly TYPE = PIM.CREATE_SCHEMA;
 
   /**
    * IRI of the newly created object.
    */
-  pimNewIri?: string;
+  pimNewIri: string | null = null;
 
-  pimHumanLabel?: LanguageString;
+  pimHumanLabel: LanguageString | null = null;
 
-  pimHumanDescription?: LanguageString;
+  pimHumanDescription: LanguageString | null = null;
 
-  pimBaseIri?: string;
-
-}
-
-export const PimCreateSchemaType = "pim-action-create-schema";
-
-export function isPimCreateSchema(
-  resource: CoreResource,
-): resource is PimCreateSchema {
-  return resource.types.includes(PimCreateSchemaType);
-}
-
-export function asPimCreateSchema(
-  resource: CoreResource,
-): PimCreateSchema {
-  if (isPimCreateSchema(resource)) {
-    return resource as PimCreateSchema;
+  constructor() {
+    super();
+    this.types.push(PimCreateSchema.TYPE);
   }
-  resource.types.push(PimCreateSchemaType);
-  return resource as PimCreateSchema;
+
+  static is(resource: CoreResource | null): resource is PimCreateSchema {
+    return resource?.types.includes(PimCreateSchema.TYPE);
+  }
+
 }
 
-export interface PimCreateSchemaResult extends CoreTyped {
+export class PimCreateSchemaResult extends CoreOperationResult {
+
+  static readonly TYPE = PIM.CREATE_SCHEMA_RESULT;
 
   createdPimSchema: string;
 
-}
+  constructor(createdPimSchema: string) {
+    super();
+    this.types.push(PimCreateSchemaResult.TYPE);
+    this.createdPimSchema = createdPimSchema;
+  }
 
-export const PimCreateSchemaResultType =
-  "pim-action-create-schema-result";
+  static is(
+    resource: CoreTyped | null,
+  ): resource is PimCreateSchemaResult {
+    return resource?.types.includes(PimCreateSchemaResult.TYPE);
+  }
 
-export function isPimCreateSchemaResult(
-  resource: CoreTyped,
-): resource is PimCreateSchemaResult {
-  return resource.types.includes(PimCreateSchemaResultType);
-}
-
-export function createPimCreateSchemaResultProperties(
-  createdPimSchema: string,
-): PimCreateSchemaResult {
-  return {
-    "types": [PimCreateSchemaResultType],
-    "createdPimSchema": createdPimSchema,
-  };
 }

@@ -1,33 +1,18 @@
 import {
-  CoreResourceReader, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CoreExecutorResult,
+  CreateNewIdentifier,
 } from "../../core";
-import {DataPsmDeleteAttribute} from "../operation";
-import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
+import {
+  DataPsmDeleteAttribute,
+} from "../operation";
+import {removeFromClass} from "./data-psm-executor-utils";
 
-export async function executesDataPsmDeleteAttribute(
+export function executeDataPsmDeleteAttribute(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmDeleteAttribute,
 ): Promise<CoreExecutorResult> {
-  const schema = await loadDataPsmSchema(modelReader);
-  if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
-  }
-
-  const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
-  if (owner === null) {
-    return createErrorOperationResult("Missing owner class.");
-  }
-
-  // TODO Check that deleted resource is part of the class and schema.
-
-  schema.dataPsmParts =
-    schema.dataPsmParts.filter(iri => iri !== operation.dataPsmAttribute);
-
-  owner.dataPsmParts =
-    owner.dataPsmParts.filter(iri => iri !== operation.dataPsmAttribute);
-
-  return createSuccessOperationResult(
-    [], [schema, owner], [operation.dataPsmAttribute]);
+  return removeFromClass(
+    reader, operation.dataPsmOwner, operation.dataPsmAttribute);
 }

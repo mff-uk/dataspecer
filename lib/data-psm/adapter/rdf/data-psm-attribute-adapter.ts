@@ -1,24 +1,29 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {asDataPsmAttribute} from "../../model";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {DataPsmAttribute} from "../../model";
 import {loadDataPsmResource} from "./data-psm-resource-adapter";
-import * as PSM from "./data-psm-vocabulary";
+import * as PSM from "../../data-psm-vocabulary";
 
 export class DataPsmAttributeAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PSM.ATTRIBUTE)) {
-      return [];
-    }
-    //
-    const result = asDataPsmAttribute(resource);
-    const loadFromPim = await loadDataPsmResource(source, result);
-    //
+    return types.includes(PSM.ATTRIBUTE);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new DataPsmAttribute(source.iri);
     result.dataPsmDatatype = await source.node(PSM.HAS_DATA_TYPE);
-    return [...loadFromPim, result.dataPsmDatatype];
+    return {
+      "resource": result,
+      "references": [
+        ...await loadDataPsmResource(source, result),
+        result.dataPsmDatatype,
+      ],
+    };
   }
 
 }

@@ -1,12 +1,12 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmCreateAssociationEnd} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmCreateAssociationEnd} from "../operation";
 import {
-  executesDataPsmCreateAssociationEnd,
+  executeDataPsmCreateAssociationEnd,
 } from "./data-psm-create-association-end-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM association-end.", async () => {
-  const operation = asDataPsmCreateAssociationEnd(createCoreResource());
+  const operation = new DataPsmCreateAssociationEnd();
   operation.dataPsmInterpretation = "attribute";
   operation.dataPsmTechnicalLabel = "name";
   operation.dataPsmHumanLabel = {"en": "Label"};
@@ -16,42 +16,43 @@ test("Create data PSM association-end.", async () => {
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   };
 
   let counter = 0;
-  const actual = await executesDataPsmCreateAssociationEnd(
-    () => "http://localhost/" + ++counter,
+  const actual = await executeDataPsmCreateAssociationEnd(
     wrapResourcesWithReader(before),
+    () => "http://localhost/" + ++counter,
     operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
     "http://localhost/1": {
       "iri": "http://localhost/1",
-      "types": ["data-psm-association-end"],
+      "types": [PSM.ASSOCIATION_END],
       "dataPsmInterpretation": operation.dataPsmInterpretation,
       "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
+      "dataPsmPart": null,
     },
   });
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://localhost/1"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://localhost/1"],
     },
   });
@@ -61,5 +62,5 @@ test("Create data PSM association-end.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

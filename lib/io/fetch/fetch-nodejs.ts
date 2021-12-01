@@ -19,7 +19,7 @@ export const httpFetch: HttpFetch = function fetch(
   }
 };
 
-function getFileContentType(extension: string): string {
+function getFileContentType(extension: string): string | undefined {
   extension = extension.substr(1).toLowerCase();
   switch (extension) {
     case "jsonld":
@@ -32,6 +32,8 @@ function getFileContentType(extension: string): string {
       return "application/n-triples";
     case "nq":
       return "application/n-quads";
+    case "json":
+      return "application/json";
     default:
       return undefined;
   }

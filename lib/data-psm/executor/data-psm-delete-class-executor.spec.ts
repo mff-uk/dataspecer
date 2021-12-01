@@ -1,39 +1,39 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmDeleteClass} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmDeleteClass} from "../operation";
 import {
-  executesDataPsmDeleteClass,
+  executeDataPsmDeleteClass,
 } from "./data-psm-delete-class-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM class.", async () => {
-  const operation = asDataPsmDeleteClass(createCoreResource());
+  const operation = new DataPsmDeleteClass();
   operation.dataPsmClass = "http://class";
 
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmRoots": ["http://class"],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
+      "dataPsmExtends": [],
       "dataPsmParts": [],
     },
   };
 
-  const actual = await executesDataPsmDeleteClass(
-    undefined,
+  const actual = await executeDataPsmDeleteClass(
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmRoots": [],
       "dataPsmParts": [],
     },
@@ -44,5 +44,5 @@ test("Delete data PSM class.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

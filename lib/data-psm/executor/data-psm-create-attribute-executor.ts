@@ -1,40 +1,48 @@
 import {
-  CoreResourceReader, createCoreResource, createErrorOperationResult,
-  CreateNewIdentifier, createSuccessOperationResult, CoreExecutorResult,
+  CoreResourceReader,
+  CreateNewIdentifier,
+  CoreExecutorResult, CoreResource,
 } from "../../core";
-import {DataPsmCreateAttribute} from "../operation";
-import {loadDataPsmClass, loadDataPsmSchema} from "./data-psm-executor-utils";
-import {asDataPsmAttribute} from "../model";
+import {
+  DataPsmCreateAttribute,
+  DataPsmCreateAttributeResult,
+} from "../operation";
+import {
+  DataPsmExecutorResultFactory,
+  loadDataPsmClass,
+  loadDataPsmSchema,
+} from "./data-psm-executor-utils";
+import {DataPsmAttribute} from "../model";
 
-export async function executesDataPsmCreateAttribute(
+export async function executeDataPsmCreateAttribute(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: DataPsmCreateAttribute,
 ): Promise<CoreExecutorResult> {
-  const schema = await loadDataPsmSchema(modelReader);
+
+  const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
+    return DataPsmExecutorResultFactory.missingSchema();
   }
 
-  const owner = await loadDataPsmClass(modelReader, operation.dataPsmOwner);
+  const owner = await loadDataPsmClass(reader, operation.dataPsmOwner);
   if (owner === null) {
-    return createErrorOperationResult(
-      "Missing owner class: '" + operation.dataPsmOwner + "'.");
+    return DataPsmExecutorResultFactory.missingOwner(operation.dataPsmOwner);
   }
 
-  // TODO Check that target exists.
-
-  const iri = operation.dataPsmNewIri || createNewIdentifier("attribute");
-  const result = asDataPsmAttribute(createCoreResource(iri));
+  const iri = operation.dataPsmNewIri ?? createNewIdentifier("attribute");
+  const result = new DataPsmAttribute(iri);
   result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
   result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmDatatype = operation.dataPsmDatatype;
 
-  owner.dataPsmParts = [...owner.dataPsmParts, iri];
-
-  schema.dataPsmParts = [...schema.dataPsmParts, iri];
-
-  return createSuccessOperationResult( [result], [schema, owner]);
+  return CoreExecutorResult.createSuccess([result], [{
+    ...schema,
+    "dataPsmParts": [...schema.dataPsmParts, iri],
+  } as CoreResource, {
+    ...owner,
+    "dataPsmParts": [...owner.dataPsmParts, iri],
+  } as CoreResource], [], new DataPsmCreateAttributeResult(iri));
 }

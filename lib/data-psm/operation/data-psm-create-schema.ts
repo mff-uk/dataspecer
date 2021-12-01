@@ -1,62 +1,51 @@
 import {
+  CoreOperation, CoreOperationResult,
   CoreResource,
   CoreTyped,
   LanguageString,
 } from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
-export interface DataPsmCreateSchema extends CoreResource {
+export class DataPsmCreateSchema extends CoreOperation {
 
+  static readonly TYPE = PSM.CREATE_SCHEMA;
+  
   /**
    * IRI of the newly created object.
    */
-  dataPsmNewIri?: string;
+  dataPsmNewIri: string | null = null;
 
-  dataPsmHumanLabel?: LanguageString;
+  dataPsmHumanLabel: LanguageString | null = null;
 
-  dataPsmHumanDescription?: LanguageString;
+  dataPsmHumanDescription: LanguageString | null = null;
 
-  dataPsmBaseIri?: string;
-
-}
-
-export const DataPsmCreateSchemaType = "psm-action-create-schema";
-
-export function isDataPsmCreateSchema(
-  resource: CoreResource,
-): resource is DataPsmCreateSchema {
-  return resource.types.includes(DataPsmCreateSchemaType);
-}
-
-export function asDataPsmCreateSchema(
-  resource: CoreResource,
-): DataPsmCreateSchema {
-  if (isDataPsmCreateSchema(resource)) {
-    return resource as DataPsmCreateSchema;
+  constructor() {
+    super();
+    this.types.push(DataPsmCreateSchema.TYPE);
   }
-  resource.types.push(DataPsmCreateSchemaType);
-  return resource as DataPsmCreateSchema;
-}
 
-export interface DataPsmCreateSchemaResult extends CoreTyped {
-
-  createdDataPsmSchema: string;
+  static is(resource: CoreResource | null): resource is DataPsmCreateSchema {
+    return resource?.types.includes(DataPsmCreateSchema.TYPE);
+  }
 
 }
 
-export const DataPsmCreateSchemaResultType =
-  "psm-action-create-schema-result";
+export class DataPsmCreateSchemaResult extends CoreOperationResult {
 
-export function isDataPsmCreateSchemaResult(
-  resource: CoreTyped,
-): resource is DataPsmCreateSchemaResult {
-  return resource.types.includes(DataPsmCreateSchemaResultType);
-}
+  static readonly TYPE = PSM.CREATE_SCHEMA_RESULT;
 
-export function createDataPsmCreateSchemaResultProperties(
-  createdDataPsmSchema: string,
-): DataPsmCreateSchemaResult {
-  return {
-    "types": [DataPsmCreateSchemaResultType],
-    "createdDataPsmSchema": createdDataPsmSchema,
-  };
+  readonly createdDataPsmSchema: string;
+
+  constructor(dataPsmSchema: string) {
+    super();
+    this.types.push(DataPsmCreateSchemaResult.TYPE);
+    this.createdDataPsmSchema = dataPsmSchema;
+  }
+
+  static is(
+    resource: CoreTyped | null,
+  ): resource is DataPsmCreateSchemaResult {
+    return resource?.types.includes(DataPsmCreateSchemaResult.TYPE);
+  }
+
 }

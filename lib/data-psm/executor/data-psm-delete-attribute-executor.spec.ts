@@ -1,48 +1,47 @@
-import {CoreResourceReader, createCoreResource} from "../../core";
-import {asDataPsmDeleteAttribute} from "../operation";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
+import {DataPsmDeleteAttribute} from "../operation";
 import {
-  executesDataPsmDeleteAttribute,
+  executeDataPsmDeleteAttribute,
 } from "./data-psm-delete-attribute-executor";
-import {ReadOnlyMemoryStore} from "../../core/store/memory-store";
+import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM attribute.", async () => {
-  const operation = asDataPsmDeleteAttribute(createCoreResource());
+  const operation = new DataPsmDeleteAttribute();
   operation.dataPsmOwner = "http://class";
   operation.dataPsmAttribute = "http://attribute";
 
   const before = {
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class", "http://attribute"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": ["http://attribute"],
     },
     "http://attribute": {
       "iri": "http://attribute",
-      "types": ["data-psm-attribute"],
+      "types": [PSM.ATTRIBUTE],
     },
   };
 
-  const actual = await executesDataPsmDeleteAttribute(
-    undefined,
+  const actual = await executeDataPsmDeleteAttribute(
     wrapResourcesWithReader(before),
-    operation);
+    undefined, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
       "iri": "http://schema",
-      "types": ["data-psm-schema"],
+      "types": [PSM.SCHEMA],
       "dataPsmParts": ["http://class"],
     },
     "http://class": {
       "iri": "http://class",
-      "types": ["data-psm-class"],
+      "types": [PSM.CLASS],
       "dataPsmParts": [],
     },
   });
@@ -52,5 +51,5 @@ test("Delete data PSM attribute.", async () => {
 function wrapResourcesWithReader(
   resources: { [iri: string]: any },
 ): CoreResourceReader {
-  return new ReadOnlyMemoryStore(resources);
+  return ReadOnlyMemoryStore.create(resources);
 }

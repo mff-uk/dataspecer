@@ -1,26 +1,19 @@
 import {CoreResource, CoreOperation} from "../../core";
+import * as PSM from "../data-psm-vocabulary";
 
-export interface DataPsmDeleteClass extends CoreOperation {
+export class DataPsmDeleteClass extends CoreOperation {
 
-  dataPsmClass?: string;
+  static readonly TYPE = PSM.DELETE_CLASS;
 
-}
+  dataPsmClass: string | null = null;
 
-export const DataPsmDeleteClassType =
-  "psm-action-delete-class";
-
-export function isDataPsmDeleteClass(
-  resource: CoreResource,
-): resource is DataPsmDeleteClass {
-  return resource.types.includes(DataPsmDeleteClassType);
-}
-
-export function asDataPsmDeleteClass(
-  resource: CoreResource,
-): DataPsmDeleteClass {
-  if (isDataPsmDeleteClass(resource)) {
-    return resource as DataPsmDeleteClass;
+  constructor() {
+    super();
+    this.types.push(DataPsmDeleteClass.TYPE);
   }
-  resource.types.push(DataPsmDeleteClassType);
-  return resource as DataPsmDeleteClass;
+
+  static is(resource: CoreResource | null): resource is DataPsmDeleteClass {
+    return resource?.types.includes(DataPsmDeleteClass.TYPE);
+  }
+
 }

@@ -1,40 +1,25 @@
 import {
   CoreResourceReader,
-  createErrorOperationResult,
-  CreateNewIdentifier,
-  createSuccessOperationResult,
   CoreExecutorResult,
+  CreateNewIdentifier,
+  CoreResource,
 } from "../../core";
-import {
-  isPimAttribute,
-} from "../model";
-import {loadPimSchema} from "./pim-executor-utils";
+import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
 import {PimDeleteAttribute} from "../operation";
 
 export async function executePimDeleteAttribute(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: PimDeleteAttribute,
 ): Promise<CoreExecutorResult> {
-  const attributeResource =
-    await modelReader.readResource(operation.pimAttribute);
-  if (attributeResource === null) {
-    return createErrorOperationResult(
-      "Missing attribute object.");
-  }
-  if (!isPimAttribute(attributeResource)) {
-    return createErrorOperationResult(
-      "Object to delete is not an attribute.");
-  }
 
-  const schema = await loadPimSchema(modelReader);
+  const schema = await loadPimSchema(reader);
   if (schema === null) {
-    return createErrorOperationResult(
-      "Missing schema object.");
+    return PimExecutorResultFactory.missingSchema();
   }
-  schema.pimParts = schema.pimParts.filter(
-    iri => iri !== operation.pimAttribute);
 
-  return createSuccessOperationResult(
-    [], [schema], [operation.pimAttribute]);
+  return CoreExecutorResult.createSuccess([], [{
+    ...schema,
+    "pimParts": schema.pimParts.filter(iri => iri !== operation.pimAttribute),
+  } as CoreResource], [operation.pimAttribute]);
 }

@@ -1,33 +1,26 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * An attribute is a primitive property that belongs to a class. It may be
  * a string, integer etc.
  */
-export interface PimAttribute extends PimResource {
+export class PimAttribute extends PimResource {
 
-  pimDatatype?: string;
+  private static readonly TYPE = PIM.ATTRIBUTE;
 
-  pimOwnerClass?: string;
+  pimDatatype: string | null = null;
 
-}
+  pimOwnerClass: string | null = null;
 
-const PimAttributeType = "pim-attribute";
-
-export function isPimAttribute(
-  resource: CoreResource | null,
-): resource is PimAttribute {
-  return resource !== null
-    && resource.types.includes(PimAttributeType);
-}
-
-export function asPimAttribute(
-  resource: CoreResource,
-): PimAttribute {
-  if (isPimAttribute(resource)) {
-    return resource as PimAttribute;
+  constructor(iri: string | null = null) {
+    super(iri);
+    this.types.push(PimAttribute.TYPE);
   }
-  resource.types.push(PimAttributeType);
-  return resource as PimAttribute;
+
+  static is(resource: CoreResource | null): resource is PimAttribute {
+    return resource?.types.includes(PimAttribute.TYPE);
+  }
+
 }

@@ -17,6 +17,7 @@ module.exports = {
     "comma-dangle": ["error", "always-multiline"],
     "linebreak-style": ["error", "unix"],
     "semi": ["error", "always"],
+    "max-len": ["warn"],
     // Remove unused imports.
     "unused-imports/no-unused-imports": "error",
     // Allow empty private/protected constructors.
@@ -27,6 +28,8 @@ module.exports = {
     }],
     // We use any a lot now, so there is no point in having the warning on.
     "@typescript-eslint/no-explicit-any": ["off"],
+    // Try to not use this too often.
+    "@typescript-eslint/ban-ts-comment": ["warn"],
   },
   "plugins": [
     "@typescript-eslint",
@@ -39,4 +42,13 @@ module.exports = {
     "es2020": true,
     "node": true,
   },
+  "overrides": [
+    {
+      // Update rules only for pure JavaScript files.
+      "files": ["*.js"],
+      "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+      },
+    },
+  ],
 };

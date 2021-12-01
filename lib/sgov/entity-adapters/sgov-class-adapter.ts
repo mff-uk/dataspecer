@@ -1,18 +1,28 @@
 import {RdfSourceWrap} from "../../core/adapter/rdf";
-import {asPimClass, PimClass} from "../../pim/model";
+import {PimClass} from "../../pim/model";
 import {POJEM, RDFS} from "../sgov-vocabulary";
-import {loadSgovEntity} from "./sgov-entity-adapter";
-import {IriProvider} from "../../cim/iri-provider";
+import {loadSgovEntityToResource} from "./sgov-entity-adapter";
+import {IriProvider} from "../../cim";
 
-export async function isSgovClass(entity: RdfSourceWrap): Promise<boolean> {
+export async function isSgovClass(
+  entity: RdfSourceWrap,
+): Promise<boolean> {
   return (await entity.types()).includes(POJEM.typObjektu);
 }
 
-export async function loadSgovClass(entity: RdfSourceWrap, idProvider: IriProvider): Promise<PimClass> {
-  const cls = asPimClass(await loadSgovEntity(entity, idProvider));
+export async function loadSgovClass(
+  entity: RdfSourceWrap, idProvider: IriProvider,
+): Promise<PimClass> {
+  const result = new PimClass();
+  await loadSgovEntityToResource(entity, idProvider, result);
 
-  const pimExtends = (await entity.nodes(RDFS.subClassOf)).map(idProvider.cimToPim);
-  cls.pimExtends = [... new Set([...cls.pimExtends, ...pimExtends])];
+  result.pimExtends = unique([
+    ...result.pimExtends,
+    ...(await entity.nodes(RDFS.subClassOf)).map(idProvider.cimToPim)]);
 
-  return cls;
+  return result;
+}
+
+function unique<T>(values: T[]): T[] {
+  return [...new Set(values)];
 }

@@ -1,38 +1,33 @@
+import {PimCreateClass, PimCreateClassResult} from "../operation";
 import {
-  createPimCreateClassResultProperties,
-  PimCreateClass,
-} from "../operation";
-import {asPimClass} from "../model";
-import {
-  createCoreResource,
-  createErrorOperationResult,
-  createSuccessOperationResult,
   CoreExecutorResult,
   CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
-import {loadPimSchema} from "./pim-executor-utils";
+import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
+import {PimClass} from "../model";
 
 export async function executePimCreateClass(
+  reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  modelReader: CoreResourceReader,
   operation: PimCreateClass,
 ): Promise<CoreExecutorResult> {
-  const iri = operation.pimNewIri || createNewIdentifier("class");
 
-  const result = asPimClass(createCoreResource(iri));
+  const schema = await loadPimSchema(reader);
+  if (schema === null) {
+    return PimExecutorResultFactory.missingSchema();
+  }
+
+  const iri = operation.pimNewIri ?? createNewIdentifier("class");
+  const result = new PimClass(iri);
   result.pimInterpretation = operation.pimInterpretation;
   result.pimTechnicalLabel = operation.pimTechnicalLabel;
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
 
-  const schema = await loadPimSchema(modelReader);
-  if (schema === null) {
-    return createErrorOperationResult("Missing schema object.");
-  }
   schema.pimParts = [...schema.pimParts, result.iri];
 
-  return createSuccessOperationResult(
+  return CoreExecutorResult.createSuccess(
     [result], [schema], [],
-    createPimCreateClassResultProperties(result.iri));
+    new PimCreateClassResult(result.iri));
 }

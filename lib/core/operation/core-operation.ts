@@ -6,8 +6,19 @@ import {CoreResource} from "../core-resource";
  * This provide us with possibility to implement time travel and synchronization
  * of multiple models.
  */
-export interface CoreOperation extends CoreResource {
+export class CoreOperation extends CoreResource {
 
-  parent?: string;
+  private static readonly OPERATION_TYPE = "core-operation";
+
+  parent: string | null = null;
+
+  protected constructor() {
+    super(null);
+    this.types.push(CoreOperation.OPERATION_TYPE);
+  }
+
+  static is(resource: CoreResource): resource is CoreOperation {
+    return resource.types.includes(CoreOperation.OPERATION_TYPE);
+  }
 
 }

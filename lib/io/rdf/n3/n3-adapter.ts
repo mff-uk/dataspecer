@@ -85,14 +85,14 @@ function parseN3QuadAsRdfQuad(quad: N3.Quad): RdfQuad {
   return result as RdfQuad;
 }
 
-function parseLiteralId(input: string): string[] {
+function parseLiteralId(input: string): (string | null)[] {
   const [head, tail] = splitLiteralId(input);
   if (tail === "") {
-    return [head, XSD_STRING, undefined];
+    return [head, XSD_STRING, null];
   } else if (tail.startsWith("@")) {
     return [head, RDF_LANGUAGE_STRING, tail.substr(1)];
   } else if (tail.startsWith("^^")) {
-    return [head, tail.substr(2), undefined];
+    return [head, tail.substr(2), null];
   } else {
     throw new Error(`Can not parse: ${input}`);
   }

@@ -1,25 +1,30 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {PimAttribute, asPimAttribute} from "../../model";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {PimAttribute} from "../../model";
 import {loadPimResource} from "./pim-resource-adapter";
-import * as PIM from "./pim-vocabulary";
+import * as PIM from "../../pim-vocabulary";
 
 export class PimAttributeAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PIM.ATTRIBUTE)) {
-      return [];
-    }
-    //
-    const pimAttribute: PimAttribute = asPimAttribute(resource);
-    const loadFromPim = await loadPimResource(source, pimAttribute);
-    //
-    pimAttribute.pimDatatype = await source.node(PIM.HAS_DATA_TYPE);
-    pimAttribute.pimOwnerClass = await source.node(PIM.HAS_CLASS);
-    return [...loadFromPim, ...pimAttribute.pimDatatype];
+    return types.includes(PIM.ATTRIBUTE);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new PimAttribute(source.iri);
+    result.pimDatatype = await source.node(PIM.HAS_DATA_TYPE);
+    result.pimOwnerClass = await source.node(PIM.HAS_CLASS);
+    return {
+      "resource": result,
+      "references": [
+        ...await loadPimResource(source, result),
+        ...result.pimDatatype,
+      ],
+    };
   }
 
 }

@@ -1,25 +1,19 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
-export interface PimDeleteAssociation extends CoreOperation {
+export class PimDeleteAssociation extends CoreOperation {
 
-  pimAssociation?: string;
+  static readonly TYPE = PIM.DELETE_ASSOCIATION;
 
-}
+  pimAssociation: string | null = null;
 
-export const PimDeleteAssociationType = "pim-action-delete-association";
-
-export function isPimDeleteAssociation(
-  resource: CoreResource,
-): resource is PimDeleteAssociation {
-  return resource.types.includes(PimDeleteAssociationType);
-}
-
-export function asPimDeleteAssociation(
-  resource: CoreResource,
-): PimDeleteAssociation {
-  if (isPimDeleteAssociation(resource)) {
-    return resource as PimDeleteAssociation;
+  constructor() {
+    super();
+    this.types.push(PimDeleteAssociation.TYPE);
   }
-  resource.types.push(PimDeleteAssociationType);
-  return resource as PimDeleteAssociation;
+
+  static is(resource: CoreResource | null): resource is PimDeleteAssociation {
+    return resource?.types.includes(PimDeleteAssociation.TYPE);
+  }
+
 }

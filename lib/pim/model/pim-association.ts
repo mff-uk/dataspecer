@@ -1,5 +1,6 @@
 import {CoreResource} from "../../core";
 import {PimResource} from "./pim-resource";
+import * as PIM from "../pim-vocabulary";
 
 /**
  * An association connects two entities, but it does not point to entities
@@ -8,27 +9,25 @@ import {PimResource} from "./pim-resource";
  * As association connect two entities without any side preference, i.e. there
  * is no order on the ends, the association does not belong to any class.
  */
-export interface PimAssociation extends PimResource {
+export class PimAssociation extends PimResource {
+
+  private static readonly TYPE = PIM.ASSOCIATION;
 
   pimEnd: string[];
 
-}
+  /**
+   * If true the order of ends in {@link pimEnd} is from start
+   * to end.
+   */
+  pimIsOriented: boolean = false;
 
-const PimAssociationType = "pim-association";
-
-export function isPimAssociation(
-  resource: CoreResource | null,
-): resource is PimAssociation {
-  return resource !== null
-    && resource.types.includes(PimAssociationType);
-}
-
-export function asPimAssociation(resource: CoreResource): PimAssociation {
-  if (isPimAssociation(resource)) {
-    return resource as PimAssociation;
+  constructor(iri: string | null = null) {
+    super(iri);
+    this.types.push(PimAssociation.TYPE);
   }
-  resource.types.push(PimAssociationType);
-  const result = resource as PimAssociation;
-  result.pimEnd = result.pimEnd || [];
-  return result;
+
+  static is(resource: CoreResource | null): resource is PimAssociation {
+    return resource?.types.includes(PimAssociation.TYPE);
+  }
+
 }

@@ -1,30 +1,23 @@
 import {CoreResource} from "../../core";
 import {DataPsmResource} from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary";
 
 /**
  * An attribute is a primitive property. It may be a string, integer etc.
  */
-export interface DataPsmAttribute extends DataPsmResource {
+export class DataPsmAttribute extends DataPsmResource {
 
-  dataPsmDatatype?: string;
+  private static readonly TYPE = PSM.ATTRIBUTE;
 
-}
+  dataPsmDatatype: string | null = null;
 
-export const DataPsmAttributeType = "data-psm-attribute";
-
-export function isDataPsmAttribute(
-  resource: CoreResource | null,
-): resource is DataPsmAttribute {
-  return resource !== null
-    && resource.types.includes(DataPsmAttributeType);
-}
-
-export function asDataPsmAttribute(
-  resource: CoreResource,
-): DataPsmAttribute {
-  if (isDataPsmAttribute(resource)) {
-    return resource as DataPsmAttribute;
+  constructor(iri:string | null = null) {
+    super(iri);
+    this.types.push(DataPsmAttribute.TYPE);
   }
-  resource.types.push(DataPsmAttributeType);
-  return resource as DataPsmAttribute;
+
+  static is(resource: CoreResource | null) : resource is DataPsmAttribute {
+    return resource?.types.includes(DataPsmAttribute.TYPE);
+  }
+
 }

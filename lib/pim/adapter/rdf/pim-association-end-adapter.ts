@@ -1,24 +1,29 @@
-import {RdfSourceWrap, RdfResourceLoader} from "../../../core/adapter/rdf";
-import {CoreResource} from "../../../core";
-import {PimAssociationEnd, asPimAssociationEnd} from "../../model";
+import {
+  RdfSourceWrap,
+  RdfResourceLoader,
+  RdfResourceLoaderResult,
+} from "../../../core/adapter/rdf";
+import {PimAssociationEnd} from "../../model";
 import {loadPimResource} from "./pim-resource-adapter";
-import * as PIM from "./pim-vocabulary";
+import * as PIM from "../../pim-vocabulary";
 
 export class PimAssociationEndAdapter implements RdfResourceLoader {
 
-  async loadResource(
-    source: RdfSourceWrap, resource: CoreResource,
-  ): Promise<string[]> {
+  async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
-    if (!types.includes(PIM.ASSOCIATION_END)) {
-      return [];
-    }
-    //
-    const pimAssociation: PimAssociationEnd = asPimAssociationEnd(resource);
-    const loadFromPim = await loadPimResource(source, pimAssociation);
-    //
-    pimAssociation.pimPart = await source.node(PIM.HAS_PARTICIPANT);
-    return [...loadFromPim, pimAssociation.pimPart];
+    return types.includes(PIM.ASSOCIATION_END);
+  }
+
+  async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
+    const result = new PimAssociationEnd(source.iri);
+    result.pimPart = await source.node(PIM.HAS_PARTICIPANT);
+    return {
+      "resource": result,
+      "references": [
+        ...await loadPimResource(source, result),
+        ...result.pimPart,
+      ],
+    };
   }
 
 }

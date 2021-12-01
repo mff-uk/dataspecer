@@ -1,30 +1,27 @@
-import {
-  createCoreResource,
-} from "../../core";
-import {
-  asPimCreateSchema,
-  isPimCreateSchemaResult,
-  PimCreateSchemaResult,
-} from "../operation";
+import {PimCreateSchema, PimCreateSchemaResult} from "../operation";
 import {executePimCreateSchema} from "./pim-create-schema-executor";
+import {MemoryStore} from "../../core";
+import {dataPsmExecutors} from "../../data-psm/executor";
+import * as PIM from "../pim-vocabulary";
 
 test("Create schema.", async () => {
-  const operation = asPimCreateSchema(createCoreResource());
-  operation.pimBaseIri = "http://localhost/";
+  const operation = new PimCreateSchema();
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
 
   let counter = 0;
+  const store = MemoryStore.create("http://localhost", dataPsmExecutors,
+    (type) => `http://localhost/${type}/${++counter}`);
+
   const actual = await executePimCreateSchema(
-    () => "http://localhost/" + ++counter,
-    undefined,
+    store, (type) => `http://localhost/${type}/${++counter}`,
     operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
-    "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": ["pim-schema"],
+    "http://localhost/schema/1": {
+      "iri": "http://localhost/schema/1",
+      "types": [PIM.SCHEMA],
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
@@ -32,26 +29,29 @@ test("Create schema.", async () => {
   });
   expect(actual.changed).toEqual({});
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateSchemaResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateSchemaResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateSchemaResult;
-  expect(result.createdPimSchema).toEqual("http://localhost/1");
+  expect(result.createdPimSchema).toEqual("http://localhost/schema/1");
 });
 
 test("Create schema with given IRI.", async () => {
-  const operation = asPimCreateSchema(createCoreResource());
-  operation.pimBaseIri = "http://localhost/";
+  const operation = new PimCreateSchema();
   operation.pimHumanLabel = {"en": "Label"};
   operation.pimHumanDescription = {"en": "Desc"};
   operation.pimNewIri = "urn";
 
+  let counter = 0;
+  const store = MemoryStore.create("http://localhost", dataPsmExecutors,
+    (type) => `http://localhost/${type}/${++counter}`);
+
   const actual = await executePimCreateSchema(
-    undefined, undefined, operation);
+    store, (type) => `http://localhost/${type}/${++counter}`, operation);
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
     [operation.pimNewIri]: {
       "iri": operation.pimNewIri,
-      "types": ["pim-schema"],
+      "types": [PIM.SCHEMA],
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimParts": [],
@@ -59,7 +59,7 @@ test("Create schema with given IRI.", async () => {
   });
   expect(actual.changed).toEqual({});
   expect(actual.deleted).toEqual([]);
-  expect(isPimCreateSchemaResult(actual.operationResult)).toBeTruthy();
+  expect(PimCreateSchemaResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateSchemaResult;
   expect(result.createdPimSchema).toEqual(operation.pimNewIri);
 });

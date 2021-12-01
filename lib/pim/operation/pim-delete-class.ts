@@ -1,25 +1,19 @@
 import {CoreOperation, CoreResource} from "../../core";
+import * as PIM from "../pim-vocabulary";
 
-export interface PimDeleteClass extends CoreOperation {
+export class PimDeleteClass extends CoreOperation {
 
-  pimClass?: string;
+  static readonly TYPE = PIM.DELETE_CLASS;
 
-}
+  pimClass: string | null = null;
 
-export const PimDeleteClassType = "pim-action-delete-class";
-
-export function isPimDeleteClass(
-  resource: CoreResource,
-): resource is PimDeleteClass {
-  return resource.types.includes(PimDeleteClassType);
-}
-
-export function asPimDeleteClass(
-  resource: CoreResource,
-): PimDeleteClass {
-  if (isPimDeleteClass(resource)) {
-    return resource as PimDeleteClass;
+  constructor() {
+    super();
+    this.types.push(PimDeleteClass.TYPE);
   }
-  resource.types.push(PimDeleteClassType);
-  return resource as PimDeleteClass;
+
+  static is(resource: CoreResource | null): resource is PimDeleteClass {
+    return resource?.types.includes(PimDeleteClass.TYPE);
+  }
+
 }

@@ -44,7 +44,7 @@ function supportedTypes() {
   ];
 }
 
-function getContentType(response): string | undefined {
+function getContentType(response): string {
   if (!response.headers.has("content-type")) {
     throw Error("Missing 'content-type' header.");
   }

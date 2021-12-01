@@ -1,17 +1,22 @@
 import {RdfSourceWrap} from "../../core/adapter/rdf";
-import {asPimAttribute, PimAttribute} from "../../pim/model";
-import {loadSgovEntity} from "./sgov-entity-adapter";
+import {PimAttribute} from "../../pim/model";
+import {loadSgovEntityToResource} from "./sgov-entity-adapter";
 import {POJEM, RDFS} from "../sgov-vocabulary";
-import {IriProvider} from "../../cim/iri-provider";
+import {IriProvider} from "../../cim";
 
-export async function isSgovAttribute(entity: RdfSourceWrap): Promise<boolean> {
+export async function isSgovAttribute(
+  entity: RdfSourceWrap,
+): Promise<boolean> {
   return (await entity.types()).includes(POJEM.typVlastnosti);
 }
 
-export async function loadSgovAttribute(entity: RdfSourceWrap, idProvider: IriProvider): Promise<PimAttribute> {
-  const pimAttribute = asPimAttribute(await loadSgovEntity(entity, idProvider));
+export async function loadSgovAttribute(
+  entity: RdfSourceWrap, idProvider: IriProvider,
+): Promise<PimAttribute> {
+  const result = new PimAttribute();
+  await loadSgovEntityToResource(entity, idProvider, result);
 
-  pimAttribute.pimOwnerClass = idProvider.cimToPim(await entity.node(RDFS.domain));
+  result.pimOwnerClass = idProvider.cimToPim(await entity.node(RDFS.domain));
 
-  return pimAttribute;
+  return result;
 }
