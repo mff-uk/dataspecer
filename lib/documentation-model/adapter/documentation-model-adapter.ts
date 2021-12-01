@@ -1,7 +1,7 @@
-import {WebSpecification, WebSpecificationStructure} from "../model";
+import {DocumentationModel, DocumentationModelStructure} from "../model";
 import {
   conceptualModelToWebSpecification,
-} from "./web-specification-conceptual-adapter";
+} from "./documentation-model-conceptual-adapter";
 import {
   ConceptualModel,
   ConceptualModelClass,
@@ -17,7 +17,7 @@ import {
   LanguageString,
   StringSelector
 } from "../../core";
-import {structureModelToWebSpecificationPsm} from "./web-specification-structure-adapter";
+import {structureModelToWebSpecificationPsm} from "./documentation-model-structure-adapter";
 
 /**
  * Configuration object for the adapter.
@@ -54,8 +54,8 @@ export type ModelsToWebSpecificationConfiguration = {
 
   transformStructure: (
     structureModel: StructureModel,
-    webModel: WebSpecificationStructure,
-  ) => WebSpecificationStructure;
+    webModel: DocumentationModelStructure,
+  ) => DocumentationModelStructure;
 
 }
 
@@ -63,8 +63,8 @@ export function modelsToWebSpecification(
   conceptualModel: ConceptualModel,
   structureModels: StructureModel[],
   configuration: ModelsToWebSpecificationConfiguration,
-): WebSpecification {
-  const result = new WebSpecification();
+): DocumentationModel {
+  const result = new DocumentationModel();
   result.humanLabel =
     configuration.selectString(conceptualModel.humanLabel);
   result.humanDescription =

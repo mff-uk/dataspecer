@@ -1,24 +1,24 @@
-import {ModelsToWebSpecificationConfiguration} from "./web-specification-adapter";
+import {ModelsToWebSpecificationConfiguration} from "./documentation-model-adapter";
 import {StructureModel} from "../../structure-model";
 import {
-  WebSpecificationConceptual,
-  WebSpecificationConceptualEntity,
-  WebSpecificationConceptualProperty,
-  WebSpecificationStructure,
+  DocumentationModelConceptual,
+  DocumentationModelConceptualEntity,
+  DocumentationModelConceptualProperty,
+  DocumentationModelStructure,
   WebSpecificationStructureComplexType,
-  WebSpecificationStructureEntity,
+  DocumentationModelStructureEntity,
   WebSpecificationStructurePrimitiveType,
-  WebSpecificationStructureProperty,
+  DocumentationModelStructureProperty,
 } from "../model";
 import {assert, assertFailed} from "../../core";
 import {OFN} from "../../well-known";
 
 export function structureModelToWebSpecificationPsm(
   configuration: ModelsToWebSpecificationConfiguration,
-  conceptualWebSpecification: WebSpecificationConceptual,
+  conceptualWebSpecification: DocumentationModelConceptual,
   structureModel: StructureModel
-): WebSpecificationStructure {
-  const result = new WebSpecificationStructure();
+): DocumentationModelStructure {
+  const result = new DocumentationModelStructure();
   result.humanLabel = configuration.selectString(
     structureModel.humanLabel);
   result.humanDescription = configuration.selectString(
@@ -33,15 +33,15 @@ export function structureModelToWebSpecificationPsm(
     classIris.push(iri);
   }
   const typesToResolve: [string, WebSpecificationStructureComplexType][] = [];
-  const resultEntityMap: Record<string, WebSpecificationStructureEntity> = {};
-  const entityMap: Record<string, WebSpecificationConceptualEntity> =
+  const resultEntityMap: Record<string, DocumentationModelStructureEntity> = {};
+  const entityMap: Record<string, DocumentationModelConceptualEntity> =
     buildConceptualEntityMap(conceptualWebSpecification);
-  const propertyMap: Record<string, WebSpecificationConceptualProperty> =
+  const propertyMap: Record<string, DocumentationModelConceptualProperty> =
     buildConceptualPropertyMap(conceptualWebSpecification);
   for (const classIri of classIris) {
     const classData = structureModel.classes[classIri];
     assert(classData !== null, "Missing class data");
-    const webEntity = new WebSpecificationStructureEntity();
+    const webEntity = new DocumentationModelStructureEntity();
     webEntity.humanLabel = configuration.selectString(
       classData.humanLabel);
     webEntity.humanDescription = configuration.selectString(
@@ -55,7 +55,7 @@ export function structureModelToWebSpecificationPsm(
     result.entities.push(webEntity);
     resultEntityMap[classData.psmIri] = webEntity;
     for (const propertyData of classData.properties) {
-      const webProperty = new WebSpecificationStructureProperty();
+      const webProperty = new DocumentationModelStructureProperty();
       webProperty.humanLabel = configuration.selectString(
         propertyData.humanLabel);
       webProperty.humanDescription = configuration.selectString(
@@ -92,16 +92,16 @@ export function structureModelToWebSpecificationPsm(
   return result;
 }
 
-function buildConceptualEntityMap(specification: WebSpecificationConceptual) {
-  const result: Record<string, WebSpecificationConceptualEntity> = {};
+function buildConceptualEntityMap(specification: DocumentationModelConceptual) {
+  const result: Record<string, DocumentationModelConceptualEntity> = {};
   for (const entity of specification.entities) {
     result[entity.pimIri] = entity;
   }
   return result;
 }
 
-function buildConceptualPropertyMap(specification: WebSpecificationConceptual) {
-  const result: Record<string, WebSpecificationConceptualProperty> = {};
+function buildConceptualPropertyMap(specification: DocumentationModelConceptual) {
+  const result: Record<string, DocumentationModelConceptualProperty> = {};
   for (const entity of specification.entities) {
     for (const property of entity.properties) {
       result[property.pimIri] = property;

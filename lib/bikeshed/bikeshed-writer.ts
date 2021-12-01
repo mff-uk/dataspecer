@@ -3,15 +3,16 @@ import * as path from "path";
 
 import {Bikeshed} from "./bikeshed-model";
 import {
-  WebSpecificationConceptual,
-  WebSpecificationConceptualEntity,
-  WebSpecificationConceptualProperty,
-  WebSpecificationStructure,
-  WebSpecificationStructureEntity, WebSpecificationStructureProperty
+  DocumentationModelConceptual,
+  DocumentationModelConceptualEntity,
+  DocumentationModelConceptualProperty,
+  DocumentationModelStructure,
+  DocumentationModelStructureEntity, 
+  DocumentationModelStructureProperty,
+  DocumentationModelStructureAttachment
 
-} from "../web-specification";
+} from "../documentation-model";
 import {OutputStream} from "../io/stream/output-stream";
-import {WebSpecificationStructureAttachment} from "../web-specification/model/web-specification-structure-attachment";
 
 export async function saveBikeshedToDirectory(
   model: Bikeshed, directory: string, name: string,
@@ -79,7 +80,7 @@ async function writeIntroduction(
 }
 
 async function writeConceptualModel(
-  model: WebSpecificationConceptual, stream: OutputStream
+  model: DocumentationModelConceptual, stream: OutputStream
 ) {
   await stream.write(
     "# Konceptuální model # {#konceptuální-model}\n" +
@@ -94,7 +95,7 @@ async function writeConceptualModel(
 }
 
 async function writeConceptualEntity(
-  model: WebSpecificationConceptualEntity, stream: OutputStream,
+  model: DocumentationModelConceptualEntity, stream: OutputStream,
 ) {
   await stream.write(`### ${model.humanLabel ?? ""} ### {#${model.anchor}}\n`);
   await stream.write(`${model.humanDescription ?? ""}\n`)
@@ -108,7 +109,7 @@ async function writeConceptualEntity(
 }
 
 async function writeConceptualProperty(
-  model: WebSpecificationConceptualProperty, stream: OutputStream,
+  model: DocumentationModelConceptualProperty, stream: OutputStream,
 ) {
   await stream.write(
     `#### ${model.humanLabel ?? ""} #### {#${model.anchor}}\n`);
@@ -146,7 +147,7 @@ function asArray<T>(values: T | null | (T | null) []): T[] {
 }
 
 async function writeStructureModel(
-  model: WebSpecificationStructure, stream: OutputStream
+  model: DocumentationModelStructure, stream: OutputStream
 ) {
   await stream.write(
     `# ${model.humanLabel ?? ""} # {#${model.anchor}}\n` +
@@ -162,7 +163,7 @@ async function writeStructureModel(
 }
 
 async function writeStructureEntity(
-  model: WebSpecificationStructureEntity, stream: OutputStream,
+  model: DocumentationModelStructureEntity, stream: OutputStream,
 ) {
   await stream.write(`${model.humanLabel} {#${model.anchor}}\n-------\n`);
   await stream.write(`${model.humanDescription ?? ""}\n`)
@@ -174,7 +175,7 @@ async function writeStructureEntity(
 }
 
 async function writeStructureProperty(
-  model: WebSpecificationStructureProperty, stream: OutputStream,
+  model: DocumentationModelStructureProperty, stream: OutputStream,
 ) {
   await stream.write(
     `### ${model.technicalLabel ?? ""}### {#${model.anchor}}\n`);
@@ -187,7 +188,7 @@ async function writeStructureProperty(
 }
 
 function collectStructurePropertyTypes(
-  model: WebSpecificationStructureProperty
+  model: DocumentationModelStructureProperty
 ): string[] {
   const result = [];
   for (const type of model.types) {
@@ -203,7 +204,7 @@ function collectStructurePropertyTypes(
 }
 
 async function writeStructureAttachments(
-  model: WebSpecificationStructure, stream: OutputStream,
+  model: DocumentationModelStructure, stream: OutputStream,
 ) {
   if (model.attachments.length === 0) {
     return;
@@ -216,7 +217,7 @@ async function writeStructureAttachments(
 
 
 async function writeStructureAttachment(
-  model: WebSpecificationStructureAttachment, stream: OutputStream,
+  model: DocumentationModelStructureAttachment, stream: OutputStream,
 ) {
   await stream.write(`### ${model.humanLabel ?? ""} \n`);
   await stream.write(`${model.humanDescription}\n`);

@@ -1,6 +1,8 @@
-import {WebSpecificationConceptualEntity} from "./web-specification-conceptual-entity";
+import {
+  DocumentationModelConceptualEntity
+} from "./documentation-model-conceptual-entity";
 
-export interface  WebSpecificationConceptualType {
+export interface DocumentationModelConceptualType {
 
   isComplex(): boolean;
 
@@ -9,7 +11,7 @@ export interface  WebSpecificationConceptualType {
 }
 
 export class WebSpecificationConceptualPrimitiveType
-  implements WebSpecificationConceptualType {
+  implements DocumentationModelConceptualType {
 
   isComplex(): boolean {
     return false;
@@ -22,9 +24,9 @@ export class WebSpecificationConceptualPrimitiveType
 }
 
 export class WebSpecificationConceptualComplexType
-  implements WebSpecificationConceptualType {
+  implements DocumentationModelConceptualType {
 
-  entity: WebSpecificationConceptualEntity | null = null;
+  entity: DocumentationModelConceptualEntity | null = null;
 
   isComplex(): boolean {
     return true;

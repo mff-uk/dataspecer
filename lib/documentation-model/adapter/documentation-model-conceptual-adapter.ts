@@ -1,25 +1,25 @@
 import {
   ModelsToWebSpecificationConfiguration,
-} from "./web-specification-adapter";
+} from "./documentation-model-adapter";
 import {ConceptualModel} from "../../conceptual-model";
 import {
-  WebSpecificationConceptual,
+  DocumentationModelConceptual,
   WebSpecificationConceptualComplexType,
   WebSpecificationConceptualPrimitiveType,
-  WebSpecificationConceptualProperty,
+  DocumentationModelConceptualProperty,
 } from "../model";
-import {WebSpecificationConceptualEntity} from "../model";
+import {DocumentationModelConceptualEntity} from "../model";
 import {assertFailed} from "../../core";
 
 export function conceptualModelToWebSpecification(
   configuration: ModelsToWebSpecificationConfiguration,
   conceptualModel: ConceptualModel
-): WebSpecificationConceptual {
-  const result = new WebSpecificationConceptual();
+): DocumentationModelConceptual {
+  const result = new DocumentationModelConceptual();
   const typesToResolve: [string, WebSpecificationConceptualComplexType][] = [];
-  const entitiesMap: Record<string, WebSpecificationConceptualEntity> = {};
+  const entitiesMap: Record<string, DocumentationModelConceptualEntity> = {};
   for (const classData of Object.values(conceptualModel.classes)) {
-    const webEntity = new WebSpecificationConceptualEntity();
+    const webEntity = new DocumentationModelConceptualEntity();
     webEntity.humanLabel =
       configuration.selectString(classData.humanLabel);
     webEntity.humanDescription =
@@ -36,7 +36,7 @@ export function conceptualModelToWebSpecification(
     result.entities.push(webEntity);
     entitiesMap[classData.pimIri] = webEntity;
     for (const propertyData of classData.properties) {
-      const webProperty = new WebSpecificationConceptualProperty();
+      const webProperty = new DocumentationModelConceptualProperty();
       webProperty.humanLabel =
         configuration.selectString(propertyData.humanLabel);
       webProperty.humanDescription =

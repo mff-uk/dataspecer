@@ -1,8 +1,8 @@
 import {
-  WebSpecificationStructureEntity,
-} from "./web-specification-structure-entity";
+  DocumentationModelStructureEntity,
+} from "./documentation-model-structure-entity";
 
-export interface  WebSpecificationStructureType {
+export interface DocumentationModelStructureType {
 
   isComplex(): this is WebSpecificationStructureComplexType;
 
@@ -11,7 +11,7 @@ export interface  WebSpecificationStructureType {
 }
 
 export class WebSpecificationStructurePrimitiveType
-  implements WebSpecificationStructureType {
+  implements DocumentationModelStructureType {
 
   humanLabel: string | null = null;
 
@@ -31,9 +31,9 @@ export class WebSpecificationStructurePrimitiveType
 }
 
 export class WebSpecificationStructureComplexType
-  implements WebSpecificationStructureType {
+  implements DocumentationModelStructureType {
 
-  entity: WebSpecificationStructureEntity | null = null;
+  entity: DocumentationModelStructureEntity | null = null;
 
   isComplex(): this is WebSpecificationStructureComplexType {
     return true;

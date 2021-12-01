@@ -1,4 +1,4 @@
-export class WebSpecificationStructureAttachment {
+export class DocumentationModelStructureAttachment {
 
   humanLabel: string | null;
 

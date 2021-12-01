@@ -1,8 +1,8 @@
 import {
-  WebSpecificationConceptualProperty,
-} from "./web-specification-conceptual-property";
+  DocumentationModelConceptualProperty,
+} from "./documentation-model-conceptual-property";
 
-export class WebSpecificationConceptualEntity {
+export class DocumentationModelConceptualEntity {
 
   humanLabel: string | null;
 
@@ -10,7 +10,7 @@ export class WebSpecificationConceptualEntity {
 
   anchor: string | null;
 
-  properties: WebSpecificationConceptualProperty[] = [];
+  properties: DocumentationModelConceptualProperty[] = [];
 
   cimIri: string | null;
 

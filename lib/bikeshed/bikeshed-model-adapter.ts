@@ -1,8 +1,8 @@
 import {Bikeshed, BikeshedMetadataKeys} from "./bikeshed-model";
-import {WebSpecification} from "../web-specification";
+import {DocumentationModel} from "../documentation-model";
 
 export function webSpecificationToBikeshed(
-  webSpecification: WebSpecification
+  webSpecification: DocumentationModel
 ): Bikeshed {
   const result = new Bikeshed();
   result.humanLabel = webSpecification.humanLabel;
@@ -14,7 +14,7 @@ export function webSpecificationToBikeshed(
 }
 
 function loadBikeshedMetadata(
-  webSpecification: WebSpecification
+  webSpecification: DocumentationModel
 ): Record<string, string> {
   return {
     [BikeshedMetadataKeys.title]: webSpecification.humanLabel ?? "-",
