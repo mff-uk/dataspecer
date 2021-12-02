@@ -54,9 +54,21 @@ class XmlSchemaAdapter {
     return {
       "targetNamespace": null,
       "elements": roots
-        .map(iri => this.classMap[iri])
+        .map(this.getClass, this)
         .map(this.classToElement, this),
     };
+  }
+
+  getClass(
+    iri: string
+  ): StructureModelClass {
+    const cls = this.classMap[iri];
+    if (cls == null) {
+      throw new Error(
+        `Class ${iri} is not defined in the model.`
+      );
+    }
+    return cls;
   }
 
   classToElement(
@@ -134,7 +146,7 @@ class XmlSchemaAdapter {
   ): StructureModelType {
     if (
       dataType.isAssociation() &&
-      this.classMap[dataType.psmClassIri].isCodelist
+      this.getClass(dataType.psmClassIri).isCodelist
     ) {
       return anyUriType;
     }
@@ -165,7 +177,7 @@ class XmlSchemaAdapter {
         "mixed": false,
         "xsType": "choice",
         "contents": dataTypes
-          .map(dataType => this.classMap[dataType.psmClassIri])
+          .map(dataType => this.getClass(dataType.psmClassIri))
           .map(classData => this.classToComplexContent(classData))
       },
     };
