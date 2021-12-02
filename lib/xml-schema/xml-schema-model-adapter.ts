@@ -80,19 +80,24 @@ function propertyToElement(
   classMap: ClassMap,
   propertyData: StructureModelProperty,
 ): XmlSchemaElement {
-  if (propertyData.dataTypes.length === 0) {
+  let dataTypes = propertyData.dataTypes;
+  if (dataTypes.length === 0) {
     throw new Error(`Property ${propertyData.psmIri} has no specified types.`);
   }
+  // Treat codelists as URIs
+  dataTypes = dataTypes.map(type => replaceCodelistWithUri(classMap, type));
   // Enforce the same type (class or datatype)
   // for all types in the property range.
   const result =
     propertyToElementCheckType(
       propertyData,
+      dataTypes,
       type => type.isAssociation(),
-      type => classPropertyToComplexType(classMap, type))
+      types => classPropertyToComplexType(classMap, types as any))
     ??
     propertyToElementCheckType(
       propertyData,
+      dataTypes,
       type => type.isAttribute(),
       datatypePropertyToSimpleType);
   if (result == null) {
@@ -104,15 +109,33 @@ function propertyToElement(
   return result;
 }
 
+const anyUriType: StructureModelPrimitiveType = (function()
+{
+  const type = new StructureModelPrimitiveType();
+  type.dataType = "http://www.w3.org/2001/XMLSchema#anyURI";
+  return type;
+})();
+
+function replaceCodelistWithUri(
+  classMap: ClassMap,
+  dataType: StructureModelType
+): StructureModelType {
+  if (dataType.isAssociation() && classMap[dataType.psmClassIri].isCodelist) {
+    return anyUriType;
+  }
+  return dataType;
+}
+
 function propertyToElementCheckType(
   propertyData: StructureModelProperty,
+  dataTypes: StructureModelType[],
   rangeChecker: (rangeType: StructureModelType) => boolean,
-  typeConstructor: (propertyData: StructureModelProperty) => XmlSchemaType,
+  typeConstructor: (dataTypes: StructureModelType[]) => XmlSchemaType,
 ): XmlSchemaElement | null {
-  if (propertyData.dataTypes.every(rangeChecker)) {
+  if (dataTypes.every(rangeChecker)) {
     return {
       "elementName": propertyData.technicalLabel,
-      "type": typeConstructor(propertyData),
+      "type": typeConstructor(dataTypes),
     };
   }
   return null;
@@ -120,9 +143,8 @@ function propertyToElementCheckType(
 
 function classPropertyToComplexType(
   classMap: ClassMap,
-  propertyData: StructureModelProperty,
+  dataTypes: StructureModelComplexType[],
 ): XmlSchemaComplexType {
-  const dataTypes: StructureModelComplexType[] = propertyData.dataTypes as any;
   return {
     "name": null,
     "complexDefinition": {
@@ -136,13 +158,13 @@ function classPropertyToComplexType(
 }
 
 function datatypePropertyToSimpleType(
-  propertyData: StructureModelProperty,
+  dataTypes: StructureModelPrimitiveType[],
 ): XmlSchemaSimpleType {
   return {
     "name": null,
     "simpleDefinition": {
       "xsType": "union",
-      "contents": propertyData.dataTypes.map(primitiveToQName),
+      "contents": dataTypes.map(primitiveToQName),
     },
   };
 }
