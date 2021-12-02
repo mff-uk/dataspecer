@@ -1,18 +1,17 @@
 import React, {useCallback} from "react";
 import AddIcon from "@mui/icons-material/Add";
-import {AddInterpretedSurroundingDialog} from "../../addInterpretedSurroundings/AddInterpretedSurroundingDialog";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
-import {useToggle} from "../../../hooks/useToggle";
-import {ActionButton} from "../common/ActionButton";
 import {CoreResourceReader} from "model-driven-data/core";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {AddClassSurroundings} from "../../../operations/add-class-surroundings";
+import {MenuItem} from "@mui/material";
+import {AddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
+import {UseDialogOpenFunction} from "../../../dialog";
 
-export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
+export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFunction<typeof AddInterpretedSurroundingsDialog, "dataPsmClassIri">}> = ({open}) => {
     const {store} = React.useContext(StoreContext);
     const {t, i18n} = useTranslation("psm");
-    const surroundingDialog = useToggle();
 
     const addSurroundings = useCallback((operation: {
         resourcesToAdd: [string, boolean][],
@@ -30,7 +29,8 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{dataPsmClassIri: strin
     }, [store]);
 
     return <>
-        <ActionButton onClick={surroundingDialog.open} icon={<AddIcon/>} label={t("button add")}/>
-        <AddInterpretedSurroundingDialog isOpen={surroundingDialog.isOpen} close={surroundingDialog.close} selected={addSurroundings} dataPsmClassIri={dataPsmClassIri} />
+        <MenuItem onClick={() => open({
+            selected: addSurroundings
+        })} title={t("button add")}><AddIcon/></MenuItem>
     </>;
 };

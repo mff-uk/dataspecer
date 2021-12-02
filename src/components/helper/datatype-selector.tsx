@@ -3,7 +3,7 @@ import {Autocomplete, Box, Chip, IconButton, TextField, Typography} from "@mui/m
 import {useTranslation} from "react-i18next";
 import {KnownDatatype} from "../../utils/known-datatypes";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
-import {Datatype} from "../dataPsm/common/Datatype";
+import {Datatype} from "../data-psm/common/Datatype";
 
 export type DatatypeSelectorValueType = string | KnownDatatype;
 

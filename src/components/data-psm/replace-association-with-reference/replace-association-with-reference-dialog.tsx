@@ -1,16 +1,18 @@
-import {Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, List, ListItemButton, ListItemText} from "@mui/material";
+import {Alert, Button, DialogActions, DialogContent, DialogTitle, Grid, List, ListItemButton, ListItemText} from "@mui/material";
 import {DataPsmSchemaItem} from "../DataPsmSchemaItem";
 import {DataPsmSchema} from "model-driven-data/data-psm/model";
 import {useResource} from "../../../hooks/useResource";
-import React, {useEffect, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
 import {useTranslation} from "react-i18next";
+import {DataPsmItemTreeContext} from "../data-psm-item-tree-context";
+import {dialog} from "../../../dialog";
 
 const SchemaListItem: React.FC<{
     dataPsmSchemaIri: string,
     selected: boolean,
     onSelect: () => void
-}> = ({dataPsmSchemaIri, selected, onSelect}) => {
+}> = memo(({dataPsmSchemaIri, selected, onSelect}) => {
     const {t} = useTranslation("psm");
 
     const {resource: schema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
@@ -21,20 +23,20 @@ const SchemaListItem: React.FC<{
             }</LanguageStringUndefineable>
         }</LanguageStringUndefineable>
     </ListItemButton>;
-}
+});
 
 export const ReplaceAssociationWithReferenceDialog: React.FC<{
     isOpen: boolean;
     close: () => void;
     roots: string[];
     onSelect: (dataPsmSchemaIri: string) => void;
-}> = ({isOpen, close, roots, onSelect}) => {
+}> = dialog({maxWidth: "lg", fullWidth: true}, memo(({isOpen, close, roots, onSelect}) => {
     const {t} = useTranslation("psm");
 
     const [selected, setSelected] = useState<string | undefined>(undefined);
     useEffect(() => setSelected(roots?.[0]), [roots]);
 
-    return <Dialog open={isOpen} onClose={close} maxWidth="lg" fullWidth>
+    return <>
         <DialogTitle>
             {t("replace association with reference.title")}
         </DialogTitle>
@@ -53,7 +55,9 @@ export const ReplaceAssociationWithReferenceDialog: React.FC<{
                     </List>
                 </Grid>
                 <Grid item xs={9}>
-                    {selected && <DataPsmSchemaItem dataPsmSchemaIri={selected} />}
+                    <DataPsmItemTreeContext.Provider  value={{readonly: true}}>
+                        {selected && <DataPsmSchemaItem dataPsmSchemaIri={selected} />}
+                    </DataPsmItemTreeContext.Provider>
                 </Grid>
             </Grid>
         </DialogContent>
@@ -66,5 +70,5 @@ export const ReplaceAssociationWithReferenceDialog: React.FC<{
                 }
             }}>{t("replace")}</Button>
         </DialogActions>
-    </Dialog>
-}
+    </>
+}));

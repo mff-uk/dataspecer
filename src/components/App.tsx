@@ -1,9 +1,9 @@
 import React, {ReactElement, useEffect, useMemo, useState} from "react";
 import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import SetRootButton from "./cimSearch/SetRootButton";
-import {DataPsmSchemaItem} from "./dataPsm/DataPsmSchemaItem";
-import {GenerateArtifacts} from "./generateArtifacts/GenerateArtifacts";
+import ButtonSetRoot from "./cim-search/button-set-root";
+import {DataPsmSchemaItem} from "./data-psm/DataPsmSchemaItem";
+import {GenerateArtifacts} from "./artifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
 import {LanguageSelector} from "./LanguageSelector";
 import {Trans, useTranslation} from "react-i18next";
@@ -16,7 +16,7 @@ import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
 import {FederatedObservableStore} from "../store/federated-observable-store";
 import {CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
-import {ArtifactPreview} from "./generateArtifacts/artifact-preview";
+import {ArtifactPreview} from "./artifacts/artifact-preview";
 import {useAsyncMemo} from "../hooks/useAsyncMemo";
 import {Configuration} from "../configuration/configuration";
 import {SyncMemoryStoreConfigurationStoreBuilder} from "../store/core-stores/sync-memory-store-configuration-store";
@@ -147,7 +147,7 @@ const App: React.FC = () => {
                                 <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
                                 <GenerateArtifacts artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
                                 <SaveRestore />
-                                <SetRootButton />
+                                <ButtonSetRoot />
                             </Box>
                         </Container>
                         <Box sx={{display: "flex"}}>

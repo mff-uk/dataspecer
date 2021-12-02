@@ -3,7 +3,7 @@ import React, {useCallback, useContext} from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
-import {DataPsmRootClassItem} from "./DataPsmRootClassItem";
+import {DataPsmClassItem} from "./DataPsmClassItem";
 import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "model-driven-data/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
@@ -76,7 +76,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul className={styles.ul}>
-              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmRootClassItem dataPsmClassIri={root} key={root} />)}
+              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmClassItem dataPsmClassIri={root} key={root} />)}
             </ul>
         </DragDropContext>
     </>}

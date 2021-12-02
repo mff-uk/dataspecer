@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {Dialog, DialogContent, DialogContentText, DialogTitle, Tab, Tabs} from "@mui/material";
+import {DialogContent, DialogContentText, DialogTitle, Tab, Tabs} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmAttribute} from "model-driven-data/data-psm/model";
@@ -7,20 +7,20 @@ import {PimAttribute} from "model-driven-data/pim/model";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {BasicInfo} from "./components/basic-info";
 import {ResourceInStore} from "./components/resource-in-store";
-import {DialogParameters} from "../dialog-parameters";
 import {useLabelAndDescription} from "../../hooks/use-label-and-description";
 import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
 import {Show} from "../helper/Show";
+import {dialog, DialogParameters} from "../../dialog";
 
-export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = memo(({iri, isOpen, close}) => {
+export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({iri, isOpen, close}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
     const {t, i18n} = useTranslation("detail");
     const [tab, setTab] = React.useState(0);
     const [storeTab, setStoreTab] = React.useState(0);
     const [label, description] = useLabelAndDescription(dataPsmAttribute, pimAttribute);
 
-    return <Dialog open={isOpen} onClose={close} maxWidth="md" fullWidth>
+    return <>
         <DialogTitle>
             {selectLanguage(label, i18n.languages) ?? <i>Unnamed resource</i>}
             {pimAttribute?.pimInterpretation && <CimLinks iri={pimAttribute.pimInterpretation}/>}
@@ -48,5 +48,5 @@ export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParame
                 <ResourceInStore iri={dataPsmAttribute.dataPsmInterpretation} />}
             </>}
         </DialogContent>
-    </Dialog>
-});
+    </>
+}));

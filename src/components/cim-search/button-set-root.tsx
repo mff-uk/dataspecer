@@ -1,7 +1,7 @@
 import React, {useCallback} from "react";
 import {Fab} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
-import {SearchDialog} from "./SearchDialog";
+import {SearchDialog} from "./search-dialog";
 import {useToggle} from "../../hooks/useToggle";
 import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
@@ -12,7 +12,7 @@ import {MemoryStore} from "model-driven-data/core";
 import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
 import {pimExecutors} from "model-driven-data/pim/executor";
 
-const SetRootButton: React.FC = () => {
+const ButtonSetRoot: React.FC = () => {
     const {store, setPsmSchemas, configuration, psmSchemas} = React.useContext(StoreContext);
     const {isOpen, open, close} = useToggle();
     const {t} = useTranslation("ui");
@@ -39,17 +39,15 @@ const SetRootButton: React.FC = () => {
         store.executeOperation(new CreateRootClass(cls)).then();
     }, [store]);
 
-    return (
-        <>
-            {(configuration === undefined || psmSchemas.length === 0) &&
-                <Fab variant="extended" size="medium" color="primary" onClick={open}>
-                    <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
-                    {t("set root element button")}
-                </Fab>
-            }
-            <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
-        </>
-    );
+    return <>
+        {(configuration === undefined || psmSchemas.length === 0) &&
+            <Fab variant="extended" size="medium" color="primary" onClick={open}>
+                <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
+                {t("set root element button")}
+            </Fab>
+        }
+        <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
+    </>;
 };
 
-export default SetRootButton;
+export default ButtonSetRoot;

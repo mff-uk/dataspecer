@@ -1,4 +1,4 @@
-import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
+import {Button, Checkbox, DialogActions, DialogContent, DialogTitle, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
@@ -9,7 +9,7 @@ import {CoreResource, CoreResourceReader} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
-import {AncestorSelectorPanel} from "./AncestorSelectorPanel";
+import {AncestorSelectorPanel} from "./ancestor-selector-panel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {useDialog} from "../../hooks/useDialog";
 import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
@@ -19,6 +19,7 @@ import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated
 import {StoreMetadataTag} from "../../configuration/configuration";
 import {LoadingButton} from "@mui/lab";
 import {createStoreResult} from "./create-store-result";
+import {dialog} from "../../dialog";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -48,7 +49,7 @@ const useFilterForResource = <Resource extends CoreResource>(modelReader: CoreRe
     return resources;
 }
 
-interface AddInterpretedSurroundingDialogProperties {
+export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,
     close: () => void,
 
@@ -62,7 +63,7 @@ interface AddInterpretedSurroundingDialogProperties {
     }) => void,
 }
 
-export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurroundingDialogProperties> = ({isOpen, close, selected, dataPsmClassIri}) => {
+export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri}) => {
     const styles = useStyles();
     const {t} = useTranslation("interpretedSurrounding");
 
@@ -156,7 +157,9 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
 
     if (!cimClassIri) return null;
 
-    return <Dialog onClose={close} open={isOpen} fullWidth maxWidth={"lg"}>
+    console.log("Add interpreted surroun", dataPsmClassIri);
+
+    return <>
         <DialogTitle id="customized-dialog-title">
             {t("title")}
         </DialogTitle>
@@ -292,5 +295,5 @@ export const AddInterpretedSurroundingDialog: React.FC<AddInterpretedSurrounding
             <AttributeDetailDialog.component />
             <AssociationToClassDetailDialog.component />
         </StoreContext.Provider>
-    </Dialog>;
-};
+    </>;
+});

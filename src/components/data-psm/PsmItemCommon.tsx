@@ -75,6 +75,13 @@ export const useItemStyles = makeStyles((theme: Theme) =>
           background: "#FFFFBB",
           margin: "0 .25rem",
           padding: "0 .25rem"
+        },
+
+        /**
+         * For items that are read only in modifiable tree.
+         */
+        readOnly: {
+            opacity: .5,
         }
     }),
 );

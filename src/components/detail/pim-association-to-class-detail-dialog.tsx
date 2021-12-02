@@ -1,6 +1,5 @@
 import React, {memo} from "react";
-import {DialogParameters} from "../dialog-parameters";
-import {Dialog, DialogContent, DialogContentText, DialogTitle, Grid} from "@mui/material";
+import {DialogContent, DialogContentText, DialogTitle, Grid} from "@mui/material";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {useResource} from "../../hooks/useResource";
 import {PimAssociation, PimClass} from "model-driven-data/pim/model";
@@ -10,8 +9,9 @@ import {InDifferentLanguages} from "./components/InDifferentLanguages";
 import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
 import RemoveIcon from "@mui/icons-material/Remove";
+import {dialog, DialogParameters} from "../../dialog";
 
-export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string, orientation: boolean} & DialogParameters> = memo(({parentIri, iri, orientation, isOpen, close}) => {
+export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string, orientation: boolean} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({parentIri, iri, orientation, isOpen, close}) => {
     // const {resource: parent} = useResource<PimClass>(parentIri);
     const {resource: association} = useResource<PimAssociation>(iri);
     const {t, i18n} = useTranslation("detail");
@@ -19,7 +19,7 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
     let childIri: string | null = association?.pimEnd[orientation ? 1 : 0] ?? null;
     const {resource: child} = useResource<PimClass>(childIri);
 
-    return <Dialog open={isOpen} onClose={close} maxWidth="md" fullWidth>
+    return <>
         <DialogTitle>
             {selectLanguage(association?.pimHumanLabel ?? {}, i18n.languages) ?? <i>parent</i>}
             {association?.pimInterpretation && <CimLinks iri={association.pimInterpretation}/>}
@@ -52,5 +52,5 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
                 </Grid>
             </Grid>
         </DialogContent>
-    </Dialog>;
-});
+    </>;
+}));

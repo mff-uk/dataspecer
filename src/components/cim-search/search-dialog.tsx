@@ -1,6 +1,5 @@
-import {Box, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemText, TextField, Theme, Typography} from "@mui/material";
-import React, {useContext, useEffect, useMemo, useState} from "react";
-import {createStyles, makeStyles} from '@mui/styles';
+import {Box, CircularProgress, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemText, TextField, Typography} from "@mui/material";
+import React, {memo, useContext, useEffect, useMemo, useState} from "react";
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
 import {useTranslation} from "react-i18next";
@@ -8,7 +7,6 @@ import {PimClass} from "model-driven-data/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {StoreContext} from "../App";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
-import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
 import {ReadOnlyMemoryStore} from "model-driven-data/core";
 import SearchIcon from '@mui/icons-material/Search';
@@ -16,27 +14,19 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
 import {FederatedObservableStore} from "../../store/federated-observable-store";
 import {StoreMetadataTag} from "../../configuration/configuration";
+import {dialog, DialogParameters, useDialog} from "../../dialog";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            overflow: 'auto',
-            maxHeight: 450,
-            margin: theme.spacing(2, 0, 0, 0),
-        },
-    }),
-);
+export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass) => void}>
+    = dialog({maxWidth: "md", fullWidth: true}, memo(({close, selected}) => {
 
-export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selected: (cls: PimClass) => void}> = ({isOpen, close, selected}) => {
     const {cim} = React.useContext(StoreContext);
-    const classes = useStyles();
     const [findResults, updateFindResults] = useState<PimClass[] | null>(null);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const {t} = useTranslation("search-dialog");
 
-    const detailDialog = useDialog(PimClassDetailDialog, ["iri"]);
+    const DetailDialog = useDialog(PimClassDetailDialog);
 
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
@@ -89,7 +79,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
         }
     };
 
-    return <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={isOpen} fullWidth maxWidth={"md"}>
+    return <>
         <DialogTitle>
             {t("title")}
 
@@ -101,12 +91,13 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                            error={isError} variant={"standard"} autoComplete="off" />
                 <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={loading ? "indeterminate" : "determinate"}/>
             </Box>
-            <List className={classes.root} dense component="nav" aria-label="secondary mailbox folders"
-                   sx={{
-                       overflow: 'auto',
-                       maxHeight: 500,
-                       height: 500
-                   }}
+            <List dense component="nav"
+                sx={{
+                    overflow: 'auto',
+                    maxHeight: 500,
+                    height: 500,
+                    margin: theme => theme.spacing(2, 0, 0, 0),
+                }}
             >
                 {findResults && findResults.map((result: PimClass) =>
                     <ListItem button key={result.pimInterpretation} onClick={() => {
@@ -121,7 +112,7 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                         </ListItemText>
                         <IconButton onClick={e => {
                             e.stopPropagation();
-                            detailDialog.open({iri: result.iri as string})
+                            DetailDialog.open({iri: result.iri as string})
                         }}>
                             <InfoTwoToneIcon/>
                         </IconButton>
@@ -142,8 +133,9 @@ export const SearchDialog: React.FC<{isOpen: boolean, close: () => void, selecte
                 </Box>}
             </List>
         </DialogContent>
+
         <StoreContext.Provider value={NewStoreContext}>
-            <detailDialog.component />
+            <DetailDialog.Component />
         </StoreContext.Provider>
-    </Dialog>;
-};
+    </>;
+}));

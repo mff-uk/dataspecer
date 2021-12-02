@@ -1,17 +1,5 @@
 import React, {memo, ReactElement, useCallback, useRef, useState} from "react";
-import {
-    Alert,
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    Divider,
-    Fab,
-    ListItemIcon,
-    Menu,
-    MenuItem
-} from "@mui/material";
+import {Alert, Box, Button, Dialog, DialogActions, DialogContent, Divider, Fab, ListItemIcon, Menu, MenuItem} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
@@ -20,7 +8,6 @@ import {GetBikeshedArtifact, GetPreviewBikeshedArtifact} from "./BikeshedArtifac
 import {getObjectModelArtifact, GetPreviewComponentObjectModelArtifact} from "./ObjectModelArtifact";
 import {StoreContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
-import {DialogParameters} from "../dialog-parameters";
 import {useDialog} from "../../hooks/useDialog";
 import {GetPreviewComponentXsdArtifact, GetXsdArtifact} from "./XsdArtifact";
 import FileSaver from "file-saver";
@@ -33,6 +20,7 @@ import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
+import {DialogParameters} from "../../dialog";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");

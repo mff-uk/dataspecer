@@ -1,6 +1,5 @@
 import React, {memo} from "react";
-import {DialogParameters} from "../dialog-parameters";
-import {Box, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Tab, Tabs} from "@mui/material";
+import {Box, DialogContent, DialogContentText, DialogTitle, Grid, Tab, Tabs} from "@mui/material";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {useResource} from "../../hooks/useResource";
 import {PimAttribute} from "model-driven-data/pim/model";
@@ -10,14 +9,15 @@ import {InDifferentLanguages} from "./components/InDifferentLanguages";
 import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
 import {ResourceInStore} from "./components/resource-in-store";
+import {dialog, DialogParameters} from "../../dialog";
 
-export const PimAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = memo(({iri, isOpen, close}) => {
+export const PimAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({iri, isOpen, close}) => {
     const {resource} = useResource<PimAttribute>(iri);
     const {t, i18n} = useTranslation("detail");
 
     const [tab, setTab] = React.useState(0);
 
-    return <Dialog open={isOpen} onClose={close} maxWidth="md" fullWidth>
+    return <>
         <DialogTitle>
             {selectLanguage(resource?.pimHumanLabel ?? {}, i18n.languages) ?? <i>Unnamed resource</i>}
             {resource?.pimInterpretation && <CimLinks iri={resource.pimInterpretation}/>}
@@ -53,5 +53,5 @@ export const PimAttributeDetailDialog: React.FC<{iri: string} & DialogParameters
                 </Box>
             </>}
         </DialogContent>
-    </Dialog>;
-});
+    </>;
+}));

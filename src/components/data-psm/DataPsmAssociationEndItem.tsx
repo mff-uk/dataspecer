@@ -1,23 +1,18 @@
 import React, {memo, useCallback, useMemo} from "react";
-import EditIcon from "@mui/icons-material/Edit";
 import {useToggle} from "../../hooks/useToggle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {DataPsmClassPartItemProperties, useItemStyles} from "./PsmItemCommon";
 import {useTranslation} from "react-i18next";
 import {DataPsmClassParts} from "./DataPsmClassParts";
-import {ActionButton} from "./common/ActionButton";
-import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
-import {IconButton, Typography} from "@mui/material";
+import {IconButton, MenuItem} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "model-driven-data/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
-import {useDialog} from "../../hooks/useDialog";
 import {DataPsmAssociationToClassDetailDialog} from "../detail/data-psm-association-to-class-detail-dialog";
 import {StoreContext} from "../App";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {InlineEdit} from "./common/InlineEdit";
 import {LanguageString} from "model-driven-data/core";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
@@ -26,8 +21,14 @@ import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from
 import {useResource} from "../../hooks/useResource";
 import {usePimExtends} from "../../hooks/usePimExtends";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
-import {ReplaceAssociationEndWithReference} from "./replace-association-with-reference/replace-association-end-with-reference";
 import {isReadOnly} from "../../store/federated-observable-store";
+import {ItemRow} from "./item-row";
+import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
+import {ReplaceAssociationEndWithReference} from "./replace-association-with-reference/replace-association-end-with-reference";
+import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings";
+import {useDialog} from "../../dialog";
+import {Icons} from "../../icons";
+import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference/replace-association-with-reference-dialog";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -71,8 +72,10 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     const collapseIsOpen = useToggle(!isClassReference); /** Uses {@link useStateWithMutableInitial} */
 
-    const detail = useDialog(DataPsmAssociationToClassDetailDialog, ["parentIri", "iri"], {parentIri: "", iri: ""});
+    const detail = useDialog(DataPsmAssociationToClassDetailDialog);
     const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, associationPointsToIri]);
+    const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
+    const ReplaceDialog = useDialog(ReplaceAssociationWithReferenceDialog);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
             store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
@@ -87,33 +90,45 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const hasHumanLabelOnAssociationEnd = Object.keys(associationEndHumanLabel).length > 0;
 
     return <li className={styles.li}>
-        <Typography className={styles.root}>
+        <ItemRow actions={<>
+            {dataPsmClassIri && !isCiselnik && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+            {dataPsmAssociationEnd && <>
+                <MenuItem onClick={detailOpen} title={t("button edit")}><Icons.Tree.Edit/></MenuItem>
+
+                {readOnly || <>
+                    <MenuItem onClick={del} title={t("button delete")}><Icons.Tree.Delete/></MenuItem>
+                    <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} open={ReplaceDialog.open} />
+                </>}
+            </>}
+        </>}>
+
+            {/* active when not  inlineEdit.isOpen */}
             {isCiselnik ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
             {isCiselnik ? " " :
                 (collapseIsOpen.isOpen ?
-                    <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
-                    <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
+                        <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
+                        <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
                 )
             }
             <span {...dragHandleProps} onDoubleClick={readOnly ? () => null : inlineEdit.open}>
-                {hasHumanLabelOnAssociationEnd ?
-                    <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
-                        {(label, description) =>
-                            <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
-                        }
-                    </DataPsmGetLabelAndDescription>
-                :
-                    <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
-                        {label =>
-                            <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
-                                {description => <>
-                                    {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
+                        {hasHumanLabelOnAssociationEnd ?
+                            <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
+                                {(label, description) =>
                                     <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
-                                </>}
+                                }
+                            </DataPsmGetLabelAndDescription>
+                            :
+                            <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
+                                {label =>
+                                    <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
+                                        {description => <>
+                                            {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
+                                            <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
+                                        </>}
+                                    </LanguageStringUndefineable>
+                                }
                             </LanguageStringUndefineable>
                         }
-                    </LanguageStringUndefineable>
-                }
                 {dataPsmClassIri && <>
                     {': '}
                     {isClassReference && `[${t("refers to")}] `}
@@ -126,31 +141,24 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
                 {inlineEdit.isOpen ?
                     (dataPsmAssociationEnd && <InlineEdit close={inlineEdit.close} dataPsmResource={dataPsmAssociationEnd} resourceType={"associationEnd"} />)
-                : <>
-                    {' '}
+                    : <>
+                        {' '}
 
-                    {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
-                    <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
-                    }
-                </>}
-            </span>
-
-            {inlineEdit.isOpen || <>
-                {dataPsmClassIri && !isCiselnik && !readOnly && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
-                {dataPsmAssociationEnd && <>
-                    <ActionButton onClick={detailOpen} icon={<EditIcon/>} label={t("button edit")} />
-                    {readOnly || <>
-                        <ActionButton onClick={del} icon={<DeleteIcon/>} label={t("button delete")} />
-                        <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} />
+                        {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
+                            <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
+                        }
                     </>}
-                </>}
-            </>}
-        </Typography>
+                    </span>
+        </ItemRow>
+
         {dataPsmClassIri ?
             <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={collapseIsOpen.isOpen}/>
             :
             <>Loading parts</>
         }
-        <detail.component />
+
+        <detail.Component />
+        {dataPsmClassIri && <AddSurroundings.Component dataPsmClassIri={dataPsmClassIri} />}
+        <ReplaceDialog.Component />
     </li>;
 });

@@ -1,4 +1,3 @@
-import {ActionButton} from "../common/ActionButton";
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
@@ -9,21 +8,20 @@ import React, {useCallback} from "react";
 import {StoreContext} from "../../App";
 import {SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
 import {StoreByPropertyDescriptor} from "../../../store/operation-executor";
-import {useDialog} from "../../../hooks/useDialog";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference-dialog";
 import {ReplaceDataPsmAssociationEndWithReference} from "../../../operations/replace-data-psm-association-end-with-reference";
 import {useTranslation} from "react-i18next";
+import {MenuItem} from "@mui/material";
+import {UseDialogOpenFunction} from "../../../dialog";
 
 const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["reused"]);
 
-export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd: string}> = ({dataPsmAssociationEnd}) => {
+export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd: string, open: UseDialogOpenFunction<typeof ReplaceAssociationWithReferenceDialog>}> = ({dataPsmAssociationEnd, open}) => {
     const {store} = React.useContext(StoreContext);
     const {t} = useTranslation("psm");
 
     const {pimResource} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEnd);
     const {resource: pimClass} = useResource<PimClass>(pimResource?.pimPart ?? null);
-
-    const ReplaceDialog = useDialog(ReplaceAssociationWithReferenceDialog, ["roots"], {roots: []});
 
     // This method isn't ideal, does not refresh when
     const [availableReferences] = useAsyncMemo(async () => {
@@ -58,14 +56,10 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
     return <>
         {availableReferences && availableReferences.length > 0 &&
-            <>
-                <ActionButton
-                    icon={<AutorenewIcon />}
-                    label={t("replace with reference")}
-                    onClick={() => ReplaceDialog.open({roots: availableReferences as string[]})}
-                />
-                <ReplaceDialog.component onSelect={selected} />
-            </>
+            <MenuItem
+                onClick={() => open({roots: availableReferences as string[], onSelect: selected})}
+                title={t("replace with reference")}
+            ><AutorenewIcon /></MenuItem>
         }
     </>
 }

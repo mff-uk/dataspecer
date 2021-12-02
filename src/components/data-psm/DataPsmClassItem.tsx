@@ -2,31 +2,35 @@ import React from "react";
 import {useItemStyles} from "./PsmItemCommon";
 import {DataPsmClassParts} from "./DataPsmClassParts";
 import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
-import {Skeleton, Typography} from "@mui/material";
+import {MenuItem, Skeleton} from "@mui/material";
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimClass} from "model-driven-data/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {ActionButton} from "./common/ActionButton";
-import EditIcon from "@mui/icons-material/Edit";
-import {useDialog} from "../../hooks/useDialog";
 import {DataPsmClassDetailDialog} from "../detail/data-psm-class-detail-dialog";
 import {useTranslation} from "react-i18next";
 import {isReadOnly} from "../../store/federated-observable-store";
+import {ItemRow} from "./item-row";
+import {useDialog} from "../../dialog";
+import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings";
+import {Icons} from "../../icons";
 
-export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
+export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
     const styles = useItemStyles();
 
     const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const readOnly = isReadOnly(dataPsmResourceStore);
     const cimClassIri = pimClass?.pimInterpretation;
-
-    const detailDialog = useDialog(DataPsmClassDetailDialog, [], {});
     const {t} = useTranslation("psm");
 
+    const DetailDialog = useDialog(DataPsmClassDetailDialog, ["iri"]);
+    const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
     return <li className={styles.li}>
-        <Typography className={styles.root}>
+        <ItemRow actions={<>
+            {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+            <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Edit/></MenuItem>
+        </>}>
             {dataPsmClass === undefined && <Skeleton />}
             {dataPsmClass &&
                 <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
@@ -35,11 +39,12 @@ export const DataPsmRootClassItem: React.FC<{dataPsmClassIri: string}> = ({dataP
                     }
                 </DataPsmGetLabelAndDescription>
             }
-            {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton dataPsmClassIri={dataPsmClassIri} />}
-            <ActionButton onClick={() => detailDialog.open({})} icon={<EditIcon/>} label={t("button edit")}/>
-        </Typography>
+        </ItemRow>
 
         {dataPsmClass && <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={true}/>}
-        <detailDialog.component iri={dataPsmClassIri} />
+
+
+        <DetailDialog.Component iri={dataPsmClassIri} />
+        <AddSurroundings.Component dataPsmClassIri={dataPsmClassIri} />
     </li>;
 };

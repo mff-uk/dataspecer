@@ -5,7 +5,7 @@ import {InDifferentLanguages} from "./InDifferentLanguages";
 import {RightPanel} from "./right-panel";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmAssociationEnd} from "model-driven-data/data-psm/model";
-import {usePimAssociationFromPimAssociationEnd} from "../../dataPsm/use-pim-association-from-pim-association-end";
+import {usePimAssociationFromPimAssociationEnd} from "../../data-psm/use-pim-association-from-pim-association-end";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
 
 export const DataPsmAssociationEndCard: React.FC<{ iri: string, onClose: () => void }> = memo(({iri, onClose}) => {
