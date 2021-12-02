@@ -7,7 +7,8 @@ import * as PIM from "../pim-vocabulary";
 
 test("Update class codelist.", async () => {
   const operation = new PimSetClassCodelist();
-  operation.pimClass = "http://localhost/1";
+  operation.pimClass = "http://class";
+  operation.pimIsCodeList = true;
   operation.pimCodelistUrl = ["http://codelist/1", "http://codelist/2"];
 
   const before = {
@@ -32,7 +33,7 @@ test("Update class codelist.", async () => {
     "http://class": {
       "iri": "http://class",
       "types": [PIM.CLASS],
-      "isCodelist": operation.isCodeList,
+      "isCodelist": operation.pimIsCodeList,
       "pimCodelistUrl": operation.pimCodelistUrl,
     },
   });

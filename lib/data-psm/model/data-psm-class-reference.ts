@@ -13,6 +13,8 @@ export class DataPsmClassReference extends CoreResource {
    */
   dataPsmSpecification: string | null = null;
 
+  dataPsmClass: string | null = null;
+
   constructor(iri:string | null = null) {
     super(iri);
     this.types.push(DataPsmClassReference.TYPE);

@@ -34,6 +34,8 @@ test("Create class.", async () => {
       "pimHumanLabel": operation.pimHumanLabel,
       "pimHumanDescription": operation.pimHumanDescription,
       "pimExtends": [],
+      "pimCodelistUrl": [],
+      "pimIsCodelist": false,
     },
   });
   expect(actual.changed).toEqual({

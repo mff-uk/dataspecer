@@ -21,7 +21,7 @@ export async function executePimSetClassCodelist(
 
   return CoreExecutorResult.createSuccess([], [{
     ...resource,
-    "isCodelist": operation.isCodeList,
+    "isCodelist": operation.pimIsCodeList,
     "pimCodelistUrl": operation.pimCodelistUrl,
   } as CoreResource]);
 }

@@ -1,14 +1,14 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmCreateClass, DataPsmCreateClassReference} from "../operation";
+import {DataPsmCreateClassReference} from "../operation";
 import {
-  executeDataPsmCreateClass,
-} from "./data-psm-create-class-executor";
-import {executeDataPsmCreateClassReference} from "./data-psm-create-class-reference-executor";
+  executeDataPsmCreateClassReference,
+} from "./data-psm-create-class-reference-executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM class reference.", async () => {
   const operation = new DataPsmCreateClassReference();
   operation.dataPsmSpecification = "http://example.com/remote";
+  operation.dataPsmClass = "http://example.com/class";
 
   const before = {
     "http://schema": {
@@ -30,6 +30,7 @@ test("Create data PSM class reference.", async () => {
       "iri": "http://localhost/1",
       "types": [PSM.CLASS_REFERENCE],
       "dataPsmSpecification": operation.dataPsmSpecification,
+      "dataPsmClass": operation.dataPsmClass,
     },
   });
   expect(actual.changed).toEqual({
