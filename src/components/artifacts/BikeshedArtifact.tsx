@@ -1,8 +1,8 @@
 import React from "react";
-import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
-import {objectModelToBikeshed, writeBikeshed} from "model-driven-data/bikeshed";
+import {webSpecificationToBikeshed, writeBikeshed} from "model-driven-data/bikeshed";
 import {CoreResourceReader} from "model-driven-data/core";
+import {constructDocumentationModel} from "./construct-documentation-model";
 
 function openWindowWithPost(url: string, data: Record<string, string>) {
     const form = document.createElement("form");
@@ -25,8 +25,7 @@ function openWindowWithPost(url: string, data: Record<string, string>) {
 }
 
 async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
-    const objectModel = await coreResourcesToObjectModel(reader, fromSchema);
-    const bikeshed = objectModelToBikeshed(objectModel);
+    const bikeshed = webSpecificationToBikeshed(await constructDocumentationModel(reader, fromSchema));
     const stream = new MemoryOutputStream();
     await writeBikeshed(bikeshed, stream);
     return stream.getContent();

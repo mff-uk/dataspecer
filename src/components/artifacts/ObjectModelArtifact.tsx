@@ -1,15 +1,15 @@
 import React, {ReactElement} from "react";
-import {coreResourcesToObjectModel} from "model-driven-data/object-model";
 import {CoreResourceReader} from "model-driven-data/core";
 import {Box, Typography} from "@mui/material";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
+import {coreResourcesToStructuralModel} from "model-driven-data/structure-model";
 
 SyntaxHighlighter.registerLanguage("json", json);
 
 export async function getObjectModelArtifact(reader: CoreResourceReader, schema: string) {
-    return JSON.stringify(await coreResourcesToObjectModel(reader, schema), null, 4);
+    return JSON.stringify(await coreResourcesToStructuralModel(reader, schema), null, 4);
 }
 
 export async function GetPreviewComponentObjectModelArtifact(reader: CoreResourceReader, schema: string): Promise<ReactElement> {
