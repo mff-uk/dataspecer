@@ -15,6 +15,8 @@ export async function loadSgovClass(
 ): Promise<PimClass> {
   const result = new PimClass();
   await loadSgovEntityToResource(entity, idProvider, result);
+  result.pimIsCodelist =
+    (await entity.property("__is_ciselnik"))[0]?.value === "1";
 
   result.pimExtends = unique([
     ...result.pimExtends,

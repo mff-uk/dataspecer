@@ -1,3 +1,5 @@
+DEFINE sql:signal-void-variables 0
+
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
@@ -7,11 +9,13 @@ CONSTRUCT {
         rdfs:subClassOf ?ancestor ;
         skos:prefLabel ?label ;
         skos:definition ?definition ;
-        skos:inScheme ?glossary .
+        skos:inScheme ?glossary ;
+        <__is_ciselnik> ?is_ciselnik .
 } WHERE {
     %NODE% rdfs:subClassOf ?parent .
     OPTIONAL { ?parent rdfs:subClassOf ?ancestor }
     OPTIONAL { ?parent skos:prefLabel ?label }
     OPTIONAL { ?parent skos:definition ?definition }
     OPTIONAL { ?parent skos:inScheme ?glossary }
+    BIND(EXISTS {?parent rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 }
