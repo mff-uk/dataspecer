@@ -2,17 +2,17 @@ import React, {useCallback} from "react";
 import {Link, useParams} from "react-router-dom";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
-import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import {CreateDataPsm} from "./create-data-psm";
-import {StoreSize} from "./store-size";
+import {Box, Button, Fab, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
+import {StoreInfo} from "./store-info";
 import {ReuseDataSpecifications} from "./reuse-data-specifications";
 import {DataSpecification} from "../../interfaces/data-specification";
+import AddIcon from "@mui/icons-material/Add";
 
 const schemaGeneratorUrls = (process.env.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
     .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
     .filter((v): v is [string, string] => v !== null);
 
-export const Specification: React.FC<{}> = () => {
+export const Specification: React.FC = () => {
     let {specificationId} = useParams();
     const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
 
@@ -20,6 +20,16 @@ export const Specification: React.FC<{}> = () => {
         await axios.delete(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${id}`);
         reloadSpecification?.();
     }, [reloadSpecification, specificationId]);
+
+    const createDataStructure = useCallback(async () => {
+        const result = await axios.post(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
+        const dataStructureId = result.data.id;
+
+        const urlObject = new URL(schemaGeneratorUrls[0][1]);
+        urlObject.searchParams.append('configuration', `${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+
+        window.location.href = urlObject.href;
+    }, [specificationId]);
 
     return <>
         <Box height="30px"/>
@@ -29,7 +39,10 @@ export const Specification: React.FC<{}> = () => {
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
             <Typography variant="h5" component="div" gutterBottom>Data structures </Typography>
-            {specificationId && <CreateDataPsm reload={reloadSpecification} specificationId={specificationId}/>}
+            {specificationId && <Fab variant="extended" size="medium" color={"primary"} onClick={createDataStructure}>
+                <AddIcon sx={{mr: 1}}/>
+                Create new
+            </Fab>}
         </Box>
         <TableContainer component={Paper} sx={{mt: 3}}>
             <Table>
@@ -44,14 +57,14 @@ export const Specification: React.FC<{}> = () => {
                 <TableBody>
                     {specification?.data.hasDataStructures.map(dataStructure =>
                         <TableRow key={dataStructure.id}>
-                            <TableCell component="th" scope="row" sx={{width: "25%"}}>
-                                <Typography sx={{fontWeight: "bold"}}>
-                                    {dataStructure.name}
-                                </Typography>
-                            </TableCell>
-                            <StoreSize storeId={dataStructure?.store ?? null}>
-                                {(operations, resources) =>
+                            <StoreInfo storeId={dataStructure?.store ?? null}>
+                                {(name, operations, resources) =>
                                     <>
+                                        <TableCell component="th" scope="row" sx={{width: "25%"}}>
+                                            <Typography sx={{fontWeight: "bold"}}>
+                                                {name ?? "-"}
+                                            </Typography>
+                                        </TableCell>
                                         <TableCell>
                                             <Typography>{operations ?? "-"}</Typography>
                                         </TableCell>
@@ -60,7 +73,7 @@ export const Specification: React.FC<{}> = () => {
                                         </TableCell>
                                     </>
                                 }
-                            </StoreSize>
+                            </StoreInfo>
 
                             <TableCell align="right">
                                 <Box
@@ -129,8 +142,8 @@ export const Specification: React.FC<{}> = () => {
         <TableContainer component={Paper} sx={{mt: 3}}>
             <Table>
                 <TableBody>
-                    <StoreSize storeId={specification?.data?.pimStore ?? null}>
-                        {(operations, resources) =>
+                    <StoreInfo storeId={specification?.data?.pimStore ?? null}>
+                        {(name, operations, resources) =>
                             <>
                                 <TableRow>
                                     <TableCell component="th" scope="row" sx={{width: "25%"}}>
@@ -154,7 +167,7 @@ export const Specification: React.FC<{}> = () => {
                                 </TableRow>
                             </>
                         }
-                    </StoreSize>
+                    </StoreInfo>
 
                 </TableBody>
             </Table>
