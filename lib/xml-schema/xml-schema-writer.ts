@@ -139,7 +139,11 @@ async function writeComplexContent(
   parentContent: XmlSchemaComplexContent | null, allowCollapse: boolean,
   writer: XmlWriter,
 ): Promise<void> {
-  if (allowCollapse && definition.contents.length === 1) {
+  const contents = definition.contents;
+  if (
+    contents.length === 1 &&
+    (allowCollapse || xmlSchemaComplexContentIsType(contents[0]))
+  ) {
     await writeComplexTypes(definition, writer);
   } else {
     await writer.writeElementBegin("xs", definition.xsType);
