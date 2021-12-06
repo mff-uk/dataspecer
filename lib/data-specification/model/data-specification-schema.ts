@@ -6,6 +6,6 @@ import {DataSpecificationArtefact} from "./data-specification-artefact";
  */
 export class DataSpecificationSchema extends DataSpecificationArtefact {
 
-  psms: string | null = null;
+  psm: string | null = null;
 
 }
