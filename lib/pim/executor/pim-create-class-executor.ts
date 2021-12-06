@@ -24,6 +24,7 @@ export async function executePimCreateClass(
   result.pimTechnicalLabel = operation.pimTechnicalLabel;
   result.pimHumanLabel = operation.pimHumanLabel;
   result.pimHumanDescription = operation.pimHumanDescription;
+  result.pimIsCodelist = operation.pimIsCodelist;
 
   schema.pimParts = [...schema.pimParts, result.iri];
 
