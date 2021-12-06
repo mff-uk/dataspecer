@@ -21,7 +21,8 @@ CONSTRUCT {
         rdfs:subClassOf ?ancestor ;
         skos:prefLabel ?rangeLabel ;
         skos:definition ?rangeDefinition ;
-        skos:inScheme ?rangeGlossary .
+        skos:inScheme ?rangeGlossary ;
+        <__is_ciselnik> ?is_ciselnik .
 } WHERE {
     # (1) both directions START
         {
@@ -108,4 +109,6 @@ CONSTRUCT {
     BIND(?attributeLabel AS ?rangeLabel)
     BIND(?attributeDefinition AS ?rangeDefinition)
     BIND(?attributeGlossary AS ?rangeGlossary)
+
+    BIND(EXISTS {?rangeElement rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 }

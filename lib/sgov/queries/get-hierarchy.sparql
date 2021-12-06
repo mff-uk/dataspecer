@@ -1,4 +1,5 @@
 # see https://github.com/sstenchlak/schema-generator/issues/10
+DEFINE sql:signal-void-variables 0
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -8,10 +9,14 @@ CONSTRUCT {
 		rdfs:subClassOf ?ancestorParent ;
 		skos:prefLabel ?label ;
 		skos:definition ?definition ;
-		skos:inScheme ?glossary .
+		skos:inScheme ?glossary ;
+		<__is_ciselnik> ?is_ciselnik .
 } WHERE {
 	{
 		%NODE% rdfs:subClassOf* ?ancestor .
+
+		BIND(EXISTS {?ancestor rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
+
 		FILTER NOT EXISTS {
 			?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
 		}

@@ -37,6 +37,18 @@ describe("SgovAdapter.getClass()", () => {
 
     expect(cls).toBeNull();
   }, 10 * 60 * 1000);
+
+  test("is codelist", async () => {
+    const query = "https://slovník.gov.cz/legislativní/sbírka/343/2014/pojem/palivo-jako-položka-číselníku";
+    const cls = await adapter.getClass(query) as PimClass;
+    expect(cls.pimIsCodelist).toBeTruthy();
+  }, 10 * 60 * 1000);
+
+  test("is not codelist", async () => {
+    const query = "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/vozidlo";
+    const cls = await adapter.getClass(query) as PimClass;
+    expect(cls.pimIsCodelist).toBeFalsy();
+  }, 10 * 60 * 1000);
 });
 
 

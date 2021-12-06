@@ -20,7 +20,8 @@ CONSTRUCT {
     ?rangeElement a z:typ-objektu ;
         skos:prefLabel ?rangeLabel ;
         skos:definition ?rangeDefinition ;
-        skos:inScheme ?rangeGlossary .
+        skos:inScheme ?rangeGlossary ;
+        <__is_ciselnik> ?is_ciselnik .
 } WHERE {
     ?outwardsRelation a z:typ-vztahu ;
         skos:prefLabel ?outwardsRelationLabel ;
@@ -87,4 +88,6 @@ CONSTRUCT {
         FILTER (?parentRelation != <https://slovník.gov.cz/základní/pojem/vztah>)
     }
     # (4) relationship to the parent association in the inheritance hierarchy END
+
+    BIND(EXISTS {?rangeElement rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 }
