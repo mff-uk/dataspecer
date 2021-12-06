@@ -36,26 +36,22 @@ export class AddClassSurroundings implements ComplexOperation {
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, AssociationOrientation][];
-    private readonly ciselnikIri: string;
 
     /**
      * @param forDataPsmClass
      * @param sourcePimModel
      * @param resourcesToAdd true - the edge is outgoing (from source to this resource)
-     * @param ciselnikIri - iri to PIM class číselník located in sourcePimModel store
      */
-    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][], ciselnikIri: string) {
+    constructor(forDataPsmClass: DataPsmClass, sourcePimModel: CoreResourceReader, resourcesToAdd: [string, boolean][]) {
         this.forDataPsmClass = forDataPsmClass;
         this.sourcePimModel = sourcePimModel;
         this.resourcesToAdd = resourcesToAdd;
-        this.ciselnikIri = ciselnikIri;
     }
 
     async execute(executor: OperationExecutor): Promise<void> {
         const pimStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.dataPsmInterpretation as string);
         const dataPsmStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.iri as string);
         const interpretedPimClass = await executor.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
-        const ciselnik = await this.sourcePimModel.readResource(this.ciselnikIri) as PimClass | null;
 
         let correspondingSourcePimClass: PimClass | null = null;
         let allResources = await this.sourcePimModel.listResources();
@@ -74,7 +70,7 @@ export class AddClassSurroundings implements ComplexOperation {
                 await this.processAttribute(resource, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
             }
             if (PimAssociation.is(resource)) {
-                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass, ciselnik);
+                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
             }
         }
     }
@@ -135,7 +131,6 @@ export class AddClassSurroundings implements ComplexOperation {
         pimStoreSelector: StoreDescriptor,
         dataPsmStoreSelector: StoreDescriptor,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
-        ciselnik: PimClass | null,
     ) {
         const dom = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
         const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
@@ -146,11 +141,6 @@ export class AddClassSurroundings implements ComplexOperation {
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
 
-        // Add hierarchy to ciselnik if exists
-        if (orientation && ciselnik) {
-            await this.createExtendsHierarchyFromTo(rng, ciselnik, pimStoreSelector, executor);
-        }
-
         // Pim other class is created always. Mainly because of the association on PIM level.
         const pimOtherClassIri = await createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
 
@@ -158,10 +148,11 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(thisAssociationEndClass) ?? null;
         const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 
-        const {associationIri, associationEnds} = await this.createPimAssociationIfMissing(association, pimStoreSelector, executor);
+        const {associationEnds} = await this.createPimAssociationIfMissing(association, pimStoreSelector, executor);
 
         // Data PSM association end
 
@@ -200,9 +191,8 @@ export class AddClassSurroundings implements ComplexOperation {
 
     /**
      * Takes a current PimResource and creates it in the store if not exists. If it exists, it does not perform any
-     * checks so it suppose the CIM is immutable.
+     * checks, so it supposes the CIM is immutable.
      * @param resource Fresh PimResource to add to the store
-     * @param store
      * @param pimStoreSelector
      * @param executor
      * @return IRI of PimResource in the store
@@ -251,8 +241,12 @@ export class AddClassSurroundings implements ComplexOperation {
     /**
      * This function creates all necessary PIM classes in a way that there will be correct extends hierarchy between
      * more generic class represented by {@param toClass} and more specific class represented by {@param fromClass}.
+     *
+     * Returns true if the path was found
      * @param fromClass
      * @param toClass
+     * @param pimStoreSelector
+     * @param executor
      * @private
      */
     private async createExtendsHierarchyFromTo(
@@ -260,7 +254,7 @@ export class AddClassSurroundings implements ComplexOperation {
         toClass: PimClass,
         pimStoreSelector: StoreDescriptor,
         executor: OperationExecutor,
-    ): Promise<void> {
+    ): Promise<boolean> {
         // Find all classes which needs to be created or checked in order from most generic to most specific.
         const classesToProcess = new Set<string>();
 
@@ -288,7 +282,7 @@ export class AddClassSurroundings implements ComplexOperation {
             return success;
         }
 
-        await traverseFunction(fromClass);
+        const success = await traverseFunction(fromClass);
 
         // Create each class and fix its extends
         for (const classToProcessIri of classesToProcess) {
@@ -315,5 +309,7 @@ export class AddClassSurroundings implements ComplexOperation {
                 await executor.applyOperation(pimSetExtends, pimStoreSelector);
             }
         }
+
+        return success;
     }
 }

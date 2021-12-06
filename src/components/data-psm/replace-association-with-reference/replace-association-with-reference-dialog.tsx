@@ -55,7 +55,7 @@ export const ReplaceAssociationWithReferenceDialog: React.FC<{
                     </List>
                 </Grid>
                 <Grid item xs={9}>
-                    <DataPsmItemTreeContext.Provider  value={{readonly: true}}>
+                    <DataPsmItemTreeContext.Provider  value={{readonly: true, ignoreReadOnlyStyles: true}}>
                         {selected && <DataPsmSchemaItem dataPsmSchemaIri={selected} />}
                     </DataPsmItemTreeContext.Provider>
                 </Grid>

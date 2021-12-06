@@ -19,7 +19,6 @@ import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
 import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
 import {useResource} from "../../hooks/useResource";
-import {usePimExtends} from "../../hooks/usePimExtends";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
 import {isReadOnly} from "../../store/federated-observable-store";
 import {ItemRow} from "./item-row";
@@ -35,42 +34,39 @@ import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-
  *
  * Because the association end itself is not that interesting, this component also renders the class
  * or class reference the association end points to. Class reference is a reference to another class
- * and again, the class reference itself is not so so interesting, therefore the class is shown.
+ * and again, the class reference itself is not so interesting, therefore the class is shown.
  */
-export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps, index}) => {
+export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
     const {store} = React.useContext(StoreContext);
 
-    // association end
+    // Data PSM association end
 
-    const {dataPsmResource: dataPsmAssociationEnd, dataPsmResourceStore, pimResource: pimAssociationEnd, isLoading: associationLoading} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+    const {dataPsmResource: dataPsmAssociationEnd, dataPsmResourceStore, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
     const readOnly = isReadOnly(dataPsmResourceStore);
 
     // PIM Association and check if it is backward association
 
-    const {resource: pimAssociation, isLoading: pimAssociationIsLoading} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
+    const {resource: pimAssociation} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
     const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
 
     // range class or range class reference with class
 
     const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
-    const {resource: associationPointsTo, isLoading: associationPointsToIsLoading} = useResource(associationPointsToIri);
-    // Whether the association points to a class reference or just a normal class
-    const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo);
+    const {resource: associationPointsTo} = useResource(associationPointsToIri);
+    const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo); // Whether the association points to a class reference or just a normal class
 
     const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmSpecification : associationPointsToIri;
-    const {dataPsmResource: dataPsmClass, pimResource: pimClass, isLoading: classLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
 
-    // Process extends of range class
-    const ancestorsOfRange = usePimExtends(pimClass?.iri ?? null);
-    const isCiselnik = Object.values(ancestorsOfRange).some(cls => cls.resource?.pimInterpretation === "https://slovník.gov.cz/datový/číselníky/pojem/číselník");
+    const isCodelist = pimClass?.pimIsCodelist ?? false;
 
     //
 
-    const isLoading = associationLoading || classLoading || associationPointsToIsLoading;
-
     const collapseIsOpen = useToggle(!isClassReference); /** Uses {@link useStateWithMutableInitial} */
+
+    // Dialogs
 
     const detail = useDialog(DataPsmAssociationToClassDetailDialog);
     const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, associationPointsToIri]);
@@ -83,7 +79,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     const inlineEdit = useToggle();
 
-    // We need to decide whether there is a human label on DPSM association end or PIM association end.
+    // We need to decide whether there is a human label on Data PSM association end or PIM association end.
     // If no, we show a label of PIM association with extra information about the direction.
 
     const associationEndHumanLabel: LanguageString = useMemo(() => ({...pimAssociationEnd?.pimHumanLabel, ...dataPsmAssociationEnd?.dataPsmHumanLabel}), [pimAssociationEnd?.pimHumanLabel, dataPsmAssociationEnd?.dataPsmHumanLabel]);
@@ -91,20 +87,23 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     return <li className={styles.li}>
         <ItemRow actions={<>
-            {dataPsmClassIri && !isCiselnik && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+            {dataPsmClassIri && !isCodelist && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
             {dataPsmAssociationEnd && <>
-                <MenuItem onClick={detailOpen} title={t("button edit")}><Icons.Tree.Edit/></MenuItem>
+                {readOnly ?
+                    <MenuItem onClick={detailOpen} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
+                    <MenuItem onClick={detailOpen} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
+                }
 
                 {readOnly || <>
                     <MenuItem onClick={del} title={t("button delete")}><Icons.Tree.Delete/></MenuItem>
                     <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} open={ReplaceDialog.open} />
                 </>}
             </>}
-        </>}>
+        </>} readOnly={readOnly}>
 
             {/* active when not  inlineEdit.isOpen */}
-            {isCiselnik ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
-            {isCiselnik ? " " :
+            {isCodelist ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
+            {isCodelist ? " " :
                 (collapseIsOpen.isOpen ?
                         <IconButton size={"small"} onClick={collapseIsOpen.close}><ExpandMoreIcon /></IconButton> :
                         <IconButton size={"small"} onClick={collapseIsOpen.open}><ExpandLessIcon /></IconButton>
@@ -114,7 +113,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                         {hasHumanLabelOnAssociationEnd ?
                             <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
                                 {(label, description) =>
-                                    <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
+                                    <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
                                 }
                             </DataPsmGetLabelAndDescription>
                             :
@@ -123,7 +122,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                                     <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
                                         {description => <>
                                             {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                                            <span title={description} className={isCiselnik ? styles.attribute : styles.association}>{label}</span>
+                                            <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
                                         </>}
                                     </LanguageStringUndefineable>
                                 }
@@ -151,11 +150,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                     </span>
         </ItemRow>
 
-        {dataPsmClassIri ?
-            <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={collapseIsOpen.isOpen}/>
-            :
-            <>Loading parts</>
-        }
+        {dataPsmClassIri && <DataPsmClassParts dataPsmClassIri={dataPsmClassIri} isOpen={collapseIsOpen.isOpen}/>}
 
         <detail.Component />
         {dataPsmClassIri && <AddSurroundings.Component dataPsmClassIri={dataPsmClassIri} />}

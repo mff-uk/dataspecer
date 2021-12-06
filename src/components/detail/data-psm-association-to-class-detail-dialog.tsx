@@ -1,23 +1,22 @@
 import React, {memo, useMemo} from "react";
-import {Box, DialogContent, DialogContentText, DialogTitle, Tab, Tabs, Typography} from "@mui/material";
+import {Box, DialogContent, DialogContentText, Tab, Tabs, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {usePimAssociationFromPimAssociationEnd} from "../data-psm/use-pim-association-from-pim-association-end";
-import RemoveIcon from '@mui/icons-material/Remove';
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmAssociationEndCard} from "./components/data-psm-association-end-card";
 import {DataPsmClassCard} from "./components/data-psm-class-card";
 import {ResourceInStore} from "./components/resource-in-store";
 import {useLabelAndDescription} from "../../hooks/use-label-and-description";
 import {CimLinks} from "./components/cim-links";
-import {CloseDialogButton} from "./components/close-dialog-button";
 import {Show} from "../helper/Show";
 import {dialog, DialogParameters} from "../../dialog";
+import {DialogTitle} from "./common";
 
-export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({parentIri, iri, isOpen, close}) => {
+export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string, iri: string} & DialogParameters> = dialog({maxWidth: "lg", fullWidth: true}, memo(({parentIri, iri, isOpen, close}) => {
     const associationEnd = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(iri);
     const association = usePimAssociationFromPimAssociationEnd(associationEnd.dataPsmResource?.dataPsmInterpretation ?? null);
     const childClass = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(associationEnd?.dataPsmResource?.dataPsmPart ?? null);
@@ -41,23 +40,28 @@ export const DataPsmAssociationToClassDetailDialog: React.FC<{parentIri: string,
     const {t, i18n} = useTranslation("detail");
 
     return <>
-        <DialogTitle>
-            {selectLanguage(wholeAssociationLabel, i18n.languages) ?? <i>parent</i>}
-            {association.resource?.pimInterpretation && <CimLinks iri={association.resource.pimInterpretation}/>}
+        <DialogTitle close={close}>
+            <div>
+                <strong>{t("title association")}: </strong>
+                {selectLanguage(wholeAssociationLabel, i18n.languages) ?? <i>{t("no label")}</i>}
+                {association.resource?.pimInterpretation && <CimLinks iri={association.resource.pimInterpretation}/>}
+            </div>
 
-            <RemoveIcon sx={{mx: 5, verticalAlign: "middle"}} />
-
-            {selectLanguage(childClassLabel, i18n.languages) ?? <i>parent</i>}
-            {childClass.pimResource?.pimInterpretation && <CimLinks iri={childClass.pimResource.pimInterpretation}/>}
-
-            <CloseDialogButton onClick={close} />
-        </DialogTitle>
-        <DialogContent>
             <DialogContentText>
-                <LanguageStringFallback from={wholeAssociationDescription} fallback={<i>no description for association</i>}/>
-                <RemoveIcon sx={{mx: 1, verticalAlign: "top"}}/>
-                <LanguageStringFallback from={childClassDescription} fallback={<i>no description for range class</i>}/>
+                <LanguageStringFallback from={wholeAssociationDescription} fallback={<i>{t("no description")}</i>}/>
             </DialogContentText>
+
+            <div>
+                <strong>{t("title to class")}: </strong>
+                {selectLanguage(childClassLabel, i18n.languages) ?? <i>{t("no label")}</i>}
+                {childClass.pimResource?.pimInterpretation && <CimLinks iri={childClass.pimResource.pimInterpretation}/>}
+            </div>
+
+            <DialogContentText>
+                <LanguageStringFallback from={childClassDescription} fallback={<i>{t("no description")}</i>}/>
+            </DialogContentText>
+        </DialogTitle>
+        <DialogContent dividers>
 
             <Tabs centered value={tab} onChange={(e, ch) => setTab(ch)}>
                 <Tab label={t('tab association')} />

@@ -7,6 +7,7 @@ import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpret
 import {DataPsmAssociationEnd} from "model-driven-data/data-psm/model";
 import {usePimAssociationFromPimAssociationEnd} from "../../data-psm/use-pim-association-from-pim-association-end";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
+import {isReadOnly} from "../../../store/federated-observable-store";
 
 export const DataPsmAssociationEndCard: React.FC<{ iri: string, onClose: () => void }> = memo(({iri, onClose}) => {
     const associationEnd = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(iri);
@@ -18,7 +19,7 @@ export const DataPsmAssociationEndCard: React.FC<{ iri: string, onClose: () => v
 
     return <Grid container spacing={5} sx={{pt: 3}}>
         <Grid item xs={6}>
-            <InDifferentLanguages label={label} description={description} resourceType="dataPsm" iri={iri}/>
+            <InDifferentLanguages label={label} description={description} resourceType="dataPsm" iri={isReadOnly(associationEnd.dataPsmResourceStore) ? undefined : iri}/>
         </Grid>
         <Grid item xs={6}>
             <RightPanel iri={iri} close={onClose}/>

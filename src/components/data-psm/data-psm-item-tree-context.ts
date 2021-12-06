@@ -1,12 +1,12 @@
 import React from "react";
 
-export interface DataPsmItemTreeContextProps {
+export const DefaultDataPsmItemTreeContext = {
     /**
      * Whether the whole subtree should be explicitly readonly.
      */
-    readonly: boolean;
+    readonly: false,
+
+    ignoreReadOnlyStyles: false,
 }
 
-export const DataPsmItemTreeContext = React.createContext<DataPsmItemTreeContextProps>({
-    readonly: false,
-});
+export const DataPsmItemTreeContext = React.createContext(DefaultDataPsmItemTreeContext);

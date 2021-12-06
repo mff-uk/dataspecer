@@ -3,10 +3,11 @@ import {Box, Fade, Typography} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {useToggle} from "../../hooks/useToggle";
+import {DataPsmItemTreeContext} from "./data-psm-item-tree-context";
 
 const LightTooltip = styled<typeof Tooltip>(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }}   TransitionComponent={Fade}
-             TransitionProps={{ timeout: 500 }} />
+             TransitionProps={{ timeout: 200 }} />
 ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: theme.palette.background.paper,
@@ -17,7 +18,7 @@ const LightTooltip = styled<typeof Tooltip>(({ className, ...props }) => (
     },
 }));
 
-const Content = React.forwardRef<HTMLSpanElement, {children: React.ReactNode}>((props, ref) => {
+const Content = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<typeof Typography>>((props, ref) => {
     return (
         <Typography {...props} sx={{lineHeight: 1.9}}>
             {props.children}
@@ -30,8 +31,10 @@ export const ItemRow: React.FC<{
     children: React.ReactNode;
     actions?: React.ReactNode;
     open?: boolean;
-}> = ({children, actions, open}) => {
+    readOnly?: boolean;
+}> = ({children, actions, open, readOnly}) => {
     const toggle = useToggle(open ?? false);
+    const {ignoreReadOnlyStyles} = React.useContext(DataPsmItemTreeContext);
 
     return <LightTooltip
         title={actions ? <Box sx={{display: "flex"}}>{actions}</Box> : false}
@@ -40,7 +43,7 @@ export const ItemRow: React.FC<{
         onOpen={toggle.open}
         onClose={toggle.close}
     >
-        <Content>
+        <Content style={{opacity: readOnly && !ignoreReadOnlyStyles ? 0.5 : 1}}>
             {children}
         </Content>
     </LightTooltip>

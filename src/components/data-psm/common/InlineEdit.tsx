@@ -3,8 +3,7 @@ import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/mode
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";
-import {InputBase} from "@mui/material";
-import {ActionButton} from "./ActionButton";
+import {Button, InputBase} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
@@ -78,7 +77,7 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
           onKeyDown={keyDown}
       />
     </>}
-    <ActionButton onClick={process} icon={<CheckIcon/>} label={t("button inline save")}/>
-    <ActionButton onClick={close} icon={<CloseIcon/>} label={t("button inline discard")}/>
+    <Button size="small" onClick={process} startIcon={<CheckIcon/>}>{t("button inline save")}</Button>
+    <Button size="small" onClick={close} startIcon={<CloseIcon/>}>{t("button inline discard")}</Button>
   </span>;
 });

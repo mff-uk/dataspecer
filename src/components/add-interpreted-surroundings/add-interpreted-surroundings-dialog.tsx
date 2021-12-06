@@ -1,11 +1,11 @@
-import {Button, Checkbox, DialogActions, DialogContent, DialogTitle, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
+import {Button, Checkbox, DialogActions, DialogContent, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
-import {CoreResource, CoreResourceReader} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "model-driven-data/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {PimAssociation, PimAttribute, PimClass} from "model-driven-data/pim/model";
 import {StoreContext} from "../App";
@@ -17,9 +17,8 @@ import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
 import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
 import {StoreMetadataTag} from "../../configuration/configuration";
-import {LoadingButton} from "@mui/lab";
-import {createStoreResult} from "./create-store-result";
 import {dialog} from "../../dialog";
+import {DialogTitle} from "../detail/common";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -59,7 +58,6 @@ export interface AddInterpretedSurroundingDialogProperties {
         resourcesToAdd: [string, boolean][],
         sourcePimModel: CoreResourceReader,
         forDataPsmClass: DataPsmClass,
-        ciselnikIri: string,
     }) => void,
 }
 
@@ -81,8 +79,6 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     // Contains store with class hierarchy - resources in the AncestorSelectorPanel
     const [hierarchyStore, setHierarchyStore] = useState<CoreResourceReader | null>(null);
-
-    const [resourcesBeingAddedLoading, setResourcesBeingAddedLoading] = useState<boolean>(false);
 
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
@@ -157,10 +153,8 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     if (!cimClassIri) return null;
 
-    console.log("Add interpreted surroun", dataPsmClassIri);
-
     return <>
-        <DialogTitle id="customized-dialog-title">
+        <DialogTitle id="customized-dialog-title" close={close}>
             {t("title")}
         </DialogTitle>
 
@@ -271,24 +265,21 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
         </DialogContent>
         <DialogActions>
             <Button onClick={close} color="primary">{t("close button")}</Button>
-            <LoadingButton
-                loading={resourcesBeingAddedLoading}
+            <Button
                 onClick={async () => {
-                    setResourcesBeingAddedLoading(true);
-                    const allStores = await createStoreResult(cim, hierarchyStore, surroundings, selectedResources);
+                    const surroundingsStores = Object.values(surroundings).filter((s => s !== undefined) as (s: CoreResourceReader | undefined) => s is CoreResourceReader);
+                    const allStores = ReadOnlyFederatedStore.createLazy([...(hierarchyStore ? [hierarchyStore] : []), ...surroundingsStores]);
                     selected({
                         resourcesToAdd: selectedResources,
                         sourcePimModel: allStores,
                         forDataPsmClass: dataPsmClass as DataPsmClass,
-                        ciselnikIri: cim.iriProvider.cimToPim("https://slovník.gov.cz/datový/číselníky/pojem/číselník"),
                     });
                     close();
-                    setResourcesBeingAddedLoading(false);
                 }}
                 disabled={selectedResources.length === 0}
                 color="secondary">
                 {t("confirm button")} ({selectedResources.length})
-            </LoadingButton>
+            </Button>
         </DialogActions>
 
         <StoreContext.Provider value={NewStoreContext}>

@@ -18,8 +18,7 @@ import {ItemRow} from "./item-row";
 import {MenuItem} from "@mui/material";
 import {Icons} from "../../icons";
 
-export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri, index}) => {
-    //const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(dataPsmAttributeIri);
+export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri}) => {
     const {resource: dataPsmAttribute, isLoading, store: dataPsmAttributeStore} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
     const readOnly = isReadOnly(dataPsmAttributeStore);
 
@@ -36,11 +35,14 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
     return <>
         <li className={classNames(styles.li, {[styles.loading]: isLoading})}>
             <ItemRow actions={inlineEdit.isOpen || <>
-                <MenuItem onClick={dialog.open} title={t("button edit")}><Icons.Tree.Edit/></MenuItem>
-                {readOnly ||
-                    (parentDataPsmClassIri && index !== undefined && <DataPsmDeleteButton onClick={del} />)
+                {readOnly ?
+                    <MenuItem onClick={dialog.open} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
+                    <MenuItem onClick={dialog.open} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
                 }
-            </>} open>
+                {readOnly ||
+                    (parentDataPsmClassIri && <DataPsmDeleteButton onClick={del} />)
+                }
+            </>} readOnly={readOnly}>
                 {dataPsmAttribute &&
                     <>
                         <RemoveIcon style={{verticalAlign: "middle"}} />

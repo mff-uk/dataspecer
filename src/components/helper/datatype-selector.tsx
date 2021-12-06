@@ -11,6 +11,7 @@ interface DatatypeSelectorParameters {
     value: DatatypeSelectorValueType;
     onChange: (value: DatatypeSelectorValueType) => void;
     onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void,
+    disabled?: boolean;
 
     options: KnownDatatype[];
 }
@@ -30,7 +31,7 @@ export const getIriFromDatatypeSelectorValue = (value: string | KnownDatatype | 
  * Because user may want to set a type whose prefix is a well-known type (for example string-only-ascii vs string) we
  * must not immediately replace the user text with well-known types. Therefore the complexity of value prop.
  */
-export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({value, onChange, options, onEnter}) => {
+export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({value, onChange, options, onEnter, disabled}) => {
     const {t} = useTranslation("detail");
 
     // Whether the value is non-null object
@@ -38,6 +39,7 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
 
     return <Autocomplete
         autoHighlight
+        disabled={disabled}
 
         freeSolo
         value={valueIsKnown ? value : undefined}

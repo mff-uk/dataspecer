@@ -1,6 +1,5 @@
-import {Fab, Paper, Theme, Typography} from "@mui/material";
+import {IconButton, Paper, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext} from "react";
-import EditIcon from "@mui/icons-material/Edit";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmClassItem} from "./DataPsmClassItem";
@@ -15,6 +14,7 @@ import {StoreContext} from "../App";
 import {SetOrder} from "../../operations/set-order";
 import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
 import {isReadOnly} from "../../store/federated-observable-store";
+import {Icons} from "../../icons";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -58,21 +58,15 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
-        {readOnly ||
-          <Fab
-              variant="extended"
-              size="small"
-              color="primary"
-              aria-label="edit"
-              style={{float: "right"}}
-              onClick={openUpdateLabelsDialog}
-          >
-              <EditIcon />{" "}
-              {t("button edit labels")}
-          </Fab>
-        }
         <updateLabels.component />
-        <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel}>{text => <Typography variant="h5">{text}</Typography>}</LanguageStringFallback>
+        <Typography variant="h5">
+          <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel} fallback={<i>{t("no label")}</i>}/>
+          {readOnly ||
+              <IconButton sx={{ml: .5}} onClick={openUpdateLabelsDialog}>
+                <Icons.Tree.Edit/>
+              </IconButton>
+          }
+        </Typography>
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul className={styles.ul}>

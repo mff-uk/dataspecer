@@ -1,11 +1,17 @@
 {
+  "add": "Přidat",
   "button modify translations": "Upravit překlady",
   "button reload resource": "Znovunačíst položku",
+  "class is codelist dialog": "Třída je číselníkem",
+  "codelist url title": "URL číselníku",
   "confirm changes": "Zapsat změny",
   "discard changes": "Zahodit změny",
   "in all languages": "Ve všech jazycích",
   "label datatype": "Datový typ",
   "label technical label": "Technický popisek",
+  "no codelist url": "Neobsahuje žádná URL číselníku",
+  "no description": "bez popisku",
+  "no label": "bez názvu",
   "no translations": "žádné překlady nejsou k dispozici",
   "resource": {
     "fail": "nelze načíst",
@@ -34,5 +40,9 @@
   "tab range class": "ukazovaná třída",
   "tab store": "store",
   "tab title association": "asociace",
-  "tab title range class": "ukazovaná třída"
+  "tab title range class": "ukazovaná třída",
+  "title association": "Asociace",
+  "title attribute": "Atribut",
+  "title class": "Třída",
+  "title to class": "Ukazovaná třída"
 }

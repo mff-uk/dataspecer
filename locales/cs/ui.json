@@ -5,6 +5,8 @@
     "success": "IRI zkopírováno do schránky",
     "text": "zkopírovat"
   },
+  "new schema description format": "Datová struktura pro {label}. {description}",
+  "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1>, nebo načtěte soubor s modelem pomocí tlačítka s ikonou <3/>.",
   "set root element button": "Zvolit kořen",
   "title": "Generátor schémat"

@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {DialogContent, DialogContentText, DialogTitle, Tab, Tabs} from "@mui/material";
+import {DialogContent, DialogContentText, Tab, Tabs} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmAttribute} from "model-driven-data/data-psm/model";
@@ -12,8 +12,9 @@ import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
 import {Show} from "../helper/Show";
 import {dialog, DialogParameters} from "../../dialog";
+import {DialogTitle} from "./common";
 
-export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({iri, isOpen, close}) => {
+export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "lg", fullWidth: true}, memo(({iri, isOpen, close}) => {
     const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
     const {t, i18n} = useTranslation("detail");
     const [tab, setTab] = React.useState(0);
@@ -22,15 +23,19 @@ export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParame
 
     return <>
         <DialogTitle>
-            {selectLanguage(label, i18n.languages) ?? <i>Unnamed resource</i>}
-            {pimAttribute?.pimInterpretation && <CimLinks iri={pimAttribute.pimInterpretation}/>}
+            <div>
+                <strong>{t("title attribute")}: </strong>
+                {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
+                {pimAttribute?.pimInterpretation && <CimLinks iri={pimAttribute.pimInterpretation}/>}
+            </div>
+
+            <DialogContentText>
+                {selectLanguage(description, i18n.languages) ?? <i>{t("no description")}</i>}
+            </DialogContentText>
 
             <CloseDialogButton onClick={close} />
         </DialogTitle>
-        <DialogContent>
-            <DialogContentText>
-                {selectLanguage(description, i18n.languages) ?? <i>Without description</i>}
-            </DialogContentText>
+        <DialogContent dividers>
             <Tabs centered value={tab} onChange={(e, ch) => setTab(ch)}>
                 <Tab label={t('tab basic info')} />
                 <Tab label={t('tab store')} />

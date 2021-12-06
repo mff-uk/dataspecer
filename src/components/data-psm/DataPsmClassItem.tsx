@@ -16,21 +16,24 @@ import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings"
 import {Icons} from "../../icons";
 
 export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
+    const {t} = useTranslation("psm");
     const styles = useItemStyles();
 
     const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const readOnly = isReadOnly(dataPsmResourceStore);
     const cimClassIri = pimClass?.pimInterpretation;
-    const {t} = useTranslation("psm");
 
     const DetailDialog = useDialog(DataPsmClassDetailDialog, ["iri"]);
     const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
     return <li className={styles.li}>
-        <ItemRow actions={<>
+        <ItemRow open actions={<>
             {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
-            <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Edit/></MenuItem>
-        </>}>
+            {readOnly ?
+                <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
+                <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
+            }
+        </>} readOnly={readOnly}>
             {dataPsmClass === undefined && <Skeleton />}
             {dataPsmClass &&
                 <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>

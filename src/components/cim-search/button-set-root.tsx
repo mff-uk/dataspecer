@@ -11,11 +11,19 @@ import {CreateSchema} from "../../operations/create-schema";
 import {MemoryStore} from "model-driven-data/core";
 import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
 import {pimExecutors} from "model-driven-data/pim/executor";
+import {selectLanguage} from "../../utils/selectLanguage";
+import {languages} from "../../i18n";
+
+function formatString(input: string, args: {[key: string]: string}): string {
+    return input.replace(/{([^}]+)}/g, (match, key) => args[key]);
+}
 
 const ButtonSetRoot: React.FC = () => {
     const {store, setPsmSchemas, configuration, psmSchemas} = React.useContext(StoreContext);
     const {isOpen, open, close} = useToggle();
-    const {t} = useTranslation("ui");
+    const {t, i18n} = useTranslation("ui");
+    // t('new schema description format')
+    // t('new schema label format')
 
     const setRootClass = useCallback(async (cls: PimClass) => {
         setPsmSchemas([]);
@@ -36,7 +44,37 @@ const ButtonSetRoot: React.FC = () => {
         await store.executeOperation(schemaOperation);
         setPsmSchemas([schemaOperation.createdDataPsmSchema as string]);
 
-        store.executeOperation(new CreateRootClass(cls)).then();
+        const newSchemaLabel = Object.fromEntries(
+            languages.map(
+                lang => [
+                    lang,
+                    formatString(
+                        i18n.getFixedT([lang], "ui")('new schema label format'),
+                        {
+                            label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
+                            description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+                        }
+                    )
+                ]
+            )
+        );
+
+        const newSchemaDescription = Object.fromEntries(
+            languages.map(
+                lang => [
+                    lang,
+                    formatString(
+                        i18n.getFixedT([lang], "ui")('new schema description format'),
+                        {
+                            label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
+                            description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+                        }
+                    )
+                ]
+            )
+        );
+
+        store.executeOperation(new CreateRootClass(cls, newSchemaLabel, newSchemaDescription)).then();
     }, [store]);
 
     return <>

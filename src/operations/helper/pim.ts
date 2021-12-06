@@ -17,6 +17,7 @@ export async function createPimClassIfMissing(
 
     const pimCreateClass = new PimCreateClass();
     copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
+    pimCreateClass.pimIsCodelist = resource.pimIsCodelist;
     const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
     return pimCreateClassResult.created[0] as string;
 }

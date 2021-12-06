@@ -1,11 +1,17 @@
 {
+  "add": "Add",
   "button modify translations": "Modify translations",
   "button reload resource": "Reload resource",
+  "class is codelist dialog": "The class is a codelist.",
+  "codelist url title": "Codelist URLs",
   "confirm changes": "Confirm changes",
   "discard changes": "Discard changes",
   "in all languages": "In all languages",
   "label datatype": "Datatype",
   "label technical label": "Technical label",
+  "no codelist url": "No codelist URL set",
+  "no description": "no description",
+  "no label": "no label",
   "no translations": "no translations are available",
   "resource": {
     "fail": "resource failed to load",
@@ -34,5 +40,9 @@
   "tab range class": "range class",
   "tab store": "store",
   "tab title association": "Association",
-  "tab title range class": "Range class"
+  "tab title range class": "Range class",
+  "title association": "Association",
+  "title attribute": "Attribute",
+  "title class": "Class",
+  "title to class": "To class"
 }

@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {DialogContent, DialogContentText, DialogTitle, Tab, Tabs} from "@mui/material";
+import {DialogContent, DialogContentText, Tab, Tabs} from "@mui/material";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {DataPsmClass} from "model-driven-data/data-psm/model";
 import {PimClass} from "model-driven-data/pim/model";
@@ -13,8 +13,9 @@ import {CimLinks} from "./components/cim-links";
 import {CloseDialogButton} from "./components/close-dialog-button";
 import {Show} from "../helper/Show";
 import {dialog, DialogParameters} from "../../dialog";
+import {DialogTitle} from "./common";
 
-export const DataPsmClassDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "md", fullWidth: true}, memo(({iri, isOpen, close}) => {
+export const DataPsmClassDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "lg", fullWidth: true}, memo(({iri, isOpen, close}) => {
     const resources = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(iri);
     const {t, i18n} = useTranslation("detail");
 
@@ -24,16 +25,20 @@ export const DataPsmClassDetailDialog: React.FC<{iri: string} & DialogParameters
 
     return <>
         <DialogTitle>
-            {selectLanguage(label, i18n.languages) ?? <i>unnamed class</i>}
-            {resources.pimResource?.pimInterpretation && <CimLinks iri={resources.pimResource.pimInterpretation}/>}
+            <div>
+                <strong>{t("title class")}: </strong>
+                {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
+                {resources.pimResource?.pimInterpretation && <CimLinks iri={resources.pimResource.pimInterpretation}/>}
+            </div>
+
+            <DialogContentText>
+                <LanguageStringFallback from={description} fallback={<i>{t("no description")}</i>}/>
+            </DialogContentText>
 
             <CloseDialogButton onClick={close} />
         </DialogTitle>
 
         <DialogContent>
-            <DialogContentText>
-                <LanguageStringFallback from={description} fallback={<i>no description for association</i>}/>
-            </DialogContentText>
 
             <Tabs centered value={tab} onChange={(e, ch) => setTab(ch)}>
                 <Tab label={t('tab class')}/>

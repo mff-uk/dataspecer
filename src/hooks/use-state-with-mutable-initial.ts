@@ -6,7 +6,11 @@ import {useCallback, useEffect, useState} from "react";
  */
 export const useStateWithMutableInitial = <T>(initialValue: T): [T, (newValue: T) => void] => {
   const [value, setValue] = useState<{ value: T, lastInitialValue: T }>({value: initialValue, lastInitialValue: initialValue});
-  useEffect(() => setValue({ value: initialValue, lastInitialValue: initialValue }), [initialValue]);
+  useEffect(() => {
+    if (value.lastInitialValue !== initialValue) {
+      setValue({value: initialValue, lastInitialValue: initialValue});
+    }
+  }, [initialValue, value]);
   if (initialValue !== value.lastInitialValue) { // Immediate value change before the useEffect applies changes
     value.value = initialValue;
   }
