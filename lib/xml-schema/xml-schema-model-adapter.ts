@@ -15,7 +15,6 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaType,
 } from "./xml-schema-model";
-import {OFN} from "../well-known";
 
 export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
   const adapter = new XmlSchemaAdapter(schema.classes);
@@ -49,7 +48,7 @@ class XmlSchemaAdapter {
   }
   
   public fromRoots(
-      roots: string[],
+    roots: string[],
   ): XmlSchema {
     return {
       "targetNamespace": null,
@@ -60,12 +59,12 @@ class XmlSchemaAdapter {
   }
 
   getClass(
-    iri: string
+    iri: string,
   ): StructureModelClass {
     const cls = this.classMap[iri];
     if (cls == null) {
       throw new Error(
-        `Class ${iri} is not defined in the model.`
+        `Class ${iri} is not defined in the model.`,
       );
     }
     return cls;
@@ -90,7 +89,7 @@ class XmlSchemaAdapter {
       "mixed": false,
       "xsType": "sequence",
       "contents": classData.properties.map(
-        this.propertyToComplexContent, this
+        this.propertyToComplexContent, this,
       ),
     };
   }
@@ -113,7 +112,7 @@ class XmlSchemaAdapter {
     let dataTypes = propertyData.dataTypes;
     if (dataTypes.length === 0) {
       throw new Error(
-        `Property ${propertyData.psmIri} has no specified types.`
+        `Property ${propertyData.psmIri} has no specified types.`,
       );
     }
     // Treat codelists as URIs
@@ -122,10 +121,10 @@ class XmlSchemaAdapter {
     // for all types in the property range.
     const result =
     this.propertyToElementCheckType(
-        propertyData,
-        dataTypes,
-        type => type.isAssociation(),
-        this.classPropertyToComplexType)
+      propertyData,
+      dataTypes,
+      type => type.isAssociation(),
+      this.classPropertyToComplexType)
       ??
       this.propertyToElementCheckType(
         propertyData,
@@ -142,7 +141,7 @@ class XmlSchemaAdapter {
   }
 
   replaceCodelistWithUri(
-    dataType: StructureModelType
+    dataType: StructureModelType,
   ): StructureModelType {
     if (
       dataType.isAssociation() &&
@@ -178,7 +177,7 @@ class XmlSchemaAdapter {
         "xsType": "choice",
         "contents": dataTypes
           .map(dataType => this.getClass(dataType.psmClassIri))
-          .map(classData => this.classToComplexContent(classData))
+          .map(classData => this.classToComplexContent(classData)),
       },
     };
   }
