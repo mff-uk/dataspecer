@@ -80,7 +80,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
     }, [sorted]);
 
     return <>
-        <Typography variant={"h6"}>{t("ancestors title")}</Typography>
+        <Typography variant="subtitle1" component="h2">{t('ancestors title')}</Typography>
         {(loading || hierarchyStore === null) ? <LoadingDialog /> :
             <List component="nav" aria-label="main mailbox folders" dense>
                 {sorted && sorted.map(ancestor =>

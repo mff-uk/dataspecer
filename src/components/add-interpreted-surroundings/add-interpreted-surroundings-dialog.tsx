@@ -1,4 +1,4 @@
-import {Button, Checkbox, DialogActions, DialogContent, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
+import {Button, Checkbox, DialogActions, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
@@ -18,7 +18,7 @@ import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-cl
 import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
 import {StoreMetadataTag} from "../../configuration/configuration";
 import {dialog} from "../../dialog";
-import {DialogTitle} from "../detail/common";
+import {DialogContent, DialogTitle} from "../detail/common";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -168,7 +168,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
                     {surroundings[currentCimClassIri] === undefined ||
                         <>
-                            <Typography variant={"h6"}>{t("attributes")}</Typography>
+                            <Typography variant="subtitle1" component="h2">{t('attributes')}</Typography>
                             {attributes && attributes.map((entity: PimAttribute) =>
                                 <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, true)}>
                                     <ListItemIcon>
@@ -192,7 +192,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                             <Typography color={"textSecondary"}>{t("no attributes")}</Typography>
                             }
 
-                            <Typography variant={"h6"}>{t("associations")}</Typography>
+                            <Typography variant="subtitle1" component="h2">{t('associations')}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
                                 <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, true)}>
                                     <ListItemIcon>
@@ -226,7 +226,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                             <Typography color={"textSecondary"}>{t("no associations")}</Typography>
                             }
 
-                            <Typography variant={"h6"}>{t("backward associations")}</Typography>
+                            <Typography variant="subtitle1" component="h2">{t('backward associations')}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
                                 <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, false)}>
                                     <ListItemIcon>
@@ -264,7 +264,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
             </Grid>
         </DialogContent>
         <DialogActions>
-            <Button onClick={close} color="primary">{t("close button")}</Button>
+            <Button onClick={close}>{t("close button")}</Button>
             <Button
                 onClick={async () => {
                     const surroundingsStores = Object.values(surroundings).filter((s => s !== undefined) as (s: CoreResourceReader | undefined) => s is CoreResourceReader);
@@ -276,8 +276,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                     });
                     close();
                 }}
-                disabled={selectedResources.length === 0}
-                color="secondary">
+                disabled={selectedResources.length === 0}>
                 {t("confirm button")} ({selectedResources.length})
             </Button>
         </DialogActions>
