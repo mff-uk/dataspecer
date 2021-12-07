@@ -33,40 +33,55 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
 
     return (
         <div>
-            <TextField disabled label="IRI" variant="filled" value={iri} fullWidth />
-
             <Grid container spacing={5} sx={{ pt: 3 }}>
                 <Grid item xs={6}>
-                    {resource.resource && !resource.isLoading &&
-                        <Typography variant="body2">
-                            <CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />
-                            {" "}
-                            {t('resource.ok')}
+                    <Box sx={{mb: 3}}>
+                        <Typography variant="subtitle1" component="h2">
+                            {t('IRI')}
                         </Typography>
-                    }
 
-                    {!resource.resource && !resource.isLoading &&
-                        <Typography variant="body2">
-                            <WarningIcon color="error" fontSize="small" sx={{ verticalAlign: "bottom" }} />
-                            {" "}
-                            {t('resource.fail')}
-                        </Typography>
-                    }
+                        <TextField disabled hiddenLabel variant="standard" value={iri} fullWidth />
+                    </Box>
 
-                    {resource.isLoading &&
-                        <Typography variant="body2">
-                            <HourglassEmptyIcon color="warning" fontSize="small" sx={{ verticalAlign: "bottom" }} />
-                            {" "}
-                            {t('resource.loading')}
-                        </Typography>
-                    }
+                    <Grid container spacing={5} sx={{alignItems: "center"}}>
+                        <Grid item xs={6}>
+                            {resource.resource && !resource.isLoading &&
+                                <Typography variant="body2">
+                                    <CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />
+                                    {" "}
+                                    {t('resource.ok')}
+                                </Typography>
+                            }
 
-                    <Button variant="contained" fullWidth sx={{ mt: 1 }} disabled={resource.isLoading} onClick={() => store.forceReload(iri)}>
-                        {t('button reload resource')}
-                    </Button>
+                            {!resource.resource && !resource.isLoading &&
+                                <Typography variant="body2">
+                                    <WarningIcon color="error" fontSize="small" sx={{ verticalAlign: "bottom" }} />
+                                    {" "}
+                                    {t('resource.fail')}
+                                </Typography>
+                            }
+
+                            {resource.isLoading &&
+                                <Typography variant="body2">
+                                    <HourglassEmptyIcon color="warning" fontSize="small" sx={{ verticalAlign: "bottom" }} />
+                                    {" "}
+                                    {t('resource.loading')}
+                                </Typography>
+                            }
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Button variant="contained" fullWidth sx={{ mt: 1 }} disabled={resource.isLoading} onClick={() => store.forceReload(iri)}>
+                                {t('button reload resource')}
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Grid>
 
                 <Grid item xs={6}>
+                    <Typography variant="subtitle1" component="h2">
+                        {t('title store where item is located')}
+                    </Typography>
+
                     <Card>
                         <CardContent>
                             <Typography variant="body2">
@@ -104,7 +119,9 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
             </Grid>
 
             <Box sx={{mt: 2}}>
-                <ObjectDump obj={resource?.resource} />
+                <Card>
+                    <ObjectDump obj={resource?.resource} />
+                </Card>
             </Box>
         </div>
     );

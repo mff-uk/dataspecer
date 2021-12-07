@@ -1,18 +1,21 @@
 {
   "add": "Add",
+  "apply": "Apply",
   "button modify translations": "Modify translations",
   "button reload resource": "Reload resource",
-  "class is codelist dialog": "The class is a codelist.",
-  "codelist url title": "Codelist URLs",
-  "confirm changes": "Confirm changes",
-  "discard changes": "Discard changes",
+  "cancel": "Cancel",
+  "codelist": "codelist",
+  "codelist url": "codelist url",
   "in all languages": "In all languages",
+  "IRI": "IRI",
+  "is codelist": "is codelist",
   "label datatype": "Datatype",
   "label technical label": "Technical label",
   "no codelist url": "No codelist URL set",
   "no description": "no description",
   "no label": "no label",
   "no translations": "no translations are available",
+  "ok": "OK",
   "resource": {
     "fail": "resource failed to load",
     "loading": "resource is loading",
@@ -44,5 +47,7 @@
   "title association": "Association",
   "title attribute": "Attribute",
   "title class": "Class",
+  "title data type": "Data type",
+  "title store where item is located": "Store where item is located",
   "title to class": "To class"
 }

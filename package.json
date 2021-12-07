@@ -33,6 +33,7 @@
     "react-redux": "^7.2.0",
     "react-scripts": "^4.0.3",
     "react-syntax-highlighter": "^15.4.4",
+    "react-transition-group": "^4.4.2",
     "rxjs": "^7.1.0"
   },
   "scripts": {
@@ -64,6 +65,7 @@
     "@types/pako": "^1.0.2",
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-syntax-highlighter": "^13.5.2",
+    "@types/react-transition-group": "^4.4.4",
     "@types/webpack-env": "^1.16.3",
     "i18next-parser": "^5.0.0",
     "typescript": "^4.3.4"

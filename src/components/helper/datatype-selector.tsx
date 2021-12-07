@@ -66,15 +66,20 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
         )}
         // Used for searching.
         getOptionLabel={datatype => `${datatype.prefix}:${datatype.localPart}\0${datatype.iri}\0${Object.values(datatype.label ?? {}).join("\0")}`}
-        renderInput={(params) => {
+        renderInput={(params) =>  {
             return <TextField
                 {...params}
-                label={t('label datatype')}
                 InputProps={{
                     ...params.InputProps,
                     startAdornment: valueIsKnown ? <Chip size="small" color="primary" label={<Datatype iri={value.iri} />} onDelete={() => {
                         onChange("")
                     }}/> : null,
+                    sx: {
+                        paddingTop: "0 !important",
+                        paddingBottom: "0 !important",
+                        paddingLeft: "12px !important",
+                        paddingRight: "12px !important",
+                    },
                 }}
                 inputProps={{
                     ...params.inputProps,
@@ -95,9 +100,16 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
                         if (params.inputProps.onKeyDown) {
                             params.inputProps.onKeyDown(event);
                         }
+                    },
+                    sx: {
+                        paddingTop: "16px !important",
+                        paddingBottom: "17px !important",
+                        paddingLeft: "0 !important",
+                        paddingRight: "0 !important",
                     }
                 }}
                 variant="filled"
+                hiddenLabel
             />
         }}
         options={options}
