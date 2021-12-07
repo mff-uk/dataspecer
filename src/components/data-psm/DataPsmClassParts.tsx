@@ -6,6 +6,7 @@ import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
 import {useResource} from "../../hooks/useResource";
 import {isReadOnly} from "../../store/federated-observable-store";
+import {TransitionGroup} from "react-transition-group";
 
 interface DataPsmResourceSwitchProperties {
     dataPsmResourceIri: string,
@@ -47,14 +48,16 @@ export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boole
         <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri} isDropDisabled={readOnly}>
             {provided =>
                 <ul ref={provided.innerRef} {...provided.droppableProps}>
-                    {dataPsmClass?.dataPsmParts?.map((part, index) => <Draggable index={index} key={part} draggableId={part}>
-                        {provided =>
-                            <div ref={provided.innerRef} {...provided.draggableProps}>
-                                <DataPsmResourceSwitch dataPsmResourceIri={part} dragHandleProps={readOnly ? undefined : provided.dragHandleProps} parentDataPsmClassIri={dataPsmClassIri} index={index} />
-                            </div>
-                        }
-                    </Draggable>)}
-                    {provided.placeholder}
+                    <TransitionGroup exit={false}>
+                        {dataPsmClass?.dataPsmParts?.map((part, index) => <Collapse key={part}><Draggable index={index} draggableId={part}>
+                            {provided =>
+                                <div ref={provided.innerRef} {...provided.draggableProps}>
+                                    <DataPsmResourceSwitch dataPsmResourceIri={part} dragHandleProps={readOnly ? undefined : provided.dragHandleProps} parentDataPsmClassIri={dataPsmClassIri} index={index} />
+                                </div>
+                            }
+                        </Draggable></Collapse>)}
+                        {provided.placeholder}
+                    </TransitionGroup>
                 </ul>
             }
         </Droppable>
