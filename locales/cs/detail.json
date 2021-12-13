@@ -9,7 +9,6 @@
   "in all languages": "Ve všech jazycích",
   "IRI": "IRI",
   "is codelist": "je číselníkem",
-  "label datatype": "Datový typ",
   "label technical label": "Technický popisek",
   "no codelist url": "Neobsahuje žádná URL číselníku",
   "no description": "bez popisku",
@@ -49,5 +48,5 @@
   "title class": "Třída",
   "title data type": "Datový typ",
   "title store where item is located": "Store zvolené položky",
-  "title to class": "Ukazovaná třída"
+  "title to class": "Odkazovaná třída"
 }

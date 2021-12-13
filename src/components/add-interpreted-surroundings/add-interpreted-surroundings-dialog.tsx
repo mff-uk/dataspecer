@@ -19,6 +19,7 @@ import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated
 import {StoreMetadataTag} from "../../configuration/configuration";
 import {dialog} from "../../dialog";
 import {DialogContent, DialogTitle} from "../detail/common";
+import {AssociationItem} from "./association-item";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -153,7 +154,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     if (!cimClassIri) return null;
 
-    return <>
+    return <StoreContext.Provider value={NewStoreContext}>
         <DialogTitle id="customized-dialog-title" close={close}>
             {t("title")}
         </DialogTitle>
@@ -194,32 +195,14 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
                             <Typography variant="subtitle1" component="h2">{t('associations')}</Typography>
                             {forwardAssociations && forwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, true)}>
-                                    <ListItemIcon>
-                                        <Checkbox
-                                            edge="start"
-                                            checked={selectedResources.some(([i, o]) => i === entity.iri as string && o)}
-                                            tabIndex={-1}
-                                            disableRipple
-                                        />
-                                    </ListItemIcon>
-                                    <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
-                                        <strong>{entity.pimHumanLabel?.cs}</strong>
-                                        {" "}
-                                        <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string}/>
-                                        {" "}
-                                        {/*<IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
-                                        {" "}
-                                        {/*entity.pimEnd[1].pimParticipant && currentSurroundings &&
-                                        <span>({(currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass).pimHumanLabel?.cs}
-                                            ){" "}
-                                            <IconButton size="small" onClick={(event) => {entity.pimEnd[1].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[1].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
-                                            </span>
-                                        */}
-                                    </ListItemText>
-
-                                    <IconButton size="small" onClick={event => {AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: true}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
-                                </ListItem>
+                                <AssociationItem
+                                    key={entity.iri}
+                                    pimAssociationIri={entity.iri as string}
+                                    onClick={toggleSelectedResources(entity.iri as string, true)}
+                                    selected={selectedResources.some(([i, o]) => i === entity.iri as string && o)}
+                                    onDetail={() => AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: true})}
+                                    orientation={true}
+                                />
                             )}
 
                             {(!forwardAssociations || forwardAssociations.length === 0) &&
@@ -228,30 +211,14 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
                             <Typography variant="subtitle1" component="h2">{t('backward associations')}</Typography>
                             {backwardAssociations && backwardAssociations.map((entity: PimAssociation) =>
-                                <ListItem key={entity.iri} role={undefined} dense button onClick={toggleSelectedResources(entity.iri as string, false)}>
-                                    <ListItemIcon>
-                                        <Checkbox
-                                            edge="start"
-                                            checked={selectedResources.some(([i, o]) => i === entity.iri as string && !o)}
-                                            tabIndex={-1}
-                                            disableRipple
-                                        />
-                                    </ListItemIcon>
-                                    <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
-                                        {/*{entity.pimEnd[0].pimParticipant && <span>({currentSurroundings && (currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass).pimHumanLabel?.cs}
-                                            ){" "}
-                                            <IconButton size="small" onClick={(event) => {currentSurroundings && entity.pimEnd[0].pimParticipant && classDialog.open({cls: currentSurroundings[entity.pimEnd[0].pimParticipant] as PimClass}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
-                                            </span>}
-                                        {" "}*/}
-                                        <strong>{entity.pimHumanLabel?.cs}</strong>
-                                        {" "}
-                                        <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string}/>
-                                        {" "}
-                                        {/*<IconButton size="small" onClick={(event) => {associationDialog.open({association: entity}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>*/}
-                                    </ListItemText>
-
-                                    <IconButton size="small" onClick={event => {AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: false}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
-                                </ListItem>
+                                <AssociationItem
+                                    key={entity.iri}
+                                    pimAssociationIri={entity.iri as string}
+                                    onClick={toggleSelectedResources(entity.iri as string, false)}
+                                    selected={selectedResources.some(([i, o]) => i === entity.iri as string && !o)}
+                                    onDetail={() => AssociationToClassDetailDialog.open({iri: entity.iri as string, parentIri: "todo", orientation: false})}
+                                    orientation={false}
+                                />
                             )}
 
                             {(!backwardAssociations || backwardAssociations.length === 0) &&
@@ -281,9 +248,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
             </Button>
         </DialogActions>
 
-        <StoreContext.Provider value={NewStoreContext}>
-            <AttributeDetailDialog.component />
-            <AssociationToClassDetailDialog.component />
-        </StoreContext.Provider>
-    </>;
+        <AttributeDetailDialog.component />
+        <AssociationToClassDetailDialog.component />
+    </StoreContext.Provider>;
 });
