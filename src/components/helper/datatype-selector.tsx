@@ -21,7 +21,7 @@ export const getIriFromDatatypeSelectorValue = (value: string | KnownDatatype | 
         return value.iri;
     }
     if (typeof value === 'string') {
-        return value;
+        return value === "" ? null : value;
     }
     return null;
 }
