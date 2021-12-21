@@ -24,23 +24,23 @@ function openWindowWithPost(url: string, data: Record<string, string>) {
     document.body.removeChild(form);
 }
 
-async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
-    const bikeshed = webSpecificationToBikeshed(await constructDocumentationModel(reader, fromSchema));
+async function generate(reader: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string): Promise<string> {
+    const bikeshed = webSpecificationToBikeshed(await constructDocumentationModel(reader, dataPsmSchemaIri, pimSchemaIri));
     const stream = new MemoryOutputStream();
     await writeBikeshed(bikeshed, stream);
     return stream.getContent();
 }
 
-export async function GetBikeshedArtifact(reader: CoreResourceReader, schema: string): Promise<string> {
-    const bs = await generate(reader, schema);
+export async function GetBikeshedArtifact(reader: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string): Promise<string> {
+    const bs = await generate(reader, dataPsmSchemaIri, pimSchemaIri);
     if (!bs) {
         throw new Error("No schema returned");
     }
     return bs;
 }
 
-export async function GetPreviewBikeshedArtifact(reader: CoreResourceReader, schema: string) {
-    const bs = await generate(reader, schema);
+export async function GetPreviewBikeshedArtifact(reader: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string) {
+    const bs = await generate(reader, dataPsmSchemaIri, pimSchemaIri);
     if (!bs) {
         throw new Error("No schema returned");
     }

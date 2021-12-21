@@ -21,6 +21,8 @@ import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
 import {DialogParameters} from "../../dialog";
+import {SCHEMA} from "model-driven-data/pim/pim-vocabulary";
+import {StoreByPropertyDescriptor} from "../../store/operation-executor";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");
@@ -49,11 +51,12 @@ function useCopyToClipboard(close: () => void) {
     const {psmSchemas, store} = React.useContext(StoreContext);
     const {enqueueSnackbar} = useSnackbar();
     const {t} = useTranslation("artifacts");
-    return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>) => {
+    return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string, pimSchemaIri: string) => Promise<string>) => {
         close();
         let value: string | undefined = undefined;
         try {
-            value = await getArtifact(store, psmSchemas[0]);
+            const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
+            value = await getArtifact(store, psmSchemas[0], pimSchemas[0]);
         } catch (error) {
             enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
@@ -72,11 +75,12 @@ function useSaveToFile(close: () => void) {
     const {i18n} = useTranslation("artifacts");
     const {t} = useTranslation("artifacts");
     const {enqueueSnackbar} = useSnackbar();
-    return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string) => Promise<string>, extension: string, mime: string) => {
+    return useCallback(async (getArtifact: (store: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string) => Promise<string>, extension: string, mime: string) => {
         close();
         let artifact: string | undefined = undefined;
         try {
-            artifact = await getArtifact(store, psmSchemas[0]);
+            const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
+            artifact = await getArtifact(store, psmSchemas[0], pimSchemas[0]);
         } catch (error) {
             enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
@@ -123,9 +127,10 @@ export const GenerateArtifacts: React.FC<{
                         <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("download")}
                     </MenuItem>
-                    <MenuItem onClick={() => {
+                    <MenuItem onClick={async () => {
                         close();
-                        GetPreviewBikeshedArtifact(store, psmSchemas[0]);
+                        const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
+                        GetPreviewBikeshedArtifact(store, psmSchemas[0], pimSchemas[0]);
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetBikeshedArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
