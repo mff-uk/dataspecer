@@ -41,6 +41,8 @@ test("Create attribute.", async () => {
       "pimHumanDescription": operation.pimHumanDescription,
       "pimOwnerClass": operation.pimOwnerClass,
       "pimDatatype": operation.pimDatatype,
+      "pimCardinalityMax": null,
+      "pimCardinalityMin": null,
     },
   });
   expect(actual.changed).toEqual({

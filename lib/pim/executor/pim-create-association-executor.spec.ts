@@ -54,6 +54,8 @@ test("Create association.", async () => {
       "pimHumanLabel":null,
       "pimTechnicalLabel": null,
       "pimPart": "http://right",
+      "pimCardinalityMax": null,
+      "pimCardinalityMin": null,
     },
     "http://localhost/1": {
       "iri": "http://localhost/1",
@@ -63,6 +65,8 @@ test("Create association.", async () => {
       "pimHumanLabel":null,
       "pimTechnicalLabel": null,
       "pimPart": "http://left",
+      "pimCardinalityMax": null,
+      "pimCardinalityMin": null,
     },
   });
   expect(actual.changed).toEqual({

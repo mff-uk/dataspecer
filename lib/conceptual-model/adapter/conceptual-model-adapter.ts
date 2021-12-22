@@ -1,9 +1,10 @@
 import {assert, CoreResourceReader} from "../../core";
 import {
-  ConceptualModel, ConceptualModelPrimitiveType,
+  ConceptualModel,
   ConceptualModelClass,
   ConceptualModelProperty,
-  ConceptualModelType, ConceptualModelComplexType
+  ConceptualModelComplexType,
+  ConceptualModelPrimitiveType,
 } from "../model";
 import {
   PimAssociation,
@@ -106,6 +107,8 @@ class ConceptualModelAdapter {
       associationEnd.pimHumanLabel ?? association.pimHumanLabel;
     property.humanDescription =
       associationEnd.pimHumanDescription ?? association.pimHumanDescription;
+    property.cardinalityMin = associationEnd.pimCardinalityMin;
+    property.cardinalityMax = associationEnd.pimCardinalityMax;
 
     const type = new ConceptualModelComplexType();
     type.pimClassIri = target.pimIri;
@@ -133,6 +136,8 @@ class ConceptualModelAdapter {
     model.cimIri = attributeData.pimInterpretation;
     model.humanLabel = attributeData.pimHumanLabel;
     model.humanDescription = attributeData.pimHumanDescription;
+    model.cardinalityMin = attributeData.pimCardinalityMin;
+    model.cardinalityMax = attributeData.pimCardinalityMax;
 
     if (attributeData.pimDatatype !== null) {
       const type = new ConceptualModelPrimitiveType();

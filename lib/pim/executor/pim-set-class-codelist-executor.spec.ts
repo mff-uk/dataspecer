@@ -33,7 +33,7 @@ test("Update class codelist.", async () => {
     "http://class": {
       "iri": "http://class",
       "types": [PIM.CLASS],
-      "isCodelist": operation.pimIsCodeList,
+      "pimIsCodelist": operation.pimIsCodeList,
       "pimCodelistUrl": operation.pimCodelistUrl,
     },
   });

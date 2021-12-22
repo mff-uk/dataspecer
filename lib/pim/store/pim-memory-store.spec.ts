@@ -82,6 +82,8 @@ test("Create PIM schema with class and attribute.", async () => {
     "pimHumanDescription": pimAttribute.pimHumanDescription,
     "pimOwnerClass": pimAttribute.pimOwnerClass,
     "pimDatatype": pimAttribute.pimDatatype,
+    "pimCardinalityMax": null,
+    "pimCardinalityMin": null,
   });
 
 });

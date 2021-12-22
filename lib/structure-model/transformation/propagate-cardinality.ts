@@ -2,9 +2,9 @@ import {ConceptualModel, ConceptualModelProperty} from "../../conceptual-model";
 import {StructureModel, StructureModelClass} from "../model";
 
 /**
- * Add labels from {@link ConceptualModel} if they are missing.
+ * Add cardinalities from {@link ConceptualModel} if they are missing.
  */
-export function propagateLabels(
+export function propagateCardinality(
   conceptual: ConceptualModel,
   structure: StructureModel
 ): StructureModel {
@@ -17,18 +17,14 @@ export function propagateLabels(
     if (conceptualClass === null) {
       continue;
     }
-    classData.humanLabel =
-      classData.humanLabel ?? conceptualClass.humanLabel;
-    classData.humanDescription =
-      classData.humanDescription ?? conceptualClass.humanDescription;
     classData.properties = classData.properties.map((property) => {
       const conceptualProperty = propertyMap[property.pimIri];
       return {
         ...property,
-        "humanLabel":
-          property.humanLabel ?? conceptualProperty?.humanLabel,
-        "humanDescription":
-          property.humanDescription ?? conceptualProperty?.humanDescription,
+        "cardinalityMin":
+          property.cardinalityMin ?? conceptualProperty.cardinalityMin,
+        "cardinalityMax":
+          property.cardinalityMax ?? conceptualProperty.cardinalityMax,
       };
     });
   }

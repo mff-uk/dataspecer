@@ -58,6 +58,8 @@ export const SET_CLASS_CODELIST = PIM + "SetClassCodelist";
 
 export const SET_DATATYPE = PIM + "SetDataType";
 
+export const SET_CARDINALITY = PIM + "SetCardinality";
+
 export const SET_EXTENDS = PIM + "SetExtends";
 
 export const SET_HUMAN_DESCRIPTION = PIM + "SetHumanDescription";

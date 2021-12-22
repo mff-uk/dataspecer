@@ -14,6 +14,10 @@ export class PimAttribute extends PimResource {
 
   pimOwnerClass: string | null = null;
 
+  pimCardinalityMin: number | null = null;
+
+  pimCardinalityMax: number | null = null;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(PimAttribute.TYPE);
