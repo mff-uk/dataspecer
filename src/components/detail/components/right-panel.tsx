@@ -112,7 +112,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 <Card>
                     <CardContent>
                         <FormGroup>
-                            <FormControlLabel control={<Checkbox checked={codelistUrl !== false} onChange={() => setCodelistUrl(codelistUrl !== false ? false : [])} />} label={t('is codelist')} />
+                            <FormControlLabel control={<Checkbox checked={codelistUrl !== false} onChange={() => setCodelistUrl(codelistUrl !== false ? false : [])} />}
+                                              label={t('is codelist') as string} />
                         </FormGroup>
                         <TransitionGroup>
                             {codelistUrl !== false &&
