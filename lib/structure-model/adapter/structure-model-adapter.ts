@@ -172,10 +172,10 @@ class StructureModelAdapter {
 }
 
 export async function coreResourcesToStructuralModel(
-  reader: CoreResourceReader, pimSchemaIri: string,
+  reader: CoreResourceReader, psmSchemaIri: string,
   specification: string | null = null,
 ): Promise<StructureModel | null> {
   const adapter = new StructureModelAdapter(reader, specification);
-  return await adapter.load(pimSchemaIri);
+  return await adapter.load(psmSchemaIri);
 }
 
