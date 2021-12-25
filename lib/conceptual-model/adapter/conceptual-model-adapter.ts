@@ -157,7 +157,7 @@ class ConceptualModelAdapter {
     model.humanDescription = classData.pimHumanDescription;
     model.isCodelist = classData.pimIsCodelist;
     model.codelistUrl = classData.pimCodelistUrl;
-    model.extends = classData.pimExtends.map(this.getClass);
+    model.extends = classData.pimExtends.map(iri => this.getClass(iri));
   }
 
 }
