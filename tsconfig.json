@@ -18,7 +18,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": [
+      "node",
+      "webpack-env",
+      "react/next",
+      "react-dom/next"
+    ]
   },
   "include": [
     "src"

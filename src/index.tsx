@@ -4,11 +4,11 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './i18n';
 
-ReactDOM.render(
-  <React.StrictMode>
-      <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+const root = document.getElementById('root') as HTMLElement;
+ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change
