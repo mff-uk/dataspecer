@@ -25,12 +25,12 @@ i18n
     .init({
         resources: translations,
         fallbackLng: 'en',
-        whitelist: languages,
+        supportedLngs: languages,
 
         interpolation: {
             escapeValue: false, // not needed for react as it escapes by default
         },
-    });
+    }, () => {});
 
 export default i18n;
 export {languages};
