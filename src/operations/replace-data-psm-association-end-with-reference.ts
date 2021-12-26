@@ -31,7 +31,8 @@ export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperati
         // Create a reference to the class
 
         const dataPsmCreateClassReference = new DataPsmCreateClassReference();
-        dataPsmCreateClassReference.dataPsmSpecification = replacingClass;
+        dataPsmCreateClassReference.dataPsmClass = replacingClass;
+        dataPsmCreateClassReference.dataPsmSpecification = schema.iri;
         const dataPsmCreateClassReferenceResult = await executor.applyOperation(dataPsmCreateClassReference, storeDescriptor);
         const reference = dataPsmCreateClassReferenceResult.created[0];
 

@@ -57,7 +57,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const {resource: associationPointsTo} = useResource(associationPointsToIri);
     const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo); // Whether the association points to a class reference or just a normal class
 
-    const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmSpecification : associationPointsToIri;
+    const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmClass : associationPointsToIri;
     const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
 
     const isCodelist = pimClass?.pimIsCodelist ?? false;
