@@ -15,7 +15,8 @@ export const useAsyncMemo = <T>(factory: () => Promise<T>, deps: DependencyList,
         return () => {
             cancel = true;
         };
-    }, deps);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps); // factory depends on deps; state is updated only from the useEffect, therefore it is not included in deps
 
     return state;
 }

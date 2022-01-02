@@ -25,7 +25,7 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFun
             specialCharacters: "allow",
         };
         store.executeOperation(addClassSurroundings).then();
-    }, [store]);
+    }, [store, i18n.languages]);
 
     return <>
         <MenuItem onClick={() => open({

@@ -9,6 +9,8 @@ import {useToggle} from "./useToggle";
  *  - a close functions, which closes the dialog
  *  - an open({dynamic_parameter: type_of_dynamic_parameter}) function taking argument that will be set and dialog
  * opened
+ *
+ * @deprecated use ../dialog.ts instead
  */
 export const useDialog = <Property extends keyof Parameters, Parameters extends {isOpen: boolean, close: () => void}>(dialog: React.FC<Parameters>, static_type: Property[], initialState: Pick<Parameters, Property> | undefined = undefined) => {
     const toggle = useToggle();
@@ -23,7 +25,7 @@ export const useDialog = <Property extends keyof Parameters, Parameters extends 
         React.createElement(dialog, {...properties, ...state, close: toggle.close, isOpen: toggle.isOpen} as Parameters), [dialog, state, toggle.close, toggle.isOpen]);
 
     return {
-        component,
+        Component: component,
         open,
         close: toggle.close
     }

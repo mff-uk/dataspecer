@@ -75,7 +75,7 @@ const ButtonSetRoot: React.FC = () => {
         );
 
         store.executeOperation(new CreateRootClass(cls, newSchemaLabel, newSchemaDescription)).then();
-    }, [store]);
+    }, [store, configuration, i18n, setPsmSchemas]);
 
     return <>
         {(configuration === undefined || psmSchemas.length === 0) &&

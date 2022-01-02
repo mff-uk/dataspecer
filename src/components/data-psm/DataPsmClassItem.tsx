@@ -19,7 +19,7 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
 
-    const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass, isLoading} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const readOnly = isReadOnly(dataPsmResourceStore);
     const cimClassIri = pimClass?.pimInterpretation;
 

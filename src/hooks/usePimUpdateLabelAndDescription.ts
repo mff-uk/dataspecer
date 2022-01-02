@@ -21,7 +21,7 @@ export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
   }, [pimResource.pimHumanLabel, pimResource.pimHumanDescription]);
 
   return {
-    component: updateLabels.component,
+    Component: updateLabels.Component,
     open,
   }
 };

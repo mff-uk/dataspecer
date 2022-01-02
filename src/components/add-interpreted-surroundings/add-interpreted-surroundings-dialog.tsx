@@ -101,7 +101,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
         }
         stores.forEach(s => store.addStore(s));
         return () => stores.forEach(s => store.removeStore(s));
-    }, [surroundings]);
+    }, [surroundings, store]);
 
     /**
      * There can be multiple classes from the class hierarchy. A user can switch between them to select from which
@@ -248,7 +248,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
             </Button>
         </DialogActions>
 
-        <AttributeDetailDialog.component />
-        <AssociationToClassDetailDialog.component />
+        <AttributeDetailDialog.Component />
+        <AssociationToClassDetailDialog.Component />
     </StoreContext.Provider>;
 });

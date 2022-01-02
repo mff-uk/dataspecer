@@ -1,6 +1,5 @@
 import React, {FormEvent, memo} from "react";
 import {Autocomplete, Box, Chip, IconButton, TextField, Typography} from "@mui/material";
-import {useTranslation} from "react-i18next";
 import {KnownDatatype} from "../../utils/known-datatypes";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {Datatype} from "../data-psm/common/Datatype";
@@ -29,10 +28,10 @@ export const getIriFromDatatypeSelectorValue = (value: string | KnownDatatype | 
 /**
  * Allows user select a data type from a list of pre-defined types or by typing a custom IRI.
  * Because user may want to set a type whose prefix is a well-known type (for example string-only-ascii vs string) we
- * must not immediately replace the user text with well-known types. Therefore the complexity of value prop.
+ * must not immediately replace the user text with well-known types. Therefore, the complexity of value prop.
  */
 export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({value, onChange, options, onEnter, disabled}) => {
-    const {t} = useTranslation("detail");
+    //const {t} = useTranslation("detail");
 
     // Whether the value is non-null object
     const valueIsKnown = typeof value === 'object' && value;
@@ -46,6 +45,7 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
         disableClearable
 
         onChange={(event, newValue) => {
+            // noinspection SuspiciousTypeOfGuard
             if (typeof newValue !== "string") {
                 onChange(newValue);
             }

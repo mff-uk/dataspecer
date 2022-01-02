@@ -21,7 +21,7 @@ export const useDataPsmUpdateLabelAndDescription = (dataPsmResource: DataPsmReso
   }, [dataPsmResource.dataPsmHumanLabel, dataPsmResource.dataPsmHumanDescription]);
 
   return {
-    component: updateLabels.component,
+    Component: updateLabels.Component,
     open,
   }
 };

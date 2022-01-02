@@ -72,8 +72,7 @@ function useCopyToClipboard(close: () => void) {
 
 function useSaveToFile(close: () => void) {
     const {psmSchemas, store} = React.useContext(StoreContext);
-    const {i18n} = useTranslation("artifacts");
-    const {t} = useTranslation("artifacts");
+    const {t, i18n} = useTranslation("artifacts");
     const {enqueueSnackbar} = useSnackbar();
     return useCallback(async (getArtifact: (store: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string) => Promise<string>, extension: string, mime: string) => {
         close();
@@ -89,7 +88,7 @@ function useSaveToFile(close: () => void) {
             const data = new Blob([artifact], {type: mime});
             FileSaver.saveAs(data, name + "." + extension, {autoBom: false});
         }
-    }, [close, psmSchemas, store, enqueueSnackbar]);
+    }, [close, psmSchemas, store, enqueueSnackbar, i18n.languages, t]);
 }
 
 
@@ -225,7 +224,7 @@ export const GenerateArtifacts: React.FC<{
 
             </Menu>
 
-            <Preview.component />
+            <Preview.Component />
         </>
     );
 };

@@ -1,4 +1,4 @@
-import {IconButton, Paper, Theme, Typography} from "@mui/material";
+import {IconButton, Paper, Typography} from "@mui/material";
 import React, {useCallback, useContext} from "react";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
@@ -16,7 +16,7 @@ import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label
 import {isReadOnly} from "../../store/federated-observable-store";
 import {Icons} from "../../icons";
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
       ul: {
         paddingLeft: 0
@@ -38,10 +38,10 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         description: dataPsmSchema?.dataPsmHumanDescription ?? {},
       },
       update: data => {
-        store.executeOperation(new SetDataPsmLabelAndDescription(dataPsmSchemaIri, data.label, data.description)).then();
+        store.executeOperation(new SetDataPsmLabelAndDescription(dataPsmSchema?.iri as string, data.label, data.description)).then();
       },
     });
-  }, [dataPsmSchema]);
+  }, [dataPsmSchema, store, updateLabels]);
 
   const styles = useStyles();
 
@@ -58,7 +58,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
-        <updateLabels.component />
+        <updateLabels.Component />
         <Typography variant="h5">
           <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel} fallback={<i>{t("no label")}</i>}/>
           {readOnly ||

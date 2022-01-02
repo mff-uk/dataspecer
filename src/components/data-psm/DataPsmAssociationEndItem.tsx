@@ -70,13 +70,13 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     // Dialogs
 
     const detail = useDialog(DataPsmAssociationToClassDetailDialog);
-    const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, associationPointsToIri]);
+    const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, detail, parentDataPsmClassIri]);
     const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
     const ReplaceDialog = useDialog(ReplaceAssociationWithReferenceDialog);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
             store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
-        [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri]);
+        [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri, store]);
 
     const inlineEdit = useToggle();
 

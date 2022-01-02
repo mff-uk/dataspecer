@@ -44,7 +44,7 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
         };
         store.addStore(storeWithMetadata);
         return () => store.removeStore(storeWithMetadata);
-    }, [findResults]);
+    }, [findResults, store]);
 
     useEffect(() => {
         const subject = new BehaviorSubject('');
@@ -71,7 +71,7 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
         // When the component unmounts, this will clean up the
         // subscription
         return () => subject.unsubscribe();
-    }, []);
+    }, [cim.cimAdapter]);
 
     const onChange = (e: any) => {
         if (subject) {

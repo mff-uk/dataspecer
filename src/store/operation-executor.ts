@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {CoreOperation, CoreOperationResult, CoreResourceReader} from "model-driven-data/core";
 import {_CoreResourceReader_WithMissingMethods} from "./federated-observable-store";
 import {StoreMetadataTag} from "../configuration/configuration";

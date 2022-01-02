@@ -15,7 +15,7 @@ import {dialog, DialogParameters} from "../../dialog";
 import {DialogWrapper} from "./common";
 
 export const DataPsmAttributeDetailDialog: React.FC<{iri: string} & DialogParameters> = dialog({maxWidth: "lg", fullWidth: true}, memo(({iri, close}) => {
-    const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute, isLoading} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
+    const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
     const {t, i18n} = useTranslation("detail");
     const [tab, setTab] = React.useState(0);
     const [storeTab, setStoreTab] = React.useState(0);

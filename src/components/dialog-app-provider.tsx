@@ -19,10 +19,10 @@ export const DialogAppProvider: React.FC = ({children}) => {
 
     const context = useMemo(() => ({
         updateLabels: updateLabels.open,
-    }) as Context, []);
+    }) as Context, [updateLabels.open]);
 
     return <DialogAppProviderContext.Provider value={context}>
         {children}
-        <updateLabels.component />
+        <updateLabels.Component />
     </DialogAppProviderContext.Provider>
 }

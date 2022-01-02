@@ -31,7 +31,7 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
 
     const {store} = React.useContext(StoreContext);
     const {resource: ownerClass} = useResource<DataPsmClass>(parentDataPsmClassIri);
-    const del = useCallback(() => dataPsmAttribute && ownerClass && store.executeOperation(new DeleteAttribute(dataPsmAttribute, ownerClass)), [dataPsmAttribute, ownerClass]);
+    const del = useCallback(() => dataPsmAttribute && ownerClass && store.executeOperation(new DeleteAttribute(dataPsmAttribute, ownerClass)), [dataPsmAttribute, ownerClass, store]);
 
     const inlineEdit = useToggle();
 

@@ -152,7 +152,7 @@ export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, 
         if (!cardinalityToKnown(value) && !isEqual(custom, value)) {
             setCustom(value);
         }
-    }, [value]);
+    }, [value, custom]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange(event.target.value === "custom" ? custom as Cardinality : predefinedCardinalityToValue[event.target.value as PredefinedCardinality]);

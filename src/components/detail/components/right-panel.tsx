@@ -53,31 +53,31 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             const foundDatatype = knownDatatypes.find(type => type.iri === datatype);
             setDatatype(foundDatatype ?? datatype);
         }
-    }, [resource]);
+    }, [resource, isAttribute]);
 
     useEffect(() => {
         if (isClass) {
             setCodelistUrl((pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false);
         }
-    }, [pimResource])
+    }, [pimResource, isClass])
 
     const {t} = useTranslation("detail");
 
     useDialogSaveStatus(
         resource !== null && resource.dataPsmTechnicalLabel !== technicalLabel,
-        useCallback(async () => resource && await store.executeOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource?.iri, technicalLabel]),
+        useCallback(async () => resource && await store.executeOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 
     useDialogSaveStatus(
         resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
-        useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype) ?? "")), [resource?.iri, datatype]),
+        useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype) ?? "")), [resource, store, datatype]),
     );
 
     useDialogSaveStatus(
         isClass && !isEqual(codelistUrl, (pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false),
         useCallback(
             async () => pimResource && await store.executeOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
-            [pimResource, codelistUrl]
+            [pimResource, codelistUrl, store]
         ),
     );
 
@@ -93,7 +93,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd)),
         useCallback(
             async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
-            [pimResource, cardinality]
+            [pimResource, cardinality, isAttribute, isAssociationEnd, store]
         ),
     );
 

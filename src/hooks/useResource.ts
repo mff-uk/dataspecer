@@ -32,7 +32,7 @@ export const useResource = <ResourceType extends CoreResource>(iri: string | nul
         } else {
             setState(loadingEmptyLink);
         }
-    }, [iri, store]);
+    }, [iri, store, subscriber]);
 
     return state;
 }

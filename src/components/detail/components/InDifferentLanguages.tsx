@@ -54,7 +54,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
                 new SetDataPsmLabelAndDescription(iri, data.label, data.description))
             ),
         });
-    }, [label, description, iri]);
+    }, [iri, currentLabel, currentDescription, resourceType, store, updateLabels]);
 
     return <>
         <Typography variant="subtitle1" component="h2">

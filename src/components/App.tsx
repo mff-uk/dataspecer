@@ -101,7 +101,7 @@ const App: React.FC = () => {
                 isRelevant = false;
             };
         }
-    }, [configuration]);
+    }, [configuration, store]);
 
     const storeContext: StoreContextInterface = useMemo(() => ({
         store,

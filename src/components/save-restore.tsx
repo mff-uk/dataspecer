@@ -23,7 +23,7 @@ export const SaveRestore: React.FC = () => {
         });
         const blob = new Blob([data], {type: "application/gzip;charset=utf-8"});
         FileSaver.saveAs(blob, ((await getNameForSchema(store, psmSchemas[0], i18n.languages)) ?? t("file without name")) + ".sgen", {autoBom: false});
-    }, [store, psmSchemas, i18n.languages]);
+    }, [store, psmSchemas, i18n.languages, t]);
 
 
     const importFromFile = useCallback(async () => {
@@ -44,13 +44,13 @@ export const SaveRestore: React.FC = () => {
                 enqueueSnackbar(t("snackbar load.fail"), {variant: "error"});
             }
         }
-    }, []);
+    }, [enqueueSnackbar, setPsmSchemas, store, t]);
 
 
     return (
         <>
             <div>
-                <Fab title={t("save to file")} onClick={saveToFile} color="primary" size="medium" variant="extended" aria-label="add" style={{marginRight: "1rem"}} disabled={psmSchemas.length == 0}>
+                <Fab title={t("save to file")} onClick={saveToFile} color="primary" size="medium" variant="extended" aria-label="add" style={{marginRight: "1rem"}} disabled={psmSchemas.length === 0}>
                     <SaveTwoToneIcon fontSize="small" />
                 </Fab>
                 <Fab title={t("import from file")} onClick={importFromFile} color="primary" size="medium" variant="extended" aria-label="add">

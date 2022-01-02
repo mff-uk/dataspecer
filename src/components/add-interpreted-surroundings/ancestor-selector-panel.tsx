@@ -29,7 +29,7 @@ const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<Pi
     const visited = new Set<string>();
 
     let processed: string | undefined;
-    while (processed = queue.shift()) {
+    while ((processed = queue.shift()) !== undefined) {
         if (visited.has(processed)) {
             continue;
         }
@@ -54,7 +54,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
         return () => {
             isActive = false;
         };
-    }, [cim.cimAdapter, forCimClassIri]);
+    }, [cim.cimAdapter, forCimClassIri, setHierarchyStore]);
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 
@@ -77,7 +77,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
             store.addStore(storeWithMetadata);
             return () => store.removeStore(storeWithMetadata);
         }
-    }, [sorted]);
+    }, [sorted, store]);
 
     return <>
         <Typography variant="subtitle1" component="h2">{t('ancestors title')}</Typography>
@@ -98,7 +98,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
         }
 
         <StoreContext.Provider value={NewStoreContext}>
-            <ClassDetailDialog.component />
+            <ClassDetailDialog.Component />
         </StoreContext.Provider>
     </>;
 };

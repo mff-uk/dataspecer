@@ -1,4 +1,3 @@
-import React from "react";
 import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
 import {webSpecificationToBikeshed, writeBikeshed} from "model-driven-data/bikeshed";
 import {CoreResourceReader} from "model-driven-data/core";
