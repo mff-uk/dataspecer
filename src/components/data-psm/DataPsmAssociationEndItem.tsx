@@ -59,7 +59,8 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo); // Whether the association points to a class reference or just a normal class
 
     const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmClass : associationPointsToIri;
-    const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const {dataPsmResource: dataPsmClass, pimResource: pimClass, dataPsmResourceStore: dataPsmClassStore} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const dataPsmClassIsReadOnly = isReadOnly(dataPsmClassStore);
 
     const isCodelist = pimClass?.pimIsCodelist ?? false;
 
@@ -88,7 +89,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     return <li className={styles.li}>
         <ItemRow actions={<>
-            {dataPsmClassIri && !isCodelist && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+            {dataPsmClassIri && !isCodelist && !dataPsmClassIsReadOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
             {dataPsmAssociationEnd && <>
                 {readOnly ?
                     <MenuItem onClick={detailOpen} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
