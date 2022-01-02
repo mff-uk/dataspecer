@@ -20,6 +20,7 @@ enum PredefinedCardinality {
 interface CardinalitySelectorProps {
     value: Cardinality,
     onChange: (value: Cardinality) => void;
+    disabled?: boolean;
 }
 
 export function cardinalityFromPim(pimResource: {
@@ -141,7 +142,7 @@ function cardinalityToKnown(cardinality: Cardinality): PredefinedCardinality | n
     return null
 }
 
-export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, onChange}) => {
+export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, onChange, disabled}) => {
     const {t} = useTranslation("detail");
 
     const selectedRadio = cardinalityToKnown(value) ?? "custom";
@@ -168,13 +169,13 @@ export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, 
             onChange={handleChange}
             sx={{display: "flex", flexDirection: "row"}}
         >
-            <FormControlLabel value={PredefinedCardinality.c_0_infinity} control={<Radio />} label="0..∞" />
-            <FormControlLabel value={PredefinedCardinality.c_1_infinity} control={<Radio />} label="1..∞" />
-            <FormControlLabel value={PredefinedCardinality.c_0_1} control={<Radio />} label="0..1" />
-            <FormControlLabel value={PredefinedCardinality.c_1} control={<Radio />} label="1" />
-            {customIsUnique && <FormControlLabel value={"custom"} control={<Radio />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "∞")} />}
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_infinity} control={<Radio />} label="0..∞" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1_infinity} control={<Radio />} label="1..∞" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_1} control={<Radio />} label="0..1" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1} control={<Radio />} label="1" />
+            {customIsUnique && <FormControlLabel disabled={disabled} value={"custom"} control={<Radio />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "∞")} />}
         </RadioGroup>
-        <FormControlLabel value={"sdf"} control={<Radio onClick={() => CustomDialog.open({})} checked={false} />} label={t("cardinality custom") as string} />
+        <FormControlLabel disabled={disabled} value={"sdf"} control={<Radio onClick={() => CustomDialog.open({})} checked={false} />} label={t("cardinality custom") as string} />
 
         <CustomDialog.Component onConfirm={cardinality => {
             setCustom(cardinality);

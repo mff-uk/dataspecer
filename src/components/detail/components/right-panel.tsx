@@ -222,7 +222,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     {t('title cardinality')}
                 </Typography>
 
-                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} />}
+                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
             </Box>
         }
     </>
