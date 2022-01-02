@@ -12,6 +12,7 @@ import {
   DataPsmClassReference,
   DataPsmSchema
 } from "../../data-psm/model";
+import {PimAssociationEnd, PimAttribute} from "../../pim/model";
 
 class StructureModelAdapter {
 
@@ -128,8 +129,20 @@ class StructureModelAdapter {
     model.humanLabel = associationEndData.dataPsmHumanLabel;
     model.humanDescription = associationEndData.dataPsmHumanDescription;
     model.technicalLabel = associationEndData.dataPsmTechnicalLabel;
-    model.cardinalityMin = 0;
-    model.cardinalityMax = null;
+
+    const pimAssociationEndData = await this.reader.readResource(
+      associationEndData.dataPsmInterpretation,
+    );
+    if (pimAssociationEndData === null) {
+      model.cardinalityMin = 0;
+      model.cardinalityMax = null;
+    } else if (PimAssociationEnd.is(pimAssociationEndData)) {
+      model.cardinalityMin = pimAssociationEndData.pimCardinalityMin ?? 0;
+      model.cardinalityMax = pimAssociationEndData.pimCardinalityMax;
+    } else {
+      throw new Error(
+        `Invalid association end '${associationEndData.iri}' interpretation.`);
+    }
 
     // The association end may point to class or class reference.
     const part = await this.reader.readResource(associationEndData.dataPsmPart);
@@ -159,8 +172,20 @@ class StructureModelAdapter {
     model.humanLabel = attributeData.dataPsmHumanLabel;
     model.humanDescription = attributeData.dataPsmHumanDescription;
     model.technicalLabel = attributeData.dataPsmTechnicalLabel;
-    model.cardinalityMin = 0;
-    model.cardinalityMax = null;
+
+    const pimAttributeData = await this.reader.readResource(
+      attributeData.dataPsmInterpretation,
+    );
+    if (pimAttributeData === null) {
+      model.cardinalityMin = 0;
+      model.cardinalityMax = null;
+    } else if (PimAttribute.is(pimAttributeData)) {
+      model.cardinalityMin = pimAttributeData.pimCardinalityMin ?? 0;
+      model.cardinalityMax = pimAttributeData.pimCardinalityMax;
+    } else {
+      throw new Error(
+        `Invalid attribute '${attributeData.iri}' interpretation.`);
+    }
 
     const type = new StructureModelPrimitiveType();
     type.dataType = attributeData.dataPsmDatatype;
