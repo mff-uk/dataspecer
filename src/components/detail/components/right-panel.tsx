@@ -16,8 +16,10 @@ import {SetClassCodelist} from "../../../operations/set-class-codelist";
 import {useDialogSaveStatus} from "../dialog-save";
 import {CardContent} from "../../../mui-overrides";
 import {TransitionGroup} from "react-transition-group";
+import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
+import {SetCardinality} from "../../../operations/set-cardinality";
 
-export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri, close}) => {
+export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const {store} = React.useContext(StoreContext);
 
     const {dataPsmResource: resource, pimResource, dataPsmResourceStore: resourcesStore, pimResourceStore} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, PimAttribute | PimAssociationEnd | PimClass>(iri);
@@ -25,7 +27,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const isAttribute = DataPsmAttribute.is(resource);
     const isAssociationEnd = DataPsmAssociationEnd.is(resource);
     const isClass = DataPsmClass.is(resource);
-    const isCodelist = (isClass && (pimResource as PimClass)?.pimIsCodelist) ?? false;
+    //const isCodelist = (isClass && (pimResource as PimClass)?.pimIsCodelist) ?? false;
 
     const readOnly = isReadOnly(resourcesStore);
     const pimReadOnly = isReadOnly(pimResourceStore);
@@ -76,6 +78,22 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         useCallback(
             async () => pimResource && await store.executeOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
             [pimResource, codelistUrl]
+        ),
+    );
+
+    const [cardinality, setCardinality] = useState<Cardinality | null>(null);
+
+    useEffect(() => {
+        if (isAttribute || isAssociationEnd) {
+            setCardinality(cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd));
+        }
+    }, [pimResource, isAttribute, isAssociationEnd]);
+
+    useDialogSaveStatus(
+        (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd)),
+        useCallback(
+            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
+            [pimResource, cardinality]
         ),
     );
 
@@ -195,6 +213,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 </Typography>
 
                 <DatatypeSelector disabled={readOnly} value={datatype} onChange={setDatatype} options={knownDatatypes}/>
+            </Box>
+        }
+
+        {(isAttribute || isAssociationEnd) &&
+            <Box sx={{mb: 3}}>
+                <Typography variant="subtitle1" component="h2">
+                    {t('title cardinality')}
+                </Typography>
+
+                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} />}
             </Box>
         }
     </>

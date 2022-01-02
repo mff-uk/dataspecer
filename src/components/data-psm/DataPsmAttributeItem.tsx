@@ -17,9 +17,12 @@ import {isReadOnly} from "../../store/federated-observable-store";
 import {ItemRow} from "./item-row";
 import {MenuItem} from "@mui/material";
 import {Icons} from "../../icons";
+import {getCardinalityFromResource} from "./common/cardinality";
+import {PimAttribute} from "model-driven-data/pim/model";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri}) => {
     const {resource: dataPsmAttribute, isLoading, store: dataPsmAttributeStore} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
+    const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
     const readOnly = isReadOnly(dataPsmAttributeStore);
 
     const dialog = useToggle();
@@ -65,6 +68,8 @@ export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = me
                                     {' : '}
                                     <Datatype iri={dataPsmAttribute.dataPsmDatatype} className={styles.type} />
                                 </>}
+
+                                {pimAttribute && (" " + getCardinalityFromResource(pimAttribute))}
                             </>}
                         </span>
                     </>

@@ -28,6 +28,7 @@ import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings"
 import {useDialog} from "../../dialog";
 import {Icons} from "../../icons";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference/replace-association-with-reference-dialog";
+import {getCardinalityFromResource} from "./common/cardinality";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -146,6 +147,8 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                         {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
                             <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
                         }
+
+                        {pimAssociationEnd && (" " + getCardinalityFromResource(pimAssociationEnd))}
                     </>}
                     </span>
         </ItemRow>
