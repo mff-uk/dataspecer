@@ -15,6 +15,7 @@ import {
 import {executePimSetTechnicalLabel} from "./pim-set-technical-label-executor";
 import {executePimSetExtends} from "./pim-set-extends-executor";
 import {executePimSetClassCodelist} from "./pim-set-class-codelist-executor";
+import {executePimSetCardinality} from "./pim-set-cardinality-executor";
 
 export const pimExecutors: CoreOperationExecutor<any>[] = [
   CoreOperationExecutor.create(
@@ -45,6 +46,10 @@ export const pimExecutors: CoreOperationExecutor<any>[] = [
     Operations.PimDeleteClass.is,
     executePimDeleteClass,
     Operations.PimDeleteClass.TYPE),
+  CoreOperationExecutor.create(
+    Operations.PimSetCardinality.is,
+    executePimSetCardinality,
+    Operations.PimSetCardinality.TYPE),
   CoreOperationExecutor.create(
     Operations.PimSetClassCodelist.is,
     executePimSetClassCodelist,
