@@ -64,7 +64,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const {t} = useTranslation("detail");
 
     useDialogSaveStatus(
-        resource !== null && resource.dataPsmTechnicalLabel !== technicalLabel,
+        resource !== null && (resource.dataPsmTechnicalLabel ?? "") !== technicalLabel,
         useCallback(async () => resource && await store.executeOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 

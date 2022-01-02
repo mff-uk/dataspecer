@@ -10,10 +10,9 @@ const StyledDialogTitle = styled(MuiDialogTitle)({
     fontWeight: "normal",
 });
 
-
-export const DialogTitle: React.FC<DialogTitleProps & {close?: () => void}> = (props) => <StyledDialogTitle {...props}>
+export const DialogTitle: React.FC<DialogTitleProps & {close?: () => void}> = ({close, ...props}) => <StyledDialogTitle {...props}>
     {props.children}
-    {props.close && <CloseDialogButton onClick={props.close}/>}
+    {close && <CloseDialogButton onClick={close}/>}
 </StyledDialogTitle>;
 
 export const DialogContent = styled(MuiDialogContent)(({theme}) => ({

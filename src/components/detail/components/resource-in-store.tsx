@@ -84,7 +84,7 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
 
                     <Card>
                         <CardContent>
-                            <Typography variant="body2">
+                            <Typography variant="body2" component={"div"}>
                                 {resource.store?.metadata.tags.includes("read-only") ?
                                     <div><CloseOutlinedIcon color="error" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is read-only")}</div> :
                                     <div><CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is editable")}</div>

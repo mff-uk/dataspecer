@@ -46,7 +46,7 @@ export const AssociationItem: React.FC<{
             {isCodelist && <CodelistSpan><ListRoundedIcon fontSize={"small"} sx={{verticalAlign: "top", mr: ".0rem"}} /> {t("codelist")} </CodelistSpan>}
                 <LanguageStringUndefineable from={association.pimHumanDescription}>
                     {text =>
-                        text !== undefined ? <Typography variant="body2" color="textSecondary" noWrap title={text}>{text}</Typography> : <></>
+                        text !== undefined ? <Typography variant="body2" color="textSecondary" component={"span"} noWrap title={text}>{text}</Typography> : <></>
                     }
                 </LanguageStringUndefineable>
             </>}>

@@ -26,7 +26,7 @@ import {StoreByPropertyDescriptor} from "../../store/operation-executor";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");
-    const component = useAsyncMemo(async () => {
+    const [component] = useAsyncMemo(async () => {
         if (content) {
             try {
                 return await content;
