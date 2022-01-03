@@ -99,24 +99,28 @@ export class ArtifactBuilder {
         }
         const store = this.store;
 
-        const pimSchemaIri = (await this.store.listResourcesOfType(PIM_SCHEMA, new StoreByPropertyDescriptor(['root', 'pim'])))[0];
-        const dataPsmIris = await this.store.listResourcesOfType(DATA_PSM_SCHEMA, new StoreByPropertyDescriptor(['root', 'data-psm']));
+        try {
+            const pimSchemaIri = (await this.store.listResourcesOfType(PIM_SCHEMA, new StoreByPropertyDescriptor(['root', 'pim'])))[0];
+            const dataPsmIris = await this.store.listResourcesOfType(DATA_PSM_SCHEMA, new StoreByPropertyDescriptor(['root', 'data-psm']));
 
-        const conceptualModel = await coreResourcesToConceptualModel(store, pimSchemaIri);
-        const structureModels = await Promise.all(dataPsmIris.map(iri => coreResourcesToStructuralModel(store, iri)));
-        const modelsToWebSpecificationConfiguration = createModelsToWebSpecificationConfiguration();
+            const conceptualModel = await coreResourcesToConceptualModel(store, pimSchemaIri);
+            const structureModels = await Promise.all(dataPsmIris.map(iri => coreResourcesToStructuralModel(store, iri)));
+            const modelsToWebSpecificationConfiguration = createModelsToWebSpecificationConfiguration();
 
-        if (conceptualModel === null) {
-            throw new Error("Empty conceptual model.");
+            if (conceptualModel === null) {
+                throw new Error("Empty conceptual model.");
+            }
+
+            const webSpecification = modelsToWebSpecification(conceptualModel, structureModels.filter((a => a !== null) as ((a: any) => a is StructureModel)), modelsToWebSpecificationConfiguration);
+
+            const bikeshed = webSpecificationToBikeshed(webSpecification);
+            const stream = new MemoryOutputStream();
+            await writeBikeshed(bikeshed, stream);
+
+            await writer.file("documentation.bs", stream.getContent());
+        } catch (error) {
+            await writer.file("documentation.bs.error", (error as Error).message);
         }
-
-        const webSpecification = modelsToWebSpecification(conceptualModel, structureModels.filter((a => a !== null) as ((a: any) => a is StructureModel)), modelsToWebSpecificationConfiguration);
-
-        const bikeshed = webSpecificationToBikeshed(webSpecification);
-        const stream = new MemoryOutputStream();
-        await writeBikeshed(bikeshed, stream);
-
-        await writer.file("documentation.bs", stream.getContent());
     }
 
     private async writeJsonSchema(writer: ArchiveWriter, psmSchemaIri: string) {
