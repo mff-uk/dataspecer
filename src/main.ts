@@ -9,9 +9,9 @@ import {
 } from "./routes/specification";
 import {readStore, writeStore} from "./routes/store";
 import {StoreModel} from "./models/StoreModel";
-import {createDataPsm, deleteDataPsm} from "./routes/dataPsm";
+import {createDataPsm, deleteDataPsm, modifyDataPsm} from "./routes/dataPsm";
 import cors from "cors";
-import {configurationByDataPsm} from "./routes/configuration";
+import {configurationByDataPsm, configurationBySpecification} from "./routes/configuration";
 import bodyParser from "body-parser";
 
 require('dotenv').config();
@@ -37,12 +37,14 @@ application.delete('/specification/:specificationId', deleteSpecification);
 application.put('/specification/:specificationId', modifySpecification);
 
 application.post('/specification/:specificationId/data-psm', createDataPsm);
+application.post('/specification/:specificationId/data-psm/:dataPsmId', modifyDataPsm);
 application.delete('/specification/:specificationId/data-psm/:dataPsmId', deleteDataPsm);
 
 application.get('/store/:storeId', readStore);
 application.put('/store/:storeId', writeStore);
 
 application.get('/configuration/by-data-psm/:dataPsmId', configurationByDataPsm);
+application.get('/configuration/by-specification/:specificationId', configurationBySpecification);
 
 application.listen(Number(process.env.PORT), () =>
     console.log(`Server ready at: http://localhost:${Number(process.env.PORT)}`)

@@ -23,6 +23,11 @@ model DataStructure {
   name                       String?
   store                      String
 
+  // Whether to generate xml artifact
+  artifact_xml Boolean @default(false)
+  // Whether to generate json artifact
+  artifact_json Boolean @default(false)
+
   belongsToDataSpecification DataSpecification @relation(fields: [DataSpecificationId], references: [id])
   DataSpecificationId        String
 }
