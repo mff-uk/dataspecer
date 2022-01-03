@@ -7,6 +7,10 @@ import {StoreInfo} from "./store-info";
 import {ReuseDataSpecifications} from "./reuse-data-specifications";
 import {DataSpecification} from "../../interfaces/data-specification";
 import AddIcon from "@mui/icons-material/Add";
+import {ArtifactBuilder} from "../../artifacts";
+import {DataStructureRow} from "./data-structure-row";
+import {Configuration} from "../../shared/configuration";
+import {saveAs} from "file-saver";
 
 const schemaGeneratorUrls = (process.env.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
     .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
@@ -15,11 +19,6 @@ const schemaGeneratorUrls = (process.env.REACT_APP_SCHEMA_GENERATOR as string).s
 export const Specification: React.FC = () => {
     let {specificationId} = useParams();
     const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
-
-    const deleteDataPsm = useCallback(async (id: string) => {
-        await axios.delete(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${id}`);
-        reloadSpecification?.();
-    }, [reloadSpecification, specificationId]);
 
     const createDataStructure = useCallback(async () => {
         const result = await axios.post(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
@@ -30,6 +29,13 @@ export const Specification: React.FC = () => {
 
         window.location.href = urlObject.href;
     }, [specificationId]);
+
+    const generateZip = async () => {
+        const result = await axios.get<Configuration>(`${process.env.REACT_APP_BACKEND}/configuration/by-specification/${specificationId}`);
+        const generator = new ArtifactBuilder(result.data);
+        const data = await generator.build();
+        saveAs(data, "artifact.zip");
+    };
 
     return <>
         <Box height="30px"/>
@@ -51,51 +57,14 @@ export const Specification: React.FC = () => {
                         <TableCell sx={{width: "25%"}}>Name</TableCell>
                         <TableCell>Operations</TableCell>
                         <TableCell>Resources</TableCell>
+                        <TableCell align="center">JSON</TableCell>
+                        <TableCell align="center">XML</TableCell>
                         <TableCell align="right">Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {specification?.data.hasDataStructures.map(dataStructure =>
-                        <TableRow key={dataStructure.id}>
-                            <StoreInfo storeId={dataStructure?.store ?? null}>
-                                {(name, operations, resources) =>
-                                    <>
-                                        <TableCell component="th" scope="row" sx={{width: "25%"}}>
-                                            <Typography sx={{fontWeight: "bold"}}>
-                                                {name ?? "-"}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography>{operations ?? "-"}</Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography>{resources ?? "-"}</Typography>
-                                        </TableCell>
-                                    </>
-                                }
-                            </StoreInfo>
-
-                            <TableCell align="right">
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        gap: "1rem",
-                                        justifyContent: "flex-end"
-                                    }}>
-                                    {schemaGeneratorUrls.map(([branch, url]) => {
-                                            const urlObject = new URL(url);
-                                            urlObject.searchParams.append('configuration', `${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
-                                            return <Button variant={"contained"} color={"primary"} key={url} href={urlObject.toString()}>Edit ({branch})</Button>;
-                                        }
-                                    )}
-                                    <Button variant="outlined" color={"primary"} href={`${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`}>See configuration</Button>
-                                    <Button
-                                        variant="outlined"
-                                        color={"error"}
-                                        onClick={() => deleteDataPsm(dataStructure.id)}>Delete</Button>
-                                </Box>
-                            </TableCell>
-                        </TableRow>
+                        <DataStructureRow dataStructure={dataStructure} schemaGeneratorUrls={schemaGeneratorUrls} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
                     )}
                 </TableBody>
             </Table>
@@ -135,6 +104,20 @@ export const Specification: React.FC = () => {
                 </TableBody>
             </Table>
         </TableContainer>
+
+
+        <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
+            Generate artifacts
+        </Typography>
+        <Box sx={{
+            height: "5rem",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        }}>
+            <Button variant="contained" onClick={generateZip}>Generate .ZIP file</Button>
+        </Box>
+
 
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
             Technical properties
