@@ -12,7 +12,7 @@ import {
   DataPsmClassReference,
   DataPsmSchema
 } from "../../data-psm/model";
-import {PimAssociationEnd, PimAttribute} from "../../pim/model";
+import {PimAssociationEnd, PimAttribute, PimClass} from "../../pim/model";
 
 class StructureModelAdapter {
 
@@ -72,6 +72,20 @@ class StructureModelAdapter {
     this.classes[classData.iri] = model;
     //
     this.psmClassToModel(classData, model);
+    //
+    const pimClassData = await this.reader.readResource(
+      classData.dataPsmInterpretation,
+    );
+    if (pimClassData !== null) {
+      if (PimClass.is(pimClassData)) {
+        model.isCodelist = pimClassData.pimIsCodelist;
+        model.codelistUrl = pimClassData.pimCodelistUrl;
+      } else {
+        throw new Error(
+          "Unsupported data PSM interpretation entity " +
+          `'${classData.dataPsmInterpretation}'.`);
+      }
+    }
     // When loading extends we may end up in another specification,
     // to deal with that we may need to change here.
     for (const iri of classData.dataPsmExtends) {
