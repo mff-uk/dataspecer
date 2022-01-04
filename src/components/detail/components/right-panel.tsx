@@ -70,7 +70,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useDialogSaveStatus(
         resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
-        useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype) ?? "")), [resource, store, datatype]),
+        useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype))), [resource, store, datatype]),
     );
 
     useDialogSaveStatus(

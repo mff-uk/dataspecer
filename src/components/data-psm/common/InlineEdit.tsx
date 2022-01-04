@@ -9,6 +9,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 
+function emptyStringToNull(value: string | null) {
+    return value === "" ? null : value;
+}
+
 /**
  * Renders inline form to edit technical label and datatype optionally
  */
@@ -27,8 +31,8 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
     if (label !== dataPsmResource.dataPsmTechnicalLabel) {
       await store.executeOperation(new SetTechnicalLabel(dataPsmResource.iri as string, label));
     }
-    if (resourceType === "attribute" && datatype !== dataPsmAttribute.dataPsmDatatype) {
-      await store.executeOperation(new SetDataPsmDatatype(dataPsmResource.iri as string, datatype));
+    if (resourceType === "attribute" && emptyStringToNull(datatype) !== dataPsmAttribute.dataPsmDatatype) {
+      await store.executeOperation(new SetDataPsmDatatype(dataPsmResource.iri as string, emptyStringToNull(datatype)));
     }
     close();
   };
