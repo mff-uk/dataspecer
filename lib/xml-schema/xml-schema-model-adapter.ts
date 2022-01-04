@@ -16,6 +16,8 @@ import {
   XmlSchemaType,
 } from "./xml-schema-model";
 
+import {XSD} from "../well-known/xsd";
+
 export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
   const adapter = new XmlSchemaAdapter(schema.classes);
   return adapter.fromRoots(schema.roots);
@@ -24,14 +26,34 @@ export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
 const anyUriType: StructureModelPrimitiveType = (function()
 {
   const type = new StructureModelPrimitiveType();
-  type.dataType = "http://www.w3.org/2001/XMLSchema#anyURI";
+  type.dataType = XSD.anyURI;
   return type;
 })();
 
 /**
- * Temporary map from datatype URIs to QNames, if needed.
+ * Map from datatype URIs to QNames, if needed.
  */
-const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {};
+const TYPE_PREFIX = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
+const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
+  [TYPE_PREFIX + "boolean"]:
+    ["xs", "boolean"],
+  [TYPE_PREFIX + "datum"]:
+    ["xs", "date"],
+  [TYPE_PREFIX + "čas"]:
+    ["xs", "time"],
+  [TYPE_PREFIX + "datum-a-čas"]:
+    ["xs", "dateTimeStamp"],
+  [TYPE_PREFIX + "celé-číslo"]:
+    ["xs", "integer"],
+  [TYPE_PREFIX + "desetinné-číslo"]:
+    ["xs", "decimal"],
+  [TYPE_PREFIX + "url"]:
+    ["xs", "anyURI"],
+  [TYPE_PREFIX + "řetězec"]:
+    ["xs", "string"],
+  [TYPE_PREFIX + "text"]:
+    ["xs", "string"], //TODO xml:lang
+};
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
@@ -211,6 +233,6 @@ class XmlSchemaAdapter {
     }
     return primitiveData.dataType.startsWith(xsdNamespace) ?
       ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
-      simpleTypeMap[primitiveData.dataType];
+      (simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"]);
   }
 }
