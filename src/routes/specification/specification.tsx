@@ -11,6 +11,7 @@ import {ArtifactBuilder} from "../../artifacts";
 import {DataStructureRow} from "./data-structure-row";
 import {Configuration} from "../../shared/configuration";
 import {saveAs} from "file-saver";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const schemaGeneratorUrls = (process.env.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
     .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
@@ -30,11 +31,14 @@ export const Specification: React.FC = () => {
         window.location.href = urlObject.href;
     }, [specificationId]);
 
+    const [zipLoading, setZipLoading] = React.useState(false);
     const generateZip = async () => {
+        setZipLoading(true);
         const result = await axios.get<Configuration>(`${process.env.REACT_APP_BACKEND}/configuration/by-specification/${specificationId}`);
         const generator = new ArtifactBuilder(result.data);
         const data = await generator.build();
         saveAs(data, "artifact.zip");
+        setZipLoading(false);
     };
 
     return <>
@@ -115,7 +119,7 @@ export const Specification: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
         }}>
-            <Button variant="contained" onClick={generateZip}>Generate .ZIP file</Button>
+            <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading}>Generate .ZIP file</LoadingButton>
         </Box>
 
 

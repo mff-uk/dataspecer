@@ -15,6 +15,7 @@ import {SCHEMA as DATA_PSM_SCHEMA} from "model-driven-data/data-psm/data-psm-voc
 import {structureModelToJsonSchema} from "model-driven-data/json-schema/json-schema-model-adapter";
 import {writeJsonSchema} from "model-driven-data/json-schema/json-schema-writer";
 import {objectModelToXmlSchema, writeXmlSchema} from "model-driven-data/xml-schema";
+import {BikeshedGenerator} from "./bikeshed-generator";
 
 
 export class ArtifactBuilder {
@@ -118,6 +119,11 @@ export class ArtifactBuilder {
             await writeBikeshed(bikeshed, stream);
 
             await writer.file("documentation.bs", stream.getContent());
+
+            const generatedBikeshed = await (new BikeshedGenerator()).generate(stream.getContent());
+            if (generatedBikeshed) {
+                await writer.file("documentation.html", generatedBikeshed);
+            }
         } catch (error) {
             await writer.file("documentation.bs.error", (error as Error).message);
         }
