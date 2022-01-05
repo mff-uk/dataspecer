@@ -1,29 +1,33 @@
 const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 const fs = require("fs");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 /**
  * Reads the lib directory and fills {@link files} object as entrypoint map
  * for webpack
  */
-function readDirectory(directory, files) {
+function readDirectory(directory, collector) {
   for (const fileName of fs.readdirSync("./lib/" + directory)) {
     const moduleFileName = directory + fileName;
     const fullFileName = "./lib/" + moduleFileName;
     const type = fs.lstatSync(fullFileName);
 
     if (type.isDirectory()) {
-      readDirectory(moduleFileName + "/", files);
-    } else if (type.isFile() &&
-      (moduleFileName.endsWith(".ts") || moduleFileName.endsWith(".js")) &&
-      !moduleFileName.endsWith(".spec.ts")) {
-      files[moduleFileName.substr(0, moduleFileName.length - 3)] = {
+      readDirectory(moduleFileName + "/", collector);
+    } else if (type.isFile() && isFileToInclude(moduleFileName)) {
+      collector[moduleFileName.substr(0, moduleFileName.length - 3)] = {
         "import": fullFileName,
       };
     }
   }
+}
+
+function isFileToInclude(path) {
+  const isSourceFile = path.endsWith(".ts") || path.endsWith(".js");
+  const isTestFile = path.includes(".spec.") || path.includes(".test.");
+  return isSourceFile && !isTestFile;
 }
 
 const files = {};
