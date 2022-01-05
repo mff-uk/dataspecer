@@ -1,3 +1,4 @@
+
 export class JsonSchema {
 
   schema: string | null = "https://json-schema.org/draft/2020-12/schema";
@@ -107,11 +108,11 @@ export class JsonSchemaString extends JsonSchemaDefinition {
 
   private static TYPE = "json-schema-string";
 
-  // iri
   format: string | null = null;
 
-  constructor() {
+  constructor(format: string | null) {
     super(JsonSchemaString.TYPE);
+    this.format = format;
   }
 
   static is(resource: JsonSchemaDefinition): resource is JsonSchemaString {
@@ -170,7 +171,6 @@ export class JsonSchemaConst extends JsonSchemaDefinition {
 
 }
 
-// https://raw.githubusercontent.com/ropensci/geojsonlint/master/inst/schema/geojson.json
 export class JsonSchemaEnum extends JsonSchemaDefinition {
 
   private static TYPE = "json-schema-enum";
@@ -186,3 +186,11 @@ export class JsonSchemaEnum extends JsonSchemaDefinition {
   }
 
 }
+
+// https://json-schema.org/understanding-json-schema/reference/string.html
+export const JsonSchemaStringFormats = {
+  "dateTime": "date-time",
+  "time": "time",
+  "date": "date",
+  "iri": "iri",
+};

@@ -1,20 +1,20 @@
 import {
   JsonSchema, JsonSchemaAnyOf, JsonSchemaArray, JsonSchemaBoolean,
   JsonSchemaDefinition, JsonSchemaNull, JsonSchemaNumber,
-  JsonSchemaObject, JsonSchemaString
+  JsonSchemaObject, JsonSchemaString, JsonSchemaStringFormats,
 } from "./json-schema-model";
 import {
   assert,
   assertFailed,
   defaultStringSelector,
-  StringSelector
+  StringSelector,
 } from "../core";
 import {
   StructureModel,
   StructureModelClass, StructureModelPrimitiveType,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../structure-model";
-import {XSD} from "../well-known";
+import {XSD, OFN, OFN_LABELS} from "../well-known";
 
 /**
  * The {@link StructureModel} must have all properties propagated to
@@ -26,22 +26,25 @@ export function structureModelToJsonSchema(
 ): JsonSchema {
   const result = new JsonSchema();
   assert(model.roots.length === 1, "Exactly one root class must be provided.");
-  result.root = structureModelClassToJsonObject(
+  result.root = structureModelClassToJsonSchemaDefinition(
     model, model.classes[model.roots[0]], stringSelector);
   return result;
 }
 
-function structureModelClassToJsonObject(
+function structureModelClassToJsonSchemaDefinition(
   model: StructureModel,
   modelClass: StructureModelClass,
   stringSelector: StringSelector,
-): JsonSchemaObject {
+): JsonSchemaDefinition {
+  if (modelClass.isCodelist) {
+    return structureModelClassCodelist();
+  }
+  if (modelClass.properties.length === 0) {
+    return structureModelClassEmpty();
+  }
   const result = new JsonSchemaObject();
   result.title = stringSelector(modelClass.humanLabel);
   result.description = stringSelector(modelClass.humanDescription);
-  if (modelClass.isCodelist) {
-    assertFailed("Not supported");
-  }
   for (const property of modelClass.properties) {
     const name = property.technicalLabel;
     result.properties[name] = structureModelPropertyToJsonDefinition(
@@ -53,6 +56,14 @@ function structureModelClassToJsonObject(
   return result;
 }
 
+function structureModelClassCodelist(): JsonSchemaDefinition {
+  return new JsonSchemaString(JsonSchemaStringFormats.iri);
+}
+
+function structureModelClassEmpty(): JsonSchemaDefinition {
+  return new JsonSchemaString(JsonSchemaStringFormats.iri);
+}
+
 function structureModelPropertyToJsonDefinition(
   model: StructureModel,
   property: StructureModelProperty,
@@ -62,10 +73,11 @@ function structureModelPropertyToJsonDefinition(
   for (const dataType of property.dataTypes) {
     if (dataType.isAssociation()) {
       const classData = model.classes[dataType.psmClassIri];
-      dataTypes.push(structureModelClassToJsonObject(
+      dataTypes.push(structureModelClassToJsonSchemaDefinition(
         model, classData, stringSelector));
     } else if (dataType.isAttribute()) {
-      dataTypes.push(structureModelPrimitiveToJsonDefinition(dataType));
+      dataTypes.push(structureModelPrimitiveToJsonDefinition(
+        dataType, stringSelector));
     } else {
       assertFailed("Invalid data-type instance.");
     }
@@ -89,7 +101,7 @@ function structureModelPropertyToJsonDefinition(
 }
 
 function wrapWithCardinality(
-  property: StructureModelProperty, definition: JsonSchemaDefinition
+  property: StructureModelProperty, definition: JsonSchemaDefinition,
 ): JsonSchemaDefinition {
   if (property.cardinalityMax == 1) {
     return definition;
@@ -100,27 +112,69 @@ function wrapWithCardinality(
 }
 
 function structureModelPrimitiveToJsonDefinition(
-  primitive: StructureModelPrimitiveType
+  primitive: StructureModelPrimitiveType,
+  selectString: StringSelector,
 ): JsonSchemaDefinition {
-  let result: JsonSchemaDefinition;
+  let result;
   switch (primitive.dataType) {
     case XSD.string:
-      result = new JsonSchemaString();
+    case OFN.string:
+      result = new JsonSchemaString(null);
+      result.title = selectString(OFN_LABELS[OFN.string]);
       break;
     case XSD.decimal:
+    case OFN.decimal:
       result = new JsonSchemaNumber();
+      result.title = selectString(OFN_LABELS[OFN.decimal]);
       break;
     case XSD.integer:
+    case OFN.integer:
       result = new JsonSchemaNumber();
+      result.title = selectString(OFN_LABELS[OFN.integer]);
       break;
     case XSD.boolean:
+    case OFN.boolean:
       result = new JsonSchemaBoolean();
+      result.title = selectString(OFN_LABELS[OFN.boolean]);
+      break;
+    case OFN.time:
+      result = new JsonSchemaString(JsonSchemaStringFormats.time);
+      result.title = selectString(OFN_LABELS[OFN.time]);
+      break;
+    case OFN.date:
+      result = new JsonSchemaString(JsonSchemaStringFormats.date);
+      result.title = selectString(OFN_LABELS[OFN.date]);
+      break;
+    case OFN.dateTime:
+      result = new JsonSchemaString(JsonSchemaStringFormats.dateTime);
+      result.title = selectString(OFN_LABELS[OFN.dateTime]);
+      break;
+    case OFN.url:
+      result = new JsonSchemaString(JsonSchemaStringFormats.iri);
+      result.title = selectString(OFN_LABELS[OFN.url]);
+      break;
+    case OFN.text:
+      result = languageString();
+      result.title = selectString(OFN_LABELS[OFN.text]);
       break;
     default:
-      result = new JsonSchemaString();
+      result = new JsonSchemaString(null);
+      result.title = primitive.dataType;
       break;
   }
-  // TODO We need a way how to get the data here.
-  result.title = "";
+  return result;
+}
+
+function languageString(): JsonSchemaObject {
+  const result = new JsonSchemaObject();
+
+  const cs = new JsonSchemaString(null);
+  result.properties["cs"] = cs;
+  cs.title = "Hodnota v českém jazyce";
+
+  const en = new JsonSchemaString(null);
+  result.properties["en"] = en;
+  en.title = "Hodnota v anglickém jazyce";
+
   return result;
 }
