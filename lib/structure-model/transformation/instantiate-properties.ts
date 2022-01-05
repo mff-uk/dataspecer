@@ -29,7 +29,7 @@ function collectProperties(
   const stack = [...classData.extends];
   while (stack.length > 0) {
     const ancestorClass = stack.pop();
-    if (ancestorClass === undefined) {
+    if (ancestorClass === null || ancestorClass === undefined) {
       continue;
     }
     if (visited.has(ancestorClass.psmIri)) {

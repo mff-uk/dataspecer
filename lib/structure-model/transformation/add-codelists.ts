@@ -13,7 +13,7 @@ export function structureModelAddCodelists(
     const classData = {...structureClass} as StructureModelClass;
     result.classes[iri] = classData;
     const conceptualClass = conceptual.classes[classData.pimIri];
-    if (conceptualClass === null) {
+    if (conceptualClass === null || conceptualClass === undefined) {
       continue;
     }
     classData.isCodelist = conceptualClass.isCodelist;
