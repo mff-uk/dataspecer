@@ -13,6 +13,7 @@ import {createDataPsm, deleteDataPsm, modifyDataPsm} from "./routes/dataPsm";
 import cors from "cors";
 import {configurationByDataPsm, configurationBySpecification} from "./routes/configuration";
 import bodyParser from "body-parser";
+import { generateBikeshedRoute } from "./routes/bikeshed";
 
 require('dotenv').config();
 
@@ -46,6 +47,9 @@ application.put('/store/:storeId', writeStore);
 application.get('/configuration/by-data-psm/:dataPsmId', configurationByDataPsm);
 application.get('/configuration/by-specification/:specificationId', configurationBySpecification);
 
+application.post('/transformer/bikeshed', bodyParser.text({type:"*/*"}), generateBikeshedRoute);
+
 application.listen(Number(process.env.PORT), () =>
     console.log(`Server ready at: http://localhost:${Number(process.env.PORT)}`)
 );
+
