@@ -1,6 +1,3 @@
-import * as fileSystem from "fs";
-import * as path from "path";
-
 import {Bikeshed} from "./bikeshed-model";
 import {
   DocumentationModelConceptual,
@@ -13,33 +10,6 @@ import {
 
 } from "../documentation-model";
 import {OutputStream} from "../io/stream/output-stream";
-
-export async function saveBikeshedToDirectory(
-  model: Bikeshed, directory: string, name: string,
-): Promise<void> {
-  if (!fileSystem.existsSync(directory)) {
-    fileSystem.mkdirSync(directory);
-  }
-
-  const outputStream = fileSystem.createWriteStream(
-    path.join(directory, name + ".bs"));
-
-  const result = new Promise<void>((accept, reject) => {
-    outputStream.on("close", accept);
-    outputStream.on("error", reject);
-  });
-
-  const stream = {
-    write: async chunk => {
-      await outputStream.write(chunk);
-    },
-  } as OutputStream;
-
-  await writeBikeshed(model, stream);
-  outputStream.end();
-
-  return result;
-}
 
 export async function writeBikeshed(
   model: Bikeshed, stream: OutputStream,
