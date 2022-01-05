@@ -32,12 +32,13 @@ export async function generateBikeshed(input: string): Promise<string> {
             try {
                 const inputFileName = path.join(dirPath, 'input.bs');
                 await fs.promises.writeFile(inputFileName, input);
-                await (new WrappedChildProcess("bikeshed", ["spec", inputFileName]))
+                await (new WrappedChildProcess("bikesheds", ["spec", inputFileName]))
                     .setWorkingDirectory(dirPath).execute();
                 const result = await fs.promises.readFile(path.join(dirPath, 'input.html'), 'utf8');
                 await rimrafPromise(dirPath);
                 resolve(result);
             } catch (e) {
+                console.log("generateBikeshed error:", e);
                 reject(e);
             }
         });

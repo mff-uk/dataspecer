@@ -1,4 +1,4 @@
-import {spawn, SpawnOptionsWithoutStdio} from 'child_process';
+import {spawn, SpawnOptionsWithoutStdio, ChildProcessWithoutNullStreams} from 'child_process';
 
 export class WrappedChildProcess {
     private readonly command: string;
@@ -45,12 +45,15 @@ export class WrappedChildProcess {
             child.stderr.on('data', (data: Buffer) => {
                 stderr += data.toString();
             });
-            child.on('close', (code: number) => {
+            child.on('exit', (code: number) => {
                 if (code === 0) {
                     resolve(stdout);
                 } else {
                     reject(stderr);
                 }
+            });
+            child.on('error', (error: Error) => {
+                reject(error);
             });
         });
     }
