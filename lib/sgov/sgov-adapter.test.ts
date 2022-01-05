@@ -83,8 +83,6 @@ describe("SgovAdapter.getSurroundings()", () => {
     const resources = await store.listResources();
 
     expect(resources).toEqual(expect.arrayContaining([
-      "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/"
-      + "dopustil-se-přestupku-řízení-technicky-nezpůsobilého-vozidla",
       "https://slovník.gov.cz/legislativní/sbírka/361/2000/pojem/přestupek",
     ].map(iriProvider.cimToPim)));
   });
