@@ -61,6 +61,11 @@ async function writeJsonSchemaObject(
   writer: JsonObjectWriter, schema: JsonSchemaObject
 ): Promise<void> {
   await writer.value("type", "object");
+  const required = writer.array("required");
+  for (const key of schema.required) {
+    await required.value(key);
+  }
+  await required.closeArray();
   const properties = writer.object("properties");
   for (const [key, value] of Object.entries(schema.properties)) {
     const property = properties.object(key);
