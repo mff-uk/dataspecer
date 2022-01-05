@@ -36,11 +36,17 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
         </>} readOnly={readOnly}>
             {dataPsmClass === undefined && <Skeleton />}
             {dataPsmClass &&
-                <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
-                    {(label, description) =>
-                        <span className={styles.class} title={description}>{label}</span>
+                <>
+                    <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmClassIri}>
+                        {(label, description) =>
+                            <span className={styles.class} title={description}>{label}</span>
+                        }
+                    </DataPsmGetLabelAndDescription>
+
+                    {typeof dataPsmClass.dataPsmTechnicalLabel === "string" && dataPsmClass.dataPsmTechnicalLabel.length > 0 &&
+                        <> (<span className={styles.technicalLabel}>{dataPsmClass.dataPsmTechnicalLabel}</span>)</>
                     }
-                </DataPsmGetLabelAndDescription>
+                </>
             }
         </ItemRow>
 
