@@ -1,10 +1,10 @@
 import React, {ReactElement} from "react";
-import {CoreResourceReader} from "model-driven-data/core";
+import {CoreResourceReader} from "@model-driven-data/core/lib/core";
 import {Box, Typography} from "@mui/material";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import {coreResourcesToStructuralModel} from "model-driven-data/structure-model";
+import {coreResourcesToStructuralModel} from "@model-driven-data/core/lib/structure-model";
 
 SyntaxHighlighter.registerLanguage("json", json);
 

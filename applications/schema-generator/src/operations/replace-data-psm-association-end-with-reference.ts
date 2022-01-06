@@ -1,7 +1,7 @@
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
-import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "model-driven-data/data-psm/operation";
-import {DataPsmAssociationEnd, DataPsmSchema} from "model-driven-data/data-psm/model";
+import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "@model-driven-data/core/lib/data-psm/operation";
+import {DataPsmAssociationEnd, DataPsmSchema} from "@model-driven-data/core/lib/data-psm/model";
 
 export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperation {
     private readonly dataPsmAssociationEnd: string;

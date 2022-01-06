@@ -1,5 +1,5 @@
-import {DataPsmResource} from "model-driven-data/data-psm/model";
-import {PimResource} from "model-driven-data/pim/model";
+import {DataPsmResource} from "@model-driven-data/core/lib/data-psm/model";
+import {PimResource} from "@model-driven-data/core/lib/pim/model";
 import {useResource} from "./useResource";
 
 /**

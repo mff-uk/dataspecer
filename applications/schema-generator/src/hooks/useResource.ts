@@ -1,4 +1,4 @@
-import {CoreResource} from "model-driven-data/core";
+import {CoreResource} from "@model-driven-data/core/lib/core";
 import React, {useCallback, useEffect, useState} from "react";
 import {StoreContext} from "../components/App";
 import {Resource, ResourceInfo} from "../store/resource";

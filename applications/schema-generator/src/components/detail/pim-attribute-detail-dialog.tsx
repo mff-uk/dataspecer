@@ -2,7 +2,7 @@ import React, {memo} from "react";
 import {Box, DialogContentText, Grid, Tab, Tabs} from "@mui/material";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {useResource} from "../../hooks/useResource";
-import {PimAttribute} from "model-driven-data/pim/model";
+import {PimAttribute} from "@model-driven-data/core/lib/pim/model";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {useTranslation} from "react-i18next";
 import {InDifferentLanguages} from "./components/InDifferentLanguages";

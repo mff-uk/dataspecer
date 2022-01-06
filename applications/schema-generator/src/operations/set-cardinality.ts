@@ -1,6 +1,6 @@
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
-import {PimSetCardinality} from "model-driven-data/pim/operation/pim-set-cardinality";
+import {PimSetCardinality} from "@model-driven-data/core/lib/pim/operation/pim-set-cardinality";
 
 export class SetCardinality implements ComplexOperation {
   readonly pimResource: string;

@@ -1,6 +1,6 @@
 import React, {ReactElement} from "react";
 import {Box, Typography} from "@mui/material";
-import {CoreResource, CoreResourceReader} from "model-driven-data/core";
+import {CoreResource, CoreResourceReader} from "@model-driven-data/core/lib/core";
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";

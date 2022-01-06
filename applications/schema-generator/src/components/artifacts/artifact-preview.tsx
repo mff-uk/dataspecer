@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from "react";
-import {CoreResourceReader} from "model-driven-data/core";
+import {CoreResourceReader} from "@model-driven-data/core/lib/core";
 import {Alert, Container, Fab, Paper} from "@mui/material";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {StoreContext} from "../App";

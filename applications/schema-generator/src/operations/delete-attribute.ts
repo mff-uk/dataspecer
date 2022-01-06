@@ -1,5 +1,5 @@
-import {DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
-import {DataPsmDeleteAttribute} from "model-driven-data/data-psm/operation";
+import {DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
+import {DataPsmDeleteAttribute} from "@model-driven-data/core/lib/data-psm/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 

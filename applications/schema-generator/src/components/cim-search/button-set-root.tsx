@@ -5,12 +5,12 @@ import {SearchDialog} from "./search-dialog";
 import {useToggle} from "../../hooks/useToggle";
 import {useTranslation} from "react-i18next";
 import {StoreContext} from "../App";
-import {PimClass} from "model-driven-data/pim/model";
+import {PimClass} from "@model-driven-data/core/lib/pim/model";
 import {CreateRootClass} from "../../operations/create-root-class";
 import {CreateSchema} from "../../operations/create-schema";
-import {MemoryStore} from "model-driven-data/core";
-import {dataPsmExecutors} from "model-driven-data/data-psm/executor";
-import {pimExecutors} from "model-driven-data/pim/executor";
+import {MemoryStore} from "@model-driven-data/core/lib/core";
+import {dataPsmExecutors} from "@model-driven-data/core/lib/data-psm/executor";
+import {pimExecutors} from "@model-driven-data/core/lib/pim/executor";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {languages} from "../../i18n";
 

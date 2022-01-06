@@ -1,5 +1,5 @@
 import React, {memo, useState} from "react";
-import {DataPsmAttribute, DataPsmResource} from "model-driven-data/data-psm/model";
+import {DataPsmAttribute, DataPsmResource} from "@model-driven-data/core/lib/data-psm/model";
 import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";

@@ -12,7 +12,7 @@ import {useTranslation} from "react-i18next";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {ObjectDump} from "../../helper/object-dump";
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import {MemoryStore, ReadOnlyFederatedStore, ReadOnlyMemoryStore} from "model-driven-data/core";
+import {MemoryStore, ReadOnlyFederatedStore, ReadOnlyMemoryStore} from "@model-driven-data/core/lib/core";
 import {SyncMemoryStore} from "../../../store/core-stores/sync-memory-store";
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 

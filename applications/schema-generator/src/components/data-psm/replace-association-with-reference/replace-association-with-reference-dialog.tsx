@@ -1,6 +1,6 @@
 import {Alert, Button, DialogActions, DialogContent, DialogTitle, Grid, List, ListItemButton, ListItemText} from "@mui/material";
 import {DataPsmSchemaItem} from "../DataPsmSchemaItem";
-import {DataPsmSchema} from "model-driven-data/data-psm/model";
+import {DataPsmSchema} from "@model-driven-data/core/lib/data-psm/model";
 import {useResource} from "../../../hooks/useResource";
 import React, {memo, useEffect, useState} from "react";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";

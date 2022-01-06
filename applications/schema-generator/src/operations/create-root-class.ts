@@ -1,10 +1,10 @@
-import {PimClass} from "model-driven-data/pim/model";
-import {DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "model-driven-data/data-psm/operation";
+import {PimClass} from "@model-driven-data/core/lib/pim/model";
+import {DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@model-driven-data/core/lib/data-psm/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor} from "../store/operation-executor";
 import {createPimClassIfMissing} from "./helper/pim";
-import {SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
-import {LanguageString} from "model-driven-data/core";
+import {SCHEMA} from "@model-driven-data/core/lib/data-psm/data-psm-vocabulary";
+import {LanguageString} from "@model-driven-data/core/lib/core";
 
 /**
  * For the given pimClass, it creates a new schema and new PIM and DataPSM classes representing the given class.

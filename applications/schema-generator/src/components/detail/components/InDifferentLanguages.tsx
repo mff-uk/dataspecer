@@ -1,9 +1,9 @@
 import React, {memo, useCallback, useMemo} from "react";
 import {Button, Card, CardContent, Grid, Typography} from "@mui/material";
-import {LanguageString} from "model-driven-data/core";
+import {LanguageString} from "@model-driven-data/core/lib/core";
 import {useResource} from "../../../hooks/useResource";
-import {PimClass} from "model-driven-data/pim/model";
-import {DataPsmClass} from "model-driven-data/data-psm/model";
+import {PimClass} from "@model-driven-data/core/lib/pim/model";
+import {DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
 import {SetPimLabelAndDescription} from "../../../operations/set-pim-label-and-description";
 import {DialogAppProviderContext} from "../../dialog-app-provider";
 import {StoreContext} from "../../App";

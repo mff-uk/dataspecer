@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {PimClass} from "model-driven-data/pim/model";
+import {PimClass} from "@model-driven-data/core/lib/pim/model";
 import {StoreContext} from "../components/App";
 import {Resource} from "../store/resource";
 

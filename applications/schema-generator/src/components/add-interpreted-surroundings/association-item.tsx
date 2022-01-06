@@ -3,7 +3,7 @@ import {Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} 
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {useResource} from "../../hooks/useResource";
-import {PimAssociation, PimClass} from "model-driven-data/pim/model";
+import {PimAssociation, PimClass} from "@model-driven-data/core/lib/pim/model";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {LanguageStringFallback, LanguageStringUndefineable} from "../helper/LanguageStringComponents";

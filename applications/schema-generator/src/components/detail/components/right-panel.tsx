@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useEffect, useState} from "react";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
 import {StoreContext} from "../../App";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
@@ -9,7 +9,7 @@ import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorV
 import {knownDatatypes} from "../../../utils/known-datatypes";
 import {isReadOnly} from "../../../store/federated-observable-store";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
-import {PimAssociationEnd, PimAttribute, PimClass} from "model-driven-data/pim/model";
+import {PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/lib/pim/model";
 import {Icons} from "../../../icons";
 import {isEqual} from "lodash";
 import {SetClassCodelist} from "../../../operations/set-class-codelist";

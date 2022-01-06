@@ -1,4 +1,7 @@
 {
+  "name": "schema-generator",
+  "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "@emotion/css": "^11.5.0",
     "@emotion/react": "^11.5.0",
@@ -34,7 +37,8 @@
     "react-scripts": "^4.0.3",
     "react-syntax-highlighter": "^15.4.4",
     "react-transition-group": "^4.4.2",
-    "rxjs": "^7.1.0"
+    "rxjs": "^7.1.0",
+    "@model-driven-data/core": "*"
   },
   "scripts": {
     "start": "react-scripts start",

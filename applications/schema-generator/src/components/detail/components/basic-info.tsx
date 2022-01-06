@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {LanguageString} from "model-driven-data/core";
+import {LanguageString} from "@model-driven-data/core/lib/core";
 import {Grid} from "@mui/material";
 import {InDifferentLanguages} from "./InDifferentLanguages";
 import {RightPanel} from "./right-panel";

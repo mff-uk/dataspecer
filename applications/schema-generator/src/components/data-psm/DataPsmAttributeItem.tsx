@@ -5,7 +5,7 @@ import {useTranslation} from "react-i18next";
 import {DataPsmDeleteButton} from "./class/DataPsmDeleteButton";
 import RemoveIcon from '@mui/icons-material/Remove';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
-import {DataPsmAttribute, DataPsmClass} from "model-driven-data/data-psm/model";
+import {DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
 import classNames from "classnames";
 import {StoreContext} from "../App";
 import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-dialog";
@@ -18,7 +18,7 @@ import {ItemRow} from "./item-row";
 import {MenuItem} from "@mui/material";
 import {Icons} from "../../icons";
 import {getCardinalityFromResource} from "./common/cardinality";
-import {PimAttribute} from "model-driven-data/pim/model";
+import {PimAttribute} from "@model-driven-data/core/lib/pim/model";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri}) => {
     const {resource: dataPsmAttribute, isLoading, store: dataPsmAttributeStore} = useResource<DataPsmAttribute>(dataPsmAttributeIri);

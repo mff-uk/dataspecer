@@ -1,6 +1,6 @@
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
-import {PimSetClassCodelist} from "model-driven-data/pim/operation";
+import {PimSetClassCodelist} from "@model-driven-data/core/lib/pim/operation";
 
 export class SetClassCodelist implements ComplexOperation {
     private readonly forPimClassIri: string;

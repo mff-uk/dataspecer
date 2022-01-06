@@ -1,8 +1,8 @@
 import React, {memo, useMemo} from "react";
 import {Box, DialogContentText, Tab, Tabs, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import {DataPsmAssociationEnd, DataPsmClass} from "model-driven-data/data-psm/model";
-import {PimAssociationEnd, PimClass} from "model-driven-data/pim/model";
+import {DataPsmAssociationEnd, DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
+import {PimAssociationEnd, PimClass} from "@model-driven-data/core/lib/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {usePimAssociationFromPimAssociationEnd} from "../data-psm/use-pim-association-from-pim-association-end";

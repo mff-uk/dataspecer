@@ -4,7 +4,7 @@ import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmClassItem} from "./DataPsmClassItem";
 import {createStyles, makeStyles} from "@mui/styles";
-import {DataPsmSchema} from "model-driven-data/data-psm/model";
+import {DataPsmSchema} from "@model-driven-data/core/lib/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";

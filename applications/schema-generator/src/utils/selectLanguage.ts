@@ -1,4 +1,4 @@
-import {LanguageString} from "model-driven-data/core";
+import {LanguageString} from "@model-driven-data/core/lib/core";
 
 export function selectLanguage(input: LanguageString, languages: readonly string[]): string | undefined {
     for (const language of languages) {
