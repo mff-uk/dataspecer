@@ -1,0 +1,9 @@
+{
+  "file without name": "nepojmenované schéma",
+  "import from file": "načíst",
+  "save to file": "uložit",
+  "snackbar load": {
+    "fail": "Nepodařilo se načíst soubor. Je možné, že byl vygenerován ve verzi, která již není podporována.",
+    "ok": "Soubor úspěšně načten."
+  }
+}
