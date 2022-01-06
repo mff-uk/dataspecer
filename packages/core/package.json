@@ -1,14 +1,14 @@
 {
   "name": "@model-driven-data/core",
-  "version": "1.0.0-alpha.0",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "build": "webpack -c build/webpack.config.js",
     "lint": "eslint --ignore-path .gitignore . --fix",
     "lint-print-config": "eslint --print-config .eslintrc.js",
     "pretest": "webpack -c build/webpack.config.js",
-    "spec": "jest \"^(.*\/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
-    "integration": "jest \"^(.*\/)*(.*\\.)*(test)\\.[jt]s$\" --passWithNoTests",
+    "unit-test": "jest \"^(.*\/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
+    "integration-test": "jest \"^(.*\/)*(.*\\.)*(test)\\.[jt]s$\" --passWithNoTests",
     "test": "jest",
     "tsc-watch": "tsc --watch"
   },
@@ -51,8 +51,5 @@
   },
   "browser": {
     "buffer": false
-  },
-  "precommit": {
-    "run": "test"
-  },
+  }
 }
