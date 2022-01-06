@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "moduleResolution": "node",
-    "outDir": "./dist/",
+    "outDir": "./lib/",
     "module": "es2020",
     "allowJs": true,
     "sourceMap": true,
@@ -13,5 +13,5 @@
     ],
     "allowSyntheticDefaultImports": true
   },
-  "include": ["lib", "@types"]
+  "include": ["src", "@types"]
 }

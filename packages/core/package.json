@@ -1,12 +1,9 @@
 {
-  "name": "model-driven-data",
-  "version": "0.0.1",
+  "name": "@model-driven-data/core",
+  "version": "1.0.0-alpha.0",
   "private": true,
-  "keywords": [
-    "model-driven"
-  ],
   "scripts": {
-    "build": "webpack -c build/webpack.config.js && cd dist && npm pack",
+    "build": "webpack -c build/webpack.config.js",
     "lint": "eslint --ignore-path .gitignore . --fix",
     "lint-print-config": "eslint --print-config .eslintrc.js",
     "pretest": "webpack -c build/webpack.config.js",
@@ -15,7 +12,6 @@
     "test": "jest",
     "tsc-watch": "tsc --watch"
   },
-  "license": "MIT",
   "dependencies": {
     "@types/jsonld": "^1.5.6",
     "@types/n3": "^1.10.4",
@@ -59,7 +55,4 @@
   "precommit": {
     "run": "test"
   },
-  "exports" : {
-    "./*": "./dist/*"
-  }
 }

@@ -9,9 +9,9 @@ module.exports = {
     "\\.sparql$": "jest-raw-loader",
   },
   "roots": [
-    "lib",
+    "src",
   ],
   "testPathIgnorePatterns": [
-    "./lib/slovník.gov.cz",
+    "./src/slovník.gov.cz",
   ],
 };

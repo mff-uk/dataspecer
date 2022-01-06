@@ -3,7 +3,7 @@
 *.iml
 
 # Directories
-dist/
+lib/
 data/
 node_modules/
 !.github/
