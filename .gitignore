@@ -1,6 +1,7 @@
 # Files
 .*
 *.iml
+*.log
 
 # Directories
 lib/
