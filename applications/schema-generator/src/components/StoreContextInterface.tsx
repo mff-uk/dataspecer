@@ -1,4 +1,4 @@
-import {CimAdapter, IriProvider} from "@model-driven-data/core/lib/cim";
+import {CimAdapter, IriProvider} from "@model-driven-data/core/cim";
 import {FederatedObservableStore} from "../store/federated-observable-store";
 import {Configuration} from "../configuration/configuration";
 

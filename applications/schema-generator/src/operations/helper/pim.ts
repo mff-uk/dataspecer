@@ -1,6 +1,6 @@
-import {PimClass} from "@model-driven-data/core/lib/pim/model";
+import {PimClass} from "@model-driven-data/core/pim/model";
 import {OperationExecutor, StoreDescriptor} from "../../store/operation-executor";
-import {PimCreateClass} from "@model-driven-data/core/lib/pim/operation";
+import {PimCreateClass} from "@model-driven-data/core/pim/operation";
 import {copyPimPropertiesFromResourceToOperation} from "./copyPimPropertiesFromResourceToOperation";
 
 export async function createPimClassIfMissing(

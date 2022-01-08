@@ -1,12 +1,12 @@
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
-import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@model-driven-data/core/lib/data-psm/model";
-import {PimAssociationEnd, PimClass} from "@model-driven-data/core/lib/pim/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import {useResource} from "../../../hooks/useResource";
 import React, {useCallback} from "react";
 import {StoreContext} from "../../App";
-import {SCHEMA} from "@model-driven-data/core/lib/data-psm/data-psm-vocabulary";
+import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {StoreByPropertyDescriptor} from "../../../store/operation-executor";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference-dialog";
 import {ReplaceDataPsmAssociationEndWithReference} from "../../../operations/replace-data-psm-association-end-with-reference";

@@ -1,6 +1,6 @@
-import {MemoryOutputStream} from "@model-driven-data/core/lib/io/stream/memory-output-stream";
-import {webSpecificationToBikeshed, writeBikeshed} from "@model-driven-data/core/lib/bikeshed";
-import {CoreResourceReader} from "@model-driven-data/core/lib/core";
+import {MemoryOutputStream} from "@model-driven-data/core/io/stream/memory-output-stream";
+import {webSpecificationToBikeshed, writeBikeshed} from "@model-driven-data/core/bikeshed";
+import {CoreResourceReader} from "@model-driven-data/core/core";
 import {constructDocumentationModel} from "./construct-documentation-model";
 
 function openWindowWithPost(url: string, data: Record<string, string>) {

@@ -1,8 +1,8 @@
-import {DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
-import {CoreResourceReader} from "@model-driven-data/core/lib/core";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/lib/pim/model";
-import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/lib/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimSetExtends} from "@model-driven-data/core/lib/pim/operation";
+import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
+import {CoreResourceReader} from "@model-driven-data/core/core";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
+import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimSetExtends} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";

@@ -1,5 +1,5 @@
-import {LanguageString} from "@model-driven-data/core/lib/core";
-import {PimSetHumanDescription, PimSetHumanLabel} from "@model-driven-data/core/lib/pim/operation";
+import {LanguageString} from "@model-driven-data/core/core";
+import {PimSetHumanDescription, PimSetHumanLabel} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 

@@ -3,7 +3,7 @@ import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beau
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@mui/material";
 import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {useResource} from "../../hooks/useResource";
 import {isReadOnly} from "../../store/federated-observable-store";
 import {TransitionGroup} from "react-transition-group";

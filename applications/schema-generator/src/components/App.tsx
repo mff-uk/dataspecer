@@ -7,20 +7,20 @@ import {GenerateArtifacts} from "./artifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
 import {LanguageSelector} from "./LanguageSelector";
 import {Trans, useTranslation} from "react-i18next";
-import {CimAdapter, IriProvider, PrefixIriProvider} from "@model-driven-data/core/lib/cim";
-import {SgovAdapter} from "@model-driven-data/core/lib/sgov";
-import {httpFetch} from "@model-driven-data/core/lib/io/fetch/fetch-browser";
+import {CimAdapter, IriProvider, PrefixIriProvider} from "@model-driven-data/core/cim";
+import {SgovAdapter} from "@model-driven-data/core/sgov";
+import {httpFetch} from "@model-driven-data/core/io/fetch/fetch-browser";
 import {StoreContextInterface} from "./StoreContextInterface";
 import {SaveRestore} from "./save-restore";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
 import {FederatedObservableStore} from "../store/federated-observable-store";
-import {CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/lib/core";
+import {CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/core";
 import {ArtifactPreview} from "./artifacts/artifact-preview";
 import {useAsyncMemo} from "../hooks/useAsyncMemo";
 import {Configuration} from "../configuration/configuration";
 import {SyncMemoryStoreConfigurationStoreBuilder} from "../store/core-stores/sync-memory-store-configuration-store";
-import {SCHEMA} from "@model-driven-data/core/lib/data-psm/data-psm-vocabulary";
+import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {SyncMemoryStore} from "../store/core-stores/sync-memory-store";
 
 // @ts-ignore

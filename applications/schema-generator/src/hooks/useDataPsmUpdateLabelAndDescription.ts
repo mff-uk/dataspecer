@@ -1,4 +1,4 @@
-import {DataPsmResource} from "@model-driven-data/core/lib/data-psm/model";
+import {DataPsmResource} from "@model-driven-data/core/data-psm/model";
 import {useDialog} from "./useDialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import React, {useCallback} from "react";

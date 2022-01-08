@@ -1,7 +1,7 @@
 import {ConfigurationStore} from "../../configuration/configuration";
 import {SyncMemoryStore} from "./sync-memory-store";
-import {dataPsmExecutors} from "@model-driven-data/core/lib/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/lib/pim/executor";
+import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
+import {pimExecutors} from "@model-driven-data/core/pim/executor";
 
 export interface SyncMemoryStoreConfigurationStore extends ConfigurationStore {
     type: typeof SyncMemoryStoreConfigurationStoreBuilder.CONFIGURATION_STORE_TYPE;

@@ -51,5 +51,8 @@
   },
   "browser": {
     "buffer": false
+  },
+  "publishConfig": {
+    "directory": "lib"
   }
 }

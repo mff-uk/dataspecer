@@ -1,4 +1,4 @@
-import {DataPsmSetDatatype} from "@model-driven-data/core/lib/data-psm/operation";
+import {DataPsmSetDatatype} from "@model-driven-data/core/data-psm/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 

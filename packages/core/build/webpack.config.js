@@ -47,8 +47,9 @@ module.exports = {
   "output": {
     "path": path.join(__dirname, "..", "lib"),
     "filename": "[name].js",
-    // "library": "model-driven-data",
-    // "libraryTarget": "umd",
+    "library": {
+      "type": "umd",
+    },
   },
   "module": {
     "rules": [

@@ -1,7 +1,7 @@
-import {CoreResourceReader} from "@model-driven-data/core/lib/core";
-import {coreResourcesToConceptualModel} from "@model-driven-data/core/lib/conceptual-model";
-import {coreResourcesToStructuralModel} from "@model-driven-data/core/lib/structure-model";
-import {createModelsToWebSpecificationConfiguration, DocumentationModel, modelsToWebSpecification} from "@model-driven-data/core/lib/documentation-model";
+import {CoreResourceReader} from "@model-driven-data/core/core";
+import {coreResourcesToConceptualModel} from "@model-driven-data/core/conceptual-model";
+import {coreResourcesToStructuralModel} from "@model-driven-data/core/structure-model";
+import {createModelsToWebSpecificationConfiguration, DocumentationModel, modelsToWebSpecification} from "@model-driven-data/core/documentation-model";
 
 export async function constructDocumentationModel(reader: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string): Promise<DocumentationModel> {
     const conceptualModel = await coreResourcesToConceptualModel(reader, pimSchemaIri);

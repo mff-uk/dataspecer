@@ -14,14 +14,14 @@ import FileSaver from "file-saver";
 import {getNameForSchema} from "../../utils/getNameForSchema";
 import copy from "copy-to-clipboard";
 import {useSnackbar} from "notistack";
-import {CoreResourceReader} from "@model-driven-data/core/lib/core";
+import {CoreResourceReader} from "@model-driven-data/core/core";
 import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
 import {DialogParameters} from "../../dialog";
-import {SCHEMA} from "@model-driven-data/core/lib/pim/pim-vocabulary";
+import {SCHEMA} from "@model-driven-data/core/pim/pim-vocabulary";
 import {StoreByPropertyDescriptor} from "../../store/operation-executor";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {

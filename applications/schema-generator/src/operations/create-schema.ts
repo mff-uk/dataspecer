@@ -1,8 +1,8 @@
-import {DataPsmCreateSchema} from "@model-driven-data/core/lib/data-psm/operation";
-import {PimCreateSchema} from "@model-driven-data/core/lib/pim/operation";
+import {DataPsmCreateSchema} from "@model-driven-data/core/data-psm/operation";
+import {PimCreateSchema} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor} from "../store/operation-executor";
-import {SCHEMA} from "@model-driven-data/core/lib/pim/pim-vocabulary";
+import {SCHEMA} from "@model-driven-data/core/pim/pim-vocabulary";
 
 export class CreateSchema implements ComplexOperation {
     public createdDataPsmSchema: string | null = null;

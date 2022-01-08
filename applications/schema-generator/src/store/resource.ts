@@ -1,4 +1,4 @@
-import {CoreResource} from "@model-driven-data/core/lib/core";
+import {CoreResource} from "@model-driven-data/core/core";
 import {StoreWithMetadata} from "./federated-observable-store";
 
 /**

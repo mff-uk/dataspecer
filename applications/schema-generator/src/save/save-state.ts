@@ -1,7 +1,7 @@
 import pako from "pako";
-import {CoreOperation, CoreResource, MemoryStore} from "@model-driven-data/core/lib/core";
-import {pimExecutors} from "@model-driven-data/core/lib/pim/executor";
-import {dataPsmExecutors} from "@model-driven-data/core/lib/data-psm/executor";
+import {CoreOperation, CoreResource, MemoryStore} from "@model-driven-data/core/core";
+import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
 import {StoreWithMetadata} from "../store/federated-observable-store";
 
 /**

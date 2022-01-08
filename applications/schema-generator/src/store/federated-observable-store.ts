@@ -1,8 +1,8 @@
 import {Resource, ResourceInfo} from "./resource";
 import {ComplexOperation} from "./complex-operation";
 import {OperationExecutor, StoreByPropertyDescriptor, StoreDescriptor, StoreHavingResourceDescriptor} from "./operation-executor";
-import {PimAssociation, PimAttribute, PimClass} from "@model-driven-data/core/lib/pim/model";
-import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "@model-driven-data/core/lib/core";
+import {PimAssociation, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "@model-driven-data/core/core";
 import {ConfigurationStoreMetadata} from "../configuration/configuration";
 import {SyncMemoryStore} from "./core-stores/sync-memory-store";
 import {cloneResource} from "./clone-resource";

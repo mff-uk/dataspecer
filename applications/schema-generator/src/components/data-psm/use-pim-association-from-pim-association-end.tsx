@@ -2,7 +2,7 @@
 import React from "react";
 import {StoreContext} from "../App";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {PimAssociation} from "@model-driven-data/core/lib/pim/model";
+import {PimAssociation} from "@model-driven-data/core/pim/model";
 import {Resource, ResourceInfo} from "../../store/resource";
 import {useResource} from "../../hooks/useResource";
 

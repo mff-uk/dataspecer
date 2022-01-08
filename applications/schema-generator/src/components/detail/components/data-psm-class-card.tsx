@@ -3,8 +3,8 @@ import {Grid} from "@mui/material";
 import {InDifferentLanguages} from "./InDifferentLanguages";
 import {RightPanel} from "./right-panel";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
-import {DataPsmClass} from "@model-driven-data/core/lib/data-psm/model";
-import {PimClass} from "@model-driven-data/core/lib/pim/model";
+import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
+import {PimClass} from "@model-driven-data/core/pim/model";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
 import {isReadOnly} from "../../../store/federated-observable-store";
 

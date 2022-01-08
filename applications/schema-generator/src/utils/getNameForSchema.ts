@@ -1,7 +1,7 @@
-import {DataPsmClass, DataPsmSchema} from "@model-driven-data/core/lib/data-psm/model";
-import {PimClass} from "@model-driven-data/core/lib/pim/model";
+import {DataPsmClass, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {PimClass} from "@model-driven-data/core/pim/model";
 import {selectLanguage} from "./selectLanguage";
-import {CoreResourceReader} from "@model-driven-data/core/lib/core";
+import {CoreResourceReader} from "@model-driven-data/core/core";
 
 /**
  * For a given schema, store and languages, it tries to find a most suitable name for the current schema.

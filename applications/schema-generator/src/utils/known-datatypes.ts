@@ -1,4 +1,4 @@
-import {LanguageString} from "@model-driven-data/core/lib/core";
+import {LanguageString} from "@model-driven-data/core/core";
 
 export interface KnownDatatype {
     label?: LanguageString;
