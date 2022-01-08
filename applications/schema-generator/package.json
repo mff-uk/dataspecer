@@ -6,6 +6,7 @@
     "@emotion/css": "^11.5.0",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
+    "@model-driven-data/core": "*",
     "@mui/icons-material": "^5.0.4",
     "@mui/lab": "^5.0.0-alpha.51",
     "@mui/material": "^5.0.4",
@@ -37,14 +38,13 @@
     "react-scripts": "^4.0.3",
     "react-syntax-highlighter": "^15.4.4",
     "react-transition-group": "^4.4.2",
-    "rxjs": "^7.1.0",
-    "@model-driven-data/core": "*"
+    "rxjs": "^7.1.0"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "react-scripts --openssl-legacy-provider test",
-    "eject": "react-scripts --openssl-legacy-provider eject",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "extract-languages": "i18next",
     "node-version": "node --version"
   },
