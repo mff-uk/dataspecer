@@ -5,13 +5,14 @@ import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
 import {CreateSpecification} from "./create-specification";
 import {DataSpecification} from "../../interfaces/data-specification";
+import {processEnv} from "../../index";
 
 export const Home: React.FC<{}> = () => {
     const [specifications, , reloadSpecifications]
-        = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${process.env.REACT_APP_BACKEND}/specification`), []);
+        = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${processEnv.REACT_APP_BACKEND}/specification`), []);
 
     const deleteSpecification = useCallback(async (id: string) => {
-        await axios.delete(`${process.env.REACT_APP_BACKEND}/specification/${id}`);
+        await axios.delete(`${processEnv.REACT_APP_BACKEND}/specification/${id}`);
         reloadSpecifications?.();
     }, [reloadSpecifications]);
 

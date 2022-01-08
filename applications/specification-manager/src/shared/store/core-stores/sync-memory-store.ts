@@ -1,4 +1,4 @@
-import {CoreOperation, CoreOperationExecutor, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, CreateNewIdentifier, MemoryStore} from "model-driven-data/core";
+import {CoreOperation, CoreOperationExecutor, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, CreateNewIdentifier, MemoryStore} from "@model-driven-data/core//core";
 
 const headers = {
     'Accept': 'application/json',

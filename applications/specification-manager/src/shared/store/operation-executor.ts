@@ -1,4 +1,4 @@
-import {CoreOperation, CoreOperationResult, CoreResourceReader} from "model-driven-data/core";
+import {CoreOperation, CoreOperationResult, CoreResourceReader} from "@model-driven-data/core//core";
 import {_CoreResourceReader_WithMissingMethods} from "./federated-observable-store";
 import {StoreMetadataTag} from "../configuration";
 

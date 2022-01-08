@@ -3,13 +3,14 @@ import AddIcon from "@mui/icons-material/Add";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, TextField} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import axios from "axios";
+import {processEnv} from "../../index";
 
 export const CreateSpecification: React.FC<{ reload: (() => void) | undefined }> = ({reload}) => {
     const dialog = useToggle();
     const [name, setName] = useState<string>("");
 
     const create = useCallback(async () => {
-        await axios.post(`${process.env.REACT_APP_BACKEND}/specification`, {name});
+        await axios.post(`${processEnv.REACT_APP_BACKEND}/specification`, {name});
         reload?.();
         dialog.close();
         setName("");

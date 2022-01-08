@@ -3,6 +3,7 @@ import {StoreInfo} from "./store-info";
 import {Box, Button, Switch, TableCell, TableRow, Typography} from "@mui/material";
 import React, {useCallback, useEffect} from "react";
 import axios from "axios";
+import {processEnv} from "../../index";
 
 export interface DataStructureRowProps {
     dataStructure: DataStructure;
@@ -14,7 +15,7 @@ export interface DataStructureRowProps {
 
 export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure, schemaGeneratorUrls, specificationId, reloadSpecification}) => {
     const deleteDataPsm = useCallback(async () => {
-        await axios.delete(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`);
+        await axios.delete(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`);
         reloadSpecification?.();
     }, [reloadSpecification, specificationId, dataStructure.id]);
 
@@ -32,7 +33,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
         if (dataStructure.artifact_json !== (type === "json")) {
             artifacts.push("json");
         }
-        await axios.post(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
+        await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
         reloadSpecification?.();
     }, [reloadSpecification, specificationId, switchLoading]);
 
@@ -70,11 +71,11 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
                 }}>
                 {schemaGeneratorUrls.map(([branch, url]) => {
                         const urlObject = new URL(url);
-                        urlObject.searchParams.append('configuration', `${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
+                        urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
                         return <Button variant={"contained"} color={"primary"} key={url} href={urlObject.toString()}>Edit ({branch})</Button>;
                     }
                 )}
-                {/*<Button variant="outlined" color={"primary"} href={`${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`}>See configuration</Button>*/}
+                {/*<Button variant="outlined" color={"primary"} href={`${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`}>See configuration</Button>*/}
                 <Button
                     variant="outlined"
                     color={"error"}

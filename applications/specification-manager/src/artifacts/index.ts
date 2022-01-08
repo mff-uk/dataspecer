@@ -1,20 +1,20 @@
 import {Configuration} from "../shared/configuration";
 import {ArchiveWriter, ZipWriter} from "./archive-writer";
-import {MemoryOutputStream} from "model-driven-data/io/stream/memory-output-stream";
-import {webSpecificationToBikeshed, writeBikeshed} from "model-driven-data/bikeshed";
-import {createModelsToWebSpecificationConfiguration, modelsToWebSpecification} from "model-driven-data/documentation-model";
-import {coreResourcesToConceptualModel} from "model-driven-data/conceptual-model";
-import {coreResourcesToStructuralModel, StructureModel} from "model-driven-data/structure-model";
-import {CoreResource, CoreResourceReader, CoreResourceWriter} from "model-driven-data/core";
+import {MemoryOutputStream} from "@model-driven-data/core//io/stream/memory-output-stream";
+import {webSpecificationToBikeshed, writeBikeshed} from "@model-driven-data/core//bikeshed";
+import {createModelsToWebSpecificationConfiguration, modelsToWebSpecification} from "@model-driven-data/core//documentation-model";
+import {coreResourcesToConceptualModel} from "@model-driven-data/core//conceptual-model";
+import {coreResourcesToStructuralModel, StructureModel} from "@model-driven-data/core//structure-model";
+import {CoreResource, CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core//core";
 import {FederatedObservableStore} from "../shared/store/federated-observable-store";
 import {SyncMemoryStore} from "../shared/store/core-stores/sync-memory-store";
 import {SyncMemoryStoreConfigurationStoreBuilder} from "../shared/store/core-stores/sync-memory-store-configuration-store";
-import {SCHEMA as PIM_SCHEMA} from "model-driven-data/pim/pim-vocabulary";
+import {SCHEMA as PIM_SCHEMA} from "@model-driven-data/core//pim/pim-vocabulary";
 import {StoreByPropertyDescriptor} from "../shared/store/operation-executor";
-import {SCHEMA as DATA_PSM_SCHEMA} from "model-driven-data/data-psm/data-psm-vocabulary";
-import {structureModelToJsonSchema} from "model-driven-data/json-schema/json-schema-model-adapter";
-import {writeJsonSchema} from "model-driven-data/json-schema/json-schema-writer";
-import {objectModelToXmlSchema, writeXmlSchema} from "model-driven-data/xml-schema";
+import {SCHEMA as DATA_PSM_SCHEMA} from "@model-driven-data/core//data-psm/data-psm-vocabulary";
+import {structureModelToJsonSchema} from "@model-driven-data/core//json-schema/json-schema-model-adapter";
+import {writeJsonSchema} from "@model-driven-data/core//json-schema/json-schema-writer";
+import {objectModelToXmlSchema, writeXmlSchema} from "@model-driven-data/core//xml-schema";
 import {BikeshedGenerator} from "./bikeshed-generator";
 
 

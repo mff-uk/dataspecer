@@ -5,6 +5,7 @@ import axios from "axios";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import PowerIcon from '@mui/icons-material/Power';
 import {DataSpecification} from "../../interfaces/data-specification";
+import {processEnv} from "../../index";
 
 export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefined, specificationId: string }>
     = ({
@@ -13,9 +14,9 @@ export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefine
        }) => {
     const dialog = useToggle();
 
-    const [specifications] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${process.env.REACT_APP_BACKEND}/specification`), []);
+    const [specifications] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${processEnv.REACT_APP_BACKEND}/specification`), []);
 
-    const [specification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), []);
+    const [specification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), []);
 
     const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
     const handleToggle = (value: string) => () => {
@@ -38,7 +39,7 @@ export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefine
     }, [specification]);
 
     const save = useCallback(async () => {
-        await axios.put(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`, {
+        await axios.put(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`, {
             linkedSpecifications: selectedSpecificationIds
         });
         reload?.();

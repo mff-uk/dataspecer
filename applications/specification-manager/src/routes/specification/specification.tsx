@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useMemo} from "react";
 import {Link, useParams} from "react-router-dom";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
@@ -12,21 +12,22 @@ import {DataStructureRow} from "./data-structure-row";
 import {Configuration} from "../../shared/configuration";
 import {saveAs} from "file-saver";
 import LoadingButton from '@mui/lab/LoadingButton';
-
-const schemaGeneratorUrls = (process.env.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
-    .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
-    .filter((v): v is [string, string] => v !== null);
+import {processEnv} from "../../index";
 
 export const Specification: React.FC = () => {
     let {specificationId} = useParams();
-    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
+    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
+
+    const schemaGeneratorUrls = useMemo(() => (processEnv.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
+        .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
+        .filter((v): v is [string, string] => v !== null), []);
 
     const createDataStructure = useCallback(async () => {
-        const result = await axios.post(`${process.env.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
+        const result = await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
         const dataStructureId = result.data.id;
 
         const urlObject = new URL(schemaGeneratorUrls[0][1]);
-        urlObject.searchParams.append('configuration', `${process.env.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+        urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
 
         window.location.href = urlObject.href;
     }, [specificationId]);
@@ -34,7 +35,7 @@ export const Specification: React.FC = () => {
     const [zipLoading, setZipLoading] = React.useState(false);
     const generateZip = async () => {
         setZipLoading(true);
-        const result = await axios.get<Configuration>(`${process.env.REACT_APP_BACKEND}/configuration/by-specification/${specificationId}`);
+        const result = await axios.get<Configuration>(`${processEnv.REACT_APP_BACKEND}/configuration/by-specification/${specificationId}`);
         const generator = new ArtifactBuilder(result.data);
         const data = await generator.build();
         saveAs(data, "artifact.zip");
