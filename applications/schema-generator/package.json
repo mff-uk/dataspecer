@@ -41,12 +41,11 @@
     "@model-driven-data/core": "*"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "extract-languages": "i18next",
-    "update-mdd": "npm install model-driven-data/dist/model-driven-data-0.0.1.tgz"
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+    "test": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
+    "eject": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject",
+    "extract-languages": "i18next"
   },
   "eslintConfig": {
     "extends": "react-app"
