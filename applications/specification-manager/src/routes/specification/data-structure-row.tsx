@@ -35,7 +35,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
         }
         await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
         reloadSpecification?.();
-    }, [reloadSpecification, specificationId, switchLoading]);
+    }, [reloadSpecification, specificationId, switchLoading, dataStructure]);
 
     return <TableRow key={dataStructure.id}>
         <StoreInfo storeId={dataStructure?.store ?? null}>

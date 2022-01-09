@@ -30,7 +30,7 @@ export const Specification: React.FC = () => {
         urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
 
         window.location.href = urlObject.href;
-    }, [specificationId]);
+    }, [specificationId, schemaGeneratorUrls]);
 
     const [zipLoading, setZipLoading] = React.useState(false);
     const generateZip = async () => {

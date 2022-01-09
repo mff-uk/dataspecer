@@ -19,7 +19,7 @@ export const useAsyncMemoWithTrigger = <T>(factory: () => Promise<T>, deps: Depe
         return () => {
             cancel = true;
         };
-    }, deps);
+    }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
     return state;
 }
