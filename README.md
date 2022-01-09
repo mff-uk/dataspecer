@@ -1,5 +1,11 @@
 # About
-For more information please see [documentation](./documentation/).
+This codebase is managed by Lerna.
+
+For more information please see individual packages and applications.
+
+- [@model-driven-data/core](./packages/core) package
+- [schema-generator](./applications/schema-generator) application
+- [specification-manager](./applications/specification-manager) application
 
 ***
 

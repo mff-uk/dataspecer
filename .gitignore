@@ -1,9 +1,10 @@
 # Files
 .*
 *.iml
+*.log
 
 # Directories
-dist/
+lib/
 data/
 node_modules/
 !.github/

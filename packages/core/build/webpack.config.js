@@ -8,10 +8,10 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
  * Reads the lib directory and fills {@link files} object as entrypoint map
  * for webpack
  */
-function readDirectory(directory, collector) {
-  for (const fileName of fs.readdirSync("./lib/" + directory)) {
-    const moduleFileName = directory + fileName;
-    const fullFileName = "./lib/" + moduleFileName;
+function readDirectory(directoryName, collector) {
+  for (const fileName of fs.readdirSync("./src/" + directoryName)) {
+    const moduleFileName = directoryName + fileName;
+    const fullFileName = "./src/" + moduleFileName;
     const type = fs.lstatSync(fullFileName);
 
     if (type.isDirectory()) {
@@ -38,17 +38,18 @@ module.exports = {
   "entry": files,
   "target": "node",
   "externals": [nodeExternals()],
-  "optimization": {
-    "splitChunks": {
-      "chunks": "all",
-      "minSize": 1024,
-    },
-  },
+  // "optimization": {
+  //   "splitChunks": {
+  //     "chunks": "all",
+  //     "minSize": 1024,
+  //   },
+  // },
   "output": {
-    "path": path.join(__dirname, "..", "dist"),
+    "path": path.join(__dirname, "..", "lib"),
     "filename": "[name].js",
-    "library": "json-schema-mapping",
-    "libraryTarget": "umd",
+    "library": {
+      "type": "umd",
+    },
   },
   "module": {
     "rules": [
@@ -76,7 +77,7 @@ module.exports = {
     new CopyWebpackPlugin({
       "patterns": [{
         "from": path.join(__dirname, "..", "package.json"),
-        "to": path.join(__dirname, "..", "dist"),
+        "to": path.join(__dirname, "..", "lib"),
       }],
     }),
   ],

@@ -1,0 +1,4 @@
+# The model-driven-data library MUST NOT be listed as a dependency in package.json file because of the Netlify build mechanism
+[build]
+    publish = "build/"
+    command = "CI= && cd model-driven-data && npm install && npm run build && cd .. && npm install model-driven-data/dist/model-driven-data*.tgz && npm run build"

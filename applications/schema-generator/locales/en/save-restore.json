@@ -1,0 +1,9 @@
+{
+  "file without name": "unnamed schema",
+  "import from file": "load",
+  "save to file": "save",
+  "snackbar load": {
+    "fail": "Unable to load file. Probably the version the file was created with stopped being supported.",
+    "ok": "File loaded successfully."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "backwards association": "backwards association",
+  "button add": "add",
+  "button delete": "delete",
+  "button edit": "edit",
+  "button info": "detail",
+  "button inline discard": "discard",
+  "button inline save": "save",
+  "cancel": "cancel",
+  "datatype": "datatype",
+  "no description": "no description",
+  "no label": "no label",
+  "refers to": "refers to",
+  "replace": "replace",
+  "replace association with reference": {
+    "help": "Select one of the following schemas to replace the association end with a reference to schema's root class.",
+    "title": "Replace association end with reference to a class"
+  },
+  "replace with reference": "replace with reference",
+  "technical label": "technical label"
+}

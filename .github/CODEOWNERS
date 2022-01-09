@@ -1,0 +1,12 @@
+* @skodapetr
+
+# schema-generator application
+/applications/schema-generator/ @sstenchlak
+
+# specification-manager application
+/applications/specification-manager/ @sstenchlak
+
+# core package
+/packages/core/ @skodapetr
+/packages/core/src/sgov/ @sstenchlak
+/packages/core/src/xml-schema/ @cermakmarek

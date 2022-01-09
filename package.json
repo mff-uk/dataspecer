@@ -1,65 +1,7 @@
 {
-  "name": "model-driven-data",
-  "version": "0.0.1",
+  "name": "root",
   "private": true,
-  "keywords": [
-    "model-driven"
-  ],
-  "scripts": {
-    "build": "webpack -c build/webpack.config.js && cd dist && npm pack",
-    "lint": "eslint --ignore-path .gitignore . --fix",
-    "lint-print-config": "eslint --print-config .eslintrc.js",
-    "pretest": "webpack -c build/webpack.config.js",
-    "spec": "jest \"^(.*\/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
-    "integration": "jest \"^(.*\/)*(.*\\.)*(test)\\.[jt]s$\" --passWithNoTests",
-    "test": "jest",
-    "tsc-watch": "tsc --watch"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@types/jsonld": "^1.5.6",
-    "@types/n3": "^1.10.4",
-    "create-turbo": "^1.0.24",
-    "js-string-escape": "^1.0.1",
-    "jsonld": "^5.2.0",
-    "minipass-fetch": "^1.4.1",
-    "n3": "^1.12.2",
-    "rdflib": "^2.2.15",
-    "uri-js": "^4.4.1"
-  },
   "devDependencies": {
-    "@babel/cli": "^7.16.7",
-    "@babel/core": "^7.16.7",
-    "@babel/preset-env": "^7.16.7",
-    "@babel/preset-typescript": "^7.16.7",
-    "@types/jest": "^27.4.0",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
-    "babel-jest": "^27.4.5",
-    "babel-loader": "^8.2.3",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^10.2.0",
-    "dts-bundle-generator": "^6.2.0",
-    "eslint": "^8.6.0",
-    "eslint-plugin-jest": "^25.3.3",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "jest": "^27.4.5",
-    "jest-raw-loader": "^1.0.1",
-    "pre-commit": "^1.2.2",
-    "raw-loader": "^4.0.2",
-    "ts-loader": "^9.2.6",
-    "typescript": "^4.5.4",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1",
-    "webpack-node-externals": "^3.0.0"
-  },
-  "browser": {
-    "buffer": false
-  },
-  "precommit": {
-    "run": "test"
-  },
-  "exports" : {
-    "./*": "./dist/*"
+    "lerna": "^4.0.0"
   }
 }
