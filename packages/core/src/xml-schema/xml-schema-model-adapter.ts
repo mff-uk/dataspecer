@@ -18,7 +18,7 @@ import {
   langStringName,
 } from "./xml-schema-model";
 
-import {XSD} from "../well-known/xsd";
+import {XSD, OFN} from "../well-known";
 
 export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
   const adapter = new XmlSchemaAdapter(schema.classes);
@@ -33,28 +33,18 @@ const anyUriType: StructureModelPrimitiveType = (function()
 })();
 
 /**
- * Map from datatype URIs to QNames, if needed.
+ * Map from datatype URIs to QNames.
  */
-const TYPE_PREFIX = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
 const simpleTypeMap: Record<string, QName> = {
-  [TYPE_PREFIX + "boolean"]:
-    ["xs", "boolean"],
-  [TYPE_PREFIX + "datum"]:
-    ["xs", "date"],
-  [TYPE_PREFIX + "čas"]:
-    ["xs", "time"],
-  [TYPE_PREFIX + "datum-a-čas"]:
-    ["xs", "dateTimeStamp"],
-  [TYPE_PREFIX + "celé-číslo"]:
-    ["xs", "integer"],
-  [TYPE_PREFIX + "desetinné-číslo"]:
-    ["xs", "decimal"],
-  [TYPE_PREFIX + "url"]:
-    ["xs", "anyURI"],
-  [TYPE_PREFIX + "řetězec"]:
-    ["xs", "string"],
-  [TYPE_PREFIX + "text"]:
-    langStringName,
+  [OFN.boolean]: ["xs", "boolean"],
+  [OFN.date]: ["xs", "date"],
+  [OFN.time]: ["xs", "time"],
+  [OFN.dateTime]: ["xs", "dateTimeStamp"],
+  [OFN.integer]: ["xs", "integer"],
+  [OFN.decimal]: ["xs", "decimal"],
+  [OFN.url]: ["xs", "anyURI"],
+  [OFN.string]: ["xs", "string"],
+  [OFN.text]: langStringName,
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
