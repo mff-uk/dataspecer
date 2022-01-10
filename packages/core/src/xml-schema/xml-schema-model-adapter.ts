@@ -14,6 +14,8 @@ import {
   XmlSchemaElement,
   XmlSchemaSimpleType,
   XmlSchemaType,
+  QName,
+  langStringName,
 } from "./xml-schema-model";
 
 import {XSD} from "../well-known/xsd";
@@ -34,7 +36,7 @@ const anyUriType: StructureModelPrimitiveType = (function()
  * Map from datatype URIs to QNames, if needed.
  */
 const TYPE_PREFIX = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
-const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
+const simpleTypeMap: Record<string, QName> = {
   [TYPE_PREFIX + "boolean"]:
     ["xs", "boolean"],
   [TYPE_PREFIX + "datum"]:
@@ -52,7 +54,7 @@ const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
   [TYPE_PREFIX + "řetězec"]:
     ["xs", "string"],
   [TYPE_PREFIX + "text"]:
-    ["xs", "string"], //TODO xml:lang
+    langStringName,
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
@@ -60,6 +62,7 @@ const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 type ClassMap = Record<string, StructureModelClass>;
 class XmlSchemaAdapter {
   private classMap: ClassMap;
+  private usesLangString: boolean;
 
   constructor(classes: { [iri: string]: StructureModelClass }) {
     const map: ClassMap = {};
@@ -77,6 +80,7 @@ class XmlSchemaAdapter {
       "elements": roots
         .map(this.getClass, this)
         .map(this.classToElement, this),
+      "defineLangString": this.usesLangString,
     };
   }
 
@@ -227,12 +231,16 @@ class XmlSchemaAdapter {
 
   primitiveToQName(
     primitiveData: StructureModelPrimitiveType,
-  ): [prefix: string, localName: string] {
+  ): QName {
     if (primitiveData.dataType == null) {
       return ["xs", "anySimpleType"];
     }
-    return primitiveData.dataType.startsWith(xsdNamespace) ?
+    const type: QName = primitiveData.dataType.startsWith(xsdNamespace) ?
       ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
       (simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"]);
+    if (type === langStringName) {
+      this.usesLangString = true;
+    }
+    return type;
   }
 }
