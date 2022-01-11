@@ -3,7 +3,7 @@ import {Button, DialogActions as MuiDialogActions, DialogContent as MuiDialogCon
 import {DialogTitleProps} from "@mui/material/DialogTitle/DialogTitle";
 import React, {ReactNode} from "react";
 import {CloseDialogButton} from "./components/close-dialog-button";
-import {DialogSaveStatusContext, useDialogSaveStatusProvider} from "./dialog-save";
+import {SaveHandlerContext, useSaveHandlerProvider} from "../helper/save-handler";
 import {useTranslation} from "react-i18next";
 
 const StyledDialogTitle = styled(MuiDialogTitle)({
@@ -28,8 +28,8 @@ export const DialogWrapper: React.FC<{
 }> = ({title, children, close}) => {
     const {t} = useTranslation("detail");
 
-    const {hasUnsavedChanges, saveChanges, dialogSaveStatusContext} = useDialogSaveStatusProvider();
-    return <DialogSaveStatusContext.Provider value={dialogSaveStatusContext}>
+    const {hasUnsavedChanges, saveChanges, saveHandler} = useSaveHandlerProvider();
+    return <SaveHandlerContext.Provider value={saveHandler}>
         <DialogTitle close={close}>
             {title}
         </DialogTitle>
@@ -38,11 +38,11 @@ export const DialogWrapper: React.FC<{
         </DialogContent>
         <DialogActions>
             <Button onClick={() => {
-                saveChanges();
+                saveChanges().then();
                 close();
             }}>{t('ok')}</Button>
             <Button onClick={close}>{t('cancel')}</Button>
             <Button onClick={saveChanges} disabled={!hasUnsavedChanges}>{t('apply')}</Button>
         </DialogActions>
-    </DialogSaveStatusContext.Provider>;
+    </SaveHandlerContext.Provider>;
 }
