@@ -185,6 +185,8 @@ export class AddClassSurroundings implements ComplexOperation {
         const pimCreateAttribute = new PimCreateAttribute();
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAttribute);
         pimCreateAttribute.pimOwnerClass = ownerClassIri;
+        pimCreateAttribute.pimCardinalityMin = resource.pimCardinalityMin;
+        pimCreateAttribute.pimCardinalityMax = resource.pimCardinalityMax;
         const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
         return pimCreateAttributeResult.created[0];
     }
