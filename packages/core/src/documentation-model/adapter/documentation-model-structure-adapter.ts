@@ -66,19 +66,17 @@ export function structureModelToWebSpecificationPsm(
         propertyMap[propertyData.pimIri];
       property.anchor =
         configuration.createStructurePropertyAnchor(classData, propertyData);
+      property.cardinalityMin = propertyData.cardinalityMin;
+      property.cardinalityMax = propertyData.cardinalityMax;
       for (const typeData of propertyData.dataTypes) {
         if (typeData.isAssociation()) {
           const type = new DocumentationModelStructureComplexType();
-          type.cardinalityMin = propertyData.cardinalityMin;
-          type.cardinalityMax = propertyData.cardinalityMax;
           property.types.push(type);
           // We can not save class now as it may not be available, so we do
           // it later.
           typesToResolve.push([typeData.psmClassIri, type]);
         } else if (typeData.isAttribute()) {
           const type = new DocumentationModelStructurePrimitiveType();
-          type.cardinalityMin = propertyData.cardinalityMin;
-          type.cardinalityMax = propertyData.cardinalityMax;
           type.humanLabel = getPrimitiveTypeHumanLabel(typeData.dataType);
           type.typeIri = typeData.dataType;
           property.types.push(type);

@@ -47,13 +47,13 @@ export function conceptualModelToWebSpecification(
         propertyData.pimIri;
       property.anchor = configuration.createConceptualPropertyAnchor(
         classData, propertyData);
+      property.cardinalityMin = propertyData.cardinalityMin;
+      property.cardinalityMax = propertyData.cardinalityMax;
       entity.properties.push(property);
       // As of now
       for (const typeData of propertyData.dataTypes) {
         if (typeData.isAssociation()) {
           const type = new DocumentationModelConceptualComplexType();
-          type.cardinalityMin = propertyData.cardinalityMin;
-          type.cardinalityMax = propertyData.cardinalityMax;
           property.types.push(type);
           // We can not save class now as it may not be available, so we do
           // it later.
@@ -62,8 +62,6 @@ export function conceptualModelToWebSpecification(
           // As of now we do not have the information about primitive
           // types on CIM and so PIM level. This may change in the future.
           const type = new DocumentationModelConceptualPrimitiveType();
-          type.cardinalityMin = propertyData.cardinalityMin;
-          type.cardinalityMax = propertyData.cardinalityMax;
           property.types.push(type);
         } else {
           assertFailed("Unexpected property data type.");

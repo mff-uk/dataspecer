@@ -16,4 +16,8 @@ export class DocumentationModelConceptualProperty {
 
   pimIri: string | null;
 
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
+
 }

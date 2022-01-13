@@ -19,4 +19,8 @@ export class DocumentationModelStructureProperty {
 
   conceptualProperty: DocumentationModelConceptualProperty | null = null;
 
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
+
 }

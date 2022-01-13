@@ -4,10 +4,6 @@ import {
 
 export interface DocumentationModelStructureType {
 
-  cardinalityMin: number | null;
-
-  cardinalityMax: number | null;
-
   isComplex(): this is DocumentationModelStructureComplexType;
 
   isPrimitive(): this is DocumentationModelStructurePrimitiveType;
@@ -16,10 +12,6 @@ export interface DocumentationModelStructureType {
 
 export class DocumentationModelStructurePrimitiveType
   implements DocumentationModelStructureType {
-
-  cardinalityMin: number | null = null;
-
-  cardinalityMax: number | null = null;
 
   humanLabel: string | null = null;
 
@@ -40,10 +32,6 @@ export class DocumentationModelStructurePrimitiveType
 
 export class DocumentationModelStructureComplexType
   implements DocumentationModelStructureType {
-
-  cardinalityMin: number | null = null;
-
-  cardinalityMax: number | null = null;
 
   entity: DocumentationModelStructureEntity | null = null;
 
