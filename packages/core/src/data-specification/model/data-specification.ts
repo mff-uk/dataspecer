@@ -8,8 +8,14 @@ export class DataSpecification {
 
   psms: string [] = [];
 
+  /**
+   * IRIs of other data specifications.
+   */
   importsDataSpecifications: string[] = [];
 
+  /**
+   * All artefacts that should be generated.
+   */
   artefacts: DataSpecificationArtefact[] = [];
 
 }

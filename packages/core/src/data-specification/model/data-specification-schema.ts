@@ -8,4 +8,14 @@ export class DataSpecificationSchema extends DataSpecificationArtefact {
 
   psm: string | null = null;
 
+  constructor() {
+    super();
+    this.type = "schema";
+  }
+
+  static is(artefact: DataSpecificationArtefact)
+    : artefact is DataSpecificationArtefact {
+    return artefact.type === "schema";
+  }
+
 }
