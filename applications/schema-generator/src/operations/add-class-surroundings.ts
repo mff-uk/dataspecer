@@ -132,11 +132,13 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmStoreSelector: StoreDescriptor,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
-        const dom = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
-        const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
+        const domainAssociationEnd = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimAssociationEnd;
+        const domainAssociationEndClass = await this.sourcePimModel.readResource(domainAssociationEnd.pimPart as string) as PimClass;
+        const rangeAssociationEnd = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimAssociationEnd;
+        const rangeAssociationEndClass = await this.sourcePimModel.readResource(rangeAssociationEnd.pimPart as string) as PimClass;
 
-        const thisAssociationEndClass = orientation ? dom : rng;
-        const otherAssociationEndClass = orientation ? rng : dom;
+        const thisAssociationEndClass = orientation ? domainAssociationEndClass : rangeAssociationEndClass;
+        const otherAssociationEndClass = orientation ? rangeAssociationEndClass : domainAssociationEndClass;
 
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
@@ -218,19 +220,19 @@ export class AddClassSurroundings implements ComplexOperation {
             }
         }
 
-        // iris to PIM classes
-        const pimEnd = [];
+        // IRI of local PIM classes from the association ends
+        const pimEnd: string[] = [];
         for (const endIri of resource.pimEnd) {
             const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
-            //const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
-            const localPimIri = await executor.store.getPimHavingInterpretation(endPim.pimInterpretation as string, pimStoreSelector);
+            const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
+            const localPimIri = await executor.store.getPimHavingInterpretation(endClass.pimInterpretation as string, pimStoreSelector);
             if (localPimIri === null) {
                 throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
             }
             pimEnd.push(localPimIri);
         }
 
-        const pimCreateAssociation = new PimCreateAssociation();
+        const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
         pimCreateAssociation.pimAssociationEnds = pimEnd;
         const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
