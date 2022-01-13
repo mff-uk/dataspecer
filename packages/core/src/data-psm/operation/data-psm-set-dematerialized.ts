@@ -1,23 +1,23 @@
 import {CoreResource, CoreOperation} from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
-export class DataPsmSetMaterialized extends CoreOperation {
+export class DataPsmSetDematerialized extends CoreOperation {
 
   static readonly TYPE = PSM.SET_MATERIALIZED;
 
   dataPsmAssociationEnd: string | null = null;
 
-  dataPsmIsMaterialized: boolean | null = null;
+  dataPsmIsDematerialized: boolean | null = null;
 
   constructor() {
     super();
-    this.types.push(DataPsmSetMaterialized.TYPE);
+    this.types.push(DataPsmSetDematerialized.TYPE);
   }
 
   static is(
     resource: CoreResource | null,
-  ): resource is DataPsmSetMaterialized {
-    return resource?.types.includes(DataPsmSetMaterialized.TYPE);
+  ): resource is DataPsmSetDematerialized {
+    return resource?.types.includes(DataPsmSetDematerialized.TYPE);
   }
 
 }

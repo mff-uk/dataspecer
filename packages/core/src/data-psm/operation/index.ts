@@ -10,7 +10,7 @@ export * from "./data-psm-delete-class-reference";
 export * from "./data-psm-set-datatype";
 export * from "./data-psm-set-human-description";
 export * from "./data-psm-set-human-label";
-export * from "./data-psm-set-materialized";
+export * from "./data-psm-set-dematerialized";
 export * from "./data-psm-set-interpretation";
 export * from "./data-psm-set-order";
 export * from "./data-psm-set-part";

@@ -3,16 +3,15 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
 } from "../../core";
-import {DataPsmSetMaterialized} from "../operation";
+import {DataPsmSetDematerialized} from "../operation";
 import {DataPsmAssociationEnd} from "../model";
 import {DataPsmExecutorResultFactory} from "./data-psm-executor-utils";
 
-export async function executeDataPsmSetMaterialized(
+export async function executeDataPsmSetDematerialize(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmSetMaterialized,
+  operation: DataPsmSetDematerialized,
 ): Promise<CoreExecutorResult> {
-
   const resource = await reader.readResource(operation.dataPsmAssociationEnd);
   if (resource == null || !DataPsmAssociationEnd.is(resource)) {
     return DataPsmExecutorResultFactory.invalidType(
@@ -20,6 +19,6 @@ export async function executeDataPsmSetMaterialized(
   }
   return CoreExecutorResult.createSuccess([], [{
     ...resource,
-    "dataPsmIsMaterialized": operation.dataPsmIsMaterialized,
+    "dataPsmIsDematerialize": operation.dataPsmIsDematerialized,
   } as DataPsmAssociationEnd]);
 }

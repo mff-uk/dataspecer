@@ -1,15 +1,15 @@
 import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmSetMaterialized} from "../operation";
+import {DataPsmSetDematerialized} from "../operation";
 import {
-  executeDataPsmSetMaterialized,
-} from "./data-psm-set-materialized-executor";
+  executeDataPsmSetDematerialize,
+} from "./data-psm-set-dematerialize-executor";
 import * as PSM from "../data-psm-vocabulary";
 import {DataPsmAssociationEnd, DataPsmClassReference} from "../model";
 
 test("Update data PSM association materialized.", async () => {
-  const operation = new DataPsmSetMaterialized();
+  const operation = new DataPsmSetDematerialized();
   operation.dataPsmAssociationEnd = "http://association-end";
-  operation.dataPsmIsMaterialized = true;
+  operation.dataPsmIsDematerialized = true;
 
   const before = {
     "http://association-end": {
@@ -23,7 +23,7 @@ test("Update data PSM association materialized.", async () => {
     } as DataPsmClassReference,
   };
 
-  const actual = await executeDataPsmSetMaterialized(
+  const actual = await executeDataPsmSetDematerialize(
     wrapResourcesWithReader(before),
     undefined, operation);
 
@@ -34,7 +34,7 @@ test("Update data PSM association materialized.", async () => {
       iri: "http://association-end",
       types: [PSM.ASSOCIATION_END],
       dataPsmPart: "http://part",
-      dataPsmIsMaterialized: operation.dataPsmIsMaterialized,
+      dataPsmIsDematerialize: operation.dataPsmIsDematerialized,
     } as DataPsmAssociationEnd,
   });
   expect(actual.deleted).toEqual([]);

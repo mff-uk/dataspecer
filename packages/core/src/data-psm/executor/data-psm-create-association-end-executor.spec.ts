@@ -12,7 +12,7 @@ test("Create data PSM association-end.", async () => {
   operation.dataPsmHumanLabel = {"en": "Label"};
   operation.dataPsmHumanDescription = {"en": "Desc"};
   operation.dataPsmOwner = "http://class";
-  operation.dataPsmIsMaterialized = true;
+  operation.dataPsmIsDematerialize = true;
 
   const before = {
     "http://schema": {
@@ -43,7 +43,7 @@ test("Create data PSM association-end.", async () => {
       "dataPsmHumanLabel": operation.dataPsmHumanLabel,
       "dataPsmHumanDescription": operation.dataPsmHumanDescription,
       "dataPsmPart": null,
-      "dataPsmIsMaterialized": operation.dataPsmIsMaterialized,
+      "dataPsmIsDematerialize": operation.dataPsmIsDematerialize,
     },
   });
   expect(actual.changed).toEqual({

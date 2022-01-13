@@ -10,7 +10,7 @@ export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
   dataPsmPart: string | null = null;
 
-  dataPsmIsMaterialized: boolean | null = null;
+  dataPsmIsDematerialize: boolean | null = null;
 
   constructor() {
     super();
