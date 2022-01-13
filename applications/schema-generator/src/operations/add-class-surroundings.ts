@@ -2,7 +2,7 @@ import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimSetExtends} from "@model-driven-data/core/pim/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality, PimSetExtends} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
@@ -221,7 +221,8 @@ export class AddClassSurroundings implements ComplexOperation {
         }
 
         // IRI of local PIM classes from the association ends
-        const pimEnd: string[] = [];
+        const pimEndIris: string[] = [];
+        const pimEnds: PimAssociationEnd[] = [];
         for (const endIri of resource.pimEnd) {
             const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
             const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
@@ -229,17 +230,35 @@ export class AddClassSurroundings implements ComplexOperation {
             if (localPimIri === null) {
                 throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
             }
-            pimEnd.push(localPimIri);
+            pimEndIris.push(localPimIri);
+            pimEnds.push(endPim);
         }
 
         const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
-        pimCreateAssociation.pimAssociationEnds = pimEnd;
+        pimCreateAssociation.pimAssociationEnds = pimEndIris;
         const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
-        return {
+        const operationResult =  {
             associationIri: pimCreateAssociationResult.created[0],
             associationEnds: pimCreateAssociationResult.created.slice(1)
         }
+
+        // Set cardinalities of association ends if differs
+        for (let i = 0; i < operationResult.associationEnds.length; i++) {
+            const associationEnd = await executor.store.readResource(operationResult.associationEnds[i]) as PimAssociationEnd;
+
+            if (associationEnd.pimCardinalityMin !== pimEnds[i].pimCardinalityMin ||
+                associationEnd.pimCardinalityMax !== pimEnds[i].pimCardinalityMax) {
+
+                const pimSetCardinality = new PimSetCardinality();
+                pimSetCardinality.pimCardinalityMin = pimEnds[i].pimCardinalityMin;
+                pimSetCardinality.pimCardinalityMax = pimEnds[i].pimCardinalityMax;
+                pimSetCardinality.pimResource = associationEnd.iri;
+                await executor.applyOperation(pimSetCardinality, pimStoreSelector);
+            }
+        }
+
+        return operationResult;
     }
 
     /**

@@ -225,7 +225,7 @@ export class SgovAdapter implements CimAdapter {
         associationsProcessed.add(cimAssociationIri);
 
         const associationResources = await loadSgovAssociation(
-          entity, this.iriProvider);
+          entity, source, this.iriProvider);
         associationResources.forEach(r => resources[r.iri] = r);
 
         // Add linked classes to the processQueue

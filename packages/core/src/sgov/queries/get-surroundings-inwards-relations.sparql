@@ -13,7 +13,15 @@ CONSTRUCT {
         skos:prefLabel ?inwardsRelationLabel ;
         skos:definition ?inwardsRelationDefinition ;
         skos:inScheme ?inwardsRelationGlossary ;
-        rdfs:subPropertyOf ?parentRelation .
+        rdfs:subPropertyOf ?parentRelation ;
+        <__domain_cardinality> ?domain_cardinality ;
+        <__range_cardinality> ?range_cardinality .
+
+    ?domain_cardinality owl:maxQualifiedCardinality ?domain_max ;
+        owl:minQualifiedCardinality ?domain_min .
+
+    ?range_cardinality owl:maxQualifiedCardinality ?range_max ;
+        owl:minQualifiedCardinality ?range_min .
 
     ?domainElement a z:typ-objektu ;
         rdfs:subClassOf ?ancestor ;
@@ -43,4 +51,47 @@ CONSTRUCT {
         skos:inScheme ?domainGlossary .
 
     OPTIONAL { ?domainElement skos:definition ?domainDefinition }
+
+    # Cardinalities START
+        OPTIONAL {
+            ?outwardsRelation rdfs:subClassOf [
+                a owl:Restriction ;
+                owl:onProperty z:má-vztažený-prvek-1 ;
+                owl:onClass ?domainElement ;
+                owl:maxQualifiedCardinality ?domain_max
+            ] .
+        }
+
+        OPTIONAL {
+            ?outwardsRelation rdfs:subClassOf [
+                a owl:Restriction ;
+                owl:onProperty z:má-vztažený-prvek-1 ;
+                owl:onClass ?domainElement ;
+                owl:minQualifiedCardinality ?domain_min
+            ] .
+        }
+
+        OPTIONAL {
+            ?outwardsRelation rdfs:subClassOf [
+                a owl:Restriction ;
+                owl:onProperty z:má-vztažený-prvek-2 ;
+                owl:onClass %NODE% ;
+                owl:maxQualifiedCardinality ?range_max
+            ] .
+        }
+
+        OPTIONAL {
+            ?outwardsRelation rdfs:subClassOf [
+                a owl:Restriction ;
+                owl:onProperty z:má-vztažený-prvek-2 ;
+                owl:onClass %NODE% ;
+                owl:minQualifiedCardinality ?range_min
+            ] .
+        }
+
+        #{BIND(BNODE() as ?domain_cardinality)} # Not working under Virtuoso@7
+        #{BIND(BNODE() as ?range_cardinality)}
+        BIND(IRI(CONCAT(STR(?outwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
+        BIND(IRI(CONCAT(STR(?outwardsRelation), '#range-cardinality')) as ?range_cardinality)
+    # Cardinalities END
 }
