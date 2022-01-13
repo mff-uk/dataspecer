@@ -4,9 +4,9 @@ import {
 
 export interface DocumentationModelConceptualType {
 
-  isComplex(): boolean;
+  isComplex(): this is DocumentationModelConceptualComplexType;
 
-  isPrimitive(): boolean;
+  isPrimitive(): this is DocumentationModelConceptualPrimitiveType;
 
 }
 
