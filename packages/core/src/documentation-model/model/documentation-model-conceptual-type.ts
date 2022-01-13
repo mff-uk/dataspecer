@@ -4,14 +4,22 @@ import {
 
 export interface DocumentationModelConceptualType {
 
+  cardinalityMin: number | null;
+
+  cardinalityMax: number | null;
+
   isComplex(): boolean;
 
   isPrimitive(): boolean;
 
 }
 
-export class WebSpecificationConceptualPrimitiveType
+export class DocumentationModelConceptualPrimitiveType
   implements DocumentationModelConceptualType {
+
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
 
   isComplex(): boolean {
     return false;
@@ -23,8 +31,12 @@ export class WebSpecificationConceptualPrimitiveType
 
 }
 
-export class WebSpecificationConceptualComplexType
+export class DocumentationModelConceptualComplexType
   implements DocumentationModelConceptualType {
+
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
 
   entity: DocumentationModelConceptualEntity | null = null;
 

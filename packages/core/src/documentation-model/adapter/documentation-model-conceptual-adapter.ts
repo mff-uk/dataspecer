@@ -1,69 +1,73 @@
 import {
-  ModelsToWebSpecificationConfiguration,
+  DocumentationAdapterConfiguration,
 } from "./documentation-model-adapter";
 import {ConceptualModel} from "../../conceptual-model";
 import {
   DocumentationModelConceptual,
-  WebSpecificationConceptualComplexType,
-  WebSpecificationConceptualPrimitiveType,
+  DocumentationModelConceptualComplexType,
+  DocumentationModelConceptualPrimitiveType,
   DocumentationModelConceptualProperty,
 } from "../model";
 import {DocumentationModelConceptualEntity} from "../model";
 import {assertFailed} from "../../core";
 
 export function conceptualModelToWebSpecification(
-  configuration: ModelsToWebSpecificationConfiguration,
+  configuration: DocumentationAdapterConfiguration,
   conceptualModel: ConceptualModel
 ): DocumentationModelConceptual {
   const result = new DocumentationModelConceptual();
-  const typesToResolve: [string, WebSpecificationConceptualComplexType][] = [];
+  const typesToResolve: [string, DocumentationModelConceptualComplexType][] = [];
   const entitiesMap: Record<string, DocumentationModelConceptualEntity> = {};
   for (const classData of Object.values(conceptualModel.classes)) {
-    const webEntity = new DocumentationModelConceptualEntity();
-    webEntity.humanLabel =
+    const entity = new DocumentationModelConceptualEntity();
+    entity.humanLabel =
       configuration.selectString(classData.humanLabel);
-    webEntity.humanDescription =
+    entity.humanDescription =
       configuration.selectString(classData.humanDescription);
-    webEntity.cimIri =
+    entity.cimIri =
       classData.cimIri;
-    webEntity.pimIri =
+    entity.pimIri =
       classData.pimIri;
-    webEntity.isCodelist =
+    entity.isCodelist =
       classData.isCodelist;
-    webEntity.codelistUrls =
+    entity.codelistUrls =
       classData.codelistUrl;
-    webEntity.anchor = configuration.createConceptualClassAnchor(classData);
-    result.entities.push(webEntity);
-    entitiesMap[classData.pimIri] = webEntity;
+    entity.anchor = configuration.createConceptualClassAnchor(classData);
+    result.entities.push(entity);
+    entitiesMap[classData.pimIri] = entity;
     for (const propertyData of classData.properties) {
-      const webProperty = new DocumentationModelConceptualProperty();
-      webProperty.humanLabel =
+      const property = new DocumentationModelConceptualProperty();
+      property.humanLabel =
         configuration.selectString(propertyData.humanLabel);
-      webProperty.humanDescription =
+      property.humanDescription =
         configuration.selectString(propertyData.humanDescription);
-      webProperty.cimIri =
+      property.cimIri =
         propertyData.cimIri;
-      webProperty.pimIri =
+      property.pimIri =
         propertyData.pimIri;
-      webProperty.anchor = configuration.createConceptualPropertyAnchor(
+      property.anchor = configuration.createConceptualPropertyAnchor(
         classData, propertyData);
-      webEntity.properties.push(webProperty);
+      entity.properties.push(property);
       // As of now
       for (const typeData of propertyData.dataTypes) {
-        let webType;
         if (typeData.isAssociation()) {
-          webType = new WebSpecificationConceptualComplexType();
+          const type = new DocumentationModelConceptualComplexType();
+          type.cardinalityMin = propertyData.cardinalityMin;
+          type.cardinalityMax = propertyData.cardinalityMax;
+          property.types.push(type);
           // We can not save class now as it may not be available, so we do
           // it later.
-          typesToResolve.push([typeData.pimClassIri, webType])
+          typesToResolve.push([typeData.pimClassIri, type])
         } else if (typeData.isAttribute()) {
           // As of now we do not have the information about primitive
           // types on CIM and so PIM level. This may change in the future.
-          webType = new WebSpecificationConceptualPrimitiveType();
+          const type = new DocumentationModelConceptualPrimitiveType();
+          type.cardinalityMin = propertyData.cardinalityMin;
+          type.cardinalityMax = propertyData.cardinalityMax;
+          property.types.push(type);
         } else {
           assertFailed("Unexpected property data type.");
         }
-        webProperty.types.push(webType);
       }
     }
   }

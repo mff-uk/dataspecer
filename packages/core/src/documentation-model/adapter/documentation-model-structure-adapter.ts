@@ -1,20 +1,20 @@
-import {ModelsToWebSpecificationConfiguration} from "./documentation-model-adapter";
+import {DocumentationAdapterConfiguration} from "./documentation-model-adapter";
 import {StructureModel} from "../../structure-model";
 import {
   DocumentationModelConceptual,
   DocumentationModelConceptualEntity,
   DocumentationModelConceptualProperty,
   DocumentationModelStructure,
-  WebSpecificationStructureComplexType,
+  DocumentationModelStructureComplexType,
   DocumentationModelStructureEntity,
-  WebSpecificationStructurePrimitiveType,
+  DocumentationModelStructurePrimitiveType,
   DocumentationModelStructureProperty,
 } from "../model";
 import {assert, assertFailed} from "../../core";
 import {OFN} from "../../well-known";
 
 export function structureModelToWebSpecificationPsm(
-  configuration: ModelsToWebSpecificationConfiguration,
+  configuration: DocumentationAdapterConfiguration,
   conceptualWebSpecification: DocumentationModelConceptual,
   structureModel: StructureModel
 ): DocumentationModelStructure {
@@ -32,7 +32,7 @@ export function structureModelToWebSpecificationPsm(
     }
     classIris.push(iri);
   }
-  const typesToResolve: [string, WebSpecificationStructureComplexType][] = [];
+  const typesToResolve: [string, DocumentationModelStructureComplexType][] = [];
   const resultEntityMap: Record<string, DocumentationModelStructureEntity> = {};
   const entityMap: Record<string, DocumentationModelConceptualEntity> =
     buildConceptualEntityMap(conceptualWebSpecification);
@@ -41,48 +41,52 @@ export function structureModelToWebSpecificationPsm(
   for (const classIri of classIris) {
     const classData = structureModel.classes[classIri];
     assert(classData !== null, "Missing class data");
-    const webEntity = new DocumentationModelStructureEntity();
-    webEntity.humanLabel = configuration.selectString(
+    const entity = new DocumentationModelStructureEntity();
+    entity.humanLabel = configuration.selectString(
       classData.humanLabel);
-    webEntity.humanDescription = configuration.selectString(
+    entity.humanDescription = configuration.selectString(
       classData.humanDescription);
-    webEntity.technicalLabel =
+    entity.technicalLabel =
       classData.technicalLabel;
-    webEntity.anchor =
+    entity.anchor =
       configuration.createStructureClassAnchor(classData);
-    webEntity.conceptualEntity =
+    entity.conceptualEntity =
       entityMap[classData.pimIri];
-    result.entities.push(webEntity);
-    resultEntityMap[classData.psmIri] = webEntity;
+    result.entities.push(entity);
+    resultEntityMap[classData.psmIri] = entity;
     for (const propertyData of classData.properties) {
-      const webProperty = new DocumentationModelStructureProperty();
-      webProperty.humanLabel = configuration.selectString(
+      const property = new DocumentationModelStructureProperty();
+      property.humanLabel = configuration.selectString(
         propertyData.humanLabel);
-      webProperty.humanDescription = configuration.selectString(
+      property.humanDescription = configuration.selectString(
         propertyData.humanDescription);
-      webProperty.technicalLabel =
+      property.technicalLabel =
         propertyData.technicalLabel;
-      webProperty.conceptualProperty =
+      property.conceptualProperty =
         propertyMap[propertyData.pimIri];
-      webProperty.anchor =
+      property.anchor =
         configuration.createStructurePropertyAnchor(classData, propertyData);
       for (const typeData of propertyData.dataTypes) {
-        let webType;
         if (typeData.isAssociation()) {
-          webType = new WebSpecificationStructureComplexType();
+          const type = new DocumentationModelStructureComplexType();
+          type.cardinalityMin = propertyData.cardinalityMin;
+          type.cardinalityMax = propertyData.cardinalityMax;
+          property.types.push(type);
           // We can not save class now as it may not be available, so we do
           // it later.
-          typesToResolve.push([typeData.psmClassIri, webType]);
+          typesToResolve.push([typeData.psmClassIri, type]);
         } else if (typeData.isAttribute()) {
-          webType = new WebSpecificationStructurePrimitiveType();
-          webType.humanLabel = getPrimitiveTypeHumanLabel(typeData.dataType);
-          webType.typeIri = typeData.dataType;
+          const type = new DocumentationModelStructurePrimitiveType();
+          type.cardinalityMin = propertyData.cardinalityMin;
+          type.cardinalityMax = propertyData.cardinalityMax;
+          type.humanLabel = getPrimitiveTypeHumanLabel(typeData.dataType);
+          type.typeIri = typeData.dataType;
+          property.types.push(type);
         } else {
           assertFailed("Unexpected property data type.");
         }
-        webProperty.types.push(webType);
       }
-      webEntity.properties.push(webProperty);
+      entity.properties.push(property);
     }
   }
   // Set type entities.

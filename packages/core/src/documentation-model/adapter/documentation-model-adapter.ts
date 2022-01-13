@@ -5,28 +5,30 @@ import {
 import {
   ConceptualModel,
   ConceptualModelClass,
-  ConceptualModelProperty
+  ConceptualModelProperty,
 } from "../../conceptual-model";
 import {
   StructureModel,
   StructureModelClass,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../../structure-model";
 import {
   defaultStringSelector,
   LanguageString,
-  StringSelector
+  StringSelector,
 } from "../../core";
-import {structureModelToWebSpecificationPsm} from "./documentation-model-structure-adapter";
+import {
+  structureModelToWebSpecificationPsm,
+} from "./documentation-model-structure-adapter";
 
 /**
  * Configuration object for the adapter.
  */
-export type ModelsToWebSpecificationConfiguration = {
+export type DocumentationAdapterConfiguration = {
 
   /**
    * The object model can be in multiple languages, the specification
-   * is is only one language.
+   * is only one language.
    */
   selectString: StringSelector;
 
@@ -59,10 +61,10 @@ export type ModelsToWebSpecificationConfiguration = {
 
 }
 
-export function modelsToWebSpecification(
+export function modelsToDocumentation(
   conceptualModel: ConceptualModel,
   structureModels: StructureModel[],
-  configuration: ModelsToWebSpecificationConfiguration,
+  configuration: DocumentationAdapterConfiguration,
 ): DocumentationModel {
   const result = new DocumentationModel();
   result.humanLabel =
@@ -82,8 +84,8 @@ export function modelsToWebSpecification(
 /**
  * Creates default configuration.
  */
-export function createModelsToWebSpecificationConfiguration()
-  : ModelsToWebSpecificationConfiguration {
+export function defaultDocumentationAdapterConfiguration()
+  : DocumentationAdapterConfiguration {
   const selectString = defaultStringSelector;
   return {
     "selectString": selectString,

@@ -4,14 +4,22 @@ import {
 
 export interface DocumentationModelStructureType {
 
-  isComplex(): this is WebSpecificationStructureComplexType;
+  cardinalityMin: number | null;
 
-  isPrimitive(): this is WebSpecificationStructurePrimitiveType;
+  cardinalityMax: number | null;
+
+  isComplex(): this is DocumentationModelStructureComplexType;
+
+  isPrimitive(): this is DocumentationModelStructurePrimitiveType;
 
 }
 
-export class WebSpecificationStructurePrimitiveType
+export class DocumentationModelStructurePrimitiveType
   implements DocumentationModelStructureType {
+
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
 
   humanLabel: string | null = null;
 
@@ -20,26 +28,30 @@ export class WebSpecificationStructurePrimitiveType
    */
   typeIri: string | null = null;
 
-  isComplex(): this is WebSpecificationStructureComplexType {
+  isComplex(): this is DocumentationModelStructureComplexType {
     return false;
   }
 
-  isPrimitive(): this is WebSpecificationStructurePrimitiveType {
+  isPrimitive(): this is DocumentationModelStructurePrimitiveType {
     return true;
   }
 
 }
 
-export class WebSpecificationStructureComplexType
+export class DocumentationModelStructureComplexType
   implements DocumentationModelStructureType {
+
+  cardinalityMin: number | null = null;
+
+  cardinalityMax: number | null = null;
 
   entity: DocumentationModelStructureEntity | null = null;
 
-  isComplex(): this is WebSpecificationStructureComplexType {
+  isComplex(): this is DocumentationModelStructureComplexType {
     return true;
   }
 
-  isPrimitive(): this is WebSpecificationStructurePrimitiveType {
+  isPrimitive(): this is DocumentationModelStructurePrimitiveType {
     return false;
   }
 
