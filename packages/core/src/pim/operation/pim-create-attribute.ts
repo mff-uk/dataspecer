@@ -10,6 +10,10 @@ export class PimCreateAttribute extends PimCreate {
 
   pimDatatype: string | null = null;
 
+  pimCardinalityMin: number | null = null;
+
+  pimCardinalityMax: number | null = null;
+
   constructor() {
     super();
     this.types.push(PimCreateAttribute.TYPE);

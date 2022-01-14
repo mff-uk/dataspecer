@@ -12,7 +12,15 @@ CONSTRUCT {
         rdfs:range ?rangeElement ;
         skos:prefLabel ?outwardsRelationLabel ;
         skos:definition ?outwardsRelationDefinition ;
-        skos:inScheme ?outwardsRelationGlossary .
+        skos:inScheme ?outwardsRelationGlossary ;
+        <__domain_cardinality> ?domain_cardinality ;
+        <__range_cardinality> ?range_cardinality .
+
+    ?domain_cardinality owl:maxQualifiedCardinality ?domain_max ;
+        owl:minQualifiedCardinality ?domain_min .
+
+    ?range_cardinality owl:maxQualifiedCardinality ?range_max ;
+        owl:minQualifiedCardinality ?range_min .
 
     ?rangeElement a z:typ-objektu ;
         skos:prefLabel ?rangeLabel ;
@@ -46,4 +54,47 @@ CONSTRUCT {
     OPTIONAL { ?rangeElement skos:definition ?rangeDefinition }
 
     BIND(EXISTS {?rangeElement rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
+
+    # Cardinalities START
+    OPTIONAL {
+        ?outwardsRelation rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty z:má-vztažený-prvek-1 ;
+            owl:onClass %NODE% ;
+            owl:maxQualifiedCardinality ?domain_max
+        ] .
+    }
+
+    OPTIONAL {
+        ?outwardsRelation rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty z:má-vztažený-prvek-1 ;
+            owl:onClass %NODE% ;
+            owl:minQualifiedCardinality ?domain_min
+        ] .
+    }
+
+    OPTIONAL {
+        ?outwardsRelation rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty z:má-vztažený-prvek-2 ;
+            owl:onClass ?rangeElement ;
+            owl:maxQualifiedCardinality ?range_max
+        ] .
+    }
+
+    OPTIONAL {
+        ?outwardsRelation rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty z:má-vztažený-prvek-2 ;
+            owl:onClass ?rangeElement ;
+            owl:minQualifiedCardinality ?range_min
+        ] .
+    }
+
+    #{BIND(BNODE() as ?domain_cardinality)} # Not working under Virtuoso@7
+    #{BIND(BNODE() as ?range_cardinality)}
+    BIND(IRI(CONCAT(STR(?outwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
+    BIND(IRI(CONCAT(STR(?outwardsRelation), '#range-cardinality')) as ?range_cardinality)
+    # Cardinalities END
 }

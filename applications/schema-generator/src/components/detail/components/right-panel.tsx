@@ -13,7 +13,7 @@ import {PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core
 import {Icons} from "../../../icons";
 import {isEqual} from "lodash";
 import {SetClassCodelist} from "../../../operations/set-class-codelist";
-import {useDialogSaveStatus} from "../dialog-save";
+import {useSaveHandler} from "../../helper/save-handler";
 import {CardContent} from "../../../mui-overrides";
 import {TransitionGroup} from "react-transition-group";
 import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
@@ -63,17 +63,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const {t} = useTranslation("detail");
 
-    useDialogSaveStatus(
+    useSaveHandler(
         resource !== null && (resource.dataPsmTechnicalLabel ?? "") !== technicalLabel,
         useCallback(async () => resource && await store.executeOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 
-    useDialogSaveStatus(
+    useSaveHandler(
         resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
         useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype))), [resource, store, datatype]),
     );
 
-    useDialogSaveStatus(
+    useSaveHandler(
         isClass && !isEqual(codelistUrl, (pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false),
         useCallback(
             async () => pimResource && await store.executeOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
@@ -89,7 +89,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         }
     }, [pimResource, isAttribute, isAssociationEnd]);
 
-    useDialogSaveStatus(
+    useSaveHandler(
         (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd)),
         useCallback(
             async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
