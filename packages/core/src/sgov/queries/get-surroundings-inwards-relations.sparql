@@ -46,11 +46,13 @@ CONSTRUCT {
     }
 
     OPTIONAL { ?inwardsRelation skos:definition ?inwardsRelationDefinition }
+    OPTIONAL { ?inwardsRelation skos:scopeNote ?inwardsRelationDefinition }
 
     ?domainElement skos:prefLabel ?domainLabel ;
         skos:inScheme ?domainGlossary .
 
     OPTIONAL { ?domainElement skos:definition ?domainDefinition }
+    OPTIONAL { ?domainElement skos:scopeNote ?domainDefinition }
 
     # Cardinalities START
         OPTIONAL {

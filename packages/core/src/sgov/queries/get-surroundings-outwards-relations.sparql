@@ -47,11 +47,13 @@ CONSTRUCT {
     }
 
     OPTIONAL { ?outwardsRelation skos:definition ?outwardsRelationDefinition }
+    OPTIONAL { ?outwardsRelation skos:scopeNote ?outwardsRelationDefinition }
 
     ?rangeElement skos:prefLabel ?rangeLabel ;
         skos:inScheme ?rangeGlossary .
 
     OPTIONAL { ?rangeElement skos:definition ?rangeDefinition }
+    OPTIONAL { ?rangeElement skos:scopeNote ?rangeDefinition }
 
     BIND(EXISTS {?rangeElement rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 

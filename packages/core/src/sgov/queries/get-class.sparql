@@ -16,6 +16,7 @@ CONSTRUCT {
   OPTIONAL { ?node skos:prefLabel ?label . }
   OPTIONAL { ?node rdfs:subClassOf ?ancestor . }
   OPTIONAL { ?node skos:definition ?definition . }
+  OPTIONAL { ?node skos:scopeNote ?definition . }
   OPTIONAL { ?node skos:inScheme ?glossary . }
   BIND(EXISTS {?node rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
   FILTER (?node = %NODE%)

@@ -16,6 +16,7 @@ CONSTRUCT {
     OPTIONAL { ?parent rdfs:subClassOf ?ancestor }
     OPTIONAL { ?parent skos:prefLabel ?label }
     OPTIONAL { ?parent skos:definition ?definition }
+    OPTIONAL { ?parent skos:scopeNote ?definition }
     OPTIONAL { ?parent skos:inScheme ?glossary }
     BIND(EXISTS {?parent rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 }

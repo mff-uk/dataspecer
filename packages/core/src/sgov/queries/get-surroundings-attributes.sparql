@@ -74,4 +74,5 @@ CONSTRUCT {
     # Cardinalities END
 
     OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+    OPTIONAL { ?attribute skos:scopeNote ?attributeDefinition }
 }
