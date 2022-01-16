@@ -10,6 +10,8 @@ export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
   dataPsmPart: string | null = null;
 
+  dataPsmIsMaterialized: boolean | null = null;
+
   constructor() {
     super();
     this.types.push(DataPsmCreateAssociationEnd.TYPE);

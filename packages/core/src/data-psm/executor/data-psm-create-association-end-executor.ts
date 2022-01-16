@@ -36,6 +36,7 @@ export async function executeDataPsmCreateAssociationEnd (
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmPart = operation.dataPsmPart;
+  result.dataPsmIsMaterialized = operation.dataPsmIsMaterialized;
 
   return CoreExecutorResult.createSuccess([result], [{
     ...schema,

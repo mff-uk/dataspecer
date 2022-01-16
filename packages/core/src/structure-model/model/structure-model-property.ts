@@ -35,4 +35,9 @@ export class StructureModelProperty {
 
   dataTypes: StructureModelType[] = [];
 
+  /**
+   * If true the output is not materialized.
+   */
+  isNotMaterialized: boolean | null = null;
+
 }
