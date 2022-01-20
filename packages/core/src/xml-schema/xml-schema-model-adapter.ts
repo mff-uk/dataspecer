@@ -7,6 +7,7 @@ import {
 } from "../structure-model";
 import {
   XmlSchema,
+  XmlSchemaComplexContent,
   XmlSchemaComplexContentElement,
   XmlSchemaComplexContentType,
   XmlSchemaComplexType,
@@ -16,6 +17,7 @@ import {
   XmlSchemaType,
   QName,
   langStringName,
+  xmlSchemaTypeIsComplex,
 } from "./xml-schema-model";
 
 import {XSD, OFN} from "../well-known";
@@ -112,14 +114,29 @@ class XmlSchemaAdapter {
 
   propertyToComplexContent(
     propertyData: StructureModelProperty,
-  ): XmlSchemaComplexContentElement {
-    return {
+  ): XmlSchemaComplexContent {
+    const elementContent: XmlSchemaComplexContentElement = {
       "cardinality": {
         "min": propertyData.cardinalityMin,
         "max": propertyData.cardinalityMax,
       },
       "element": this.propertyToElement(propertyData),
     };
+    if (propertyData.isNotMaterialized) {
+      const type = elementContent.element.type;
+      if (xmlSchemaTypeIsComplex(type)) {
+        return {
+          "cardinality": elementContent.cardinality,
+          "complexType": type.complexDefinition,
+        } as XmlSchemaComplexContentType;
+      } else {
+        throw new Error(
+          `Property ${propertyData.psmIri} must be of a class type `
+          + "if specified as non-materialized."
+        );
+      }
+    }
+    return elementContent;
   }
 
   propertyToElement(
