@@ -14,7 +14,7 @@ export class DataSpecificationSchema extends DataSpecificationArtefact {
   }
 
   static is(artefact: DataSpecificationArtefact)
-    : artefact is DataSpecificationArtefact {
+    : artefact is DataSpecificationSchema {
     return artefact.type === "schema";
   }
 

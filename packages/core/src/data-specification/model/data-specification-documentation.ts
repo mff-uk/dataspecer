@@ -8,14 +8,7 @@ export class DataSpecificationDocumentation extends DataSpecificationArtefact {
   /**
    * Artefacts to include from the owner specification.
    */
-  artefacts: {
-
-    /**
-     * Artefact IRI.
-     */
-    iri: string;
-
-  }[] = [];
+  artefacts: string[] = [];
 
   constructor() {
     super();
