@@ -79,18 +79,19 @@ class ConceptualModelAdapter {
       ends.length === 2,
       `Association ${associationData.iri} must have two association ends.`);
 
-    const source: PimAssociationEnd = ends[0];
-    const sourceClass = this.getClass(source.pimPart);
+    // Association can be used in both directions.
+    const left: PimAssociationEnd = ends[0];
+    const leftClass = this.getClass(left.pimPart);
 
-    const target: PimAssociationEnd = ends[1];
-    const targetClass = this.getClass(target.pimPart);
+    const right: PimAssociationEnd = ends[1];
+    const rightClass = this.getClass(right.pimPart);
 
     this.createAssociationEnd(
-      sourceClass, targetClass, associationData, source);
+      leftClass, rightClass, associationData, right);
     // If there is no orientation then add this.
     if (!associationData.pimIsOriented) {
       this.createAssociationEnd(
-        targetClass, sourceClass, associationData, target);
+        rightClass, leftClass, associationData, left);
     }
   }
 
