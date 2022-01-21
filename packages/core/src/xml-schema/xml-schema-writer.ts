@@ -5,7 +5,8 @@ import {OutputStream} from "../io/stream/output-stream";
 import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexTypeDefinition,
   XmlSchemaElement, XmlSchemaSimpleTypeDefinition, xmlSchemaTypeIsComplex,
   xmlSchemaTypeIsSimple, xmlSchemaComplexContentIsElement,
-  xmlSchemaComplexContentIsType} from "./xml-schema-model";
+  xmlSchemaComplexContentIsType, QName,
+  langStringName} from "./xml-schema-model";
 
 import {XmlWriter, XmlStreamWriter} from "./xml-writer";
 
@@ -43,6 +44,7 @@ export async function writeXmlSchema(
 ): Promise<void> {
   const writer = new XmlStreamWriter(stream);
   await writeSchemaBegin(writer);
+  await writeImportsAndDefinitions(model, writer);
   await writeElements(model, writer);
   await writeSchemaEnd(writer);
 }
@@ -58,6 +60,30 @@ async function writeSchemaBegin(writer: XmlWriter): Promise<void> {
 
 async function writeSchemaEnd(writer: XmlWriter): Promise<void> {
   await writer.writeElementEnd("xs", "schema");
+}
+
+async function writeImportsAndDefinitions(
+  model: XmlSchema, writer: XmlWriter,
+): Promise<void> {
+  if (model.defineLangString) {
+    await writer.writeElementBegin("xs", "import");
+    await writer.writeLocalAttributeValue("namespace", "http://www.w3.org/XML/1998/namespace/");
+    await writer.writeLocalAttributeValue("schemaLocation", "http://www.w3.org/2001/xml.xsd");
+    await writer.writeElementEnd("xs", "import");
+
+    await writer.writeElementBegin("xs", "complexType");
+    await writer.writeLocalAttributeValue("name", writer.getQName(...langStringName));
+    await writer.writeElementBegin("xs", "simpleContent");
+    await writer.writeElementBegin("xs", "extension");
+    await writer.writeLocalAttributeValue("base", writer.getQName("xs", "string"));
+    await writer.writeElementBegin("xs", "attribute");
+    await writer.writeLocalAttributeValue("ref", writer.getQName("xml", "lang"));
+    await writer.writeLocalAttributeValue("use", "required");
+    await writer.writeElementEnd("xs", "attribute");
+    await writer.writeElementEnd("xs", "extension");
+    await writer.writeElementEnd("xs", "simpleContent");
+    await writer.writeElementEnd("xs", "complexType");
+  }
 }
 
 async function writeElements(
