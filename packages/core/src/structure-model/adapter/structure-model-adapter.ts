@@ -129,7 +129,7 @@ class StructureModelAdapter {
     model.humanLabel = associationEndData.dataPsmHumanLabel;
     model.humanDescription = associationEndData.dataPsmHumanDescription;
     model.technicalLabel = associationEndData.dataPsmTechnicalLabel;
-    model.isNotMaterialized = associationEndData.dataPsmIsMaterialized === true;
+    model.dematerialize = associationEndData.dataPsmIsDematerialize === true;
 
     const pimAssociationEndData = await this.reader.readResource(
       associationEndData.dataPsmInterpretation,
