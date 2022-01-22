@@ -33,7 +33,9 @@ function dematerializeClassProperties(
   visited = [...visited, classData.psmIri];
   const result = [];
   for (const property of classData.properties) {
-    if (!property.dematerialize) {
+    // We need to be explicit here, only if value is true we shall
+    // dematerialize the property.
+    if (property.dematerialize !== true) {
       result.push(property);
       continue;
     }
