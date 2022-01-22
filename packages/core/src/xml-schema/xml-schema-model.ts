@@ -1,9 +1,21 @@
+
+/**
+ * A pair of a namespace prefix and a local name.
+ */
+export type QName = [prefix: string, localName: string];
+
+/**
+ * The QName used for an extension of xs:string that requires xml:lang.
+ */
+export const langStringName: QName = [null, "langString"];
+
 /**
  * Represents an xs:schema definition.
  */
 export class XmlSchema {
   targetNamespace: string;
   elements: XmlSchemaElement[];
+  defineLangString: boolean;
 }
 
 /**
@@ -61,7 +73,7 @@ export class XmlSchemaComplexTypeDefinition {
  */
 export class XmlSchemaSimpleTypeDefinition {
   xsType: string;
-  contents: [prefix: string, localName: string][];
+  contents: QName[];
 }
 
 /**

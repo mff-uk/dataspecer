@@ -7,6 +7,7 @@ import {
 } from "../structure-model";
 import {
   XmlSchema,
+  XmlSchemaComplexContent,
   XmlSchemaComplexContentElement,
   XmlSchemaComplexContentType,
   XmlSchemaComplexType,
@@ -14,9 +15,12 @@ import {
   XmlSchemaElement,
   XmlSchemaSimpleType,
   XmlSchemaType,
+  QName,
+  langStringName,
+  xmlSchemaTypeIsComplex,
 } from "./xml-schema-model";
 
-import {XSD} from "../well-known/xsd";
+import {XSD, OFN} from "../well-known";
 
 export function objectModelToXmlSchema(schema: StructureModel): XmlSchema {
   const adapter = new XmlSchemaAdapter(schema.classes);
@@ -31,28 +35,18 @@ const anyUriType: StructureModelPrimitiveType = (function()
 })();
 
 /**
- * Map from datatype URIs to QNames, if needed.
+ * Map from datatype URIs to QNames.
  */
-const TYPE_PREFIX = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
-const simpleTypeMap: Record<string, [prefix: string, localName: string]> = {
-  [TYPE_PREFIX + "boolean"]:
-    ["xs", "boolean"],
-  [TYPE_PREFIX + "datum"]:
-    ["xs", "date"],
-  [TYPE_PREFIX + "čas"]:
-    ["xs", "time"],
-  [TYPE_PREFIX + "datum-a-čas"]:
-    ["xs", "dateTimeStamp"],
-  [TYPE_PREFIX + "celé-číslo"]:
-    ["xs", "integer"],
-  [TYPE_PREFIX + "desetinné-číslo"]:
-    ["xs", "decimal"],
-  [TYPE_PREFIX + "url"]:
-    ["xs", "anyURI"],
-  [TYPE_PREFIX + "řetězec"]:
-    ["xs", "string"],
-  [TYPE_PREFIX + "text"]:
-    ["xs", "string"], //TODO xml:lang
+const simpleTypeMap: Record<string, QName> = {
+  [OFN.boolean]: ["xs", "boolean"],
+  [OFN.date]: ["xs", "date"],
+  [OFN.time]: ["xs", "time"],
+  [OFN.dateTime]: ["xs", "dateTimeStamp"],
+  [OFN.integer]: ["xs", "integer"],
+  [OFN.decimal]: ["xs", "decimal"],
+  [OFN.url]: ["xs", "anyURI"],
+  [OFN.string]: ["xs", "string"],
+  [OFN.text]: langStringName,
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
@@ -60,6 +54,7 @@ const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 type ClassMap = Record<string, StructureModelClass>;
 class XmlSchemaAdapter {
   private classMap: ClassMap;
+  private usesLangString: boolean;
 
   constructor(classes: { [iri: string]: StructureModelClass }) {
     const map: ClassMap = {};
@@ -77,6 +72,7 @@ class XmlSchemaAdapter {
       "elements": roots
         .map(this.getClass, this)
         .map(this.classToElement, this),
+      "defineLangString": this.usesLangString,
     };
   }
 
@@ -118,14 +114,29 @@ class XmlSchemaAdapter {
 
   propertyToComplexContent(
     propertyData: StructureModelProperty,
-  ): XmlSchemaComplexContentElement {
-    return {
+  ): XmlSchemaComplexContent {
+    const elementContent: XmlSchemaComplexContentElement = {
       "cardinality": {
         "min": propertyData.cardinalityMin,
         "max": propertyData.cardinalityMax,
       },
       "element": this.propertyToElement(propertyData),
     };
+    if (propertyData.isNotMaterialized) {
+      const type = elementContent.element.type;
+      if (xmlSchemaTypeIsComplex(type)) {
+        return {
+          "cardinality": elementContent.cardinality,
+          "complexType": type.complexDefinition,
+        } as XmlSchemaComplexContentType;
+      } else {
+        throw new Error(
+          `Property ${propertyData.psmIri} must be of a class type `
+          + "if specified as non-materialized."
+        );
+      }
+    }
+    return elementContent;
   }
 
   propertyToElement(
@@ -227,12 +238,16 @@ class XmlSchemaAdapter {
 
   primitiveToQName(
     primitiveData: StructureModelPrimitiveType,
-  ): [prefix: string, localName: string] {
+  ): QName {
     if (primitiveData.dataType == null) {
       return ["xs", "anySimpleType"];
     }
-    return primitiveData.dataType.startsWith(xsdNamespace) ?
+    const type: QName = primitiveData.dataType.startsWith(xsdNamespace) ?
       ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
       (simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"]);
+    if (type === langStringName) {
+      this.usesLangString = true;
+    }
+    return type;
   }
 }
