@@ -1,17 +1,14 @@
-import {
-  DataSpecification,
-  DataSpecificationSchema
-} from "../data-specification/model";
+import {DataSpecification} from "../data-specification/model";
 import {ConceptualModel} from "../conceptual-model";
 import {StructureModel} from "../structure-model";
 import {CoreResourceReader} from "../core";
 import type {ArtefactGenerator} from "./artefact-generator";
 
-export interface StructureClassSchemaLocation {
+export interface StructureClassLocation {
 
-  specification: DataSpecification;
+  readonly specification: DataSpecification;
 
-  artefact: DataSpecificationSchema;
+  readonly structureModel: StructureModel;
 
 }
 
@@ -38,15 +35,18 @@ export interface ArtefactGeneratorContext {
   readonly specifications: { [iri: string]: DataSpecification };
 
   /**
-   * @param iri IRI of a generator.
-   * @param type Type of content the generator should generate.
+   * @param iri Generator identifier.
    */
-  createGenerator(iri: string, type: string): Promise<ArtefactGenerator | null>;
+  createGenerator(iri: string): Promise<ArtefactGenerator | null>;
 
-  // /**
-  //  * Return location of a given structure class in a schema artefact definition.
-  //  */
-  // findStructureClassSchemaLocation(iri: string)
-  //   : StructureClassSchemaLocation | null;
+  /**
+   * For given structure class IRI find its locations. Location is defined
+   * by a structure model in which the class is defined. In addition,
+   * the owner specification of the model is also returned.
+   * This method should be used when working with specification re-use.
+   *
+   * @param iri Structure class identifier.
+   */
+  findStructureClass(iri: string): StructureClassLocation | null;
 
 }

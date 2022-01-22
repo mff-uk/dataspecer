@@ -35,4 +35,21 @@ export interface ArtefactGenerator {
     specification: DataSpecification
   ): Promise<unknown | null>;
 
+  /**
+   * An artefact may be included into a documentation. For example a JsonSchema
+   * can be included into Bikeshed documentation. This function is given
+   * all the content needed to generate the schema and should return a
+   * representation that can be consumed by the documentation. The
+   * output representation and callerContext are defined by
+   * documentationIdentifier. If the artefact can not be included or given
+   * documentation is not supported this function should return null.
+   */
+  generateForDocumentation(
+    context: ArtefactGeneratorContext,
+    artefact: DataSpecificationArtefact,
+    specification: DataSpecification,
+    documentationIdentifier: string,
+    callerContext: unknown,
+  ): Promise<unknown | null>;
+
 }

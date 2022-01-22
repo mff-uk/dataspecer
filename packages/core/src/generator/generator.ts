@@ -1,13 +1,19 @@
 import {
   DataSpecification,
 } from "../data-specification/model";
-import {assertNot, CoreResourceReader} from "../core";
+import {assertFailed, assertNot, CoreResourceReader} from "../core";
 import {StreamDictionary} from "../io/stream/stream-dictionary";
 import {ArtefactGenerator} from "./artefact-generator";
 import {BikeshedGenerator} from "../bikeshed/bikeshed-generator";
-import {ArtefactGeneratorContext} from "./artefact-generator-context";
+import {
+  ArtefactGeneratorContext,
+  StructureClassLocation,
+} from "./artefact-generator-context";
 import {coreResourcesToConceptualModel} from "../conceptual-model";
-import {coreResourcesToStructuralModel} from "../structure-model";
+import {
+  coreResourcesToStructuralModel,
+  StructureModel,
+} from "../structure-model";
 import {JsonSchemaGenerator} from "../json-schema/json-schema-generator";
 
 export class Generator {
@@ -68,14 +74,54 @@ export class Generator {
           await coreResourcesToStructuralModel(this.reader, iri);
       }
     }
+
+    const createGenerator =
+      (iri) => Promise.resolve(this.generators[iri] ?? null);
+
+    const findStructureClass =
+      (iri) => this.findStructureClass(structureModels, iri);
+
     return {
       "reader": this.reader,
       "specifications": this.specifications,
       "conceptualModels": conceptualModels,
       "structureModels": structureModels,
-      "createGenerator": (iri, type) =>
-        Promise.resolve(this.generators[iri] ?? null),
+      "createGenerator": createGenerator,
+      "findStructureClass": findStructureClass,
     };
   }
 
+  private findStructureClass(
+    structureModels: { [iri: string]: StructureModel },
+    iri: string
+  ): StructureClassLocation | null {
+    const structureModel = findStructureClassModel(structureModels, iri);
+    if (structureModel === null) {
+      return null;
+    }
+    for (const specification of Object.values(this.specifications)) {
+      if (specification.psms.includes(structureModel.psmIri)) {
+        return {
+          "structureModel": structureModel,
+          "specification": specification,
+        };
+      }
+    }
+    assertFailed(
+      `Missing specification for structure model '${structureModel.psmIri}'.`);
+  }
+
+}
+
+function findStructureClassModel(
+  structureModels: { [iri: string]: StructureModel },
+  iri: string
+): StructureModel | null {
+  for (const structureModel of Object.values(structureModels)) {
+    if (structureModel.classes[iri] === undefined) {
+      continue;
+    }
+    return structureModel;
+  }
+  return null;
 }
