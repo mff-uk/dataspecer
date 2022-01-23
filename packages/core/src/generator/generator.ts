@@ -14,27 +14,27 @@ import {
   StructureModel,
 } from "../structure-model";
 
-const generators: { [iri: string]: () => ArtefactGenerator } = {};
-
-export function registerGeneratorFactory(factory: () => ArtefactGenerator) {
-  const instance = factory();
-  generators[instance.identifier()] = factory;
-}
-
 export class Generator {
 
   private readonly specifications: { [iri: string]: DataSpecification } = {};
+
+  private readonly generators: { [iri: string]: ArtefactGenerator } = {};
 
   private readonly reader: CoreResourceReader;
 
   constructor(
     specifications: DataSpecification[],
     reader: CoreResourceReader,
+    generators: ArtefactGenerator[] = [],
   ) {
     for (const specification of specifications) {
       this.specifications[specification.iri] = specification;
     }
     this.reader = reader;
+    for (const generator of generators) {
+      this.generators[generator.identifier()] = generator;
+    }
+
   }
 
   public async generate(
@@ -47,7 +47,7 @@ export class Generator {
       `Missing specification ${specificationIri}`);
     const context = await this.createContext();
     for (const artefact of specification.artefacts) {
-      const generator = generators[artefact.generator]();
+      const generator = this.generators[artefact.generator];
       assertNot(
         generator == undefined,
         `Missing generator ${artefact.generator}`);
@@ -69,7 +69,7 @@ export class Generator {
     }
 
     const createGenerator =
-      (iri) => Promise.resolve(generators[iri]?.() ?? null);
+      (iri) => Promise.resolve(this.generators[iri] ?? null);
 
     const findStructureClass =
       (iri) => this.findStructureClass(structureModels, iri);

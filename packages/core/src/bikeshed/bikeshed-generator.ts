@@ -9,7 +9,6 @@ import {writeBikeshed} from "./bikeshed-writer";
 import {
   ArtefactGenerator,
   ArtefactGeneratorContext,
-  registerGeneratorFactory
 } from "../generator";
 import {Bikeshed} from "./bikeshed-model";
 import {assertFailed, LanguageString} from "../core";
@@ -141,5 +140,3 @@ function structuralClassLink(
     return artefact.publicUrl + "#" + relative;
   }
 }
-
-registerGeneratorFactory(() => new BikeshedGenerator());

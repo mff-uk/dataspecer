@@ -7,7 +7,6 @@ import {StreamDictionary} from "../io/stream/stream-dictionary";
 import {
   ArtefactGenerator,
   ArtefactGeneratorContext,
-  registerGeneratorFactory
 } from "../generator";
 import {JsonSchema} from "./json-schema-model";
 import {writeJsonSchema} from "./json-schema-writer";
@@ -75,5 +74,3 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
   }
 
 }
-
-registerGeneratorFactory(() => new JsonSchemaGenerator());
