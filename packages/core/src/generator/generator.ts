@@ -4,7 +4,6 @@ import {
 import {assertFailed, assertNot, CoreResourceReader} from "../core";
 import {StreamDictionary} from "../io/stream/stream-dictionary";
 import {ArtefactGenerator} from "./artefact-generator";
-import {BikeshedGenerator} from "../bikeshed/bikeshed-generator";
 import {
   ArtefactGeneratorContext,
   StructureClassLocation,
@@ -14,15 +13,19 @@ import {
   coreResourcesToStructuralModel,
   StructureModel,
 } from "../structure-model";
-import {JsonSchemaGenerator} from "../json-schema/json-schema-generator";
+
+const generators: { [iri: string]: () => ArtefactGenerator } = {};
+
+export function registerGeneratorFactory(factory: () => ArtefactGenerator) {
+  const instance = factory();
+  generators[instance.identifier()] = factory;
+}
 
 export class Generator {
 
   private readonly specifications: { [iri: string]: DataSpecification } = {};
 
   private readonly reader: CoreResourceReader;
-
-  private readonly generators: { [iri: string]: ArtefactGenerator } = {};
 
   constructor(
     specifications: DataSpecification[],
@@ -32,16 +35,6 @@ export class Generator {
       this.specifications[specification.iri] = specification;
     }
     this.reader = reader;
-  }
-
-  public async initializeGenerators(): Promise<void> {
-    const generators = [
-      new BikeshedGenerator(),
-      new JsonSchemaGenerator(),
-    ];
-    for (const generator of generators) {
-      this.generators[generator.identifier()] = generator;
-    }
   }
 
   public async generate(
@@ -54,7 +47,7 @@ export class Generator {
       `Missing specification ${specificationIri}`);
     const context = await this.createContext();
     for (const artefact of specification.artefacts) {
-      const generator = this.generators[artefact.generator];
+      const generator = generators[artefact.generator]();
       assertNot(
         generator == undefined,
         `Missing generator ${artefact.generator}`);
@@ -76,7 +69,7 @@ export class Generator {
     }
 
     const createGenerator =
-      (iri) => Promise.resolve(this.generators[iri] ?? null);
+      (iri) => Promise.resolve(generators[iri]?.() ?? null);
 
     const findStructureClass =
       (iri) => this.findStructureClass(structureModels, iri);

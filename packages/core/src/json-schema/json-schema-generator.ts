@@ -4,7 +4,11 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 import {StreamDictionary} from "../io/stream/stream-dictionary";
-import {ArtefactGenerator, ArtefactGeneratorContext} from "../generator";
+import {
+  ArtefactGenerator,
+  ArtefactGeneratorContext,
+  registerGeneratorFactory
+} from "../generator";
 import {JsonSchema} from "./json-schema-model";
 import {writeJsonSchema} from "./json-schema-writer";
 import {structureModelToJsonSchema} from "./json-schema-model-adapter";
@@ -71,3 +75,5 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
   }
 
 }
+
+registerGeneratorFactory(() => new JsonSchemaGenerator());
