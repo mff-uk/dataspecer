@@ -122,7 +122,7 @@ class XmlSchemaAdapter {
       },
       "element": this.propertyToElement(propertyData),
     };
-    if (propertyData.isNotMaterialized) {
+    if (propertyData.dematerialize) {
       const type = elementContent.element.type;
       if (xmlSchemaTypeIsComplex(type)) {
         return {
