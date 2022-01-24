@@ -7,13 +7,12 @@ import {processEnv} from "../../index";
 
 export interface DataStructureRowProps {
     dataStructure: DataStructure;
-    schemaGeneratorUrls: [string, string][];
 
     specificationId: string;
     reloadSpecification: () => void;
 }
 
-export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure, schemaGeneratorUrls, specificationId, reloadSpecification}) => {
+export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure, specificationId, reloadSpecification}) => {
     const deleteDataPsm = useCallback(async () => {
         await axios.delete(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`);
         reloadSpecification?.();
@@ -36,6 +35,9 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
         await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
         reloadSpecification?.();
     }, [reloadSpecification, specificationId, switchLoading, dataStructure]);
+
+    const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
+    editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
 
     return <TableRow key={dataStructure.id}>
         <StoreInfo storeId={dataStructure?.store ?? null}>
@@ -69,12 +71,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
                     gap: "1rem",
                     justifyContent: "flex-end"
                 }}>
-                {schemaGeneratorUrls.map(([branch, url]) => {
-                        const urlObject = new URL(url);
-                        urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
-                        return <Button variant={"contained"} color={"primary"} key={url} href={urlObject.toString()}>Edit ({branch})</Button>;
-                    }
-                )}
+                <Button variant={"contained"} color={"primary"} href={editSchemaGeneratorUrl.toString()}>Edit</Button>
                 {/*<Button variant="outlined" color={"primary"} href={`${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`}>See configuration</Button>*/}
                 <Button
                     variant="outlined"

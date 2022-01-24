@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from "react";
+import React, {useCallback} from "react";
 import {Link, useParams} from "react-router-dom";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
@@ -18,19 +18,15 @@ export const Specification: React.FC = () => {
     let {specificationId} = useParams();
     const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
 
-    const schemaGeneratorUrls = useMemo(() => (processEnv.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
-        .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
-        .filter((v): v is [string, string] => v !== null), []);
-
     const createDataStructure = useCallback(async () => {
         const result = await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
         const dataStructureId = result.data.id;
 
-        const urlObject = new URL(schemaGeneratorUrls[0][1]);
-        urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+        const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
+        editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
 
-        window.location.href = urlObject.href;
-    }, [specificationId, schemaGeneratorUrls]);
+        window.location.href = editSchemaGeneratorUrl.href;
+    }, [specificationId]);
 
     const [zipLoading, setZipLoading] = React.useState(false);
     const generateZip = async () => {
@@ -69,7 +65,7 @@ export const Specification: React.FC = () => {
                 </TableHead>
                 <TableBody>
                     {specification?.data.hasDataStructures.map(dataStructure =>
-                        <DataStructureRow dataStructure={dataStructure} schemaGeneratorUrls={schemaGeneratorUrls} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
+                        <DataStructureRow dataStructure={dataStructure} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
                     )}
                 </TableBody>
             </Table>
