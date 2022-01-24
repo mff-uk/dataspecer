@@ -150,7 +150,7 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(thisAssociationEndClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(otherAssociationEndClass) ?? null;
         const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 

@@ -21,7 +21,7 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFun
         const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd);
         addClassSurroundings.labelRules = {
             languages: i18n.languages as string[],
-            namingConvention: "kebab-case",
+            namingConvention: "snake_case",
             specialCharacters: "allow",
         };
         store.executeOperation(addClassSurroundings).then();
