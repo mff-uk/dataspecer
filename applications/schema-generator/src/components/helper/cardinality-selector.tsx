@@ -169,11 +169,11 @@ export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, 
             onChange={handleChange}
             sx={{display: "flex", flexDirection: "row"}}
         >
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_infinity} control={<Radio />} label="0..∞" />
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1_infinity} control={<Radio />} label="1..∞" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_infinity} control={<Radio />} label="0..*" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1_infinity} control={<Radio />} label="1..*" />
             <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_1} control={<Radio />} label="0..1" />
             <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1} control={<Radio />} label="1" />
-            {customIsUnique && <FormControlLabel disabled={disabled} value={"custom"} control={<Radio />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "∞")} />}
+            {customIsUnique && <FormControlLabel disabled={disabled} value={"custom"} control={<Radio />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "*")} />}
         </RadioGroup>
         <FormControlLabel disabled={disabled} value={"sdf"} control={<Radio onClick={() => CustomDialog.open({})} checked={false} />} label={t("cardinality custom") as string} />
 
