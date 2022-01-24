@@ -67,7 +67,7 @@ async function writeImportsAndDefinitions(
 ): Promise<void> {
   if (model.defineLangString) {
     await writer.writeElementBegin("xs", "import");
-    await writer.writeLocalAttributeValue("namespace", "http://www.w3.org/XML/1998/namespace/");
+    await writer.writeLocalAttributeValue("namespace", writer.getUriForPrefix("xml"));
     await writer.writeLocalAttributeValue("schemaLocation", "http://www.w3.org/2001/xml.xsd");
     await writer.writeElementEnd("xs", "import");
 
