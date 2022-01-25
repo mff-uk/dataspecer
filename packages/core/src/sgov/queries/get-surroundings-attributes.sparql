@@ -71,6 +71,24 @@ CONSTRUCT {
              owl:minQualifiedCardinality ?min
          ] .
     }
+
+    OPTIONAL {
+        ?attribute rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
+            owl:onClass %NODE% ;
+            owl:maxQualifiedCardinality ?max
+        ] .
+    }
+
+    OPTIONAL {
+        ?attribute rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
+            owl:onClass %NODE% ;
+            owl:minQualifiedCardinality ?min
+        ] .
+    }
     # Cardinalities END
 
     OPTIONAL { ?attribute skos:definition ?attributeDefinition }

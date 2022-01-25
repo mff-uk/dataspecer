@@ -59,38 +59,43 @@ CONSTRUCT {
 
     # Cardinalities START
     OPTIONAL {
-        ?outwardsRelation rdfs:subClassOf [
+        %NODE% rdfs:subClassOf [
             a owl:Restriction ;
-            owl:onProperty z:má-vztažený-prvek-1 ;
-            owl:onClass %NODE% ;
-            owl:maxQualifiedCardinality ?domain_max
+            owl:onProperty [
+                owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+            ];
+            owl:onClass ?outwardsRelation ;
+            owl:minQualifiedCardinality ?range_min
         ] .
     }
-
     OPTIONAL {
-        ?outwardsRelation rdfs:subClassOf [
+        %NODE% rdfs:subClassOf [
             a owl:Restriction ;
-            owl:onProperty z:má-vztažený-prvek-1 ;
-            owl:onClass %NODE% ;
-            owl:minQualifiedCardinality ?domain_min
-        ] .
-    }
-
-    OPTIONAL {
-        ?outwardsRelation rdfs:subClassOf [
-            a owl:Restriction ;
-            owl:onProperty z:má-vztažený-prvek-2 ;
-            owl:onClass ?rangeElement ;
+            owl:onProperty [
+                owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+            ];
+            owl:onClass ?outwardsRelation ;
             owl:maxQualifiedCardinality ?range_max
         ] .
     }
-
     OPTIONAL {
-        ?outwardsRelation rdfs:subClassOf [
+        ?rangeElement rdfs:subClassOf [
             a owl:Restriction ;
-            owl:onProperty z:má-vztažený-prvek-2 ;
-            owl:onClass ?rangeElement ;
-            owl:minQualifiedCardinality ?range_min
+            owl:onProperty [
+                owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+            ];
+            owl:onClass ?outwardsRelation ;
+            owl:minQualifiedCardinality ?domain_min
+        ] .
+    }
+    OPTIONAL {
+        ?rangeElement rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty [
+                owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+            ];
+            owl:onClass ?outwardsRelation ;
+            owl:maxQualifiedCardinality ?domain_max
         ] .
     }
 

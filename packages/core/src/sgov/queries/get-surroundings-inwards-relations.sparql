@@ -56,38 +56,43 @@ CONSTRUCT {
 
     # Cardinalities START
         OPTIONAL {
-            ?outwardsRelation rdfs:subClassOf [
+            ?domainElement rdfs:subClassOf [
                 a owl:Restriction ;
-                owl:onProperty z:má-vztažený-prvek-1 ;
-                owl:onClass ?domainElement ;
-                owl:maxQualifiedCardinality ?domain_max
+                owl:onProperty [
+                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+                ];
+                owl:onClass ?outwardsRelation ;
+                owl:minQualifiedCardinality ?range_min
             ] .
         }
-
         OPTIONAL {
-            ?outwardsRelation rdfs:subClassOf [
+            ?domainElement rdfs:subClassOf [
                 a owl:Restriction ;
-                owl:onProperty z:má-vztažený-prvek-1 ;
-                owl:onClass ?domainElement ;
-                owl:minQualifiedCardinality ?domain_min
-            ] .
-        }
-
-        OPTIONAL {
-            ?outwardsRelation rdfs:subClassOf [
-                a owl:Restriction ;
-                owl:onProperty z:má-vztažený-prvek-2 ;
-                owl:onClass %NODE% ;
+                owl:onProperty [
+                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+                ];
+                owl:onClass ?outwardsRelation ;
                 owl:maxQualifiedCardinality ?range_max
             ] .
         }
-
         OPTIONAL {
-            ?outwardsRelation rdfs:subClassOf [
+            %NODE% rdfs:subClassOf [
                 a owl:Restriction ;
-                owl:onProperty z:má-vztažený-prvek-2 ;
-                owl:onClass %NODE% ;
-                owl:minQualifiedCardinality ?range_min
+                owl:onProperty [
+                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+                ];
+                owl:onClass ?inwardsRelation ;
+                owl:minQualifiedCardinality ?domain_min
+            ] .
+        }
+        OPTIONAL {
+            %NODE% rdfs:subClassOf [
+                a owl:Restriction ;
+                owl:onProperty [
+                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+                ];
+                owl:onClass ?inwardsRelation ;
+                owl:maxQualifiedCardinality ?domain_max
             ] .
         }
 
