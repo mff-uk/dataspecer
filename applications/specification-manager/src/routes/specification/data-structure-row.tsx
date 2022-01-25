@@ -38,6 +38,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
 
     const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
     editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
+    editSchemaGeneratorUrl.searchParams.append('backlink', window.location.href);
 
     return <TableRow key={dataStructure.id}>
         <StoreInfo storeId={dataStructure?.store ?? null}>

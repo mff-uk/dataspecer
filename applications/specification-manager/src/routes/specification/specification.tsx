@@ -24,6 +24,7 @@ export const Specification: React.FC = () => {
 
         const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
         editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+        editSchemaGeneratorUrl.searchParams.append('backlink', window.location.href);
 
         window.location.href = editSchemaGeneratorUrl.href;
     }, [specificationId]);
