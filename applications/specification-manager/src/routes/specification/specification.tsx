@@ -16,7 +16,22 @@ import {processEnv} from "../../index";
 
 export const Specification: React.FC = () => {
     let {specificationId} = useParams();
-    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
+    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(
+    async () => {
+            const headers = new Headers();
+            headers.append('pragma', 'no-cache');
+            headers.append('cache-control', 'no-cache');
+
+            const fetchResult = await fetch(
+                `${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`,
+                {
+                    method: 'GET',
+                    headers,
+                }
+            );
+
+            return await fetchResult.json() as DataSpecification;
+        }, [specificationId]);
 
     const createDataStructure = useCallback(async () => {
         const result = await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
@@ -42,7 +57,7 @@ export const Specification: React.FC = () => {
     return <>
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
-            <Typography variant="h4" component="div" gutterBottom><small style={{fontWeight: "bold"}}>Data specification:</small>{" "}{specification?.data.name}</Typography>
+            <Typography variant="h4" component="div" gutterBottom><small style={{fontWeight: "bold"}}>Data specification:</small>{" "}{specification?.name}</Typography>
         </Box>
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
@@ -65,7 +80,7 @@ export const Specification: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specification?.data.hasDataStructures.map(dataStructure =>
+                    {specification?.hasDataStructures.map(dataStructure =>
                         <DataStructureRow dataStructure={dataStructure} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
                     )}
                 </TableBody>
@@ -85,7 +100,7 @@ export const Specification: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specification?.data.reusesDataSpecification.map(specification =>
+                    {specification?.reusesDataSpecification.map(specification =>
                         <TableRow key={specification.id}>
                             <TableCell component="th" scope="row" sx={{width: "25%"}}>
                                 <Typography sx={{fontWeight: "bold"}}>
@@ -127,7 +142,7 @@ export const Specification: React.FC = () => {
         <TableContainer component={Paper} sx={{mt: 3}}>
             <Table>
                 <TableBody>
-                    <StoreInfo storeId={specification?.data?.pimStore ?? null}>
+                    <StoreInfo storeId={specification?.pimStore ?? null}>
                         {(name, operations, resources) =>
                             <>
                                 <TableRow>
