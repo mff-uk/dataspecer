@@ -22,6 +22,9 @@ export interface XmlWriter extends XmlNamespaceMap {
     attributeName: string, attributeValue: string
   ): Promise<void>;
   writeNamespaceDeclaration(prefix: string, uri: string): Promise<void>;
+  writeAndRegisterNamespaceDeclaration(
+    prefix: string, uri: string,
+  ): Promise<void>;
   writeComment(comment: string): Promise<void>;
   writeText(text: string): Promise<void>;
   writeElementEnd(namespacePrefix: string, elementName: string): Promise<void>;
@@ -168,6 +171,13 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeNamespaceDeclaration(prefix: string, uri: string): Promise<void> {
+    await this.writeAttributeValue("xmlns", prefix, uri);
+  }
+
+  async writeAndRegisterNamespaceDeclaration(
+    prefix: string, uri: string,
+  ): Promise<void> {
+    this.registerNamespace(prefix, uri);
     await this.writeAttributeValue("xmlns", prefix, uri);
   }
   

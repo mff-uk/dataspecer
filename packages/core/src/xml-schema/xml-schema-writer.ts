@@ -53,19 +53,31 @@ async function writeSchemaBegin(
   model: XmlSchema, writer: XmlWriter,
 ): Promise<void> {
   await writer.writeXmlDeclaration("1.0", "utf-8");
-  writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
-  await writer.writeNamespaceDeclaration("xs", xsNamespace);
+  await writer.writeAndRegisterNamespaceDeclaration("xs", xsNamespace);
   await writer.writeLocalAttributeValue("version", "1.1");
   if (model.targetNamespace != null) {
     await writer.writeLocalAttributeValue("elementFormDefault", "qualified");
-    await writer.writeLocalAttributeValue("targetNamespace", model.targetNamespace);
+    await writer.writeLocalAttributeValue(
+      "targetNamespace", model.targetNamespace
+    );
     if (model.targetNamespacePrefix != null) {
-      writer.registerNamespace(model.targetNamespacePrefix, model.targetNamespace);
-      await writer.writeNamespaceDeclaration(model.targetNamespacePrefix, model.targetNamespace);
+      await writer.writeAndRegisterNamespaceDeclaration(
+        model.targetNamespacePrefix, model.targetNamespace
+      );
     }
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
+  }
+  
+  for (const importDeclaration of model.imports) {
+    if (
+      importDeclaration.namespace != null && importDeclaration.prefix != null
+    ) {
+      await writer.writeAndRegisterNamespaceDeclaration(
+        importDeclaration.prefix, importDeclaration.namespace
+      );
+    }
   }
 }
 
@@ -78,22 +90,50 @@ async function writeImportsAndDefinitions(
 ): Promise<void> {
   if (model.defineLangString) {
     await writer.writeElementBegin("xs", "import");
-    await writer.writeLocalAttributeValue("namespace", writer.getUriForPrefix("xml"));
-    await writer.writeLocalAttributeValue("schemaLocation", "http://www.w3.org/2001/xml.xsd");
+    await writer.writeLocalAttributeValue(
+      "namespace", writer.getUriForPrefix("xml")
+    );
+    await writer.writeLocalAttributeValue(
+      "schemaLocation", "http://www.w3.org/2001/xml.xsd"
+    );
     await writer.writeElementEnd("xs", "import");
 
     await writer.writeElementBegin("xs", "complexType");
-    await writer.writeLocalAttributeValue("name", writer.getQName(...langStringName));
+    await writer.writeLocalAttributeValue(
+      "name", writer.getQName(...langStringName)
+    );
     await writer.writeElementBegin("xs", "simpleContent");
     await writer.writeElementBegin("xs", "extension");
-    await writer.writeLocalAttributeValue("base", writer.getQName("xs", "string"));
+    await writer.writeLocalAttributeValue(
+      "base", writer.getQName("xs", "string")
+    );
     await writer.writeElementBegin("xs", "attribute");
-    await writer.writeLocalAttributeValue("ref", writer.getQName("xml", "lang"));
+    await writer.writeLocalAttributeValue(
+      "ref", writer.getQName("xml", "lang")
+    );
     await writer.writeLocalAttributeValue("use", "required");
     await writer.writeElementEnd("xs", "attribute");
     await writer.writeElementEnd("xs", "extension");
     await writer.writeElementEnd("xs", "simpleContent");
     await writer.writeElementEnd("xs", "complexType");
+  }
+  for (const importDeclaration of model.imports) {
+    if (importDeclaration.namespace != null) {
+      await writer.writeElementBegin("xs", "import");
+    } else {
+      await writer.writeElementBegin("xs", "include");
+      await writer.writeLocalAttributeValue(
+        "namespace", importDeclaration.namespace
+      );
+    }
+    await writer.writeLocalAttributeValue(
+      "schemaLocation", importDeclaration.schemaLocation
+    );
+    if (importDeclaration.namespace != null) {
+      await writer.writeElementEnd("xs", "import");
+    } else {
+      await writer.writeElementEnd("xs", "include");
+    }
   }
 }
 

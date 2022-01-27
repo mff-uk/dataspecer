@@ -15,8 +15,18 @@ export const langStringName: QName = [null, "langString"];
 export class XmlSchema {
   targetNamespace: string | null;
   targetNamespacePrefix: string | null;
+  imports: XmlImportDeclaration[];
   elements: XmlSchemaElement[];
   defineLangString: boolean;
+}
+
+/**
+ * Represents an import/include declaration to an artifact.
+ */
+export class XmlImportDeclaration {
+  prefix: string | null;
+  namespace: string | null;
+  schemaLocation: string;
 }
 
 /**

@@ -74,6 +74,7 @@ class XmlSchemaAdapter {
         .map(this.getClass, this)
         .map(this.classToElement, this),
       "defineLangString": this.usesLangString,
+      "imports": [],
     };
   }
 
