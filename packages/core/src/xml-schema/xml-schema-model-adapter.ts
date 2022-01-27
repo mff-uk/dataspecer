@@ -69,6 +69,7 @@ class XmlSchemaAdapter {
   ): XmlSchema {
     return {
       "targetNamespace": null,
+      "targetNamespacePrefix": null,
       "elements": roots
         .map(this.getClass, this)
         .map(this.classToElement, this),

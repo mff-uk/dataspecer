@@ -43,19 +43,30 @@ export async function writeXmlSchema(
   model: XmlSchema, stream: OutputStream,
 ): Promise<void> {
   const writer = new XmlStreamWriter(stream);
-  await writeSchemaBegin(writer);
+  await writeSchemaBegin(model, writer);
   await writeImportsAndDefinitions(model, writer);
   await writeElements(model, writer);
   await writeSchemaEnd(writer);
 }
 
-async function writeSchemaBegin(writer: XmlWriter): Promise<void> {
+async function writeSchemaBegin(
+  model: XmlSchema, writer: XmlWriter,
+): Promise<void> {
   await writer.writeXmlDeclaration("1.0", "utf-8");
   writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
   await writer.writeNamespaceDeclaration("xs", xsNamespace);
-  await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   await writer.writeLocalAttributeValue("version", "1.1");
+  if (model.targetNamespace != null) {
+    await writer.writeLocalAttributeValue("elementFormDefault", "qualified");
+    await writer.writeLocalAttributeValue("targetNamespace", model.targetNamespace);
+    if (model.targetNamespacePrefix != null) {
+      writer.registerNamespace(model.targetNamespacePrefix, model.targetNamespace);
+      await writer.writeNamespaceDeclaration(model.targetNamespacePrefix, model.targetNamespace);
+    }
+  } else {
+    await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
+  }
 }
 
 async function writeSchemaEnd(writer: XmlWriter): Promise<void> {

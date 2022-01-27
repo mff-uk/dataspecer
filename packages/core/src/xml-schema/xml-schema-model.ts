@@ -13,7 +13,8 @@ export const langStringName: QName = [null, "langString"];
  * Represents an xs:schema definition.
  */
 export class XmlSchema {
-  targetNamespace: string;
+  targetNamespace: string | null;
+  targetNamespacePrefix: string | null;
   elements: XmlSchemaElement[];
   defineLangString: boolean;
 }
