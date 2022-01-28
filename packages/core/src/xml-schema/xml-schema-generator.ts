@@ -17,7 +17,7 @@ import {createBikeshedSchemaJson} from "../json-schema/json-schema-to-bikeshed";
 import {BIKESHED, BikeshedAdapterArtefactContext} from "../bikeshed";
 import {XML_SCHEMA} from "./xml-schema-vocabulary";
 
-export class JsonSchemaGenerator implements ArtefactGenerator {
+export class XmlSchemaGenerator implements ArtefactGenerator {
 
   identifier(): string {
     return XML_SCHEMA.Generator;
