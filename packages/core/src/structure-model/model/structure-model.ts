@@ -37,8 +37,7 @@ export class StructureModel {
   classes: { [iri: string]: StructureModelClass } = {};
 
   /**
-   * Specification this schema was loaded from. This can be provided by the
-   * user or set by ClassReference.
+   * Specification this class was loaded from.
    */
   specification: string | null = null;
 
