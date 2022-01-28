@@ -9,4 +9,5 @@
 # core package
 /packages/core/ @skodapetr
 /packages/core/src/sgov/ @sstenchlak
+/packages/core/src/plant-uml/ @sstenchlak
 /packages/core/src/xml-schema/ @cermakmarek

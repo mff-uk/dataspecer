@@ -3,6 +3,7 @@ import {CoreResourceReader} from "../core";
 import {Generator} from "./generator";
 import {BikeshedGenerator} from "../bikeshed";
 import {JsonSchemaGenerator} from "../json-schema/json-schema-generator";
+import {PlantUmlGenerator} from "../plant-uml";
 
 /**
  * Use this to get generator with included artefact generators from this
@@ -16,5 +17,6 @@ export function createDefaultGenerator(
     [
       new BikeshedGenerator(),
       new JsonSchemaGenerator(),
+      new PlantUmlGenerator(),
     ]);
 }

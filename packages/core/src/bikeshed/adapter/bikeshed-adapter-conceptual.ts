@@ -21,7 +21,7 @@ export async function conceptualModelToBikeshedContent(
   result.content.push(new BikeshedContentText(
     "V této sekci je definován konceptuální model."));
 
-  result.content.push(new BikeshedContentText("\n<< Diagram >>\n"));
+  result.content.push(new BikeshedContentText("\n-- Diagram --\n"));
 
   for (const entity of Object.values(conceptualModel.classes)) {
     result.content.push(createEntitySection(context, entity));
