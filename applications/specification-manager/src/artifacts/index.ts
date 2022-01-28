@@ -14,6 +14,7 @@ import {BIKESHED, BikeshedGenerator} from "@model-driven-data/core/bikeshed";
 import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
 import {coreResourcesToConceptualModel} from "@model-driven-data/core/conceptual-model";
 import {JsonSchemaGenerator} from "@model-driven-data/core/json-schema/json-schema-generator";
+import {XmlSchemaGenerator} from "@model-driven-data/core/xml-schema/xml-schema-generator";
 import {PlantUmlImageGenerator} from "./plant-uml-image-generator";
 import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 
@@ -169,6 +170,7 @@ export class ArtifactBuilder {
           store,
           [
             new JsonSchemaGenerator(),
+            new XmlSchemaGenerator(),
             new BikeshedGenerator(),
             new PlantUmlGenerator(),
 
