@@ -3,14 +3,15 @@ import {
   StructureModel,
   StructureModelClass,
   StructureModelProperty,
-  StructureModelComplexType, StructureModelPrimitiveType,
+  StructureModelComplexType,
+  StructureModelPrimitiveType,
 } from "../model";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
   DataPsmClassReference,
-  DataPsmSchema
+  DataPsmSchema,
 } from "../../data-psm/model";
 import {PimAssociationEnd, PimAttribute} from "../../pim/model";
 
@@ -20,18 +21,20 @@ class StructureModelAdapter {
 
   private readonly classes: { [iri: string]: StructureModelClass };
 
-  private readonly specification;
+  private psmSchemaIri;
 
   constructor(
-    reader: CoreResourceReader, specification: string,
-    classes: { [iri: string]: StructureModelClass } | null = null
+    reader: CoreResourceReader,
+    classes: { [iri: string]: StructureModelClass } | null = null,
+    psmSchemaIri: string | null = null
   ) {
     this.reader = reader;
-    this.specification = specification;
     this.classes = classes ?? {};
+    this.psmSchemaIri = psmSchemaIri;
   }
 
   async load(psmSchemaIri: string): Promise<StructureModel | null> {
+    this.psmSchemaIri = psmSchemaIri;
     const psmSchema = await this.reader.readResource(psmSchemaIri);
     if (!DataPsmSchema.is(psmSchema)) {
       return null;
@@ -56,7 +59,6 @@ class StructureModelAdapter {
     model.humanDescription = schemaData.dataPsmHumanDescription;
     model.technicalLabel = schemaData.dataPsmTechnicalLabel;
     model.roots = schemaData.dataPsmRoots;
-    model.specification = this.specification;
   }
 
   private async loadClass(
@@ -103,6 +105,7 @@ class StructureModelAdapter {
     model.humanLabel = classData.dataPsmHumanLabel;
     model.humanDescription = classData.dataPsmHumanDescription;
     model.technicalLabel = classData.dataPsmTechnicalLabel;
+    model.structureSchema = this.psmSchemaIri;
   }
 
   private async loadClassReference(
@@ -114,9 +117,9 @@ class StructureModelAdapter {
       throw new Error(
         `Invalid class reference '${classReferenceData.iri}' target.`);
     }
-    // We are going to load another specification.
+    // We are going to load another schema.
     const adapter = new StructureModelAdapter(
-      this.reader, classReferenceData.dataPsmSpecification, this.classes);
+      this.reader, this.classes, classReferenceData.dataPsmSpecification);
     return await adapter.loadClass(part);
   }
 
@@ -199,9 +202,7 @@ class StructureModelAdapter {
 
 export async function coreResourcesToStructuralModel(
   reader: CoreResourceReader, psmSchemaIri: string,
-  specification: string | null = null,
 ): Promise<StructureModel | null> {
-  const adapter = new StructureModelAdapter(reader, specification);
+  const adapter = new StructureModelAdapter(reader, null);
   return await adapter.load(psmSchemaIri);
 }
-

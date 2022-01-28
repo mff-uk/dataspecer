@@ -12,14 +12,15 @@ import {JsonSchema} from "./json-schema-model";
 import {writeJsonSchema} from "./json-schema-writer";
 import {structureModelToJsonSchema} from "./json-schema-model-adapter";
 import {assertFailed, assertNot} from "../core";
-import {transformStructureModel,} from "../structure-model/transformation";
+import {transformStructureModel} from "../structure-model/transformation";
 import {createBikeshedSchemaJson} from "./json-schema-to-bikeshed";
 import {BIKESHED, BikeshedAdapterArtefactContext} from "../bikeshed";
+import {JSON_SCHEMA} from "./json-schema-vocabulary";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
 
   identifier(): string {
-    return "jsonschema";
+    return JSON_SCHEMA.Generator;
   }
 
   async generateToStream(
@@ -51,8 +52,10 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     assertNot(
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`);
-    model = transformStructureModel(conceptualModel, model);
-    return Promise.resolve(structureModelToJsonSchema(model));
+    model = transformStructureModel(
+      conceptualModel, model, Object.values(context.specifications));
+    return Promise.resolve(structureModelToJsonSchema(
+      context.specifications, specification, model));
   }
 
   async generateForDocumentation(
@@ -67,7 +70,9 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       return createBikeshedSchemaJson({
         ...bikeshedContext,
         "structureModel": transformStructureModel(
-          bikeshedContext.conceptualModel, bikeshedContext.structureModel),
+          bikeshedContext.conceptualModel,
+          bikeshedContext.structureModel,
+          Object.values(context.specifications)),
       });
     }
     return null;

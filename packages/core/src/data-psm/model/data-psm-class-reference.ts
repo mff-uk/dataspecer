@@ -9,7 +9,8 @@ export class DataPsmClassReference extends CoreResource {
   private static readonly TYPE = PSM.CLASS_REFERENCE;
 
   /**
-   * IRI of external specification to load the definition from.
+   * IRI of class owner data-PSM model.
+   * TODO Rename to 'dataPsmModel' once we are ready for data migration!
    */
   dataPsmSpecification: string | null = null;
 

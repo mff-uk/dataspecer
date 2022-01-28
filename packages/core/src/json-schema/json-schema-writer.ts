@@ -5,7 +5,7 @@ import {
   JsonSchemaDefinition, JsonSchemaEnum,
   JsonSchemaNull,
   JsonSchemaNumber,
-  JsonSchemaObject, JsonSchemaOneOf,
+  JsonSchemaObject, JsonSchemaOneOf, JsonSchemaRef,
   JsonSchemaString,
 } from "./json-schema-model";
 import {OutputStream} from "../io/stream/output-stream";
@@ -26,6 +26,9 @@ export async function writeJsonSchema(
 async function writeJsonDefinition(
   writer: JsonObjectWriter, schema: JsonSchemaDefinition
 ): Promise<void> {
+  if (JsonSchemaRef.is(schema)) {
+    return writeJsonSchemaRef(writer, schema);
+  }
   await writeJsonSchemaDefinitionProperties(writer, schema);
   if (JsonSchemaObject.is(schema)) {
     return writeJsonSchemaObject(writer, schema);
@@ -143,3 +146,12 @@ async function writeJsonSchemaEnum(
   }
   await array.closeArray();
 }
+
+
+async function writeJsonSchemaRef(
+  writer: JsonObjectWriter, schema: JsonSchemaRef
+): Promise<void> {
+  await writer.value("$ref", schema.url);
+}
+
+

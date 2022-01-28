@@ -12,6 +12,11 @@ import {
 } from "../structure-model";
 import {assertNot} from "../core";
 import {OFN_LABELS} from "../well-known";
+import {
+  ConceptualModel,
+  ConceptualModelClass,
+  ConceptualModelProperty
+} from "../conceptual-model";
 
 export async function createBikeshedSchemaJson(
   context: BikeshedAdapterArtefactContext
@@ -42,7 +47,10 @@ function createEntitySection(
   const description = context.selectOptionalString(entity.humanDescription);
   if (description !== null) {
     properties.items.push(new BikeshedContentListItem(
-      "Popis", [description]));
+      context.selectString({
+        "cs": "Popis",
+        "en": "Description"
+      }), [description]));
   }
   if (entity.isCodelist) {
     properties.items.push(new BikeshedContentListItem(
@@ -86,8 +94,8 @@ function classInterpretation(
     return "Bez interpretace."
   }
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  assertNot(conceptualClass === null,
-    `Missing conceptual class ${entity.pimIri}`);
+  assertNot(conceptualClass === undefined,
+    `Missing conceptual class ${entity.pimIri} for ${entity.psmIri}`);
   const label = context.selectString(conceptualClass.humanLabel);
   const href = context.conceptualClassAnchor(conceptualClass);
   return `[${label}](#${href})`
@@ -188,25 +196,48 @@ function propertyInterpretation(
     return "Bez interpretace."
   }
   if (property.pathToOrigin.length > 0) {
-    // TODO
-    return "TODO: Dematerialzied";
+    // TODO Dematerialized property
+    return "";
   }
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  assertNot(conceptualClass === null,
-    `Missing conceptual class ${entity.pimIri}`);
-  let conceptualProperty = null;
-  for (const candidateProperty of conceptualClass.properties) {
-    if (candidateProperty.pimIri === property.pimIri) {
-      conceptualProperty = candidateProperty;
-      break;
-    }
-  }
+  assertNot(conceptualClass === undefined,
+    `Missing conceptual entity ${entity.pimIri} for`
+    + `structure entity ${entity.psmIri} .`);
+
+  const conceptualProperty = findConceptualOwnerInHierarchy(
+    context.conceptualModel,  conceptualClass, property.pimIri);
+
   assertNot(conceptualProperty === null,
-    `Missing conceptual property ${entity.pimIri} : ${property.pimIri}`);
+    `Missing conceptual property ${property.pimIri} in entity ${entity.pimIri} .`
+    + ` For structure property ${property.psmIri}`);
+
   const label = context.selectString(conceptualProperty.humanLabel);
   const href = context.conceptualPropertyAnchor(
     conceptualClass, conceptualProperty);
   return `[${label}](#${href})`
+}
+
+/**
+ * The given property can be declared not only in a given class but
+ * also in any class it extends.
+ */
+function findConceptualOwnerInHierarchy(
+  conceptualModel: ConceptualModel,
+  conceptualClass: ConceptualModelClass,
+  propertyIri: string
+): ConceptualModelProperty | null {
+  // Searching for ancestors.
+  const searchStack = [conceptualClass];
+  while (searchStack.length > 0) {
+    const next = searchStack.pop();
+    for (const candidateProperty of next.properties) {
+      if (candidateProperty.pimIri === propertyIri) {
+        return candidateProperty;
+      }
+    }
+    searchStack.push(...next.extends);
+  }
+  return null;
 }
 
 function propertyTypes(
