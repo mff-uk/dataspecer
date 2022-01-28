@@ -60,11 +60,17 @@ export class Generator {
     const conceptualModels = {};
     const structureModels = {};
     for (const specification of Object.values(this.specifications)) {
-      conceptualModels[specification.pim] =
-        await coreResourcesToConceptualModel(this.reader, specification.pim);
+      const conceptualModel = await coreResourcesToConceptualModel(
+        this.reader, specification.pim);
+      assertNot(conceptualModel === null,
+        `Can't load conceptual model '${specification.pim}'.`);
+      conceptualModels[specification.pim] = conceptualModel;
       for (const iri of specification.psms) {
-        structureModels[iri] =
-          await coreResourcesToStructuralModel(this.reader, iri);
+        const structureModel = await coreResourcesToStructuralModel(
+          this.reader, iri)
+        assertNot(conceptualModel === null,
+          `Can't load structure model '${iri}'.`);
+        structureModels[iri] = structureModel;
       }
     }
 
