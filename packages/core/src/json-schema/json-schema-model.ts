@@ -187,6 +187,23 @@ export class JsonSchemaEnum extends JsonSchemaDefinition {
 
 }
 
+
+export class JsonSchemaRef extends JsonSchemaDefinition {
+
+  private static TYPE = "json-schema-ref";
+
+  url: string | null = null;
+
+  constructor() {
+    super(JsonSchemaRef.TYPE);
+  }
+
+  static is(resource: JsonSchemaDefinition): resource is JsonSchemaRef {
+    return resource.type.includes(JsonSchemaRef.TYPE);
+  }
+
+}
+
 // https://json-schema.org/understanding-json-schema/reference/string.html
 export const JsonSchemaStringFormats = {
   "dateTime": "date-time",

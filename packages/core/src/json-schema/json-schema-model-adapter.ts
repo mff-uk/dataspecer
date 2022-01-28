@@ -1,11 +1,11 @@
 import {
   JsonSchema, JsonSchemaAnyOf, JsonSchemaArray, JsonSchemaBoolean,
   JsonSchemaDefinition, JsonSchemaNull, JsonSchemaNumber,
-  JsonSchemaObject, JsonSchemaString, JsonSchemaStringFormats,
+  JsonSchemaObject, JsonSchemaRef, JsonSchemaString, JsonSchemaStringFormats,
 } from "./json-schema-model";
 import {
   assert,
-  assertFailed,
+  assertFailed, assertNot,
   defaultStringSelector,
   StringSelector,
 } from "../core";
@@ -15,7 +15,11 @@ import {
   StructureModelProperty,
 } from "../structure-model";
 import {XSD, OFN, OFN_LABELS} from "../well-known";
-import {DataSpecification} from "../data-specification/model";
+import {
+  DataSpecification,
+  DataSpecificationArtefact, DataSpecificationSchema
+} from "../data-specification/model";
+import {JSON_SCHEMA} from "./json-schema-vocabulary";
 
 interface Context {
 
@@ -68,9 +72,13 @@ function structureModelClassToJsonSchemaDefinition(
   context: Context, modelClass: StructureModelClass,
 ): JsonSchemaDefinition {
   if (context.specification.iri !== modelClass.specification) {
-    console.log(
-      modelClass.psmIri, ":",
-      context.specification.iri, "->", modelClass.specification);
+    const artefact = findArtefactForImport(context, modelClass);
+    if (artefact !== null) {
+      const url = artefact.publicUrl;
+      const reference = new JsonSchemaRef();
+      reference.url = url;
+      return reference;
+    }
   }
   if (modelClass.isCodelist) {
     return structureModelClassCodelist();
@@ -90,6 +98,26 @@ function structureModelClassToJsonSchemaDefinition(
     }
   }
   return result;
+}
+
+function findArtefactForImport(
+  context: Context, modelClass: StructureModelClass
+): DataSpecificationArtefact | null {
+  const targetSpecification = context.specifications[modelClass.specification];
+  assertNot(targetSpecification === undefined,
+    `Missing specification ${modelClass.specification}`);
+  for (const candidate of targetSpecification.artefacts) {
+    if (candidate.generator !== JSON_SCHEMA.Generator) {
+      continue;
+    }
+    const candidateSchema = candidate as DataSpecificationSchema;
+    if (modelClass.structureSchema !== candidateSchema.psm) {
+      continue;
+    }
+    // TODO We should check that the class is root here.
+    return candidate;
+  }
+  return null;
 }
 
 function structureModelClassCodelist(): JsonSchemaDefinition {
