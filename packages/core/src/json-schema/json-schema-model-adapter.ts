@@ -71,7 +71,7 @@ export function structureModelToJsonSchema(
 function structureModelClassToJsonSchemaDefinition(
   context: Context, modelClass: StructureModelClass,
 ): JsonSchemaDefinition {
-  if (context.specification.iri !== modelClass.specification) {
+  if (context.model.psmIri !== modelClass.structureSchema) {
     const artefact = findArtefactForImport(context, modelClass);
     if (artefact !== null) {
       const url = artefact.publicUrl;
