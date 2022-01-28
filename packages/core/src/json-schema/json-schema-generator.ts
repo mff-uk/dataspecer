@@ -15,11 +15,12 @@ import {assertFailed, assertNot} from "../core";
 import {transformStructureModel} from "../structure-model/transformation";
 import {createBikeshedSchemaJson} from "./json-schema-to-bikeshed";
 import {BIKESHED, BikeshedAdapterArtefactContext} from "../bikeshed";
+import {JSON_SCHEMA} from "./json-schema-vocabulary";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
 
   identifier(): string {
-    return "jsonschema";
+    return JSON_SCHEMA.Generator;
   }
 
   async generateToStream(
