@@ -12,7 +12,7 @@ import {
 } from "../../structure-model";
 import {
   DataSpecification,
-  DataSpecificationArtefact,
+  DataSpecificationArtefact, DataSpecificationDocumentation,
   DataSpecificationSchema
 } from "../../data-specification/model";
 
@@ -42,23 +42,14 @@ export class BikeshedAdapterContext {
   structuralClassAnchor:
     (format: string,
      structureModel: StructureModel,
-     structureClass: StructureModelClass) => string;
+     structureClass: StructureModelClass,
+     conceptualClass: ConceptualModelClass) => string;
 
   structuralPropertyAnchor:
     (format: string,
      structureModel: StructureModel,
      structureClass: StructureModelClass,
      structureProperty: StructureModelProperty) => string;
-
-  /**
-   * Artefact should be specified only if different from the
-   * current artefact the content is generated for.
-   */
-  structuralClassLink:
-    (format: string,
-     structureModel: StructureModel,
-     structureClass: StructureModelClass,
-     artefact: DataSpecificationSchema | null) => string;
 
 }
 

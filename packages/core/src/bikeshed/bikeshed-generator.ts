@@ -58,7 +58,6 @@ export class BikeshedGenerator implements ArtefactGenerator {
         "conceptualPropertyAnchor": conceptualPropertyAnchor,
         "structuralClassAnchor": structuralClassAnchor,
         "structuralPropertyAnchor": structuralPropertyAnchor,
-        "structuralClassLink": structuralClassLink,
       }, artefact, specification);
     } else {
       assertFailed(`'${artefact.iri}' is not of type documentation.`)
@@ -108,10 +107,12 @@ function conceptualPropertyAnchor(
 function structuralClassAnchor(
   format: string,
   structureModel: StructureModel,
-  structureClass: StructureModelClass
+  structureClass: StructureModelClass,
+  conceptualClass: ConceptualModelClass,
 ): string {
   const modelLabel = selectString(structureModel.humanLabel) ?? "nedefinováno";
-  const classLabel = selectString(structureClass.humanLabel) ?? "nedefinováno";
+  const classLabel = selectString(
+    structureClass.humanLabel ?? conceptualClass.humanLabel) ?? "nedefinováno";
   return sanitizeLink(
     `strukturální-${format}-${modelLabel}+třída-${classLabel}`);
 }
@@ -125,18 +126,4 @@ function structuralPropertyAnchor(
   const href = structuralClassAnchor(format, structureModel, structureClass);
   const label = selectString(structureProperty.humanLabel) ?? "nedefinováno";
   return href + sanitizeLink("-" + label);
-}
-
-function structuralClassLink(
-  format: string,
-  structureModel: StructureModel,
-  structureClass: StructureModelClass,
-  artefact: DataSpecificationSchema | null
-): string {
-  const relative = structuralClassAnchor(format, structureModel, structureClass);
-  if (artefact === null) {
-    return "#" + relative;
-  } else {
-    return artefact.publicUrl + "#" + relative;
-  }
 }

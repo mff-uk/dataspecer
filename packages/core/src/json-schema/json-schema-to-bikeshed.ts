@@ -7,6 +7,7 @@ import {
   BikeshedAdapterArtefactContext,
 } from "../bikeshed/";
 import {
+  StructureModel,
   StructureModelClass, StructureModelComplexType,
   StructureModelProperty
 } from "../structure-model";
@@ -17,6 +18,10 @@ import {
   ConceptualModelClass,
   ConceptualModelProperty
 } from "../conceptual-model";
+import {
+  DataSpecificationArtefact,
+  DataSpecificationDocumentation
+} from "../data-specification/model";
 
 export async function createBikeshedSchemaJson(
   context: BikeshedAdapterArtefactContext
@@ -30,6 +35,10 @@ export async function createBikeshedSchemaJson(
     `Tato sekce je dokumentací pro [JSON schéma](${linkToSchema}).`));
 
   for (const entity of Object.values(structureModel.classes)) {
+    if (entity.structureSchema !== context.structureModel.psmIri) {
+      // Class is not from this structure model.
+      continue;
+    }
     result.content.push(createEntitySection(context, entity));
   }
   return result;
@@ -83,7 +92,9 @@ function classAnchor(
   context: BikeshedAdapterArtefactContext,
   entity: StructureModelClass
 ): string {
-  return context.structuralClassAnchor("json", context.structureModel, entity);
+  const conceptualClass = context.conceptualModel.classes[entity.pimIri];
+  return context.structuralClassAnchor(
+    "json", context.structureModel, entity, conceptualClass);
 }
 
 function classInterpretation(
@@ -194,18 +205,18 @@ function propertyInterpretation(
 ): string {
   if (entity.pimIri === null || property.pimIri === null) {
     return "Bez interpretace."
-  }
-  if (property.pathToOrigin.length > 0) {
+  } else if (property.pathToOrigin.length > 0) {
     // TODO Dematerialized property
     return "";
   }
+
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
   assertNot(conceptualClass === undefined,
     `Missing conceptual entity ${entity.pimIri} for`
     + `structure entity ${entity.psmIri} .`);
 
   const conceptualProperty = findConceptualOwnerInHierarchy(
-    context.conceptualModel,  conceptualClass, property.pimIri);
+    context.conceptualModel, conceptualClass, property.pimIri);
 
   assertNot(conceptualProperty === null,
     `Missing conceptual property ${property.pimIri} in entity ${entity.pimIri} .`
@@ -273,7 +284,48 @@ function propertyTypeAssociation(
   if (target === null) {
     throw new Error("Specification re-use is not supported.")
   }
-  const label = classLabel(context, target);
-  const href = classAnchor(context, target);
-  return `[${label}](#${href})`;
+  if (context.structureModel.psmIri === target.structureSchema) {
+    const label = classLabel(context, target);
+    const href = classAnchor(context, target);
+    return `[${label}](#${href})`;
+  }
+  return externalAssociation(context, target);
+}
+
+function externalAssociation(
+  context: BikeshedAdapterArtefactContext,
+  structureClass: StructureModelClass,
+): string {
+  const structureModel = context.generatorContext.structureModels[
+    structureClass.structureSchema];
+  assertNot(structureModel === undefined, "Missing structure model.");
+  const specification = context.generatorContext.specifications[
+    structureClass.specification];
+  assertNot(specification === undefined, "Missing specification.");
+  const conceptualModel = context.generatorContext.conceptualModels[
+    specification.pim];
+  assertNot(conceptualModel === undefined, "Missing conceptual model.");
+  const conceptualClass = conceptualModel.classes[structureClass.pimIri];
+  assertNot(conceptualClass === undefined, "Missing conceptual class.");
+  //
+  let artefact: DataSpecificationArtefact = null;
+  for (const artefactInSpecification of specification.artefacts) {
+    // TODO This is naive approach, there can be multiple specifications.
+    // We need to look for specification of given type, then find the
+    // documentation that includes it and then use that artefact.
+    if (DataSpecificationDocumentation.is(artefactInSpecification)) {
+      artefact = artefactInSpecification;
+      break;
+    }
+  }
+  // Manual label propagation.
+  const label = context.selectString(
+    structureClass.humanLabel ?? conceptualClass.humanLabel);
+  if (artefact == null) {
+    return label;
+  } else {
+    const url = artefact.publicUrl + "#" + context.structuralClassAnchor(
+      "json", structureModel, structureClass, conceptualClass);
+    return `[${label}](${url})`
+  }
 }
