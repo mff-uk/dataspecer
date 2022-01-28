@@ -11,12 +11,12 @@ export function addDataSpecification(
   const result = {
     ...structure,
     "classes": {},
-    "specification": schemaToSpecification[structure.psmIri],
+    "specification": schemaToSpecification[structure.psmIri] ?? null,
   } as StructureModel;
   for (const [iri, classData] of Object.entries(structure.classes)) {
     result.classes[iri] = {
       ...classData,
-      "specification": schemaToSpecification[classData.structureSchema],
+      "specification": schemaToSpecification[classData.structureSchema] ?? null,
     };
   }
   return result;
