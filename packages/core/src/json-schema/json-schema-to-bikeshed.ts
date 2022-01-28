@@ -93,8 +93,7 @@ function classAnchor(
   entity: StructureModelClass
 ): string {
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  return context.structuralClassAnchor(
-    "json", context.structureModel, entity, conceptualClass);
+  return context.structuralClassAnchor("json", context.structureModel, entity);
 }
 
 function classInterpretation(
@@ -325,7 +324,7 @@ function externalAssociation(
     return label;
   } else {
     const url = artefact.publicUrl + "#" + context.structuralClassAnchor(
-      "json", structureModel, structureClass, conceptualClass);
+      "json", structureModel, structureClass);
     return `[${label}](${url})`
   }
 }

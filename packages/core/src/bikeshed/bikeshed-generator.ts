@@ -56,8 +56,8 @@ export class BikeshedGenerator implements ArtefactGenerator {
         "sanitizeLink": sanitizeLink,
         "conceptualClassAnchor": conceptualClassAnchor,
         "conceptualPropertyAnchor": conceptualPropertyAnchor,
-        "structuralClassAnchor": structuralClassAnchor,
-        "structuralPropertyAnchor": structuralPropertyAnchor,
+        "structuralClassAnchor": createStructuralClassAnchor(context),
+        "structuralPropertyAnchor": createStructuralPropertyAnchor(context),
       }, artefact, specification);
     } else {
       assertFailed(`'${artefact.iri}' is not of type documentation.`)
@@ -91,7 +91,7 @@ function sanitizeLink(value): string {
 }
 
 function conceptualClassAnchor(model: ConceptualModelClass): string {
-  const label = selectString(model.humanLabel) ?? "nedefinováno";
+  const label = selectString(model.humanLabel);
   return sanitizeLink("konceptuální-třída-" + label);
 }
 
@@ -100,30 +100,52 @@ function conceptualPropertyAnchor(
   property: ConceptualModelProperty
 ): string {
   const href = conceptualClassAnchor(owner);
-  const label = selectString(property.humanLabel) ?? "nedefinováno";
+  const label = selectString(property.humanLabel);
   return href + sanitizeLink("-" + label);
 }
 
-function structuralClassAnchor(
-  format: string,
-  structureModel: StructureModel,
-  structureClass: StructureModelClass,
-  conceptualClass: ConceptualModelClass,
-): string {
-  const modelLabel = selectString(structureModel.humanLabel) ?? "nedefinováno";
-  const classLabel = selectString(
-    structureClass.humanLabel ?? conceptualClass.humanLabel) ?? "nedefinováno";
-  return sanitizeLink(
-    `strukturální-${format}-${modelLabel}+třída-${classLabel}`);
+function createStructuralClassAnchor(context: ArtefactGeneratorContext) {
+  return function structuralClassAnchor(
+    format: string,
+    structureModel: StructureModel,
+    structureClass: StructureModelClass,
+  ): string {
+    const modelLabel = selectString(structureModel.humanLabel);
+    const classLabel = selectString(
+      structureClass.humanLabel ??
+      getConceptualClass(context, structureModel, structureClass)?.humanLabel);
+    return sanitizeLink(
+      `strukturální-${format}-${modelLabel}-třída-${classLabel}`);
+  }
 }
 
-function structuralPropertyAnchor(
-  format: string,
+function getConceptualClass(
+  context: ArtefactGeneratorContext,
   structureModel: StructureModel,
-  structureClass: StructureModelClass,
-  structureProperty: StructureModelProperty
-): string {
-  const href = structuralClassAnchor(format, structureModel, structureClass);
-  const label = selectString(structureProperty.humanLabel) ?? "nedefinováno";
-  return href + sanitizeLink("-" + label);
+  structureClass: StructureModelClass
+): ConceptualModelClass | null {
+  for (const conceptualModel of Object.values(context.conceptualModels)) {
+    const conceptualClass = conceptualModel.classes[structureClass.pimIri];
+    if (conceptualClass !== undefined) {
+      return conceptualClass;
+    }
+  }
+  return null;
 }
+
+function createStructuralPropertyAnchor(context: ArtefactGeneratorContext) {
+  const structuralClassAnchor = createStructuralClassAnchor(context);
+  return function createStructuralPropertyAnchor(
+    format: string,
+    structureModel: StructureModel,
+    structureClass: StructureModelClass,
+    structureProperty: StructureModelProperty,
+  ): string {
+    const href = structuralClassAnchor(format, structureModel, structureClass);
+    // TODO we probably should also use humanLabel from PIM here as well.
+    const label = selectString(structureProperty.humanLabel);
+    return href + sanitizeLink("-" + label);
+  }
+}
+
+

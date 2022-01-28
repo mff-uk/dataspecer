@@ -42,8 +42,7 @@ export class BikeshedAdapterContext {
   structuralClassAnchor:
     (format: string,
      structureModel: StructureModel,
-     structureClass: StructureModelClass,
-     conceptualClass: ConceptualModelClass) => string;
+     structureClass: StructureModelClass) => string;
 
   structuralPropertyAnchor:
     (format: string,
