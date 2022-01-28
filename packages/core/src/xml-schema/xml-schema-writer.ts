@@ -6,7 +6,9 @@ import {XmlSchema, XmlSchemaComplexContent, XmlSchemaComplexTypeDefinition,
   XmlSchemaElement, XmlSchemaSimpleTypeDefinition, xmlSchemaTypeIsComplex,
   xmlSchemaTypeIsSimple, xmlSchemaComplexContentIsElement,
   xmlSchemaComplexContentIsType, QName,
-  langStringName} from "./xml-schema-model";
+  langStringName,
+  xmlSchemaComplexTypeDefinitionIsGroupReference,
+  XmlSchemaGroupDefinition} from "./xml-schema-model";
 
 import {XmlWriter, XmlStreamWriter} from "./xml-writer";
 
@@ -45,6 +47,7 @@ export async function writeXmlSchema(
   const writer = new XmlStreamWriter(stream);
   await writeSchemaBegin(model, writer);
   await writeImportsAndDefinitions(model, writer);
+  await writeGroups(model, writer);
   await writeElements(model, writer);
   await writeSchemaEnd(writer);
 }
@@ -137,6 +140,33 @@ async function writeImportsAndDefinitions(
   }
 }
 
+async function writeGroups(
+  model: XmlSchema, writer: XmlWriter,
+): Promise<void> {
+  for (const group of model.groups) {
+    await writeGroup(group, writer);
+  }
+}
+
+/**
+ * Writes out an xs:group definition.
+ */
+async function writeGroup(
+  group: XmlSchemaGroupDefinition, writer: XmlWriter,
+): Promise<void> {
+  await writer.writeElementBegin("xs", "group");
+  await writer.writeLocalAttributeValue("name", group.name);
+  for (const content of group.contents) {
+    if (xmlSchemaComplexContentIsElement(content)) {
+      await writeElement(content.element, content, writer);
+    }
+    if (xmlSchemaComplexContentIsType(content)) {
+      await writeComplexContent(content.complexType, content, true, writer);
+    }
+  }
+  await writer.writeElementEnd("xs", "group");
+}
+
 async function writeElements(
   model: XmlSchema, writer: XmlWriter,
 ): Promise<void> {
@@ -153,16 +183,25 @@ async function writeElement(
   parentContent: XmlSchemaComplexContent | null, writer: XmlWriter,
 ): Promise<void> {
   await writer.writeElementBegin("xs", "element");
-  await writer.writeLocalAttributeValue("name", element.elementName);
   await writeAttributesForComplexContent(parentContent, writer);
-  const type = element.type;
-  if (type.name != null) {
-    await writer.writeLocalAttributeValue("type", type.name);
+  if (element.source != null) {
+    await writer.writeLocalAttributeValue(
+      "ref", writer.getQName(element.source.prefix, element.elementName)
+    );
   } else {
-    if (xmlSchemaTypeIsComplex(type)) {
-      await writeComplexType(type.complexDefinition, writer);
-    } else if (xmlSchemaTypeIsSimple(type)) {
-      await writeSimpleType(type.simpleDefinition, true, writer);
+    await writer.writeLocalAttributeValue("name", element.elementName);
+    const type = element.type;
+    if (type.name != null) {
+      await writer.writeLocalAttributeValue(
+        "type",
+        writer.getQName(type.source?.prefix, type.name)
+      );
+    } else {
+      if (xmlSchemaTypeIsComplex(type)) {
+        await writeComplexType(type.complexDefinition, writer);
+      } else if (xmlSchemaTypeIsSimple(type)) {
+        await writeSimpleType(type.simpleDefinition, true, writer);
+      }
     }
   }
   await writer.writeElementEnd("xs", "element");
@@ -225,7 +264,13 @@ async function writeComplexContent(
   } else {
     await writer.writeElementBegin("xs", definition.xsType);
     await writeAttributesForComplexContent(parentContent, writer);
-    await writeComplexTypes(definition, writer);
+    if (xmlSchemaComplexTypeDefinitionIsGroupReference(definition)) {
+      await writer.writeLocalAttributeValue(
+        "ref", writer.getQName(definition.source.prefix, definition.name)
+      );
+    } else {
+      await writeComplexTypes(definition, writer);
+    }
     await writer.writeElementEnd("xs", definition.xsType);
   }
 }

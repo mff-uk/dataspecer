@@ -15,7 +15,8 @@ export const langStringName: QName = [null, "langString"];
 export class XmlSchema {
   targetNamespace: string | null;
   targetNamespacePrefix: string | null;
-  imports: XmlImportDeclaration[];
+  imports: XmlSchemaImportDeclaration[];
+  groups: XmlSchemaGroupDefinition[];
   elements: XmlSchemaElement[];
   defineLangString: boolean;
 }
@@ -23,10 +24,18 @@ export class XmlSchema {
 /**
  * Represents an import/include declaration to an artifact.
  */
-export class XmlImportDeclaration {
+export class XmlSchemaImportDeclaration {
   prefix: string | null;
   namespace: string | null;
   schemaLocation: string;
+}
+
+/**
+ * Represents a top-level xs:group definition.
+ */
+export class XmlSchemaGroupDefinition {
+  name: string | null;
+  contents: XmlSchemaComplexContent[];
 }
 
 /**
@@ -34,6 +43,7 @@ export class XmlImportDeclaration {
  */
 export class XmlSchemaElement {
   elementName: string;
+  source: XmlSchemaImportDeclaration | null;
   type: XmlSchemaType;
 }
 
@@ -42,6 +52,7 @@ export class XmlSchemaElement {
  */
 export class XmlSchemaType {
   name: string | undefined;
+  source: XmlSchemaImportDeclaration | null;
 }
 
 /**
@@ -77,6 +88,23 @@ export class XmlSchemaComplexTypeDefinition {
   mixed: boolean;
   xsType: string;
   contents: XmlSchemaComplexContent[];
+}
+
+/**
+ * Represents an xs:group element in an xs:complexType.
+ */
+export class XmlSchemaComplexGroupReference
+  extends XmlSchemaComplexTypeDefinition
+{
+  xsType: "group";
+  name: string;
+  source: XmlSchemaImportDeclaration;
+}
+
+export function xmlSchemaComplexTypeDefinitionIsGroupReference(
+  typeDefinition: XmlSchemaComplexTypeDefinition,
+): typeDefinition is XmlSchemaComplexGroupReference {
+  return typeDefinition.xsType === "group";
 }
 
 /**
