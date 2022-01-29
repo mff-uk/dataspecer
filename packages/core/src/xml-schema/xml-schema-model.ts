@@ -98,7 +98,7 @@ export class XmlSchemaComplexGroupReference
 {
   xsType: "group";
   name: string;
-  source: XmlSchemaImportDeclaration;
+  source: XmlSchemaImportDeclaration | null;
 }
 
 export function xmlSchemaComplexTypeDefinitionIsGroupReference(
