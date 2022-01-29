@@ -73,19 +73,23 @@ CONSTRUCT {
     }
 
     OPTIONAL {
-        ?attribute rdfs:subClassOf [
+        %NODE% rdfs:subClassOf [
             a owl:Restriction ;
-            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
-            owl:onClass %NODE% ;
+            owl:onProperty [
+              owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
+            ] ;
+            owl:onClass ?attribute ;
             owl:maxQualifiedCardinality ?max
         ] .
     }
 
     OPTIONAL {
-        ?attribute rdfs:subClassOf [
+        %NODE% rdfs:subClassOf [
             a owl:Restriction ;
-            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
-            owl:onClass %NODE% ;
+            owl:onProperty [
+              owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
+            ] ;
+            owl:onClass ?attribute ;
             owl:minQualifiedCardinality ?min
         ] .
     }
