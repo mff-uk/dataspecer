@@ -2,7 +2,7 @@ import React, {memo} from "react";
 import {DialogContentText, Grid, Tab, Tabs} from "@mui/material";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {useResource} from "../../hooks/useResource";
-import {PimAssociation, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociation, PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {useTranslation} from "react-i18next";
 import {InDifferentLanguages} from "./components/InDifferentLanguages";
@@ -15,7 +15,9 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
     const {resource: association} = useResource<PimAssociation>(iri);
     const {t, i18n} = useTranslation("detail");
 
-    let childIri: string | null = association?.pimEnd[orientation ? 1 : 0] ?? null;
+    let associationEndIri: string | null = association?.pimEnd[orientation ? 1 : 0] ?? null;
+    const {resource: associationEnd} = useResource<PimAssociationEnd>(associationEndIri);
+    let childIri: string | null = associationEnd?.pimPart ?? null;
     const {resource: child} = useResource<PimClass>(childIri);
 
     const [tab, setTab] = React.useState(0);
@@ -67,10 +69,12 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
         {tab === 1 && <>
             <Tabs value={storeTab} onChange={(e, ch) => setStoreTab(ch)} sx={{ mb: 3 }}>
                 <Tab label={t('tab pim association')} value={"pimAssociation"} />
+                <Tab label={t('tab pim association end')} value={"pimAssociationEnd"} />
                 <Tab label={t('tab pim child')} value={"pimChild"} />
             </Tabs>
 
             {storeTab === "pimAssociation" && <ResourceInStore iri={iri} />}
+            {storeTab === "pimAssociationEnd" && associationEndIri && <ResourceInStore iri={associationEndIri} />}
             {storeTab === "pimChild" && childIri && <ResourceInStore iri={childIri} />}
         </>}
     </DialogWrapper>;

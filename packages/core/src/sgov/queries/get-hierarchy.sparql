@@ -32,5 +32,6 @@ CONSTRUCT {
 
 	OPTIONAL { ?ancestor skos:prefLabel ?label . }
 	OPTIONAL { ?ancestor skos:definition ?definition }
+	OPTIONAL { ?ancestor skos:scopeNote ?definition }
 	OPTIONAL { ?ancestor skos:inScheme ?glossary }
 }

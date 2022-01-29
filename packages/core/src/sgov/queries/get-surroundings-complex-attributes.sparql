@@ -54,6 +54,7 @@ CONSTRUCT {
     # (3) only complex CIM attributes END
 
     OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+    OPTIONAL { ?attribute skos:scopeNote ?attributeDefinition }
 
     BIND(IRI(REPLACE(STR(?attribute), "/pojem/", "/pojem-z-cim-transformace/")) AS ?outwardsRelation)
     BIND(?attribute AS ?rangeElement)

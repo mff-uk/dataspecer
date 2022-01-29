@@ -8,7 +8,7 @@ require('dotenv').config();
 // Emulate default values
 const defaultValues = {
     REACT_APP_BACKEND: "http://localhost:3100",
-    REACT_APP_SCHEMA_GENERATOR: "localhost http://localhost:3000/"
+    REACT_APP_SCHEMA_GENERATOR: "http://localhost:3000/"
 }
 
 export const processEnv = {

@@ -211,7 +211,6 @@ export class SgovAdapter implements CimAdapter {
 
       // Process associations for the class and add class from the other side
       // of the association to `processQueue`
-      // todo CLASS <--[0-1] ASSOCIATION END <--[*] ASSOCIATION
 
       const associations = [
         ...await rdfClassWrap.reverseNodes(RDFS.domain),
@@ -225,9 +224,9 @@ export class SgovAdapter implements CimAdapter {
         }
         associationsProcessed.add(cimAssociationIri);
 
-        const pimAssociation = await loadSgovAssociation(
-          entity, this.iriProvider);
-        resources[pimAssociation.iri] = pimAssociation;
+        const associationResources = await loadSgovAssociation(
+          entity, source, this.iriProvider);
+        associationResources.forEach(r => resources[r.iri] = r);
 
         // Add linked classes to the processQueue
 

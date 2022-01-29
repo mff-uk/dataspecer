@@ -3,7 +3,7 @@ import {Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} 
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {useResource} from "../../hooks/useResource";
-import {PimAssociation, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociation, PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {LanguageStringFallback, LanguageStringUndefineable} from "../helper/LanguageStringComponents";
@@ -25,7 +25,8 @@ export const AssociationItem: React.FC<{
 }> = (props) => {
     const {t} = useTranslation("ui");
     const {resource: association} = useResource<PimAssociation>(props.pimAssociationIri);
-    const {resource: cls} = useResource<PimClass>(association?.pimEnd?.[props.orientation ? 1 : 0] ?? null);
+    const {resource: associationEnd} = useResource<PimAssociationEnd>(association?.pimEnd?.[props.orientation ? 1 : 0] ?? null);
+    const {resource: cls} = useResource<PimClass>(associationEnd?.pimPart ?? null);
     const isCodelist = cls?.pimIsCodelist ?? false;
 
     if (!association) {

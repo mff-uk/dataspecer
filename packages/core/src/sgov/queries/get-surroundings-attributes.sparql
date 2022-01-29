@@ -11,7 +11,9 @@ CONSTRUCT {
         rdfs:domain %NODE% ;
         skos:prefLabel ?attributeLabel ;
         skos:definition ?attributeDefinition ;
-        skos:inScheme ?attributeGlossary .
+        skos:inScheme ?attributeGlossary ;
+        owl:maxQualifiedCardinality ?max ;
+        owl:minQualifiedCardinality ?min .
 } WHERE {
     # (1) both directions START
         {
@@ -51,5 +53,44 @@ CONSTRUCT {
         FILTER(BOUND(?count)=false)
     # (3) ignore complex CIM attributes END
 
+    # Cardinalities START
+    OPTIONAL {
+         %NODE% rdfs:subClassOf [
+             a owl:Restriction ;
+             owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
+             owl:onClass ?attribute ;
+             owl:maxQualifiedCardinality ?max
+         ] .
+     }
+
+    OPTIONAL {
+         %NODE% rdfs:subClassOf [
+             a owl:Restriction ;
+             owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
+             owl:onClass ?attribute ;
+             owl:minQualifiedCardinality ?min
+         ] .
+    }
+
+    OPTIONAL {
+        ?attribute rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
+            owl:onClass %NODE% ;
+            owl:maxQualifiedCardinality ?max
+        ] .
+    }
+
+    OPTIONAL {
+        ?attribute rdfs:subClassOf [
+            a owl:Restriction ;
+            owl:onProperty <https://slovník.gov.cz/základní/pojem/je-vlastností> ;
+            owl:onClass %NODE% ;
+            owl:minQualifiedCardinality ?min
+        ] .
+    }
+    # Cardinalities END
+
     OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+    OPTIONAL { ?attribute skos:scopeNote ?attributeDefinition }
 }
