@@ -47,7 +47,7 @@ application.put('/store/:storeId', writeStore);
 application.get('/configuration/by-data-psm/:dataPsmId', configurationByDataPsm);
 application.get('/configuration/by-specification/:specificationId', configurationBySpecification);
 
-application.post('/transformer/bikeshed', bodyParser.text({type:"*/*"}), generateBikeshedRoute);
+application.post('/transformer/bikeshed', bodyParser.text({type:"*/*", limit: process.env.PAYLOAD_SIZE_LIMIT}), generateBikeshedRoute);
 
 application.listen(Number(process.env.PORT), () =>
     console.log(`Server ready at: http://localhost:${Number(process.env.PORT)}`)
