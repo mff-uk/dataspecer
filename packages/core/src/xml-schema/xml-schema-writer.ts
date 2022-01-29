@@ -267,7 +267,7 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroupReference(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref", writer.getQName(definition.source.prefix, definition.name)
+        "ref", writer.getQName(definition.source?.prefix, definition.name)
       );
     } else {
       await writeComplexTypes(definition, writer);
