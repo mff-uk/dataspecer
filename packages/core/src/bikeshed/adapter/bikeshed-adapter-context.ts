@@ -12,8 +12,7 @@ import {
 } from "../../structure-model";
 import {
   DataSpecification,
-  DataSpecificationArtefact, DataSpecificationDocumentation,
-  DataSpecificationSchema
+  DataSpecificationArtefact,
 } from "../../data-specification/model";
 
 /**
