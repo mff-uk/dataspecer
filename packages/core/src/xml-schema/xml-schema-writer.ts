@@ -56,8 +56,9 @@ async function writeSchemaBegin(
   model: XmlSchema, writer: XmlWriter,
 ): Promise<void> {
   await writer.writeXmlDeclaration("1.0", "utf-8");
+  writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
-  await writer.writeAndRegisterNamespaceDeclaration("xs", xsNamespace);
+  await writer.writeNamespaceDeclaration("xs", xsNamespace);
   await writer.writeLocalAttributeValue("version", "1.1");
   if (model.targetNamespace != null) {
     await writer.writeLocalAttributeValue("elementFormDefault", "qualified");
