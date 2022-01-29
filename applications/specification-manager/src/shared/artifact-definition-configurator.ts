@@ -10,6 +10,18 @@ import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabula
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
 import {GeneratorOptions} from "./generator-options";
+import {getNameForDataPsmSchema, getNameForPimSchema} from "./get-human-name";
+
+function filenameSafeString(str: string): string {
+    return str
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .toLowerCase();
+}
+
+function nameFromIri(iri: string): string {
+    return iri.split("/").pop() as string;
+}
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -46,15 +58,23 @@ export class ArtifactDefinitionConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
-    // unique name for the whole data specification
-    const dataSpecificationName = dataSpecification.iri?.split('/').pop() as string ?? "data-specification"; // todo use real name
+    // todo names are not unique
+    let dataSpecificationName = await getNameForPimSchema(this.store, dataSpecification.pim as string, ["cs"]);
+    if (dataSpecificationName === undefined) {
+      dataSpecificationName = nameFromIri(dataSpecification.pim as string);
+    }
+    dataSpecificationName = filenameSafeString(dataSpecificationName);
 
     // Generate schemas
 
     const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
     for (const psmSchemaIri of dataSpecification.psms) {
-      // unique name of current data structure (DPSM) in context of the data specification
-      const name = psmSchemaIri.split('/').pop() as string; // todo use real name
+      // todo names are not unique
+      let name = await getNameForDataPsmSchema(this.store, psmSchemaIri, ["cs"]);
+      if (name === undefined) {
+        name = nameFromIri(psmSchemaIri);
+      }
+      name = filenameSafeString(name);
 
       if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("json")) {
         const jsonSchema = new DataSpecificationSchema();
@@ -81,13 +101,13 @@ export class ArtifactDefinitionConfigurator {
 
     // PlantUML source
     const plantUml = new DataSpecificationDocumentation();
-    plantUml.outputPath = `${dataSpecificationName}/conceptualModel.plantuml`;
+    plantUml.outputPath = `${dataSpecificationName}/conceptual-model.plantuml`;
     plantUml.publicUrl = plantUml.outputPath;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
 
     // PlantUml image
     const plantUmlImage = new DataSpecificationDocumentation();
-    plantUmlImage.outputPath = `${dataSpecificationName}/conceptualModel.png`;
+    plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.png`;
     plantUmlImage.publicUrl = plantUmlImage.outputPath;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
 

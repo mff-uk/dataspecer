@@ -30,6 +30,11 @@ export async function getDataSpecificationsFromStore(
     const isXml = storeWithMetadata.metadata.artifacts?.includes("xml") ?? false;
 
     const schema = (await storeWithMetadata.store.listResourcesOfType((isPimNotPsm ? PIM : PSM).SCHEMA))[0];
+
+    if (schema === undefined) {
+      continue;
+    }
+
     const schema_code = schema.substring(schema.lastIndexOf("/") + 1);
 
     const specification = dataSpecifications[isRoot ? 0 : 1];
