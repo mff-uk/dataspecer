@@ -279,9 +279,9 @@ export class AddClassSurroundings implements ComplexOperation {
         executor: OperationExecutor,
     ): Promise<boolean> {
         // Find all classes which needs to be created or checked in order from most generic to most specific.
-        const classesToProcess = new Set<string>();
+        const classesToProcess: string[] = [];
 
-        // DFS
+        // DFS that finds a SINGLE (random, if multiple exists) path
         const traverseFunction = async (currentClass: PimClass, path: Set<string> = new Set()): Promise<boolean> => {
             let success = currentClass.iri === toClass.iri;
 
@@ -294,13 +294,14 @@ export class AddClassSurroundings implements ComplexOperation {
                     }
                     if (await traverseFunction(extClass, path)) {
                         success = true;
+                        break;
                     }
                 }
                 path.delete(currentClass.iri as string);
             }
 
             if (success) {
-                classesToProcess.add(currentClass.iri as string);
+                classesToProcess.push(currentClass.iri as string);
             }
             return success;
         }
@@ -308,29 +309,29 @@ export class AddClassSurroundings implements ComplexOperation {
         const success = await traverseFunction(fromClass);
 
         // Create each class and fix its extends
+        let parentClassInChain: PimClass | null = null; // This is the parent class of the current one from the CIM
+        let parentLocalClassInChain: PimClass | null = null; // Patent of the current one but from the local store
         for (const classToProcessIri of classesToProcess) {
             const classToProcess = await this.sourcePimModel.readResource(classToProcessIri) as PimClass;
 
             const iri = await createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
             const localClass = await executor.store.readResource(iri) as PimClass;
 
-            // PIM iris in local store
-            const missingPimExtends: string[] = [];
-
-            for (const extendsIri of classToProcess.pimExtends.filter(e => classesToProcess.has(e))) {
-                const ext = await this.sourcePimModel.readResource(extendsIri) as PimClass;
-                const extLocalIri = await executor.store.getPimHavingInterpretation(ext.pimInterpretation as string, pimStoreSelector) as string;
-                if (!localClass.pimExtends.includes(extLocalIri)) {
-                    missingPimExtends.push(extLocalIri);
-                }
+            if (parentClassInChain &&
+              !classToProcess.pimExtends.includes(parentClassInChain?.iri as string)) {
+                throw new Error(`Assert error in AddClassSurroundings: class in chain does not extend parent class.`);
             }
 
-            if (missingPimExtends.length > 0) {
+            const missingExtends = parentLocalClassInChain && !localClass.pimExtends.includes(parentLocalClassInChain.iri as string);
+            if (missingExtends) {
                 const pimSetExtends = new PimSetExtends();
                 pimSetExtends.pimResource = iri;
-                pimSetExtends.pimExtends = [...localClass.pimExtends, ...missingPimExtends];
+                pimSetExtends.pimExtends = [...localClass.pimExtends, (parentLocalClassInChain as PimClass).iri as string];
                 await executor.applyOperation(pimSetExtends, pimStoreSelector);
             }
+
+            parentClassInChain = classToProcess;
+            parentLocalClassInChain = localClass;
         }
 
         return success;
