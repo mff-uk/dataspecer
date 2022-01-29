@@ -214,16 +214,16 @@ function propertyInterpretation(
     `Missing conceptual entity ${entity.pimIri} for`
     + `structure entity ${entity.psmIri} .`);
 
-  const conceptualProperty = findConceptualOwnerInHierarchy(
+  const reference = findConceptualPropertyInHierarchy(
     context.conceptualModel, conceptualClass, property.pimIri);
 
-  assertNot(conceptualProperty === null,
+  assertNot(reference === null,
     `Missing conceptual property ${property.pimIri} in entity ${entity.pimIri} .`
     + ` For structure property ${property.psmIri}`);
 
-  const label = context.selectString(conceptualProperty.humanLabel);
+  const label = context.selectString(reference.property.humanLabel);
   const href = context.conceptualPropertyAnchor(
-    conceptualClass, conceptualProperty);
+    reference.owner, reference.property);
   return `[${label}](#${href})`
 }
 
@@ -231,18 +231,24 @@ function propertyInterpretation(
  * The given property can be declared not only in a given class but
  * also in any class it extends.
  */
-function findConceptualOwnerInHierarchy(
+function findConceptualPropertyInHierarchy(
   conceptualModel: ConceptualModel,
   conceptualClass: ConceptualModelClass,
   propertyIri: string
-): ConceptualModelProperty | null {
+): {
+  owner: ConceptualModelClass,
+  property: ConceptualModelProperty,
+} | null {
   // Searching for ancestors.
   const searchStack = [conceptualClass];
   while (searchStack.length > 0) {
     const next = searchStack.pop();
     for (const candidateProperty of next.properties) {
       if (candidateProperty.pimIri === propertyIri) {
-        return candidateProperty;
+        return {
+          "owner": next,
+          "property": candidateProperty,
+        };
       }
     }
     searchStack.push(...next.extends);
