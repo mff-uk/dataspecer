@@ -56,6 +56,28 @@ export class Generator {
     }
   }
 
+  public async generateArtefact(
+    specificationIri: string,
+    artefactIri: string,
+    output: StreamDictionary,
+  ): Promise<void> {
+    const specification = this.specifications[specificationIri];
+    assertNot(
+      specification == undefined,
+      `Missing specification ${specificationIri}`);
+    const context = await this.createContext();
+    const artefact = specification.artefacts.find(a => a.iri === artefactIri);
+    assertNot(
+      artefact === undefined,
+      `Artefact ${artefactIri} not found in specification ${specificationIri}`);
+    const generator = this.generators[artefact.generator];
+    assertNot(
+      generator == undefined,
+      `Missing generator ${artefact.generator}`);
+    await generator.generateToStream(
+      context, artefact, specification, output);
+  }
+
   private async createContext(): Promise<ArtefactGeneratorContext> {
     const conceptualModels = {};
     const structureModels = {};
