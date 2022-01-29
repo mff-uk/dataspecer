@@ -4,19 +4,18 @@ import {SyncMemoryStore} from "../shared/store/core-stores/sync-memory-store";
 import {CoreResource, CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/core";
 import {SyncMemoryStoreConfigurationStoreBuilder} from "../shared/store/core-stores/sync-memory-store-configuration-store";
 import {Generator} from "@model-driven-data/core/generator";
-import {DataSpecification, DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
+import {DataSpecification} from "@model-driven-data/core/data-specification/model";
 import {ZipStreamDictionary} from "./zip-stream-dictionary";
-import * as PSM from "@model-driven-data/core/data-psm/data-psm-vocabulary";
-import * as PIM from "@model-driven-data/core/pim/pim-vocabulary";
 import {PlantUmlGenerator} from "@model-driven-data/core/plant-uml";
-import {StoreByPropertyDescriptor} from "../shared/store/operation-executor";
-import {BIKESHED, BikeshedGenerator} from "@model-driven-data/core/bikeshed";
+import {BikeshedGenerator} from "@model-driven-data/core/bikeshed";
 import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
-import {coreResourcesToConceptualModel} from "@model-driven-data/core/conceptual-model";
 import {JsonSchemaGenerator} from "@model-driven-data/core/json-schema/json-schema-generator";
-import {XmlSchemaGenerator} from "@model-driven-data/core/xml-schema/xml-schema-generator";
+import {XmlSchemaGenerator} from "@model-driven-data/core/xml-schema";
 import {PlantUmlImageGenerator} from "./plant-uml-image-generator";
 import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
+import {getDataSpecificationsFromStore} from "../shared/emulate-data-specification";
+import {ArtifactDefinitionConfigurator} from "../shared/artifact-definition-configurator";
+import {GeneratorOptions} from "../shared/generator-options";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -40,8 +39,22 @@ export class ArtifactBuilder {
 
         const store = await this.constructStore();
 
+        // todo: This temporary hack fixes problem with different interfaces
+        // between backend and frontend.
+        const [
+          dataSpecifications,
+          generatorOptions,
+          rootSpecification
+        ] = await getDataSpecificationsFromStore(store);
+
         await this.writeReadme(zip);
-        await this.writeArtifacts(zip, store);
+        await this.writeArtifacts(
+          zip,
+          store,
+          dataSpecifications,
+          generatorOptions,
+          rootSpecification,
+        );
         await this.writeStore(zip, store);
 
         return zip.save();
@@ -79,94 +92,33 @@ export class ArtifactBuilder {
         return store;
     }
 
-    private async writeArtifacts(zip: ZipStreamDictionary, store: FederatedObservableStore) {
-        // Currently, we are generating artifacts for only the root data
-        // specification.
+    private async writeArtifacts(
+      zip: ZipStreamDictionary,
+      store: FederatedObservableStore,
+      dataSpecifications: DataSpecification[],
+      generatorOptions: Record<string, GeneratorOptions>,
+      rootDataSpecificationIri: string,
+    ) {
+        const configurator = new ArtifactDefinitionConfigurator(
+          dataSpecifications,
+          store,
+        );
 
-        const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
-
-        // JSON and XML schemas for all data structures.
-        for (const singleStore of store.getStores()) {
-            if (!singleStore.metadata.tags.includes('root') || !singleStore.metadata.tags.includes('data-psm')) {
-                continue;
-            }
-
-            const psmSchemaIri = (await singleStore.store.listResourcesOfType(PSM.SCHEMA))[0];
-            if (!psmSchemaIri) {
-                continue;
-            }
-
-            const name = psmSchemaIri.split('/').pop() as string;
-
-            if (singleStore.metadata.artifacts?.includes("json")) {
-                const jsonSchema = new DataSpecificationSchema();
-                jsonSchema.iri = `${name}#jsonschema`;
-                jsonSchema.outputPath = `schemas/${name}/schema.json`;
-                jsonSchema.publicUrl = jsonSchema.outputPath;
-                jsonSchema.generator = "jsonschema";
-                jsonSchema.psm = psmSchemaIri;
-
-                currentSchemaArtefacts.push(jsonSchema);
-            }
-
-            if (singleStore.metadata.artifacts?.includes("xml")) {
-                const xmlSchema = new DataSpecificationSchema();
-                xmlSchema.iri = `${name}#xmlschema`;
-                xmlSchema.outputPath = `schemas/${name}/schema.xsd`;
-                xmlSchema.publicUrl = xmlSchema.outputPath;
-                xmlSchema.generator = "xmlschema";
-                xmlSchema.psm = psmSchemaIri;
-
-                currentSchemaArtefacts.push(xmlSchema);
-            }
+        for (const dataSpecification of dataSpecifications) {
+            await configurator.setConfigurationForSpecification(
+              dataSpecification.iri as string,
+              generatorOptions[dataSpecification.iri as string],
+            );
         }
 
-        // PlantUML source
-        const plantUml = new DataSpecificationDocumentation();
-        plantUml.outputPath = "conceptualModel.plantuml";
-        plantUml.publicUrl = plantUml.outputPath;
-        plantUml.generator = PlantUmlGenerator.IDENTIFIER;
-
-        // PlantUml image
-        const plantUmlImage = new DataSpecificationDocumentation();
-        plantUmlImage.outputPath = "conceptualModel.png";
-        plantUmlImage.publicUrl = plantUmlImage.outputPath;
-        plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
-
-        // Bikeshed source
-        const bikeshed = new DataSpecificationDocumentation();
-        bikeshed.outputPath = "documentation.bs";
-        bikeshed.publicUrl = bikeshed.outputPath;
-        bikeshed.generator = BIKESHED.Generator;
-        bikeshed.artefacts =
-          currentSchemaArtefacts.map(artefact => artefact.iri as string);
-
-        // Bikeshed HTML
-        const bikeshedHtml = new DataSpecificationDocumentation();
-        bikeshedHtml.outputPath = "documentation.html";
-        bikeshedHtml.publicUrl = bikeshedHtml.outputPath;
-        bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
-        bikeshedHtml.artefacts =
-          currentSchemaArtefacts.map(artefact => artefact.iri as string);
-
-        const schemas = await store.listResourcesOfType(PSM.SCHEMA,
-          new StoreByPropertyDescriptor(["root", "data-psm"]));
-        const pimSchemas = await store.listResourcesOfType(PIM.SCHEMA);
-
-        const rootDataSpecification = new DataSpecification();
-        rootDataSpecification.iri = "root";
-        rootDataSpecification.pim = pimSchemas[0];
-        rootDataSpecification.psms = schemas;
-        rootDataSpecification.artefacts = [
-            ...currentSchemaArtefacts,
-            plantUml,
-            plantUmlImage,
-            bikeshed,
-            bikeshedHtml,
-        ];
+        await writeToStreamDictionary(
+          zip,
+          "resources/data_specifications.json",
+          JSON.stringify(dataSpecifications, null, 4),
+        );
 
         const generator = new Generator(
-          [rootDataSpecification],
+          dataSpecifications,
           store,
           [
             new JsonSchemaGenerator(),
@@ -179,7 +131,14 @@ export class ArtifactBuilder {
           ]
         );
 
-        await generator.generate("root", zip);
+        for (const dataSpecification of dataSpecifications) {
+            try {
+                await generator.generate(dataSpecification.iri as string, zip);
+            } catch (e) {
+                console.warn(`Failed to generate artifacts for specification: ${dataSpecification.iri}. The generate() method thrown. The result may be incomplete. See the error below.`);
+                console.error(e);
+            }
+        }
     }
 
     private async writeStore(streamDictionary: StreamDictionary, store: FederatedObservableStore) {
@@ -195,20 +154,6 @@ export class ArtifactBuilder {
           streamDictionary,
           "resources/merged_store.json",
           JSON.stringify(rawStore, null, 4),
-        );
-        await writeToStreamDictionary(
-          streamDictionary,
-          "resources/configuration.json",
-          JSON.stringify(this.configuration, null, 4),
-        );
-
-        const pimSchemaIri = (await store.listResourcesOfType(PIM.SCHEMA, new StoreByPropertyDescriptor(['root', 'pim'])))[0];
-        const conceptualModel = await coreResourcesToConceptualModel(store, pimSchemaIri);
-
-        await writeToStreamDictionary(
-          streamDictionary,
-          "resources/conceptual_model.json",
-          JSON.stringify(conceptualModel, null, 4),
         );
     }
 }
