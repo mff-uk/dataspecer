@@ -21,6 +21,8 @@ export interface ConfigurationStore {
  */
 export interface ConfigurationStoreMetadata {
     tags: StoreMetadataTag[];
+    artifacts?: StoreMetadataArtifact[];
 }
 
 export type StoreMetadataTag = ("root" | "pim" | "data-psm" | "cim-as-pim" | "reused" | "reused-recursively" | "read-only");
+export type StoreMetadataArtifact = "xml" | "json";
