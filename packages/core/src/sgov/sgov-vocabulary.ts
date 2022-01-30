@@ -19,3 +19,10 @@ export const SKOS = {
   definition: "http://www.w3.org/2004/02/skos/core#definition",
   inScheme: "http://www.w3.org/2004/02/skos/core#inScheme",
 };
+
+export const OWL = {
+  maxQualifiedCardinality:
+      "http://www.w3.org/2002/07/owl#maxQualifiedCardinality",
+  minQualifiedCardinality:
+      "http://www.w3.org/2002/07/owl#minQualifiedCardinality",
+};

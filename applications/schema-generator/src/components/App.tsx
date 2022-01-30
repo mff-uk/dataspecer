@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useMemo, useState} from "react";
-import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
+import {AppBar, Box, Button, Container, Divider, Toolbar, Typography} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import ButtonSetRoot from "./cim-search/button-set-root";
 import {DataPsmSchemaItem} from "./data-psm/DataPsmSchemaItem";
@@ -22,6 +22,8 @@ import {Configuration} from "../configuration/configuration";
 import {SyncMemoryStoreConfigurationStoreBuilder} from "../store/core-stores/sync-memory-store-configuration-store";
 import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {SyncMemoryStore} from "../store/core-stores/sync-memory-store";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import {createTheme, ThemeProvider} from "@mui/material/styles";
 
 // @ts-ignore
 export const StoreContext = React.createContext<StoreContextInterface>(null);
@@ -29,6 +31,19 @@ export const StoreContext = React.createContext<StoreContextInterface>(null);
 // Process URL parameters and check if contains configuration on how to create stores
 const urlParams = new URLSearchParams(window.location.search);
 const configurationUrl = urlParams.get("configuration");
+const backlink = urlParams.get("backlink");
+
+const ButtonMenuTheme = createTheme({
+    palette: {
+        primary: {
+            "main": "#fff",
+            "contrastText": "rgba(0, 0, 0, 0.87)"
+        },
+    },
+});
+
+console.log(ButtonMenuTheme);
+
 
 const App: React.FC = () => {
     const { t } = useTranslation('ui');
@@ -134,6 +149,19 @@ const App: React.FC = () => {
                         <Typography variant="h6">
                             {t("title")}
                         </Typography>
+                        {backlink && backlink.length > 0 &&
+                            <ThemeProvider theme={ButtonMenuTheme}>
+                                <Button
+                                  color={"primary"}
+                                  variant="contained"
+                                  startIcon={<ArrowBackIcon />}
+                                  sx={{mx: 3}}
+                                  onClick={() => window.location.href = backlink}
+                                >
+                                    {t("back to specification manager")}
+                                </Button>
+                            </ThemeProvider>
+                        }
                         <Box display="flex" sx={{flexGrow: 1}} justifyContent="flex-end">
                             <LanguageSelector />
                         </Box>

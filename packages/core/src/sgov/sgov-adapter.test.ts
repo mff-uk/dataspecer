@@ -88,6 +88,12 @@ describe("SgovAdapter.getSurroundings()", () => {
   });
 });
 
+test("SgovAdapter.getSurroundings() with quotation marks", async () => {
+  await expect(adapter.getSurroundings(
+    "https://slovník.gov.cz/generický/čas/pojem/časová-specifikace",
+  )).resolves.not.toThrow();
+});
+
 describe("SgovAdapter.getClassGroup()", () => {
   test("uncached", async () => {
     // New instance of the adapter need to be created

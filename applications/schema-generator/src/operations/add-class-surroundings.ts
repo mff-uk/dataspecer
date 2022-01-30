@@ -2,7 +2,7 @@ import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimSetExtends} from "@model-driven-data/core/pim/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality, PimSetExtends} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "../store/complex-operation";
 import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
@@ -132,11 +132,13 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmStoreSelector: StoreDescriptor,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
-        const dom = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimClass;
-        const rng = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimClass;
+        const domainAssociationEnd = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimAssociationEnd;
+        const domainAssociationEndClass = await this.sourcePimModel.readResource(domainAssociationEnd.pimPart as string) as PimClass;
+        const rangeAssociationEnd = await this.sourcePimModel.readResource(association.pimEnd[1]) as PimAssociationEnd;
+        const rangeAssociationEndClass = await this.sourcePimModel.readResource(rangeAssociationEnd.pimPart as string) as PimClass;
 
-        const thisAssociationEndClass = orientation ? dom : rng;
-        const otherAssociationEndClass = orientation ? rng : dom;
+        const thisAssociationEndClass = orientation ? domainAssociationEndClass : rangeAssociationEndClass;
+        const otherAssociationEndClass = orientation ? rangeAssociationEndClass : domainAssociationEndClass;
 
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor);
@@ -148,7 +150,7 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(thisAssociationEndClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(otherAssociationEndClass) ?? null;
         const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 
@@ -185,6 +187,8 @@ export class AddClassSurroundings implements ComplexOperation {
         const pimCreateAttribute = new PimCreateAttribute();
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAttribute);
         pimCreateAttribute.pimOwnerClass = ownerClassIri;
+        pimCreateAttribute.pimCardinalityMin = resource.pimCardinalityMin;
+        pimCreateAttribute.pimCardinalityMax = resource.pimCardinalityMax;
         const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
         return pimCreateAttributeResult.created[0];
     }
@@ -216,26 +220,45 @@ export class AddClassSurroundings implements ComplexOperation {
             }
         }
 
-        // iris to PIM classes
-        const pimEnd = [];
+        // IRI of local PIM classes from the association ends
+        const pimEndIris: string[] = [];
+        const pimEnds: PimAssociationEnd[] = [];
         for (const endIri of resource.pimEnd) {
             const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
-            //const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
-            const localPimIri = await executor.store.getPimHavingInterpretation(endPim.pimInterpretation as string, pimStoreSelector);
+            const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
+            const localPimIri = await executor.store.getPimHavingInterpretation(endClass.pimInterpretation as string, pimStoreSelector);
             if (localPimIri === null) {
                 throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
             }
-            pimEnd.push(localPimIri);
+            pimEndIris.push(localPimIri);
+            pimEnds.push(endPim);
         }
 
-        const pimCreateAssociation = new PimCreateAssociation();
+        const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
-        pimCreateAssociation.pimAssociationEnds = pimEnd;
+        pimCreateAssociation.pimAssociationEnds = pimEndIris;
         const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
-        return {
+        const operationResult =  {
             associationIri: pimCreateAssociationResult.created[0],
             associationEnds: pimCreateAssociationResult.created.slice(1)
         }
+
+        // Set cardinalities of association ends if differs
+        for (let i = 0; i < operationResult.associationEnds.length; i++) {
+            const associationEnd = await executor.store.readResource(operationResult.associationEnds[i]) as PimAssociationEnd;
+
+            if (associationEnd.pimCardinalityMin !== pimEnds[i].pimCardinalityMin ||
+                associationEnd.pimCardinalityMax !== pimEnds[i].pimCardinalityMax) {
+
+                const pimSetCardinality = new PimSetCardinality();
+                pimSetCardinality.pimCardinalityMin = pimEnds[i].pimCardinalityMin;
+                pimSetCardinality.pimCardinalityMax = pimEnds[i].pimCardinalityMax;
+                pimSetCardinality.pimResource = associationEnd.iri;
+                await executor.applyOperation(pimSetCardinality, pimStoreSelector);
+            }
+        }
+
+        return operationResult;
     }
 
     /**
@@ -256,9 +279,9 @@ export class AddClassSurroundings implements ComplexOperation {
         executor: OperationExecutor,
     ): Promise<boolean> {
         // Find all classes which needs to be created or checked in order from most generic to most specific.
-        const classesToProcess = new Set<string>();
+        const classesToProcess: string[] = [];
 
-        // DFS
+        // DFS that finds a SINGLE (random, if multiple exists) path
         const traverseFunction = async (currentClass: PimClass, path: Set<string> = new Set()): Promise<boolean> => {
             let success = currentClass.iri === toClass.iri;
 
@@ -271,13 +294,14 @@ export class AddClassSurroundings implements ComplexOperation {
                     }
                     if (await traverseFunction(extClass, path)) {
                         success = true;
+                        break;
                     }
                 }
                 path.delete(currentClass.iri as string);
             }
 
             if (success) {
-                classesToProcess.add(currentClass.iri as string);
+                classesToProcess.push(currentClass.iri as string);
             }
             return success;
         }
@@ -285,29 +309,29 @@ export class AddClassSurroundings implements ComplexOperation {
         const success = await traverseFunction(fromClass);
 
         // Create each class and fix its extends
+        let parentClassInChain: PimClass | null = null; // This is the parent class of the current one from the CIM
+        let parentLocalClassInChain: PimClass | null = null; // Patent of the current one but from the local store
         for (const classToProcessIri of classesToProcess) {
             const classToProcess = await this.sourcePimModel.readResource(classToProcessIri) as PimClass;
 
             const iri = await createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
             const localClass = await executor.store.readResource(iri) as PimClass;
 
-            // PIM iris in local store
-            const missingPimExtends: string[] = [];
-
-            for (const extendsIri of classToProcess.pimExtends.filter(e => classesToProcess.has(e))) {
-                const ext = await this.sourcePimModel.readResource(extendsIri) as PimClass;
-                const extLocalIri = await executor.store.getPimHavingInterpretation(ext.pimInterpretation as string, pimStoreSelector) as string;
-                if (!localClass.pimExtends.includes(extLocalIri)) {
-                    missingPimExtends.push(extLocalIri);
-                }
+            if (parentClassInChain &&
+              !classToProcess.pimExtends.includes(parentClassInChain?.iri as string)) {
+                throw new Error(`Assert error in AddClassSurroundings: class in chain does not extend parent class.`);
             }
 
-            if (missingPimExtends.length > 0) {
+            const missingExtends = parentLocalClassInChain && !localClass.pimExtends.includes(parentLocalClassInChain.iri as string);
+            if (missingExtends) {
                 const pimSetExtends = new PimSetExtends();
                 pimSetExtends.pimResource = iri;
-                pimSetExtends.pimExtends = [...localClass.pimExtends, ...missingPimExtends];
+                pimSetExtends.pimExtends = [...localClass.pimExtends, (parentLocalClassInChain as PimClass).iri as string];
                 await executor.applyOperation(pimSetExtends, pimStoreSelector);
             }
+
+            parentClassInChain = classToProcess;
+            parentLocalClassInChain = localClass;
         }
 
         return success;

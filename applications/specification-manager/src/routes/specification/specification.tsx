@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from "react";
+import React, {useCallback} from "react";
 import {Link, useParams} from "react-router-dom";
 import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import axios from "axios";
@@ -16,21 +16,33 @@ import {processEnv} from "../../index";
 
 export const Specification: React.FC = () => {
     let {specificationId} = useParams();
-    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), [specificationId]);
+    const [specification, , reloadSpecification] = useAsyncMemoWithTrigger(
+    async () => {
+            const headers = new Headers();
+            headers.append('pragma', 'no-cache');
+            headers.append('cache-control', 'no-cache');
 
-    const schemaGeneratorUrls = useMemo(() => (processEnv.REACT_APP_SCHEMA_GENERATOR as string).split(" ")
-        .map((v, i, a) => i % 2 ? [a[i - 1], v] : null)
-        .filter((v): v is [string, string] => v !== null), []);
+            const fetchResult = await fetch(
+                `${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`,
+                {
+                    method: 'GET',
+                    headers,
+                }
+            );
+
+            return await fetchResult.json() as DataSpecification;
+        }, [specificationId]);
 
     const createDataStructure = useCallback(async () => {
         const result = await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm`);
         const dataStructureId = result.data.id;
 
-        const urlObject = new URL(schemaGeneratorUrls[0][1]);
-        urlObject.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+        const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
+        editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructureId}`);
+        editSchemaGeneratorUrl.searchParams.append('backlink', window.location.href);
 
-        window.location.href = urlObject.href;
-    }, [specificationId, schemaGeneratorUrls]);
+        window.location.href = editSchemaGeneratorUrl.href;
+    }, [specificationId]);
 
     const [zipLoading, setZipLoading] = React.useState(false);
     const generateZip = async () => {
@@ -45,7 +57,7 @@ export const Specification: React.FC = () => {
     return <>
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
-            <Typography variant="h4" component="div" gutterBottom><small style={{fontWeight: "bold"}}>Data specification:</small>{" "}{specification?.data.name}</Typography>
+            <Typography variant="h4" component="div" gutterBottom><small style={{fontWeight: "bold"}}>Data specification:</small>{" "}{specification?.name}</Typography>
         </Box>
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
@@ -68,8 +80,8 @@ export const Specification: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specification?.data.hasDataStructures.map(dataStructure =>
-                        <DataStructureRow dataStructure={dataStructure} schemaGeneratorUrls={schemaGeneratorUrls} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
+                    {specification?.hasDataStructures.map(dataStructure =>
+                        <DataStructureRow dataStructure={dataStructure} specificationId={specificationId as string} reloadSpecification={reloadSpecification as () => void}/>
                     )}
                 </TableBody>
             </Table>
@@ -88,7 +100,7 @@ export const Specification: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specification?.data.reusesDataSpecification.map(specification =>
+                    {specification?.reusesDataSpecification.map(specification =>
                         <TableRow key={specification.id}>
                             <TableCell component="th" scope="row" sx={{width: "25%"}}>
                                 <Typography sx={{fontWeight: "bold"}}>
@@ -130,7 +142,7 @@ export const Specification: React.FC = () => {
         <TableContainer component={Paper} sx={{mt: 3}}>
             <Table>
                 <TableBody>
-                    <StoreInfo storeId={specification?.data?.pimStore ?? null}>
+                    <StoreInfo storeId={specification?.pimStore ?? null}>
                         {(name, operations, resources) =>
                             <>
                                 <TableRow>

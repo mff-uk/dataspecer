@@ -33,6 +33,8 @@ export async function executePimCreateAttribute(
   result.pimHumanDescription = operation.pimHumanDescription;
   result.pimOwnerClass = operation.pimOwnerClass;
   result.pimDatatype = operation.pimDatatype;
+  result.pimCardinalityMin = operation.pimCardinalityMin;
+  result.pimCardinalityMax = operation.pimCardinalityMax;
 
   return CoreExecutorResult.createSuccess([result], [{
     ...schema,

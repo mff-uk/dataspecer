@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "@model-driven-data/core/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
-import {PimAssociation, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
 import {StoreContext} from "../App";
 import {AncestorSelectorPanel} from "./ancestor-selector-panel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
@@ -146,10 +146,10 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => PimAttribute.is(resource));
     const forwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
-        PimAssociation.is(resource) && (await currentSurroundings?.readResource(resource.pimEnd[0]) as PimClass)?.pimInterpretation === currentCimClassIri
+        PimAssociation.is(resource) && (await currentSurroundings?.readResource((await currentSurroundings?.readResource(resource.pimEnd[0]) as PimAssociationEnd)?.pimPart as string) as PimClass)?.pimInterpretation === currentCimClassIri
     );
     const backwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
-        PimAssociation.is(resource) && (await currentSurroundings?.readResource(resource.pimEnd[1]) as PimClass)?.pimInterpretation === currentCimClassIri
+        PimAssociation.is(resource) && (await currentSurroundings?.readResource((await currentSurroundings?.readResource(resource.pimEnd[1]) as PimAssociationEnd)?.pimPart as string) as PimClass)?.pimInterpretation === currentCimClassIri
     );
 
     if (!cimClassIri) return null;
