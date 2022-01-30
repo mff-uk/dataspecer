@@ -33,7 +33,7 @@ export async function createBikeshedSchemaJson(
   const linkToSchema = removeCommonPrefix(
     context.ownerArtefact.publicUrl, context.artefact.publicUrl);
   result.content.push(new BikeshedContentText(
-    `Tato sekce je dokumentací pro [JSON schéma](${linkToSchema}).`));
+    `Tato sekce je dokumentací pro [JSON schéma](.${linkToSchema}).`));
 
   for (const entity of Object.values(structureModel.classes)) {
     if (entity.structureSchema !== context.structureModel.psmIri) {

@@ -34,7 +34,7 @@ export async function createBikeshedSchemaXml(
   const linkToSchema = removeCommonPrefix(
     context.ownerArtefact.publicUrl, context.artefact.publicUrl);
   result.content.push(new BikeshedContentText(
-    `Tato sekce je dokumentací pro [XML schéma](${linkToSchema}).`));
+    `Tato sekce je dokumentací pro [XML schéma](.${linkToSchema}).`));
 
   for (const entity of Object.values(structureModel.classes)) {
     if (entity.structureSchema !== context.structureModel.psmIri) {
