@@ -162,7 +162,7 @@ async function writeGroup(
       await writeElement(content.element, content, writer);
     }
     if (xmlSchemaComplexContentIsType(content)) {
-      await writeComplexContent(content.complexType, content, true, writer);
+      await writeComplexContent(content.complexType, content, false, writer);
     }
   }
   await writer.writeElementEnd("xs", "group");
@@ -249,17 +249,39 @@ async function writeAttributesForComplexContent(
 }
 
 /**
+ * Tests if an element in an xs:complexType has attributes.
+ */
+function complexContentHasAttributes(
+  content: XmlSchemaComplexContent | null,
+): boolean {
+  if (content == null) {
+    return false;
+  }
+  const cardinality = content.cardinality;
+  if (cardinality != null) {
+    if (cardinality.min !== 1) {
+      return true;
+    }
+    if (cardinality.max !== 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Writes out an aggregate element inside an xs:complexType.
  */
 async function writeComplexContent(
   definition: XmlSchemaComplexTypeDefinition,
-  parentContent: XmlSchemaComplexContent | null, allowCollapse: boolean,
+  parentContent: XmlSchemaComplexContent | null,
+  inSequence: boolean,
   writer: XmlWriter,
 ): Promise<void> {
-  const contents = definition.contents;
   if (
-    contents.length === 1 &&
-    (allowCollapse || xmlSchemaComplexContentIsType(contents[0]))
+    inSequence &&
+    definition.xsType == "sequence" &&
+    !complexContentHasAttributes(parentContent)
   ) {
     await writeComplexTypes(definition, writer);
   } else {
@@ -282,12 +304,13 @@ async function writeComplexContent(
 async function writeComplexTypes(
   definition: XmlSchemaComplexTypeDefinition, writer: XmlWriter,
 ): Promise<void> {
+  const inSequence = definition.xsType == "sequence";
   for (const content of definition.contents) {
     if (xmlSchemaComplexContentIsElement(content)) {
       await writeElement(content.element, content, writer);
     }
     if (xmlSchemaComplexContentIsType(content)) {
-      await writeComplexContent(content.complexType, content, true, writer);
+      await writeComplexContent(content.complexType, content, inSequence, writer);
     }
   }
 }
