@@ -105,6 +105,7 @@ async function createBikeshedStructureSection(
 
     const contextForGenerator : BikeshedAdapterArtefactContext = {
       ...context,
+      "ownerArtefact": artefact,
       "specification": specification,
       "artefact": artefactToInclude,
       "conceptualModel": conceptualModel,
