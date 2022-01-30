@@ -60,7 +60,8 @@ function mockInsertDiagram(
   for (const artefact of specification.artefacts) {
     if (artefact.generator === generatorIdentifier) {
       return new BikeshedContentText(
-        `<br/><img src="${removeCommonPrefix(baseUrl, artefact.publicUrl)}">`);
+        "\n<br/>"
+        + `img src=".${removeCommonPrefix(baseUrl, artefact.publicUrl)}">`);
     }
   }
   return new BikeshedContentText("");
