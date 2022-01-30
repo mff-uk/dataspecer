@@ -35,7 +35,7 @@ export async function specificationToBikeshed(
   result.metadata = createBikeshedMetadata(context, conceptualModel);
 
   result.content.push(await conceptualModelToBikeshedContent(
-    context, conceptualModel));
+    context, specification, artefact, conceptualModel));
 
   for (const iri of specification.psms) {
     const structureModel = context.generatorContext.structureModels[iri];
@@ -105,6 +105,7 @@ async function createBikeshedStructureSection(
 
     const contextForGenerator : BikeshedAdapterArtefactContext = {
       ...context,
+      "ownerArtefact": artefact,
       "specification": specification,
       "artefact": artefactToInclude,
       "conceptualModel": conceptualModel,

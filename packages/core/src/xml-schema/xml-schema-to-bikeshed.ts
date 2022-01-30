@@ -7,8 +7,8 @@ import {
   BikeshedAdapterArtefactContext,
 } from "../bikeshed/";
 import {
-  StructureModel,
-  StructureModelClass, StructureModelComplexType,
+  StructureModelClass,
+  StructureModelComplexType,
   StructureModelProperty
 } from "../structure-model";
 import {assertNot} from "../core";
@@ -23,17 +23,18 @@ import {
   DataSpecificationDocumentation
 } from "../data-specification/model";
 
-export async function createBikeshedSchemaJson(
+// TODO This is temporary solution we need to be able to extend common version with JSON.
+export async function createBikeshedSchemaXml(
   context: BikeshedAdapterArtefactContext
 ): Promise<BikeshedContent> {
   const structureModel = context.structureModel;
-  const label = context.selectString(structureModel.humanLabel) + " JSON";
+  const label = context.selectString(structureModel.humanLabel) + " XML";
   const result = new BikeshedContentSection(label, null);
 
   const linkToSchema = removeCommonPrefix(
     context.ownerArtefact.publicUrl, context.artefact.publicUrl);
   result.content.push(new BikeshedContentText(
-    `Tato sekce je dokumentací pro [JSON schéma](.${linkToSchema}).`));
+    `Tato sekce je dokumentací pro [XML schéma](.${linkToSchema}).`));
 
   for (const entity of Object.values(structureModel.classes)) {
     if (entity.structureSchema !== context.structureModel.psmIri) {
@@ -108,7 +109,7 @@ function classAnchor(
   entity: StructureModelClass
 ): string {
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  return context.structuralClassAnchor("json", context.structureModel, entity);
+  return context.structuralClassAnchor("xml", context.structureModel, entity);
 }
 
 function classInterpretation(
@@ -154,7 +155,7 @@ function createPropertySection(
   const list = new BikeshedContentList();
   result.content.push(list);
   list.items.push(new BikeshedContentListItem(
-    "Klíč", [property.technicalLabel]));
+    "Element", [property.technicalLabel]));
   list.items.push(new BikeshedContentListItem(
     "Jméno", [label]));
   const description = context.selectString(
@@ -189,7 +190,7 @@ function propertyAnchor(
   property: StructureModelProperty
 ): string {
   return context.structuralPropertyAnchor(
-    "json", context.structureModel, entity, property);
+    "xml", context.structureModel, entity, property);
 }
 
 function isOptional(model: StructureModelProperty): boolean {
@@ -345,7 +346,7 @@ function externalAssociation(
     return label;
   } else {
     const url = artefact.publicUrl + "#" + context.structuralClassAnchor(
-      "json", structureModel, structureClass);
+      "xml", structureModel, structureClass);
     return `[${label}](${url})`
   }
 }

@@ -1,25 +1,24 @@
 import React, {ReactElement} from "react";
 import {Box, Typography} from "@mui/material";
-import {MemoryOutputStream} from "@model-driven-data/core/io/stream/memory-output-stream";
 import {CoreResourceReader} from "@model-driven-data/core/core";
-import {writeJsonSchema} from "@model-driven-data/core/json-schema/json-schema-writer";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import {coreResourcesToStructuralModel} from "@model-driven-data/core/structure-model";
-import {structureModelToJsonSchema} from "@model-driven-data/core/json-schema/json-schema-model-adapter";
+import {FederatedObservableStore} from "../../store/federated-observable-store";
+import {JSON_SCHEMA} from "@model-driven-data/core/json-schema/json-schema-vocabulary";
+import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
+import {getGeneratedArtifactFromRoot} from "./artifact-generator";
 
 SyntaxHighlighter.registerLanguage("json", json);
-async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
-    const structureModel = await coreResourcesToStructuralModel(reader, fromSchema);
-    if (structureModel === null) {
-        throw new Error("Empty structural model.");
-    }
 
-    const jsonSchema = structureModelToJsonSchema(structureModel);
-    const stream = new MemoryOutputStream();
-    await writeJsonSchema(jsonSchema, stream);
-    return stream.getContent();
+async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
+    return await getGeneratedArtifactFromRoot(
+        reader as FederatedObservableStore,
+        artefact =>
+            artefact.generator === JSON_SCHEMA.Generator &&
+            DataSpecificationSchema.is(artefact) &&
+            artefact.psm === fromSchema,
+    );
 }
 
 export async function GetJsonSchemaArtifact(reader: CoreResourceReader, schema: string): Promise<string> {

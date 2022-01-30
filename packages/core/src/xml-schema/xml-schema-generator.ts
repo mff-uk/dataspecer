@@ -13,9 +13,9 @@ import {writeXmlSchema} from "./xml-schema-writer";
 import {structureModelToXmlSchema} from "./xml-schema-model-adapter";
 import {assertFailed, assertNot} from "../core";
 import {transformStructureModel} from "../structure-model/transformation";
-import {createBikeshedSchemaJson} from "../json-schema/json-schema-to-bikeshed";
 import {BIKESHED, BikeshedAdapterArtefactContext} from "../bikeshed";
 import {XML_SCHEMA} from "./xml-schema-vocabulary";
+import {createBikeshedSchemaXml} from "./xml-schema-to-bikeshed";
 
 export class XmlSchemaGenerator implements ArtefactGenerator {
 
@@ -67,7 +67,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
   ): Promise<unknown | null> {
     if (documentationIdentifier === BIKESHED.Generator) {
       const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-      return createBikeshedSchemaJson({
+      return createBikeshedSchemaXml({
         ...bikeshedContext,
         "structureModel": transformStructureModel(
           bikeshedContext.conceptualModel,

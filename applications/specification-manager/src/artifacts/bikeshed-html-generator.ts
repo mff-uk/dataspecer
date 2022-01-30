@@ -53,21 +53,30 @@ export class BikeshedHtmlGenerator implements ArtefactGenerator {
     }
 
     private async generateFromSource(source: string): Promise<string | null> {
-        const response = await fetch(
-          `${processEnv.REACT_APP_BACKEND}/transformer/bikeshed`,
-          {
-            method: "POST",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            body: source,
-          }
-        );
+        try {
+            const response = await fetch(
+              `${processEnv.REACT_APP_BACKEND}/transformer/bikeshed`,
+              {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain",
+                },
+                body: source,
+              }
+            );
 
-        if (response.status !== 200) {
-            return null;
+            if (response.status !== 200) {
+                console.warn(`Unable to generate bikeshed HTML: ${response.status}. Server response follows.`);
+                console.info(await response.text());
+                return null;
+            }
+
+            return await response.text();
+        } catch (error) {
+            console.warn(`Unable to generate bikeshed HTML due to network error.`);
+            console.error(error);
         }
 
-        return await response.text();
+        return null;
     }
 }

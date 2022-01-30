@@ -13,7 +13,6 @@ import {
 import {
   DataSpecification,
   DataSpecificationArtefact, DataSpecificationDocumentation,
-  DataSpecificationSchema
 } from "../../data-specification/model";
 
 /**
@@ -57,6 +56,11 @@ export class BikeshedAdapterContext {
  * the artefact into the documentation.
  */
 export class BikeshedAdapterArtefactContext extends BikeshedAdapterContext {
+
+  /**
+   * Owner artefact of the documentation.
+   */
+  readonly ownerArtefact: DataSpecificationDocumentation;
 
   /**
    * Owner specification for an artefact to include.

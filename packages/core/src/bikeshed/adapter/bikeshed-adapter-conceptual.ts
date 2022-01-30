@@ -11,9 +11,15 @@ import {
   BikeshedContentListItem,
   BikeshedContentSection,
 } from "../bikeshed-model";
+import {
+  DataSpecification,
+  DataSpecificationDocumentation
+} from "../../data-specification/model";
 
 export async function conceptualModelToBikeshedContent(
   context: BikeshedAdapterContext,
+  specification: DataSpecification,
+  artefact: DataSpecificationDocumentation,
   conceptualModel: ConceptualModel,
 ): Promise<BikeshedContent> {
   const result = new BikeshedContentSection(
@@ -21,13 +27,46 @@ export async function conceptualModelToBikeshedContent(
   result.content.push(new BikeshedContentText(
     "V této sekci je definován konceptuální model."));
 
-  result.content.push(new BikeshedContentText("\n-- Diagram --\n"));
+  result.content.push(mockInsertDiagram(specification, artefact));
 
   for (const entity of Object.values(conceptualModel.classes)) {
     result.content.push(createEntitySection(context, entity));
   }
   return result;
 }
+
+function mockInsertDiagram(
+  specification: DataSpecification,
+  artefact: DataSpecificationDocumentation): BikeshedContent {
+  const baseUrl = artefact.publicUrl;
+  const generatorIdentifier = "plant-uml/image";
+
+  function removeCommonPrefix(prefix: string, value: string): string {
+    let index = 0;
+    const length = Math.min(prefix.length, value.length);
+    while (index < length) {
+      const nextIndex = index + 1;
+      if (prefix[nextIndex] === value[nextIndex]) {
+        ++index;
+      } else {
+        break;
+      }
+    }
+    return value.substring(index);
+  }
+
+  // This is quick workaround. We just search for an artefact from the
+  // right generator and include it here.
+  for (const artefact of specification.artefacts) {
+    if (artefact.generator === generatorIdentifier) {
+      return new BikeshedContentText(
+        "\n<br/>"
+        + `<img src=".${removeCommonPrefix(baseUrl, artefact.publicUrl)}">`);
+    }
+  }
+  return new BikeshedContentText("");
+}
+
 
 function createEntitySection(
   context: BikeshedAdapterContext,
