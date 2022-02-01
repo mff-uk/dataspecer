@@ -35,4 +35,29 @@ export class StructureModelProperty {
 
   dataTypes: StructureModelType[] = [];
 
+  /**
+   * If true the output is not materialized.
+   */
+  dematerialize: boolean | null = null;
+
+  /**
+   * If this property is not on it's PSM owner class, this store
+   * path from the original location to the current owner. This can happen
+   * for by dematerialization. The first item is the original owner class.
+   */
+  pathToOrigin: {
+
+    /**
+     * PSM property from current class.
+     */
+    psmProperty: string;
+
+    /**
+     * IRI of PSM class obtained by resolving the property.
+     */
+    psmTargetClass: string;
+
+  } [] = [];
+
+
 }

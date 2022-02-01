@@ -1,26 +1,24 @@
 import React, {ReactElement} from "react";
 import {Box, Typography} from "@mui/material";
-import {MemoryOutputStream} from "@model-driven-data/core/io/stream/memory-output-stream";
 import {CoreResourceReader} from "@model-driven-data/core/core";
-import {objectModelToXmlSchema, writeXmlSchema} from "@model-driven-data/core/xml-schema";
 import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import {githubGist} from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import {coreResourcesToStructuralModel} from "@model-driven-data/core/structure-model";
+import {FederatedObservableStore} from "../../store/federated-observable-store";
+import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabulary";
+import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
+import {getGeneratedArtifactFromRoot} from "./artifact-generator";
 
 SyntaxHighlighter.registerLanguage("xml", xml);
 
 async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
-    const structureModel = await coreResourcesToStructuralModel(reader, fromSchema);
-    if (structureModel === null) {
-        throw new Error("Empty structural model.");
-    }
-
-
-    const schema = objectModelToXmlSchema(structureModel);
-    const stream = new MemoryOutputStream();
-    await writeXmlSchema(schema, stream);
-    return stream.getContent();
+    return await getGeneratedArtifactFromRoot(
+        reader as FederatedObservableStore,
+        artefact =>
+            artefact.generator === XML_SCHEMA.Generator &&
+            DataSpecificationSchema.is(artefact) &&
+            artefact.psm === fromSchema,
+    );
 }
 
 export async function GetXsdArtifact(reader: CoreResourceReader, schema: string): Promise<string> {

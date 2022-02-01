@@ -4,8 +4,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
 import {useTranslation} from "react-i18next";
-import {GetBikeshedArtifact, GetPreviewBikeshedArtifact} from "./BikeshedArtifact";
-import {getObjectModelArtifact, GetPreviewComponentObjectModelArtifact} from "./ObjectModelArtifact";
 import {StoreContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
 import {useDialog} from "../../hooks/useDialog";
@@ -120,47 +118,6 @@ export const GenerateArtifacts: React.FC<{
                 open={isOpen}
                 onClose={close}
             >
-                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Bikeshed</MenuItem>
-                <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(GetBikeshedArtifact, "bs", "text/bs;charset=utf-8")}>
-                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
-                        {t("download")}
-                    </MenuItem>
-                    <MenuItem onClick={async () => {
-                        close();
-                        const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
-                        GetPreviewBikeshedArtifact(store, psmSchemas[0], pimSchemas[0]);
-                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
-                    <MenuItem onClick={() => copy(GetBikeshedArtifact)}>
-                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
-                        {t("copy")}
-                    </MenuItem>
-                </Box>
-
-                <Divider />
-
-                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Object-model</MenuItem>
-                <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(getObjectModelArtifact, "json", "text/json;charset=utf-8")}>
-                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
-                        {t("download")}
-                    </MenuItem>
-                    <MenuItem onClick={() => {
-                        close();
-                        Preview.open({content: GetPreviewComponentObjectModelArtifact(store, psmSchemas[0])});
-                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
-                    <MenuItem onClick={() => copy(getObjectModelArtifact)}>
-                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
-                        {t("copy")}
-                    </MenuItem>
-                </Box>
-                <MenuItem onClick={() => {
-                    close();
-                    setArtifactPreview(() => artifactPreview === GetPreviewComponentObjectModelArtifact ? null : GetPreviewComponentObjectModelArtifact);
-                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)
-                </MenuItem>
-
-                <Divider />
 
                 <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>Store</MenuItem>
                 <Box sx={{display: "flex"}}>

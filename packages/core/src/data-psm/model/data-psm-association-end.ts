@@ -13,6 +13,13 @@ export class DataPsmAssociationEnd extends DataPsmResource {
 
   dataPsmPart: string | null = null;
 
+  /**
+   * If true, the content of this association end should be imported
+   * to the owner class instead of the association end class to be
+   * materialized in the output.
+   */
+  dataPsmIsDematerialize: boolean | null = null;
+
   constructor(iri:string | null = null) {
     super(iri);
     this.types.push(DataPsmAssociationEnd.TYPE);

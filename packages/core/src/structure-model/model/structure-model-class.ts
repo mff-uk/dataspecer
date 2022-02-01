@@ -41,12 +41,14 @@ export class StructureModelClass {
   properties: StructureModelProperty[] = [];
 
   /**
-   * Specification this class was loaded from. This can be provided by the
-   * user or set by ClassReference.
+   * URL of a schema the class was loaded from.
+   */
+  structureSchema: string | null = null;
+
+  /**
+   * Specification this class was loaded from.
    */
   specification: string | null = null;
-
-  // Following properties are for now not loaded from PSM level.
 
   /**
    * True if class represents a codelist.

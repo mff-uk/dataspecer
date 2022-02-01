@@ -1,35 +1,35 @@
-import {Bikeshed} from "./bikeshed-model";
 import {
-  DocumentationModelConceptual,
-  DocumentationModelConceptualEntity,
-  DocumentationModelConceptualProperty,
-  DocumentationModelStructure,
-  DocumentationModelStructureEntity, 
-  DocumentationModelStructureProperty,
-  DocumentationModelStructureAttachment
-
-} from "../documentation-model";
+  Bikeshed,
+  BikeshedContent,
+  BikeshedContentList,
+  BikeshedContentListItem,
+  BikeshedContentSection,
+  BikeshedContentText
+} from "./bikeshed-model";
 import {OutputStream} from "../io/stream/output-stream";
+import {st} from "rdflib";
 
-export async function writeBikeshed(
-  model: Bikeshed, stream: OutputStream,
-): Promise<void> {
-  await writeMetadata(model.metadata, stream);
-  await writeIntroduction(model, stream);
-  await writeConceptualModel(model.conceptual, stream);
-  for (const structure of model.structures) {
-    await writeStructureModel(structure, stream);
+class Context {
+
+  level: number = 1;
+
+  section() {
+    const result = new Context();
+    result.level = this.level + 1;
+    return result;
   }
+
 }
 
-async function writeMetadata(
-  content: Record<string, string>, stream: OutputStream,
-) {
+export async function writeBikeshed(model: Bikeshed, stream: OutputStream) {
+  await writeMetadata(model, stream);
+  await writeContent(model.content, stream, new Context());
+}
+
+async function writeMetadata(model: Bikeshed, stream: OutputStream,) {
   await stream.write("<pre class='metadata'>\n");
-  for (const [key, value] of Object.entries(content)) {
-    await stream.write(key + ": ");
-    await stream.write(sanitizeMultiline(value));
-    await stream.write("\n");
+  for (const [key, value] of Object.entries(model.metadata)) {
+    await stream.write(`${key} : ${sanitizeMultiline(value)} \n`);
   }
   await stream.write("</pre>\n");
 }
@@ -41,157 +41,139 @@ function sanitizeMultiline(string: string | null): string | null {
   return string.replace("\n", "\n    ");
 }
 
-async function writeIntroduction(
-  model: Bikeshed, stream: OutputStream,
+async function writeContent(
+  content: BikeshedContent[],
+  stream: OutputStream,
+  context: Context,
 ) {
-  await stream.write("# Úvod # {#introduction}\n");
-  await stream.write(model.humanDescription ?? "");
-  await stream.write("\n\n");
-}
-
-async function writeConceptualModel(
-  model: DocumentationModelConceptual, stream: OutputStream
-) {
-  await stream.write(
-    "# Konceptuální model # {#konceptuální-model}\n" +
-    "V této sekci je definován konceptuální model.\n\n"
-  );
-
-  await stream.write("## Struktura\n");
-
-  for (const entity of model.entities) {
-    await writeConceptualEntity(entity, stream);
-  }
-}
-
-async function writeConceptualEntity(
-  model: DocumentationModelConceptualEntity, stream: OutputStream,
-) {
-  await stream.write(`### ${model.humanLabel ?? ""} ### {#${model.anchor}}\n`);
-  await stream.write(`${model.humanDescription ?? ""}\n`)
-  if (model.isCodelist) {
-    await stream.write("Tato třída reprezentuje číselník.\n");
-  }
-  await stream.write("\n");
-  for (const item of model.properties) {
-    await writeConceptualProperty(item, stream);
-  }
-}
-
-async function writeConceptualProperty(
-  model: DocumentationModelConceptualProperty, stream: OutputStream,
-) {
-  await stream.write(
-    `#### ${model.humanLabel ?? ""} #### {#${model.anchor}}\n`);
-  await writePropertyList({
-    "Popis": sanitizeMultiline(model.humanDescription),
-  }, stream);
-  await stream.write("\n");
-}
-
-async function writePropertyList(
-  properties: Record<string, null | string | (string | null)[]>,
-  stream: OutputStream
-) {
-  for (const [key, item] of Object.entries(properties)) {
-    let values = asArray(item);
-    if (values.length === 0) {
-      continue;
+  for (const item of content) {
+    if (item.isText()) {
+      await writeText(item, stream, context);
+    } else if (item.isList()) {
+      await writeList(item, stream, context);
+    } else if (item.isSection()) {
+      await writeSection(item, stream, context);
     }
-    await stream.write(`: ${key}\n`);
-    for (const value of values) {
+  }
+}
+
+async function writeText(
+  content: BikeshedContentText,
+  stream: OutputStream,
+  context: Context,
+) {
+  await stream.write(content.content);
+  await stream.write("\n");
+}
+
+async function writeList(
+  content: BikeshedContentList,
+  stream: OutputStream,
+  context: Context,
+) {
+  for (const item of content.items) {
+    await stream.write(`: ${item.title}\n`);
+    for (const value of item.content) {
+      if (value === null) {
+        continue;
+      }
       await stream.write(`:: ${value}\n`);
     }
   }
 }
 
-function asArray<T>(values: T | null | (T | null) []): T[] {
-  let result = [];
-  if (Array.isArray(values)) {
-    result = values;
+async function writeSection(
+  content: BikeshedContentSection,
+  stream: OutputStream,
+  context: Context,
+) {
+  const mark = "#".repeat(context.level);
+  if (content.anchor === null) {
+    await stream.write(
+      `\n${mark} ${content.title}\n`)
   } else {
-    result = [values];
+    await stream.write(
+      `\n${mark} ${content.title} ${mark} {#${content.anchor}}\n`)
   }
-  return result.filter(item => item !== null)
-
+  await writeContent(content.content, stream, context.section());
 }
 
-async function writeStructureModel(
-  model: DocumentationModelStructure, stream: OutputStream
-) {
-  await stream.write(
-    `# ${model.humanLabel ?? ""} # {#${model.anchor}}\n` +
-    `${model.humanDescription ?? ""}\n\n`
-  );
-
-  await stream.write("## Struktura\n");
-  for (const entity of model.entities) {
-    await writeStructureEntity(entity, stream);
-  }
-
-  await writeStructureAttachments(model, stream);
-}
-
-async function writeStructureEntity(
-  model: DocumentationModelStructureEntity, stream: OutputStream,
-) {
-  await stream.write(`${model.humanLabel} {#${model.anchor}}\n-------\n`);
-  await stream.write(`${model.humanDescription ?? ""}\n`)
-  //
-  await stream.write("\n");
-  for (const item of model.properties) {
-    await writeStructureProperty(item, stream);
-  }
-}
-
-async function writeStructureProperty(
-  model: DocumentationModelStructureProperty, stream: OutputStream,
-) {
-  await stream.write(
-    `### ${model.technicalLabel ?? ""}### {#${model.anchor}}\n`);
-  await writePropertyList({
-    "Jméno": `[${model.humanLabel}](#${model.conceptualProperty.anchor})`,
-    "Popis": sanitizeMultiline(model.humanDescription),
-    "Typ": collectStructurePropertyTypes(model)
-  }, stream);
-  await stream.write("\n");
-}
-
-function collectStructurePropertyTypes(
-  model: DocumentationModelStructureProperty
-): string[] {
-  const result = [];
-  for (const type of model.types) {
-    if (type.isComplex()) {
-      result.push(`[${type.entity.humanLabel ?? ""}](#${type.entity.anchor})`);
-    } else if (type.isPrimitive()) {
-      result.push(`[${type.humanLabel}](${type.typeIri})`);
-    } else {
-      // Ignore.
-    }
-  }
-  return result;
-}
-
-async function writeStructureAttachments(
-  model: DocumentationModelStructure, stream: OutputStream,
-) {
-  if (model.attachments.length === 0) {
-    return;
-  }
-  await stream.write("## Příklady\n\n");
-  for (const attachment of model.attachments) {
-    await writeStructureAttachment(attachment, stream);
-  }
-}
-
-
-async function writeStructureAttachment(
-  model: DocumentationModelStructureAttachment, stream: OutputStream,
-) {
-  await stream.write(`### ${model.humanLabel ?? ""} \n`);
-  await stream.write(`${model.humanDescription}\n`);
-  await stream.write("<pre>\n");
-  await stream.write(model.content);
-  await stream.write("\n</pre>\n");
-}
+// async function writeStructureModel(
+//   model: DocumentationModelStructure, stream: OutputStream
+// ) {
+//   await stream.write(
+//     `# ${model.humanLabel ?? ""} # {#${model.anchor}}\n` +
+//     `${model.humanDescription ?? ""}\n\n`
+//   );
+//
+//   await stream.write("## Struktura\n");
+//   for (const entity of model.entities) {
+//     await writeStructureEntity(entity, stream);
+//   }
+//
+//   await writeStructureAttachments(model, stream);
+// }
+//
+// async function writeStructureEntity(
+//   model: DocumentationModelStructureEntity, stream: OutputStream,
+// ) {
+//   await stream.write(`${model.humanLabel} {#${model.anchor}}\n-------\n`);
+//   await stream.write(`${model.humanDescription ?? ""}\n`)
+//   //
+//   await stream.write("\n");
+//   for (const item of model.properties) {
+//     await writeStructureProperty(item, stream);
+//   }
+// }
+//
+// async function writeStructureProperty(
+//   model: DocumentationModelStructureProperty, stream: OutputStream,
+// ) {
+//   await stream.write(
+//     `### ${model.technicalLabel ?? ""}### {#${model.anchor}}\n`);
+//   await writeBikehedPropertyList({
+//     "Jméno": `[${model.humanLabel}](#${model.conceptualProperty.anchor})`,
+//     "Popis": sanitizeMultiline(model.humanDescription),
+//     "Typ": collectStructurePropertyTypes(model)
+//   }, stream);
+// }
+//
+// function collectStructurePropertyTypes(
+//   model: DocumentationModelStructureProperty
+// ): string[] {
+//   const result = [];
+//   for (const type of model.types) {
+//     if (type.isComplex()) {
+//       result.push(`[${type.entity.humanLabel ?? ""}](#${type.entity.anchor})`);
+//     } else if (type.isPrimitive()) {
+//       result.push(`[${type.humanLabel}](${type.typeIri})`);
+//     } else {
+//       // Ignore.
+//     }
+//   }
+//   return result;
+// }
+//
+// async function writeStructureAttachments(
+//   model: DocumentationModelStructure, stream: OutputStream,
+// ) {
+//   if (model.attachments.length === 0) {
+//     return;
+//   }
+//   await stream.write("## Příklady\n\n");
+//   for (const attachment of model.attachments) {
+//     await writeStructureAttachment(attachment, stream);
+//   }
+// }
+//
+// async function writeStructureAttachment(
+//   model: DocumentationModelStructureAttachment, stream: OutputStream,
+// ) {
+//   await stream.write(`### ${model.humanLabel ?? ""} \n`);
+//   if (model.humanDescription !== null) {
+//     await stream.write(`${model.humanDescription}\n`);
+//   }
+//   await stream.write("<pre>\n");
+//   await stream.write(model.content);
+//   await stream.write("\n</pre>\n");
+// }

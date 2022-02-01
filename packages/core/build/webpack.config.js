@@ -38,6 +38,7 @@ module.exports = {
   "entry": files,
   "target": "node",
   "externals": [nodeExternals()],
+  "devtool": "source-map",
   // "optimization": {
   //   "splitChunks": {
   //     "chunks": "all",

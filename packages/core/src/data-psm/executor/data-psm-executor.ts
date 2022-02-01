@@ -51,6 +51,9 @@ import {
 import {
   executeDataPsmSetPart,
 } from "./data-psm-set-part-executor";
+import {
+  executeDataPsmSetDematerialize,
+} from "./data-psm-set-dematerialize-executor";
 
 export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
   CoreOperationExecutor.create(
@@ -121,4 +124,8 @@ export const dataPsmExecutors: CoreOperationExecutor<any>[] = [
     Operations.DataPsmSetRoots.is,
     executeDataPsmSetRoots,
     Operations.DataPsmSetRoots.TYPE),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetDematerialized.is,
+    executeDataPsmSetDematerialize,
+    Operations.DataPsmSetDematerialized.TYPE),
 ];

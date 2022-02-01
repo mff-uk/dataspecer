@@ -6,14 +6,18 @@ import {DataSpecificationArtefact} from "./data-specification-artefact";
 export class DataSpecificationDocumentation extends DataSpecificationArtefact {
 
   /**
-   * List of models that must be included, additional models may be added
-   * from included artefacts.
-   */
-  psms: string[] = [];
-
-  /**
-   * List of other artefacts that should be included in the specification.
+   * Artefacts to include from the owner specification.
    */
   artefacts: string[] = [];
+
+  constructor() {
+    super();
+    this.type = "documentation";
+  }
+
+  static is(artefact: DataSpecificationArtefact)
+    : artefact is DataSpecificationDocumentation {
+    return artefact.type === "documentation";
+  }
 
 }

@@ -5,9 +5,9 @@ class StringJsonWriterContext {
 
   private readonly stream: OutputStream;
 
-  buffer: string = "";
-
   private readonly shouldWriteComma: boolean[] = [];
+
+  private buffer: string = "";
 
   constructor(stream: OutputStream, content: string) {
     this.stream = stream;
@@ -37,6 +37,9 @@ class StringJsonWriterContext {
     this.buffer = "";
   }
 
+  append(content: string) {
+    this.buffer += content;
+  }
 
 }
 
@@ -59,26 +62,26 @@ class StringJsonObjectWriter implements JsonObjectWriter {
 
   value(key: string, value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
-    this.context.buffer += `"${key}":` + valueToString(value);
+    this.context.append(`"${key}":` + valueToString(value));
     return this.context.flush();
   }
 
   object(key: string): JsonObjectWriter {
     this.context.writeSeparator();
-    this.context.buffer += `"${key}":{`;
+    this.context.append(`"${key}":{`);
     this.context.openComplex();
     return new StringJsonObjectWriter(this.context);
   }
 
   array(key: string): JsonArrayWriter {
     this.context.writeSeparator();
-    this.context.buffer += `"${key}":[`;
+    this.context.append(`"${key}":[`);
     this.context.openComplex();
     return new StringJsonArrayWriter(this.context);
   }
 
   closeObject(): Promise<void> {
-    this.context.buffer += "}";
+    this.context.append("}");
     this.context.closeComplex();
     return this.context.flush();
   }
@@ -114,26 +117,26 @@ class StringJsonArrayWriter {
 
   value(value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
-    this.context.buffer += valueToString(value);
+    this.context.append("" + valueToString(value));
     return this.context.flush();
   }
 
   object(): JsonObjectWriter {
     this.context.writeSeparator();
-    this.context.buffer += "{";
+    this.context.append("{");
     this.context.openComplex();
     return new StringJsonObjectWriter(this.context);
   }
 
   array(): JsonArrayWriter {
     this.context.writeSeparator();
-    this.context.buffer += "[";
+    this.context.append("[");
     this.context.openComplex();
     return new StringJsonArrayWriter(this.context);
   }
 
   closeArray(): Promise<void> {
-    this.context.buffer += "]";
+    this.context.append("]");
     this.context.closeComplex();
     return this.context.flush();
   }
