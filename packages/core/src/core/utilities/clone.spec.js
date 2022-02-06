@@ -1,13 +1,11 @@
-import {clone} from "./clone";
+import { clone } from "./clone";
 
 test("Clone object.", () => {
   const expected = {
-    "name": "Petr",
-    "age": 25,
-    "properties": {
-      "languages": [
-        "c++", "java",
-      ],
+    name: "Petr",
+    age: 25,
+    properties: {
+      languages: ["c++", "java"],
     },
   };
   const actual = clone(expected);

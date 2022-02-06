@@ -1,9 +1,8 @@
-import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import {DataPsmCreate} from "./data-psm-create";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
+import { DataPsmCreate } from "./data-psm-create";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateClass extends DataPsmCreate {
-
   static readonly TYPE = PSM.CREATE_CLASS;
 
   dataPsmExtends: string[] = [];
@@ -16,11 +15,9 @@ export class DataPsmCreateClass extends DataPsmCreate {
   static is(resource: CoreResource | null): resource is DataPsmCreateClass {
     return resource?.types.includes(DataPsmCreateClass.TYPE);
   }
-
 }
 
 export class DataPsmCreateClassResult extends CoreOperationResult {
-
   static readonly TYPE = PSM.CREATE_CLASS_RESULT;
 
   readonly createdDataPsmClass: string;
@@ -31,10 +28,7 @@ export class DataPsmCreateClassResult extends CoreOperationResult {
     this.createdDataPsmClass = dataPsmClass;
   }
 
-  static is(
-    resource: CoreTyped | null,
-  ): resource is DataPsmCreateClassResult {
+  static is(resource: CoreTyped | null): resource is DataPsmCreateClassResult {
     return resource?.types.includes(DataPsmCreateClassResult.TYPE);
   }
-
 }

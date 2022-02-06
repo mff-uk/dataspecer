@@ -1,7 +1,7 @@
 import {
   StructureModel,
   StructureModelClass,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../model";
 
 /**
@@ -11,11 +11,11 @@ import {
 export function structureModelFlattenInheritance(
   structure: StructureModel
 ): StructureModel {
-  const result = {...structure, "classes": {}} as StructureModel;
+  const result = { ...structure, classes: {} } as StructureModel;
   for (const [iri, classData] of Object.entries(structure.classes)) {
     result.classes[iri] = {
       ...classData,
-      "properties": collectProperties(classData),
+      properties: collectProperties(classData),
     };
   }
   return result;

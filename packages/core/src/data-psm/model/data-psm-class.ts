@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {DataPsmResource} from "./data-psm-resource";
+import { CoreResource } from "../../core";
+import { DataPsmResource } from "./data-psm-resource";
 import * as PSM from "../data-psm-vocabulary";
 
 /**
@@ -9,14 +9,13 @@ import * as PSM from "../data-psm-vocabulary";
  * other class attributes, choices, etc..
  */
 export class DataPsmClass extends DataPsmResource {
-
   private static readonly TYPE = PSM.CLASS;
 
   dataPsmExtends: string[] = [];
 
   dataPsmParts: string[] = [];
 
-  constructor(iri:string | null = null) {
+  constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmClass.TYPE);
   }
@@ -24,5 +23,4 @@ export class DataPsmClass extends DataPsmResource {
   static is(resource: CoreResource | null): resource is DataPsmClass {
     return resource?.types.includes(DataPsmClass.TYPE);
   }
-
 }

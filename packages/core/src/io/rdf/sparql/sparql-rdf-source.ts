@@ -1,13 +1,12 @@
-import {RdfSource, RdfObject, RdfNode} from "../rdf-api";
-import {fetchRdfQuadsBySparqlConstruct} from "./sparql-adapter";
-import {HttpFetch} from "../../fetch/fetch-api";
+import { RdfSource, RdfObject, RdfNode } from "../rdf-api";
+import { fetchRdfQuadsBySparqlConstruct } from "./sparql-adapter";
+import { HttpFetch } from "../../fetch/fetch-api";
 
 /**
  * Implementation of an RdfSource to a triplestore using a SPARQL query
  * language.
  */
 export class RdfSparqlSource implements RdfSource {
-
   readonly httpFetch: HttpFetch;
 
   readonly endpoint: string;
@@ -23,22 +22,25 @@ export class RdfSparqlSource implements RdfSource {
     }
     const query = createSparqlProperty(iri, predicate);
     const quads = await fetchRdfQuadsBySparqlConstruct(
-      this.httpFetch, this.endpoint, query);
-    return quads.map(quad => quad.object);
+      this.httpFetch,
+      this.endpoint,
+      query
+    );
+    return quads.map((quad) => quad.object);
   }
 
-  async reverseProperty(
-    predicate: string, iri: string,
-  ): Promise<RdfNode[]> {
+  async reverseProperty(predicate: string, iri: string): Promise<RdfNode[]> {
     if (isBlankNode(iri)) {
       return [];
     }
     const query = createSparqlReverseProperty(iri, predicate);
     const quads = await fetchRdfQuadsBySparqlConstruct(
-      this.httpFetch, this.endpoint, query);
-    return quads.map(quad => quad.subject);
+      this.httpFetch,
+      this.endpoint,
+      query
+    );
+    return quads.map((quad) => quad.subject);
   }
-
 }
 
 function isBlankNode(iri: string): boolean {

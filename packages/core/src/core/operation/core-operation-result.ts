@@ -1,5 +1,5 @@
-import {CoreOperation} from "./core-operation";
-import {CoreTyped} from "../core-resource";
+import { CoreOperation } from "./core-operation";
+import { CoreTyped } from "../core-resource";
 
 /**
  * Base class for operation results as should be returned by CoreResourceWriter.
@@ -7,7 +7,6 @@ import {CoreTyped} from "../core-resource";
  * it is highly recommended to also handle this base version.
  */
 export class CoreOperationResult extends CoreTyped {
-
   private static readonly OPERATION_YPE = "core-operation";
 
   /**
@@ -38,5 +37,4 @@ export class CoreOperationResult extends CoreTyped {
   static is(resource: CoreTyped): resource is CoreOperationResult {
     return resource.types.includes(CoreOperationResult.OPERATION_YPE);
   }
-
 }

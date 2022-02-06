@@ -3,12 +3,11 @@ import {
   RdfResourceLoader,
   RdfResourceLoaderResult,
 } from "../../../core/adapter/rdf";
-import {PimAssociation} from "../../model";
-import {loadPimResource} from "./pim-resource-adapter";
+import { PimAssociation } from "../../model";
+import { loadPimResource } from "./pim-resource-adapter";
 import * as PIM from "../../pim-vocabulary";
 
 export class PimAssociationAdapter implements RdfResourceLoader {
-
   async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
     return types.includes(PIM.ASSOCIATION);
@@ -18,12 +17,11 @@ export class PimAssociationAdapter implements RdfResourceLoader {
     const result = new PimAssociation(source.iri);
     result.pimEnd = await source.nodesExtended(PIM.HAS_END);
     return {
-      "resource": result,
-      "references": [
-        ...await loadPimResource(source, result),
+      resource: result,
+      references: [
+        ...(await loadPimResource(source, result)),
         ...result.pimEnd,
       ],
     };
   }
-
 }

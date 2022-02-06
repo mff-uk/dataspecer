@@ -3,20 +3,20 @@ import {
   CreateNewIdentifier,
   CoreExecutorResult,
 } from "../../core";
-import {DataPsmCreateSchema} from "../operation";
-import {DataPsmSchema} from "../model";
-import {loadDataPsmSchema} from "./data-psm-executor-utils";
+import { DataPsmCreateSchema } from "../operation";
+import { DataPsmSchema } from "../model";
+import { loadDataPsmSchema } from "./data-psm-executor-utils";
 
 export async function executeDataPsmCreateSchema(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmCreateSchema,
+  operation: DataPsmCreateSchema
 ): Promise<CoreExecutorResult> {
-
   const schema = await loadDataPsmSchema(reader);
   if (schema !== null) {
     return CoreExecutorResult.createError(
-      `Schema already exists '${schema.iri}'.`);
+      `Schema already exists '${schema.iri}'.`
+    );
   }
 
   const iri = operation.dataPsmNewIri ?? createNewIdentifier("schema");

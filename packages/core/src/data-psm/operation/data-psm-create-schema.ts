@@ -1,5 +1,6 @@
 import {
-  CoreOperation, CoreOperationResult,
+  CoreOperation,
+  CoreOperationResult,
   CoreResource,
   CoreTyped,
   LanguageString,
@@ -7,9 +8,8 @@ import {
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateSchema extends CoreOperation {
-
   static readonly TYPE = PSM.CREATE_SCHEMA;
-  
+
   /**
    * IRI of the newly created object.
    */
@@ -27,11 +27,9 @@ export class DataPsmCreateSchema extends CoreOperation {
   static is(resource: CoreResource | null): resource is DataPsmCreateSchema {
     return resource?.types.includes(DataPsmCreateSchema.TYPE);
   }
-
 }
 
 export class DataPsmCreateSchemaResult extends CoreOperationResult {
-
   static readonly TYPE = PSM.CREATE_SCHEMA_RESULT;
 
   readonly createdDataPsmSchema: string;
@@ -42,10 +40,7 @@ export class DataPsmCreateSchemaResult extends CoreOperationResult {
     this.createdDataPsmSchema = dataPsmSchema;
   }
 
-  static is(
-    resource: CoreTyped | null,
-  ): resource is DataPsmCreateSchemaResult {
+  static is(resource: CoreTyped | null): resource is DataPsmCreateSchemaResult {
     return resource?.types.includes(DataPsmCreateSchemaResult.TYPE);
   }
-
 }

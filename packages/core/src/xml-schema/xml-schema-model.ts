@@ -1,4 +1,3 @@
-
 /**
  * A pair of a namespace prefix and a local name.
  */
@@ -70,13 +69,13 @@ export class XmlSchemaSimpleType extends XmlSchemaType {
 }
 
 export function xmlSchemaTypeIsComplex(
-  type: XmlSchemaType,
+  type: XmlSchemaType
 ): type is XmlSchemaComplexType {
   return (type as XmlSchemaComplexType).complexDefinition !== undefined;
 }
 
 export function xmlSchemaTypeIsSimple(
-  type: XmlSchemaType,
+  type: XmlSchemaType
 ): type is XmlSchemaSimpleType {
   return (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
 }
@@ -93,16 +92,14 @@ export class XmlSchemaComplexTypeDefinition {
 /**
  * Represents an xs:group element in an xs:complexType.
  */
-export class XmlSchemaComplexGroupReference
-  extends XmlSchemaComplexTypeDefinition
-{
+export class XmlSchemaComplexGroupReference extends XmlSchemaComplexTypeDefinition {
   xsType: "group";
   name: string;
   source: XmlSchemaImportDeclaration | null;
 }
 
 export function xmlSchemaComplexTypeDefinitionIsGroupReference(
-  typeDefinition: XmlSchemaComplexTypeDefinition,
+  typeDefinition: XmlSchemaComplexTypeDefinition
 ): typeDefinition is XmlSchemaComplexGroupReference {
   return typeDefinition.xsType === "group";
 }
@@ -141,17 +138,17 @@ export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
  * Represents an aggregate element inside an aggregate element.
  */
 export class XmlSchemaComplexContentType extends XmlSchemaComplexContent {
-  complexType: XmlSchemaComplexTypeDefinition ;
+  complexType: XmlSchemaComplexTypeDefinition;
 }
 
 export function xmlSchemaComplexContentIsElement(
-  content: XmlSchemaComplexContent,
+  content: XmlSchemaComplexContent
 ): content is XmlSchemaComplexContentElement {
   return (content as XmlSchemaComplexContentElement).element !== undefined;
 }
 
 export function xmlSchemaComplexContentIsType(
-  content: XmlSchemaComplexContent,
+  content: XmlSchemaComplexContent
 ): content is XmlSchemaComplexContentType {
   return (content as XmlSchemaComplexContentType).complexType !== undefined;
 }

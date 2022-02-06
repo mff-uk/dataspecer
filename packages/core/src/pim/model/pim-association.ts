@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {PimResource} from "./pim-resource";
+import { CoreResource } from "../../core";
+import { PimResource } from "./pim-resource";
 import * as PIM from "../pim-vocabulary";
 
 /**
@@ -10,7 +10,6 @@ import * as PIM from "../pim-vocabulary";
  * is no order on the ends, the association does not belong to any class.
  */
 export class PimAssociation extends PimResource {
-
   private static readonly TYPE = PIM.ASSOCIATION;
 
   pimEnd: string[];
@@ -19,7 +18,7 @@ export class PimAssociation extends PimResource {
    * If true the order of ends in {@link pimEnd} is from start
    * to end.
    */
-  pimIsOriented: boolean = false;
+  pimIsOriented = false;
 
   constructor(iri: string | null = null) {
     super(iri);
@@ -29,5 +28,4 @@ export class PimAssociation extends PimResource {
   static is(resource: CoreResource | null): resource is PimAssociation {
     return resource?.types.includes(PimAssociation.TYPE);
   }
-
 }

@@ -1,20 +1,26 @@
 import {
-  JsonSchema, JsonSchemaAnyOf,
+  JsonSchema,
+  JsonSchemaAnyOf,
   JsonSchemaArray,
-  JsonSchemaBoolean, JsonSchemaConst,
-  JsonSchemaDefinition, JsonSchemaEnum,
+  JsonSchemaBoolean,
+  JsonSchemaConst,
+  JsonSchemaDefinition,
+  JsonSchemaEnum,
   JsonSchemaNull,
   JsonSchemaNumber,
-  JsonSchemaObject, JsonSchemaOneOf, JsonSchemaRef,
+  JsonSchemaObject,
+  JsonSchemaOneOf,
+  JsonSchemaRef,
   JsonSchemaString,
 } from "./json-schema-model";
-import {OutputStream} from "../io/stream/output-stream";
-import {StringJsonWriter} from "./string-json-writer";
-import {JsonObjectWriter} from "./json-writer";
-import {assertNot} from "../core";
+import { OutputStream } from "../io/stream/output-stream";
+import { StringJsonWriter } from "./string-json-writer";
+import { JsonObjectWriter } from "./json-writer";
+import { assertNot } from "../core";
 
 export async function writeJsonSchema(
-  schema: JsonSchema, stream: OutputStream,
+  schema: JsonSchema,
+  stream: OutputStream
 ): Promise<void> {
   const writer = StringJsonWriter.createObject(stream);
   await writer.valueIfNotNull("$schema", schema.schema);
@@ -24,7 +30,8 @@ export async function writeJsonSchema(
 }
 
 async function writeJsonDefinition(
-  writer: JsonObjectWriter, schema: JsonSchemaDefinition
+  writer: JsonObjectWriter,
+  schema: JsonSchemaDefinition
 ): Promise<void> {
   if (JsonSchemaRef.is(schema)) {
     return writeJsonSchemaRef(writer, schema);
@@ -54,14 +61,16 @@ async function writeJsonDefinition(
 }
 
 async function writeJsonSchemaDefinitionProperties(
-  writer: JsonObjectWriter, schema: JsonSchemaDefinition
+  writer: JsonObjectWriter,
+  schema: JsonSchemaDefinition
 ): Promise<void> {
   await writer.valueIfNotNull("title", schema.title);
   await writer.valueIfNotNull("description", schema.description);
 }
 
 async function writeJsonSchemaObject(
-  writer: JsonObjectWriter, schema: JsonSchemaObject
+  writer: JsonObjectWriter,
+  schema: JsonSchemaObject
 ): Promise<void> {
   await writer.value("type", "object");
   const required = writer.array("required");
@@ -79,7 +88,8 @@ async function writeJsonSchemaObject(
 }
 
 async function writeJsonSchemaArray(
-  writer: JsonObjectWriter, schema: JsonSchemaArray
+  writer: JsonObjectWriter,
+  schema: JsonSchemaArray
 ): Promise<void> {
   await writer.value("type", "array");
   const items = writer.object("items");
@@ -101,14 +111,16 @@ async function writeJsonSchemaNumber(writer: JsonObjectWriter): Promise<void> {
 }
 
 async function writeJsonSchemaString(
-  writer: JsonObjectWriter, schema: JsonSchemaString
+  writer: JsonObjectWriter,
+  schema: JsonSchemaString
 ): Promise<void> {
   await writer.value("type", "string");
   await writer.valueIfNotNull("format", schema.format);
 }
 
 async function writeJsonSchemaAnyOf(
-  writer: JsonObjectWriter, schema: JsonSchemaAnyOf
+  writer: JsonObjectWriter,
+  schema: JsonSchemaAnyOf
 ): Promise<void> {
   const array = writer.array("anyOf");
   for (const definition of schema.types) {
@@ -120,7 +132,8 @@ async function writeJsonSchemaAnyOf(
 }
 
 async function writeJsonSchemaOneOf(
-  writer: JsonObjectWriter, schema: JsonSchemaOneOf
+  writer: JsonObjectWriter,
+  schema: JsonSchemaOneOf
 ): Promise<void> {
   const array = writer.array("oneOf");
   for (const definition of schema.types) {
@@ -132,26 +145,26 @@ async function writeJsonSchemaOneOf(
 }
 
 async function writeJsonSchemaConst(
-  writer: JsonObjectWriter, schema: JsonSchemaConst
+  writer: JsonObjectWriter,
+  schema: JsonSchemaConst
 ): Promise<void> {
   await writer.value("const", schema.value);
 }
 
 async function writeJsonSchemaEnum(
-  writer: JsonObjectWriter, schema: JsonSchemaEnum
+  writer: JsonObjectWriter,
+  schema: JsonSchemaEnum
 ): Promise<void> {
-  const array = writer.array("enum",);
+  const array = writer.array("enum");
   for (const value of schema.values) {
     await array.value(value);
   }
   await array.closeArray();
 }
 
-
 async function writeJsonSchemaRef(
-  writer: JsonObjectWriter, schema: JsonSchemaRef
+  writer: JsonObjectWriter,
+  schema: JsonSchemaRef
 ): Promise<void> {
   await writer.value("$ref", schema.url);
 }
-
-

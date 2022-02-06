@@ -1,8 +1,7 @@
-import {InputStream} from "./input-stream";
-import {OutputStream} from "./output-stream";
+import { InputStream } from "./input-stream";
+import { OutputStream } from "./output-stream";
 
 export interface StreamDictionary {
-
   readPath(path: string): InputStream;
 
   writePath(path: string): OutputStream;
@@ -16,5 +15,4 @@ export interface StreamDictionary {
    * List stored files.
    */
   list(): Promise<string[]>;
-
 }

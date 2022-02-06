@@ -1,18 +1,17 @@
-import {PimCreateClass, PimCreateClassResult} from "../operation";
+import { PimCreateClass, PimCreateClassResult } from "../operation";
 import {
   CoreExecutorResult,
   CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
-import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
-import {PimClass} from "../model";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
+import { PimClass } from "../model";
 
 export async function executePimCreateClass(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimCreateClass,
+  operation: PimCreateClass
 ): Promise<CoreExecutorResult> {
-
   const schema = await loadPimSchema(reader);
   if (schema === null) {
     return PimExecutorResultFactory.missingSchema();
@@ -29,6 +28,9 @@ export async function executePimCreateClass(
   schema.pimParts = [...schema.pimParts, result.iri];
 
   return CoreExecutorResult.createSuccess(
-    [result], [schema], [],
-    new PimCreateClassResult(result.iri));
+    [result],
+    [schema],
+    [],
+    new PimCreateClassResult(result.iri)
+  );
 }

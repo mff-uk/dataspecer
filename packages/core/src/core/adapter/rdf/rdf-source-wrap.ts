@@ -1,4 +1,4 @@
-import {RdfNode, RdfObject, RdfSource} from "./rdf-api";
+import { RdfNode, RdfObject, RdfSource } from "./rdf-api";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -12,7 +12,6 @@ const RDF_NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
  * Bind resource to particular {@link RdfSource} to make operation easier.
  */
 export class RdfSourceWrap {
-
   readonly iri: string;
 
   private readonly source: RdfSource;
@@ -59,12 +58,14 @@ export class RdfSourceWrap {
   }
 
   protected async loadList(
-    collector: RdfObject[], node: RdfObject,
+    collector: RdfObject[],
+    node: RdfObject
   ): Promise<void> {
     const hasFirst = await this.source.property(node.value, HAS_FIRST);
     if (hasFirst.length !== 1) {
       throw new Error(
-        `Invalid number (${hasFirst.length}) rdf:head for ${node.value}`);
+        `Invalid number (${hasFirst.length}) rdf:head for ${node.value}`
+      );
     }
     const first = hasFirst[0];
     if (RdfObject.isNode(first)) {
@@ -112,7 +113,7 @@ export class RdfSourceWrap {
   async reverseNodes(predicate: string): Promise<string[]> {
     return (await this.reverseProperty(predicate))
       .filter(RdfObject.isNode)
-      .map(value => value.value);
+      .map((value) => value.value);
   }
 
   async node(predicate: string): Promise<string | null> {
@@ -128,13 +129,13 @@ export class RdfSourceWrap {
   async nodes(predicate: string): Promise<string[]> {
     return (await this.property(predicate))
       .filter(RdfObject.isNode)
-      .map(value => value.value);
+      .map((value) => value.value);
   }
 
   async nodesExtended(predicate: string): Promise<string[]> {
     return (await this.propertyExtended(predicate))
       .filter(RdfObject.isNode)
-      .map(value => value.value);
+      .map((value) => value.value);
   }
 
   async types(): Promise<string[]> {
@@ -152,5 +153,4 @@ export class RdfSourceWrap {
     }
     return result;
   }
-
 }

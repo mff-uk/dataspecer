@@ -2,12 +2,11 @@ import {
   CoreOperation,
   CoreOperationResult,
   CoreResource,
-  CoreTyped
+  CoreTyped,
 } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateClassReference extends CoreOperation {
-
   static readonly TYPE = PSM.CREATE_CLASS_REFERENCE;
 
   /**
@@ -35,11 +34,9 @@ export class DataPsmCreateClassReference extends CoreOperation {
   ): resource is DataPsmCreateClassReference {
     return resource?.types.includes(DataPsmCreateClassReference.TYPE);
   }
-
 }
 
 export class DataPsmCreateClassReferenceResult extends CoreOperationResult {
-
   static readonly TYPE = PSM.CREATE_CLASS_REFERENCE_RESULT;
 
   readonly createdDataPsmClassReference: string;
@@ -51,9 +48,8 @@ export class DataPsmCreateClassReferenceResult extends CoreOperationResult {
   }
 
   static is(
-    resource: CoreTyped | null,
+    resource: CoreTyped | null
   ): resource is DataPsmCreateClassReferenceResult {
     return resource?.types.includes(DataPsmCreateClassReferenceResult.TYPE);
   }
-
 }

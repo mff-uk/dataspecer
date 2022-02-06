@@ -1,5 +1,5 @@
-import {StringJsonWriter} from "./string-json-writer";
-import {MemoryOutputStream} from "../io/stream/memory-output-stream"
+import { StringJsonWriter } from "./string-json-writer";
+import { MemoryOutputStream } from "../io/stream/memory-output-stream";
 
 test("Write a simple object with arrays and strings.", async () => {
   const actual = new MemoryOutputStream();

@@ -3,14 +3,17 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
 } from "../../core";
-import {DataPsmDeleteAssociationEnd} from "../operation";
-import {removeFromClass} from "./data-psm-executor-utils";
+import { DataPsmDeleteAssociationEnd } from "../operation";
+import { removeFromClass } from "./data-psm-executor-utils";
 
 export async function executeDataPsmDeleteAssociationEnd(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmDeleteAssociationEnd,
+  operation: DataPsmDeleteAssociationEnd
 ): Promise<CoreExecutorResult> {
   return removeFromClass(
-    reader, operation.dataPsmOwner, operation.dataPsmAssociationEnd);
+    reader,
+    operation.dataPsmOwner,
+    operation.dataPsmAssociationEnd
+  );
 }

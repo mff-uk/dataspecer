@@ -1,7 +1,6 @@
-import {LanguageString, CoreOperation} from "../../core";
+import { LanguageString, CoreOperation } from "../../core";
 
 export class DataPsmCreate extends CoreOperation {
-
   /**
    * IRI of the newly created object.
    */
@@ -18,5 +17,4 @@ export class DataPsmCreate extends CoreOperation {
   protected constructor() {
     super();
   }
-
 }

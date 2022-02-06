@@ -1,77 +1,89 @@
-import {CoreOperationExecutor} from "../../core";
+import { CoreOperation, CoreOperationExecutor } from "../../core";
 import * as Operations from "../operation";
-import {executesPimCreateAssociation} from "./pim-create-association-executor";
-import {executePimCreateAttribute} from "./pim-create-attribute-executor";
-import {executePimCreateClass} from "./pim-create-class-executor";
-import {executePimCreateSchema} from "./pim-create-schema-executor";
-import {executePimDeleteAssociation} from "./pim-delete-association-executor";
-import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
-import {executePimDeleteClass} from "./pim-delete-class-executor";
-import {executePimSetDataType} from "./pim-set-datatype-executor";
-import {executePimSetHumanLabel} from "./pim-set-human-label-executor";
-import {
-  executePimSetHumanDescription,
-} from "./pim-set-human-description-executor";
-import {executePimSetTechnicalLabel} from "./pim-set-technical-label-executor";
-import {executePimSetExtends} from "./pim-set-extends-executor";
-import {executePimSetClassCodelist} from "./pim-set-class-codelist-executor";
-import {executePimSetCardinality} from "./pim-set-cardinality-executor";
+import { executesPimCreateAssociation } from "./pim-create-association-executor";
+import { executePimCreateAttribute } from "./pim-create-attribute-executor";
+import { executePimCreateClass } from "./pim-create-class-executor";
+import { executePimCreateSchema } from "./pim-create-schema-executor";
+import { executePimDeleteAssociation } from "./pim-delete-association-executor";
+import { executePimDeleteAttribute } from "./pim-delete-attribute-executor";
+import { executePimDeleteClass } from "./pim-delete-class-executor";
+import { executePimSetDataType } from "./pim-set-datatype-executor";
+import { executePimSetHumanLabel } from "./pim-set-human-label-executor";
+import { executePimSetHumanDescription } from "./pim-set-human-description-executor";
+import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor";
+import { executePimSetExtends } from "./pim-set-extends-executor";
+import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor";
+import { executePimSetCardinality } from "./pim-set-cardinality-executor";
 
-export const pimExecutors: CoreOperationExecutor<any>[] = [
+export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
     Operations.PimCreateAssociation.is,
     executesPimCreateAssociation,
-    Operations.PimCreateAssociation.TYPE),
+    Operations.PimCreateAssociation.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimCreateAttribute.is,
     executePimCreateAttribute,
-    Operations.PimCreateAttribute.TYPE),
+    Operations.PimCreateAttribute.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimCreateClass.is,
     executePimCreateClass,
-    Operations.PimCreateClass.TYPE),
+    Operations.PimCreateClass.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimCreateSchema.is,
     executePimCreateSchema,
-    Operations.PimCreateSchema.TYPE),
+    Operations.PimCreateSchema.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimDeleteAssociation.is,
     executePimDeleteAssociation,
-    Operations.PimDeleteAssociation.TYPE),
+    Operations.PimDeleteAssociation.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimDeleteAttribute.is,
     executePimDeleteAttribute,
-    Operations.PimDeleteAttribute.TYPE),
+    Operations.PimDeleteAttribute.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimDeleteClass.is,
     executePimDeleteClass,
-    Operations.PimDeleteClass.TYPE),
+    Operations.PimDeleteClass.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetCardinality.is,
     executePimSetCardinality,
-    Operations.PimSetCardinality.TYPE),
+    Operations.PimSetCardinality.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetClassCodelist.is,
     executePimSetClassCodelist,
-    Operations.PimSetClassCodelist.TYPE),
+    Operations.PimSetClassCodelist.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetDatatype.is,
     executePimSetDataType,
-    Operations.PimSetDatatype.TYPE),
+    Operations.PimSetDatatype.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetExtends.is,
     executePimSetExtends,
-    Operations.PimSetExtends.TYPE),
+    Operations.PimSetExtends.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetHumanLabel.is,
     executePimSetHumanLabel,
-    Operations.PimSetHumanLabel.TYPE),
+    Operations.PimSetHumanLabel.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetHumanDescription.is,
     executePimSetHumanDescription,
-    Operations.PimSetHumanDescription.TYPE),
+    Operations.PimSetHumanDescription.TYPE
+  ),
   CoreOperationExecutor.create(
     Operations.PimSetTechnicalLabel.is,
     executePimSetTechnicalLabel,
-    Operations.PimSetTechnicalLabel.TYPE),
+    Operations.PimSetTechnicalLabel.TYPE
+  ),
 ];

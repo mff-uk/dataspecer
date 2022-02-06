@@ -1,1 +1,1 @@
-export {ReadOnlyFederatedStore} from "./read-only-federated-store";
+export { ReadOnlyFederatedStore } from "./read-only-federated-store";

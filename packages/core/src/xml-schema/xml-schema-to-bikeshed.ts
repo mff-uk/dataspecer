@@ -9,18 +9,18 @@ import {
 import {
   StructureModelClass,
   StructureModelComplexType,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../structure-model";
-import {assertNot} from "../core";
-import {OFN_LABELS} from "../well-known";
+import { assertNot } from "../core";
+import { OFN_LABELS } from "../well-known";
 import {
   ConceptualModel,
   ConceptualModelClass,
-  ConceptualModelProperty
+  ConceptualModelProperty,
 } from "../conceptual-model";
 import {
   DataSpecificationArtefact,
-  DataSpecificationDocumentation
+  DataSpecificationDocumentation,
 } from "../data-specification/model";
 
 // TODO This is temporary solution we need to be able to extend common version with JSON.
@@ -32,9 +32,14 @@ export async function createBikeshedSchemaXml(
   const result = new BikeshedContentSection(label, null);
 
   const linkToSchema = removeCommonPrefix(
-    context.ownerArtefact.publicUrl, context.artefact.publicUrl);
-  result.content.push(new BikeshedContentText(
-    `Tato sekce je dokumentací pro [XML schéma](.${linkToSchema}).`));
+    context.ownerArtefact.publicUrl,
+    context.artefact.publicUrl
+  );
+  result.content.push(
+    new BikeshedContentText(
+      `Tato sekce je dokumentací pro [XML schéma](.${linkToSchema}).`
+    )
+  );
 
   for (const entity of Object.values(structureModel.classes)) {
     if (entity.structureSchema !== context.structureModel.psmIri) {
@@ -62,37 +67,47 @@ function removeCommonPrefix(prefix: string, value: string): string {
 
 function createEntitySection(
   context: BikeshedAdapterArtefactContext,
-  entity: StructureModelClass,
+  entity: StructureModelClass
 ): BikeshedContent {
   const result = new BikeshedContentSection(
-    classLabel(context, entity), classAnchor(context, entity));
+    classLabel(context, entity),
+    classAnchor(context, entity)
+  );
 
   const properties = new BikeshedContentList();
   result.content.push(properties);
   const description = context.selectOptionalString(entity.humanDescription);
   if (description !== null) {
-    properties.items.push(new BikeshedContentListItem(
-      context.selectString({
-        "cs": "Popis",
-        "en": "Description"
-      }), [description]));
+    properties.items.push(
+      new BikeshedContentListItem(
+        context.selectString({
+          cs: "Popis",
+          en: "Description",
+        }),
+        [description]
+      )
+    );
   }
   if (entity.isCodelist) {
-    properties.items.push(new BikeshedContentListItem(
-      "Číselník", ["Typ reprezentuje číselník."]));
+    properties.items.push(
+      new BikeshedContentListItem("Číselník", ["Typ reprezentuje číselník."])
+    );
   }
-  properties.items.push(new BikeshedContentListItem(
-    "Interpretace", [classInterpretation(context, entity)]));
+  properties.items.push(
+    new BikeshedContentListItem("Interpretace", [
+      classInterpretation(context, entity),
+    ])
+  );
 
   entity.properties
-    .filter(item => isAttribute(item))
-    .map(item => createPropertySection(context, entity, item))
-    .forEach(item => result.content.push(item));
+    .filter((item) => isAttribute(item))
+    .map((item) => createPropertySection(context, entity, item))
+    .forEach((item) => result.content.push(item));
 
   entity.properties
-    .filter(item => !isAttribute(item))
-    .map(item => createPropertySection(context, entity, item))
-    .forEach(item => result.content.push(item));
+    .filter((item) => !isAttribute(item))
+    .map((item) => createPropertySection(context, entity, item))
+    .forEach((item) => result.content.push(item));
 
   return result;
 }
@@ -108,7 +123,6 @@ function classAnchor(
   context: BikeshedAdapterArtefactContext,
   entity: StructureModelClass
 ): string {
-  const conceptualClass = context.conceptualModel.classes[entity.pimIri];
   return context.structuralClassAnchor("xml", context.structureModel, entity);
 }
 
@@ -117,14 +131,16 @@ function classInterpretation(
   entity: StructureModelClass
 ): string {
   if (entity.pimIri === null) {
-    return "Bez interpretace."
+    return "Bez interpretace.";
   }
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  assertNot(conceptualClass === undefined,
-    `Missing conceptual class ${entity.pimIri} for ${entity.psmIri}`);
+  assertNot(
+    conceptualClass === undefined,
+    `Missing conceptual class ${entity.pimIri} for ${entity.psmIri}`
+  );
   const label = context.selectString(conceptualClass.humanLabel);
   const href = context.conceptualClassAnchor(conceptualClass);
-  return `[${label}](#${href})`
+  return `[${label}](#${href})`;
 }
 
 function isAttribute(property: StructureModelProperty): boolean {
@@ -139,7 +155,7 @@ function isAttribute(property: StructureModelProperty): boolean {
 function createPropertySection(
   context: BikeshedAdapterArtefactContext,
   entity: StructureModelClass,
-  property: StructureModelProperty,
+  property: StructureModelProperty
 ): BikeshedContent {
   const label = propertyLabel(context, property);
   let heading;
@@ -150,29 +166,39 @@ function createPropertySection(
   }
 
   const result = new BikeshedContentSection(
-    heading, propertyAnchor(context, entity, property));
+    heading,
+    propertyAnchor(context, entity, property)
+  );
 
   const list = new BikeshedContentList();
   result.content.push(list);
-  list.items.push(new BikeshedContentListItem(
-    "Element", [property.technicalLabel]));
-  list.items.push(new BikeshedContentListItem(
-    "Jméno", [label]));
+  list.items.push(
+    new BikeshedContentListItem("Element", [property.technicalLabel])
+  );
+  list.items.push(new BikeshedContentListItem("Jméno", [label]));
   const description = context.selectString(
-    context.structureModel.humanDescription);
+    context.structureModel.humanDescription
+  );
   if (description !== null) {
-    list.items.push(new BikeshedContentListItem(
-      "Popis", [description]));
+    list.items.push(new BikeshedContentListItem("Popis", [description]));
   }
-  list.items.push(new BikeshedContentListItem(
-    "Povinnost", [isOptional(property) ? "Nepovinná" : "Povinná"]));
-  list.items.push(new BikeshedContentListItem(
-    "Kardinalita", [propertyCardinality(property)]));
-  list.items.push(new BikeshedContentListItem(
-    "Typ", propertyTypes(context, property)));
+  list.items.push(
+    new BikeshedContentListItem("Povinnost", [
+      isOptional(property) ? "Nepovinná" : "Povinná",
+    ])
+  );
+  list.items.push(
+    new BikeshedContentListItem("Kardinalita", [propertyCardinality(property)])
+  );
+  list.items.push(
+    new BikeshedContentListItem("Typ", propertyTypes(context, property))
+  );
   if (entity.psmIri !== null) {
-    list.items.push(new BikeshedContentListItem(
-      "Interpretace", [propertyInterpretation(context, entity, property)]));
+    list.items.push(
+      new BikeshedContentListItem("Interpretace", [
+        propertyInterpretation(context, entity, property),
+      ])
+    );
   }
   return result;
 }
@@ -190,7 +216,11 @@ function propertyAnchor(
   property: StructureModelProperty
 ): string {
   return context.structuralPropertyAnchor(
-    "xml", context.structureModel, entity, property);
+    "xml",
+    context.structureModel,
+    entity,
+    property
+  );
 }
 
 function isOptional(model: StructureModelProperty): boolean {
@@ -219,28 +249,37 @@ function propertyInterpretation(
   property: StructureModelProperty
 ): string {
   if (entity.pimIri === null || property.pimIri === null) {
-    return "Bez interpretace."
+    return "Bez interpretace.";
   } else if (property.pathToOrigin.length > 0) {
     // TODO Dematerialized property
     return "";
   }
 
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
-  assertNot(conceptualClass === undefined,
-    `Missing conceptual entity ${entity.pimIri} for`
-    + `structure entity ${entity.psmIri} .`);
+  assertNot(
+    conceptualClass === undefined,
+    `Missing conceptual entity ${entity.pimIri} for` +
+      `structure entity ${entity.psmIri} .`
+  );
 
   const reference = findConceptualPropertyInHierarchy(
-    context.conceptualModel, conceptualClass, property.pimIri);
+    context.conceptualModel,
+    conceptualClass,
+    property.pimIri
+  );
 
-  assertNot(reference === null,
-    `Missing conceptual property ${property.pimIri} in entity ${entity.pimIri} .`
-    + ` For structure property ${property.psmIri}`);
+  assertNot(
+    reference === null,
+    `Missing conceptual property ${property.pimIri} in entity ${entity.pimIri} .` +
+      ` For structure property ${property.psmIri}`
+  );
 
   const label = context.selectString(reference.property.humanLabel);
   const href = context.conceptualPropertyAnchor(
-    reference.owner, reference.property);
-  return `[${label}](#${href})`
+    reference.owner,
+    reference.property
+  );
+  return `[${label}](#${href})`;
 }
 
 /**
@@ -252,8 +291,8 @@ function findConceptualPropertyInHierarchy(
   conceptualClass: ConceptualModelClass,
   propertyIri: string
 ): {
-  owner: ConceptualModelClass,
-  property: ConceptualModelProperty,
+  owner: ConceptualModelClass;
+  property: ConceptualModelProperty;
 } | null {
   // Searching for ancestors.
   const searchStack = [conceptualClass];
@@ -262,8 +301,8 @@ function findConceptualPropertyInHierarchy(
     for (const candidateProperty of next.properties) {
       if (candidateProperty.pimIri === propertyIri) {
         return {
-          "owner": next,
-          "property": candidateProperty,
+          owner: next,
+          property: candidateProperty,
         };
       }
     }
@@ -274,7 +313,7 @@ function findConceptualPropertyInHierarchy(
 
 function propertyTypes(
   context: BikeshedAdapterArtefactContext,
-  property: StructureModelProperty,
+  property: StructureModelProperty
 ): string[] {
   if (property.dataTypes.length === 0) {
     return [];
@@ -299,11 +338,11 @@ function propertyTypes(
 
 function propertyTypeAssociation(
   context: BikeshedAdapterArtefactContext,
-  type: StructureModelComplexType,
+  type: StructureModelComplexType
 ): string {
   const target = context.structureModel.classes[type.psmClassIri];
   if (target === null) {
-    throw new Error("Specification re-use is not supported.")
+    throw new Error("Specification re-use is not supported.");
   }
   if (context.structureModel.psmIri === target.structureSchema) {
     const label = classLabel(context, target);
@@ -315,16 +354,16 @@ function propertyTypeAssociation(
 
 function externalAssociation(
   context: BikeshedAdapterArtefactContext,
-  structureClass: StructureModelClass,
+  structureClass: StructureModelClass
 ): string {
-  const structureModel = context.generatorContext.structureModels[
-    structureClass.structureSchema];
+  const structureModel =
+    context.generatorContext.structureModels[structureClass.structureSchema];
   assertNot(structureModel === undefined, "Missing structure model.");
-  const specification = context.generatorContext.specifications[
-    structureClass.specification];
+  const specification =
+    context.generatorContext.specifications[structureClass.specification];
   assertNot(specification === undefined, "Missing specification.");
-  const conceptualModel = context.generatorContext.conceptualModels[
-    specification.pim];
+  const conceptualModel =
+    context.generatorContext.conceptualModels[specification.pim];
   assertNot(conceptualModel === undefined, "Missing conceptual model.");
   const conceptualClass = conceptualModel.classes[structureClass.pimIri];
   assertNot(conceptualClass === undefined, "Missing conceptual class.");
@@ -341,12 +380,15 @@ function externalAssociation(
   }
   // Manual label propagation.
   const label = context.selectString(
-    structureClass.humanLabel ?? conceptualClass.humanLabel);
+    structureClass.humanLabel ?? conceptualClass.humanLabel
+  );
   if (artefact == null) {
     return label;
   } else {
-    const url = artefact.publicUrl + "#" + context.structuralClassAnchor(
-      "xml", structureModel, structureClass);
-    return `[${label}](${url})`
+    const url =
+      artefact.publicUrl +
+      "#" +
+      context.structuralClassAnchor("xml", structureModel, structureClass);
+    return `[${label}](${url})`;
   }
 }

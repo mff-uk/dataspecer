@@ -1,4 +1,4 @@
-import {CoreResource} from "../core-resource";
+import { CoreResource } from "../core-resource";
 
 /**
  * Operation can be applied to change data model. Any data model, like
@@ -7,7 +7,6 @@ import {CoreResource} from "../core-resource";
  * of multiple models.
  */
 export class CoreOperation extends CoreResource {
-
   private static readonly OPERATION_TYPE = "core-operation";
 
   parent: string | null = null;
@@ -20,5 +19,4 @@ export class CoreOperation extends CoreResource {
   static is(resource: CoreResource): resource is CoreOperation {
     return resource.types.includes(CoreOperation.OPERATION_TYPE);
   }
-
 }

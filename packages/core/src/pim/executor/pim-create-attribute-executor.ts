@@ -1,20 +1,18 @@
-import {PimCreateAttribute, PimCreateAttributeResult} from "../operation";
-import {PimAttribute, PimClass} from "../model";
+import { PimCreateAttribute, PimCreateAttributeResult } from "../operation";
+import { PimAttribute, PimClass } from "../model";
 import {
-  CoreExecutorResult, CoreResource,
+  CoreExecutorResult,
+  CoreResource,
   CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
-import {
-  loadPimSchema, PimExecutorResultFactory,
-} from "./pim-executor-utils";
+import { loadPimSchema, PimExecutorResultFactory } from "./pim-executor-utils";
 
 export async function executePimCreateAttribute(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimCreateAttribute,
+  operation: PimCreateAttribute
 ): Promise<CoreExecutorResult> {
-
   const schema = await loadPimSchema(reader);
   if (schema === null) {
     return PimExecutorResultFactory.missingSchema();
@@ -36,9 +34,15 @@ export async function executePimCreateAttribute(
   result.pimCardinalityMin = operation.pimCardinalityMin;
   result.pimCardinalityMax = operation.pimCardinalityMax;
 
-  return CoreExecutorResult.createSuccess([result], [{
-    ...schema,
-    "pimParts": [...schema.pimParts, result.iri],
-  } as CoreResource], [],
-  new PimCreateAttributeResult(result.iri));
+  return CoreExecutorResult.createSuccess(
+    [result],
+    [
+      {
+        ...schema,
+        pimParts: [...schema.pimParts, result.iri],
+      } as CoreResource,
+    ],
+    [],
+    new PimCreateAttributeResult(result.iri)
+  );
 }

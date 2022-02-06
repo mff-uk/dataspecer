@@ -1,13 +1,12 @@
-import {OutputStream} from "../io/stream/output-stream";
-import {JsonArrayWriter, JsonObjectWriter} from "./json-writer";
+import { OutputStream } from "../io/stream/output-stream";
+import { JsonArrayWriter, JsonObjectWriter } from "./json-writer";
 
 class StringJsonWriterContext {
-
   private readonly stream: OutputStream;
 
   private readonly shouldWriteComma: boolean[] = [];
 
-  private buffer: string = "";
+  private buffer = "";
 
   constructor(stream: OutputStream, content: string) {
     this.stream = stream;
@@ -40,11 +39,9 @@ class StringJsonWriterContext {
   append(content: string) {
     this.buffer += content;
   }
-
 }
 
 class StringJsonObjectWriter implements JsonObjectWriter {
-
   private readonly context: StringJsonWriterContext;
 
   constructor(context: StringJsonWriterContext) {
@@ -52,7 +49,8 @@ class StringJsonObjectWriter implements JsonObjectWriter {
   }
 
   valueIfNotNull(
-    key: string, value: string | number | boolean | null
+    key: string,
+    value: string | number | boolean | null
   ): Promise<void> {
     if (value === null) {
       return;
@@ -85,7 +83,6 @@ class StringJsonObjectWriter implements JsonObjectWriter {
     this.context.closeComplex();
     return this.context.flush();
   }
-
 }
 
 function valueToString(value: string | number | boolean | null) {
@@ -101,7 +98,6 @@ function valueToString(value: string | number | boolean | null) {
 }
 
 class StringJsonArrayWriter {
-
   private readonly context: StringJsonWriterContext;
 
   constructor(context: StringJsonWriterContext) {
@@ -140,19 +136,16 @@ class StringJsonArrayWriter {
     this.context.closeComplex();
     return this.context.flush();
   }
-
 }
 
 export class StringJsonWriter {
-
   static createObject(stream: OutputStream): JsonObjectWriter {
-    const context = new StringJsonWriterContext(stream, "{")
-    return (new StringJsonObjectWriter(context));
+    const context = new StringJsonWriterContext(stream, "{");
+    return new StringJsonObjectWriter(context);
   }
 
   static createArray(stream: OutputStream): JsonArrayWriter {
-    const context = new StringJsonWriterContext(stream, "[")
-    return (new StringJsonArrayWriter(context));
+    const context = new StringJsonWriterContext(stream, "[");
+    return new StringJsonArrayWriter(context);
   }
-
 }
