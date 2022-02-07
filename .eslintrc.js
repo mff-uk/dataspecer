@@ -1,3 +1,5 @@
+// Rules applied in this document should be commented in the documentation.
+// There you can find reasons and argumentation why, certain rules are used.
 module.exports = {
   "root": true,
   "extends": [
@@ -8,13 +10,8 @@ module.exports = {
     "sourceType": "module",
   },
   "rules": {
-    // Double quotes can be used for JavaScript as well as C-like languages.
-    // As a result is it easier to transition between those languages.
     "quotes": ["error", "double"],
-    // Sorry users.
     "linebreak-style": ["error", "unix"],
-    // While not necessary again, jus for consistency among languages,
-    // making it easier to transition.
     "semi": ["error", "always"],
   },
   "env": {

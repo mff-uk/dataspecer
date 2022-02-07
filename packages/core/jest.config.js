@@ -11,7 +11,4 @@ module.exports = {
   "roots": [
     "src",
   ],
-  "testPathIgnorePatterns": [
-    "./src/slovník.gov.cz",
-  ],
 };
