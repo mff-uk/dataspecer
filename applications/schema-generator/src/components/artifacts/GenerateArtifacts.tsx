@@ -179,6 +179,28 @@ export const GenerateArtifacts: React.FC<{
                     setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
                 }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
+                <Divider />
+
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>CSV</MenuItem>
+                <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => save(GetXsdArtifact, "xsd", "text/xml;charset=utf-8")}>
+                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("download")}
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                        close();
+                        Preview.open({content: GetPreviewComponentXsdArtifact(store, psmSchemas[0])});
+                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                    <MenuItem onClick={() => copy(GetXsdArtifact)}>
+                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("copy")}
+                    </MenuItem>
+                </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
+
             </Menu>
 
             <Preview.Component />
