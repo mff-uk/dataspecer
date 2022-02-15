@@ -1,8 +1,7 @@
-import {OutputStream} from "../io/stream/output-stream";
-import {ConceptualModel, ConceptualModelClass} from "../conceptual-model";
+import { OutputStream } from "../io/stream/output-stream";
+import { ConceptualModel, ConceptualModelClass } from "../conceptual-model";
 
 export class PlantUml {
-
   private conceptualModel: ConceptualModel;
 
   public constructor(conceptualModel: ConceptualModel) {
@@ -30,12 +29,12 @@ export class PlantUml {
           const dataType = prop.dataTypes[0];
           if (dataType.isAttribute()) {
             await outputStream.write(
-              `  ${prop.humanLabel?.["cs"]}: ${dataType.dataType}\n`);
+              `  ${prop.humanLabel?.["cs"]}: ${dataType.dataType}\n`
+            );
           }
         } else {
           console.warn("More than one datatype for property", prop);
         }
-
       }
       await outputStream.write("}\n\n");
     }
@@ -49,17 +48,18 @@ export class PlantUml {
     for (const cls of Object.values(this.conceptualModel.classes)) {
       for (const ext of cls.extends) {
         await outputStream.write(
-          `${this.getClassName(ext)} <|-- ${this.getClassName(cls)}\n`);
+          `${this.getClassName(ext)} <|-- ${this.getClassName(cls)}\n`
+        );
       }
     }
 
     const associations: {
-      label: string,
-      ends: [string, string],
+      label: string;
+      ends: [string, string];
       cardinality: [
-        {min: number|null, max: number|null},
-        {min: number|null, max: number|null}
-      ]
+        { min: number | null; max: number | null },
+        { min: number | null; max: number | null }
+      ];
     }[] = [];
 
     // Collect associations
@@ -70,11 +70,13 @@ export class PlantUml {
         }
         const dataType = prop.dataTypes[0];
         if (dataType.isAssociation()) {
-          const target = this.conceptualModel.classes[
-            dataType.pimClassIri as string];
-          const existingAssociation = associations.find(association =>
-            association.ends[0] === target.pimIri &&
-            association.ends[1] === cls.pimIri);
+          const target =
+            this.conceptualModel.classes[dataType.pimClassIri as string];
+          const existingAssociation = associations.find(
+            (association) =>
+              association.ends[0] === target.pimIri &&
+              association.ends[1] === cls.pimIri
+          );
           if (existingAssociation) {
             existingAssociation.cardinality[0].min = prop.cardinalityMin;
             existingAssociation.cardinality[0].max = prop.cardinalityMax;
@@ -83,8 +85,8 @@ export class PlantUml {
               label: prop.humanLabel?.["cs"] ?? "",
               ends: [cls.pimIri as string, target.pimIri as string],
               cardinality: [
-                {min: null, max: null},
-                {min: prop.cardinalityMin, max: prop.cardinalityMax},
+                { min: null, max: null },
+                { min: prop.cardinalityMin, max: prop.cardinalityMax },
               ],
             });
           }
@@ -94,7 +96,7 @@ export class PlantUml {
 
     // Write associations
     for (const association of associations) {
-      const cardinality = association.cardinality.map(card => {
+      const cardinality = association.cardinality.map((card) => {
         if (card.min === null && card.max === null) {
           return "*";
         } else if (card.min === null) {
@@ -107,12 +109,15 @@ export class PlantUml {
       });
 
       const source = this.getClassName(
-        this.conceptualModel.classes[association.ends[0]]);
+        this.conceptualModel.classes[association.ends[0]]
+      );
       const target = this.getClassName(
-        this.conceptualModel.classes[association.ends[1]]);
+        this.conceptualModel.classes[association.ends[1]]
+      );
 
       await outputStream.write(
-        `${source} "${cardinality[0]}" -- "${cardinality[1]}" ${target} :  ${association.label}\n`);
+        `${source} "${cardinality[0]}" -- "${cardinality[1]}" ${target} :  ${association.label}\n`
+      );
     }
   }
 }

@@ -1,12 +1,12 @@
 import * as jsonld from "jsonld";
-import {RdfQuad} from "../../../core/adapter/rdf";
+import { RdfQuad } from "../../../core/adapter/rdf";
 
 export async function parseRdfQuadsWithJsonLd(
-  content: string,
+  content: string
 ): Promise<RdfQuad[]> {
   const contentAsJson = JSON.parse(content) as jsonld.JsonLdDocument;
   const options = {
-    "documentLoader": async (url) => {
+    documentLoader: async (url) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const loader = jsonld.documentLoaders.node();

@@ -1,8 +1,7 @@
-import {RdfSource, RdfObject, RdfNode} from "../rdf-api";
+import { RdfSource, RdfObject, RdfNode } from "../rdf-api";
 
 export class FederatedSource implements RdfSource {
-
-  private readonly sources: RdfSource [];
+  private readonly sources: RdfSource[];
 
   /**
    * If true try all sources, else stop after the first source return some
@@ -44,7 +43,6 @@ export class FederatedSource implements RdfSource {
     }
     return Promise.resolve(result);
   }
-
 }
 
 function addValues<T>(values: T[], newValues: T[]) {

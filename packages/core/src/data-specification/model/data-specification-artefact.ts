@@ -1,5 +1,4 @@
 export class DataSpecificationArtefact {
-
   iri: string | null = null;
 
   name: string | null = null;
@@ -32,5 +31,4 @@ export class DataSpecificationArtefact {
    * as they are easier to convert to various representations.
    */
   configuration: { [key: string]: unknown } | null = null;
-
 }

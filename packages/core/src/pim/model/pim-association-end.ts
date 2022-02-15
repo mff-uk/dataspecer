@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {PimResource} from "./pim-resource";
+import { CoreResource } from "../../core";
+import { PimResource } from "./pim-resource";
 import * as PIM from "../pim-vocabulary";
 
 /**
@@ -7,7 +7,6 @@ import * as PIM from "../pim-vocabulary";
  * most likely a class.
  */
 export class PimAssociationEnd extends PimResource {
-
   private static readonly TYPE = PIM.ASSOCIATION_END;
 
   pimPart: string | null = null;
@@ -24,5 +23,4 @@ export class PimAssociationEnd extends PimResource {
   static is(resource: CoreResource | null): resource is PimAssociationEnd {
     return resource?.types.includes(PimAssociationEnd.TYPE);
   }
-
 }

@@ -1,8 +1,10 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmCreateClassReference} from "../operation";
 import {
-  executeDataPsmCreateClassReference,
-} from "./data-psm-create-class-reference-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmCreateClassReference } from "../operation";
+import { executeDataPsmCreateClassReference } from "./data-psm-create-class-reference-executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM class reference.", async () => {
@@ -12,9 +14,9 @@ test("Create data PSM class reference.", async () => {
 
   const before = {
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": ["http://base"],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://base"],
     },
   };
 
@@ -22,31 +24,30 @@ test("Create data PSM class reference.", async () => {
   const actual = await executeDataPsmCreateClassReference(
     wrapResourcesWithReader(before),
     () => "http://localhost/" + ++counter,
-    operation);
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
     "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": [PSM.CLASS_REFERENCE],
-      "dataPsmSpecification": operation.dataPsmSpecification,
-      "dataPsmClass": operation.dataPsmClass,
+      iri: "http://localhost/1",
+      types: [PSM.CLASS_REFERENCE],
+      dataPsmSpecification: operation.dataPsmSpecification,
+      dataPsmClass: operation.dataPsmClass,
     },
   });
   expect(actual.changed).toEqual({
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": [
-        "http://base", "http://localhost/1",
-      ],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://base", "http://localhost/1"],
     },
   });
   expect(actual.deleted).toEqual([]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

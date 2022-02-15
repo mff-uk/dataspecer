@@ -2,11 +2,10 @@ export enum RdfTermType {
   BlankNode = "BlankNode",
   NamedNode = "NamedNode",
   Literal = "Literal",
-  DefaultGraph = "DefaultGraph"
+  DefaultGraph = "DefaultGraph",
 }
 
 export interface RdfQuad {
-
   subject: RdfNode;
 
   predicate: RdfNode;
@@ -14,11 +13,9 @@ export interface RdfQuad {
   object: RdfObject;
 
   graph: RdfNode;
-
 }
 
 export class RdfNode {
-
   static readonly DEFAULT_GRAPH = "";
 
   termType: string;
@@ -27,22 +24,20 @@ export class RdfNode {
 
   static namedNode(iri: string): RdfNode {
     return {
-      "termType": RdfTermType.NamedNode,
-      "value": iri,
+      termType: RdfTermType.NamedNode,
+      value: iri,
     };
   }
 
   static defaultGraph(): RdfNode {
     return {
-      "termType": RdfTermType.DefaultGraph,
-      "value": RdfNode.DEFAULT_GRAPH,
+      termType: RdfTermType.DefaultGraph,
+      value: RdfNode.DEFAULT_GRAPH,
     };
   }
-
 }
 
 export class RdfObject extends RdfNode {
-
   datatype: RdfNode | null;
 
   language: string | null;
@@ -52,25 +47,24 @@ export class RdfObject extends RdfNode {
   }
 
   static isNode(object: RdfObject): boolean {
-    return object.termType === RdfTermType.NamedNode
-      || object.termType === RdfTermType.BlankNode;
+    return (
+      object.termType === RdfTermType.NamedNode ||
+      object.termType === RdfTermType.BlankNode
+    );
   }
 
   static isLiteral(object: RdfObject): boolean {
     return object.termType === RdfTermType.Literal;
   }
-
 }
 
 /**
  * This interface should be implemented by sources of RDF data.
  */
 export interface RdfSource {
-
   property(iri: string, predicate: string): Promise<RdfObject[]>;
 
   reverseProperty(predicate: string, iri: string): Promise<RdfNode[]>;
-
 }
 
 /**
@@ -78,7 +72,5 @@ export interface RdfSource {
  * RDF data.
  */
 export interface RdfSink {
-
   write(quads: RdfQuad): Promise<void>;
-
 }

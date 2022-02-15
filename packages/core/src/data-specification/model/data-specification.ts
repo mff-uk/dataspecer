@@ -1,12 +1,11 @@
-import {DataSpecificationArtefact} from "./data-specification-artefact";
+import { DataSpecificationArtefact } from "./data-specification-artefact";
 
 export class DataSpecification {
-
   iri: string | null = null;
 
   pim: string | null = null;
 
-  psms: string [] = [];
+  psms: string[] = [];
 
   /**
    * IRIs of other data specifications.
@@ -17,5 +16,4 @@ export class DataSpecification {
    * All artefacts that should be generated.
    */
   artefacts: DataSpecificationArtefact[] = [];
-
 }

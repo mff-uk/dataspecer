@@ -1,8 +1,7 @@
-import {CoreResourceReader} from "../../core-reader";
-import {CoreResource} from "../../core-resource";
+import { CoreResourceReader } from "../../core-reader";
+import { CoreResource } from "../../core-resource";
 
 export class ReadOnlyFederatedStore implements CoreResourceReader {
-
   readonly readers: CoreResourceReader[];
 
   protected constructor(readers: CoreResourceReader[]) {
@@ -20,8 +19,9 @@ export class ReadOnlyFederatedStore implements CoreResourceReader {
   async listResources(): Promise<string[]> {
     const resources = new Set<string>();
     for (const model of this.readers) {
-      (await model.listResources())
-        .forEach(resource => resources.add(resource));
+      (await model.listResources()).forEach((resource) =>
+        resources.add(resource)
+      );
     }
     return [...resources];
   }
@@ -41,10 +41,10 @@ export class ReadOnlyFederatedStore implements CoreResourceReader {
   async listResourcesOfType(typeIri: string): Promise<string[]> {
     const resources = new Set<string>();
     for (const model of this.readers) {
-      (await model.listResourcesOfType(typeIri))
-        .forEach(resource => resources.add(resource));
+      (await model.listResourcesOfType(typeIri)).forEach((resource) =>
+        resources.add(resource)
+      );
     }
     return [...resources];
   }
-
 }

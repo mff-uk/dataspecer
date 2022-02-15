@@ -1,4 +1,4 @@
-import {assert, CoreResourceReader} from "../../core";
+import { assert, CoreResourceReader } from "../../core";
 import {
   ConceptualModel,
   ConceptualModelClass,
@@ -8,13 +8,13 @@ import {
 } from "../model";
 import {
   PimAssociation,
-  PimAssociationEnd, PimAttribute,
+  PimAssociationEnd,
+  PimAttribute,
   PimClass,
-  PimSchema
+  PimSchema,
 } from "../../pim/model";
 
 class ConceptualModelAdapter {
-
   private readonly reader: CoreResourceReader;
 
   private readonly classes: { [iri: string]: ConceptualModelClass } = {};
@@ -33,7 +33,7 @@ class ConceptualModelAdapter {
     for (const iri of pimSchema.pimParts) {
       await this.loadPimPart(iri);
     }
-    result.classes = {...this.classes};
+    result.classes = { ...this.classes };
     return result;
   }
 
@@ -63,7 +63,7 @@ class ConceptualModelAdapter {
       isKnown = true;
     }
     if (!isKnown) {
-      throw new Error(`Unsupported PIM part entity '${partIri}'.`)
+      throw new Error(`Unsupported PIM part entity '${partIri}'.`);
     }
   }
 
@@ -77,7 +77,8 @@ class ConceptualModelAdapter {
     }
     assert(
       ends.length === 2,
-      `Association ${associationData.iri} must have two association ends.`);
+      `Association ${associationData.iri} must have two association ends.`
+    );
 
     // Association can be used in both directions.
     const left: PimAssociationEnd = ends[0];
@@ -86,22 +87,21 @@ class ConceptualModelAdapter {
     const right: PimAssociationEnd = ends[1];
     const rightClass = this.getClass(right.pimPart);
 
-    this.createAssociationEnd(
-      leftClass, rightClass, associationData, right);
+    this.createAssociationEnd(leftClass, rightClass, associationData, right);
     // If there is no orientation then add this.
     if (!associationData.pimIsOriented) {
-      this.createAssociationEnd(
-        rightClass, leftClass, associationData, left);
+      this.createAssociationEnd(rightClass, leftClass, associationData, left);
     }
   }
 
   private createAssociationEnd(
-    source: ConceptualModelClass, target: ConceptualModelClass,
-    association: PimAssociation, associationEnd: PimAssociationEnd
+    source: ConceptualModelClass,
+    target: ConceptualModelClass,
+    association: PimAssociation,
+    associationEnd: PimAssociationEnd
   ) {
     const property = new ConceptualModelProperty();
-    property.pimIri =
-      associationEnd.iri;
+    property.pimIri = associationEnd.iri;
     property.cimIri =
       associationEnd.pimInterpretation ?? association.pimInterpretation;
     property.humanLabel =
@@ -158,15 +158,14 @@ class ConceptualModelAdapter {
     model.humanDescription = classData.pimHumanDescription;
     model.isCodelist = classData.pimIsCodelist;
     model.codelistUrl = classData.pimCodelistUrl;
-    model.extends = classData.pimExtends.map(iri => this.getClass(iri));
+    model.extends = classData.pimExtends.map((iri) => this.getClass(iri));
   }
-
 }
 
 export async function coreResourcesToConceptualModel(
-  reader: CoreResourceReader, pimSchemaIri: string
+  reader: CoreResourceReader,
+  pimSchemaIri: string
 ): Promise<ConceptualModel | null> {
   const adapter = new ConceptualModelAdapter(reader);
   return await adapter.load(pimSchemaIri);
 }
-

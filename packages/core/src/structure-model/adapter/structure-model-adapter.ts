@@ -1,4 +1,4 @@
-import {CoreResourceReader} from "../../core";
+import { CoreResourceReader } from "../../core";
 import {
   StructureModel,
   StructureModelClass,
@@ -13,10 +13,9 @@ import {
   DataPsmClassReference,
   DataPsmSchema,
 } from "../../data-psm/model";
-import {PimAssociationEnd, PimAttribute} from "../../pim/model";
+import { PimAssociationEnd, PimAttribute } from "../../pim/model";
 
 class StructureModelAdapter {
-
   private readonly reader: CoreResourceReader;
 
   private readonly classes: { [iri: string]: StructureModelClass };
@@ -49,7 +48,7 @@ class StructureModelAdapter {
         throw new Error(`Unsupported PSM root entity '${iri}'.`);
       }
     }
-    result.classes = {...this.classes};
+    result.classes = { ...this.classes };
     return result;
   }
 
@@ -81,7 +80,7 @@ class StructureModelAdapter {
       if (DataPsmClass.is(part)) {
         model.extends.push(await this.loadClass(part));
       } else if (DataPsmClassReference.is(part)) {
-        model.extends.push((await this.loadClassReference(part)));
+        model.extends.push(await this.loadClassReference(part));
       } else {
         throw new Error(`Unsupported PSM class extends entity '${iri}'.`);
       }
@@ -112,14 +111,19 @@ class StructureModelAdapter {
     classReferenceData: DataPsmClassReference
   ): Promise<StructureModelClass> {
     const part = await this.reader.readResource(
-      classReferenceData.dataPsmClass);
+      classReferenceData.dataPsmClass
+    );
     if (!DataPsmClass.is(part)) {
       throw new Error(
-        `Invalid class reference '${classReferenceData.iri}' target.`);
+        `Invalid class reference '${classReferenceData.iri}' target.`
+      );
     }
     // We are going to load another schema.
     const adapter = new StructureModelAdapter(
-      this.reader, this.classes, classReferenceData.dataPsmSpecification);
+      this.reader,
+      this.classes,
+      classReferenceData.dataPsmSpecification
+    );
     return await adapter.loadClass(part);
   }
 
@@ -135,7 +139,7 @@ class StructureModelAdapter {
     model.dematerialize = associationEndData.dataPsmIsDematerialize === true;
 
     const pimAssociationEndData = await this.reader.readResource(
-      associationEndData.dataPsmInterpretation,
+      associationEndData.dataPsmInterpretation
     );
     if (pimAssociationEndData === null) {
       model.cardinalityMin = 0;
@@ -145,7 +149,8 @@ class StructureModelAdapter {
       model.cardinalityMax = pimAssociationEndData.pimCardinalityMax;
     } else {
       throw new Error(
-        `Invalid association end '${associationEndData.iri}' interpretation.`);
+        `Invalid association end '${associationEndData.iri}' interpretation.`
+      );
     }
 
     // The association end may point to class or class reference.
@@ -158,7 +163,8 @@ class StructureModelAdapter {
     } else {
       throw new Error(
         `Unsupported PSM class extends entity ` +
-        `'${associationEndData.dataPsmPart}'.`);
+          `'${associationEndData.dataPsmPart}'.`
+      );
     }
     const type = new StructureModelComplexType();
     type.psmClassIri = loadedClass.psmIri;
@@ -178,7 +184,7 @@ class StructureModelAdapter {
     model.technicalLabel = attributeData.dataPsmTechnicalLabel;
 
     const pimAttributeData = await this.reader.readResource(
-      attributeData.dataPsmInterpretation,
+      attributeData.dataPsmInterpretation
     );
     if (pimAttributeData === null) {
       model.cardinalityMin = 0;
@@ -188,7 +194,8 @@ class StructureModelAdapter {
       model.cardinalityMax = pimAttributeData.pimCardinalityMax;
     } else {
       throw new Error(
-        `Invalid attribute '${attributeData.iri}' interpretation.`);
+        `Invalid attribute '${attributeData.iri}' interpretation.`
+      );
     }
 
     const type = new StructureModelPrimitiveType();
@@ -197,11 +204,11 @@ class StructureModelAdapter {
 
     return model;
   }
-
 }
 
 export async function coreResourcesToStructuralModel(
-  reader: CoreResourceReader, psmSchemaIri: string,
+  reader: CoreResourceReader,
+  psmSchemaIri: string
 ): Promise<StructureModel | null> {
   const adapter = new StructureModelAdapter(reader, null);
   return await adapter.load(psmSchemaIri);

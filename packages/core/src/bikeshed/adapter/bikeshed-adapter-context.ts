@@ -1,25 +1,25 @@
-import {ArtefactGeneratorContext} from "../../generator";
-import {LanguageString} from "../../core";
+import { ArtefactGeneratorContext } from "../../generator";
+import { LanguageString } from "../../core";
 import {
   ConceptualModel,
   ConceptualModelClass,
-  ConceptualModelProperty
+  ConceptualModelProperty,
 } from "../../conceptual-model";
 import {
   StructureModel,
   StructureModelClass,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../../structure-model";
 import {
   DataSpecification,
-  DataSpecificationArtefact, DataSpecificationDocumentation,
+  DataSpecificationArtefact,
+  DataSpecificationDocumentation,
 } from "../../data-specification/model";
 
 /**
  * Context given to adapters.
  */
 export class BikeshedAdapterContext {
-
   readonly generatorContext: ArtefactGeneratorContext;
 
   /**
@@ -31,24 +31,25 @@ export class BikeshedAdapterContext {
 
   sanitizeLink: (label: string) => string;
 
-  conceptualClassAnchor:
-    (conceptualModel: ConceptualModelClass) => string;
+  conceptualClassAnchor: (conceptualModel: ConceptualModelClass) => string;
 
-  conceptualPropertyAnchor:
-    (conceptualClass: ConceptualModelClass,
-     conceptualProperty: ConceptualModelProperty) => string;
+  conceptualPropertyAnchor: (
+    conceptualClass: ConceptualModelClass,
+    conceptualProperty: ConceptualModelProperty
+  ) => string;
 
-  structuralClassAnchor:
-    (format: string,
-     structureModel: StructureModel,
-     structureClass: StructureModelClass) => string;
+  structuralClassAnchor: (
+    format: string,
+    structureModel: StructureModel,
+    structureClass: StructureModelClass
+  ) => string;
 
-  structuralPropertyAnchor:
-    (format: string,
-     structureModel: StructureModel,
-     structureClass: StructureModelClass,
-     structureProperty: StructureModelProperty) => string;
-
+  structuralPropertyAnchor: (
+    format: string,
+    structureModel: StructureModel,
+    structureClass: StructureModelClass,
+    structureProperty: StructureModelProperty
+  ) => string;
 }
 
 /**
@@ -56,7 +57,6 @@ export class BikeshedAdapterContext {
  * the artefact into the documentation.
  */
 export class BikeshedAdapterArtefactContext extends BikeshedAdapterContext {
-
   /**
    * Owner artefact of the documentation.
    */
@@ -81,5 +81,4 @@ export class BikeshedAdapterArtefactContext extends BikeshedAdapterContext {
    * Non-transformed structural model for given artefact.
    */
   readonly structureModel: StructureModel;
-
 }

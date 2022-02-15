@@ -1,4 +1,4 @@
-import {CoreResource, LanguageString} from "../../core";
+import { CoreResource, LanguageString } from "../../core";
 import * as PIM from "../pim-vocabulary";
 
 /**
@@ -7,7 +7,6 @@ import * as PIM from "../pim-vocabulary";
  * and attributes.
  */
 export class PimSchema extends CoreResource {
-
   private static readonly TYPE = PIM.SCHEMA;
 
   /**
@@ -31,5 +30,4 @@ export class PimSchema extends CoreResource {
   static is(resource: CoreResource | null): resource is PimSchema {
     return resource?.types.includes(PimSchema.TYPE);
   }
-
 }

@@ -1,7 +1,6 @@
-import {CoreResource, LanguageString} from "../../core";
+import { CoreResource, LanguageString } from "../../core";
 
 export class PimResource extends CoreResource {
-
   /**
    * Points to CIM level.
    */
@@ -27,5 +26,4 @@ export class PimResource extends CoreResource {
   protected constructor(iri: string | null) {
     super(iri);
   }
-
 }

@@ -3,45 +3,58 @@ import {
   BikeshedContent,
   BikeshedContentSection,
   BikeshedContentText,
-  BikeshedMetadataKeys
+  BikeshedMetadataKeys,
 } from "../bikeshed-model";
 import {
   BikeshedAdapterArtefactContext,
-  BikeshedAdapterContext
+  BikeshedAdapterContext,
 } from "./bikeshed-adapter-context";
-import {ConceptualModel} from "../../conceptual-model";
-import {conceptualModelToBikeshedContent} from "./bikeshed-adapter-conceptual";
+import { ConceptualModel } from "../../conceptual-model";
+import { conceptualModelToBikeshedContent } from "./bikeshed-adapter-conceptual";
 import {
-  DataSpecification, DataSpecificationArtefact,
+  DataSpecification,
+  DataSpecificationArtefact,
   DataSpecificationDocumentation,
   DataSpecificationSchema,
 } from "../../data-specification/model";
-import {assertNot} from "../../core";
-import {StructureModel} from "../../structure-model";
-import {BIKESHED} from "../bikeshed-vocabulary";
+import { assertNot } from "../../core";
+import { StructureModel } from "../../structure-model";
+import { BIKESHED } from "../bikeshed-vocabulary";
 
 export async function specificationToBikeshed(
   context: BikeshedAdapterContext,
   artefact: DataSpecificationDocumentation,
-  specification: DataSpecification,
+  specification: DataSpecification
 ): Promise<Bikeshed> {
   const generatorContext = context.generatorContext;
   const conceptualModel = generatorContext.conceptualModels[specification.pim];
   assertNot(
     conceptualModel === undefined,
-    `Missing conceptual model ${specification.pim}.`);
+    `Missing conceptual model ${specification.pim}.`
+  );
 
   const result = new Bikeshed();
   result.metadata = createBikeshedMetadata(context, conceptualModel);
 
-  result.content.push(await conceptualModelToBikeshedContent(
-    context, specification, artefact, conceptualModel));
+  result.content.push(
+    await conceptualModelToBikeshedContent(
+      context,
+      specification,
+      artefact,
+      conceptualModel
+    )
+  );
 
   for (const iri of specification.psms) {
     const structureModel = context.generatorContext.structureModels[iri];
     assertNot(structureModel === null, `Missing model '${iri}'.`);
     const structureDocumentation = await createBikeshedStructureSection(
-      context, artefact, specification, conceptualModel, structureModel);
+      context,
+      artefact,
+      specification,
+      conceptualModel,
+      structureModel
+    );
     result.content.push(structureDocumentation);
   }
 
@@ -50,10 +63,10 @@ export async function specificationToBikeshed(
 
 function createBikeshedMetadata(
   context: BikeshedAdapterContext,
-  conceptualModel: ConceptualModel,
+  conceptualModel: ConceptualModel
 ): Record<string, string> {
-  const label: string = context.selectString(conceptualModel.humanLabel)
-    ?? "Missing label";
+  const label: string =
+    context.selectString(conceptualModel.humanLabel) ?? "Missing label";
   return {
     [BikeshedMetadataKeys.title]: label,
     [BikeshedMetadataKeys.shortname]: label,
@@ -61,9 +74,9 @@ function createBikeshedMetadata(
     [BikeshedMetadataKeys.editor]: "Model-Driven Generator",
     [BikeshedMetadataKeys.boilerplate]: "conformance no, copyright no",
     [BikeshedMetadataKeys.abstract]:
-    `Tento dokument je otevřenou formální normou ve smyslu <a href="https://www.zakonyprolidi.cz/cs/1999-106#p3-9">§ 3 odst. 9 zákona č. 106/1999 Sb., o svobodném přístupu k informacím</a>, pro zveřejňování číselníků.`
-    + `Norma popisuje konceptuální model číselníků a stanovuje podobu jejich reprezentace ve strojově čítelné podobě ve formátech JSON-LD [[json-ld11]], a tedy i JSON [[ECMA-404]], a CSV [[rfc4180]] v denormalizované i normalizované podobě.`
-    + `Jednotlivé způsoby reprezentace číselníků také demonstruje na příkladech.`,
+      `Tento dokument je otevřenou formální normou ve smyslu <a href="https://www.zakonyprolidi.cz/cs/1999-106#p3-9">§ 3 odst. 9 zákona č. 106/1999 Sb., o svobodném přístupu k informacím</a>, pro zveřejňování číselníků.` +
+      `Norma popisuje konceptuální model číselníků a stanovuje podobu jejich reprezentace ve strojově čítelné podobě ve formátech JSON-LD [[json-ld11]], a tedy i JSON [[ECMA-404]], a CSV [[rfc4180]] v denormalizované i normalizované podobě.` +
+      `Jednotlivé způsoby reprezentace číselníků také demonstruje na příkladech.`,
     [BikeshedMetadataKeys.markup]: "markdown yes",
   };
 }
@@ -78,7 +91,7 @@ async function createBikeshedStructureSection(
   artefact: DataSpecificationDocumentation,
   specification: DataSpecification,
   conceptualModel: ConceptualModel,
-  structureModel: StructureModel,
+  structureModel: StructureModel
 ): Promise<BikeshedContent> {
   const label = context.selectString(structureModel.humanLabel);
   const result = new BikeshedContentSection(label, null);
@@ -88,7 +101,6 @@ async function createBikeshedStructureSection(
   }
 
   for (const artefactToInclude of specification.artefacts) {
-
     if (!artefact.artefacts.includes(artefactToInclude.iri)) {
       continue;
     }
@@ -98,18 +110,19 @@ async function createBikeshedStructureSection(
     }
 
     const generator = await context.generatorContext.createGenerator(
-      artefactToInclude.generator);
+      artefactToInclude.generator
+    );
     if (generator === null) {
       continue;
     }
 
-    const contextForGenerator : BikeshedAdapterArtefactContext = {
+    const contextForGenerator: BikeshedAdapterArtefactContext = {
       ...context,
-      "ownerArtefact": artefact,
-      "specification": specification,
-      "artefact": artefactToInclude,
-      "conceptualModel": conceptualModel,
-      "structureModel": structureModel
+      ownerArtefact: artefact,
+      specification: specification,
+      artefact: artefactToInclude,
+      conceptualModel: conceptualModel,
+      structureModel: structureModel,
     };
 
     const contentToInclude = await generator.generateForDocumentation(
@@ -117,7 +130,7 @@ async function createBikeshedStructureSection(
       artefact,
       specification,
       BIKESHED.Generator,
-      contextForGenerator,
+      contextForGenerator
     );
 
     if (contentToInclude === null) {
@@ -141,4 +154,3 @@ function shouldBeIncluded(
   }
   return false;
 }
-

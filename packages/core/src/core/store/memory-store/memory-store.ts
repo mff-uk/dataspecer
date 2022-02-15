@@ -1,19 +1,18 @@
-import {CoreOperation, CoreOperationResult} from "../../operation";
-import {CoreResource} from "../../core-resource";
+import { CoreOperation, CoreOperationResult } from "../../operation";
+import { CoreResource } from "../../core-resource";
 import {
   CreateNewIdentifier,
   CoreOperationExecutor,
   CoreExecutorResult,
 } from "../../executor";
-import {assert, assertNot} from "../../utilities/assert";
-import {clone} from "../../utilities/clone";
-import {CoreResourceReader} from "../../core-reader";
-import {CoreResourceWriter} from "../../core-writer";
+import { assert, assertNot } from "../../utilities/assert";
+import { clone } from "../../utilities/clone";
+import { CoreResourceReader } from "../../core-reader";
+import { CoreResourceWriter } from "../../core-writer";
 
-type ExecutorMap = { [type: string]: CoreOperationExecutor<any> };
+type ExecutorMap = { [type: string]: CoreOperationExecutor<CoreOperation> };
 
 export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
-
   private readonly executors: ExecutorMap;
 
   private readonly createNewIdentifier: CreateNewIdentifier;
@@ -27,7 +26,8 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
   protected constructor(
     baseIri: string,
     executors: ExecutorMap,
-    createNewIdentifier: CreateNewIdentifier | null) {
+    createNewIdentifier: CreateNewIdentifier | null
+  ) {
     this.baseIri = baseIri;
     this.executors = executors;
     if (createNewIdentifier === null) {
@@ -41,13 +41,15 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
 
   static create(
     baseIri: string,
-    executors: CoreOperationExecutor<any>[],
-    createNewIdentifier: CreateNewIdentifier | null = null,
+    executors: CoreOperationExecutor<CoreOperation>[],
+    createNewIdentifier: CreateNewIdentifier | null = null
   ): MemoryStore {
     const executorForTypes: ExecutorMap = {};
-    executors.forEach(executor => {
-      assert(executorForTypes[executor.type] === undefined,
-        `Only one executor can be declared for given type '${executor.type}'`);
+    executors.forEach((executor) => {
+      assert(
+        executorForTypes[executor.type] === undefined,
+        `Only one executor can be declared for given type '${executor.type}'`
+      );
       executorForTypes[executor.type] = executor;
     });
     return new MemoryStore(baseIri, executorForTypes, createNewIdentifier);
@@ -76,7 +78,10 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
     const executor = this.findCoreExecutor(operation);
 
     const executorResult = await executor.execute(
-      this, this.createNewIdentifier, operation);
+      this,
+      this.createNewIdentifier,
+      operation
+    );
 
     if (executorResult.failed) {
       throw new Error("Operation failed: " + executorResult.message);
@@ -95,10 +100,10 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
   }
 
   protected findCoreExecutor(
-    operation: CoreOperation,
-  ): CoreOperationExecutor<any> {
-    const candidates: CoreOperationExecutor<any>[] = [];
-    operation.types.forEach(type => {
+    operation: CoreOperation
+  ): CoreOperationExecutor<CoreOperation> {
+    const candidates: CoreOperationExecutor<CoreOperation>[] = [];
+    operation.types.forEach((type) => {
       const executor = this.executors[type];
       if (executor !== undefined) {
         candidates.push(executor);
@@ -106,7 +111,7 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
     });
     assert(
       candidates.length === 1,
-      "Can't determine executor for given operation.",
+      "Can't determine executor for given operation."
     );
     return candidates[0];
   }
@@ -123,16 +128,19 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
   }
 
   protected createUniqueIdentifier(): string {
-    return Date.now() + "-xxxx-xxxx-yxxx".replace(/[xy]/g, (pattern) => {
-      const code = Math.random() * 16 | 0;
-      const result = pattern == "x" ? code : (code & 0x3 | 0x8);
-      return result.toString(16);
-    });
+    return (
+      Date.now() +
+      "-xxxx-xxxx-yxxx".replace(/[xy]/g, (pattern) => {
+        const code = (Math.random() * 16) | 0;
+        const result = pattern == "x" ? code : (code & 0x3) | 0x8;
+        return result.toString(16);
+      })
+    );
   }
 
   protected prepareOperationResult(
     executorResult: CoreExecutorResult,
-    operation: CoreOperation,
+    operation: CoreOperation
   ): CoreOperationResult {
     const result = executorResult.operationResult;
     result.operation = operation;
@@ -141,5 +149,4 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
     result.deleted = executorResult.deleted;
     return result;
   }
-
 }

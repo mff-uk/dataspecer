@@ -1,20 +1,24 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {PimCreateClass,PimCreateClassResult} from "../operation";
-import {executePimCreateClass} from "./pim-create-class-executor";
+import {
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { PimCreateClass, PimCreateClassResult } from "../operation";
+import { executePimCreateClass } from "./pim-create-class-executor";
 import * as PIM from "../pim-vocabulary";
 
 test("Create class.", async () => {
   const operation = new PimCreateClass();
   operation.pimInterpretation = "class-type";
   operation.pimTechnicalLabel = "my-class";
-  operation.pimHumanLabel = {"en": "Label"};
-  operation.pimHumanDescription = {"en": "Desc"};
+  operation.pimHumanLabel = { en: "Label" };
+  operation.pimHumanDescription = { en: "Desc" };
 
   const before = {
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PIM.SCHEMA],
-      "pimParts": [],
+      iri: "http://schema",
+      types: [PIM.SCHEMA],
+      pimParts: [],
     },
   };
 
@@ -22,37 +26,38 @@ test("Create class.", async () => {
   const actual = await executePimCreateClass(
     wrapResourcesWithReader(before),
     () => "http://localhost/" + ++counter,
-    operation);
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({
     "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": [PIM.CLASS],
-      "pimInterpretation": operation.pimInterpretation,
-      "pimTechnicalLabel": operation.pimTechnicalLabel,
-      "pimHumanLabel": operation.pimHumanLabel,
-      "pimHumanDescription": operation.pimHumanDescription,
-      "pimExtends": [],
-      "pimCodelistUrl": [],
-      "pimIsCodelist": false,
+      iri: "http://localhost/1",
+      types: [PIM.CLASS],
+      pimInterpretation: operation.pimInterpretation,
+      pimTechnicalLabel: operation.pimTechnicalLabel,
+      pimHumanLabel: operation.pimHumanLabel,
+      pimHumanDescription: operation.pimHumanDescription,
+      pimExtends: [],
+      pimCodelistUrl: [],
+      pimIsCodelist: false,
     },
   });
   expect(actual.changed).toEqual({
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PIM.SCHEMA],
-      "pimParts": ["http://localhost/1"],
+      iri: "http://schema",
+      types: [PIM.SCHEMA],
+      pimParts: ["http://localhost/1"],
     },
   });
   expect(actual.deleted).toEqual([]);
   expect(PimCreateClassResult.is(actual.operationResult)).toBeTruthy();
   const result = actual.operationResult as PimCreateClassResult;
-  expect(result.createdPimClass).toEqual("http://localhost/1");
+  expect(result.createdPimClass).toBe("http://localhost/1");
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

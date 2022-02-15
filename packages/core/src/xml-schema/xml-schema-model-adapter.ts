@@ -3,7 +3,8 @@ import {
   StructureModelPrimitiveType,
   StructureModelProperty,
   StructureModel,
-  StructureModelType, StructureModelComplexType,
+  StructureModelType,
+  StructureModelComplexType,
 } from "../structure-model";
 import {
   XmlSchema,
@@ -29,11 +30,10 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import {XSD, OFN} from "../well-known";
-import {XML_SCHEMA} from "./xml-schema-vocabulary";
+import { XSD, OFN } from "../well-known";
+import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
-export function structureModelToXmlSchema
-(
+export function structureModelToXmlSchema(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
   model: StructureModel
@@ -42,8 +42,7 @@ export function structureModelToXmlSchema
   return adapter.fromRoots(model.roots);
 }
 
-const anyUriType: StructureModelPrimitiveType = (function()
-{
+const anyUriType: StructureModelPrimitiveType = (function () {
   const type = new StructureModelPrimitiveType();
   type.dataType = XSD.anyURI;
   return type;
@@ -78,7 +77,7 @@ class XmlSchemaAdapter {
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
-    model: StructureModel,
+    model: StructureModel
   ) {
     this.specifications = specifications;
     this.specification = specification;
@@ -90,75 +89,67 @@ class XmlSchemaAdapter {
     this.classMap = map;
     this.imports = {};
   }
-  
-  public fromRoots(
-    roots: string[],
-  ): XmlSchema {
+
+  public fromRoots(roots: string[]): XmlSchema {
     const groups: XmlSchemaGroupDefinition[] = [];
     const elements = roots
       .map(this.getClass, this)
       .map(this.classToElement, this)
-      .map(element => {
+      .map((element) => {
         if (xmlSchemaTypeIsComplex(element.type)) {
           const groupName = element.elementName;
 
           groups.push({
-            "name": groupName,
-            "contents": [
+            name: groupName,
+            contents: [
               {
-                "complexType": element.type.complexDefinition
-              } as XmlSchemaComplexContentType
+                complexType: element.type.complexDefinition,
+              } as XmlSchemaComplexContentType,
             ],
           });
 
           return {
-            "elementName": element.elementName,
-            "source": element.source,
-            "type": {
-              "name": element.type.name,
-              "source": element.type.source,
-              "complexDefinition": {
-                "xsType": "group",
-                "mixed": false,
-                "name": groupName,
-                "source": null,
-                "contents": [],
-              } as XmlSchemaComplexGroupReference
-            } as XmlSchemaComplexType
+            elementName: element.elementName,
+            source: element.source,
+            type: {
+              name: element.type.name,
+              source: element.type.source,
+              complexDefinition: {
+                xsType: "group",
+                mixed: false,
+                name: groupName,
+                source: null,
+                contents: [],
+              } as XmlSchemaComplexGroupReference,
+            } as XmlSchemaComplexType,
           };
         }
         return element;
       });
     return {
-      "targetNamespace": null,
-      "targetNamespacePrefix": null,
-      "elements": elements,
-      "defineLangString": this.usesLangString,
-      "imports": Object.values(this.imports),
-      "groups": groups,
+      targetNamespace: null,
+      targetNamespacePrefix: null,
+      elements: elements,
+      defineLangString: this.usesLangString,
+      imports: Object.values(this.imports),
+      groups: groups,
     };
   }
 
-  getClass(
-    iri: string,
-  ): StructureModelClass {
+  getClass(iri: string): StructureModelClass {
     const cls = this.classMap[iri];
     if (cls == null) {
-      throw new Error(
-        `Class ${iri} is not defined in the model.`,
-      );
+      throw new Error(`Class ${iri} is not defined in the model.`);
     }
     return cls;
   }
-  
+
   findArtefactForImport(
     classData: StructureModelClass
   ): DataSpecificationArtefact | null {
     const targetSpecification = this.specifications[classData.specification];
     if (targetSpecification == null) {
-      throw new Error(
-        `Missing specification ${classData.specification}`
-      );
+      throw new Error(`Missing specification ${classData.specification}`);
     }
     for (const candidate of targetSpecification.artefacts) {
       if (candidate.generator !== XML_SCHEMA.Generator) {
@@ -175,7 +166,7 @@ class XmlSchemaAdapter {
   }
 
   resolveImportedElement(
-    classData: StructureModelClass,
+    classData: StructureModelClass
   ): XmlSchemaImportDeclaration {
     if (this.model.psmIri !== classData.structureSchema) {
       const importDeclaration = this.imports[classData.specification];
@@ -184,85 +175,79 @@ class XmlSchemaAdapter {
       }
       const artefact = this.findArtefactForImport(classData);
       if (artefact != null) {
-        return this.imports[classData.specification] = {
-          "namespace": null,
-          "prefix": null,
-          "schemaLocation": artefact.publicUrl
-        };
+        return (this.imports[classData.specification] = {
+          namespace: null,
+          prefix: null,
+          schemaLocation: artefact.publicUrl,
+        });
       }
     }
     return null;
   }
 
-  classToElement(
-    classData: StructureModelClass,
-  ): XmlSchemaElement {
+  classToElement(classData: StructureModelClass): XmlSchemaElement {
     return {
-      "elementName": classData.technicalLabel,
-      "source": this.resolveImportedElement(classData),
-      "type": {
-        "name": null,
-        "complexDefinition": this.classToComplexType(classData),
+      elementName: classData.technicalLabel,
+      source: this.resolveImportedElement(classData),
+      type: {
+        name: null,
+        complexDefinition: this.classToComplexType(classData),
       } as XmlSchemaComplexType,
     };
   }
 
   classToComplexType(
-    classData: StructureModelClass,
+    classData: StructureModelClass
   ): XmlSchemaComplexTypeDefinition {
     const source = this.resolveImportedElement(classData);
     if (source != null) {
       return {
-        "mixed": false,
-        "xsType": "group",
-        "contents": [],
-        "name": classData.technicalLabel,
-        "source": source
+        mixed: false,
+        xsType: "group",
+        contents: [],
+        name: classData.technicalLabel,
+        source: source,
       } as XmlSchemaComplexGroupReference;
     }
     return {
-      "mixed": false,
-      "xsType": "sequence",
-      "contents": classData.properties.map(
-        this.propertyToComplexContent, this,
-      ),
+      mixed: false,
+      xsType: "sequence",
+      contents: classData.properties.map(this.propertyToComplexContent, this),
     };
   }
 
   propertyToComplexContent(
-    propertyData: StructureModelProperty,
+    propertyData: StructureModelProperty
   ): XmlSchemaComplexContent {
     const elementContent: XmlSchemaComplexContentElement = {
-      "cardinality": {
-        "min": propertyData.cardinalityMin,
-        "max": propertyData.cardinalityMax,
+      cardinality: {
+        min: propertyData.cardinalityMin,
+        max: propertyData.cardinalityMax,
       },
-      "element": this.propertyToElement(propertyData),
+      element: this.propertyToElement(propertyData),
     };
     if (propertyData.dematerialize) {
       const type = elementContent.element.type;
       if (xmlSchemaTypeIsComplex(type)) {
         return {
-          "cardinality": elementContent.cardinality,
-          "complexType": type.complexDefinition,
+          cardinality: elementContent.cardinality,
+          complexType: type.complexDefinition,
         } as XmlSchemaComplexContentType;
       } else {
         throw new Error(
-          `Property ${propertyData.psmIri} must be of a class type `
-          + "if specified as non-materialized."
+          `Property ${propertyData.psmIri} must be of a class type ` +
+            "if specified as non-materialized."
         );
       }
     }
     return elementContent;
   }
 
-  propertyToElement(
-    propertyData: StructureModelProperty,
-  ): XmlSchemaElement {
+  propertyToElement(propertyData: StructureModelProperty): XmlSchemaElement {
     let dataTypes = propertyData.dataTypes;
     if (dataTypes.length === 0) {
       throw new Error(
-        `Property ${propertyData.psmIri} has no specified types.`,
+        `Property ${propertyData.psmIri} has no specified types.`
       );
     }
     // Treat codelists as URIs
@@ -270,29 +255,28 @@ class XmlSchemaAdapter {
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
-    this.propertyToElementCheckType(
-      propertyData,
-      dataTypes,
-      type => type.isAssociation(),
-      this.classPropertyToComplexType)
-      ??
       this.propertyToElementCheckType(
         propertyData,
         dataTypes,
-        type => type.isAttribute(),
-        this.datatypePropertyToSimpleType);
+        (type) => type.isAssociation(),
+        this.classPropertyToComplexType
+      ) ??
+      this.propertyToElementCheckType(
+        propertyData,
+        dataTypes,
+        (type) => type.isAttribute(),
+        this.datatypePropertyToSimpleType
+      );
     if (result == null) {
       throw new Error(
-        `Property ${propertyData.psmIri} must use either only `
-        + "class types or only primitive types.",
+        `Property ${propertyData.psmIri} must use either only ` +
+          "class types or only primitive types."
       );
     }
     return result;
   }
 
-  replaceCodelistWithUri(
-    dataType: StructureModelType,
-  ): StructureModelType {
+  replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
     if (
       dataType.isAssociation() &&
       this.getClass(dataType.psmClassIri).isCodelist
@@ -306,65 +290,63 @@ class XmlSchemaAdapter {
     propertyData: StructureModelProperty,
     dataTypes: StructureModelType[],
     rangeChecker: (rangeType: StructureModelType) => boolean,
-    typeConstructor: (dataTypes: StructureModelType[]) => XmlSchemaType,
+    typeConstructor: (dataTypes: StructureModelType[]) => XmlSchemaType
   ): XmlSchemaElement | null {
     if (dataTypes.every(rangeChecker)) {
       return {
-        "elementName": propertyData.technicalLabel,
-        "source": null,
-        "type": typeConstructor.call(this, dataTypes),
+        elementName: propertyData.technicalLabel,
+        source: null,
+        type: typeConstructor.call(this, dataTypes),
       };
     }
     return null;
   }
 
   classPropertyToComplexType(
-    dataTypes: StructureModelComplexType[],
+    dataTypes: StructureModelComplexType[]
   ): XmlSchemaComplexType {
     return {
-      "name": null,
-      "source": null,
-      "complexDefinition": {
-        "mixed": false,
-        "xsType": "choice",
-        "contents": dataTypes
-          .map(dataType => this.getClass(dataType.psmClassIri))
-          .map(classData => this.classToComplexContent(classData)),
+      name: null,
+      source: null,
+      complexDefinition: {
+        mixed: false,
+        xsType: "choice",
+        contents: dataTypes
+          .map((dataType) => this.getClass(dataType.psmClassIri))
+          .map((classData) => this.classToComplexContent(classData)),
       },
     };
   }
 
   datatypePropertyToSimpleType(
-    dataTypes: StructureModelPrimitiveType[],
+    dataTypes: StructureModelPrimitiveType[]
   ): XmlSchemaSimpleType {
     return {
-      "name": null,
-      "source": null,
-      "simpleDefinition": {
-        "xsType": "union",
-        "contents": dataTypes.map(this.primitiveToQName, this),
+      name: null,
+      source: null,
+      simpleDefinition: {
+        xsType: "union",
+        contents: dataTypes.map(this.primitiveToQName, this),
       },
     };
   }
 
   classToComplexContent(
-    classData: StructureModelClass,
+    classData: StructureModelClass
   ): XmlSchemaComplexContentType {
     return {
-      "complexType": this.classToComplexType(classData),
-      "cardinality": null,
+      complexType: this.classToComplexType(classData),
+      cardinality: null,
     };
   }
 
-  primitiveToQName(
-    primitiveData: StructureModelPrimitiveType,
-  ): QName {
+  primitiveToQName(primitiveData: StructureModelPrimitiveType): QName {
     if (primitiveData.dataType == null) {
       return ["xs", "anySimpleType"];
     }
-    const type: QName = primitiveData.dataType.startsWith(xsdNamespace) ?
-      ["xs", primitiveData.dataType.substring(xsdNamespace.length)] :
-      (simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"]);
+    const type: QName = primitiveData.dataType.startsWith(xsdNamespace)
+      ? ["xs", primitiveData.dataType.substring(xsdNamespace.length)]
+      : simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
       this.usesLangString = true;
     }

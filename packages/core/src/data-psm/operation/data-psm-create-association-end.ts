@@ -1,9 +1,8 @@
-import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import {DataPsmCreate} from "./data-psm-create";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
+import { DataPsmCreate } from "./data-psm-create";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmCreateAssociationEnd extends DataPsmCreate {
-
   static readonly TYPE = PSM.CREATE_ASSOCIATION_END;
 
   dataPsmOwner: string | null = null;
@@ -22,11 +21,9 @@ export class DataPsmCreateAssociationEnd extends DataPsmCreate {
   ): resource is DataPsmCreateAssociationEnd {
     return resource?.types.includes(DataPsmCreateAssociationEnd.TYPE);
   }
-
 }
 
 export class DataPsmCreateAssociationEndResult extends CoreOperationResult {
-
   static readonly TYPE = PSM.CREATE_ASSOCIATION_END_RESULT;
 
   readonly createdDataPsmAssociationEnd: string;
@@ -38,9 +35,8 @@ export class DataPsmCreateAssociationEndResult extends CoreOperationResult {
   }
 
   static is(
-    resource: CoreTyped | null,
+    resource: CoreTyped | null
   ): resource is DataPsmCreateAssociationEndResult {
     return resource?.types.includes(DataPsmCreateAssociationEndResult.TYPE);
   }
-
 }

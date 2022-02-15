@@ -1,19 +1,16 @@
-import {DataSpecification} from "../data-specification/model";
-import {ConceptualModel} from "../conceptual-model";
-import {StructureModel} from "../structure-model";
-import {CoreResourceReader} from "../core";
-import type {ArtefactGenerator} from "./artefact-generator";
+import { DataSpecification } from "../data-specification/model";
+import { ConceptualModel } from "../conceptual-model";
+import { StructureModel } from "../structure-model";
+import { CoreResourceReader } from "../core";
+import type { ArtefactGenerator } from "./artefact-generator";
 
 export interface StructureClassLocation {
-
   readonly specification: DataSpecification;
 
   readonly structureModel: StructureModel;
-
 }
 
 export interface ArtefactGeneratorContext {
-
   /**
    * Federated reader for all the data.
    */
@@ -48,5 +45,4 @@ export interface ArtefactGeneratorContext {
    * @param iri Structure class identifier.
    */
   findStructureClass(iri: string): StructureClassLocation | null;
-
 }

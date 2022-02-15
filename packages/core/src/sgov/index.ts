@@ -1,1 +1,1 @@
-export {SgovAdapter} from "./sgov-adapter";
+export { SgovAdapter } from "./sgov-adapter";

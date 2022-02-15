@@ -1,8 +1,11 @@
-import {ArtefactGenerator, ArtefactGeneratorContext} from "../generator";
-import {DataSpecification, DataSpecificationArtefact} from "../data-specification/model";
-import {StreamDictionary} from "../io/stream/stream-dictionary";
-import {PlantUml} from "./plant-uml";
-import {MemoryOutputStream} from "../io/stream/memory-output-stream";
+import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
+import {
+  DataSpecification,
+  DataSpecificationArtefact,
+} from "../data-specification/model";
+import { StreamDictionary } from "../io/stream/stream-dictionary";
+import { PlantUml } from "./plant-uml";
+import { MemoryOutputStream } from "../io/stream/memory-output-stream";
 
 export interface PlantUmlGeneratorObject {
   // The generated plantuml code
@@ -10,7 +13,6 @@ export interface PlantUmlGeneratorObject {
 }
 
 export class PlantUmlGenerator implements ArtefactGenerator {
-
   static readonly IDENTIFIER = "plant-uml"; // todo: use IRI
 
   identifier(): string {
@@ -24,12 +26,11 @@ export class PlantUmlGenerator implements ArtefactGenerator {
   async generateToObject(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
-    specification: DataSpecification,
+    specification: DataSpecification
   ): Promise<PlantUmlGeneratorObject | null> {
     const pimSchemaIri = specification.pim;
     const stream = new MemoryOutputStream();
-    const plantUml = new PlantUml(
-      context.conceptualModels[pimSchemaIri]);
+    const plantUml = new PlantUml(context.conceptualModels[pimSchemaIri]);
     await plantUml.write(stream);
     await stream.close();
     return {
@@ -41,12 +42,11 @@ export class PlantUmlGenerator implements ArtefactGenerator {
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification,
-    output: StreamDictionary,
+    output: StreamDictionary
   ): Promise<void> {
     const pimSchemaIri = specification.pim;
     const stream = output.writePath(artefact.outputPath);
-    const plantUml = new PlantUml(
-      context.conceptualModels[pimSchemaIri]);
+    const plantUml = new PlantUml(context.conceptualModels[pimSchemaIri]);
     await plantUml.write(stream);
     await stream.close();
   }

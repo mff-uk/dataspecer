@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {DataPsmResource} from "./data-psm-resource";
+import { CoreResource } from "../../core";
+import { DataPsmResource } from "./data-psm-resource";
 import * as PSM from "../data-psm-vocabulary";
 
 /**
@@ -8,7 +8,6 @@ import * as PSM from "../data-psm-vocabulary";
  * that can be resolved into one or more classes.
  */
 export class DataPsmAssociationEnd extends DataPsmResource {
-
   private static readonly TYPE = PSM.ASSOCIATION_END;
 
   dataPsmPart: string | null = null;
@@ -20,7 +19,7 @@ export class DataPsmAssociationEnd extends DataPsmResource {
    */
   dataPsmIsDematerialize: boolean | null = null;
 
-  constructor(iri:string | null = null) {
+  constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmAssociationEnd.TYPE);
   }
@@ -28,5 +27,4 @@ export class DataPsmAssociationEnd extends DataPsmResource {
   static is(resource: CoreResource | null): resource is DataPsmAssociationEnd {
     return resource?.types.includes(DataPsmAssociationEnd.TYPE);
   }
-
 }

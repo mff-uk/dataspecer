@@ -1,8 +1,10 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmDeleteAssociationEnd} from "../operation";
 import {
-  executeDataPsmDeleteAssociationEnd,
-} from "./data-psm-delete-association-end-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmDeleteAssociationEnd } from "../operation";
+import { executeDataPsmDeleteAssociationEnd } from "./data-psm-delete-association-end-executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM association-end.", async () => {
@@ -12,44 +14,46 @@ test("Delete data PSM association-end.", async () => {
 
   const before = {
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": ["http://class", "http://association-end"],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://class", "http://association-end"],
     },
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
-      "dataPsmParts": ["http://association-end"],
+      iri: "http://class",
+      types: [PSM.CLASS],
+      dataPsmParts: ["http://association-end"],
     },
     "http://association-end": {
-      "iri": "http://association-end",
-      "types": [PSM.ASSOCIATION_END],
+      iri: "http://association-end",
+      types: [PSM.ASSOCIATION_END],
     },
   };
 
   const actual = await executeDataPsmDeleteAssociationEnd(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": ["http://class"],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://class"],
     },
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
-      "dataPsmParts": [],
+      iri: "http://class",
+      types: [PSM.CLASS],
+      dataPsmParts: [],
     },
   });
   expect(actual.deleted).toEqual(["http://association-end"]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

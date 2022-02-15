@@ -21,7 +21,7 @@ package "PSM editor" {
   usecase "Select existing shared specification for a PSM class"
   note left
     Elements with existing CIM
-    specifications are higlighted.
+    specifications are highlighted.
 
     User do not select particular PSM, 
     only a specification.
@@ -38,7 +38,7 @@ package "Generator" {
   usecase "Generate OFN" as generateOfn
   note left 
     Re-used parts are represented as
-    links to correspondings specifications.
+    links to corresponding specifications.
   end note
   generateOfn --> generateJson
   generateOfn --> generateCsvw

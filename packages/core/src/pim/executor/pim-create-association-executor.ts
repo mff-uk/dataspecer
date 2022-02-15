@@ -5,21 +5,14 @@ import {
   CoreResourceReader,
   CreateNewIdentifier,
 } from "../../core";
-import {
-  PimCreateAssociation,
-  PimCreateAssociationResult,
-} from "../operation";
-import {
-  PimAssociation,
-  PimAssociationEnd,
-  PimClass,
-} from "../model";
-import {loadPimSchema, PimExecutorResultFactory} from "./pim-executor-utils";
+import { PimCreateAssociation, PimCreateAssociationResult } from "../operation";
+import { PimAssociation, PimAssociationEnd, PimClass } from "../model";
+import { loadPimSchema, PimExecutorResultFactory } from "./pim-executor-utils";
 
 export async function executesPimCreateAssociation(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: CoreOperation,
+  operation: CoreOperation
 ): Promise<CoreExecutorResult> {
   if (!PimCreateAssociation.is(operation)) {
     return PimExecutorResultFactory.invalidOperation();
@@ -28,7 +21,10 @@ export async function executesPimCreateAssociation(
   const left = new PimAssociationEnd(createNewIdentifier("association-end"));
   left.pimPart = operation.pimAssociationEnds[0];
   const leftResult = await verityAssociationEnd(
-    reader, operation, left.pimPart);
+    reader,
+    operation,
+    left.pimPart
+  );
   if (leftResult?.failed) {
     return leftResult;
   }
@@ -36,7 +32,10 @@ export async function executesPimCreateAssociation(
   const right = new PimAssociationEnd(createNewIdentifier("association-end"));
   right.pimPart = operation.pimAssociationEnds[1];
   const rightResult = await verityAssociationEnd(
-    reader, operation, right.pimPart);
+    reader,
+    operation,
+    right.pimPart
+  );
   if (rightResult?.failed) {
     return leftResult;
   }
@@ -53,7 +52,10 @@ export async function executesPimCreateAssociation(
   if (operation.pimAssociationEnds.length !== 2) {
     return CoreExecutorResult.createError(
       "Invalid number of ends for an association. Expected " +
-      "2 given" + operation.pimAssociationEnds.length + ".");
+        "2 given" +
+        operation.pimAssociationEnds.length +
+        "."
+    );
   }
 
   const schema = await loadPimSchema(reader);
@@ -61,17 +63,23 @@ export async function executesPimCreateAssociation(
     return PimExecutorResultFactory.missingSchema();
   }
 
-  return CoreExecutorResult.createSuccess([result, left, right], [{
-    ...schema,
-    "pimParts": [...schema.pimParts, result.iri, left.iri, right.iri],
-  } as CoreResource], [],
-  new PimCreateAssociationResult(result.iri, [left.iri, right.iri]));
+  return CoreExecutorResult.createSuccess(
+    [result, left, right],
+    [
+      {
+        ...schema,
+        pimParts: [...schema.pimParts, result.iri, left.iri, right.iri],
+      } as CoreResource,
+    ],
+    [],
+    new PimCreateAssociationResult(result.iri, [left.iri, right.iri])
+  );
 }
 
 async function verityAssociationEnd(
   reader: CoreResourceReader,
   operation: PimCreateAssociation,
-  iri: string,
+  iri: string
 ): Promise<CoreExecutorResult | null> {
   const resource = await reader.readResource(iri);
   if (resource === null) {

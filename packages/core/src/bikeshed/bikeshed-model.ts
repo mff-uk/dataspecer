@@ -1,9 +1,7 @@
 export class Bikeshed {
-
   metadata: Record<string, string> = {};
 
   content: BikeshedContent[] = [];
-
 }
 
 /**
@@ -25,7 +23,6 @@ export enum BikeshedMetadataKeys {
 }
 
 export class BikeshedContent {
-
   isSection(): this is BikeshedContentSection {
     return false;
   }
@@ -37,11 +34,9 @@ export class BikeshedContent {
   isList(): this is BikeshedContentList {
     return false;
   }
-
 }
 
 export class BikeshedContentSection extends BikeshedContent {
-
   readonly title: string | null;
 
   readonly anchor: string | null;
@@ -57,11 +52,9 @@ export class BikeshedContentSection extends BikeshedContent {
   isSection(): this is BikeshedContentSection {
     return true;
   }
-
 }
 
 export class BikeshedContentText extends BikeshedContent {
-
   /**
    * If text is null the content class is ignored.
    */
@@ -75,28 +68,23 @@ export class BikeshedContentText extends BikeshedContent {
   isText(): this is BikeshedContentText {
     return true;
   }
-
 }
 
 export class BikeshedContentList extends BikeshedContent {
-
   items: BikeshedContentListItem[] = [];
 
   isList(): this is BikeshedContentList {
     return true;
   }
-
 }
 
 export class BikeshedContentListItem {
-
   readonly title: string | null;
 
-  content: string [] = [];
+  content: string[] = [];
 
   constructor(title: string | null, content: string[] = []) {
     this.title = title;
     this.content = content;
   }
-
 }

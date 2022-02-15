@@ -1,8 +1,7 @@
-import {ConceptualModelType} from "./conceptual-model-type";
-import {LanguageString} from "../../core";
+import { ConceptualModelType } from "./conceptual-model-type";
+import { LanguageString } from "../../core";
 
 export class ConceptualModelProperty {
-
   pimIri: string | null = null;
 
   cimIri: string | null = null;
@@ -16,5 +15,4 @@ export class ConceptualModelProperty {
   cardinalityMax: number | null = null;
 
   dataTypes: ConceptualModelType[] = [];
-
 }

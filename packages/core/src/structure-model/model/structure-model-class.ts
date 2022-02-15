@@ -1,8 +1,7 @@
-import {LanguageString} from "../../core";
-import {StructureModelProperty} from "./structure-model-property";
+import { LanguageString } from "../../core";
+import { StructureModelProperty } from "./structure-model-property";
 
 export class StructureModelClass {
-
   /**
    * The pim level is optional is data-psm level may not have an interpretation.
    */
@@ -33,7 +32,7 @@ export class StructureModelClass {
    * Class can extend other classes, the properties of other classes
    * are not included in this class.
    */
-  extends: StructureModelClass [] = [];
+  extends: StructureModelClass[] = [];
 
   /**
    * Properties declared on this class directly. The list is ordered.
@@ -53,12 +52,11 @@ export class StructureModelClass {
   /**
    * True if class represents a codelist.
    */
-  isCodelist: boolean = false;
+  isCodelist = false;
 
   /**
    * If class represents codelist this property holds URLs of the datasets
    * with the codelists.
    */
   codelistUrl: string[] = [];
-
 }

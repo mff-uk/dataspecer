@@ -1,6 +1,4 @@
-
 export interface InputStream {
-
   /**
    * Return null if there are no additional data.
    * If size is not set all data are read.
@@ -11,5 +9,4 @@ export interface InputStream {
    * After this call no other action can be invoked.
    */
   close(): Promise<void>;
-
 }

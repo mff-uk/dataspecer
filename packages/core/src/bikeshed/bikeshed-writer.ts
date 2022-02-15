@@ -2,23 +2,19 @@ import {
   Bikeshed,
   BikeshedContent,
   BikeshedContentList,
-  BikeshedContentListItem,
   BikeshedContentSection,
-  BikeshedContentText
+  BikeshedContentText,
 } from "./bikeshed-model";
-import {OutputStream} from "../io/stream/output-stream";
-import {st} from "rdflib";
+import { OutputStream } from "../io/stream/output-stream";
 
 class Context {
-
-  level: number = 1;
+  level = 1;
 
   section() {
     const result = new Context();
     result.level = this.level + 1;
     return result;
   }
-
 }
 
 export async function writeBikeshed(model: Bikeshed, stream: OutputStream) {
@@ -26,7 +22,7 @@ export async function writeBikeshed(model: Bikeshed, stream: OutputStream) {
   await writeContent(model.content, stream, new Context());
 }
 
-async function writeMetadata(model: Bikeshed, stream: OutputStream,) {
+async function writeMetadata(model: Bikeshed, stream: OutputStream) {
   await stream.write("<pre class='metadata'>\n");
   for (const [key, value] of Object.entries(model.metadata)) {
     await stream.write(`${key} : ${sanitizeMultiline(value)} \n`);
@@ -44,33 +40,25 @@ function sanitizeMultiline(string: string | null): string | null {
 async function writeContent(
   content: BikeshedContent[],
   stream: OutputStream,
-  context: Context,
+  context: Context
 ) {
   for (const item of content) {
     if (item.isText()) {
-      await writeText(item, stream, context);
+      await writeText(item, stream);
     } else if (item.isList()) {
-      await writeList(item, stream, context);
+      await writeList(item, stream);
     } else if (item.isSection()) {
       await writeSection(item, stream, context);
     }
   }
 }
 
-async function writeText(
-  content: BikeshedContentText,
-  stream: OutputStream,
-  context: Context,
-) {
+async function writeText(content: BikeshedContentText, stream: OutputStream) {
   await stream.write(content.content);
   await stream.write("\n");
 }
 
-async function writeList(
-  content: BikeshedContentList,
-  stream: OutputStream,
-  context: Context,
-) {
+async function writeList(content: BikeshedContentList, stream: OutputStream) {
   for (const item of content.items) {
     await stream.write(`: ${item.title}\n`);
     for (const value of item.content) {
@@ -85,15 +73,15 @@ async function writeList(
 async function writeSection(
   content: BikeshedContentSection,
   stream: OutputStream,
-  context: Context,
+  context: Context
 ) {
   const mark = "#".repeat(context.level);
   if (content.anchor === null) {
-    await stream.write(
-      `\n${mark} ${content.title}\n`)
+    await stream.write(`\n${mark} ${content.title}\n`);
   } else {
     await stream.write(
-      `\n${mark} ${content.title} ${mark} {#${content.anchor}}\n`)
+      `\n${mark} ${content.title} ${mark} {#${content.anchor}}\n`
+    );
   }
   await writeContent(content.content, stream, context.section());
 }

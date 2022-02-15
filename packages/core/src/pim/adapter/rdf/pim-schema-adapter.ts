@@ -3,11 +3,10 @@ import {
   RdfResourceLoader,
   RdfResourceLoaderResult,
 } from "../../../core/adapter/rdf";
-import {PimSchema} from "../../model";
+import { PimSchema } from "../../model";
 import * as PIM from "../../pim-vocabulary";
 
 export class PimSchemaAdapter implements RdfResourceLoader {
-
   async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {
     const types = await source.types();
     return types.includes(PIM.SCHEMA);
@@ -15,17 +14,14 @@ export class PimSchemaAdapter implements RdfResourceLoader {
 
   async loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult> {
     const result = new PimSchema(source.iri);
-    result.pimHumanLabel =
-      await source.languageString(PIM.HAS_HUMAN_LABEL);
-    result.pimHumanDescription =
-      await source.languageString(PIM.HAS_HUMAN_DESCRIPTION);
+    result.pimHumanLabel = await source.languageString(PIM.HAS_HUMAN_LABEL);
+    result.pimHumanDescription = await source.languageString(
+      PIM.HAS_HUMAN_DESCRIPTION
+    );
     result.pimParts = await source.nodesExtended(PIM.HAS_PART);
     return {
-      "resource": result,
-      "references": [
-        ...result.pimParts,
-      ],
+      resource: result,
+      references: [...result.pimParts],
     };
   }
-
 }

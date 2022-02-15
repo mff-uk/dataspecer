@@ -1,22 +1,18 @@
 import {
   CoreResourceReader,
   CoreExecutorResult,
-  CreateNewIdentifier, CoreResource,
+  CreateNewIdentifier,
+  CoreResource,
 } from "../../core";
-import {PimDeleteClass} from "../operation";
-import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
-import {
-  PimAssociationEnd,
-  PimAttribute,
-  PimClass,
-} from "../model";
+import { PimDeleteClass } from "../operation";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
+import { PimAssociationEnd, PimAttribute, PimClass } from "../model";
 
 export async function executePimDeleteClass(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimDeleteClass,
+  operation: PimDeleteClass
 ): Promise<CoreExecutorResult> {
-
   const resource = await reader.readResource(operation.pimClass);
   if (resource === null) {
     return PimExecutorResultFactory.missing(operation.pimClass);
@@ -35,15 +31,22 @@ export async function executePimDeleteClass(
     return PimExecutorResultFactory.missingSchema();
   }
 
-  return CoreExecutorResult.createSuccess([], [{
-    ...schema,
-    "pimParts": schema.pimParts.filter(iri => iri !== operation.pimClass),
-  } as CoreResource], [operation.pimClass]);
+  return CoreExecutorResult.createSuccess(
+    [],
+    [
+      {
+        ...schema,
+        pimParts: schema.pimParts.filter((iri) => iri !== operation.pimClass),
+      } as CoreResource,
+    ],
+    [operation.pimClass]
+  );
 }
 
 async function isClassUsed(
   modelReader: CoreResourceReader,
-  classIri: string): Promise<boolean> {
+  classIri: string
+): Promise<boolean> {
   for (const iri of await modelReader.listResources()) {
     const resource = await modelReader.readResource(iri);
     if (PimAttribute.is(resource)) {

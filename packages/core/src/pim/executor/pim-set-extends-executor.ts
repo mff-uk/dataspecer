@@ -3,20 +3,20 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
 } from "../../core";
-import {PimSetExtends} from "../operation";
-import {PimClass} from "../model";
-import {PimExecutorResultFactory} from "./pim-executor-utils";
+import { PimSetExtends } from "../operation";
+import { PimClass } from "../model";
+import { PimExecutorResultFactory } from "./pim-executor-utils";
 
 export async function executePimSetExtends(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimSetExtends,
+  operation: PimSetExtends
 ): Promise<CoreExecutorResult> {
-
   const resource = await reader.readResource(operation.pimResource);
   if (resource == null) {
     return CoreExecutorResult.createError(
-      `Missing pim resource '${operation.pimResource}'.`);
+      `Missing pim resource '${operation.pimResource}'.`
+    );
   }
 
   if (!PimClass.is(resource)) {
@@ -30,8 +30,13 @@ export async function executePimSetExtends(
     }
   }
 
-  return CoreExecutorResult.createSuccess([], [{
-    ...resource,
-    pimExtends: operation.pimExtends,
-  } as PimClass]);
+  return CoreExecutorResult.createSuccess(
+    [],
+    [
+      {
+        ...resource,
+        pimExtends: operation.pimExtends,
+      } as PimClass,
+    ]
+  );
 }
