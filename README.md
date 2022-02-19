@@ -11,7 +11,7 @@ For more information please see individual packages and applications.
 - Run `lerna bootstrap` to install all packages.
 - *Optional* Run `lerna run test` to run test, to be sure nothing is broken. 
 - Run `lerna run build` to build all applications.
-- Navigate to package/application of interest and find the generated files in the `buidl` directory.
+- Navigate to package/application of interest and find the generated files in the `build` directory.
 
 ***
 
