@@ -1,5 +1,0 @@
-dist
-database
-node_modules
-.env
-!database/stores/.gitkeep
