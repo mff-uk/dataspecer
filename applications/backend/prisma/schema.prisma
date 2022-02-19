@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../database/database.db"
+}
+
+model DataSpecification {
+  id                String          @id
+  name              String?
+  pimStore          String
+
+  hasDataStructures DataStructure[]
+
+  reusesDataSpecification     DataSpecification[] @relation("DataSpecificationReuse")
+  isReusedByDataSpecification DataSpecification[] @relation("DataSpecificationReuse")
+}
+
+model DataStructure {
+  id                         String            @id
+  name                       String?
+  store                      String
+
+  // Whether to generate xml artifact
+  artifact_xml Boolean @default(false)
+  // Whether to generate json artifact
+  artifact_json Boolean @default(false)
+
+  belongsToDataSpecification DataSpecification @relation(fields: [DataSpecificationId], references: [id])
+  DataSpecificationId        String
+}
