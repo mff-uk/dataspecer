@@ -1,9 +1,8 @@
-import {OutputStream} from "./output-stream";
+import { OutputStream } from "./output-stream";
 
 type Callback = (stream: MemoryOutputStream) => void | null;
 
 export class MemoryOutputStream implements OutputStream {
-
   private readonly onClose: Callback;
 
   private content = "";
@@ -27,5 +26,4 @@ export class MemoryOutputStream implements OutputStream {
     }
     this.onClose(this);
   }
-
 }

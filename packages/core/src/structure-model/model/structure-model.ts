@@ -1,12 +1,11 @@
-import {LanguageString} from "../../core";
-import {StructureModelClass} from "./structure-model-class";
+import { LanguageString } from "../../core";
+import { StructureModelClass } from "./structure-model-class";
 
 /**
  * Schema is the root object that is used to identify a collection of classes.
  * We can see schema as a diagram that contains the class definitions.
  */
 export class StructureModel {
-
   /**
    * PSM level entity IRI. The schema exists only on PSM level thus
    * there are no IRS of PIM or CIM.
@@ -40,5 +39,4 @@ export class StructureModel {
    * Specification this class was loaded from.
    */
   specification: string | null = null;
-
 }

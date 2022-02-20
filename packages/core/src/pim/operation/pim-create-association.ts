@@ -1,14 +1,13 @@
-import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import {PimCreate} from "./pim-create";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
+import { PimCreate } from "./pim-create";
 import * as PIM from "../pim-vocabulary";
 
 export class PimCreateAssociation extends PimCreate {
-
   static readonly TYPE = PIM.CREATE_ASSOCIATION;
 
   pimAssociationEnds: string[] = [];
 
-  pimIsOriented: boolean = false;
+  pimIsOriented = false;
 
   constructor() {
     super();
@@ -18,11 +17,9 @@ export class PimCreateAssociation extends PimCreate {
   static is(resource: CoreResource | null): resource is PimCreateAssociation {
     return resource?.types.includes(PimCreateAssociation.TYPE);
   }
-
 }
 
 export class PimCreateAssociationResult extends CoreOperationResult {
-
   static readonly TYPE = PIM.CREATE_ASSOCIATION_RESULT;
 
   createdPimAssociation: string;
@@ -31,7 +28,7 @@ export class PimCreateAssociationResult extends CoreOperationResult {
 
   constructor(
     createdPimAssociation: string,
-    createdPimAssociationEnds: string[],
+    createdPimAssociationEnds: string[]
   ) {
     super();
     this.types.push(PimCreateAssociationResult.TYPE);
@@ -40,9 +37,8 @@ export class PimCreateAssociationResult extends CoreOperationResult {
   }
 
   static is(
-    resource: CoreTyped | null,
+    resource: CoreTyped | null
   ): resource is PimCreateAssociationResult {
     return resource?.types.includes(PimCreateAssociationResult.TYPE);
   }
-
 }

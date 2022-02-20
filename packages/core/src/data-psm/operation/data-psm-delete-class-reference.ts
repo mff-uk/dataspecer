@@ -1,8 +1,7 @@
-import {CoreResource, CoreOperation} from "../../core";
+import { CoreResource, CoreOperation } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmDeleteClassReference extends CoreOperation {
-
   static readonly TYPE = PSM.DELETE_CLASS_REFERENCE;
 
   dataPsmClassReference: string | null = null;
@@ -17,5 +16,4 @@ export class DataPsmDeleteClassReference extends CoreOperation {
   ): resource is DataPsmDeleteClassReference {
     return resource?.types.includes(DataPsmDeleteClassReference.TYPE);
   }
-
 }

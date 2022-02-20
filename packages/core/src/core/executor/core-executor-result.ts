@@ -1,5 +1,5 @@
-import {CoreResource} from "../core-resource";
-import {CoreOperationResult} from "../operation";
+import { CoreResource } from "../core-resource";
+import { CoreOperationResult } from "../operation";
 
 /**
  * Instance of this class must be returned by all operation executors.
@@ -7,7 +7,6 @@ import {CoreOperationResult} from "../operation";
  * is not designed to be serialized in any way.
  */
 export class CoreExecutorResult {
-
   /**
    * Map of created resources.
    */
@@ -48,7 +47,8 @@ export class CoreExecutorResult {
     deleted: string[],
     failed: boolean,
     message: string | null,
-    operationResult: CoreOperationResult | null) {
+    operationResult: CoreOperationResult | null
+  ) {
     this.created = created;
     this.changed = changed;
     this.deleted = deleted;
@@ -62,22 +62,26 @@ export class CoreExecutorResult {
   }
 
   static createSuccess(
-    created: CoreResource[], changed: CoreResource[], deleted: string[] = [],
-    operationResult: CoreOperationResult = null): CoreExecutorResult {
+    created: CoreResource[],
+    changed: CoreResource[],
+    deleted: string[] = [],
+    operationResult: CoreOperationResult = null
+  ): CoreExecutorResult {
     return new CoreExecutorResult(
       asResourceMap(created),
       asResourceMap(changed),
       deleted,
-      false, null,
-      operationResult ?? new CoreOperationResult());
+      false,
+      null,
+      operationResult ?? new CoreOperationResult()
+    );
   }
-
 }
 
 function asResourceMap(
-  resources: CoreResource[],
+  resources: CoreResource[]
 ): Record<string, CoreResource> {
   const result = {};
-  resources.forEach(resource => result[resource.iri] = resource);
+  resources.forEach((resource) => (result[resource.iri] = resource));
   return result;
 }

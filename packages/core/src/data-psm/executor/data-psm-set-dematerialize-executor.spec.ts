@@ -1,10 +1,12 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmSetDematerialized} from "../operation";
 import {
-  executeDataPsmSetDematerialize,
-} from "./data-psm-set-dematerialize-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmSetDematerialized } from "../operation";
+import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
 import * as PSM from "../data-psm-vocabulary";
-import {DataPsmAssociationEnd, DataPsmClassReference} from "../model";
+import { DataPsmAssociationEnd, DataPsmClassReference } from "../model";
 
 test("Update data PSM association materialized.", async () => {
   const operation = new DataPsmSetDematerialized();
@@ -25,7 +27,9 @@ test("Update data PSM association materialized.", async () => {
 
   const actual = await executeDataPsmSetDematerialize(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
@@ -40,8 +44,8 @@ test("Update data PSM association materialized.", async () => {
   expect(actual.deleted).toEqual([]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

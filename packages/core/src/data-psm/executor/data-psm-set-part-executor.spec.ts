@@ -1,10 +1,12 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmSetPart} from "../operation";
 import {
-  executeDataPsmSetPart,
-} from "./data-psm-set-part-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmSetPart } from "../operation";
+import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
 import * as PSM from "../data-psm-vocabulary";
-import {DataPsmAssociationEnd, DataPsmClassReference} from "../model";
+import { DataPsmAssociationEnd, DataPsmClassReference } from "../model";
 
 test("Update data PSM association end resource part.", async () => {
   const operation = new DataPsmSetPart();
@@ -25,7 +27,9 @@ test("Update data PSM association end resource part.", async () => {
 
   const actual = await executeDataPsmSetPart(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
@@ -39,8 +43,8 @@ test("Update data PSM association end resource part.", async () => {
   expect(actual.deleted).toEqual([]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

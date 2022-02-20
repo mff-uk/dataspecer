@@ -1,24 +1,22 @@
 import {
   CoreResourceReader,
   CreateNewIdentifier,
-  CoreExecutorResult, CoreResource,
+  CoreExecutorResult,
+  CoreResource,
 } from "../../core";
-import {
-  DataPsmCreateAssociationEnd,
-} from "../operation";
+import { DataPsmCreateAssociationEnd } from "../operation";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import {DataPsmAssociationEnd} from "../model";
+import { DataPsmAssociationEnd } from "../model";
 
-export async function executeDataPsmCreateAssociationEnd (
+export async function executeDataPsmCreateAssociationEnd(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmCreateAssociationEnd,
+  operation: DataPsmCreateAssociationEnd
 ): Promise<CoreExecutorResult> {
-
   const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
     return DataPsmExecutorResultFactory.missingSchema();
@@ -38,11 +36,17 @@ export async function executeDataPsmCreateAssociationEnd (
   result.dataPsmPart = operation.dataPsmPart;
   result.dataPsmIsDematerialize = operation.dataPsmIsDematerialize;
 
-  return CoreExecutorResult.createSuccess([result], [{
-    ...schema,
-    "dataPsmParts": [...schema.dataPsmParts, iri],
-  } as CoreResource, {
-    ...owner,
-    "dataPsmParts": [...owner.dataPsmParts, iri],
-  } as CoreResource]);
+  return CoreExecutorResult.createSuccess(
+    [result],
+    [
+      {
+        ...schema,
+        dataPsmParts: [...schema.dataPsmParts, iri],
+      } as CoreResource,
+      {
+        ...owner,
+        dataPsmParts: [...owner.dataPsmParts, iri],
+      } as CoreResource,
+    ]
+  );
 }

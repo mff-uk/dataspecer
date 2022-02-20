@@ -8,16 +8,13 @@ export type LanguageString = Record<string, string>;
  * Core object that support type control.
  */
 export class CoreTyped {
-
   /**
    * Types used by core model. Single resource can be of multiple
    * application types like PimClass, PimAttribute, etc..
    */
   types: string[] = [];
 
-  protected constructor() {
-  }
-
+  protected constructor() {}
 }
 
 /**
@@ -25,7 +22,6 @@ export class CoreTyped {
  * used as a base class for every other core entity/object.
  */
 export class CoreResource extends CoreTyped {
-
   /**
    * In order to allow identification of all resources they must all use
    * named nodes. Blank nodes are not allowed. This property can
@@ -37,5 +33,4 @@ export class CoreResource extends CoreTyped {
     super();
     this.iri = iri;
   }
-
 }

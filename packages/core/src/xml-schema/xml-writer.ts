@@ -1,4 +1,4 @@
-import {OutputStream} from "../io/stream/output-stream";
+import { OutputStream } from "../io/stream/output-stream";
 
 export interface XmlNamespaceMap {
   getQName(namespacePrefix: string, elementName: string): string;
@@ -10,20 +10,27 @@ export interface XmlNamespaceMap {
 export interface XmlWriter extends XmlNamespaceMap {
   writeXmlDeclaration(version: string, encoding: string): Promise<void>;
   writeElementBegin(
-    namespacePrefix: string, elementName: string
+    namespacePrefix: string,
+    elementName: string
   ): Promise<void>;
   writeElementValue(
-    namespacePrefix: string, elementName: string, elementValue: string
+    namespacePrefix: string,
+    elementName: string,
+    elementValue: string
   ): Promise<void>;
   writeAttributeValue(
-    namespacePrefix: string, attributeName: string, attributeValue: string
+    namespacePrefix: string,
+    attributeName: string,
+    attributeValue: string
   ): Promise<void>;
   writeLocalAttributeValue(
-    attributeName: string, attributeValue: string
+    attributeName: string,
+    attributeValue: string
   ): Promise<void>;
   writeNamespaceDeclaration(prefix: string, uri: string): Promise<void>;
   writeAndRegisterNamespaceDeclaration(
-    prefix: string, uri: string,
+    prefix: string,
+    uri: string
   ): Promise<void>;
   writeComment(comment: string): Promise<void>;
   writeText(text: string): Promise<void>;
@@ -69,7 +76,7 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
     if (namespacePrefix != null) {
       if (this.getUriForPrefix(namespacePrefix) == null) {
         throw new Error(
-          `An unregistered namespace prefix ${namespacePrefix} was used.`,
+          `An unregistered namespace prefix ${namespacePrefix} was used.`
         );
       }
       return `${namespacePrefix}:${localName}`;
@@ -83,19 +90,23 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
  * Escapes XML AttValue (see https://www.w3.org/TR/xml/#NT-AttValue)
  */
 function xmlEscape(text: string): string {
-  return text.replace(/[&<>"']/g, function(m) {
+  return text.replace(/[&<>"']/g, function (m) {
     return `&#${m.charCodeAt(0)};`;
   });
 }
 
 function xml(template: TemplateStringsArray, ...values: string[]): string {
-  return template.map((value, index) => {
-    return value + (values[index] ?? "");
-  }).join("");
+  return template
+    .map((value, index) => {
+      return value + (values[index] ?? "");
+    })
+    .join("");
 }
 
 export abstract class XmlIndentingTextWriter
-  extends XmlSimpleNamespaceMap implements XmlWriter {
+  extends XmlSimpleNamespaceMap
+  implements XmlWriter
+{
   private readonly indentSequence = "  ";
   private indentLevel = 0;
   private currentIndent = "";
@@ -124,38 +135,43 @@ export abstract class XmlIndentingTextWriter
   async writeXmlDeclaration(version: string, encoding: string): Promise<void> {
     await this.leaveElementAttributes();
     await this.writeLine(
-      this.currentIndent
-      + xml`<?xml version="${version}" encoding="${encoding}"?>`,
+      this.currentIndent +
+        xml`<?xml version="${version}" encoding="${encoding}"?>`
     );
   }
-  
+
   async writeElementBegin(
-    namespacePrefix: string, elementName: string,
+    namespacePrefix: string,
+    elementName: string
   ): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
     await this.leaveElementAttributes();
     await this.write(this.currentIndent + `<${qname}`);
     this.elementTagOpen = true;
   }
-  
+
   async writeElementValue(
-    namespacePrefix: string, elementName: string, elementValue: string,
+    namespacePrefix: string,
+    elementName: string,
+    elementValue: string
   ): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
     if (elementValue != null) {
       await this.leaveElementAttributes();
       await this.writeLine(
-        this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`,
+        this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`
       );
     }
   }
-  
+
   async writeAttributeValue(
-    namespacePrefix: string, attributeName: string, attributeValue: string,
+    namespacePrefix: string,
+    attributeName: string,
+    attributeValue: string
   ): Promise<void> {
     if (!this.elementTagOpen) {
       throw new Error(
-        "Attempting to write an attribute but no element is open.",
+        "Attempting to write an attribute but no element is open."
       );
     }
     const qname = this.getQName(namespacePrefix, attributeName);
@@ -165,7 +181,8 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeLocalAttributeValue(
-    attributeName: string, attributeValue: string,
+    attributeName: string,
+    attributeValue: string
   ): Promise<void> {
     await this.writeAttributeValue(null, attributeName, attributeValue);
   }
@@ -175,24 +192,26 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeAndRegisterNamespaceDeclaration(
-    prefix: string, uri: string,
+    prefix: string,
+    uri: string
   ): Promise<void> {
     this.registerNamespace(prefix, uri);
     await this.writeAttributeValue("xmlns", prefix, uri);
   }
-  
+
   async writeComment(comment: string): Promise<void> {
     await this.leaveElementAttributes();
     await this.writeLine(this.currentIndent + `<!--${comment}-->`);
   }
-  
+
   async writeText(text: string): Promise<void> {
     await this.leaveElementAttributes();
     await this.write(xmlEscape(text));
   }
-  
+
   async writeElementEnd(
-    namespacePrefix: string, elementName: string,
+    namespacePrefix: string,
+    elementName: string
   ): Promise<void> {
     if (this.elementTagOpen) {
       await this.writeLine("/>");

@@ -4,7 +4,7 @@ import {
   CreateNewIdentifier,
   CoreResource,
 } from "../../core";
-import {DataPsmSetRoots} from "../operation";
+import { DataPsmSetRoots } from "../operation";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
@@ -13,16 +13,20 @@ import {
 export async function executeDataPsmSetRoots(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmSetRoots,
+  operation: DataPsmSetRoots
 ): Promise<CoreExecutorResult> {
-
   const resource = await loadDataPsmSchema(reader);
   if (resource === null) {
     return DataPsmExecutorResultFactory.missingSchema();
   }
 
-  return CoreExecutorResult.createSuccess([], [{
-    ...resource,
-    "dataPsmRoots": [...operation.dataPsmRoots],
-  } as CoreResource]);
+  return CoreExecutorResult.createSuccess(
+    [],
+    [
+      {
+        ...resource,
+        dataPsmRoots: [...operation.dataPsmRoots],
+      } as CoreResource,
+    ]
+  );
 }

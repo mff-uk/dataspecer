@@ -4,19 +4,18 @@ import {
   CreateNewIdentifier,
   CoreResource,
 } from "../../core";
-import {DataPsmDeleteClass} from "../operation";
+import { DataPsmDeleteClass } from "../operation";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
 } from "./data-psm-executor-utils";
-import {DataPsmClass, DataPsmSchema} from "../model";
+import { DataPsmClass, DataPsmSchema } from "../model";
 
 export async function executeDataPsmDeleteClass(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmDeleteClass,
+  operation: DataPsmDeleteClass
 ): Promise<CoreExecutorResult> {
-
   let schema: DataPsmSchema | null = null;
   const classes: DataPsmClass[] = [];
   for (const iri of await reader.listResources()) {
@@ -33,11 +32,10 @@ export async function executeDataPsmDeleteClass(
     return DataPsmExecutorResultFactory.missingSchema();
   }
 
-  const classToDelete = await loadDataPsmClass(
-    reader, operation.dataPsmClass);
+  const classToDelete = await loadDataPsmClass(reader, operation.dataPsmClass);
   if (classToDelete === null) {
     return CoreExecutorResult.createError(
-      `Missing class '${operation.dataPsmClass}' to delete.`,
+      `Missing class '${operation.dataPsmClass}' to delete.`
     );
   }
 
@@ -48,18 +46,24 @@ export async function executeDataPsmDeleteClass(
   for (const classItem of classes) {
     if (classItem.dataPsmExtends.includes(operation.dataPsmClass)) {
       return CoreExecutorResult.createError(
-        "Class is extended by other class.");
+        "Class is extended by other class."
+      );
     }
   }
 
   return CoreExecutorResult.createSuccess(
-    [], [{
-      ...schema,
-      "dataPsmRoots": removeValue(operation.dataPsmClass, schema.dataPsmRoots),
-      "dataPsmParts": removeValue(operation.dataPsmClass, schema.dataPsmParts),
-    } as CoreResource], [operation.dataPsmClass]);
+    [],
+    [
+      {
+        ...schema,
+        dataPsmRoots: removeValue(operation.dataPsmClass, schema.dataPsmRoots),
+        dataPsmParts: removeValue(operation.dataPsmClass, schema.dataPsmParts),
+      } as CoreResource,
+    ],
+    [operation.dataPsmClass]
+  );
 }
 
 function removeValue<T>(valueToRemove: T, array: T[]): T[] {
-  return array.filter(value => value !== valueToRemove);
+  return array.filter((value) => value !== valueToRemove);
 }

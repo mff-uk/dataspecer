@@ -1,10 +1,9 @@
-import {DataSpecificationArtefact} from "./data-specification-artefact";
+import { DataSpecificationArtefact } from "./data-specification-artefact";
 
 /**
  * Documentation may include other artefacts, such as schemas or examples.
  */
 export class DataSpecificationDocumentation extends DataSpecificationArtefact {
-
   /**
    * Artefacts to include from the owner specification.
    */
@@ -15,9 +14,9 @@ export class DataSpecificationDocumentation extends DataSpecificationArtefact {
     this.type = "documentation";
   }
 
-  static is(artefact: DataSpecificationArtefact)
-    : artefact is DataSpecificationDocumentation {
+  static is(
+    artefact: DataSpecificationArtefact
+  ): artefact is DataSpecificationDocumentation {
     return artefact.type === "documentation";
   }
-
 }

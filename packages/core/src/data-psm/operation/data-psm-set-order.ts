@@ -1,8 +1,7 @@
-import {CoreOperation, CoreResource} from "../../core";
+import { CoreOperation, CoreResource } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetOrder extends CoreOperation {
-
   static readonly TYPE = PSM.SET_ORDER;
 
   dataPsmOwnerClass: string | null = null;
@@ -19,10 +18,7 @@ export class DataPsmSetOrder extends CoreOperation {
     this.types.push(DataPsmSetOrder.TYPE);
   }
 
-  static is(
-    resource: CoreResource | null,
-  ): resource is DataPsmSetOrder {
+  static is(resource: CoreResource | null): resource is DataPsmSetOrder {
     return resource?.types.includes(DataPsmSetOrder.TYPE);
   }
-
 }

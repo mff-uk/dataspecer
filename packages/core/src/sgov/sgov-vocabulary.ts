@@ -22,7 +22,7 @@ export const SKOS = {
 
 export const OWL = {
   maxQualifiedCardinality:
-      "http://www.w3.org/2002/07/owl#maxQualifiedCardinality",
+    "http://www.w3.org/2002/07/owl#maxQualifiedCardinality",
   minQualifiedCardinality:
-      "http://www.w3.org/2002/07/owl#minQualifiedCardinality",
+    "http://www.w3.org/2002/07/owl#minQualifiedCardinality",
 };

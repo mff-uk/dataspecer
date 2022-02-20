@@ -1,6 +1,10 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {PimDeleteAttribute} from "../operation";
-import {executePimDeleteAttribute} from "./pim-delete-attribute-executor";
+import {
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { PimDeleteAttribute } from "../operation";
+import { executePimDeleteAttribute } from "./pim-delete-attribute-executor";
 import * as PIM from "../pim-vocabulary";
 
 test("Delete attribute.", async () => {
@@ -9,38 +13,36 @@ test("Delete attribute.", async () => {
 
   const before = {
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PIM.SCHEMA],
-      "pimParts": [
-        "http://localhost/1",
-      ],
+      iri: "http://schema",
+      types: [PIM.SCHEMA],
+      pimParts: ["http://localhost/1"],
     },
     "http://localhost/1": {
-      "iri": "http://localhost/1",
-      "types": [PIM.ATTRIBUTE],
+      iri: "http://localhost/1",
+      types: [PIM.ATTRIBUTE],
     },
   };
 
   const actual = await executePimDeleteAttribute(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PIM.SCHEMA],
-      "pimParts": [],
+      iri: "http://schema",
+      types: [PIM.SCHEMA],
+      pimParts: [],
     },
   });
-  expect(actual.deleted.sort()).toEqual([
-    "http://localhost/1",
-  ].sort());
+  expect(actual.deleted.sort()).toEqual(["http://localhost/1"].sort());
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

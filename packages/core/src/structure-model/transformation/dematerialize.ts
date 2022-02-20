@@ -2,9 +2,9 @@ import {
   StructureModel,
   StructureModelClass,
   StructureModelComplexType,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../model";
-import {assertFailed, assertNot} from "../../core";
+import { assertFailed, assertNot } from "../../core";
 
 /**
  * Dematerialize association by moving their content to their owner.
@@ -12,11 +12,11 @@ import {assertFailed, assertNot} from "../../core";
 export function structureModelDematerialize(
   structure: StructureModel
 ): StructureModel {
-  const result = {...structure, "classes": {}} as StructureModel;
+  const result = { ...structure, classes: {} } as StructureModel;
   for (const [iri, classData] of Object.entries(structure.classes)) {
     result.classes[iri] = {
       ...classData,
-      "properties": dematerializeClassProperties(structure, classData),
+      properties: dematerializeClassProperties(structure, classData),
     };
   }
   return result;
@@ -25,11 +25,12 @@ export function structureModelDematerialize(
 function dematerializeClassProperties(
   structure: StructureModel,
   classData: StructureModelClass,
-  visited: string[] = [],
+  visited: string[] = []
 ): StructureModelProperty[] {
   assertNot(
     visited.includes(classData.psmIri),
-    `Cycle detected during dematerialization for '${classData.psmIri}'.`);
+    `Cycle detected during dematerialization for '${classData.psmIri}'.`
+  );
   visited = [...visited, classData.psmIri];
   const result = [];
   for (const property of classData.properties) {
@@ -42,25 +43,29 @@ function dematerializeClassProperties(
     if (isPropertyArray(property)) {
       // We start with array, as it is the most general.
       assertFailed(
-        `It is not supported to dematerialize array '${classData.psmIri}'.`)
+        `It is not supported to dematerialize array '${classData.psmIri}'.`
+      );
     }
     const isOptional = isPropertyOptional(property);
     for (const type of collectComplexTypes(classData, property)) {
       const typeClassData = structure.classes[type.psmClassIri];
-      assertNot(typeClassData === undefined,
-        `Missing type '${typeClassData}'.`)
-      dematerializeClassProperties(structure, typeClassData, visited)
-        .forEach((property) => {
-          const propertyClone = {...property} as StructureModelProperty;
+      assertNot(
+        typeClassData === undefined,
+        `Missing type '${typeClassData}'.`
+      );
+      dematerializeClassProperties(structure, typeClassData, visited).forEach(
+        (property) => {
+          const propertyClone = { ...property } as StructureModelProperty;
           if (isOptional) {
             propertyClone.cardinalityMin = 0;
           }
           propertyClone.pathToOrigin.push({
-            "psmProperty": property.psmIri,
-            "psmTargetClass": typeClassData.psmIri,
+            psmProperty: property.psmIri,
+            psmTargetClass: typeClassData.psmIri,
           });
           result.push(propertyClone);
-        });
+        }
+      );
     }
   }
   return result;
@@ -76,7 +81,7 @@ function isPropertyArray(propertyData: StructureModelProperty) {
 
 function collectComplexTypes(
   classData: StructureModelClass,
-  propertyData: StructureModelProperty,
+  propertyData: StructureModelProperty
 ): StructureModelComplexType[] {
   const result = [];
   for (const type of propertyData.dataTypes) {
@@ -85,7 +90,8 @@ function collectComplexTypes(
     } else if (type.isAttribute()) {
       assertFailed(
         "Attributes are not supported for dematerialization " +
-        `'${classData.psmIri}'.`);
+          `'${classData.psmIri}'.`
+      );
     } else {
       assertFailed(`Unknown type in '${classData.psmIri}'.`);
     }

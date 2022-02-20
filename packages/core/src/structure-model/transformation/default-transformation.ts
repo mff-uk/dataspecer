@@ -1,12 +1,12 @@
-import {ConceptualModel} from "../../conceptual-model";
-import {StructureModel} from "../model";
-import {propagateCardinality} from "./propagate-cardinality";
-import {structureModelAddCodelists} from "./add-codelists";
-import {structureModelFlattenInheritance} from "./instantiate-properties";
-import {structureModelDematerialize} from "./dematerialize";
-import {propagateLabel} from "./propagate-label";
-import {DataSpecification} from "../../data-specification/model";
-import {addDataSpecification} from "./add-data-specification";
+import { ConceptualModel } from "../../conceptual-model";
+import { StructureModel } from "../model";
+import { propagateCardinality } from "./propagate-cardinality";
+import { structureModelAddCodelists } from "./add-codelists";
+import { structureModelFlattenInheritance } from "./instantiate-properties";
+import { structureModelDematerialize } from "./dematerialize";
+import { propagateLabel } from "./propagate-label";
+import { DataSpecification } from "../../data-specification/model";
+import { addDataSpecification } from "./add-data-specification";
 
 /**
  * Apply all transformations.
@@ -14,7 +14,7 @@ import {addDataSpecification} from "./add-data-specification";
 export function transformStructureModel(
   conceptualModel: ConceptualModel,
   structureModel: StructureModel,
-  specifications: DataSpecification[] | null = null,
+  specifications: DataSpecification[] | null = null
 ): StructureModel {
   let result = structureModel;
   // Conceptual level first.

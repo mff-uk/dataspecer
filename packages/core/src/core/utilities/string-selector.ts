@@ -1,9 +1,9 @@
-import {LanguageString} from "../core-resource";
+import { LanguageString } from "../core-resource";
 
 export type StringSelector = (string: LanguageString | null) => string | null;
 
 export function defaultStringSelector(
-  value: Record<string, string> | null,
+  value: Record<string, string> | null
 ): string | null {
   if (value === undefined || value === null) {
     return null;

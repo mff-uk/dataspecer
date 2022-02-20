@@ -1,16 +1,15 @@
-import {StreamDictionary} from "../io/stream/stream-dictionary";
+import { StreamDictionary } from "../io/stream/stream-dictionary";
 import {
   DataSpecification,
   DataSpecificationArtefact,
 } from "../data-specification/model";
-import {ArtefactGeneratorContext} from "./artefact-generator-context";
+import { ArtefactGeneratorContext } from "./artefact-generator-context";
 
 /**
  * High level generator interface. The generator must not change
  * any of the given models.
  */
 export interface ArtefactGenerator {
-
   identifier(): string;
 
   /**
@@ -21,7 +20,8 @@ export interface ArtefactGenerator {
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification,
-    output: StreamDictionary): Promise<void>;
+    output: StreamDictionary
+  ): Promise<void>;
 
   /**
    * Generate the content object representation and returns it. Design to allow
@@ -49,7 +49,6 @@ export interface ArtefactGenerator {
     artefact: DataSpecificationArtefact,
     specification: DataSpecification,
     documentationIdentifier: string,
-    callerContext: unknown,
+    callerContext: unknown
   ): Promise<unknown | null>;
-
 }

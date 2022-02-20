@@ -1,14 +1,13 @@
-import {CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import {PimCreate} from "./pim-create";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
+import { PimCreate } from "./pim-create";
 import * as PIM from "../pim-vocabulary";
 
 export class PimCreateClass extends PimCreate {
-
   static readonly TYPE = PIM.CREATE_CLASS;
 
   pimExtends: string[] = [];
 
-  pimIsCodelist: boolean = false;
+  pimIsCodelist = false;
 
   constructor() {
     super();
@@ -18,11 +17,9 @@ export class PimCreateClass extends PimCreate {
   static is(resource: CoreResource | null): resource is PimCreateClass {
     return resource?.types.includes(PimCreateClass.TYPE);
   }
-
 }
 
 export class PimCreateClassResult extends CoreOperationResult {
-
   static readonly TYPE = PIM.CREATE_CLASS_RESULT;
 
   createdPimClass: string;
@@ -33,10 +30,7 @@ export class PimCreateClassResult extends CoreOperationResult {
     this.createdPimClass = createdPimClass;
   }
 
-  static is(
-    resource: CoreTyped,
-  ): resource is PimCreateClassResult {
+  static is(resource: CoreTyped): resource is PimCreateClassResult {
     return resource.types.includes(PimCreateClassResult.TYPE);
   }
-
 }

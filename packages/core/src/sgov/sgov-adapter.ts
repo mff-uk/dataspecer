@@ -1,33 +1,33 @@
 import jsStringEscape from "js-string-escape";
 import search from "./queries/search.sparql";
 import getClass from "./queries/get-class.sparql";
-import getSurroundingsAttributes from
-  "./queries/get-surroundings-attributes.sparql";
-import getSurroundingsInwardsRelations from
-  "./queries/get-surroundings-inwards-relations.sparql";
-import getSurroundingsOutwardsRelations from
-  "./queries/get-surroundings-outwards-relations.sparql";
-import getSurroundingsParent from
-  "./queries/get-surroundings-parent.sparql";
-import getSurroundingsComplexAttributes from
-  "./queries/get-surroundings-complex-attributes.sparql";
+import getSurroundingsAttributes from "./queries/get-surroundings-attributes.sparql";
+import getSurroundingsInwardsRelations from "./queries/get-surroundings-inwards-relations.sparql";
+import getSurroundingsOutwardsRelations from "./queries/get-surroundings-outwards-relations.sparql";
+import getSurroundingsParent from "./queries/get-surroundings-parent.sparql";
+import getSurroundingsComplexAttributes from "./queries/get-surroundings-complex-attributes.sparql";
 import getHierarchy from "./queries/get-hierarchy.sparql";
 import getGroup from "./queries/get-group.sparql";
-import {CimAdapter, IriProvider} from "../cim";
-import {SparqlQueryRdfSource} from "../io/rdf/sparql/sparql-query-rdf-source";
-import {HttpFetch} from "../io/fetch/fetch-api";
-import {RdfSource, RdfSourceWrap} from "../core/adapter/rdf";
-import {isSgovClass, loadSgovClass} from "./entity-adapters/sgov-class-adapter";
-import {CoreResource, ReadOnlyMemoryStore} from "../core";
-import {FederatedSource} from "../io/rdf/federated/federated-rdf-source";
-import {RDFS, SKOS} from "./sgov-vocabulary";
+import { CimAdapter, IriProvider } from "../cim";
+import { SparqlQueryRdfSource } from "../io/rdf/sparql/sparql-query-rdf-source";
+import { HttpFetch } from "../io/fetch/fetch-api";
+import { RdfSource, RdfSourceWrap } from "../core/adapter/rdf";
 import {
-  isSgovAssociation, loadSgovAssociation,
+  isSgovClass,
+  loadSgovClass,
+} from "./entity-adapters/sgov-class-adapter";
+import { CoreResource, ReadOnlyMemoryStore } from "../core";
+import { FederatedSource } from "../io/rdf/federated/federated-rdf-source";
+import { RDFS, SKOS } from "./sgov-vocabulary";
+import {
+  isSgovAssociation,
+  loadSgovAssociation,
 } from "./entity-adapters/sgov-association-adapter";
 import {
-  isSgovAttribute, loadSgovAttribute,
+  isSgovAttribute,
+  loadSgovAttribute,
 } from "./entity-adapters/sgov-attribute-adapter";
-import {PimClass} from "../pim/model";
+import { PimClass } from "../pim/model";
 
 const getSurroundings = [
   getSurroundingsAttributes,
@@ -38,23 +38,27 @@ const getSurroundings = [
 ];
 
 const compressQueryString = (query: string): string => {
-  return query.replace(/^\s*#.*$/mg, "").replace(/[ \t]+/g, " ");
+  return query.replace(/^\s*#.*$/gm, "").replace(/[ \t]+/g, " ");
 };
 
-const searchQuery = (searchString: string) => compressQueryString(
-  search.replace("%QUERY%", `"${jsStringEscape(searchString)}"`));
+const searchQuery = (searchString: string) =>
+  compressQueryString(
+    search.replace("%QUERY%", `"${jsStringEscape(searchString)}"`)
+  );
 
-const getClassQuery = (cimIri: string) => compressQueryString(
-  getClass.replace(/%NODE%/g, `<${cimIri}>`));
+const getClassQuery = (cimIri: string) =>
+  compressQueryString(getClass.replace(/%NODE%/g, `<${cimIri}>`));
 
-const getHierarchyQuery = (cimIri: string) => compressQueryString(
-  getHierarchy.replace(/%NODE%/g, `<${cimIri}>`));
+const getHierarchyQuery = (cimIri: string) =>
+  compressQueryString(getHierarchy.replace(/%NODE%/g, `<${cimIri}>`));
 
-const getGroupQuery = (cimIri: string) => compressQueryString(
-  getGroup.replace(/%NODE%/g, `<${cimIri}>`));
+const getGroupQuery = (cimIri: string) =>
+  compressQueryString(getGroup.replace(/%NODE%/g, `<${cimIri}>`));
 
-const getSurroundingsQueries = (cimIri: string) => getSurroundings.map(
-  q => compressQueryString(q.replace(/%NODE%/g, `<${cimIri}>`)));
+const getSurroundingsQueries = (cimIri: string) =>
+  getSurroundings.map((q) =>
+    compressQueryString(q.replace(/%NODE%/g, `<${cimIri}>`))
+  );
 
 const IRI_REGEXP = new RegExp("^https?://");
 
@@ -84,11 +88,16 @@ export class SgovAdapter implements CimAdapter {
     }
 
     const source = new SparqlQueryRdfSource(
-      this.httpFetch, this.endpoint, searchQuery(searchString));
+      this.httpFetch,
+      this.endpoint,
+      searchQuery(searchString)
+    );
     await source.query();
 
     const results = await source.property(
-      "__search_results", "__has_search_result");
+      "__search_results",
+      "__has_search_result"
+    );
 
     let sorted = [];
     for (const result of results) {
@@ -99,7 +108,7 @@ export class SgovAdapter implements CimAdapter {
         cls: await loadSgovClass(resultWrap, this.iriProvider),
       });
     }
-    sorted = sorted.sort((a, b) => a.sort - b.sort).map(p => p.cls);
+    sorted = sorted.sort((a, b) => a.sort - b.sort).map((p) => p.cls);
 
     if (IRI_REGEXP.test(searchString)) {
       const classByIri = await this.getClass(searchString);
@@ -117,11 +126,14 @@ export class SgovAdapter implements CimAdapter {
     }
 
     const source = new SparqlQueryRdfSource(
-      this.httpFetch, this.endpoint, getClassQuery(cimIri));
+      this.httpFetch,
+      this.endpoint,
+      getClassQuery(cimIri)
+    );
     await source.query();
     const entity = RdfSourceWrap.forIri(cimIri, source);
 
-    if (!await isSgovClass(entity)) {
+    if (!(await isSgovClass(entity))) {
       return null;
     }
     await this.cacheResourceGroup(RdfSourceWrap.forIri(cimIri, source));
@@ -133,11 +145,11 @@ export class SgovAdapter implements CimAdapter {
       throw new Error("Missing IRI provider.");
     }
 
-    const sources = getSurroundingsQueries(cimIri)
-      .map(query => new SparqlQueryRdfSource(
-        this.httpFetch, this.endpoint, query));
+    const sources = getSurroundingsQueries(cimIri).map(
+      (query) => new SparqlQueryRdfSource(this.httpFetch, this.endpoint, query)
+    );
 
-    await Promise.all(sources.map(q => q.query()));
+    await Promise.all(sources.map((q) => q.query()));
     const source = FederatedSource.createExhaustive(sources);
     const resources = await this.loadPimEntitiesGraphFromEntity(cimIri, source);
     return ReadOnlyMemoryStore.create(resources);
@@ -149,7 +161,10 @@ export class SgovAdapter implements CimAdapter {
     }
 
     const source = new SparqlQueryRdfSource(
-      this.httpFetch, this.endpoint, getHierarchyQuery(cimIri));
+      this.httpFetch,
+      this.endpoint,
+      getHierarchyQuery(cimIri)
+    );
     await source.query();
     const resources = await this.loadPimEntitiesGraphFromEntity(cimIri, source);
     return ReadOnlyMemoryStore.create(resources);
@@ -168,10 +183,14 @@ export class SgovAdapter implements CimAdapter {
       return this.resourceGroupCache.get(cimIri);
     } else {
       const source = new SparqlQueryRdfSource(
-        this.httpFetch, this.endpoint, getGroupQuery(cimIri));
+        this.httpFetch,
+        this.endpoint,
+        getGroupQuery(cimIri)
+      );
       await source.query();
       return await this.cacheResourceGroup(
-        RdfSourceWrap.forIri(cimIri, source));
+        RdfSourceWrap.forIri(cimIri, source)
+      );
     }
   }
 
@@ -181,7 +200,8 @@ export class SgovAdapter implements CimAdapter {
    * returns all the entities.
    */
   protected async loadPimEntitiesGraphFromEntity(
-    rootClassCimIri: string, source: RdfSource,
+    rootClassCimIri: string,
+    source: RdfSource
   ): Promise<{ [iri: string]: CoreResource }> {
     const resources: { [iri: string]: CoreResource } = {};
 
@@ -213,20 +233,25 @@ export class SgovAdapter implements CimAdapter {
       // of the association to `processQueue`
 
       const associations = [
-        ...await rdfClassWrap.reverseNodes(RDFS.domain),
-        ...await rdfClassWrap.reverseNodes(RDFS.range),
+        ...(await rdfClassWrap.reverseNodes(RDFS.domain)),
+        ...(await rdfClassWrap.reverseNodes(RDFS.range)),
       ];
       for (const cimAssociationIri of associations) {
         const entity = RdfSourceWrap.forIri(cimAssociationIri, source);
-        if (associationsProcessed.has(cimAssociationIri)
-          || !await isSgovAssociation(entity)) {
+        if (
+          associationsProcessed.has(cimAssociationIri) ||
+          !(await isSgovAssociation(entity))
+        ) {
           continue;
         }
         associationsProcessed.add(cimAssociationIri);
 
         const associationResources = await loadSgovAssociation(
-          entity, source, this.iriProvider);
-        associationResources.forEach(r => resources[r.iri] = r);
+          entity,
+          source,
+          this.iriProvider
+        );
+        associationResources.forEach((r) => (resources[r.iri] = r));
 
         // Add linked classes to the processQueue
 
@@ -239,7 +264,7 @@ export class SgovAdapter implements CimAdapter {
       const attributes = await rdfClassWrap.reverseNodes(RDFS.domain);
       for (const cimAttributeIri of attributes) {
         const entity = RdfSourceWrap.forIri(cimAttributeIri, source);
-        if (!await isSgovAttribute(entity)) {
+        if (!(await isSgovAttribute(entity))) {
           continue;
         }
         const pimAttribute = await loadSgovAttribute(entity, this.iriProvider);
@@ -257,12 +282,9 @@ export class SgovAdapter implements CimAdapter {
     return resources;
   }
 
-  protected async cacheResourceGroup(
-    entity: RdfSourceWrap,
-  ): Promise<string[]> {
+  protected async cacheResourceGroup(entity: RdfSourceWrap): Promise<string[]> {
     const groups = await entity.nodes(SKOS.inScheme);
     this.resourceGroupCache.set(entity.iri, groups);
     return groups;
   }
-
 }

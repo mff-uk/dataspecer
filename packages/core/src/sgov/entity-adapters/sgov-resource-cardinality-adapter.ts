@@ -1,10 +1,10 @@
-import {RdfSourceWrap} from "../../core/adapter/rdf";
-import {PimAssociationEnd, PimAttribute} from "../../pim/model";
-import {OWL} from "../sgov-vocabulary";
+import { RdfSourceWrap } from "../../core/adapter/rdf";
+import { PimAssociationEnd, PimAttribute } from "../../pim/model";
+import { OWL } from "../sgov-vocabulary";
 
 export async function loadSgovCardinalities(
   rdfEntity: RdfSourceWrap,
-  pimResource: PimAttribute | PimAssociationEnd,
+  pimResource: PimAttribute | PimAssociationEnd
 ) {
   const min = await rdfEntity.property(OWL.minQualifiedCardinality);
   if (min.length > 0) {

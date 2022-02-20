@@ -1,28 +1,38 @@
 import {
-  JsonSchema, JsonSchemaAnyOf, JsonSchemaArray, JsonSchemaBoolean,
-  JsonSchemaDefinition, JsonSchemaNull, JsonSchemaNumber,
-  JsonSchemaObject, JsonSchemaRef, JsonSchemaString, JsonSchemaStringFormats,
+  JsonSchema,
+  JsonSchemaAnyOf,
+  JsonSchemaArray,
+  JsonSchemaBoolean,
+  JsonSchemaDefinition,
+  JsonSchemaNull,
+  JsonSchemaNumber,
+  JsonSchemaObject,
+  JsonSchemaRef,
+  JsonSchemaString,
+  JsonSchemaStringFormats,
 } from "./json-schema-model";
 import {
   assert,
-  assertFailed, assertNot,
+  assertFailed,
+  assertNot,
   defaultStringSelector,
   StringSelector,
 } from "../core";
 import {
   StructureModel,
-  StructureModelClass, StructureModelPrimitiveType,
+  StructureModelClass,
+  StructureModelPrimitiveType,
   StructureModelProperty,
 } from "../structure-model";
-import {XSD, OFN, OFN_LABELS} from "../well-known";
+import { XSD, OFN, OFN_LABELS } from "../well-known";
 import {
   DataSpecification,
-  DataSpecificationArtefact, DataSpecificationSchema
+  DataSpecificationArtefact,
+  DataSpecificationSchema,
 } from "../data-specification/model";
-import {JSON_SCHEMA} from "./json-schema-vocabulary";
+import { JSON_SCHEMA } from "./json-schema-vocabulary";
 
 interface Context {
-
   /**
    * Active specification.
    */
@@ -42,7 +52,6 @@ interface Context {
    * Current structural model we are generating for.
    */
   model: StructureModel;
-
 }
 
 /**
@@ -53,23 +62,26 @@ export function structureModelToJsonSchema(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
   model: StructureModel,
-  stringSelector: StringSelector = defaultStringSelector,
+  stringSelector: StringSelector = defaultStringSelector
 ): JsonSchema {
   const result = new JsonSchema();
   assert(model.roots.length === 1, "Exactly one root class must be provided.");
   const contex: Context = {
-    "specification": specification,
-    "specifications": specifications,
-    "stringSelector": stringSelector,
-    "model": model
+    specification: specification,
+    specifications: specifications,
+    stringSelector: stringSelector,
+    model: model,
   };
   result.root = structureModelClassToJsonSchemaDefinition(
-    contex, model.classes[model.roots[0]]);
+    contex,
+    model.classes[model.roots[0]]
+  );
   return result;
 }
 
 function structureModelClassToJsonSchemaDefinition(
-  context: Context, modelClass: StructureModelClass,
+  context: Context,
+  modelClass: StructureModelClass
 ): JsonSchemaDefinition {
   if (context.model.psmIri !== modelClass.structureSchema) {
     const artefact = findArtefactForImport(context, modelClass);
@@ -92,7 +104,9 @@ function structureModelClassToJsonSchemaDefinition(
   for (const property of modelClass.properties) {
     const name = property.technicalLabel;
     result.properties[name] = structureModelPropertyToJsonDefinition(
-      context, property,);
+      context,
+      property
+    );
     if (property.cardinalityMin > 0) {
       result.required.push(name);
     }
@@ -101,11 +115,14 @@ function structureModelClassToJsonSchemaDefinition(
 }
 
 function findArtefactForImport(
-  context: Context, modelClass: StructureModelClass
+  context: Context,
+  modelClass: StructureModelClass
 ): DataSpecificationArtefact | null {
   const targetSpecification = context.specifications[modelClass.specification];
-  assertNot(targetSpecification === undefined,
-    `Missing specification ${modelClass.specification}`);
+  assertNot(
+    targetSpecification === undefined,
+    `Missing specification ${modelClass.specification}`
+  );
   for (const candidate of targetSpecification.artefacts) {
     if (candidate.generator !== JSON_SCHEMA.Generator) {
       continue;
@@ -129,17 +146,20 @@ function structureModelClassEmpty(): JsonSchemaDefinition {
 }
 
 function structureModelPropertyToJsonDefinition(
-  context: Context, property: StructureModelProperty,
+  context: Context,
+  property: StructureModelProperty
 ): JsonSchemaDefinition {
   const dataTypes: JsonSchemaDefinition[] = [];
   for (const dataType of property.dataTypes) {
     if (dataType.isAssociation()) {
       const classData = context.model.classes[dataType.psmClassIri];
-      dataTypes.push(structureModelClassToJsonSchemaDefinition(
-        context, classData));
+      dataTypes.push(
+        structureModelClassToJsonSchemaDefinition(context, classData)
+      );
     } else if (dataType.isAttribute()) {
-      dataTypes.push(structureModelPrimitiveToJsonDefinition(
-        context, dataType));
+      dataTypes.push(
+        structureModelPrimitiveToJsonDefinition(context, dataType)
+      );
     } else {
       assertFailed("Invalid data-type instance.");
     }
@@ -163,7 +183,8 @@ function structureModelPropertyToJsonDefinition(
 }
 
 function wrapWithCardinality(
-  property: StructureModelProperty, definition: JsonSchemaDefinition,
+  property: StructureModelProperty,
+  definition: JsonSchemaDefinition
 ): JsonSchemaDefinition {
   if (property.cardinalityMax == 1) {
     return definition;
@@ -175,7 +196,7 @@ function wrapWithCardinality(
 
 function structureModelPrimitiveToJsonDefinition(
   context: Context,
-  primitive: StructureModelPrimitiveType,
+  primitive: StructureModelPrimitiveType
 ): JsonSchemaDefinition {
   let result;
   switch (primitive.dataType) {

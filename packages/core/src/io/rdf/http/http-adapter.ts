@@ -1,7 +1,7 @@
-import {HttpFetch} from "../../fetch/fetch-api";
-import {RdfQuad} from "../../../core/adapter/rdf";
-import {parseRdfQuadsWithJsonLd} from "../jsonld/jsonld-adapter";
-import {parseRdfQuadsWithN3} from "../n3/n3-adapter";
+import { HttpFetch } from "../../fetch/fetch-api";
+import { RdfQuad } from "../../../core/adapter/rdf";
+import { parseRdfQuadsWithJsonLd } from "../jsonld/jsonld-adapter";
+import { parseRdfQuadsWithN3 } from "../n3/n3-adapter";
 
 enum MimeType {
   JsonLd = "application/ld+json",
@@ -12,11 +12,12 @@ enum MimeType {
 }
 
 export async function fetchRdfQuads(
-  httpFetch: HttpFetch, url: string,
+  httpFetch: HttpFetch,
+  url: string
 ): Promise<RdfQuad[]> {
   const options = {
-    "headers": {
-      "Accept": supportedTypes().join(","),
+    headers: {
+      Accept: supportedTypes().join(","),
     },
   };
   const response = await httpFetch(url, options);

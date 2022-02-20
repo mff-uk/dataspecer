@@ -1,6 +1,6 @@
-import {CoreResource} from "../../core-resource";
-import {RdfSourceWrap} from "./rdf-source-wrap";
-import {RdfSource} from "./rdf-api";
+import { CoreResource } from "../../core-resource";
+import { RdfSourceWrap } from "./rdf-source-wrap";
+import { RdfSource } from "./rdf-api";
 
 /**
  * This class should be used as a container for RdfResourceAdapter. The idea
@@ -9,11 +9,10 @@ import {RdfSource} from "./rdf-api";
  * of different types.
  */
 export class RdfAdapter {
-
   /**
    * The order determine priorities.
    */
-  readonly adapters: RdfResourceLoader [];
+  readonly adapters: RdfResourceLoader[];
 
   constructor(adapters: RdfResourceLoader[]) {
     this.adapters = adapters;
@@ -24,7 +23,8 @@ export class RdfAdapter {
    * following the objects in statements.
    */
   async rdfToResources(
-    source: RdfSource, iri: string,
+    source: RdfSource,
+    iri: string
   ): Promise<{ [iri: string]: CoreResource }> {
     const nodesToLoad: (string | null | undefined)[] = [iri];
     const nodesToNotLoad: Set<string> = new Set();
@@ -51,7 +51,7 @@ export class RdfAdapter {
    * one loader can load the resource.
    */
   protected async loadNode(
-    source: RdfSourceWrap,
+    source: RdfSourceWrap
   ): Promise<RdfResourceLoaderResult | null> {
     for (const adapter of this.adapters) {
       const shouldLoad = await adapter.shouldLoadResource(source);
@@ -62,7 +62,6 @@ export class RdfAdapter {
     }
     return Promise.resolve<null>(null);
   }
-
 }
 
 /**
@@ -70,7 +69,6 @@ export class RdfAdapter {
  * of loading object af a particular type.
  */
 export interface RdfResourceLoader {
-
   /**
    * Return true if given resource should be loaded using this loader.
    */
@@ -84,13 +82,10 @@ export interface RdfResourceLoader {
    * @return IRRs of resources to load.
    */
   loadResource(source: RdfSourceWrap): Promise<RdfResourceLoaderResult>;
-
 }
 
 export interface RdfResourceLoaderResult {
-
   resource: CoreResource | null;
 
   references: (string | null | undefined)[];
-
 }

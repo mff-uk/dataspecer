@@ -1,7 +1,6 @@
-import {CoreResource} from "./core-resource";
+import { CoreResource } from "./core-resource";
 
 export interface CoreResourceReader {
-
   /**
    * Return IRIs of all resources.
    */
@@ -17,5 +16,4 @@ export interface CoreResourceReader {
    * Return representation of a particular resources.
    */
   readResource(iri: string): Promise<CoreResource | null>;
-
 }

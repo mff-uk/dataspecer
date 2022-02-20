@@ -1,18 +1,18 @@
-import {PimDeleteAssociation} from "../operation";
+import { PimDeleteAssociation } from "../operation";
 import {
   CoreResourceReader,
   CoreExecutorResult,
-  CreateNewIdentifier, CoreResource,
+  CreateNewIdentifier,
+  CoreResource,
 } from "../../core";
-import {PimExecutorResultFactory, loadPimSchema} from "./pim-executor-utils";
-import {PimAssociation} from "../model";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
+import { PimAssociation } from "../model";
 
 export async function executePimDeleteAssociation(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: PimDeleteAssociation,
+  operation: PimDeleteAssociation
 ): Promise<CoreExecutorResult> {
-
   const resource = await reader.readResource(operation.pimAssociation);
   if (resource === null) {
     return PimExecutorResultFactory.missing(operation.pimAssociation);
@@ -31,8 +31,14 @@ export async function executePimDeleteAssociation(
     return PimExecutorResultFactory.missingSchema();
   }
 
-  return CoreExecutorResult.createSuccess([], [{
-    ...schema,
-    "pimParts": schema.pimParts.filter(iri => !iriToRemove.includes(iri)),
-  } as CoreResource], iriToRemove);
+  return CoreExecutorResult.createSuccess(
+    [],
+    [
+      {
+        ...schema,
+        pimParts: schema.pimParts.filter((iri) => !iriToRemove.includes(iri)),
+      } as CoreResource,
+    ],
+    iriToRemove
+  );
 }
