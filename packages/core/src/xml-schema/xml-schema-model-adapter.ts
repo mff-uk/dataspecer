@@ -22,6 +22,7 @@ import {
   QName,
   langStringName,
   XmlSchemaGroupDefinition,
+  XmlSchemaAnnotation,
 } from "./xml-schema-model";
 
 import {
@@ -122,6 +123,7 @@ class XmlSchemaAdapter {
                 contents: [],
               } as XmlSchemaComplexGroupReference,
             } as XmlSchemaComplexType,
+            annotation: element.annotation,
           };
         }
         return element;
@@ -185,6 +187,28 @@ class XmlSchemaAdapter {
     return null;
   }
 
+  getAnnotation(
+    data: StructureModelClass | StructureModelProperty
+  ): XmlSchemaAnnotation {
+    const lines = [];
+    if (data.pimIri != null) {
+      lines.push(`Význam: ${data.pimIri}`);
+    }
+    if (data.humanLabel != null) {
+      for (const lang of Object.keys(data.humanLabel)) {
+        lines.push(`Název (${lang}): ${data.humanLabel[lang]}`);
+      }
+    }
+    if (data.humanDescription != null) {
+      for (const lang of Object.keys(data.humanDescription)) {
+        lines.push(`Popis (${lang}): ${data.humanDescription[lang]}`);
+      }
+    }
+    return lines.length == 0 ? null : {
+      documentation: lines.join("\n")
+    }
+  }
+
   classToElement(classData: StructureModelClass): XmlSchemaElement {
     return {
       elementName: classData.technicalLabel,
@@ -193,6 +217,7 @@ class XmlSchemaAdapter {
         name: null,
         complexDefinition: this.classToComplexType(classData),
       } as XmlSchemaComplexType,
+      annotation: this.getAnnotation(classData),
     };
   }
 
@@ -297,6 +322,7 @@ class XmlSchemaAdapter {
         elementName: propertyData.technicalLabel,
         source: null,
         type: typeConstructor.call(this, dataTypes),
+        annotation: this.getAnnotation(propertyData),
       };
     }
     return null;
