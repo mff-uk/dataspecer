@@ -15,6 +15,7 @@ import {
   langStringName,
   xmlSchemaComplexTypeDefinitionIsGroupReference,
   XmlSchemaGroupDefinition,
+  XmlSchemaAnnotation,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "./xml-writer";
@@ -201,6 +202,22 @@ async function writeElements(
 }
 
 /**
+ * Writes out an xs:annotation.
+ */
+async function writeAnnotation(
+  annotation: XmlSchemaAnnotation | null,
+  writer: XmlWriter
+): Promise<void> {
+  if (annotation != null) {
+    await writer.writeElementBegin("xs", "annotation");
+    await writer.writeElementValue(
+      "xs", "documentation", annotation.documentation
+    );
+    await writer.writeElementBegin("xs", "annotation");
+  }
+}
+
+/**
  * Writes out an xs:element definition.
  */
 async function writeElement(
@@ -223,7 +240,9 @@ async function writeElement(
         "type",
         writer.getQName(type.source?.prefix, type.name)
       );
+      await writeAnnotation(element.annotation, writer);
     } else {
+      await writeAnnotation(element.annotation, writer);
       if (xmlSchemaTypeIsComplex(type)) {
         await writeComplexType(type.complexDefinition, writer);
       } else if (xmlSchemaTypeIsSimple(type)) {

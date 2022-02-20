@@ -30,6 +30,13 @@ export class XmlSchemaImportDeclaration {
 }
 
 /**
+ * Represents an annotation of an XML Schema object.
+ */
+export class XmlSchemaAnnotation {
+  documentation: string | null;
+}
+
+/**
  * Represents a top-level xs:group definition.
  */
 export class XmlSchemaGroupDefinition {
@@ -44,6 +51,7 @@ export class XmlSchemaElement {
   elementName: string;
   source: XmlSchemaImportDeclaration | null;
   type: XmlSchemaType;
+  annotation: XmlSchemaAnnotation;
 }
 
 /**
