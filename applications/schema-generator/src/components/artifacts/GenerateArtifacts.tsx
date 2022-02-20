@@ -8,6 +8,7 @@ import {StoreContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
 import {useDialog} from "../../hooks/useDialog";
 import {GetPreviewComponentXsdArtifact, GetXsdArtifact} from "./XsdArtifact";
+import {GetCsvSchemaArtifact, GetPreviewComponentCsvSchemaArtifact} from "./CsvSchemaArtifact";
 import FileSaver from "file-saver";
 import {getNameForSchema} from "../../utils/getNameForSchema";
 import copy from "copy-to-clipboard";
@@ -181,24 +182,24 @@ export const GenerateArtifacts: React.FC<{
 
                 <Divider />
 
-                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>CSV</MenuItem>
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>CSV Schema</MenuItem>
                 <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(GetXsdArtifact, "xsd", "text/xml;charset=utf-8")}>
+                    <MenuItem onClick={() => save(GetCsvSchemaArtifact, "json", "text/json;charset=utf-8")}>
                         <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("download")}
                     </MenuItem>
                     <MenuItem onClick={() => {
                         close();
-                        Preview.open({content: GetPreviewComponentXsdArtifact(store, psmSchemas[0])});
+                        Preview.open({content: GetPreviewComponentCsvSchemaArtifact(store, psmSchemas[0])});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
-                    <MenuItem onClick={() => copy(GetXsdArtifact)}>
+                    <MenuItem onClick={() => copy(GetCsvSchemaArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("copy")}
                     </MenuItem>
                 </Box>
                 <MenuItem onClick={() => {
                     close();
-                    setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentCsvSchemaArtifact ? null : GetPreviewComponentCsvSchemaArtifact);
                 }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
             </Menu>
