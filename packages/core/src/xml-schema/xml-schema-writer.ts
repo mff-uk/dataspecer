@@ -213,7 +213,7 @@ async function writeAnnotation(
     await writer.writeElementValue(
       "xs", "documentation", annotation.documentation
     );
-    await writer.writeElementBegin("xs", "annotation");
+    await writer.writeElementEnd("xs", "annotation");
   }
 }
 

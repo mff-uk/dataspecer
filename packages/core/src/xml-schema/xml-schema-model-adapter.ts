@@ -196,12 +196,12 @@ class XmlSchemaAdapter {
     }
     if (data.humanLabel != null) {
       for (const lang of Object.keys(data.humanLabel)) {
-        lines.push(`Název ${lang}: ${data.humanLabel[lang]}`);
+        lines.push(`Název (${lang}): ${data.humanLabel[lang]}`);
       }
     }
     if (data.humanDescription != null) {
       for (const lang of Object.keys(data.humanDescription)) {
-        lines.push(`Popis ${lang}: ${data.humanDescription[lang]}`);
+        lines.push(`Popis (${lang}): ${data.humanDescription[lang]}`);
       }
     }
     return lines.length == 0 ? null : {
