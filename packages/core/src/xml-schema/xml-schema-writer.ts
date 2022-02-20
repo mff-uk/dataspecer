@@ -242,11 +242,13 @@ async function writeElement(
       );
       await writeAnnotation(element.annotation, writer);
     } else {
-      await writeAnnotation(element.annotation, writer);
       if (xmlSchemaTypeIsComplex(type)) {
+        await writeAnnotation(element.annotation, writer);
         await writeComplexType(type.complexDefinition, writer);
       } else if (xmlSchemaTypeIsSimple(type)) {
-        await writeSimpleType(type.simpleDefinition, true, writer);
+        await writeSimpleType(
+          type.simpleDefinition, true, element.annotation, writer
+        );
       }
     }
   }
@@ -372,6 +374,7 @@ async function writeComplexTypes(
 async function writeSimpleType(
   definition: XmlSchemaSimpleTypeDefinition,
   allowCollapse: boolean,
+  annotation: XmlSchemaAnnotation | null,
   writer: XmlWriter
 ): Promise<void> {
   const contents = definition.contents;
@@ -380,7 +383,9 @@ async function writeSimpleType(
       "type",
       writer.getQName(...contents[0])
     );
+    await writeAnnotation(annotation, writer);
   } else {
+    await writeAnnotation(annotation, writer);
     await writer.writeElementBegin("xs", "simpleType");
     if (definition.xsType != null) {
       await writer.writeElementBegin("xs", definition.xsType);
