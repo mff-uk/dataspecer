@@ -2,6 +2,7 @@ import {DataSpecification} from "@model-driven-data/core/data-specification/mode
 import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model/data-specification-schema";
 import {JSON_SCHEMA} from "@model-driven-data/core/json-schema/json-schema-vocabulary";
 import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabulary";
+import {CSV_SCHEMA} from "@model-driven-data/core/csv-schema/csv-schema-vocabulary";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
 import {GeneratorOptions} from "./generator-options";
@@ -72,6 +73,15 @@ export class ArtifactDefinitionConfigurator {
 
         currentSchemaArtefacts.push(xmlSchema);
       }
+
+      // CSV schema -- HOTFIX !!!
+      const csvSchema = new DataSpecificationSchema();
+      csvSchema.iri = `${name}#csvschema`;
+      csvSchema.outputPath = `${dataSpecificationName}/${name}/schema.txt`;
+      csvSchema.publicUrl = csvSchema.outputPath;
+      csvSchema.generator = CSV_SCHEMA.Generator;
+      csvSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(csvSchema);
     }
 
     // Override the value
