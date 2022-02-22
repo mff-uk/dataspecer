@@ -1,9 +1,8 @@
-import {PimClass} from "../pim/model";
-import {CoreResourceReader} from "../core";
-import {IriProvider} from "./iri-provider";
+import { PimClass } from "../pim/model";
+import { CoreResourceReader } from "../core";
+import { IriProvider } from "./iri-provider";
 
 export interface CimAdapter {
-
   /**
    * Resources returned by the adapter are on the PIM level, therefore the
    * PIM IRIs are needed to interconnect them. Also, the IRIs need to be
@@ -50,5 +49,4 @@ export interface CimAdapter {
    * @return unordered array of group CIM iris
    */
   getResourceGroup(cimIri: string): Promise<string[]>;
-
 }

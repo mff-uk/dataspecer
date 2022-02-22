@@ -1,17 +1,16 @@
-import {RdfSourceWrap} from "../../core/adapter/rdf";
-import {PimClass} from "../../pim/model";
-import {POJEM, RDFS} from "../sgov-vocabulary";
-import {loadSgovEntityToResource} from "./sgov-entity-adapter";
-import {IriProvider} from "../../cim";
+import { RdfSourceWrap } from "../../core/adapter/rdf";
+import { PimClass } from "../../pim/model";
+import { POJEM, RDFS } from "../sgov-vocabulary";
+import { loadSgovEntityToResource } from "./sgov-entity-adapter";
+import { IriProvider } from "../../cim";
 
-export async function isSgovClass(
-  entity: RdfSourceWrap,
-): Promise<boolean> {
+export async function isSgovClass(entity: RdfSourceWrap): Promise<boolean> {
   return (await entity.types()).includes(POJEM.typObjektu);
 }
 
 export async function loadSgovClass(
-  entity: RdfSourceWrap, idProvider: IriProvider,
+  entity: RdfSourceWrap,
+  idProvider: IriProvider
 ): Promise<PimClass> {
   const result = new PimClass();
   await loadSgovEntityToResource(entity, idProvider, result);
@@ -20,7 +19,8 @@ export async function loadSgovClass(
 
   result.pimExtends = unique([
     ...result.pimExtends,
-    ...(await entity.nodes(RDFS.subClassOf)).map(idProvider.cimToPim)]);
+    ...(await entity.nodes(RDFS.subClassOf)).map(idProvider.cimToPim),
+  ]);
 
   return result;
 }

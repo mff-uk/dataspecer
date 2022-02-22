@@ -4,39 +4,41 @@ import {
   CreateNewIdentifier,
   CoreResource,
 } from "../../core";
-import {
-  DataPsmSetOrder,
-} from "../operation";
+import { DataPsmSetOrder } from "../operation";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
 } from "./data-psm-executor-utils";
-import {DataPsmClass} from "../model";
+import { DataPsmClass } from "../model";
 
 export async function executeDataPsmSetOrder(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmSetOrder,
+  operation: DataPsmSetOrder
 ): Promise<CoreExecutorResult> {
-
   const resourceToMove = await reader.readResource(
-    operation.dataPsmResourceToMove);
+    operation.dataPsmResourceToMove
+  );
   if (resourceToMove === null) {
     return DataPsmExecutorResultFactory.missing(
-      operation.dataPsmResourceToMove);
+      operation.dataPsmResourceToMove
+    );
   }
 
   const owner = await loadDataPsmClass(reader, operation.dataPsmOwnerClass);
   if (owner === null) {
     return DataPsmExecutorResultFactory.missingOwner(
-      operation.dataPsmOwnerClass);
+      operation.dataPsmOwnerClass
+    );
   }
 
-  const indexToMove =
-    owner.dataPsmParts.indexOf(operation.dataPsmResourceToMove);
+  const indexToMove = owner.dataPsmParts.indexOf(
+    operation.dataPsmResourceToMove
+  );
   if (indexToMove === -1) {
     return CoreExecutorResult.createError(
-      "Resource to move is not part of the class.");
+      "Resource to move is not part of the class."
+    );
   }
 
   const partsWithoutTheOneToMove = [
@@ -54,11 +56,11 @@ export async function executeDataPsmSetOrder(
 function moveToFirstPosition(
   ownerClass: DataPsmClass,
   partsWithoutTheOneToMove: string[],
-  operation: DataPsmSetOrder,
+  operation: DataPsmSetOrder
 ): CoreExecutorResult {
   const result = {
     ...ownerClass,
-    "dataPsmParts": [
+    dataPsmParts: [
       operation.dataPsmResourceToMove,
       ...partsWithoutTheOneToMove,
     ],
@@ -69,17 +71,19 @@ function moveToFirstPosition(
 function moveAfter(
   ownerClass: DataPsmClass,
   partsWithoutTheOneToMove: string[],
-  operation: DataPsmSetOrder,
+  operation: DataPsmSetOrder
 ): CoreExecutorResult {
-  const indexToMoveAfter =
-    partsWithoutTheOneToMove.indexOf(operation.dataPsmMoveAfter);
+  const indexToMoveAfter = partsWithoutTheOneToMove.indexOf(
+    operation.dataPsmMoveAfter
+  );
   if (indexToMoveAfter === -1) {
     return CoreExecutorResult.createError(
-      "Resource to move after is not part of the class.");
+      "Resource to move after is not part of the class."
+    );
   }
   const result = {
     ...ownerClass,
-    "dataPsmParts": [
+    dataPsmParts: [
       ...partsWithoutTheOneToMove.slice(0, indexToMoveAfter + 1),
       operation.dataPsmResourceToMove,
       ...partsWithoutTheOneToMove.slice(indexToMoveAfter + 1),

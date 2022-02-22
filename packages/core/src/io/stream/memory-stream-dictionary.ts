@@ -1,11 +1,10 @@
-import {StreamDictionary} from "./stream-dictionary";
-import {MemoryOutputStream} from "./memory-output-stream";
-import {MemoryInputStream} from "./memory-input-stream";
-import {InputStream} from "./input-stream";
-import {OutputStream} from "./output-stream";
+import { StreamDictionary } from "./stream-dictionary";
+import { MemoryOutputStream } from "./memory-output-stream";
+import { MemoryInputStream } from "./memory-input-stream";
+import { InputStream } from "./input-stream";
+import { OutputStream } from "./output-stream";
 
 export class MemoryStreamDictionary implements StreamDictionary {
-
   private readonly contentMap: { [path: string]: string } = {};
 
   readPath(path: string): InputStream {
@@ -26,5 +25,4 @@ export class MemoryStreamDictionary implements StreamDictionary {
   async list(): Promise<string[]> {
     return [...Object.keys(this.contentMap)];
   }
-
 }

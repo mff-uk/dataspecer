@@ -1,4 +1,4 @@
-import {CoreResource, LanguageString} from "../../core";
+import { CoreResource, LanguageString } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 /**
@@ -17,7 +17,6 @@ import * as PSM from "../data-psm-vocabulary";
  * to the list of root classes.
  */
 export class DataPsmSchema extends CoreResource {
-
   private static readonly TYPE = PSM.SCHEMA;
 
   /**
@@ -41,7 +40,7 @@ export class DataPsmSchema extends CoreResource {
 
   dataPsmParts: string[] = [];
 
-  constructor(iri:string | null = null) {
+  constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmSchema.TYPE);
   }
@@ -49,5 +48,4 @@ export class DataPsmSchema extends CoreResource {
   static is(resource: CoreResource | null): resource is DataPsmSchema {
     return resource?.types.includes(DataPsmSchema.TYPE);
   }
-
 }

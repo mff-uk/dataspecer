@@ -1,8 +1,6 @@
-import {CoreResource, LanguageString} from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreResource, LanguageString } from "../../core";
 
 export class DataPsmResource extends CoreResource {
-
   /**
    * Label used in human readable documents as a name for this resource.
    */
@@ -28,5 +26,4 @@ export class DataPsmResource extends CoreResource {
   protected constructor(iri: string | null) {
     super(iri);
   }
-
 }

@@ -2,31 +2,25 @@ import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
-  DataSpecificationSchema,
 } from "../data-specification/model";
-import {StreamDictionary} from "../io/stream/stream-dictionary";
-import {writeBikeshed} from "./bikeshed-writer";
-import {
-  ArtefactGenerator,
-  ArtefactGeneratorContext,
-} from "../generator";
-import {Bikeshed} from "./bikeshed-model";
-import {assertFailed, LanguageString} from "../core";
-import {specificationToBikeshed} from "./adapter/bikeshed-adapter";
+import { StreamDictionary } from "../io/stream/stream-dictionary";
+import { writeBikeshed } from "./bikeshed-writer";
+import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
+import { Bikeshed } from "./bikeshed-model";
+import { assertFailed, LanguageString } from "../core";
+import { specificationToBikeshed } from "./adapter/bikeshed-adapter";
 import {
   ConceptualModelClass,
-  ConceptualModelProperty
+  ConceptualModelProperty,
 } from "../conceptual-model";
 import {
   StructureModel,
   StructureModelClass,
-  StructureModelProperty
+  StructureModelProperty,
 } from "../structure-model";
-import {BIKESHED} from "./bikeshed-vocabulary";
-
+import { BIKESHED } from "./bikeshed-vocabulary";
 
 export class BikeshedGenerator implements ArtefactGenerator {
-
   identifier(): string {
     return BIKESHED.Generator;
   }
@@ -49,32 +43,29 @@ export class BikeshedGenerator implements ArtefactGenerator {
     specification: DataSpecification
   ): Promise<Bikeshed> {
     if (DataSpecificationDocumentation.is(artefact)) {
-      return await specificationToBikeshed({
-        "generatorContext": context,
-        "selectString": selectString,
-        "selectOptionalString": selectOptionalString,
-        "sanitizeLink": sanitizeLink,
-        "conceptualClassAnchor": conceptualClassAnchor,
-        "conceptualPropertyAnchor": conceptualPropertyAnchor,
-        "structuralClassAnchor": createStructuralClassAnchor(context),
-        "structuralPropertyAnchor": createStructuralPropertyAnchor(context),
-      }, artefact, specification);
+      return await specificationToBikeshed(
+        {
+          generatorContext: context,
+          selectString: selectString,
+          selectOptionalString: selectOptionalString,
+          sanitizeLink: sanitizeLink,
+          conceptualClassAnchor: conceptualClassAnchor,
+          conceptualPropertyAnchor: conceptualPropertyAnchor,
+          structuralClassAnchor: createStructuralClassAnchor(context),
+          structuralPropertyAnchor: createStructuralPropertyAnchor(context),
+        },
+        artefact,
+        specification
+      );
     } else {
-      assertFailed(`'${artefact.iri}' is not of type documentation.`)
+      assertFailed(`'${artefact.iri}' is not of type documentation.`);
     }
   }
 
-  async generateForDocumentation(
-    context: ArtefactGeneratorContext,
-    artefact: DataSpecificationArtefact,
-    specification: DataSpecification,
-    documentationIdentifier: string,
-    callerContext: unknown,
-  ): Promise<unknown | null> {
+  async generateForDocumentation(): Promise<unknown | null> {
     // As of now documentation can not be included.
     return null;
   }
-
 }
 
 function selectString(value: LanguageString | null): string | null {
@@ -108,15 +99,17 @@ function createStructuralClassAnchor(context: ArtefactGeneratorContext) {
   return function structuralClassAnchor(
     format: string,
     structureModel: StructureModel,
-    structureClass: StructureModelClass,
+    structureClass: StructureModelClass
   ): string {
     const modelLabel = selectString(structureModel.humanLabel);
     const classLabel = selectString(
       structureClass.humanLabel ??
-      getConceptualClass(context, structureModel, structureClass)?.humanLabel);
+        getConceptualClass(context, structureModel, structureClass)?.humanLabel
+    );
     return sanitizeLink(
-      `strukturální-${format}-${modelLabel}-třída-${classLabel}`);
-  }
+      `strukturální-${format}-${modelLabel}-třída-${classLabel}`
+    );
+  };
 }
 
 function getConceptualClass(
@@ -139,13 +132,11 @@ function createStructuralPropertyAnchor(context: ArtefactGeneratorContext) {
     format: string,
     structureModel: StructureModel,
     structureClass: StructureModelClass,
-    structureProperty: StructureModelProperty,
+    structureProperty: StructureModelProperty
   ): string {
     const href = structuralClassAnchor(format, structureModel, structureClass);
     // TODO we probably should also use humanLabel from PIM here as well.
     const label = selectString(structureProperty.humanLabel);
     return href + sanitizeLink("-" + label);
-  }
+  };
 }
-
-

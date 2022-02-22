@@ -1,8 +1,10 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmSetTechnicalLabel} from "../operation";
 import {
-  executeDataPsmSetTechnicalLabel,
-} from "./data-psm-set-technical-label-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmSetTechnicalLabel } from "../operation";
+import { executeDataPsmSetTechnicalLabel } from "./data-psm-set-technical-label-executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Update data PSM resource technical label.", async () => {
@@ -12,29 +14,31 @@ test("Update data PSM resource technical label.", async () => {
 
   const before = {
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
+      iri: "http://class",
+      types: [PSM.CLASS],
     },
   };
 
   const actual = await executeDataPsmSetTechnicalLabel(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
-      "dataPsmTechnicalLabel": operation.dataPsmTechnicalLabel,
+      iri: "http://class",
+      types: [PSM.CLASS],
+      dataPsmTechnicalLabel: operation.dataPsmTechnicalLabel,
     },
   });
   expect(actual.deleted).toEqual([]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

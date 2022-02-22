@@ -1,7 +1,8 @@
 import {
   CoreResourceReader,
   CreateNewIdentifier,
-  CoreExecutorResult, CoreResource,
+  CoreExecutorResult,
+  CoreResource,
 } from "../../core";
 import {
   DataPsmCreateAttribute,
@@ -12,14 +13,13 @@ import {
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import {DataPsmAttribute} from "../model";
+import { DataPsmAttribute } from "../model";
 
 export async function executeDataPsmCreateAttribute(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmCreateAttribute,
+  operation: DataPsmCreateAttribute
 ): Promise<CoreExecutorResult> {
-
   const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
     return DataPsmExecutorResultFactory.missingSchema();
@@ -38,11 +38,19 @@ export async function executeDataPsmCreateAttribute(
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmDatatype = operation.dataPsmDatatype;
 
-  return CoreExecutorResult.createSuccess([result], [{
-    ...schema,
-    "dataPsmParts": [...schema.dataPsmParts, iri],
-  } as CoreResource, {
-    ...owner,
-    "dataPsmParts": [...owner.dataPsmParts, iri],
-  } as CoreResource], [], new DataPsmCreateAttributeResult(iri));
+  return CoreExecutorResult.createSuccess(
+    [result],
+    [
+      {
+        ...schema,
+        dataPsmParts: [...schema.dataPsmParts, iri],
+      } as CoreResource,
+      {
+        ...owner,
+        dataPsmParts: [...owner.dataPsmParts, iri],
+      } as CoreResource,
+    ],
+    [],
+    new DataPsmCreateAttributeResult(iri)
+  );
 }

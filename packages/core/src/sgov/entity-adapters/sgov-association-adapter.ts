@@ -1,18 +1,20 @@
-import {RdfSource, RdfSourceWrap} from "../../core/adapter/rdf";
-import {PimAssociation, PimAssociationEnd} from "../../pim/model";
-import {loadSgovEntityToResource} from "./sgov-entity-adapter";
-import {POJEM, RDFS} from "../sgov-vocabulary";
-import {IriProvider} from "../../cim";
-import {loadSgovCardinalities} from "./sgov-resource-cardinality-adapter";
+import { RdfSource, RdfSourceWrap } from "../../core/adapter/rdf";
+import { PimAssociation, PimAssociationEnd } from "../../pim/model";
+import { loadSgovEntityToResource } from "./sgov-entity-adapter";
+import { POJEM, RDFS } from "../sgov-vocabulary";
+import { IriProvider } from "../../cim";
+import { loadSgovCardinalities } from "./sgov-resource-cardinality-adapter";
 
 export async function isSgovAssociation(
-  entity: RdfSourceWrap,
+  entity: RdfSourceWrap
 ): Promise<boolean> {
   return (await entity.types()).includes(POJEM.typVztahu);
 }
 
 export async function loadSgovAssociation(
-  entity: RdfSourceWrap, source: RdfSource, idProvider: IriProvider,
+  entity: RdfSourceWrap,
+  source: RdfSource,
+  idProvider: IriProvider
 ): Promise<[PimAssociationEnd, PimAssociation, PimAssociationEnd]> {
   const mediates1 = new PimAssociationEnd();
   mediates1.iri = idProvider.cimToPim(entity.iri + "#má-vztažený-prvek-1");
@@ -21,7 +23,7 @@ export async function loadSgovAssociation(
   if (domainCardinality) {
     await loadSgovCardinalities(
       RdfSourceWrap.forIri(domainCardinality, source),
-      mediates1,
+      mediates1
     );
   }
 
@@ -32,17 +34,14 @@ export async function loadSgovAssociation(
   if (rangeCardinality) {
     await loadSgovCardinalities(
       RdfSourceWrap.forIri(rangeCardinality, source),
-      mediates2,
+      mediates2
     );
   }
 
   const association = new PimAssociation();
   await loadSgovEntityToResource(entity, idProvider, association);
 
-  association.pimEnd = [
-    mediates1.iri,
-    mediates2.iri,
-  ];
+  association.pimEnd = [mediates1.iri, mediates2.iri];
 
   return [mediates1, association, mediates2];
 }

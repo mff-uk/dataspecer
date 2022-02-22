@@ -13,7 +13,7 @@ import { PlantUmlGenerator } from "../plant-uml";
  */
 export function createDefaultGenerator(
   specifications: DataSpecification[],
-  reader: CoreResourceReader,
+  reader: CoreResourceReader
 ): Generator {
   return new Generator(specifications, reader, [
     new BikeshedGenerator(),

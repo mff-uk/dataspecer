@@ -1,8 +1,7 @@
-import {ConceptualModelProperty} from "./conceptual-model-property";
-import {LanguageString} from "../../core";
+import { ConceptualModelProperty } from "./conceptual-model-property";
+import { LanguageString } from "../../core";
 
 export class ConceptualModelClass {
-
   pimIri: string | null = null;
 
   cimIri: string | null = null;
@@ -11,12 +10,11 @@ export class ConceptualModelClass {
 
   humanDescription: LanguageString | null = null;
 
-  isCodelist: boolean = false;
+  isCodelist = false;
 
   codelistUrl: string[] = [];
 
   extends: ConceptualModelClass[] = [];
 
   properties: ConceptualModelProperty[] = [];
-
 }

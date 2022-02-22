@@ -1,8 +1,7 @@
-import {InputStream} from "./input-stream";
+import { InputStream } from "./input-stream";
 
 export class MemoryInputStream implements InputStream {
-
-  private readonly content : string;
+  private readonly content: string;
 
   private offset = 0;
 
@@ -16,13 +15,11 @@ export class MemoryInputStream implements InputStream {
       return null;
     }
 
-    let end : number;
+    let end: number;
     if (size === undefined) {
       end = this.content.length - this.offset;
     } else {
-      end = Math.min(
-        this.content.length,
-        this.offset + Math.min(0, size));
+      end = Math.min(this.content.length, this.offset + Math.min(0, size));
     }
     const start = this.offset;
     this.offset = end;
@@ -33,5 +30,4 @@ export class MemoryInputStream implements InputStream {
     // Do nothing.
     return;
   }
-
 }

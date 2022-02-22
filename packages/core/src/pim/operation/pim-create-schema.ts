@@ -1,12 +1,13 @@
 import {
-  CoreOperation, CoreOperationResult,
-  CoreResource, CoreTyped,
+  CoreOperation,
+  CoreOperationResult,
+  CoreResource,
+  CoreTyped,
   LanguageString,
 } from "../../core";
 import * as PIM from "../pim-vocabulary";
 
 export class PimCreateSchema extends CoreOperation {
-
   static readonly TYPE = PIM.CREATE_SCHEMA;
 
   /**
@@ -26,11 +27,9 @@ export class PimCreateSchema extends CoreOperation {
   static is(resource: CoreResource | null): resource is PimCreateSchema {
     return resource?.types.includes(PimCreateSchema.TYPE);
   }
-
 }
 
 export class PimCreateSchemaResult extends CoreOperationResult {
-
   static readonly TYPE = PIM.CREATE_SCHEMA_RESULT;
 
   createdPimSchema: string;
@@ -41,10 +40,7 @@ export class PimCreateSchemaResult extends CoreOperationResult {
     this.createdPimSchema = createdPimSchema;
   }
 
-  static is(
-    resource: CoreTyped | null,
-  ): resource is PimCreateSchemaResult {
+  static is(resource: CoreTyped | null): resource is PimCreateSchemaResult {
     return resource?.types.includes(PimCreateSchemaResult.TYPE);
   }
-
 }

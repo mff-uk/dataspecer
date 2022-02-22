@@ -1,8 +1,10 @@
-import {CoreResourceReader, ReadOnlyMemoryStore} from "../../core";
-import {DataPsmDeleteAttribute} from "../operation";
 import {
-  executeDataPsmDeleteAttribute,
-} from "./data-psm-delete-attribute-executor";
+  CoreResource,
+  CoreResourceReader,
+  ReadOnlyMemoryStore,
+} from "../../core";
+import { DataPsmDeleteAttribute } from "../operation";
+import { executeDataPsmDeleteAttribute } from "./data-psm-delete-attribute-executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Delete data PSM attribute.", async () => {
@@ -12,44 +14,46 @@ test("Delete data PSM attribute.", async () => {
 
   const before = {
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": ["http://class", "http://attribute"],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://class", "http://attribute"],
     },
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
-      "dataPsmParts": ["http://attribute"],
+      iri: "http://class",
+      types: [PSM.CLASS],
+      dataPsmParts: ["http://attribute"],
     },
     "http://attribute": {
-      "iri": "http://attribute",
-      "types": [PSM.ATTRIBUTE],
+      iri: "http://attribute",
+      types: [PSM.ATTRIBUTE],
     },
   };
 
   const actual = await executeDataPsmDeleteAttribute(
     wrapResourcesWithReader(before),
-    undefined, operation);
+    undefined,
+    operation
+  );
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
   expect(actual.changed).toEqual({
     "http://schema": {
-      "iri": "http://schema",
-      "types": [PSM.SCHEMA],
-      "dataPsmParts": ["http://class"],
+      iri: "http://schema",
+      types: [PSM.SCHEMA],
+      dataPsmParts: ["http://class"],
     },
     "http://class": {
-      "iri": "http://class",
-      "types": [PSM.CLASS],
-      "dataPsmParts": [],
+      iri: "http://class",
+      types: [PSM.CLASS],
+      dataPsmParts: [],
     },
   });
   expect(actual.deleted).toEqual(["http://attribute"]);
 });
 
-function wrapResourcesWithReader(
-  resources: { [iri: string]: any },
-): CoreResourceReader {
+function wrapResourcesWithReader(resources: {
+  [iri: string]: CoreResource;
+}): CoreResourceReader {
   return ReadOnlyMemoryStore.create(resources);
 }

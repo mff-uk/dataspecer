@@ -1,8 +1,7 @@
-import {LanguageString} from "../../core";
-import {StructureModelType} from "./structure-model-type";
+import { LanguageString } from "../../core";
+import { StructureModelType } from "./structure-model-type";
 
 export class StructureModelProperty {
-
   /**
    * The pim level is optional is data-psm level may not have an interpretation.
    */
@@ -46,7 +45,6 @@ export class StructureModelProperty {
    * for by dematerialization. The first item is the original owner class.
    */
   pathToOrigin: {
-
     /**
      * PSM property from current class.
      */
@@ -56,8 +54,5 @@ export class StructureModelProperty {
      * IRI of PSM class obtained by resolving the property.
      */
     psmTargetClass: string;
-
-  } [] = [];
-
-
+  }[] = [];
 }

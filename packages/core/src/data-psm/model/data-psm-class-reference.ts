@@ -1,11 +1,10 @@
-import {CoreResource} from "../../core";
+import { CoreResource } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 /**
  * Allow us to reference a class in another schema.
  */
 export class DataPsmClassReference extends CoreResource {
-
   private static readonly TYPE = PSM.CLASS_REFERENCE;
 
   /**
@@ -16,7 +15,7 @@ export class DataPsmClassReference extends CoreResource {
 
   dataPsmClass: string | null = null;
 
-  constructor(iri:string | null = null) {
+  constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmClassReference.TYPE);
   }
@@ -24,5 +23,4 @@ export class DataPsmClassReference extends CoreResource {
   static is(resource: CoreResource | null): resource is DataPsmClassReference {
     return resource?.types.includes(DataPsmClassReference.TYPE);
   }
-
 }

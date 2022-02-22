@@ -3,22 +3,18 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "../data-specification/model";
-import {StreamDictionary} from "../io/stream/stream-dictionary";
-import {
-  ArtefactGenerator,
-  ArtefactGeneratorContext,
-} from "../generator";
-import {JsonSchema} from "./json-schema-model";
-import {writeJsonSchema} from "./json-schema-writer";
-import {structureModelToJsonSchema} from "./json-schema-model-adapter";
-import {assertFailed, assertNot} from "../core";
-import {transformStructureModel} from "../structure-model/transformation";
-import {createBikeshedSchemaJson} from "./json-schema-to-bikeshed";
-import {BIKESHED, BikeshedAdapterArtefactContext} from "../bikeshed";
-import {JSON_SCHEMA} from "./json-schema-vocabulary";
+import { StreamDictionary } from "../io/stream/stream-dictionary";
+import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
+import { JsonSchema } from "./json-schema-model";
+import { writeJsonSchema } from "./json-schema-writer";
+import { structureModelToJsonSchema } from "./json-schema-model-adapter";
+import { assertFailed, assertNot } from "../core";
+import { transformStructureModel } from "../structure-model/transformation";
+import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
+import { BIKESHED, BikeshedAdapterArtefactContext } from "../bikeshed";
+import { JSON_SCHEMA } from "./json-schema-vocabulary";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
-
   identifier(): string {
     return JSON_SCHEMA.Generator;
   }
@@ -41,21 +37,27 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     specification: DataSpecification
   ): Promise<JsonSchema> {
     if (!DataSpecificationSchema.is(artefact)) {
-      assertFailed("Invalid artefact type.")
+      assertFailed("Invalid artefact type.");
     }
     const schemaArtefact = artefact as DataSpecificationSchema;
     const conceptualModel = context.conceptualModels[specification.pim];
     assertNot(
       conceptualModel === undefined,
-      `Missing conceptual model ${specification.pim}.`);
+      `Missing conceptual model ${specification.pim}.`
+    );
     let model = context.structureModels[schemaArtefact.psm];
     assertNot(
       model === undefined,
-      `Missing structure model ${schemaArtefact.psm}.`);
+      `Missing structure model ${schemaArtefact.psm}.`
+    );
     model = transformStructureModel(
-      conceptualModel, model, Object.values(context.specifications));
-    return Promise.resolve(structureModelToJsonSchema(
-      context.specifications, specification, model));
+      conceptualModel,
+      model,
+      Object.values(context.specifications)
+    );
+    return Promise.resolve(
+      structureModelToJsonSchema(context.specifications, specification, model)
+    );
   }
 
   async generateForDocumentation(
@@ -63,19 +65,19 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     artefact: DataSpecificationArtefact,
     specification: DataSpecification,
     documentationIdentifier: string,
-    callerContext: unknown,
+    callerContext: unknown
   ): Promise<unknown | null> {
     if (documentationIdentifier === BIKESHED.Generator) {
       const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
       return createBikeshedSchemaJson({
         ...bikeshedContext,
-        "structureModel": transformStructureModel(
+        structureModel: transformStructureModel(
           bikeshedContext.conceptualModel,
           bikeshedContext.structureModel,
-          Object.values(context.specifications)),
+          Object.values(context.specifications)
+        ),
       });
     }
     return null;
   }
-
 }

@@ -1,8 +1,7 @@
-import {CoreOperation, CoreResource} from "../../core";
+import { CoreOperation, CoreResource } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 
 export class DataPsmSetDatatype extends CoreOperation {
-
   static readonly TYPE = PSM.SET_DATATYPE;
 
   dataPsmAttribute: string | null = null;
@@ -14,10 +13,7 @@ export class DataPsmSetDatatype extends CoreOperation {
     this.types.push(DataPsmSetDatatype.TYPE);
   }
 
-  static is(
-    resource: CoreResource | null,
-  ): resource is DataPsmSetDatatype {
+  static is(resource: CoreResource | null): resource is DataPsmSetDatatype {
     return resource?.types.includes(DataPsmSetDatatype.TYPE);
   }
-
 }

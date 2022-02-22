@@ -1,5 +1,5 @@
 import * as N3 from "n3";
-import {RdfObject, RdfQuad, RdfTermType} from "../rdf-api";
+import { RdfObject, RdfQuad, RdfTermType } from "../rdf-api";
 import {
   BlankNode,
   DefaultGraph,
@@ -19,7 +19,8 @@ export async function parseRdfQuadsWithN3(content: string): Promise<RdfQuad[]> {
 }
 
 async function n3Adapter<T>(
-  content: string, handler: (quad: N3.Quad) => T,
+  content: string,
+  handler: (quad: N3.Quad) => T
 ): Promise<T[]> {
   const parser = new N3.Parser();
   const quads = [];

@@ -1,5 +1,5 @@
-import {CoreResource} from "../../core";
-import {PimResource} from "./pim-resource";
+import { CoreResource } from "../../core";
+import { PimResource } from "./pim-resource";
 import * as PIM from "../pim-vocabulary";
 
 /**
@@ -7,7 +7,6 @@ import * as PIM from "../pim-vocabulary";
  * a string, integer etc.
  */
 export class PimAttribute extends PimResource {
-
   private static readonly TYPE = PIM.ATTRIBUTE;
 
   pimDatatype: string | null = null;
@@ -26,5 +25,4 @@ export class PimAttribute extends PimResource {
   static is(resource: CoreResource | null): resource is PimAttribute {
     return resource?.types.includes(PimAttribute.TYPE);
   }
-
 }
