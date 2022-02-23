@@ -1,12 +1,9 @@
 import express from "express";
 import {generateBikeshed} from "../transformers/bikeshed";
+import {asyncHandler} from "../utils/async-handler";
 
-export async function generateBikeshedRoute(request: express.Request, response: express.Response) {
+export const generateBikeshedRoute = asyncHandler(async (request: express.Request, response: express.Response) => {
     const input = request.body;
-    try {
-        const result = await generateBikeshed(input);
-        await response.send(result);
-    } catch (e) {
-        await response.status(500).send("Unable to generate bikeshed.");
-    }
-}
+    const result = await generateBikeshed(input);
+    await response.send(result);
+});

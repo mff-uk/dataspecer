@@ -1,4 +1,4 @@
-import {spawn, SpawnOptionsWithoutStdio, ChildProcessWithoutNullStreams} from 'child_process';
+import {spawn, SpawnOptionsWithoutStdio} from 'child_process';
 
 export class WrappedChildProcess {
     private readonly command: string;

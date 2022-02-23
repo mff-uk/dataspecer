@@ -3,25 +3,42 @@ import { PrismaClient } from '@prisma/client';
 import {
     addSpecification,
     deleteSpecification,
-    getSpecification,
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
 import {readStore, writeStore} from "./routes/store";
-import {StoreModel} from "./models/StoreModel";
-import {createDataPsm, deleteDataPsm, modifyDataPsm} from "./routes/dataPsm";
+import {LocalStoreModel} from "./models/local-store-model";
+import {createDataPsm, deleteDataPsm} from "./routes/dataPsm";
 import cors from "cors";
-import {configurationByDataPsm, configurationBySpecification} from "./routes/configuration";
+import {configurationByDataPsm} from "./routes/configuration";
 import bodyParser from "body-parser";
 import { generateBikeshedRoute } from "./routes/bikeshed";
+import {DataSpecificationModel} from "./models/data-specification-model";
+import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
+import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 
 require('dotenv').config();
 
-// Create models
-// todo create specification model
+// Default values
 
-export const storeModel = new StoreModel("./database/stores");
-export const prisma = new PrismaClient();
+process.env.PORT = process.env.PORT || '3100';
+process.env.HOST = process.env.HOST || 'http://localhost:3100';
+
+// Create models
+
+export const storeModel = new LocalStoreModel("./database/stores");
+export const prismaClient = new PrismaClient();
+export const dataSpecificationModel = new DataSpecificationModel(storeModel, prismaClient,"https://ofn.gov.cz/data-specification/{}");
+
+export const storeApiUrl = process.env.HOST + '/store/{}';
+
+export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {
+    return {
+        ...dataSpecification,
+        pimStores: convertLocalStoresToHttpStores(dataSpecification.pimStores, storeApiUrl),
+        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => entry[1] = convertLocalStoresToHttpStores(entry[1], storeApiUrl))),
+    }
+}
 
 // Run express
 
@@ -31,25 +48,28 @@ application.use(bodyParser.json({limit: process.env.PAYLOAD_SIZE_LIMIT}));
 application.use(bodyParser.urlencoded({ extended: false, limit: process.env.PAYLOAD_SIZE_LIMIT }));
 application.use(bodyParser.urlencoded({ extended: true, limit: process.env.PAYLOAD_SIZE_LIMIT }));
 
-application.get('/specification', listSpecifications);
-application.post('/specification', addSpecification);
-application.get('/specification/:specificationId', getSpecification);
-application.delete('/specification/:specificationId', deleteSpecification);
-application.put('/specification/:specificationId', modifySpecification);
+application.get('/data-specification', listSpecifications);
+application.post('/data-specification', addSpecification);
+application.delete('/data-specification', deleteSpecification);
+application.put('/data-specification', modifySpecification);
 
-application.post('/specification/:specificationId/data-psm', createDataPsm);
-application.post('/specification/:specificationId/data-psm/:dataPsmId', modifyDataPsm);
-application.delete('/specification/:specificationId/data-psm/:dataPsmId', deleteDataPsm);
+application.post('/data-specification/data-psm', createDataPsm);
+application.delete('/data-specification/data-psm', deleteDataPsm);
+
+// API for reading and writing store content.
 
 application.get('/store/:storeId', readStore);
 application.put('/store/:storeId', writeStore);
 
-application.get('/configuration/by-data-psm/:dataPsmId', configurationByDataPsm);
-application.get('/configuration/by-specification/:specificationId', configurationBySpecification);
+// API for configuration of schema generator.
+
+application.get('/configuration/by-data-psm', configurationByDataPsm);
+
+// API for generators
 
 application.post('/transformer/bikeshed', bodyParser.text({type:"*/*", limit: process.env.PAYLOAD_SIZE_LIMIT}), generateBikeshedRoute);
 
 application.listen(Number(process.env.PORT), () =>
-    console.log(`Server ready at: http://localhost:${Number(process.env.PORT)}`)
+    console.log(`Server is listening on port ${Number(process.env.PORT)}`)
 );
 

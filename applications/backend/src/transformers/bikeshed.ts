@@ -1,4 +1,4 @@
-import {WrappedChildProcess} from "../process/wrapped-child-process";
+import {WrappedChildProcess} from "../utils/wrapped-child-process";
 import temp from "temp";
 import * as path from "path";
 import * as fs from "fs";
