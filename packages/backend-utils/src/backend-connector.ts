@@ -1,9 +1,11 @@
+import {DataSpecification} from "@model-driven-data/core/data-specification/model";
+import {DataSpecificationWithStores} from "./interfaces/data-specification-with-stores";
+import {DataSpecificationWithMetadata} from "./interfaces/data-specification-with-metadata";
+import {UpdateDataSpecification} from "./interfaces/update-data-specification";
+
 /**
  * Handles the communication with the applications/backend package.
  */
-import {DataSpecification} from "@model-driven-data/core/data-specification/model";
-import {LanguageString} from "@model-driven-data/core/core";
-
 export class BackendConnector {
   private backendUrl: string;
 
@@ -11,23 +13,70 @@ export class BackendConnector {
     this.backendUrl = backendUrl;
   }
 
-  public async fetchAllDataSpecifications(): Promise<DataSpecification[]> {
-    throw new Error("Method not implemented.");
+  public async fetchAllDataSpecifications(): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[]> {
+    const data = await fetch(this.backendUrl + "/data-specification");
+    return await data.json();
   }
 
-  public async createDataSpecification(): Promise<DataSpecification> {
-    throw new Error("Method not implemented.");
+  public async createDataSpecification(): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
+    const data = await fetch(this.backendUrl + "/data-specification", {
+      method: "POST",
+    });
+    return await data.json();
   }
 
-  public async updateDataSpecificationLabels(iri: string, label: LanguageString, description: LanguageString): Promise<DataSpecification> {
-    throw new Error("Method not implemented.");
+  public async updateDataSpecification(dataSpecificationIri: string, update: UpdateDataSpecification): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
+    const data = await fetch(this.backendUrl + "/data-specification", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri: dataSpecificationIri,
+        update,
+      }),
+    });
+    return await data.json();
   }
 
-  public async updateDataSpecification(specification: DataSpecification): Promise<DataSpecification> {
-    throw new Error("Method not implemented.");
+  public async deleteDataSpecification(dataSpecificationIri: string): Promise<void> {
+    await fetch(this.backendUrl + "/data-specification", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri: dataSpecificationIri,
+      }),
+    });
   }
 
-  public async deleteDataSpecification(iri: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  public async createDataStructure(dataSpecificationIri: string): Promise<{
+    dataSpecification: DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores,
+    createdPsmSchemaIri: string,
+  }> {
+    const data = await fetch(this.backendUrl + "/data-specification/data-psm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri: dataSpecificationIri,
+      }),
+    });
+    return await data.json();
+  }
+
+  public async deleteDataStructure(dataSpecificationIri: string, dataPsmSchemaIri: string): Promise<void> {
+    await fetch(this.backendUrl + "/data-specification/data-psm", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri,
+        dataPsmSchemaIri,
+      }),
+    });
   }
 }
