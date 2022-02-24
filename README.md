@@ -4,6 +4,8 @@ For more information please see individual packages and applications.
 - [@model-driven-data/core](./packages/core) package
 - [schema-generator](./applications/schema-generator) application
 - [specification-manager](./applications/specification-manager) application
+- [backend](./services/backend) service
+- *and other packages under [@model-driven-data/*](./packages)*
 
 ## How to build 
 - Clone the whole repository. `git clone ...`

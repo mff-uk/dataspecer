@@ -1,4 +1,7 @@
 {
+  "name": "backend",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "build": "prisma generate && tsc",
     "start": "node dist/main.js"
