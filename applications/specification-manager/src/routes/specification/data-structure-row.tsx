@@ -32,6 +32,9 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
         if (dataStructure.artifact_json !== (type === "json")) {
             artifacts.push("json");
         }
+        if (dataStructure.artifact_csv !== (type === "csv")) {
+            artifacts.push("csv");
+        }
         await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
         reloadSpecification?.();
     }, [reloadSpecification, specificationId, switchLoading, dataStructure]);
@@ -64,6 +67,9 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
         </TableCell>
         <TableCell>
             <Switch checked={dataStructure.artifact_xml} disabled={switchLoading.includes('xml')} onClick={() => switchChanged('xml')}/>
+        </TableCell>
+        <TableCell>
+            <Switch checked={dataStructure.artifact_csv} disabled={switchLoading.includes('csv')} onClick={() => switchChanged('csv')}/>
         </TableCell>
         <TableCell align="right">
             <Box

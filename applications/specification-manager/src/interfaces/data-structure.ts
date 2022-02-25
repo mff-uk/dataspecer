@@ -5,4 +5,5 @@ export interface DataStructure {
 
     artifact_xml: boolean;
     artifact_json: boolean;
+    artifact_csv: boolean;
 }

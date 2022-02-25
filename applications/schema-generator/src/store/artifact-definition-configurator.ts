@@ -52,32 +52,25 @@ export class ArtifactDefinitionConfigurator {
       // unique name of current data structure (DPSM) in context of the data specification
       const name = psmSchemaIri.split('/').pop() as string; // todo use real name
 
-      if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("json")) {
-        const jsonSchema = new DataSpecificationSchema();
-        jsonSchema.iri = `${name}#jsonschema`;
-        jsonSchema.outputPath = `${dataSpecificationName}/${name}/schema.json`;
-        jsonSchema.publicUrl = jsonSchema.outputPath;
-        jsonSchema.generator = JSON_SCHEMA.Generator;
-        jsonSchema.psm = psmSchemaIri;
+      const jsonSchema = new DataSpecificationSchema();
+      jsonSchema.iri = `${name}#jsonschema`;
+      jsonSchema.outputPath = `${dataSpecificationName}/${name}/schema.json`;
+      jsonSchema.publicUrl = jsonSchema.outputPath;
+      jsonSchema.generator = JSON_SCHEMA.Generator;
+      jsonSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(jsonSchema);
 
-        currentSchemaArtefacts.push(jsonSchema);
-      }
+      const xmlSchema = new DataSpecificationSchema();
+      xmlSchema.iri = `${name}#xmlschema`;
+      xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;
+      xmlSchema.publicUrl = xmlSchema.outputPath;
+      xmlSchema.generator = XML_SCHEMA.Generator;
+      xmlSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(xmlSchema);
 
-      if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("xml")) {
-        const xmlSchema = new DataSpecificationSchema();
-        xmlSchema.iri = `${name}#xmlschema`;
-        xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;
-        xmlSchema.publicUrl = xmlSchema.outputPath;
-        xmlSchema.generator = XML_SCHEMA.Generator;
-        xmlSchema.psm = psmSchemaIri;
-
-        currentSchemaArtefacts.push(xmlSchema);
-      }
-
-      // CSV schema -- HOTFIX !!!
       const csvSchema = new DataSpecificationSchema();
       csvSchema.iri = `${name}#csvschema`;
-      csvSchema.outputPath = `${dataSpecificationName}/${name}/schema.txt`;
+      csvSchema.outputPath = `${dataSpecificationName}/${name}/schema.csv-metadata.json`;
       csvSchema.publicUrl = csvSchema.outputPath;
       csvSchema.generator = CSV_SCHEMA.Generator;
       csvSchema.psm = psmSchemaIri;

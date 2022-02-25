@@ -16,6 +16,7 @@ import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 import {getDataSpecificationsFromStore} from "../shared/emulate-data-specification";
 import {ArtifactDefinitionConfigurator} from "../shared/artifact-definition-configurator";
 import {GeneratorOptions} from "../shared/generator-options";
+import {CsvSchemaGenerator} from "@model-driven-data/core/csv-schema/csv-schema-generator";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -125,6 +126,7 @@ export class ArtifactBuilder {
             new XmlSchemaGenerator(),
             new BikeshedGenerator(),
             new PlantUmlGenerator(),
+            new CsvSchemaGenerator(),
 
             new PlantUmlImageGenerator(),
             new BikeshedHtmlGenerator(),

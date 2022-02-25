@@ -25,4 +25,4 @@ export interface ConfigurationStoreMetadata {
 }
 
 export type StoreMetadataTag = ("root" | "pim" | "data-psm" | "cim-as-pim" | "reused" | "reused-recursively" | "read-only");
-export type StoreMetadataArtifact = "xml" | "json";
+export type StoreMetadataArtifact = "xml" | "json" | "csv";

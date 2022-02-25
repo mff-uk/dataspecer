@@ -76,6 +76,7 @@ export const Specification: React.FC = () => {
                         <TableCell>Resources</TableCell>
                         <TableCell align="center">JSON</TableCell>
                         <TableCell align="center">XML</TableCell>
+                        <TableCell align="center">CSV</TableCell>
                         <TableCell align="right">Actions</TableCell>
                     </TableRow>
                 </TableHead>

@@ -28,6 +28,7 @@ export async function getDataSpecificationsFromStore(
     const isPimNotPsm = storeWithMetadata.metadata.tags.includes("pim");
     const isJson = storeWithMetadata.metadata.artifacts?.includes("json") ?? false;
     const isXml = storeWithMetadata.metadata.artifacts?.includes("xml") ?? false;
+    const isCsv = storeWithMetadata.metadata.artifacts?.includes("csv") ?? false;
 
     const schema = (await storeWithMetadata.store.listResourcesOfType((isPimNotPsm ? PIM : PSM).SCHEMA))[0];
 
@@ -56,6 +57,9 @@ export async function getDataSpecificationsFromStore(
       }
       if (isXml) {
         generatorOption.requiredDataStructureSchemas[schema].push("xml");
+      }
+      if (isCsv) {
+        generatorOption.requiredDataStructureSchemas[schema].push("csv");
       }
     }
   }

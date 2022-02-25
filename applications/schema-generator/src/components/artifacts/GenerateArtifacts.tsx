@@ -184,7 +184,7 @@ export const GenerateArtifacts: React.FC<{
 
                 <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>CSV Schema</MenuItem>
                 <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(GetCsvSchemaArtifact, "json", "text/json;charset=utf-8")}>
+                    <MenuItem onClick={() => save(GetCsvSchemaArtifact, ".csv-metadata.json", "application/csvm+json;charset=utf-8")}>
                         <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("download")}
                     </MenuItem>
