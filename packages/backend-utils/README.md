@@ -1,4 +1,6 @@
 @model-driven-data/backend-utils
 ================================
 
-This library provides a set of tools for communication with the [application/backend](../../applications/backend/).
+This library provides a set of tools and interfaces for communication with the
+[services/backend](../../services/backend/) service. See individual
+directories for more information.

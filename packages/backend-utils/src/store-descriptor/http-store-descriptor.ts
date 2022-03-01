@@ -1,5 +1,4 @@
 import {StoreDescriptor} from "./index";
-import {CoreResourceReader} from "@model-driven-data/core/core";
 
 /**
  * Describes a store, that can be accessed and modified via HTTP protocol.
@@ -21,9 +20,5 @@ export class HttpStoreDescriptor implements StoreDescriptor {
 
   static is(storeDescriptor: StoreDescriptor): storeDescriptor is HttpStoreDescriptor {
     return storeDescriptor.type === HttpStoreDescriptor.TYPE;
-  }
-
-  static async construct(storeDescriptor: HttpStoreDescriptor): Promise<CoreResourceReader> {
-    throw new Error("Not implemented");
   }
 }

@@ -1,13 +1,13 @@
 import {DataSpecification} from "@model-driven-data/core/data-specification/model";
-import {DataSpecificationWithStores} from "./interfaces/data-specification-with-stores";
-import {DataSpecificationWithMetadata} from "./interfaces/data-specification-with-metadata";
-import {UpdateDataSpecification} from "./interfaces/update-data-specification";
+import {DataSpecificationWithStores} from "../interfaces/data-specification-with-stores";
+import {DataSpecificationWithMetadata} from "../interfaces/data-specification-with-metadata";
+import {UpdateDataSpecification} from "../interfaces/update-data-specification";
 
 /**
  * Handles the communication with the applications/backend package.
  */
 export class BackendConnector {
-  private backendUrl: string;
+  private readonly backendUrl: string;
 
   constructor(backendUrl: string) {
     this.backendUrl = backendUrl;

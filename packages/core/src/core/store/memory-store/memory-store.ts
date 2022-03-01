@@ -1,27 +1,22 @@
-import { CoreOperation, CoreOperationResult } from "../../operation";
-import { CoreResource } from "../../core-resource";
-import {
-  CreateNewIdentifier,
-  CoreOperationExecutor,
-  CoreExecutorResult,
-} from "../../executor";
-import { assert, assertNot } from "../../utilities/assert";
-import { clone } from "../../utilities/clone";
-import { CoreResourceReader } from "../../core-reader";
-import { CoreResourceWriter } from "../../core-writer";
-
-type ExecutorMap = { [type: string]: CoreOperationExecutor<CoreOperation> };
+import {CoreOperation, CoreOperationResult} from "../../operation";
+import {CoreResource} from "../../core-resource";
+import {CoreExecutorResult, CoreOperationExecutor, CreateNewIdentifier,} from "../../executor";
+import {assert, assertNot} from "../../utilities/assert";
+import {clone} from "../../utilities/clone";
+import {CoreResourceReader} from "../../core-reader";
+import {CoreResourceWriter} from "../../core-writer";
+import {createExecutorMap, ExecutorMap} from "../executor-map";
 
 export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
-  private readonly executors: ExecutorMap;
+  protected readonly executors: ExecutorMap;
 
-  private readonly createNewIdentifier: CreateNewIdentifier;
+  protected readonly createNewIdentifier: CreateNewIdentifier;
 
-  private readonly baseIri: string;
+  protected readonly baseIri: string;
 
-  private readonly operations: CoreOperation[] = [];
+  protected operations: CoreOperation[] = [];
 
-  private resources: { [iri: string]: CoreResource } = {};
+  protected resources: { [iri: string]: CoreResource } = {};
 
   protected constructor(
     baseIri: string,
@@ -44,14 +39,7 @@ export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
     executors: CoreOperationExecutor<CoreOperation>[],
     createNewIdentifier: CreateNewIdentifier | null = null
   ): MemoryStore {
-    const executorForTypes: ExecutorMap = {};
-    executors.forEach((executor) => {
-      assert(
-        executorForTypes[executor.type] === undefined,
-        `Only one executor can be declared for given type '${executor.type}'`
-      );
-      executorForTypes[executor.type] = executor;
-    });
+    const executorForTypes = createExecutorMap(executors);
     return new MemoryStore(baseIri, executorForTypes, createNewIdentifier);
   }
 

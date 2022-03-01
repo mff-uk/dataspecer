@@ -1,4 +1,4 @@
-import {SchemaGeneratorConfiguration} from "./interfaces/schema-generator-configuration";
+import {SchemaGeneratorConfiguration} from "../interfaces/schema-generator-configuration";
 
 /**
  * Handles the communication with the configuration server.
