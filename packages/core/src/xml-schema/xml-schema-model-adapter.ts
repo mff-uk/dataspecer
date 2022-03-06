@@ -66,6 +66,28 @@ const simpleTypeMap: Record<string, QName> = {
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
+const iriProperty: XmlSchemaComplexContentElement = {
+  cardinality: {
+    min: 0,
+    max: 1,
+  },
+  element: {
+    elementName: "iri",
+    source: null,
+    annotation: null,
+    type: {
+      name: null,
+      source: null,
+      simpleDefinition: {
+        xsType: "union",
+        contents: [
+          ["xs", "anyURI"]
+        ]
+      }
+    } as XmlSchemaSimpleType
+  }
+};
+
 type ClassMap = Record<string, StructureModelClass>;
 class XmlSchemaAdapter {
   private classMap: ClassMap;
@@ -234,10 +256,14 @@ class XmlSchemaAdapter {
         source: source,
       } as XmlSchemaComplexGroupReference;
     }
+    const contents = classData.properties.map(
+      this.propertyToComplexContent, this
+    );
+    contents.splice(0, 0, iriProperty);
     return {
       mixed: false,
       xsType: "sequence",
-      contents: classData.properties.map(this.propertyToComplexContent, this),
+      contents: contents,
     };
   }
 
