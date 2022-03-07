@@ -28,3 +28,27 @@ export const LanguageStringUndefineable: React.FC<{
 }> = ({from, children}) => <LanguageStringFallback from={from} fallback={children(undefined, undefined)}>{children}</LanguageStringFallback>;
 
 export const LanguageStringText: React.FC<{from: LanguageString | null}> = ({from}) => <LanguageStringFallback from={from}>{text => <>{text}</>}</LanguageStringFallback>;
+
+/**
+ * Returns most suitable translation for the given language string.
+ * @param languageString
+ * @param languages
+ */
+export const translateFrom = (languageString: LanguageString|undefined|null, languages: readonly string[]): string|undefined => {
+    if (!languageString) {
+        return undefined;
+    }
+
+    for (const lang of languages) {
+        if (languageString[lang] && languageString[lang].length) {
+            return languageString[lang];
+        }
+    }
+
+    const keys = Object.keys(languageString);
+    if (keys.length) {
+        return languageString[keys[0]];
+    } else {
+        return undefined;
+    }
+}
