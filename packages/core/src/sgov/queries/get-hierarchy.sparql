@@ -3,35 +3,39 @@ DEFINE sql:signal-void-variables 0
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 
 CONSTRUCT {
-	?ancestor
-		rdfs:subClassOf ?ancestorParent ;
+	?element a z:typ-objektu ;
+		rdfs:subClassOf ?elementParent ;
 		skos:prefLabel ?label ;
 		skos:definition ?definition ;
 		skos:inScheme ?glossary ;
 		<__is_ciselnik> ?is_ciselnik .
 } WHERE {
 	{
-		%NODE% rdfs:subClassOf* ?ancestor .
+		{%NODE% rdfs:subClassOf* ?element .}
+		UNION
+        {?element rdfs:subClassOf* %NODE% .}
 
-		BIND(EXISTS {?ancestor rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
+		BIND(EXISTS {?element rdfs:subClassOf+ <https://slovník.gov.cz/datový/číselníky/pojem/položka-číselníku>} as ?is_ciselnik)
 
 		FILTER NOT EXISTS {
-			?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+			?element skos:inScheme <https://slovník.gov.cz/základní/glosář> .
 		}
 
 		OPTIONAL {
-			?ancestor rdfs:subClassOf ?ancestorParent .
-			?ancestorParent skos:inScheme [] .
+			?element rdfs:subClassOf ?elementParent .
+			?elementParent skos:inScheme [] .
 			FILTER NOT EXISTS {
-				?ancestorParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+				?elementParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
 			}
 		}
 	}
 
-	OPTIONAL { ?ancestor skos:prefLabel ?label . }
-	OPTIONAL { ?ancestor skos:definition ?definition }
-	OPTIONAL { ?ancestor skos:scopeNote ?definition }
-	OPTIONAL { ?ancestor skos:inScheme ?glossary }
+    ?element a z:typ-objektu .
+	OPTIONAL { ?element skos:prefLabel ?label . }
+	OPTIONAL { ?element skos:definition ?definition }
+	OPTIONAL { ?element skos:scopeNote ?definition }
+	OPTIONAL { ?element skos:inScheme ?glossary }
 }

@@ -60,6 +60,8 @@ export const DELETE_CLASS = PSM + "DeleteClass";
 
 export const DELETE_CLASS_REFERENCE = PSM + "DeleteClassReference";
 
+export const REPLACE_ALONG_INHERITANCE = PSM + "ReplaceAlongInheritance";
+
 export const SET_DATATYPE = PSM + "SetDataType";
 
 export const SET_HUMAN_DESCRIPTION = PSM + "SetHumanDescription";

@@ -132,6 +132,39 @@ test("SgovAdapter.getSurroundings() with quotation marks", async () => {
   ).resolves.not.toThrow();
 });
 
+async function getClassInterpreting(cimIri: string, reader: CoreResourceReader) {
+  const resources = await reader.listResources();
+
+  for (const resource of resources) {
+    const cls = await reader.readResource(resource);
+    if (PimClass.is(cls) && cls.pimInterpretation === cimIri) {
+      return cls;
+    }
+  }
+  return null;
+}
+
+test("SgovAdapter.getFullHierarchy()", async () => {
+  const root = "https://slovník.gov.cz/generický/veřejná-místa/pojem/veřejné-místo";
+  const hierarchy = await adapter.getFullHierarchy(root);
+
+  const rootClass = await getClassInterpreting(root, hierarchy);
+
+  expect(rootClass).not.toBeNull();
+
+  const sportoviste = await getClassInterpreting(
+    "https://slovník.gov.cz/datový/sportoviště/pojem/sportoviště",
+    hierarchy);
+
+  expect(sportoviste).not.toBeNull();
+  expect(sportoviste.pimExtends).toContain(rootClass.iri);
+
+  const prostorovyObjekt = await getClassInterpreting(
+    "https://slovník.gov.cz/veřejný-sektor/pojem/prostorový-objekt",
+    hierarchy);
+  expect(prostorovyObjekt).not.toBeNull();
+});
+
 describe("SgovAdapter.getClassGroup()", () => {
   test("uncached", async () => {
     // New instance of the adapter need to be created
