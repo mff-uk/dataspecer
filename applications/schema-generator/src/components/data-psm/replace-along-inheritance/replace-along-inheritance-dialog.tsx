@@ -12,7 +12,6 @@ import {isPimAncestorOf} from "../../../store/utils/is-ancestor-of";
 import {getPimHavingInterpretation} from "../../../store/utils/get-pim-having-interpretation";
 import {ReplaceAlongInheritance} from "../../../operations/replace-along-inheritance";
 import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
-import {Store} from "@mui/icons-material";
 
 /**
  * This dialog prompts the user to select one class, descendant or ancestor of
