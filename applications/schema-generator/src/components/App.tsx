@@ -42,7 +42,6 @@ const ButtonMenuTheme = createTheme({
     },
 });
 
-console.log(ButtonMenuTheme);
 
 
 const App: React.FC = () => {
@@ -194,8 +193,13 @@ const App: React.FC = () => {
                             }
                             <Divider style={{margin: "1rem 0 1rem 0"}} />
                             <Trans i18nKey="footer report bug" t={t}>
-                                Report a bug on <a href="https://github.com/sstenchlak/schema-generator/issues">GitHub</a>.
+                                Report a bug on <a href="https://github.com/opendata-mvcr/model-driven-data/issues">GitHub</a>.
                             </Trans>
+                            {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                                <>
+                                    {" | "}{t("version")}: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                </>
+                            }
                         </Container>
                     </StoreContext.Provider>
                 }

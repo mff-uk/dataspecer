@@ -12,5 +12,6 @@
   "no schema text": "Start by clicking on <1>set root element</1> button or load a previously saved file by clicking on <3 /> icon.",
   "no title": "no title",
   "set root element button": "Set root element",
-  "title": "Schema Generator"
+  "title": "Schema Generator",
+  "version": "Version"
 }
