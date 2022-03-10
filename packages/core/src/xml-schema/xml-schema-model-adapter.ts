@@ -213,8 +213,8 @@ class XmlSchemaAdapter {
     data: StructureModelClass | StructureModelProperty
   ): XmlSchemaAnnotation {
     const lines = [];
-    if (data.pimIri != null) {
-      lines.push(`Význam: ${data.pimIri}`);
+    if (data.cimIri != null) {
+      lines.push(`Význam: ${data.cimIri}`);
     }
     if (data.humanLabel != null) {
       for (const lang of Object.keys(data.humanLabel)) {

@@ -7,6 +7,7 @@ import { structureModelDematerialize } from "./dematerialize";
 import { propagateLabel } from "./propagate-label";
 import { DataSpecification } from "../../data-specification/model";
 import { addDataSpecification } from "./add-data-specification";
+import {propagateCimIri} from "./propagate-cim-iri";
 
 /**
  * Apply all transformations.
@@ -22,6 +23,7 @@ export function transformStructureModel(
   result = propagateCardinality(conceptualModel, result);
   result = structureModelAddCodelists(conceptualModel, result);
   result = propagateLabel(conceptualModel, result);
+  result = propagateCimIri(conceptualModel, result);
   // Next just structure transformations..
   result = structureModelFlattenInheritance(result);
   result = structureModelDematerialize(result);
