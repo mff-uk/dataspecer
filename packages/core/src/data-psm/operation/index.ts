@@ -7,6 +7,7 @@ export * from "./data-psm-delete-association-end";
 export * from "./data-psm-delete-attribute";
 export * from "./data-psm-delete-class";
 export * from "./data-psm-delete-class-reference";
+export * from "./data-psm-replace-along-inheritance";
 export * from "./data-psm-set-datatype";
 export * from "./data-psm-set-human-description";
 export * from "./data-psm-set-human-label";

@@ -3,6 +3,12 @@ import { StructureModelType } from "./structure-model-type";
 
 export class StructureModelProperty {
   /**
+   * The cim level is optional as pim or data-psm level may not have an
+   * interpretation.
+   */
+  cimIri: string | null = null;
+
+  /**
    * The pim level is optional is data-psm level may not have an interpretation.
    */
   pimIri: string | null = null;

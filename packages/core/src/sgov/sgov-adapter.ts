@@ -155,6 +155,11 @@ export class SgovAdapter implements CimAdapter {
     return ReadOnlyMemoryStore.create(resources);
   }
 
+  /**
+   * Returns full known hierarchy structure - containing all ancestors and
+   * descendants of the given class.
+   * @param cimIri class CIM IRI
+   */
   public async getFullHierarchy(cimIri: string): Promise<ReadOnlyMemoryStore> {
     if (!this.iriProvider) {
       throw new Error("Missing IRI provider.");
@@ -207,8 +212,23 @@ export class SgovAdapter implements CimAdapter {
 
     const classesProcessed = new Set<string>();
     const associationsProcessed = new Set<string>();
+
+    // Reverse lookup for classes that are descendants of the given class.
+    const descendants = [rootClassCimIri];
+    let processedDescendant = 0;
+    while (processedDescendant < descendants.length) {
+      const descendant = descendants[processedDescendant];
+      const res = await source.reverseProperty(RDFS.subClassOf, descendant);
+      for (const r of res) {
+        if (!descendants.includes(r.value)) {
+          descendants.push(r.value);
+        }
+      }
+      processedDescendant++;
+    }
+
     // List of CIM iris to process
-    let processQueue: string[] = [rootClassCimIri];
+    let processQueue: string[] = [rootClassCimIri, ...descendants];
     while (processQueue.length) {
       const processedCimIri = processQueue.pop();
       if (classesProcessed.has(processedCimIri)) {
@@ -223,7 +243,7 @@ export class SgovAdapter implements CimAdapter {
       resources[pimClass.iri] = pimClass;
 
       // Some classes may be empty because of simplification of SPARQL queries.
-      // Therefore we need to check, if it is actually a class and containing
+      // Therefore, we need to check, if it is actually a class and containing
       // a group information.
       if (await isSgovClass(rdfClassWrap)) {
         await this.cacheResourceGroup(rdfClassWrap);

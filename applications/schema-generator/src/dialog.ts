@@ -12,8 +12,21 @@ export type UseDialogOpenFunction<Dialog extends FunctionComponent<any>, staticP
  * @param dialogProps
  * @param Node
  */
-export const dialog = <ComponentProperties extends {isOpen: boolean, close: () => void}>(dialogProps: Omit<DialogProps, "open" | "onClose">, Node: FunctionComponent<ComponentProperties>) => (props: ComponentProperties) =>
-    React.createElement(Dialog, {open: props.isOpen, onClose: props.close, ...dialogProps}, React.createElement(Node, props));
+// export const dialog = <ComponentProperties extends {isOpen: boolean, close: () => void}>(dialogProps: Omit<DialogProps, "open" | "onClose">, Node: FunctionComponent<ComponentProperties>) => (props: ComponentProperties) =>
+//     React.createElement(Dialog, {open: props.isOpen, onClose: props.close, ...dialogProps}, React.createElement(Node, props));
+
+export const dialog =
+  <ComponentProperties>(
+    dialogProps: Omit<DialogProps, "open" | "onClose">,
+    Node: FunctionComponent<
+      ComponentProperties & {isOpen: boolean, close: () => void}>
+  ) =>
+    (props: ComponentProperties & {isOpen: boolean, close: () => void}) =>
+      React.createElement(
+        Dialog,
+        {open: props.isOpen, onClose: props.close, ...dialogProps},
+        React.createElement(Node, props)
+      );
 
 /**
  * Transforms a dialog into a component having only specified `StaticParameters` as props. Other props need to be passed in open function.
