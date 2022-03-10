@@ -1,4 +1,4 @@
-import {ConceptualModel} from "../../conceptual-model";
+import {ConceptualModel, ConceptualModelProperty} from "../../conceptual-model";
 import {StructureModel, StructureModelClass} from "../model";
 
 /**
@@ -34,9 +34,17 @@ export function propagateCimIri(
     for (const structureClass of Object.values(result.classes)) {
         structureClass.properties = structureClass.properties.map(
             property => {
-                const conceptualProperty = conceptual
-                    .classes[structureClass.pimIri]
-                    ?.properties.find(p => p.pimIri === property.pimIri);
+                // Find the correct class that contains the given property
+                let conceptualProperty: ConceptualModelProperty|null = null;
+                for (const cls of Object.values(conceptual.classes)) {
+                    const found = cls.properties
+                        .find(p => p.pimIri === property.pimIri);
+                    if (found) {
+                        conceptualProperty = found;
+                        break;
+                    }
+                }
+
                 if (conceptualProperty) {
                     return {
                         ...property,
