@@ -7,14 +7,14 @@ import {
   StructureModelComplexType,
 } from "../structure-model";
 import {
-  XmlLiftingTransformation,
-  XmlLiftingTemplate,
-  XmlLiftingRootTemplate,
-  XmlLiftingMatch,
+  XmlTransformation,
+  XmlTemplate,
+  XmlRootTemplate,
+  XmlMatch,
   QName,
-  XmlLiftingClassMatch,
-  XmlLiftingLiteralMatch,
-} from "./xslt-lifting-model";
+  XmlClassMatch,
+  XmlLiteralMatch,
+} from "./xml-transformations-model";
 
 import {
   DataSpecification,
@@ -25,12 +25,12 @@ import {
 import { XSD, OFN } from "../well-known";
 //import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
-export function structureModelToXsltLifting(
+export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
   model: StructureModel
-): XmlLiftingTransformation {
-  const adapter = new XsltLiftingAdapter(specifications, specification, model);
+): XmlTransformation {
+  const adapter = new XsltAdapter(specifications, specification, model);
   return adapter.fromRoots(model.roots);
 }
 
@@ -55,7 +55,7 @@ const simpleTypeMap: Record<string, string> = {
 };
 
 type ClassMap = Record<string, StructureModelClass>;
-class XsltLiftingAdapter {
+class XsltAdapter {
   private classMap: ClassMap;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
@@ -83,7 +83,7 @@ class XsltLiftingAdapter {
     this.rdfNamespaceCounter = 0;
   }
 
-  public fromRoots(roots: string[]): XmlLiftingTransformation {
+  public fromRoots(roots: string[]): XmlTransformation {
     return {
       targetNamespace: null,
       targetNamespacePrefix: null,
@@ -106,15 +106,16 @@ class XsltLiftingAdapter {
     return classData.technicalLabel;
   }
 
-  rootToTemplate(rootIri: string): XmlLiftingRootTemplate {
+  rootToTemplate(rootIri: string): XmlRootTemplate {
     const classData = this.classMap[rootIri];
     return {
+      typeIri: classData.cimIri,
       elementName: [this.namespacePrefix, classData.technicalLabel],
       targetTemplate: this.classTemplateName(classData),
     };
   }
 
-  classToTemplate(classIri: string): XmlLiftingTemplate {
+  classToTemplate(classIri: string): XmlTemplate {
     const classData = this.classMap[classIri];
     return {
       name: this.classTemplateName(classData),
@@ -124,7 +125,7 @@ class XsltLiftingAdapter {
 
   propertyToMatch(
     propertyData: StructureModelProperty
-  ): XmlLiftingMatch {
+  ): XmlMatch {
     let dataTypes = propertyData.dataTypes;
     if (dataTypes.length === 0) {
       throw new Error(
@@ -200,10 +201,10 @@ class XsltLiftingAdapter {
         interpretation: QName,
         propertyName: QName,
         dataTypes: StructureModelType[]
-      ) => XmlLiftingMatch
-  ): XmlLiftingMatch | null {
+      ) => XmlMatch
+  ): XmlMatch | null {
     if (dataTypes.every(rangeChecker)) {
-      const interpretation = this.iriToQName(propertyData.psmIri); // TODO CIM
+      const interpretation = this.iriToQName(propertyData.cimIri);
       const propertyName = [this.namespacePrefix, propertyData.technicalLabel];
       return typeConstructor.call(
         this, interpretation, propertyName, dataTypes
@@ -217,9 +218,10 @@ class XsltLiftingAdapter {
     interpretation: QName,
     propertyName: QName,
     dataTypes: StructureModelComplexType[]
-  ): XmlLiftingClassMatch {
+  ): XmlClassMatch {
     return {
       interpretation: interpretation,
+      propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       isDematerialized: propertyData.dematerialize,
       targetTemplate: this.classTemplateName(
@@ -233,9 +235,10 @@ class XsltLiftingAdapter {
     interpretation: QName,
     propertyName: QName,
     dataTypes: StructureModelPrimitiveType[]
-  ): XmlLiftingLiteralMatch {
+  ): XmlLiteralMatch {
     return {
       interpretation: interpretation,
+      propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       dataTypeIri: this.primitiveToIri(dataTypes[0])
     };
