@@ -102,8 +102,13 @@ class XsltAdapter {
   }
 
   classTemplateName(classData: StructureModelClass) {
-    // TODO fallback if not present
-    return classData.technicalLabel;
+    const label = classData.technicalLabel;
+    if (label == null || label === "") {
+      return "_" + classData.psmIri.replace(
+        /[^-._\p{L}\p{N}]/gu, s => s.charCodeAt(0).toString()
+      );
+    }
+    return label;
   }
 
   rootToTemplate(rootIri: string): XmlRootTemplate {
@@ -204,6 +209,11 @@ class XsltAdapter {
       ) => XmlMatch
   ): XmlMatch | null {
     if (dataTypes.every(rangeChecker)) {
+      if (propertyData.cimIri == null) {
+        throw new Error(
+          `Property ${propertyData.psmIri} has no interpretation!`
+        );
+      }
       const interpretation = this.iriToQName(propertyData.cimIri);
       const propertyName = [this.namespacePrefix, propertyData.technicalLabel];
       return typeConstructor.call(

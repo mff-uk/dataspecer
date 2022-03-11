@@ -77,7 +77,7 @@ async function writeTransformationBegin(
     );
   }
 
-  for (const prefix of Object.values(model.rdfNamespaces)) {
+  for (const prefix of Object.keys(model.rdfNamespaces)) {
     await writer.writeAndRegisterNamespaceDeclaration(
       prefix,
       model.rdfNamespaces[prefix]
