@@ -6,11 +6,13 @@ export class XmlTransformation {
   rdfNamespaces: Record<string, string>;
   rootTemplates: XmlRootTemplate[];
   templates: XmlTemplate[];
+  includes: XmlTransformationInclude[];
 }
 
 export class XmlTemplate {
   name: string;
   propertyMatches: XmlMatch[];
+  imported: boolean;
 }
 
 export class XmlRootTemplate {
@@ -44,4 +46,8 @@ export function xmlMatchIsClass(
   match: XmlMatch
 ): match is XmlClassMatch {
   return (match as XmlClassMatch).targetTemplate !== undefined;
+}
+
+export class XmlTransformationInclude {
+  locations: Record<string, string>;
 }

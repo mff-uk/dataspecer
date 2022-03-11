@@ -14,6 +14,7 @@ import {
   QName,
   XmlClassMatch,
   XmlLiteralMatch,
+  XmlTransformationInclude,
 } from "./xslt-model";
 
 import {
@@ -23,7 +24,7 @@ import {
 } from "../data-specification/model";
 
 import { XSD, OFN } from "../well-known";
-//import { XML_SCHEMA } from "./xml-schema-vocabulary";
+import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -64,6 +65,7 @@ class XsltAdapter {
   private rdfNamespaces: Record<string, string>;
   private rdfNamespacesIris: Record<string, string>;
   private rdfNamespaceCounter: number;
+  private includes: { [specification: string]: XmlTransformationInclude };
 
   constructor(
     specifications: { [iri: string]: DataSpecification },
@@ -81,6 +83,7 @@ class XsltAdapter {
     this.rdfNamespaces = {};
     this.rdfNamespacesIris = {};
     this.rdfNamespaceCounter = 0;
+    this.includes = {};
   }
 
   public fromRoots(roots: string[]): XmlTransformation {
@@ -90,7 +93,53 @@ class XsltAdapter {
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
       templates: Object.keys(this.classMap).map(this.classToTemplate, this),
+      includes: Object.values(this.includes),
     };
+  }
+
+  findArtefactsForImport(
+    classData: StructureModelClass
+  ): DataSpecificationArtefact[] {
+    const targetSpecification = this.specifications[classData.specification];
+    if (targetSpecification == null) {
+      throw new Error(`Missing specification ${classData.specification}`);
+    }
+    return targetSpecification.artefacts.filter(candidate => {
+      if (
+        candidate.generator !== XSLT_LIFTING.Generator &&
+        candidate.generator !== XSLT_LOWERING.Generator
+      ) {
+        return false;
+      }
+      const candidateSchema = candidate as DataSpecificationSchema;
+      if (classData.structureSchema !== candidateSchema.psm) {
+        return false;
+      }
+      // TODO We should check that the class is root here.
+      return true;
+    });
+  }
+
+  resolveImportedElement(
+    classData: StructureModelClass
+  ): boolean {
+    if (this.model.psmIri !== classData.structureSchema) {
+      const importDeclaration = this.includes[classData.specification];
+      if (importDeclaration == null) {
+        const artifacts = this.findArtefactsForImport(classData);
+        this.includes[classData.specification] = {
+          locations: Object.fromEntries(
+            artifacts.map(
+              artifact => {
+                return [artifact.generator, artifact.publicUrl]
+              }
+            )
+          )
+        };
+      }
+      return true;
+    }
+    return false;
   }
 
   getClass(iri: string): StructureModelClass {
@@ -122,9 +171,17 @@ class XsltAdapter {
 
   classToTemplate(classIri: string): XmlTemplate {
     const classData = this.classMap[classIri];
+    if (this.resolveImportedElement(classData)) {
+      return {
+        name: this.classTemplateName(classData),
+        propertyMatches: [],
+        imported: true,
+      };
+    }
     return {
       name: this.classTemplateName(classData),
       propertyMatches: classData.properties.map(this.propertyToMatch, this),
+      imported: false,
     }
   }
 

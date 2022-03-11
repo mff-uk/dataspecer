@@ -11,6 +11,8 @@ import {
 
 import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
 
+import { XSLT_LIFTING } from "./xslt-vocabulary";
+
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
 export async function saveXsltLiftingToDirectory(
@@ -53,6 +55,7 @@ export async function writeXsltLifting(
   await writeRootTemplates(model, writer);
   await writeCommonTemplates(writer);
   await writeTemplates(model, writer);
+  await writeIncludes(model, writer);
   await writeFinalTemplates(writer);
   await writeTransformationEnd(writer);
 }
@@ -158,6 +161,9 @@ async function writeTemplates(
   writer: XmlWriter
 ): Promise<void> {
   for (const template of model.templates) {
+    if (template.imported) {
+      continue;
+    }
     await writer.writeElementBegin("xsl", "template");
     await writer.writeLocalAttributeValue("name", template.name);
     
@@ -203,4 +209,14 @@ async function writeTemplateContents(
   }
   
   await writer.writeElementEnd("rdf", "Description");
+}
+
+async function writeIncludes(
+  model: XmlTransformation,
+  writer: XmlWriter
+): Promise<void> {
+  for (const include of model.includes) {
+    const location = include.locations[XSLT_LIFTING.Generator];
+    await writer.writeElementValue("xsl", "include", location);
+  }
 }
