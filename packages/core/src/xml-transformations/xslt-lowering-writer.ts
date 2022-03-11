@@ -162,11 +162,17 @@ async function writeRootTemplates(
   model: XmlTransformation,
   writer: XmlWriter
 ): Promise<void> {
+  await writer.writeElementBegin("xsl", "template");
+  await writer.writeLocalAttributeValue("match", "/sp:sparql");
+  await writer.writeElementBegin("xsl", "apply-templates");
+  await writer.writeLocalAttributeValue("select", "sp:results/sp:result");
+  await writer.writeElementEnd("xsl", "apply-templates");
+  await writer.writeElementEnd("xsl", "template");
+
   for (const rootTemplate of model.rootTemplates) {
     await writer.writeElementBegin("xsl", "template");
     const match =
-      "//sp:result" +
-      "[sp:binding[@name=$pred]/sp:uri/text()=$type and " +
+      "sp:result[sp:binding[@name=$pred]/sp:uri/text()=$type and " +
       `sp:binding[@name=$obj]/sp:uri/text()="${rootTemplate.typeIri}"]`;
     await writer.writeLocalAttributeValue("match", match);
     await writer.writeElementBegin(...rootTemplate.elementName);
@@ -206,6 +212,11 @@ async function writeTemplates(
   }
 }
 
+function elementIdTest(expression: string) {
+  return `concat(namespace-uri(${expression}), '|', ` +
+    `local-name(${expression}), '|', string(${expression}))`;
+}
+
 async function writeTemplateContents(
   template: XmlTemplate,
   writer: XmlWriter
@@ -223,7 +234,7 @@ async function writeTemplateContents(
   await writer.writeElementBegin("xsl", "value-of");
   await writer.writeLocalAttributeValue(
     "select",
-    "concat(namespace-uri($id), ' ', local-name($id), ' ', string($id))"
+    elementIdTest("$id/*")
   );
   await writer.writeElementEnd("xsl", "value-of");
   await writer.writeElementEnd("xsl", "variable");
@@ -231,10 +242,8 @@ async function writeTemplateContents(
   for (const match of template.propertyMatches) {
     await writer.writeElementBegin("xsl", "for-each");
     const path =
-      "//sp:result" +
-      "[sp:binding[@name=$subj]/*[$id_test = " +
-      "concat(namespace-uri(), ' ', local-name(), ' ', string())] and " +
-      `sp:binding[@name=$pred]/sp:uri/text()="${match.propertyIri}"]`;
+      "//sp:result[sp:binding[@name=$subj]/*[$id_test = " + elementIdTest("") +
+      `] and sp:binding[@name=$pred]/sp:uri/text()="${match.propertyIri}"]`;
     await writer.writeLocalAttributeValue("select", path);
     await writer.writeElementBegin(...match.propertyName);
 
@@ -242,7 +251,7 @@ async function writeTemplateContents(
       await writer.writeElementBegin("xsl", "apply-templates");
       await writer.writeLocalAttributeValue(
         "select",
-        "sp:binding[@name=$obj]"
+        "sp:binding[@name=$obj]/*"
       );
       await writer.writeElementEnd("xsl", "apply-templates");
     } else if (xmlMatchIsClass(match)) {
@@ -272,6 +281,10 @@ async function writeIncludes(
 ): Promise<void> {
   for (const include of model.includes) {
     const location = include.locations[XSLT_LOWERING.Generator];
-    await writer.writeElementValue("xsl", "include", location);
+    if (location != null) {
+      await writer.writeElementBegin("xsl", "include");
+      await writer.writeLocalAttributeValue("href", location);
+      await writer.writeElementEnd("xsl", "include");
+    }
   }
 }

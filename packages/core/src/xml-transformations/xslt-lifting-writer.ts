@@ -180,7 +180,14 @@ async function writeTemplateContents(
   await writer.writeElementBegin("rdf", "Description");
 
   await writer.writeElementBegin("xsl", "apply-templates");
+  await writer.writeLocalAttributeValue("select", "@*|*");
   await writer.writeElementEnd("xsl", "apply-templates");
+
+  if (template.classIri != null) {
+    await writer.writeElementBegin("rdf", "type");
+    await writer.writeAttributeValue("rdf", "resource", template.classIri);
+    await writer.writeElementEnd("rdf", "type");
+  }
 
   for (const match of template.propertyMatches) {
     await writer.writeElementBegin("xsl", "for-each");
@@ -190,15 +197,16 @@ async function writeTemplateContents(
 
     if (xmlMatchIsLiteral(match)) {
       await writer.writeAttributeValue("rdf", "datatype", match.dataTypeIri);
+    
+      await writer.writeElementBegin("xsl", "apply-templates");
+      await writer.writeLocalAttributeValue("select", "@*");
+      await writer.writeElementEnd("xsl", "apply-templates");
       
       await writer.writeElementBegin("xsl", "value-of");
       await writer.writeLocalAttributeValue("select", ".");
       await writer.writeElementEnd("xsl", "value-of");
     } else if (xmlMatchIsClass(match)) {
       // TODO dematerialized
-      await writer.writeElementBegin("xsl", "apply-templates");
-      await writer.writeElementEnd("xsl", "apply-templates");
-  
       await writer.writeElementBegin("xsl", "call-template");
       await writer.writeLocalAttributeValue("name", match.targetTemplate);
       await writer.writeElementEnd("xsl", "call-template");
@@ -217,6 +225,10 @@ async function writeIncludes(
 ): Promise<void> {
   for (const include of model.includes) {
     const location = include.locations[XSLT_LIFTING.Generator];
-    await writer.writeElementValue("xsl", "include", location);
+    if (location != null) {
+      await writer.writeElementBegin("xsl", "include");
+      await writer.writeLocalAttributeValue("href", location);
+      await writer.writeElementEnd("xsl", "include");
+    }
   }
 }

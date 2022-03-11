@@ -151,13 +151,10 @@ class XsltAdapter {
   }
 
   classTemplateName(classData: StructureModelClass) {
-    const label = classData.technicalLabel;
-    if (label == null || label === "") {
-      return "_" + classData.psmIri.replace(
-        /[^-._\p{L}\p{N}]/gu, s => s.charCodeAt(0).toString()
-      );
-    }
-    return label;
+    return "_" + classData.psmIri.replace(
+      /[^-.\p{L}\p{N}]/gu,
+      s => "_" + s.charCodeAt(0).toString(16).padStart(4, "0")
+    );
   }
 
   rootToTemplate(rootIri: string): XmlRootTemplate {
@@ -174,12 +171,14 @@ class XsltAdapter {
     if (this.resolveImportedElement(classData)) {
       return {
         name: this.classTemplateName(classData),
+        classIri: classData.cimIri,
         propertyMatches: [],
         imported: true,
       };
     }
     return {
       name: this.classTemplateName(classData),
+      classIri: classData.cimIri,
       propertyMatches: classData.properties.map(this.propertyToMatch, this),
       imported: false,
     }

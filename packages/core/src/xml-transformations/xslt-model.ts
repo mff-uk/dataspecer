@@ -11,6 +11,7 @@ export class XmlTransformation {
 
 export class XmlTemplate {
   name: string;
+  classIri: string;
   propertyMatches: XmlMatch[];
   imported: boolean;
 }
