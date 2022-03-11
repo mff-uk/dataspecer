@@ -175,7 +175,7 @@ class XsltAdapter {
   }
 
   iriToQName(iri: string): QName {
-    const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/);
+    const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
     if (match == null) {
       throw new Error(
         `Cannot extract namespace from property ${iri}.`
@@ -207,7 +207,7 @@ class XsltAdapter {
       const interpretation = this.iriToQName(propertyData.cimIri);
       const propertyName = [this.namespacePrefix, propertyData.technicalLabel];
       return typeConstructor.call(
-        this, interpretation, propertyName, dataTypes
+        this, propertyData, interpretation, propertyName, dataTypes
       );
     }
     return null;
