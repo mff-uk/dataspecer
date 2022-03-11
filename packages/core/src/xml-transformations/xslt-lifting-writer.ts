@@ -7,7 +7,7 @@ import {
   XmlTransformation,
   xmlMatchIsLiteral,
   xmlMatchIsClass,
-} from "./xml-transformations-model";
+} from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
 

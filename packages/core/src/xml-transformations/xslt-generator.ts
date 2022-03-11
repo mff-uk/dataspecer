@@ -5,13 +5,13 @@ import {
 } from "../data-specification/model";
 import { StreamDictionary } from "../io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
-import { XmlTransformation } from "./xml-transformations-model";
+import { XmlTransformation } from "./xslt-model";
 import { writeXsltLifting } from "./xslt-lifting-writer";
 import { writeXsltLowering } from "./xslt-lowering-writer";
-import { structureModelToXslt } from "./xml-transformations-adapter";
+import { structureModelToXslt } from "./xslt-model-adapter";
 import { assertFailed, assertNot } from "../core";
 import { transformStructureModel } from "../structure-model/transformation";
-import { XSLT_LIFTING, XSLT_LOWERING } from "./xml-transformations-vocabulary";
+import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 
 export class XsltGenerator implements ArtefactGenerator {
   isLifting: boolean;

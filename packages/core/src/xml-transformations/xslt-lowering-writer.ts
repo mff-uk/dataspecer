@@ -4,11 +4,10 @@ import {OutputStream} from "../io/stream/output-stream";
 
 import {
   XmlTransformation,
-  XmlRootTemplate,
   XmlTemplate,
   xmlMatchIsLiteral,
   xmlMatchIsClass,
-} from "./xml-transformations-model";
+} from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
 

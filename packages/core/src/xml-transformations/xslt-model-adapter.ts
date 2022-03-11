@@ -14,7 +14,7 @@ import {
   QName,
   XmlClassMatch,
   XmlLiteralMatch,
-} from "./xml-transformations-model";
+} from "./xslt-model";
 
 import {
   DataSpecification,
