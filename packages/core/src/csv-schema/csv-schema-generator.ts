@@ -13,6 +13,7 @@ import {assertFailed, assertNot} from "../core";
 import {transformStructureModel} from "../structure-model/transformation";
 import {CsvSchema} from "./csv-schema-model";
 import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
+import {writeCsvSchema} from "./csv-schema-writer";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 
@@ -28,7 +29,7 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
     ): Promise<void> {
         const model = await this.generateToObject(context, artefact, specification);
         const stream = output.writePath(artefact.outputPath);
-        await stream.write(model["@context"][0]);
+        await writeCsvSchema(model, stream);
         await stream.close();
     }
 
