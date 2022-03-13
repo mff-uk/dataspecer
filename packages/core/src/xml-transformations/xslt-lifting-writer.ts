@@ -7,6 +7,7 @@ import {
   XmlTransformation,
   xmlMatchIsLiteral,
   xmlMatchIsClass,
+  XmlMatch,
 } from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
@@ -91,17 +92,17 @@ async function writeTransformationBegin(
 async function writeSettings(
   writer: XmlWriter
 ): Promise<void> {
-  await writer.writeElementBegin("xsl", "output");
-  await writer.writeLocalAttributeValue("method", "xml");
-  await writer.writeLocalAttributeValue("version", "1.0");
-  await writer.writeLocalAttributeValue("encoding", "utf-8");
-  await writer.writeLocalAttributeValue("media-type", "application/rdf+xml");
-  await writer.writeLocalAttributeValue("indent", "yes");
-  await writer.writeElementEnd("xsl", "output");
+  await writer.writeElementFull("xsl", "output")(async writer => {
+    await writer.writeLocalAttributeValue("method", "xml");
+    await writer.writeLocalAttributeValue("version", "1.0");
+    await writer.writeLocalAttributeValue("encoding", "utf-8");
+    await writer.writeLocalAttributeValue("media-type", "application/rdf+xml");
+    await writer.writeLocalAttributeValue("indent", "yes");
+  });
   
-  await writer.writeElementBegin("xsl", "strip-space");
-  await writer.writeLocalAttributeValue("elements", "*");
-  await writer.writeElementEnd("xsl", "strip-space");
+  await writer.writeElementFull("xsl", "strip-space")(async writer => {
+    await writer.writeLocalAttributeValue("elements", "*");
+  });
 }
 
 async function writeTransformationEnd(writer: XmlWriter): Promise<void> {
@@ -111,30 +112,30 @@ async function writeTransformationEnd(writer: XmlWriter): Promise<void> {
 async function writeCommonTemplates(
   writer: XmlWriter
 ): Promise<void> {
-  await writer.writeElementBegin("xsl", "template");
-  await writer.writeLocalAttributeValue("match", "iri");
-  await writer.writeElementBegin("xsl", "attribute");
-  await writer.writeLocalAttributeValue("name", "rdf:about");
-  await writer.writeElementBegin("xsl", "value-of");
-  await writer.writeLocalAttributeValue("select", ".");
-  await writer.writeElementEnd("xsl", "value-of");
-  await writer.writeElementEnd("xsl", "attribute");
-  await writer.writeElementEnd("xsl", "template");
+  await writer.writeElementFull("xsl", "template")(async writer => {
+    await writer.writeLocalAttributeValue("match", "iri");
+    await writer.writeElementFull("xsl", "attribute")(async writer => {
+      await writer.writeLocalAttributeValue("name", "rdf:about");
+      await writer.writeElementFull("xsl", "value-of")(async writer => {
+        await writer.writeLocalAttributeValue("select", ".");
+      });
+    });
+  })
   
-  await writer.writeElementBegin("xsl", "template");
-  await writer.writeLocalAttributeValue("match", "@xml:lang");
-  await writer.writeElementBegin("xsl", "copy-of");
-  await writer.writeLocalAttributeValue("select", ".");
-  await writer.writeElementEnd("xsl", "copy-of");
-  await writer.writeElementEnd("xsl", "template");
+  await writer.writeElementFull("xsl", "template")(async writer => {
+    await writer.writeLocalAttributeValue("match", "@xml:lang");
+    await writer.writeElementFull("xsl", "copy-of")(async writer => {
+      await writer.writeLocalAttributeValue("select", ".");
+    });
+  });
 }
 
 async function writeFinalTemplates(
   writer: XmlWriter
 ): Promise<void> {
-  await writer.writeElementBegin("xsl", "template");
-  await writer.writeLocalAttributeValue("match", "@*|*");
-  await writer.writeElementEnd("xsl", "template");
+  await writer.writeElementFull("xsl", "template")(async writer => {
+    await writer.writeLocalAttributeValue("match", "@*|*");
+  });
 }
 
 async function writeRootTemplates(
@@ -142,17 +143,18 @@ async function writeRootTemplates(
   writer: XmlWriter
 ): Promise<void> {
   for (const rootTemplate of model.rootTemplates) {
-    await writer.writeElementBegin("xsl", "template");
-    const match = "/" + writer.getQName(...rootTemplate.elementName);
-    await writer.writeLocalAttributeValue("match", match);
-    await writer.writeElementBegin("rdf", "RDF");
+    await writer.writeElementFull("xsl", "template")(async writer => {
+      const match = "/" + writer.getQName(...rootTemplate.elementName);
+      await writer.writeLocalAttributeValue("match", match);
 
-    await writer.writeElementBegin("xsl", "call-template");
-    await writer.writeLocalAttributeValue("name", rootTemplate.targetTemplate);
-    await writer.writeElementEnd("xsl", "call-template");
-
-    await writer.writeElementEnd("rdf", "RDF");
-    await writer.writeElementEnd("xsl", "template");
+      await writer.writeElementFull("rdf", "RDF")(async writer => {
+        await writer.writeElementFull("xsl", "call-template")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "name", rootTemplate.targetTemplate
+          );
+        });
+      });
+    })
   }
 }
 
@@ -164,12 +166,11 @@ async function writeTemplates(
     if (template.imported) {
       continue;
     }
-    await writer.writeElementBegin("xsl", "template");
-    await writer.writeLocalAttributeValue("name", template.name);
-    
-    await writeTemplateContents(template, writer);
-    
-    await writer.writeElementEnd("xsl", "template");
+    await writer.writeElementFull("xsl", "template")(async writer => {
+      await writer.writeLocalAttributeValue("name", template.name);
+      
+      await writeTemplateContents(template, writer);
+    });
   }
 }
 
@@ -177,46 +178,51 @@ async function writeTemplateContents(
   template: XmlTemplate,
   writer: XmlWriter
 ): Promise<void> {
-  await writer.writeElementBegin("rdf", "Description");
+  await writer.writeElementFull("rdf", "Description")(async writer => {
+    await writer.writeElementFull("xsl", "apply-templates")(async writer => {
+      await writer.writeLocalAttributeValue("select", "@*|*");
+    });
+  
+    if (template.classIri != null) {
+      await writer.writeElementFull("rdf", "type")(async writer => {
+        await writer.writeAttributeValue("rdf", "resource", template.classIri);
+      });
+    }
+  
+    for (const match of template.propertyMatches) {
+      await writeTemplateMatch(match, writer);
+    }
+  });
+}
 
-  await writer.writeElementBegin("xsl", "apply-templates");
-  await writer.writeLocalAttributeValue("select", "@*|*");
-  await writer.writeElementEnd("xsl", "apply-templates");
-
-  if (template.classIri != null) {
-    await writer.writeElementBegin("rdf", "type");
-    await writer.writeAttributeValue("rdf", "resource", template.classIri);
-    await writer.writeElementEnd("rdf", "type");
-  }
-
-  for (const match of template.propertyMatches) {
-    await writer.writeElementBegin("xsl", "for-each");
+async function writeTemplateMatch(
+  match: XmlMatch,
+  writer: XmlWriter
+): Promise<void> {
+  await writer.writeElementFull("xsl", "for-each")(async writer => {
     const name = writer.getQName(...match.propertyName);
     await writer.writeLocalAttributeValue("select", name);
-    await writer.writeElementBegin(...match.interpretation);
-
-    if (xmlMatchIsLiteral(match)) {
-      await writer.writeAttributeValue("rdf", "datatype", match.dataTypeIri);
-    
-      await writer.writeElementBegin("xsl", "apply-templates");
-      await writer.writeLocalAttributeValue("select", "@*");
-      await writer.writeElementEnd("xsl", "apply-templates");
+    await writer.writeElementFull(...match.interpretation)(async writer => {
+      if (xmlMatchIsLiteral(match)) {
+        await writer.writeAttributeValue(
+          "rdf", "datatype", match.dataTypeIri
+        );
       
-      await writer.writeElementBegin("xsl", "value-of");
-      await writer.writeLocalAttributeValue("select", ".");
-      await writer.writeElementEnd("xsl", "value-of");
-    } else if (xmlMatchIsClass(match)) {
-      // TODO dematerialized
-      await writer.writeElementBegin("xsl", "call-template");
-      await writer.writeLocalAttributeValue("name", match.targetTemplate);
-      await writer.writeElementEnd("xsl", "call-template");
-    }
-
-    await writer.writeElementEnd(...match.interpretation);
-    await writer.writeElementEnd("xsl", "for-each");
-  }
-  
-  await writer.writeElementEnd("rdf", "Description");
+        await writer.writeElementFull("xsl", "apply-templates")(async writer => {
+          await writer.writeLocalAttributeValue("select", "@*");
+        });
+        
+        await writer.writeElementFull("xsl", "value-of")(async writer => {
+          await writer.writeLocalAttributeValue("select", ".");
+        });
+      } else if (xmlMatchIsClass(match)) {
+        // TODO dematerialized
+        await writer.writeElementFull("xsl", "call-template")(async writer => {
+          await writer.writeLocalAttributeValue("name", match.targetTemplate);
+        });
+      }
+    });
+  });
 }
 
 async function writeIncludes(
@@ -226,9 +232,9 @@ async function writeIncludes(
   for (const include of model.includes) {
     const location = include.locations[XSLT_LIFTING.Generator];
     if (location != null) {
-      await writer.writeElementBegin("xsl", "include");
-      await writer.writeLocalAttributeValue("href", location);
-      await writer.writeElementEnd("xsl", "include");
+      await writer.writeElementFull("xsl", "include")(async writer => {
+        await writer.writeLocalAttributeValue("href", location);
+      });
     }
   }
 }
