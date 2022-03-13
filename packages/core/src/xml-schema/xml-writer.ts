@@ -94,7 +94,7 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
  * Escapes XML AttValue (see https://www.w3.org/TR/xml/#NT-AttValue)
  */
 function xmlEscape(text: string): string {
-  return text.replace(/[&<>"']/g, function (m) {
+  return text.replace(/[&<>"]/g, function (m) {
     return `&#${m.charCodeAt(0)};`;
   });
 }
