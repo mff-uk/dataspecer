@@ -1,0 +1,15 @@
+{
+  "name": "@model-driven-data/federated-observable-store-react",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "node copy-package-json.js && tsc"
+  },
+  "dependencies": {
+    "@model-driven-data/core": "^0.0.0",
+    "@model-driven-data/federated-observable-store": "^0.0.0",
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.40"
+  }
+}

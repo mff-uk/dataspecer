@@ -13,7 +13,7 @@ export class BackendConnector {
     this.backendUrl = backendUrl;
   }
 
-  public async fetchAllDataSpecifications(): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[]> {
+  public async readDataSpecifications(): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[]> {
     const data = await fetch(this.backendUrl + "/data-specification");
     return await data.json();
   }
