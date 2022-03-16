@@ -73,7 +73,7 @@ async function writeTransformationBegin(
   await writer.writeAndRegisterNamespaceDeclaration(
     "sp", "http://www.w3.org/2005/sparql-results#"
   );
-  await writer.writeLocalAttributeValue("version", "1.0");
+  await writer.writeLocalAttributeValue("version", "2.0");
   
   if (model.targetNamespacePrefix != null) {
     await writer.writeAndRegisterNamespaceDeclaration(

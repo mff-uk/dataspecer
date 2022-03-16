@@ -72,7 +72,7 @@ async function writeTransformationBegin(
   await writer.writeAndRegisterNamespaceDeclaration(
     "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   );
-  await writer.writeLocalAttributeValue("version", "1.0");
+  await writer.writeLocalAttributeValue("version", "2.0");
   
   if (model.targetNamespacePrefix != null) {
     await writer.writeAndRegisterNamespaceDeclaration(
