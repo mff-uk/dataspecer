@@ -35,7 +35,7 @@ async function GetPreviewComponentXsltArtifact(reader: CoreResourceReader, schem
         throw new Error("No schema returned");
     }
     return <Box>
-        <Typography variant="h5" sx={{mb: 2}}>XSL Transformation</Typography>
+        <Typography variant="h5" sx={{mb: 2}}>XSL {isLifting ? "Lifting" : "Lowering"} Transformation</Typography>
         <SyntaxHighlighter language="xml" style={githubGist}>{xslt}</SyntaxHighlighter>
     </Box>;
 }
