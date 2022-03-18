@@ -51,7 +51,7 @@ export class XmlSchemaElement {
   elementName: string;
   source: XmlSchemaImportDeclaration | null;
   type: XmlSchemaType;
-  annotation: XmlSchemaAnnotation;
+  annotation: XmlSchemaAnnotation | null;
 }
 
 /**
@@ -67,6 +67,7 @@ export class XmlSchemaType {
  */
 export class XmlSchemaComplexType extends XmlSchemaType {
   complexDefinition: XmlSchemaComplexTypeDefinition;
+  annotation: XmlSchemaAnnotation | null;
 }
 
 /**
