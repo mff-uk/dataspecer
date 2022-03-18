@@ -186,7 +186,7 @@ export const GenerateArtifacts: React.FC<{
 
                 <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>XSLT Lifting</MenuItem>
                 <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(GetXsltLiftingArtifact, "xslt", "text/xml;charset=utf-8")}>
+                    <MenuItem onClick={() => save(GetXsltLiftingArtifact, "lifting.xslt", "text/xml;charset=utf-8")}>
                         <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("download")}
                     </MenuItem>
@@ -208,7 +208,7 @@ export const GenerateArtifacts: React.FC<{
 
                 <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>XSLT Lowering</MenuItem>
                 <Box sx={{display: "flex"}}>
-                    <MenuItem onClick={() => save(GetXsltLoweringArtifact, "xslt", "text/xml;charset=utf-8")}>
+                    <MenuItem onClick={() => save(GetXsltLoweringArtifact, "lowering.xslt", "text/xml;charset=utf-8")}>
                         <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
                         {t("download")}
                     </MenuItem>
