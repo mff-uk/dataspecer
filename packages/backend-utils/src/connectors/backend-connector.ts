@@ -18,6 +18,13 @@ export class BackendConnector {
     return await data.json();
   }
 
+  public async readDataSpecification(iri: string): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)|null> {
+    const url = new URL(this.backendUrl + "/data-specification");
+    url.searchParams.append("dataSpecificationIri", iri);
+    const data = await fetch(url.toString());
+    return await data.json();
+  }
+
   public async createDataSpecification(): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
     const data = await fetch(this.backendUrl + "/data-specification", {
       method: "POST",

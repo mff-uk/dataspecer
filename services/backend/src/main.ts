@@ -10,7 +10,6 @@ import {readStore, writeStore} from "./routes/store";
 import {LocalStoreModel} from "./models/local-store-model";
 import {createDataPsm, deleteDataPsm} from "./routes/dataPsm";
 import cors from "cors";
-import {configurationByDataPsm} from "./routes/configuration";
 import bodyParser from "body-parser";
 import { generateBikeshedRoute } from "./routes/bikeshed";
 import {DataSpecificationModel} from "./models/data-specification-model";
@@ -36,7 +35,7 @@ export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecifi
     return {
         ...dataSpecification,
         pimStores: convertLocalStoresToHttpStores(dataSpecification.pimStores, storeApiUrl),
-        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => entry[1] = convertLocalStoresToHttpStores(entry[1], storeApiUrl))),
+        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => [entry[0], convertLocalStoresToHttpStores(entry[1], storeApiUrl)])),
     }
 }
 
@@ -60,10 +59,6 @@ application.delete('/data-specification/data-psm', deleteDataPsm);
 
 application.get('/store/:storeId', readStore);
 application.put('/store/:storeId', writeStore);
-
-// API for configuration of schema generator.
-
-application.get('/configuration/by-data-psm', configurationByDataPsm);
 
 // API for generators
 

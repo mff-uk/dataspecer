@@ -4,7 +4,18 @@ import {UpdateDataSpecification} from "@model-driven-data/backend-utils/interfac
 import {asyncHandler} from "../utils/async-handler";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
-    response.send((await dataSpecificationModel.getAllDataSpecifications()).map(replaceStoreDescriptorsInDataSpecification));
+    if (request.query.dataSpecificationIri) {
+        const iri = String(request.query.dataSpecificationIri);
+        let spec = await dataSpecificationModel.getDataSpecification(iri);
+        if (!spec) {
+            response.status(404);
+            return;
+        }
+        spec = replaceStoreDescriptorsInDataSpecification(spec);
+        response.send(spec);
+    } else {
+        response.send((await dataSpecificationModel.getAllDataSpecifications()).map(replaceStoreDescriptorsInDataSpecification));
+    }
 });
 
 export const addSpecification = asyncHandler(async (request: express.Request, response: express.Response) => {

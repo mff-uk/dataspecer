@@ -64,6 +64,16 @@ export class DataSpecificationModel {
     );
   }
 
+  public async getDataSpecification(dataSpecificationIri: string): Promise<(DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores)|null> {
+    const result = await this.prismaClient.dataSpecification.findUnique({
+      where: {
+        id: dataSpecificationIri,
+      },
+      ...prismaDataSpecificationConfig
+    });
+    return result ? this.getDataSpecificationFromPrisma(result) : null;
+  }
+
   public async createDataSpecification(): Promise<DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores> {
     // Create store for PIM schema and its elements
     const storeDescriptor = await this.storeModel.create();
