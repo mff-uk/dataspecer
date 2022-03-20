@@ -1,13 +1,13 @@
 // todo This hook is just temporary until we fix problem with accessing the association from its association end.
-import React from "react";
-import {StoreContext} from "../App";
+import {useContext} from "react";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {PimAssociation} from "@model-driven-data/core/pim/model";
-import {Resource, ResourceInfo} from "../../store/resource";
-import {useResource} from "../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {Resource} from "@model-driven-data/federated-observable-store/resource";
 
-export const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null): Resource<PimAssociation> & ResourceInfo => {
-    const {store} = React.useContext(StoreContext);
+export const usePimAssociationFromPimAssociationEnd = (pimAssociationEndIri: string | null): Resource<PimAssociation> => {
+    const store = useFederatedObservableStore();
 
     const [resource] = useAsyncMemo<PimAssociation | null>(async () => {
         if (pimAssociationEndIri) {

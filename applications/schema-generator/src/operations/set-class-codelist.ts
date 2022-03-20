@@ -1,11 +1,12 @@
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {PimSetClassCodelist} from "@model-driven-data/core/pim/operation";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export class SetClassCodelist implements ComplexOperation {
     private readonly forPimClassIri: string;
     private readonly codelist: string[];
     private readonly isCodelist: boolean;
+    private store!: FederatedObservableStore;
 
     /**
      * @param forPimClassIri
@@ -18,12 +19,17 @@ export class SetClassCodelist implements ComplexOperation {
         this.isCodelist = isCodelist;
     }
 
-    async execute(executor: OperationExecutor): Promise<void> {
+    setStore(store: FederatedObservableStore) {
+        this.store = store;
+    }
+
+    async execute(): Promise<void> {
+        const schema = this.store.getSchemaForResource(this.forPimClassIri) as string;
+
         const pimSetClassCodelist = new PimSetClassCodelist();
         pimSetClassCodelist.pimClass = this.forPimClassIri;
         pimSetClassCodelist.pimIsCodeList = this.isCodelist;
         pimSetClassCodelist.pimCodelistUrl = this.codelist;
-        await executor.applyOperation(pimSetClassCodelist, new StoreHavingResourceDescriptor(this.forPimClassIri));
-        console.log(pimSetClassCodelist);
+        await this.store.applyOperation(schema, pimSetClassCodelist);
     }
 }

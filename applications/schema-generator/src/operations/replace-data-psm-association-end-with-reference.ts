@@ -1,20 +1,25 @@
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "@model-driven-data/core/data-psm/operation";
 import {DataPsmAssociationEnd, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperation {
     private readonly dataPsmAssociationEnd: string;
     private readonly referencedDataPsmSchema: string;
+    private store!: FederatedObservableStore;
 
     constructor(dataPsmAssociationEnd: string, referencedDataPsmSchema: string) {
         this.dataPsmAssociationEnd = dataPsmAssociationEnd;
         this.referencedDataPsmSchema = referencedDataPsmSchema;
     }
 
-    async execute(executor: OperationExecutor): Promise<void> {
-        const schema = await executor.store.readResource(this.referencedDataPsmSchema);
-        const associationEnd = await executor.store.readResource(this.dataPsmAssociationEnd);
+    setStore(store: FederatedObservableStore) {
+        this.store = store;
+    }
+
+    async execute(): Promise<void> {
+        const schema = await this.store.readResource(this.referencedDataPsmSchema);
+        const associationEnd = await this.store.readResource(this.dataPsmAssociationEnd);
 
         if (!schema || !DataPsmSchema.is(schema)) {
             throw new Error(`Schema '${this.referencedDataPsmSchema}' is not a schema.`);
@@ -25,7 +30,7 @@ export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperati
         }
 
         const replacingClass = schema.dataPsmRoots[0];
-        const storeDescriptor = new StoreHavingResourceDescriptor(this.dataPsmAssociationEnd);
+        const dataPsmSchema = this.store.getSchemaForResource(this.dataPsmAssociationEnd) as string;
         const oldClass = associationEnd.dataPsmPart;
 
         // Create a reference to the class
@@ -33,7 +38,7 @@ export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperati
         const dataPsmCreateClassReference = new DataPsmCreateClassReference();
         dataPsmCreateClassReference.dataPsmClass = replacingClass;
         dataPsmCreateClassReference.dataPsmSpecification = schema.iri;
-        const dataPsmCreateClassReferenceResult = await executor.applyOperation(dataPsmCreateClassReference, storeDescriptor);
+        const dataPsmCreateClassReferenceResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClassReference);
         const reference = dataPsmCreateClassReferenceResult.created[0];
 
         // Replace the association end with the reference
@@ -41,14 +46,16 @@ export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperati
         const dataPsmSetPart = new DataPsmSetPart();
         dataPsmSetPart.dataPsmAssociationEnd = this.dataPsmAssociationEnd;
         dataPsmSetPart.dataPsmPart = reference;
-        await executor.applyOperation(dataPsmSetPart, storeDescriptor);
+        await this.store.applyOperation(dataPsmSchema, dataPsmSetPart);
 
         // Remove the old class
 
         if (oldClass) {
+            const oldClassSchema = this.store.getSchemaForResource(oldClass) as string;
+
             const dataPsmDeleteClass = new DataPsmDeleteClass();
             dataPsmDeleteClass.dataPsmClass = oldClass;
-            await executor.applyOperation(dataPsmDeleteClass, new StoreHavingResourceDescriptor(oldClass));
+            await this.store.applyOperation(oldClassSchema, dataPsmDeleteClass);
         }
     }
 }

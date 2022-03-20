@@ -5,14 +5,13 @@ import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";
 import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStringComponents";
 import {PimClass} from "@model-driven-data/core/pim/model";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import {CoreResourceReader, ReadOnlyMemoryStore} from "@model-driven-data/core/core";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
-import {FederatedObservableStore} from "../../store/federated-observable-store";
-import {StoreMetadataTag} from "../../configuration/configuration";
+import {useFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
 
 interface AncestorSelectorPanelParameters {
     forCimClassIri: string,
@@ -45,7 +44,7 @@ const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<Pi
 
 export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimClassIri, selectedAncestorCimIri, selectAncestorCimIri, hierarchyStore, setHierarchyStore}) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const {cim} = React.useContext(StoreContext);
+    const {cim} = React.useContext(ConfigurationContext);
     const [sorted, loading] = useAsyncMemo(async () => hierarchyStore ? await BFS(hierarchyStore, cim.iriProvider.cimToPim(forCimClassIri)) : null, [hierarchyStore]);
 
     useEffect(() => {
@@ -61,21 +60,12 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
 
-    const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableStore());
-    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    const store = useFederatedObservableStore();
     useEffect(() => {
         if (sorted) {
             const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(sorted.map(r => [r.iri, r])));
-            const storeWithMetadata = {
-                store: readOnlyMemoryStore,
-                metadata: {
-                    tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
-                },
-            };
-
-            store.addStore(storeWithMetadata);
-            return () => store.removeStore(storeWithMetadata);
+            store.addStore(readOnlyMemoryStore);
+            return () => store.removeStore(readOnlyMemoryStore);
         }
     }, [sorted, store]);
 
@@ -97,7 +87,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
             </List>
         }
 
-        <StoreContext.Provider value={NewStoreContext}>
+        <StoreContext.Provider value={store}>
             <ClassDetailDialog.Component />
         </StoreContext.Provider>
     </>;

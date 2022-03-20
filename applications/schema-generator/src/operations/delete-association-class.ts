@@ -1,12 +1,13 @@
 import {DataPsmAssociationEnd, DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {DataPsmDeleteAssociationEnd, DataPsmDeleteClass} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export class DeleteAssociationClass implements ComplexOperation {
   private readonly association: DataPsmAssociationEnd;
   private readonly child: DataPsmClass;
   private readonly ownerClassIri: string;
+  private store!: FederatedObservableStore;
 
   constructor(association: DataPsmAssociationEnd, child: DataPsmClass, ownerClassIri: string) {
     this.association = association;
@@ -14,14 +15,20 @@ export class DeleteAssociationClass implements ComplexOperation {
     this.ownerClassIri = ownerClassIri;
   }
 
-  async execute(executor: OperationExecutor): Promise<void> {
+  setStore(store: FederatedObservableStore) {
+    this.store = store;
+  }
+
+  async execute(): Promise<void> {
+    const schema = this.store.getSchemaForResource(this.ownerClassIri) as string;
+
     const dataPsmDeleteAssociationEnd = new DataPsmDeleteAssociationEnd();
     dataPsmDeleteAssociationEnd.dataPsmOwner = this.ownerClassIri;
     dataPsmDeleteAssociationEnd.dataPsmAssociationEnd = this.association.iri as string;
-    await executor.applyOperation(dataPsmDeleteAssociationEnd, new StoreHavingResourceDescriptor(this.ownerClassIri));
+    await this.store.applyOperation(schema, dataPsmDeleteAssociationEnd);
 
     const dataPsmDeleteClass = new DataPsmDeleteClass();
     dataPsmDeleteClass.dataPsmClass = this.child.iri as string;
-    await executor.applyOperation(dataPsmDeleteClass, new StoreHavingResourceDescriptor(this.ownerClassIri));
+    await this.store.applyOperation(schema, dataPsmDeleteClass);
   }
 }

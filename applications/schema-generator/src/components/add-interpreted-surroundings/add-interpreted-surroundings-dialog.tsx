@@ -1,25 +1,25 @@
 import {Button, Checkbox, DialogActions, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Theme, Typography} from "@mui/material";
-import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "@model-driven-data/core/core";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import {AncestorSelectorPanel} from "./ancestor-selector-panel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {useDialog} from "../../hooks/useDialog";
 import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";
-import {FederatedObservableStore, StoreWithMetadata} from "../../store/federated-observable-store";
-import {StoreMetadataTag} from "../../configuration/configuration";
 import {dialog} from "../../dialog";
 import {DialogContent, DialogTitle} from "../detail/common";
 import {AssociationItem} from "./association-item";
+import {useFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -69,7 +69,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
     const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const cimClassIri = pimClass?.pimInterpretation;
 
-    const {cim} = React.useContext(StoreContext);
+    const {cim} = React.useContext(ConfigurationContext);
 
     // For which CIM iris the loading is in progress
     const [currentCimClassIri, setCurrentCimClassIri] = useState<string>("");
@@ -84,19 +84,13 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
 
-    const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableStore());
-    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    const store = useFederatedObservableStore();
     useEffect(() => {
-        const stores: StoreWithMetadata[] = [];
+        const stores: CoreResourceReader[] = [];
         for (const iri in surroundings) {
-            if (surroundings[iri]) {
-                stores.push({
-                    store: surroundings[iri] as CoreResourceReader,
-                    metadata: {
-                        tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
-                    },
-                });
+            const surroundingStore = surroundings[iri];
+            if (surroundingStore) {
+                stores.push(surroundingStore);
             }
         }
         stores.forEach(s => store.addStore(s));
@@ -113,7 +107,8 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
             setSurroundings({...surroundings, [newCurrentCimClassIri]: undefined});
 
             cim.cimAdapter.getSurroundings(newCurrentCimClassIri).then(result => {
-                setSurroundings({...surroundings, [newCurrentCimClassIri]: result});
+                const wrappedStore = new ReadOnlyMemoryStoreWithDummyPimSchema(result, "http://dummy-schema" + newCurrentCimClassIri);
+                setSurroundings({...surroundings, [newCurrentCimClassIri]: wrappedStore});
             });
         }
     }, [surroundings, cim.cimAdapter]);
@@ -154,7 +149,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     if (!cimClassIri) return null;
 
-    return <StoreContext.Provider value={NewStoreContext}>
+    return <StoreContext.Provider value={store}>
         <DialogTitle id="customized-dialog-title" close={close}>
             {t("title")}
         </DialogTitle>

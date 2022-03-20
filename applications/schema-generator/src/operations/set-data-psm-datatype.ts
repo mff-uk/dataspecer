@@ -1,17 +1,25 @@
 import {DataPsmSetDatatype} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export class SetDataPsmDatatype implements ComplexOperation {
   private readonly forDataPsmAttributeIri: string;
   private readonly datatype: string | null;
+  private store!: FederatedObservableStore;
 
   constructor(forDataPsmAttributeIri: string, datatype: string | null) {
     this.forDataPsmAttributeIri = forDataPsmAttributeIri;
     this.datatype = datatype;
   }
 
-  async execute(executor: OperationExecutor): Promise<void> {
+  setStore(store: FederatedObservableStore) {
+    this.store = store;
+  }
+
+  async execute(): Promise<void> {
+    const schema = this.store.getSchemaForResource(this.forDataPsmAttributeIri) as string;
+
+
     let datatype = this.datatype;
     if (datatype === "") {
       console.warn("SetDataPsmDatatype ComplexOperation: Datatype should not be an empty string. Setting it to null.");
@@ -21,6 +29,6 @@ export class SetDataPsmDatatype implements ComplexOperation {
     const dataPsmSetDatatype = new DataPsmSetDatatype();
     dataPsmSetDatatype.dataPsmAttribute = this.forDataPsmAttributeIri;
     dataPsmSetDatatype.dataPsmDatatype = datatype;
-    await executor.applyOperation(dataPsmSetDatatype, new StoreHavingResourceDescriptor(this.forDataPsmAttributeIri));
+    await this.store.applyOperation(schema, dataPsmSetDatatype);
   }
 }

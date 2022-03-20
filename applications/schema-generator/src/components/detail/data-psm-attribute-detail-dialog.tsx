@@ -1,7 +1,7 @@
 import React, {memo} from "react";
 import {DialogContentText, Tab, Tabs} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmAttribute} from "@model-driven-data/core/data-psm/model";
 import {PimAttribute} from "@model-driven-data/core/pim/model";
 import {selectLanguage} from "../../utils/selectLanguage";

@@ -1,10 +1,10 @@
-import React, {memo, ReactElement, useCallback, useRef, useState} from "react";
+import React, {memo, ReactElement, useCallback, useContext, useRef, useState} from "react";
 import {Alert, Box, Button, Dialog, DialogActions, DialogContent, Divider, Fab, ListItemIcon, Menu, MenuItem} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useToggle} from "../../hooks/useToggle";
 import {uniqueId} from "lodash";
 import {useTranslation} from "react-i18next";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
 import {useDialog} from "../../hooks/useDialog";
 import {GetPreviewComponentXsdArtifact, GetXsdArtifact} from "./XsdArtifact";
@@ -19,8 +19,8 @@ import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
 import {DialogParameters} from "../../dialog";
-import {SCHEMA} from "@model-driven-data/core/pim/pim-vocabulary";
-import {StoreByPropertyDescriptor} from "../../store/operation-executor";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {Configuration} from "../../configuration/configuration";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
     const {t} = useTranslation("artifacts");
@@ -46,15 +46,14 @@ const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>
 });
 
 function useCopyToClipboard(close: () => void) {
-    const {psmSchemas, store} = React.useContext(StoreContext);
+    const configuration = useContext(ConfigurationContext);
     const {enqueueSnackbar} = useSnackbar();
     const {t} = useTranslation("artifacts");
-    return useCallback(async (getArtifact: (store: CoreResourceReader, schema: string, pimSchemaIri: string) => Promise<string>) => {
+    return useCallback(async (getArtifact: (configuration: Configuration) => Promise<string>) => {
         close();
         let value: string | undefined = undefined;
         try {
-            const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
-            value = await getArtifact(store, psmSchemas[0], pimSchemas[0]);
+            value = await getArtifact(configuration);
         } catch (error) {
             enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
@@ -65,40 +64,39 @@ function useCopyToClipboard(close: () => void) {
                 enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
             }
         }
-    }, [close, psmSchemas, store, enqueueSnackbar, t]);
+    }, [close, configuration, enqueueSnackbar, t]);
 }
 
 function useSaveToFile(close: () => void) {
-    const {psmSchemas, store} = React.useContext(StoreContext);
+    const configuration = useContext(ConfigurationContext);
     const {t, i18n} = useTranslation("artifacts");
     const {enqueueSnackbar} = useSnackbar();
-    return useCallback(async (getArtifact: (store: CoreResourceReader, dataPsmSchemaIri: string, pimSchemaIri: string) => Promise<string>, extension: string, mime: string) => {
+    return useCallback(async (getArtifact: (configuration: Configuration) => Promise<string>, extension: string, mime: string) => {
         close();
         let artifact: string | undefined = undefined;
         try {
-            const pimSchemas = await store.listResourcesOfType(SCHEMA, new StoreByPropertyDescriptor(["root", "pim"]));
-            artifact = await getArtifact(store, psmSchemas[0], pimSchemas[0]);
+            artifact = await getArtifact(configuration);
         } catch (error) {
             enqueueSnackbar(<><strong>{t("error mdd")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
-        if (artifact !== undefined) {
-            const name = await getNameForSchema(store, psmSchemas[0], i18n.languages);
+        if (artifact !== undefined && configuration.dataPsmSchemaIri) {
+            const name = await getNameForSchema(configuration.store, configuration.dataPsmSchemaIri, i18n.languages);
             const data = new Blob([artifact], {type: mime});
             FileSaver.saveAs(data, name + "." + extension, {autoBom: false});
         }
-    }, [close, psmSchemas, store, enqueueSnackbar, i18n.languages, t]);
+    }, [close, configuration, enqueueSnackbar, t, i18n.languages]);
 }
 
 
 export const GenerateArtifacts: React.FC<{
-    artifactPreview: ((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null,
-    setArtifactPreview: (value: () => (((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null)) => void
+    artifactPreview: ((configuration: Configuration) => Promise<ReactElement>) | null,
+    setArtifactPreview: (value: () => (((configuration: Configuration) => Promise<ReactElement>) | null)) => void
 }> = ({setArtifactPreview, artifactPreview}) => {
     const {isOpen, open, close} = useToggle();
     const [ id ] = useState(() => uniqueId());
     const ref = useRef(null);
     const {t} = useTranslation("artifacts");
-    const {psmSchemas, store} = React.useContext(StoreContext);
+    const configuration = useContext(ConfigurationContext);
 
     const Preview = useDialog(PreviewDialog, ["content"]);
 
@@ -107,7 +105,7 @@ export const GenerateArtifacts: React.FC<{
 
     return (
         <>
-            <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref} disabled={psmSchemas.length === 0}>
+            <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref}>
                 {t("button generate load artifacts")}
                 <ExpandMoreIcon />
             </Fab>
@@ -127,7 +125,7 @@ export const GenerateArtifacts: React.FC<{
                     </MenuItem>
                     <MenuItem onClick={() => {
                         close();
-                        Preview.open({content: GetPreviewComponentStoreArtifact(store)});
+                        Preview.open({content: GetPreviewComponentStoreArtifact(configuration)});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetStoreArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
@@ -145,7 +143,7 @@ export const GenerateArtifacts: React.FC<{
                     </MenuItem>
                     <MenuItem onClick={() => {
                         close();
-                        Preview.open({content: GetPreviewComponentJsonSchemaArtifact(store, psmSchemas[0])});
+                        Preview.open({content: GetPreviewComponentJsonSchemaArtifact(configuration)});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetJsonSchemaArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
@@ -167,7 +165,7 @@ export const GenerateArtifacts: React.FC<{
                     </MenuItem>
                     <MenuItem onClick={() => {
                         close();
-                        Preview.open({content: GetPreviewComponentXsdArtifact(store, psmSchemas[0])});
+                        Preview.open({content: GetPreviewComponentXsdArtifact(configuration)});
                     }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
                     <MenuItem onClick={() => copy(GetXsdArtifact)}>
                         <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>

@@ -3,7 +3,7 @@ import {Box, DialogContentText, Tab, Tabs, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {DataPsmAssociationEnd, DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {usePimAssociationFromPimAssociationEnd} from "../data-psm/use-pim-association-from-pim-association-end";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";

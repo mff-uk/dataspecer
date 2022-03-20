@@ -1,6 +1,6 @@
 import {DataPsmResource} from "@model-driven-data/core/data-psm/model";
 import {PimResource} from "@model-driven-data/core/pim/model";
-import {useResource} from "./useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 
 /**
  * For the given data-PSM IRI it returns {@link DataPsmResource} object along with {@link PimResource} object if
@@ -13,9 +13,7 @@ export const useDataPsmAndInterpretedPim = <DataPsmResourceType extends DataPsmR
 
     return {
         dataPsmResource: dataPsmResource.resource,
-        dataPsmResourceStore: dataPsmResource.store,
         pimResource: pimResource.resource,
-        pimResourceStore: pimResource.store,
         isLoading: dataPsmResource.isLoading || pimResource.isLoading,
     };
 }

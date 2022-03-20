@@ -4,7 +4,6 @@ import {JSON_SCHEMA} from "@model-driven-data/core/json-schema/json-schema-vocab
 import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabulary";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
-import {GeneratorOptions} from "./generator-options";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -12,7 +11,7 @@ import {GeneratorOptions} from "./generator-options";
  * to set various parameters for how the resulting generated object should look
  * like.
  */
-export class ArtifactDefinitionConfigurator {
+export class DefaultArtifactConfigurator {
   private readonly dataSpecifications: DataSpecification[];
   private readonly store: CoreResourceReader;
 
@@ -27,12 +26,10 @@ export class ArtifactDefinitionConfigurator {
   /**
    * Sets {@link DataSpecification.artefacts} field for the given specification.
    * @param dataSpecificationIri Iri of the specification to set the artifacts for.
-   * @param generatorOptions Defines which artifacts should be generated.
    */
-  public async setConfigurationForSpecification(
+  public async generateFor(
     dataSpecificationIri: string,
-    generatorOptions: GeneratorOptions,
-  ): Promise<void> {
+  ): Promise<DataSpecificationArtefact[]> {
     const dataSpecification = this.dataSpecifications.find(
       dataSpecification => dataSpecification.iri === dataSpecificationIri,
     );
@@ -51,30 +48,23 @@ export class ArtifactDefinitionConfigurator {
       // unique name of current data structure (DPSM) in context of the data specification
       const name = psmSchemaIri.split('/').pop() as string; // todo use real name
 
-      if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("json")) {
-        const jsonSchema = new DataSpecificationSchema();
-        jsonSchema.iri = `${name}#jsonschema`;
-        jsonSchema.outputPath = `${dataSpecificationName}/${name}/schema.json`;
-        jsonSchema.publicUrl = jsonSchema.outputPath;
-        jsonSchema.generator = JSON_SCHEMA.Generator;
-        jsonSchema.psm = psmSchemaIri;
+      const jsonSchema = new DataSpecificationSchema();
+      jsonSchema.iri = `${name}#jsonschema`;
+      jsonSchema.outputPath = `${dataSpecificationName}/${name}/schema.json`;
+      jsonSchema.publicUrl = jsonSchema.outputPath;
+      jsonSchema.generator = JSON_SCHEMA.Generator;
+      jsonSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(jsonSchema);
 
-        currentSchemaArtefacts.push(jsonSchema);
-      }
-
-      if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("xml")) {
-        const xmlSchema = new DataSpecificationSchema();
-        xmlSchema.iri = `${name}#xmlschema`;
-        xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;
-        xmlSchema.publicUrl = xmlSchema.outputPath;
-        xmlSchema.generator = XML_SCHEMA.Generator;
-        xmlSchema.psm = psmSchemaIri;
-
-        currentSchemaArtefacts.push(xmlSchema);
-      }
+      const xmlSchema = new DataSpecificationSchema();
+      xmlSchema.iri = `${name}#xmlschema`;
+      xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;
+      xmlSchema.publicUrl = xmlSchema.outputPath;
+      xmlSchema.generator = XML_SCHEMA.Generator;
+      xmlSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(xmlSchema);
     }
 
-    // Override the value
-    dataSpecification.artefacts = currentSchemaArtefacts;
+    return currentSchemaArtefacts;
   }
 }
