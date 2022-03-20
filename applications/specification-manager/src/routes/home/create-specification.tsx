@@ -1,20 +1,50 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useContext, useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, TextField} from "@mui/material";
 import {useToggle} from "../../use-toggle";
-import axios from "axios";
-import {processEnv} from "../../index";
+import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
+import {Resource} from "@model-driven-data/federated-observable-store/resource";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 export const CreateSpecification: React.FC<{ reload: (() => void) | undefined }> = ({reload}) => {
     const dialog = useToggle();
     const [name, setName] = useState<string>("");
 
+    const {
+        dataSpecifications,
+        setDataSpecifications,
+        rootDataSpecificationIris,
+        setRootDataSpecificationIris,
+    } = useContext(DataSpecificationsContext);
+    const backendConnector = useContext(BackendConnectorContext);
+    const store = useFederatedObservableStore();
     const create = useCallback(async () => {
-        await axios.post(`${processEnv.REACT_APP_BACKEND}/specification`, {name});
-        reload?.();
+        const dataSpecification = await backendConnector.createDataSpecification();
+        const pim = dataSpecification.pim as string;
+
+        // Wait for store to be initialized
+        await new Promise<void>(resolve => {
+            const subscriber = (iri: string, resource: Resource) => {
+                if (resource.resource) {
+                    store.removeSubscriber(pim, subscriber);
+                    resolve();
+                }
+            }
+            store.addSubscriber(pim, subscriber);
+
+            setDataSpecifications({
+                ...dataSpecifications,
+                [dataSpecification.iri as string]: dataSpecification
+            });
+            setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri as string]);
+        });
+
+        const op = new SetPimLabelAndDescription(pim, {en: name}, {});
+        await store.executeComplexOperation(op);
         dialog.close();
         setName("");
-    }, [reload, dialog, name]);
+    }, [backendConnector, name, store, dialog, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>

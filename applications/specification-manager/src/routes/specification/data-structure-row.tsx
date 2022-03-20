@@ -1,70 +1,49 @@
-import {DataStructure} from "../../interfaces/data-structure";
-import {StoreInfo} from "./store-info";
-import {Box, Button, Switch, TableCell, TableRow, Typography} from "@mui/material";
-import React, {useCallback, useEffect} from "react";
-import axios from "axios";
-import {processEnv} from "../../index";
+import {Box, Button, TableCell, TableRow, Typography} from "@mui/material";
+import React, {useCallback, useContext} from "react";
+import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {DataSchemaNameCell} from "../../name-cells";
+import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";
 
 export interface DataStructureRowProps {
-    dataStructure: DataStructure;
-
-    specificationId: string;
-    reloadSpecification: () => void;
+    specificationIri: string;
+    dataStructureIri: string;
 }
 
-export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure, specificationId, reloadSpecification}) => {
+export const DataStructureRow: React.FC<DataStructureRowProps>
+    = ({specificationIri, dataStructureIri}) => {
+
+    const {resource} = useResource<DataPsmSchema>(dataStructureIri);
+
+    const backendConnector = useContext(BackendConnectorContext);
+    const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
+
+    /**
+     * Deletes this data structure and updates the data specification.
+     */
     const deleteDataPsm = useCallback(async () => {
-        await axios.delete(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`);
-        reloadSpecification?.();
-    }, [reloadSpecification, specificationId, dataStructure.id]);
-
-    const [switchLoading, setSwitchLoading] = React.useState<string[]>([]);
-    useEffect(() => {
-        setSwitchLoading([]);
-    }, [dataStructure]);
-
-    const switchChanged = useCallback(async (type: string) => {
-        setSwitchLoading([...switchLoading, type]);
-        const artifacts = [] as string[];
-        if (dataStructure.artifact_xml !== (type === "xml")) {
-            artifacts.push("xml");
-        }
-        if (dataStructure.artifact_json !== (type === "json")) {
-            artifacts.push("json");
-        }
-        await axios.post(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}/data-psm/${dataStructure.id}`, {artifacts});
-        reloadSpecification?.();
-    }, [reloadSpecification, specificationId, switchLoading, dataStructure]);
-
-    const editSchemaGeneratorUrl = new URL(processEnv.REACT_APP_SCHEMA_GENERATOR as string);
-    editSchemaGeneratorUrl.searchParams.append('configuration', `${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`);
-    editSchemaGeneratorUrl.searchParams.append('backlink', window.location.href);
-
-    return <TableRow key={dataStructure.id}>
-        <StoreInfo storeId={dataStructure?.store ?? null}>
-            {(name, operations, resources) =>
-                <>
-                    <TableCell component="th" scope="row" sx={{width: "25%"}}>
-                        <Typography sx={{fontWeight: "bold"}}>
-                            {name ?? "-"}
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>{operations ?? "-"}</Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>{resources ?? "-"}</Typography>
-                    </TableCell>
-                </>
+        await backendConnector.deleteDataStructure(specificationIri, dataStructureIri);
+        setDataSpecifications({
+            ...dataSpecifications,
+            [specificationIri]: {
+                ...dataSpecifications[specificationIri],
+                psms: dataSpecifications[specificationIri].psms.filter(psm => psm !== dataStructureIri),
+                psmStores: Object.fromEntries(
+                    Object.entries(dataSpecifications[specificationIri].psmStores).filter(([psmIri, storeInfo]) => psmIri !== dataStructureIri)
+                ),
             }
-        </StoreInfo>
+        });
+    }, [backendConnector, dataSpecifications, dataStructureIri, setDataSpecifications, specificationIri]);
 
-        <TableCell>
-            <Switch checked={dataStructure.artifact_json} disabled={switchLoading.includes('json')} onClick={() => switchChanged('json')}/>
+    return <TableRow>
+        <TableCell component="th" scope="row" sx={{width: "25%"}}>
+            <DataSchemaNameCell dataPsmSchemaIri={dataStructureIri as string} />
         </TableCell>
         <TableCell>
-            <Switch checked={dataStructure.artifact_xml} disabled={switchLoading.includes('xml')} onClick={() => switchChanged('xml')}/>
+            <Typography>{resource?.dataPsmParts.length ?? "-"}</Typography>
         </TableCell>
+
         <TableCell align="right">
             <Box
                 sx={{
@@ -72,8 +51,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps> = ({dataStructure
                     gap: "1rem",
                     justifyContent: "flex-end"
                 }}>
-                <Button variant={"contained"} color={"primary"} href={editSchemaGeneratorUrl.toString()}>Edit</Button>
-                {/*<Button variant="outlined" color={"primary"} href={`${processEnv.REACT_APP_BACKEND}/configuration/by-data-psm/${dataStructure.id}`}>See configuration</Button>*/}
+                <Button variant={"contained"} color={"primary"} href={getSchemaGeneratorLink(specificationIri, dataStructureIri)}>Edit</Button>
                 <Button
                     variant="outlined"
                     color={"error"}

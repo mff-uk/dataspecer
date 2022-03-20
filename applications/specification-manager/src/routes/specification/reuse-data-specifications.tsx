@@ -1,24 +1,21 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {useToggle} from "../../use-toggle";
-import axios from "axios";
-import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
 import PowerIcon from '@mui/icons-material/Power';
-import {DataSpecification} from "../../interfaces/data-specification";
-import {processEnv} from "../../index";
+import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
 
-export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefined, specificationId: string }>
-    = ({
-           reload,
-           specificationId
-       }) => {
+export const ReuseDataSpecifications: React.FC<{
+    dataSpecificationIri: string,
+}>
+    = ({dataSpecificationIri}) => {
     const dialog = useToggle();
 
-    const [specifications] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${processEnv.REACT_APP_BACKEND}/specification`), []);
-
-    const [specification] = useAsyncMemoWithTrigger(() => axios.get<DataSpecification>(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`), []);
+    const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
+    const specification = dataSpecifications[dataSpecificationIri];
+    const backendConnector = useContext(BackendConnectorContext);
 
     const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
+
     const handleToggle = (value: string) => () => {
         const currentIndex = selectedSpecificationIds.indexOf(value);
         const newChecked = [...selectedSpecificationIds];
@@ -33,18 +30,25 @@ export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefine
     };
 
     useEffect(() => {
-        if (specification) {
-            setSelectedSpecificationIds(specification.data.reusesDataSpecification.map(linked => linked.id));
+        if (specification?.importsDataSpecifications) {
+            setSelectedSpecificationIds(specification?.importsDataSpecifications);
         }
-    }, [specification]);
+    }, [specification?.importsDataSpecifications]);
 
     const save = useCallback(async () => {
-        await axios.put(`${processEnv.REACT_APP_BACKEND}/specification/${specificationId}`, {
-            linkedSpecifications: selectedSpecificationIds
+        const newSpecification = await backendConnector.updateDataSpecification(
+            dataSpecificationIri,
+            {
+                importsDataSpecifications: selectedSpecificationIds,
+            }
+        );
+        setDataSpecifications({
+            ...dataSpecifications,
+            [dataSpecificationIri]: newSpecification,
         });
-        reload?.();
+
         dialog.close();
-    }, [reload, dialog, specificationId, selectedSpecificationIds]);
+    }, [backendConnector, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
@@ -55,19 +59,19 @@ export const ReuseDataSpecifications: React.FC<{ reload: (() => void) | undefine
             <DialogTitle>Reuse data specifications</DialogTitle>
             <DialogContent>
                 <List>
-                    {specification && specifications?.data?.filter(spec => spec.id !== specificationId).map(spec => {
+                    {specification && Object.values(dataSpecifications).map(spec => {
                         return (
-                            <ListItem key={spec.id} disablePadding>
-                                <ListItemButton role={undefined} onClick={handleToggle(spec.id)} dense>
+                            <ListItem key={spec.iri} disablePadding>
+                                <ListItemButton role={undefined} onClick={handleToggle(spec.iri as string)} dense>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedSpecificationIds.indexOf(spec.id) !== -1}
+                                            checked={selectedSpecificationIds.indexOf(spec.iri as string) !== -1}
                                             tabIndex={-1}
                                             disableRipple
                                         />
                                     </ListItemIcon>
-                                    <ListItemText primary={spec.name}/>
+                                    <ListItemText primary={"spec.name"}/>
                                 </ListItemButton>
                             </ListItem>
                         );
