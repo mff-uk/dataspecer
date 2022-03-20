@@ -244,7 +244,7 @@ async function writeElement(
       } else {
         if (xmlSchemaTypeIsComplex(type)) {
           await writeAnnotation(element.annotation, writer);
-          await writeComplexType(type.complexDefinition, writer);
+          await writeComplexType(type.complexDefinition, type.annotation, writer);
         } else if (xmlSchemaTypeIsSimple(type)) {
           await writeSimpleType(
             type.simpleDefinition, true, element.annotation, writer
@@ -260,12 +260,14 @@ async function writeElement(
  */
 async function writeComplexType(
   definition: XmlSchemaComplexTypeDefinition,
+  annotation: XmlSchemaAnnotation,
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xs", "complexType")(async writer => {
     if (definition.mixed) {
       await writer.writeLocalAttributeValue("mixed", "true");
     }
+    await writeAnnotation(annotation, writer);
     if (definition.xsType != null) {
       await writeComplexContent(definition, null, false, writer);
     }

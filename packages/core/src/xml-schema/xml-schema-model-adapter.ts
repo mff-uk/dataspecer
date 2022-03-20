@@ -137,6 +137,7 @@ class XmlSchemaAdapter {
             type: {
               name: element.type.name,
               source: element.type.source,
+              annotation: element.type.annotation,
               complexDefinition: {
                 xsType: "group",
                 mixed: false,
@@ -238,8 +239,9 @@ class XmlSchemaAdapter {
       type: {
         name: null,
         complexDefinition: this.classToComplexType(classData),
+        annotation: this.getAnnotation(classData),
       } as XmlSchemaComplexType,
-      annotation: this.getAnnotation(classData),
+      annotation: null,
     };
   }
 
@@ -360,6 +362,7 @@ class XmlSchemaAdapter {
     return {
       name: null,
       source: null,
+      annotation: null,
       complexDefinition: {
         mixed: false,
         xsType: "choice",
