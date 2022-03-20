@@ -13,7 +13,7 @@ import { assertFailed, assertNot } from "../core";
 import { transformStructureModel } from "../structure-model/transformation";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 
-export class XsltGenerator implements ArtefactGenerator {
+class XsltGenerator implements ArtefactGenerator {
   isLifting: boolean;
 
   constructor(isLifting: boolean) {
@@ -73,5 +73,17 @@ export class XsltGenerator implements ArtefactGenerator {
     callerContext: unknown
   ): Promise<unknown | null> {
     return null;
+  }
+}
+
+export class XsltLiftingGenerator extends XsltGenerator {
+  constructor() {
+    super(true);
+  }
+}
+
+export class XsltLoweringGenerator extends XsltGenerator {
+  constructor() {
+    super(false);
   }
 }
