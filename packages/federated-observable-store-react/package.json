@@ -6,10 +6,13 @@
   },
   "dependencies": {
     "@model-driven-data/core": "^0.0.0",
-    "@model-driven-data/federated-observable-store": "^0.0.0",
-    "react": "^17.0.2"
+    "@model-driven-data/federated-observable-store": "^0.0.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.40"
+    "@types/react": "^17.0.40",
+    "typescript": "^4.5.5"
+  },
+  "publishConfig": {
+    "directory": "lib"
   }
 }

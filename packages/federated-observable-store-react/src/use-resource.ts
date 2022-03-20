@@ -1,6 +1,6 @@
 import {CoreResource} from "@model-driven-data/core/core";
 import {useCallback, useContext, useEffect, useState} from "react";
-import {StoreContext} from "./store-context";
+import {StoreContext} from "./store";
 import {Resource} from "@model-driven-data/federated-observable-store/resource";
 import {Subscriber} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
