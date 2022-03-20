@@ -13,6 +13,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
 import {dialog, DialogParameters, useDialog} from "../../dialog";
+import {translateFrom} from "../helper/LanguageStringComponents";
 import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
@@ -24,7 +25,7 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
-    const {t} = useTranslation("search-dialog");
+    const {t, i18n} = useTranslation("search-dialog");
 
     const DetailDialog = useDialog(PimClassDetailDialog);
 
@@ -101,8 +102,8 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
                         close();
                     }}>
                         <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
-                                                             title={result.pimHumanDescription?.cs}>{result.pimHumanDescription?.cs}</Typography>}>
-                            <strong>{result.pimHumanLabel?.cs}</strong>
+                                                             title={translateFrom(result.pimHumanDescription, i18n.languages)}>{translateFrom(result.pimHumanDescription, i18n.languages)}</Typography>}>
+                            <strong>{translateFrom(result.pimHumanLabel, i18n.languages)}</strong>
                             {" "}
                             <SlovnikGovCzGlossary cimResourceIri={result.pimInterpretation as string}/>
                         </ListItemText>

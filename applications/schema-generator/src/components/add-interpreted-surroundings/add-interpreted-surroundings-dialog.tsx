@@ -18,6 +18,7 @@ import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-cl
 import {dialog} from "../../dialog";
 import {DialogContent, DialogTitle} from "../detail/common";
 import {AssociationItem} from "./association-item";
+import {translateFrom} from "../helper/LanguageStringComponents";
 import {useFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
 import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
@@ -64,7 +65,7 @@ export interface AddInterpretedSurroundingDialogProperties {
 
 export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri}) => {
     const styles = useStyles();
-    const {t} = useTranslation("interpretedSurrounding");
+    const {t, i18n} = useTranslation("interpretedSurrounding");
 
     const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
     const cimClassIri = pimClass?.pimInterpretation;
@@ -175,8 +176,8 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                             disableRipple
                                         />
                                     </ListItemIcon>
-                                    <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={entity.pimHumanDescription?.cs}>{entity.pimHumanDescription?.cs}</Typography>}>
-                                        <strong>{entity.pimHumanLabel?.cs}</strong>
+                                    <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={translateFrom(entity.pimHumanDescription, i18n.languages)}>{translateFrom(entity.pimHumanDescription, i18n.languages)}</Typography>}>
+                                        <strong>{translateFrom(entity.pimHumanLabel, i18n.languages)}</strong>
                                         {" "}
                                         <SlovnikGovCzGlossary cimResourceIri={entity.pimInterpretation as string} />
                                     </ListItemText>

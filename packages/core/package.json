@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "webpack -c ./build/webpack.config.js",
+    "build:watch": "webpack -c ./build/webpack.config.js --watch",
     "lint": "eslint ./src",
     "prettier": "prettier -w ./src",
     "pretest": "webpack -c ./build/webpack.config.js",

@@ -4,6 +4,7 @@ import { Generator } from "./generator";
 import { BikeshedGenerator } from "../bikeshed";
 import { JsonSchemaGenerator } from "../json-schema/json-schema-generator";
 import { XmlSchemaGenerator } from "../xml-schema/xml-schema-generator";
+import { CsvSchemaGenerator } from "../csv-schema/csv-schema-generator";
 import { PlantUmlGenerator } from "../plant-uml";
 
 /**
@@ -18,6 +19,7 @@ export function createDefaultGenerator(
     new BikeshedGenerator(),
     new JsonSchemaGenerator(),
     new XmlSchemaGenerator(),
+    new CsvSchemaGenerator(),
     new PlantUmlGenerator(),
   ]);
 }

@@ -27,6 +27,8 @@ import {useDialog} from "../../dialog";
 import {Icons} from "../../icons";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference/replace-association-with-reference-dialog";
 import {getCardinalityFromResource} from "./common/cardinality";
+import {ReplaceAlongInheritanceDialog} from "./replace-along-inheritance/replace-along-inheritance-dialog";
+import {ActionsOther} from "./common/actions-other";
 import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 /**
@@ -73,6 +75,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const detailOpen = useCallback(() => detail.open({iri: dataPsmAssociationEndIri, parentIri: parentDataPsmClassIri}), [dataPsmAssociationEndIri, detail, parentDataPsmClassIri]);
     const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
     const ReplaceDialog = useDialog(ReplaceAssociationWithReferenceDialog);
+    const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
             store.executeComplexOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
@@ -99,6 +102,20 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                     <MenuItem onClick={del} title={t("button delete")}><Icons.Tree.Delete/></MenuItem>
                     <ReplaceAssociationEndWithReference dataPsmAssociationEnd={dataPsmAssociationEnd.iri as string} open={ReplaceDialog.open} />
                 </>}
+
+                <ActionsOther>
+                    {close => <>
+                        <MenuItem
+                            onClick={() => {
+                              close();
+                              dataPsmClass?.iri && ReplaceAlongHierarchy.open({dataPsmClassIri: dataPsmClass.iri});
+                            }}
+                            title={t("button replace along inheritance")}>
+                            {t("button replace along inheritance")}
+                        </MenuItem>
+                    </>}
+                </ActionsOther>
+
             </>}
         </>} readOnly={readOnly}>
 
@@ -158,5 +175,6 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
         <detail.Component />
         {dataPsmClassIri && <AddSurroundings.Component dataPsmClassIri={dataPsmClassIri} />}
         <ReplaceDialog.Component />
+        <ReplaceAlongHierarchy.Component />
     </li>;
 });

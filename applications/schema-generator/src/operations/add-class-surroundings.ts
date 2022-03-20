@@ -2,12 +2,13 @@ import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
-import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality, PimSetExtends} from "@model-driven-data/core/pim/operation";
+import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
 import {createPimClassIfMissing} from "./helper/pim";
+import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
 import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 /**
@@ -116,7 +117,8 @@ export class AddClassSurroundings implements ComplexOperation {
         correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
         const ownerClass = await this.sourcePimModel.readResource(attribute.pimOwnerClass as string) as PimClass;
-        await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, ownerClass, pimSchema);
+        await extendPimClassesAlongInheritance(
+            correspondingSourcePimClass, ownerClass, pimSchema, this.store, this.sourcePimModel);
 
         const pimAttributeIri = await this.createPimAttributeIfMissing(attribute, pimSchema);
 
@@ -145,7 +147,8 @@ export class AddClassSurroundings implements ComplexOperation {
         const otherAssociationEndClass = orientation ? rangeAssociationEndClass : domainAssociationEndClass;
 
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
-        await this.createExtendsHierarchyFromTo(correspondingSourcePimClass, thisAssociationEndClass, pimSchema);
+        await extendPimClassesAlongInheritance(
+            correspondingSourcePimClass, thisAssociationEndClass, pimSchema, this.store, this.sourcePimModel);
 
         // Pim other class is created always. Mainly because of the association on PIM level.
         const pimOtherClassIri = await createPimClassIfMissing(otherAssociationEndClass, pimSchema, this.store);
@@ -260,79 +263,5 @@ export class AddClassSurroundings implements ComplexOperation {
         }
 
         return operationResult;
-    }
-
-    /**
-     * This function creates all necessary PIM classes in a way that there will be correct extends hierarchy between
-     * more generic class represented by {@param toClass} and more specific class represented by {@param fromClass}.
-     *
-     * Returns true if the path was found
-     * @param fromClass
-     * @param toClass
-     * @param pimSchema
-     * @private
-     */
-    private async createExtendsHierarchyFromTo(
-        fromClass: PimClass,
-        toClass: PimClass,
-        pimSchema: string,
-    ): Promise<boolean> {
-        // Find all classes which needs to be created or checked in order from most generic to most specific.
-        const classesToProcess: string[] = [];
-
-        // DFS that finds a SINGLE (random, if multiple exists) path
-        const traverseFunction = async (currentClass: PimClass, path: Set<string> = new Set()): Promise<boolean> => {
-            let success = currentClass.iri === toClass.iri;
-
-            if (currentClass !== toClass) {
-                path.add(currentClass.iri as string);
-                for (const ext of currentClass.pimExtends) {
-                    const extClass = await this.sourcePimModel.readResource(ext) as PimClass;
-                    if (path.has(extClass.iri as string)) {
-                        continue
-                    }
-                    if (await traverseFunction(extClass, path)) {
-                        success = true;
-                        break;
-                    }
-                }
-                path.delete(currentClass.iri as string);
-            }
-
-            if (success) {
-                classesToProcess.push(currentClass.iri as string);
-            }
-            return success;
-        }
-
-        const success = await traverseFunction(fromClass);
-
-        // Create each class and fix its extends
-        let parentClassInChain: PimClass | null = null; // This is the parent class of the current one from the CIM
-        let parentLocalClassInChain: PimClass | null = null; // Patent of the current one but from the local store
-        for (const classToProcessIri of classesToProcess) {
-            const classToProcess = await this.sourcePimModel.readResource(classToProcessIri) as PimClass;
-
-            const iri = await createPimClassIfMissing(classToProcess, pimSchema, this.store);
-            const localClass = await this.store.readResource(iri) as PimClass;
-
-            if (parentClassInChain &&
-              !classToProcess.pimExtends.includes(parentClassInChain?.iri as string)) {
-                throw new Error(`Assert error in AddClassSurroundings: class in chain does not extend parent class.`);
-            }
-
-            const missingExtends = parentLocalClassInChain && !localClass.pimExtends.includes(parentLocalClassInChain.iri as string);
-            if (missingExtends) {
-                const pimSetExtends = new PimSetExtends();
-                pimSetExtends.pimResource = iri;
-                pimSetExtends.pimExtends = [...localClass.pimExtends, (parentLocalClassInChain as PimClass).iri as string];
-                await this.store.applyOperation(pimSchema, pimSetExtends);
-            }
-
-            parentClassInChain = classToProcess;
-            parentLocalClassInChain = localClass;
-        }
-
-        return success;
     }
 }

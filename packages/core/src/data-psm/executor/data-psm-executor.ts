@@ -18,6 +18,7 @@ import { executeDataPsmCreateClassReference } from "./data-psm-create-class-refe
 import { executeDataPsmDeleteClassReference } from "./data-psm-delete-class-reference-executor";
 import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
 import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
+import {executeDataPsmReplaceAlongInheritance} from "./data-psm-replace-along-inheritance";
 
 export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -64,6 +65,11 @@ export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteClassReference.is,
     executeDataPsmDeleteClassReference,
     Operations.DataPsmDeleteClassReference.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmReplaceAlongInheritance.is,
+    executeDataPsmReplaceAlongInheritance,
+    Operations.DataPsmReplaceAlongInheritance.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetDatatype.is,

@@ -8,18 +8,17 @@ import {ConfigurationContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
 import {useDialog} from "../../hooks/useDialog";
 import {GetPreviewComponentXsdArtifact, GetXsdArtifact} from "./XsdArtifact";
+import {GetCsvSchemaArtifact, GetPreviewComponentCsvSchemaArtifact} from "./CsvSchemaArtifact";
 import FileSaver from "file-saver";
 import {getNameForSchema} from "../../utils/getNameForSchema";
 import copy from "copy-to-clipboard";
 import {useSnackbar} from "notistack";
-import {CoreResourceReader} from "@model-driven-data/core/core";
 import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {GetPreviewComponentStoreArtifact, GetStoreArtifact} from "./StoreArtifact";
 import {DialogParameters} from "../../dialog";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 import {Configuration} from "../../configuration/configuration";
 
 const PreviewDialog: React.FC<DialogParameters & {content: Promise<ReactElement>}> = memo(({content, isOpen, close}) => {
@@ -175,6 +174,28 @@ export const GenerateArtifacts: React.FC<{
                 <MenuItem onClick={() => {
                     close();
                     setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
+
+                <Divider />
+
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>CSV Schema</MenuItem>
+                <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => save(GetCsvSchemaArtifact, ".csv-metadata.json", "application/csvm+json;charset=utf-8")}>
+                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("download")}
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                        close();
+                        Preview.open({content: GetPreviewComponentCsvSchemaArtifact(configuration)});
+                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                    <MenuItem onClick={() => copy(GetCsvSchemaArtifact)}>
+                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("copy")}
+                    </MenuItem>
+                </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentCsvSchemaArtifact ? null : GetPreviewComponentCsvSchemaArtifact);
                 }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
             </Menu>

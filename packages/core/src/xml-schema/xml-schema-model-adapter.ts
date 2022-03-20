@@ -22,6 +22,7 @@ import {
   QName,
   langStringName,
   XmlSchemaGroupDefinition,
+  XmlSchemaAnnotation,
 } from "./xml-schema-model";
 
 import {
@@ -64,6 +65,28 @@ const simpleTypeMap: Record<string, QName> = {
 };
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
+
+const iriProperty: XmlSchemaComplexContentElement = {
+  cardinality: {
+    min: 0,
+    max: 1,
+  },
+  element: {
+    elementName: "iri",
+    source: null,
+    annotation: null,
+    type: {
+      name: null,
+      source: null,
+      simpleDefinition: {
+        xsType: "union",
+        contents: [
+          ["xs", "anyURI"]
+        ]
+      }
+    } as XmlSchemaSimpleType
+  }
+};
 
 type ClassMap = Record<string, StructureModelClass>;
 class XmlSchemaAdapter {
@@ -114,6 +137,7 @@ class XmlSchemaAdapter {
             type: {
               name: element.type.name,
               source: element.type.source,
+              annotation: element.type.annotation,
               complexDefinition: {
                 xsType: "group",
                 mixed: false,
@@ -122,6 +146,7 @@ class XmlSchemaAdapter {
                 contents: [],
               } as XmlSchemaComplexGroupReference,
             } as XmlSchemaComplexType,
+            annotation: element.annotation,
           };
         }
         return element;
@@ -185,6 +210,28 @@ class XmlSchemaAdapter {
     return null;
   }
 
+  getAnnotation(
+    data: StructureModelClass | StructureModelProperty
+  ): XmlSchemaAnnotation {
+    const lines = [];
+    if (data.cimIri != null) {
+      lines.push(`Význam: ${data.cimIri}`);
+    }
+    if (data.humanLabel != null) {
+      for (const lang of Object.keys(data.humanLabel)) {
+        lines.push(`Název (${lang}): ${data.humanLabel[lang]}`);
+      }
+    }
+    if (data.humanDescription != null) {
+      for (const lang of Object.keys(data.humanDescription)) {
+        lines.push(`Popis (${lang}): ${data.humanDescription[lang]}`);
+      }
+    }
+    return lines.length == 0 ? null : {
+      documentation: lines.join("\n")
+    }
+  }
+
   classToElement(classData: StructureModelClass): XmlSchemaElement {
     return {
       elementName: classData.technicalLabel,
@@ -192,7 +239,9 @@ class XmlSchemaAdapter {
       type: {
         name: null,
         complexDefinition: this.classToComplexType(classData),
+        annotation: this.getAnnotation(classData),
       } as XmlSchemaComplexType,
+      annotation: null,
     };
   }
 
@@ -209,10 +258,14 @@ class XmlSchemaAdapter {
         source: source,
       } as XmlSchemaComplexGroupReference;
     }
+    const contents = classData.properties.map(
+      this.propertyToComplexContent, this
+    );
+    contents.splice(0, 0, iriProperty);
     return {
       mixed: false,
       xsType: "sequence",
-      contents: classData.properties.map(this.propertyToComplexContent, this),
+      contents: contents,
     };
   }
 
@@ -297,6 +350,7 @@ class XmlSchemaAdapter {
         elementName: propertyData.technicalLabel,
         source: null,
         type: typeConstructor.call(this, dataTypes),
+        annotation: this.getAnnotation(propertyData),
       };
     }
     return null;
@@ -308,6 +362,7 @@ class XmlSchemaAdapter {
     return {
       name: null,
       source: null,
+      annotation: null,
       complexDefinition: {
         mixed: false,
         xsType: "choice",

@@ -11,6 +11,7 @@ import {CoreResourceReader} from "@model-driven-data/core/core";
 import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
 import {GeneratorOptions} from "./generator-options";
 import {getNameForDataPsmSchema, getNameForPimSchema} from "./get-human-name";
+import {CSV_SCHEMA} from "@model-driven-data/core/csv-schema/csv-schema-vocabulary";
 
 function filenameSafeString(str: string): string {
     return str
@@ -96,6 +97,16 @@ export class ArtifactDefinitionConfigurator {
         xmlSchema.psm = psmSchemaIri;
 
         currentSchemaArtefacts.push(xmlSchema);
+      }
+
+      if (generatorOptions.requiredDataStructureSchemas[psmSchemaIri]?.includes("csv")) {
+        const csvSchema = new DataSpecificationSchema();
+        csvSchema.iri = `${name}#csvschema`;
+        csvSchema.outputPath = `${dataSpecificationName}/${name}/schema.csv-metadata.json`;
+        csvSchema.publicUrl = csvSchema.outputPath;
+        csvSchema.generator = CSV_SCHEMA.Generator;
+        csvSchema.psm = psmSchemaIri;
+        currentSchemaArtefacts.push(csvSchema);
       }
     }
 
