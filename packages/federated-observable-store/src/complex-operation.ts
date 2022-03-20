@@ -1,9 +1,10 @@
-import {CoreOperation, CoreResourceReader} from "@model-driven-data/core/core";
-import {FederatedCoreResourceWriter} from "./federated-core-resource-writer";
+import {CoreOperation} from "@model-driven-data/core/core";
+import {FederatedObservableStore} from "./federated-observable-store";
 
 /**
  * Associates multiple {@link CoreOperation} into one component operation.
  */
 export interface ComplexOperation {
-    execute(store: CoreResourceReader & FederatedCoreResourceWriter): Promise<void>;
+    setStore(store: FederatedObservableStore): void;
+    execute(): Promise<void>;
 }

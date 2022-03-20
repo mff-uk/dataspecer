@@ -1,5 +1,5 @@
 import {Resource} from "./resource";
-import {PimSchema} from "@model-driven-data/core/pim/model";
+import {PimClass, PimSchema} from "@model-driven-data/core/pim/model";
 import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/core";
 import {FederatedCoreResourceWriter} from "./federated-core-resource-writer";
 import * as PIM from "@model-driven-data/core/pim/pim-vocabulary";
@@ -7,6 +7,7 @@ import * as DataPSM from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
 import {ComplexOperation} from "./complex-operation";
 import {ImmediateCoreResourceReader} from "./immediate-core-resource-reader";
+import {cloneDeep} from "lodash";
 
 /**
  * Callback listening for resource changes.
@@ -16,6 +17,10 @@ export type Subscriber = (iri: string, resource: Resource) => void;
 interface Subscription {
     currentValue: Resource;
     subscribers: Subscriber[];
+}
+
+export function cloneResource<ResourceType extends CoreResource | null>(from: ResourceType, alreadyExists: ResourceType | null = null): ResourceType {
+    return cloneDeep(from);
 }
 
 /**
@@ -49,6 +54,10 @@ interface CachedSchema {
     // List of resource IRIs that belongs to the schema and therefore are in the
     // same store as the schema's resource
     resources: string[];
+}
+
+function isPromise<T>(value: Promise<T>|T): value is Promise<T> {
+    return value instanceof Promise;
 }
 
 export class FederatedObservableStore implements CoreResourceReader, FederatedCoreResourceWriter {
@@ -191,6 +200,27 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     }
 
     /**
+     * Returns PIM class IRI that has interpretation set to cimIri.
+     * @param cimIri
+     * @param pimSchemaIri
+     */
+    async getPimHavingInterpretation(cimIri: string, pimSchemaIri: string): Promise<string|null> {
+        const schema = this.schemas.get(pimSchemaIri);
+        if (!schema) {
+            return null;
+        }
+
+        for (const resourceIri of schema.resources) {
+            const resource = await this.readResource(resourceIri);
+            if (PimClass.is(resource) && resource.pimInterpretation === cimIri) {
+                return resourceIri;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @see https://github.com/opendata-mvcr/model-driven-data/issues/151
      * @param schemaIri Schema IRI under which the operation is applied
      * @param operation The operation to be applied
@@ -229,7 +259,8 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      */
     async executeComplexOperation(operation: ComplexOperation) {
         try {
-            await operation.execute(this);
+            operation.setStore(this);
+            await operation.execute();
         } catch (e) {
             console.warn("Operation failed", e);
         }
@@ -266,6 +297,13 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
             this.addSubscriber(iri, subscriber);
         });
     };
+
+    async forceReload(iri: string) {
+        const schemaIri = [...this.schemas.values()].find(schema => schema.resources.includes(iri) || schema.iri === iri)?.iri;
+        if (iri) {
+            this.loadResource(iri, schemaIri);
+        }
+    }
 
 
 
@@ -355,13 +393,13 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
                     // Following function checks the existence
                     this.updateSubscriptionTo(resourceIri, {
                         isLoading: false,
-                        resource,
+                        resource: cloneResource(resource),
                     });
                 });
         } else {
             this.updateSubscriptionTo(resourceIri, {
                 isLoading: false,
-                resource,
+                resource: cloneResource(resource),
             });
         }
     }
