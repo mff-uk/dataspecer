@@ -7,5 +7,6 @@ export const XSD = {
   boolean: XSD_PREFIX + "boolean",
   date: XSD_PREFIX + "date",
   time: XSD_PREFIX + "time",
+  dateTimeStamp: XSD_PREFIX + "dateTimeStamp",
   anyURI: XSD_PREFIX + "anyURI",
 };
