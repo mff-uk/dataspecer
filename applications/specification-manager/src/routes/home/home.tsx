@@ -20,7 +20,7 @@ export const Home: React.FC = () => {
         delete newDataSpecifications[id];
         setDataSpecifications(newDataSpecifications);
         setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => iri !== id));
-    }, [dataSpecifications, backendConnector, setDataSpecifications]);
+    }, [backendConnector, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     return <>
         <Box height="30px"/>

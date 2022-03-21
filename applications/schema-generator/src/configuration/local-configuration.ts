@@ -1,4 +1,4 @@
-import {createExecutorMap, MemoryStore} from "@model-driven-data/core/core";
+import {MemoryStore} from "@model-driven-data/core/core";
 import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
 import {pimExecutors} from "@model-driven-data/core/pim/executor";
 import {PimCreateSchema} from "@model-driven-data/core/pim/operation";

@@ -1,6 +1,5 @@
-import React, {memo, useCallback, useContext, useEffect, useState} from "react";
+import React, {memo, useCallback, useEffect, useState} from "react";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {ConfigurationContext} from "../../App";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 import {Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";

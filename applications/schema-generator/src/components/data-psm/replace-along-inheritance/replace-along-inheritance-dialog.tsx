@@ -90,7 +90,7 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     }, [i18n.languages, store, fullInheritance, dataPsmClassIri, close]);
 
     return <>
-        <StoreContext.Provider value={store}>
+        <StoreContext.Provider value={previewStore}>
             <DialogTitle>
                 {t("replace along inheritance.title")}
             </DialogTitle>

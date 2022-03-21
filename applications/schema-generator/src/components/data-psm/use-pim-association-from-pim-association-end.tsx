@@ -1,5 +1,4 @@
 // todo This hook is just temporary until we fix problem with accessing the association from its association end.
-import {useContext} from "react";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {PimAssociation} from "@model-driven-data/core/pim/model";
 import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";

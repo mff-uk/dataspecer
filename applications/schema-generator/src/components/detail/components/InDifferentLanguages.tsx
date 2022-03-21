@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useContext, useMemo} from "react";
+import React, {memo, useCallback, useMemo} from "react";
 import {Button, Card, CardContent, Grid, Typography} from "@mui/material";
 import {LanguageString} from "@model-driven-data/core/core";
 import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
@@ -6,7 +6,6 @@ import {PimClass} from "@model-driven-data/core/pim/model";
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {SetPimLabelAndDescription} from "../../../operations/set-pim-label-and-description";
 import {DialogAppProviderContext} from "../../dialog-app-provider";
-import {ConfigurationContext} from "../../App";
 import {SetDataPsmLabelAndDescription} from "../../../operations/set-data-psm-label-and-description";
 import {useTranslation} from "react-i18next";
 import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";

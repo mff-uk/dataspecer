@@ -1,4 +1,4 @@
-import React, {memo, useContext, useState} from "react";
+import React, {memo, useState} from "react";
 import {DataPsmAttribute, DataPsmResource} from "@model-driven-data/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";

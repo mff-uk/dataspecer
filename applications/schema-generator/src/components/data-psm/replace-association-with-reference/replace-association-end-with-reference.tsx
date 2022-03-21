@@ -4,7 +4,7 @@ import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-inter
 import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference-dialog";
 import {ReplaceDataPsmAssociationEndWithReference} from "../../../operations/replace-data-psm-association-end-with-reference";

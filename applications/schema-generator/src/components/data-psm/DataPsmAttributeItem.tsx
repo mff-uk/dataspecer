@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useContext} from "react";
+import React, {memo, useCallback} from "react";
 import {useToggle} from "../../hooks/useToggle";
 import {DataPsmClassPartItemProperties, useItemStyles} from "./PsmItemCommon";
 import {useTranslation} from "react-i18next";

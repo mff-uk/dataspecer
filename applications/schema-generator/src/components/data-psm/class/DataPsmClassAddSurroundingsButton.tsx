@@ -1,4 +1,4 @@
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {useTranslation} from "react-i18next";
 import {CoreResourceReader} from "@model-driven-data/core/core";
