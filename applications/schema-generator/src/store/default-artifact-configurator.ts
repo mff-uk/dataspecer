@@ -2,6 +2,7 @@ import {DataSpecification} from "@model-driven-data/core/data-specification/mode
 import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model/data-specification-schema";
 import {JSON_SCHEMA} from "@model-driven-data/core/json-schema/json-schema-vocabulary";
 import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabulary";
+import {XSLT_LIFTING, XSLT_LOWERING} from "@model-driven-data/core/xml-transformations/xslt-vocabulary";
 import {CSV_SCHEMA} from "@model-driven-data/core/csv-schema/csv-schema-vocabulary";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
@@ -64,6 +65,22 @@ export class DefaultArtifactConfigurator {
       xmlSchema.generator = XML_SCHEMA.Generator;
       xmlSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(xmlSchema);
+
+      const xsltLifting = new DataSpecificationSchema();
+      xsltLifting.iri = `${name}#xsltlifting`;
+      xsltLifting.outputPath = `${dataSpecificationName}/${name}/lifting.xslt`;
+      xsltLifting.publicUrl = xsltLifting.outputPath;
+      xsltLifting.generator = XSLT_LIFTING.Generator;
+      xsltLifting.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(xsltLifting);
+
+      const xsltLowering = new DataSpecificationSchema();
+      xsltLowering.iri = `${name}#xsltlowering`;
+      xsltLowering.outputPath = `${dataSpecificationName}/${name}/lowering.xslt`;
+      xsltLowering.publicUrl = xsltLowering.outputPath;
+      xsltLowering.generator = XSLT_LOWERING.Generator;
+      xsltLowering.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(xsltLowering);
 
       const csvSchema = new DataSpecificationSchema();
       csvSchema.iri = `${name}#csvschema`;

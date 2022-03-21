@@ -8,6 +8,8 @@ import {ConfigurationContext} from "../App";
 import {GetJsonSchemaArtifact, GetPreviewComponentJsonSchemaArtifact} from "./JsonSchemaArtifact";
 import {useDialog} from "../../hooks/useDialog";
 import {GetPreviewComponentXsdArtifact, GetXsdArtifact} from "./XsdArtifact";
+import {GetPreviewComponentXsltLiftingArtifact, GetXsltLiftingArtifact} from "./XsltArtifact";
+import {GetPreviewComponentXsltLoweringArtifact, GetXsltLoweringArtifact} from "./XsltArtifact";
 import {GetCsvSchemaArtifact, GetPreviewComponentCsvSchemaArtifact} from "./CsvSchemaArtifact";
 import FileSaver from "file-saver";
 import {getNameForSchema} from "../../utils/getNameForSchema";
@@ -174,6 +176,50 @@ export const GenerateArtifacts: React.FC<{
                 <MenuItem onClick={() => {
                     close();
                     setArtifactPreview(() => artifactPreview === GetPreviewComponentXsdArtifact ? null : GetPreviewComponentXsdArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
+
+                <Divider />
+
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>XSLT Lifting</MenuItem>
+                <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => save(GetXsltLiftingArtifact, "lifting.xslt", "text/xml;charset=utf-8")}>
+                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("download")}
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                        close();
+                        Preview.open({content: GetPreviewComponentXsltLiftingArtifact(configuration)});
+                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                    <MenuItem onClick={() => copy(GetXsltLiftingArtifact)}>
+                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("copy")}
+                    </MenuItem>
+                </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentXsltLiftingArtifact ? null : GetPreviewComponentXsltLiftingArtifact);
+                }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
+
+                <Divider />
+
+                <MenuItem disabled style={{opacity: 1, fontWeight: "bold"}}>XSLT Lowering</MenuItem>
+                <Box sx={{display: "flex"}}>
+                    <MenuItem onClick={() => save(GetXsltLoweringArtifact, "lowering.xslt", "text/xml;charset=utf-8")}>
+                        <ListItemIcon><DownloadTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("download")}
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                        close();
+                        Preview.open({content: GetPreviewComponentXsltLoweringArtifact(configuration)});
+                    }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("preview")}</MenuItem>
+                    <MenuItem onClick={() => copy(GetXsltLoweringArtifact)}>
+                        <ListItemIcon><ContentCopyTwoToneIcon fontSize="small" /></ListItemIcon>
+                        {t("copy")}
+                    </MenuItem>
+                </Box>
+                <MenuItem onClick={() => {
+                    close();
+                    setArtifactPreview(() => artifactPreview === GetPreviewComponentXsltLoweringArtifact ? null : GetPreviewComponentXsltLoweringArtifact);
                 }}><ListItemIcon><FindInPageTwoToneIcon fontSize="small" /></ListItemIcon>{t("live preview")} (experimental)</MenuItem>
 
                 <Divider />
