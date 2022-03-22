@@ -3,9 +3,13 @@ import {
     TableSchema,
     Column
 } from "./csv-schema-model";
-import { StructureModel } from "../structure-model";
+import {
+    StructureModel,
+    StructureModelPrimitiveType
+} from "../structure-model";
 import { DataSpecification } from "../data-specification/model";
 import { assert } from "../core";
+import {OFN} from "../well-known";
 
 export function structureModelToCsvSchema(
     specification: DataSpecification,
@@ -20,7 +24,11 @@ export function structureModelToCsvSchema(
         col.name = prop.technicalLabel;
         col.titles = prop.technicalLabel;
         col.propertyUrl = prop.cimIri;
-        col.datatype = "string";
+
+        const dataType = prop.dataTypes[0];
+        if(dataType.isAssociation()) col.datatype = "string";
+        if(dataType.isAttribute()) col.datatype = structureModelPrimitiveToCsvDefinition(dataType);
+
         col.lang = "cs";
         schema.tableSchema.columns.push(col);
     }
@@ -30,4 +38,28 @@ export function structureModelToCsvSchema(
     virtualCol.valueUrl = model.classes[model.roots[0]].cimIri;
     schema.tableSchema.columns.push(virtualCol);
     return schema;
+}
+
+function structureModelPrimitiveToCsvDefinition(
+    primitive: StructureModelPrimitiveType
+) : string | null {
+    let result = null;
+    switch (primitive.dataType) {
+        case OFN.boolean:
+            result = "boolean";
+            break;
+        case OFN.date:
+            result = "date";
+            break;
+        case OFN.string:
+            result = "string";
+            break;
+        case OFN.text:
+            result = "string";
+            break;
+        case OFN.integer:
+            result = "integer";
+            break;
+    }
+    return result;
 }
