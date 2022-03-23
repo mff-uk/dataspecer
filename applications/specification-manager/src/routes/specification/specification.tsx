@@ -18,6 +18,7 @@ import {isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/http-synchronized-store";
 import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
+import {ModifySpecification} from "./modify-specification";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -118,11 +119,14 @@ export const Specification: React.FC = () => {
         <Box height="30px"/>
         <Box>
             <Typography variant="h6" component="div">Data specification:</Typography>
+        </Box>
+        <Box display="flex" flexDirection="row" justifyContent="space-between">
             <DataSpecificationName iri={dataSpecificationIri}>
                 {(label, isLoading) => <Typography variant="h3" component="div" gutterBottom>
                     {isLoading ? <Skeleton /> : (label ? label : <small>{dataSpecificationIri}</small>)}
                 </Typography>}
             </DataSpecificationName>
+            <ModifySpecification iri={dataSpecificationIri} />
         </Box>
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>

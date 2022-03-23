@@ -28,7 +28,7 @@ export const Home: React.FC = () => {
             <Typography variant="h4" component="div" gutterBottom>
                 List of data specifications
             </Typography>
-            <CreateSpecification reload={() => {}}/>
+            <CreateSpecification />
         </Box>
 
 
