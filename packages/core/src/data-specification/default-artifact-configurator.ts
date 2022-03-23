@@ -1,11 +1,13 @@
-import {DataSpecification} from "@model-driven-data/core/data-specification/model/data-specification";
-import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model/data-specification-schema";
-import {JSON_SCHEMA} from "@model-driven-data/core/json-schema/json-schema-vocabulary";
-import {XML_SCHEMA} from "@model-driven-data/core/xml-schema/xml-schema-vocabulary";
-import {XSLT_LIFTING, XSLT_LOWERING} from "@model-driven-data/core/xml-transformations/xslt-vocabulary";
-import {CSV_SCHEMA} from "@model-driven-data/core/csv-schema/csv-schema-vocabulary";
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model/data-specification-artefact";
+import {DataSpecification} from "./model";
+import {DataSpecificationSchema} from "./model";
+import {JSON_SCHEMA} from "../json-schema/json-schema-vocabulary";
+import {XML_SCHEMA} from "../xml-schema/xml-schema-vocabulary";
+import {XSLT_LIFTING, XSLT_LOWERING} from "../xml-transformations/xslt-vocabulary";
+import {CSV_SCHEMA} from "../csv-schema/csv-schema-vocabulary";
+import {CoreResourceReader} from "../core";
+import {DataSpecificationArtefact} from "./model";
+import {PimSchema} from "../pim/model";
+import {DataPsmSchema} from "../data-psm/model";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -14,8 +16,8 @@ import {DataSpecificationArtefact} from "@model-driven-data/core/data-specificat
  * like.
  */
 export class DefaultArtifactConfigurator {
-  private readonly dataSpecifications: DataSpecification[];
-  private readonly store: CoreResourceReader;
+  protected readonly dataSpecifications: DataSpecification[];
+  protected readonly store: CoreResourceReader;
 
   constructor(
     dataSpecifications: DataSpecification[],
@@ -40,15 +42,13 @@ export class DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
-    // unique name for the whole data specification
-    const dataSpecificationName = dataSpecification.iri?.split('/').pop() as string ?? "data-specification"; // todo use real name
+    const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
     // Generate schemas
 
     const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
     for (const psmSchemaIri of dataSpecification.psms) {
-      // unique name of current data structure (DPSM) in context of the data specification
-      const name = psmSchemaIri.split('/').pop() as string; // todo use real name
+      const name = await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
       const jsonSchema = new DataSpecificationSchema();
       jsonSchema.iri = `${name}#jsonschema`;
@@ -92,5 +92,59 @@ export class DefaultArtifactConfigurator {
     }
 
     return currentSchemaArtefacts;
+  }
+
+  protected nameFromIri(iri: string): string {
+    return iri.split("/").pop() as string;
+  }
+
+  protected normalizeName(name: string): string {
+    return name
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .toLowerCase();
+  }
+
+  /**
+   * Creates a directory name for data specification
+   * @param dataSpecificationIri
+   * @protected
+   */
+  protected async getSpecificationDirectoryName(dataSpecificationIri: string) {
+    const dataSpecification = this.dataSpecifications.find(
+        dataSpecification => dataSpecification.iri === dataSpecificationIri,
+    ) as DataSpecification;
+
+    const schema = await this.store.readResource(dataSpecification.pim as string) as PimSchema;
+
+    if (schema && schema.pimHumanLabel) {
+      if (schema.pimHumanLabel["en"]) {
+        return this.normalizeName(schema.pimHumanLabel["en"]);
+      }
+      // Get any value from object
+      const anyValue = Object.values(schema.pimHumanLabel)?.[0];
+      if (anyValue) {
+        return this.normalizeName(anyValue);
+      }
+    }
+
+    return this.nameFromIri(dataSpecificationIri);
+  }
+
+  protected async getSchemaDirectoryName(dataSpecificationIri: string, dataPsmSchemaIri: string) {
+    const psmSchema = await this.store.readResource(dataPsmSchemaIri) as DataPsmSchema;
+
+    if (psmSchema && psmSchema.dataPsmHumanLabel) {
+      if (psmSchema.dataPsmHumanLabel["en"]) {
+        return this.normalizeName(psmSchema.dataPsmHumanLabel["en"]);
+      }
+      // Get any value from object
+      const anyValue = Object.values(psmSchema.dataPsmHumanLabel)?.[0];
+      if (anyValue) {
+        return this.normalizeName(anyValue);
+      }
+    }
+
+    return this.nameFromIri(dataSpecificationIri);
   }
 }

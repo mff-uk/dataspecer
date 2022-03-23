@@ -51,6 +51,10 @@ function App() {
         [] as StoreDescriptor[],
     ), [dataSpecifications]);
 
+    useEffect(() => {
+        (window as any).store = store;
+    }, [store]);
+
     // Stores that are already constructed may be used for generators.
     const constructedStoreCache = useConstructedStoresFromDescriptors(pimStoreDescriptors, store);
 

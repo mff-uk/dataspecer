@@ -1,8 +1,9 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
+import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon, Skeleton} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import PowerIcon from '@mui/icons-material/Power';
 import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationName} from "../../name-cells";
 
 export const ReuseDataSpecifications: React.FC<{
     dataSpecificationIri: string,
@@ -71,7 +72,11 @@ export const ReuseDataSpecifications: React.FC<{
                                             disableRipple
                                         />
                                     </ListItemIcon>
-                                    <ListItemText primary={"spec.name"}/>
+                                    <DataSpecificationName iri={spec.iri as string}>
+                                        {(label, isLoading) =>
+                                            <>{isLoading ? <Skeleton /> : (label ? label : <small>{spec.iri}</small>)}</>
+                                        }
+                                    </DataSpecificationName>
                                 </ListItemButton>
                             </ListItem>
                         );

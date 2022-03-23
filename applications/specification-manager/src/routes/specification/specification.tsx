@@ -1,16 +1,14 @@
-import React, {useCallback, useContext, useMemo} from "react";
+import React, {useCallback, useContext, useMemo, useState} from "react";
 import {Link, useSearchParams} from "react-router-dom";
-import {Box, Button, Fab, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import {StoreInfo} from "./store-info";
+import {Box, Button, Fab, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import {ReuseDataSpecifications} from "./reuse-data-specifications";
 import AddIcon from "@mui/icons-material/Add";
 import {saveAs} from "file-saver";
-
 import LoadingButton from '@mui/lab/LoadingButton';
 import {BackendConnectorContext, ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
 import {useConstructedStoresFromDescriptors} from "../../store/use-stores-by-descriptors";
 import {DataStructureRow} from "./data-structure-row";
-import {DataSpecificationNameCell} from "../../name-cells";
+import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
 import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";
 import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 import {DataSpecifications} from "../../data-specifications";
@@ -19,12 +17,13 @@ import {CoreResourceReader, ReadOnlyFederatedStore} from "@model-driven-data/cor
 import {isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/http-synchronized-store";
 import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
+import {RedirectDialog} from "./redirect-dialog";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
     const dataSpecificationIri = searchParams.get("dataSpecificationIri");
 
-    const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
+    const {dataSpecifications} = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
 
     const specification = dataSpecifications[dataSpecificationIri as string];
@@ -33,16 +32,19 @@ export const Specification: React.FC = () => {
     const stores = useMemo(() => Object.values(specification?.psmStores ?? []).flat(1), [specification?.psmStores]);
     useConstructedStoresFromDescriptors(stores, store);
 
+    const [redirecting, setRedirecting] = useState(false);
     const createDataStructure = useCallback(async () => {
         if (dataSpecificationIri) {
-            const {dataSpecification, createdPsmSchemaIri} = await backendConnector.createDataStructure(dataSpecificationIri);
-            setDataSpecifications({
+            setRedirecting(true);
+            const {createdPsmSchemaIri} = await backendConnector.createDataStructure(dataSpecificationIri);
+            // Skip this to avoid confusing users
+            /*setDataSpecifications({
                 ...dataSpecifications,
                 [dataSpecification.iri as string]: dataSpecification
-            });
+            });*/
             window.location.href = getSchemaGeneratorLink(dataSpecificationIri, createdPsmSchemaIri);
         }
-    }, [backendConnector, dataSpecificationIri, dataSpecifications, setDataSpecifications]);
+    }, [backendConnector, dataSpecificationIri]);
 
     const [zipLoading, setZipLoading] = React.useState<false|"stores-loading"|"generating">(false);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
@@ -108,10 +110,19 @@ export const Specification: React.FC = () => {
         setZipLoading(false);
     };
 
+    if (!dataSpecificationIri) {
+        return null;
+    }
+
     return <>
         <Box height="30px"/>
-        <Box display="flex" flexDirection="row" justifyContent="space-between">
-            <Typography variant="h4" component="div" gutterBottom><small style={{fontWeight: "bold"}}>Data specification:</small>{" "}{specification?.iri}</Typography>
+        <Box>
+            <Typography variant="h6" component="div">Data specification:</Typography>
+            <DataSpecificationName iri={dataSpecificationIri}>
+                {(label, isLoading) => <Typography variant="h3" component="div" gutterBottom>
+                    {isLoading ? <Skeleton /> : (label ? label : <small>{dataSpecificationIri}</small>)}
+                </Typography>}
+            </DataSpecificationName>
         </Box>
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
@@ -190,44 +201,6 @@ export const Specification: React.FC = () => {
             <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading !== false}>Generate .ZIP file</LoadingButton>
         </Box>
 
-
-        <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
-            Technical properties
-        </Typography>
-        <TableContainer component={Paper} sx={{mt: 3}}>
-            <Table>
-                <TableBody>
-                    {/*<StoreInfo storeId={specification?.pimStore ?? null}>*/}
-                        <StoreInfo storeId={null}>
-                        {(name, operations, resources) =>
-                            <>
-                                <TableRow>
-                                    <TableCell component="th" scope="row" sx={{width: "25%"}}>
-                                        <Typography sx={{fontWeight: "bold"}}>PIM store operations</Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Typography>
-                                            {operations ?? "-"}
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell component="th" scope="row" sx={{width: "25%"}}>
-                                        <Typography sx={{fontWeight: "bold"}}>PIM store resources</Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Typography>
-                                            {resources ?? "-"}
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </>
-                        }
-                    </StoreInfo>
-
-                </TableBody>
-            </Table>
-        </TableContainer>
-
+        <RedirectDialog isOpen={redirecting} />
     </>;
 }

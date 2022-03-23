@@ -1,8 +1,8 @@
 import {DataSpecification, DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model";
-import {createDefaultGenerator} from "@model-driven-data/core/generator";
+import {createDefaultArtefactGenerators, Generator} from "@model-driven-data/core/generator";
 import {MemoryStreamDictionary} from "@model-driven-data/core/io/stream/memory-stream-dictionary";
 import {CoreResourceReader} from "@model-driven-data/core/core";
-import {DefaultArtifactConfigurator} from "../../store/default-artifact-configurator";
+import {DefaultArtifactConfigurator} from "@model-driven-data/core/data-specification/default-artifact-configurator";
 
 /**
  * Returns a single generated artifact based on the given artifact definition.
@@ -38,7 +38,10 @@ export async function getSingleArtifact(
 
   // Generate the artifact and return it
 
-  const generator = createDefaultGenerator(Object.values(dataSpecificationsWithArtifacts), store);
+  const generator = new Generator(
+      Object.values(dataSpecificationsWithArtifacts),
+      store,
+      createDefaultArtefactGenerators());
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);
   const stream = dict.readPath(path as string);

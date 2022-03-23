@@ -1,6 +1,3 @@
-import { DataSpecification } from "../data-specification/model";
-import { CoreResourceReader } from "../core";
-import { Generator } from "./generator";
 import { BikeshedGenerator } from "../bikeshed";
 import { JsonSchemaGenerator } from "../json-schema/json-schema-generator";
 import { XmlSchemaGenerator } from "../xml-schema/xml-schema-generator";
@@ -10,14 +7,10 @@ import { CsvSchemaGenerator } from "../csv-schema/csv-schema-generator";
 import { PlantUmlGenerator } from "../plant-uml";
 
 /**
- * Use this to get generator with included artefact generators from this
- * repository.
+ * Use this to get artefact generators from this repository.
  */
-export function createDefaultGenerator(
-  specifications: DataSpecification[],
-  reader: CoreResourceReader
-): Generator {
-  return new Generator(specifications, reader, [
+export function createDefaultArtefactGenerators() {
+  return [
     new BikeshedGenerator(),
     new JsonSchemaGenerator(),
     new XmlSchemaGenerator(),
@@ -25,5 +18,5 @@ export function createDefaultGenerator(
     new XsltLiftingGenerator(),
     new CsvSchemaGenerator(),
     new PlantUmlGenerator(),
-  ]);
+  ];
 }

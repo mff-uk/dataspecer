@@ -1,14 +1,11 @@
 import {CoreResource, CoreResourceReader} from "@model-driven-data/core/core";
-import {Generator} from "@model-driven-data/core/generator";
+import {createDefaultArtefactGenerators, Generator} from "@model-driven-data/core/generator";
 import {ZipStreamDictionary} from "./zip-stream-dictionary";
-import {PlantUmlGenerator} from "@model-driven-data/core/plant-uml";
-import {BikeshedGenerator} from "@model-driven-data/core/bikeshed";
 import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
-import {JsonSchemaGenerator} from "@model-driven-data/core/json-schema/json-schema-generator";
-import {XmlSchemaGenerator} from "@model-driven-data/core/xml-schema";
 import {PlantUmlImageGenerator} from "./plant-uml-image-generator";
 import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 import {DataSpecifications} from "../data-specifications";
+import {ArtifactConfigurator} from "../artifact-configurator";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -31,6 +28,14 @@ export class DefaultArtifactBuilder {
 
     public async build(dataSpecificationIris: string[]): Promise<Blob> {
         const zip = new ZipStreamDictionary();
+
+        // Generate artifacts
+        const artifactConfigurator = new ArtifactConfigurator(
+            Object.values(this.dataSpecifications), this.store);
+        for (const dataSpecificationIri of dataSpecificationIris) {
+            this.dataSpecifications[dataSpecificationIri].artefacts =
+                await artifactConfigurator.generateFor(dataSpecificationIri);
+        }
 
         await this.writeReadme(zip);
         await this.writeArtifacts(
@@ -59,17 +64,13 @@ export class DefaultArtifactBuilder {
         );
 
         const generator = new Generator(
-          Object.values(this.dataSpecifications),
-          this.store,
-          [
-            new JsonSchemaGenerator(),
-            new XmlSchemaGenerator(),
-            new BikeshedGenerator(),
-            new PlantUmlGenerator(),
-
-            new PlantUmlImageGenerator(),
-            new BikeshedHtmlGenerator(),
-          ]
+            Object.values(this.dataSpecifications),
+            this.store,
+            [
+                ...createDefaultArtefactGenerators(),
+                new PlantUmlImageGenerator(),
+                new BikeshedHtmlGenerator(),
+            ]
         );
 
         for (const dataSpecificationIri of dataSpecificationIris) {
