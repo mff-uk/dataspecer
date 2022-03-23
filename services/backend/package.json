@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "prisma generate && tsc",
+    "update-database": "prisma migrate deploy",
     "start": "node dist/main.js"
   },
   "devDependencies": {
