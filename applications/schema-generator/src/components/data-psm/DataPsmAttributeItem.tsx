@@ -7,31 +7,30 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import classNames from "classnames";
-import {StoreContext} from "../App";
 import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-dialog";
 import {InlineEdit} from "./common/InlineEdit";
-import {useResource} from "../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {DeleteAttribute} from "../../operations/delete-attribute";
 import {Datatype} from "./common/Datatype";
-import {isReadOnly} from "../../store/federated-observable-store";
 import {ItemRow} from "./item-row";
 import {MenuItem} from "@mui/material";
 import {Icons} from "../../icons";
 import {getCardinalityFromResource} from "./common/cardinality";
 import {PimAttribute} from "@model-driven-data/core/pim/model";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri}) => {
-    const {resource: dataPsmAttribute, isLoading, store: dataPsmAttributeStore} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
+    const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(dataPsmAttributeIri);
     const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
-    const readOnly = isReadOnly(dataPsmAttributeStore);
+    const readOnly = false;
 
     const dialog = useToggle();
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
 
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
     const {resource: ownerClass} = useResource<DataPsmClass>(parentDataPsmClassIri);
-    const del = useCallback(() => dataPsmAttribute && ownerClass && store.executeOperation(new DeleteAttribute(dataPsmAttribute, ownerClass)), [dataPsmAttribute, ownerClass, store]);
+    const del = useCallback(() => dataPsmAttribute && ownerClass && store.executeComplexOperation(new DeleteAttribute(dataPsmAttribute, ownerClass)), [dataPsmAttribute, ownerClass, store]);
 
     const inlineEdit = useToggle();
 

@@ -5,22 +5,22 @@ import {debounceTime} from "rxjs/operators";
 import {useTranslation} from "react-i18next";
 import {PimClass} from "@model-driven-data/core/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
 import {ReadOnlyMemoryStore} from "@model-driven-data/core/core";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
-import {FederatedObservableStore} from "../../store/federated-observable-store";
-import {StoreMetadataTag} from "../../configuration/configuration";
 import {dialog, DialogParameters, useDialog} from "../../dialog";
 import {translateFrom} from "../helper/LanguageStringComponents";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
 export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass) => void}>
     = dialog({maxWidth: "md", fullWidth: true}, memo(({close, selected}) => {
 
-    const {cim} = React.useContext(StoreContext);
+    const {cim} = React.useContext(ConfigurationContext);
     const [findResults, updateFindResults] = useState<PimClass[] | null>(null);
     const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
@@ -32,21 +32,17 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
     // Following code creates a new store context containing downloaded data. This allow us to use standard application
     // components which render dialogs and other stuff
 
-    const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableStore());
+    const storeContext = useContext(ConfigurationContext);
+    const store = useFederatedObservableStore();
     const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
     useEffect(() => {
-        const readOnlyMemoryStore = ReadOnlyMemoryStore.create(Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []));
-        const storeWithMetadata = {
-            store: readOnlyMemoryStore,
-            metadata: {
-                tags: ["cim-as-pim", "read-only"] as StoreMetadataTag[]
-            },
-        };
-        store.addStore(storeWithMetadata);
-        return () => store.removeStore(storeWithMetadata);
+        const resources = Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []);
+        const readOnlyMemoryStore = ReadOnlyMemoryStore.create(resources);
+        const wrappedStore = new ReadOnlyMemoryStoreWithDummyPimSchema(readOnlyMemoryStore, "http://dummy-schema/");
+        store.addStore(wrappedStore);
+        return () => store.removeStore(wrappedStore);
     }, [findResults, store]);
-
+;
     useEffect(() => {
         const subject = new BehaviorSubject('');
         setSubject(subject);
@@ -135,8 +131,8 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
             </List>
         </DialogContent>
 
-        <StoreContext.Provider value={NewStoreContext}>
+        <ConfigurationContext.Provider value={NewStoreContext}>
             <DetailDialog.Component />
-        </StoreContext.Provider>
+        </ConfigurationContext.Provider>
     </>;
 }));

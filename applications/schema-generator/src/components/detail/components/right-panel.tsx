@@ -1,14 +1,12 @@
 import React, {memo, useCallback, useEffect, useState} from "react";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {StoreContext} from "../../App";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 import {Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue} from "../../helper/datatype-selector";
 import {knownDatatypes} from "../../../utils/known-datatypes";
-import {isReadOnly} from "../../../store/federated-observable-store";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
 import {Icons} from "../../../icons";
 import {isEqual} from "lodash";
@@ -18,19 +16,20 @@ import {CardContent} from "../../../mui-overrides";
 import {TransitionGroup} from "react-transition-group";
 import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
 import {SetCardinality} from "../../../operations/set-cardinality";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
 
-    const {dataPsmResource: resource, pimResource, dataPsmResourceStore: resourcesStore, pimResourceStore} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, PimAttribute | PimAssociationEnd | PimClass>(iri);
+    const {dataPsmResource: resource, pimResource} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, PimAttribute | PimAssociationEnd | PimClass>(iri);
 
     const isAttribute = DataPsmAttribute.is(resource);
     const isAssociationEnd = DataPsmAssociationEnd.is(resource);
     const isClass = DataPsmClass.is(resource);
     //const isCodelist = (isClass && (pimResource as PimClass)?.pimIsCodelist) ?? false;
 
-    const readOnly = isReadOnly(resourcesStore);
-    const pimReadOnly = isReadOnly(pimResourceStore);
+    const readOnly = false;
+    const pimReadOnly = false;
 
     const [technicalLabel, setTechnicalLabel] = useState<string>("");
     const [datatype, setDatatype] = useState<DatatypeSelectorValueType>("");
@@ -65,18 +64,18 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useSaveHandler(
         resource !== null && (resource.dataPsmTechnicalLabel ?? "") !== technicalLabel,
-        useCallback(async () => resource && await store.executeOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
+        useCallback(async () => resource && await store.executeComplexOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 
     useSaveHandler(
         resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
-        useCallback(async () => resource && await store.executeOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype))), [resource, store, datatype]),
+        useCallback(async () => resource && await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype))), [resource, store, datatype]),
     );
 
     useSaveHandler(
         isClass && !isEqual(codelistUrl, (pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false),
         useCallback(
-            async () => pimResource && await store.executeOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
+            async () => pimResource && await store.executeComplexOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
             [pimResource, codelistUrl, store]
         ),
     );
@@ -92,7 +91,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     useSaveHandler(
         (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd)),
         useCallback(
-            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
+            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
             [pimResource, cardinality, isAttribute, isAssociationEnd, store]
         ),
     );

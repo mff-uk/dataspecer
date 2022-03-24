@@ -1,12 +1,12 @@
 import {useDialog} from "./useDialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
-import React, {useCallback} from "react";
-import {StoreContext} from "../components/App";
+import {useCallback, useContext} from "react";
 import {PimResource} from "@model-driven-data/core/pim/model";
 import {SetPimLabelAndDescription} from "../operations/set-pim-label-and-description";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
-  const {store} = React.useContext(StoreContext);
+  const store = useFederatedObservableStore();
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
   const open = useCallback(() => {
     updateLabels.open({
@@ -15,7 +15,7 @@ export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
         description: pimResource.pimHumanDescription ?? {},
       },
       update: data => {
-        store.executeOperation(new SetPimLabelAndDescription(pimResource.iri as string, data.label, data.description)).then();
+        store.executeComplexOperation(new SetPimLabelAndDescription(pimResource.iri as string, data.label, data.description)).then();
       },
     });
   }, [pimResource.pimHumanLabel, pimResource.pimHumanDescription]);

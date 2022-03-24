@@ -28,6 +28,7 @@ export const useAsyncMemoWithTrigger = <T>(factory: () => Promise<T>, deps: Depe
         return () => {
             cancel = true;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps);
 
     return state;

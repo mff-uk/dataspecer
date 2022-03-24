@@ -2,7 +2,7 @@ import React from "react";
 import {Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} from "@mui/material";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
-import {useResource} from "../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {PimAssociation, PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

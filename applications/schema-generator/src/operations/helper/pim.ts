@@ -1,14 +1,14 @@
 import {PimClass} from "@model-driven-data/core/pim/model";
-import {OperationExecutor, StoreDescriptor} from "../../store/operation-executor";
 import {PimCreateClass} from "@model-driven-data/core/pim/operation";
 import {copyPimPropertiesFromResourceToOperation} from "./copyPimPropertiesFromResourceToOperation";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export async function createPimClassIfMissing(
     resource: PimClass,
-    pimStoreSelector: StoreDescriptor,
-    executor: OperationExecutor,
+    pimSchema: string,
+    store: FederatedObservableStore,
 ): Promise<string> {
-    const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+    const existingPimIri = await store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
 
     if (existingPimIri) {
         // todo it does not perform any checks
@@ -18,6 +18,6 @@ export async function createPimClassIfMissing(
     const pimCreateClass = new PimCreateClass();
     copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
     pimCreateClass.pimIsCodelist = resource.pimIsCodelist;
-    const pimCreateClassResult = await executor.applyOperation(pimCreateClass, pimStoreSelector);
+    const pimCreateClassResult = await store.applyOperation(pimSchema, pimCreateClass);
     return pimCreateClassResult.created[0] as string;
 }

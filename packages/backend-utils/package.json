@@ -1,0 +1,16 @@
+{
+  "name": "@model-driven-data/backend-utils",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "node copy-package-json.js && tsc"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.5"
+  },
+  "publishConfig": {
+    "directory": "lib"
+  },
+  "dependencies": {
+    "@model-driven-data/core": "^0.0.0"
+  }
+}

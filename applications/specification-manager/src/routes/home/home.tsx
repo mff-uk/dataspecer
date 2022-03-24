@@ -1,20 +1,26 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useContext} from "react";
 import {Link} from "react-router-dom";
 import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import {useAsyncMemoWithTrigger} from "../../use-async-memo-with-trigger";
-import axios from "axios";
 import {CreateSpecification} from "./create-specification";
-import {DataSpecification} from "../../interfaces/data-specification";
-import {processEnv} from "../../index";
+import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationNameCell} from "../../name-cells";
 
-export const Home: React.FC<{}> = () => {
-    const [specifications, , reloadSpecifications]
-        = useAsyncMemoWithTrigger(() => axios.get<DataSpecification[]>(`${processEnv.REACT_APP_BACKEND}/specification`), []);
+export const Home: React.FC = () => {
+    const {
+        dataSpecifications,
+        setDataSpecifications,
+        rootDataSpecificationIris,
+        setRootDataSpecificationIris
+    } = useContext(DataSpecificationsContext);
+    const backendConnector = useContext(BackendConnectorContext);
 
     const deleteSpecification = useCallback(async (id: string) => {
-        await axios.delete(`${processEnv.REACT_APP_BACKEND}/specification/${id}`);
-        reloadSpecifications?.();
-    }, [reloadSpecifications]);
+        await backendConnector.deleteDataSpecification(id);
+        const newDataSpecifications = {...dataSpecifications};
+        delete newDataSpecifications[id];
+        setDataSpecifications(newDataSpecifications);
+        setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => iri !== id));
+    }, [backendConnector, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     return <>
         <Box height="30px"/>
@@ -22,7 +28,7 @@ export const Home: React.FC<{}> = () => {
             <Typography variant="h4" component="div" gutterBottom>
                 List of data specifications
             </Typography>
-            <CreateSpecification reload={reloadSpecifications}/>
+            <CreateSpecification reload={() => {}}/>
         </Box>
 
 
@@ -35,25 +41,25 @@ export const Home: React.FC<{}> = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specifications?.data?.map(row => (
+                    {rootDataSpecificationIris.map(dataSpecificationIri => (
                         <TableRow
-                            key={row.name}
+                            key={dataSpecificationIri}
                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                         >
                             <TableCell component="th" scope="row">
-                                <Typography sx={{fontWeight: "bold"}}>
-                                    {row.name}
-                                </Typography>
+                                <DataSpecificationNameCell dataSpecificationIri={dataSpecificationIri as string} />
                             </TableCell>
                             <TableCell align="right">
                                 <Box sx={{
                                     display: "flex",
                                     gap: "1rem",
                                 }}>
-                                    <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`specification/${row.id}`}>Detail</Button>
+                                    {dataSpecificationIri &&
+                                        <Button variant="outlined" color={"primary"} component={Link}
+                                                to={`specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`}>Detail</Button>
+                                    }
                                     <Button variant="outlined" color={"error"}
-                                            onClick={() => deleteSpecification(row.id)}>Delete</Button>
+                                            onClick={() => dataSpecificationIri && deleteSpecification(dataSpecificationIri)}>Delete</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>

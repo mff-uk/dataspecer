@@ -1,23 +1,23 @@
 import {PimClass} from "@model-driven-data/core/pim/model";
-import {OperationExecutor, StoreDescriptor} from "../../store/operation-executor";
 import {createPimClassIfMissing} from "./pim";
 import {PimSetExtends} from "@model-driven-data/core/pim/operation";
 import {CoreResourceReader} from "@model-driven-data/core/core";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 /**
  * Adds necessary PIM classes to the store, that there will be a path from
  * {@link fromClass} to {@link toClass}.
  * @param fromClass Local PIM class IRI that exists
  * @param toClass PIM IRI from the {@link sourcePimModel} that will be copied
- * @param pimStoreSelector
- * @param executor
+ * @param pimSchema
+ * @param store
  * @param sourcePimModel
  */
 export async function extendPimClassesAlongInheritance(
     fromClass: PimClass,
     toClass: PimClass,
-    pimStoreSelector: StoreDescriptor,
-    executor: OperationExecutor,
+    pimSchema: string,
+    store: FederatedObservableStore,
     sourcePimModel: CoreResourceReader,
 ): Promise<boolean> {
     // Find all classes which needs to be created or checked in order from most generic to most specific.
@@ -56,8 +56,8 @@ export async function extendPimClassesAlongInheritance(
     for (const classToProcessIri of classesToProcess) {
         const classToProcess = await sourcePimModel.readResource(classToProcessIri) as PimClass;
 
-        const iri = await createPimClassIfMissing(classToProcess, pimStoreSelector, executor);
-        const localClass = await executor.store.readResource(iri) as PimClass;
+        const iri = await createPimClassIfMissing(classToProcess, pimSchema, store);
+        const localClass = await store.readResource(iri) as PimClass;
 
         if (parentClassInChain &&
             !classToProcess.pimExtends.includes(parentClassInChain?.iri as string)) {
@@ -69,7 +69,7 @@ export async function extendPimClassesAlongInheritance(
             const pimSetExtends = new PimSetExtends();
             pimSetExtends.pimResource = iri;
             pimSetExtends.pimExtends = [...localClass.pimExtends, (parentLocalClassInChain as PimClass).iri as string];
-            await executor.applyOperation(pimSetExtends, pimStoreSelector);
+            await store.applyOperation(pimSchema, pimSetExtends);
         }
 
         parentClassInChain = classToProcess;

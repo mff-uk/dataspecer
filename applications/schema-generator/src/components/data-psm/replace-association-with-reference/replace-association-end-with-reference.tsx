@@ -1,23 +1,20 @@
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
-import {useResource} from "../../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import React, {useCallback} from "react";
-import {StoreContext} from "../../App";
 import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
-import {StoreByPropertyDescriptor} from "../../../store/operation-executor";
 import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-reference-dialog";
 import {ReplaceDataPsmAssociationEndWithReference} from "../../../operations/replace-data-psm-association-end-with-reference";
 import {useTranslation} from "react-i18next";
 import {MenuItem} from "@mui/material";
 import {UseDialogOpenFunction} from "../../../dialog";
-
-const LINKED_STORE_DESCRIPTOR = new StoreByPropertyDescriptor(["reused"]);
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd: string, open: UseDialogOpenFunction<typeof ReplaceAssociationWithReferenceDialog>}> = ({dataPsmAssociationEnd, open}) => {
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
     const {t} = useTranslation("psm");
 
     const {pimResource} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEnd);
@@ -29,7 +26,7 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
         if (pimClass?.pimInterpretation) {
             // List all PSM schemas from linked stores
-            const schemas = await store.listResourcesOfType(SCHEMA, LINKED_STORE_DESCRIPTOR);
+            const schemas = await store.listResourcesOfType(SCHEMA);
 
             for (const schemaIri of schemas) {
                 const schema = await store.readResource(schemaIri) as DataPsmSchema;
@@ -51,7 +48,7 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
     const selected = useCallback((dataPsmSchemaIri: string) => {
         const op = new ReplaceDataPsmAssociationEndWithReference(dataPsmAssociationEnd, dataPsmSchemaIri);
-        store.executeOperation(op).then();
+        store.executeComplexOperation(op).then();
     }, [dataPsmAssociationEnd, store]);
 
     return <>

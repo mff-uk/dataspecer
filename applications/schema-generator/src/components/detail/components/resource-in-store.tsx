@@ -1,20 +1,15 @@
 import * as React from "react";
-import {memo, useContext} from "react";
+import {memo} from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import {Box, Card, CardContent, Grid, Typography} from "@mui/material/";
+import {Box, Card, Grid, Typography} from "@mui/material/";
 import CheckIcon from "@mui/icons-material/Check";
 import WarningIcon from '@mui/icons-material/Warning';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import {useResource} from "../../../hooks/useResource";
-import {StoreContext} from "../../App";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {useTranslation} from "react-i18next";
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {ObjectDump} from "../../helper/object-dump";
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import {MemoryStore, ReadOnlyFederatedStore, ReadOnlyMemoryStore} from "@model-driven-data/core/core";
-import {SyncMemoryStore} from "../../../store/core-stores/sync-memory-store";
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 /**
  * Renders a part of UI dealing with everything about a specific resource which is located in the store. Specifically
@@ -24,7 +19,7 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
  */
 export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
     const resource = useResource(iri);
-    const {store} = useContext(StoreContext);
+    const store = useFederatedObservableStore();
     const {t} = useTranslation("detail");
 
     if (!iri) {
@@ -75,46 +70,6 @@ export const ResourceInStore: React.FC<{iri: string}> = memo(({iri}) => {
                             </Button>
                         </Grid>
                     </Grid>
-                </Grid>
-
-                <Grid item xs={6}>
-                    <Typography variant="subtitle1" component="h2">
-                        {t('title store where item is located')}
-                    </Typography>
-
-                    <Card>
-                        <CardContent>
-                            <Typography variant="body2" component={"div"}>
-                                {resource.store?.metadata.tags.includes("read-only") ?
-                                    <div><CloseOutlinedIcon color="error" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is read-only")}</div> :
-                                    <div><CheckIcon color="success" fontSize="small" sx={{ verticalAlign: "bottom" }} />{" "}{t("store is editable")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("root") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag root")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("reused") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag reused")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("reused-recursively") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag reused-recursively")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("pim") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag pim")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("data-psm") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag data-psm")}</div>
-                                }
-                                {resource.store?.metadata.tags.includes("cim-as-pim") &&
-                                <div><InfoOutlinedIcon color="primary" fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}{t("store metadata tag cim-as-pim")}</div>
-                                }
-
-                                {resource.store?.store instanceof MemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}MemoryStore</div>}
-                                {resource.store?.store instanceof ReadOnlyMemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}ReadOnlyMemoryStore</div>}
-                                {resource.store?.store instanceof SyncMemoryStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}SyncMemoryStore</div>}
-                                {resource.store?.store instanceof ReadOnlyFederatedStore && <div style={{marginTop: "1rem"}}><SettingsOutlinedIcon fontSize="small" sx={{verticalAlign: "bottom"}} />{" "}ReadOnlyFederatedStore</div>}
-                            </Typography>
-                        </CardContent>
-                    </Card>
                 </Grid>
             </Grid>
 

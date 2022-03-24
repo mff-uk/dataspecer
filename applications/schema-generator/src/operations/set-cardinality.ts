@@ -1,11 +1,12 @@
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {PimSetCardinality} from "@model-driven-data/core/pim/operation/pim-set-cardinality";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 export class SetCardinality implements ComplexOperation {
   readonly pimResource: string;
   readonly pimCardinalityMin: number | null;
   readonly pimCardinalityMax: number | null;
+  private store!: FederatedObservableStore;
 
   constructor(pimResource: string, pimCardinalityMin: number | null, pimCardinalityMax: number | null) {
     this.pimResource = pimResource;
@@ -13,11 +14,17 @@ export class SetCardinality implements ComplexOperation {
     this.pimCardinalityMax = pimCardinalityMax;
   }
 
-  async execute(executor: OperationExecutor): Promise<void> {
+  setStore(store: FederatedObservableStore) {
+    this.store = store;
+  }
+
+  async execute(): Promise<void> {
+    const schema = this.store.getSchemaForResource(this.pimResource) as string;
+
     const pimSetCardinality = new PimSetCardinality();
     pimSetCardinality.pimResource = this.pimResource;
     pimSetCardinality.pimCardinalityMin = this.pimCardinalityMin;
     pimSetCardinality.pimCardinalityMax = this.pimCardinalityMax;
-    await executor.applyOperation(pimSetCardinality, new StoreHavingResourceDescriptor(this.pimResource));
+    await this.store.applyOperation(schema, pimSetCardinality);
   }
 }
