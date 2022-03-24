@@ -1,5 +1,3 @@
-import * as fileSystem from "fs";
-import * as path from "path";
 import {OutputStream} from "../io/stream/output-stream";
 
 import {
@@ -21,36 +19,6 @@ import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 import { langStringName } from "../xml/xml-conventions";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
-
-export async function saveXmlSchemaToDirectory(
-  model: XmlSchema,
-  directory: string,
-  name: string
-): Promise<void> {
-  if (!fileSystem.existsSync(directory)) {
-    fileSystem.mkdirSync(directory);
-  }
-
-  const outputStream = fileSystem.createWriteStream(
-    path.join(directory, name + ".xsd")
-  );
-
-  const result = new Promise<void>((accept, reject) => {
-    outputStream.on("close", accept);
-    outputStream.on("error", reject);
-  });
-
-  const stream = {
-    write: async (chunk) => {
-      outputStream.write(chunk);
-    },
-  } as OutputStream;
-  await writeXmlSchema(model, stream);
-  
-  outputStream.end();
-
-  return result;
-}
 
 export async function writeXmlSchema(
   model: XmlSchema,
