@@ -12,13 +12,13 @@ import {
   xmlSchemaTypeIsSimple,
   xmlSchemaComplexContentIsElement,
   xmlSchemaComplexContentIsType,
-  langStringName,
   xmlSchemaComplexTypeDefinitionIsGroupReference,
   XmlSchemaGroupDefinition,
   XmlSchemaAnnotation,
 } from "./xml-schema-model";
 
-import { XmlWriter, XmlStreamWriter } from "./xml-writer";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
+import { langStringName } from "../xml/xml-conventions";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 

@@ -19,8 +19,6 @@ import {
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
   XmlSchemaImportDeclaration,
-  QName,
-  langStringName,
   XmlSchemaGroupDefinition,
   XmlSchemaAnnotation,
 } from "./xml-schema-model";
@@ -31,8 +29,10 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { XSD, OFN } from "../well-known";
+import { XSD } from "../well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
+
+import { langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
 
 export function structureModelToXmlSchema(
   specifications: { [iri: string]: DataSpecification },
@@ -48,21 +48,6 @@ const anyUriType: StructureModelPrimitiveType = (function () {
   type.dataType = XSD.anyURI;
   return type;
 })();
-
-/**
- * Map from datatype URIs to QNames.
- */
-const simpleTypeMap: Record<string, QName> = {
-  [OFN.boolean]: ["xs", "boolean"],
-  [OFN.date]: ["xs", "date"],
-  [OFN.time]: ["xs", "time"],
-  [OFN.dateTime]: ["xs", "dateTimeStamp"],
-  [OFN.integer]: ["xs", "integer"],
-  [OFN.decimal]: ["xs", "decimal"],
-  [OFN.url]: ["xs", "anyURI"],
-  [OFN.string]: ["xs", "string"],
-  [OFN.text]: langStringName,
-};
 
 const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
 
@@ -401,7 +386,7 @@ class XmlSchemaAdapter {
     }
     const type: QName = primitiveData.dataType.startsWith(xsdNamespace)
       ? ["xs", primitiveData.dataType.substring(xsdNamespace.length)]
-      : simpleTypeMap[primitiveData.dataType] ?? ["xs", "anySimpleType"];
+      : simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
       this.usesLangString = true;
     }

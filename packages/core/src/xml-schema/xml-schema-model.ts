@@ -1,12 +1,4 @@
-/**
- * A pair of a namespace prefix and a local name.
- */
-export type QName = [prefix: string, localName: string];
-
-/**
- * The QName used for an extension of xs:string that requires xml:lang.
- */
-export const langStringName: QName = [null, "langString"];
+import { QName } from "../xml/xml-conventions";
 
 /**
  * Represents an xs:schema definition.

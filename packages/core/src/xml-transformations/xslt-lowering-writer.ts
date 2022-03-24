@@ -11,7 +11,7 @@ import {
   XmlMatch,
 } from "./xslt-model";
 
-import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LOWERING } from "./xslt-vocabulary";
 
