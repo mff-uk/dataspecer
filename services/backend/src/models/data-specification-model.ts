@@ -53,7 +53,8 @@ export class DataSpecificationModel {
       pimStores: [
         this.storeModel.getById(dataSpecification.storeId)
       ],
-      psmStores: Object.fromEntries(dataSpecification.dataStructures.map(dataStructure => [dataStructure.psmSchema, [this.storeModel.getById(dataStructure.storeId)]]))
+      psmStores: Object.fromEntries(dataSpecification.dataStructures.map(dataStructure => [dataStructure.psmSchema, [this.storeModel.getById(dataStructure.storeId)]])),
+      tags: JSON.parse(dataSpecification.tags) as string[],
     }
   }
 
@@ -149,6 +150,9 @@ export class DataSpecificationModel {
       data: {
         importsDataSpecifications: dataSpecification.importsDataSpecifications ? {
           set: dataSpecification.importsDataSpecifications.map(iri => ({id: iri}))
+        } : undefined,
+        tags: dataSpecification.tags ? {
+          set: JSON.stringify([...dataSpecification.tags])
         } : undefined,
       },
       ...prismaDataSpecificationConfig

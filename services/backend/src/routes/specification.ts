@@ -19,8 +19,11 @@ export const listSpecifications = asyncHandler(async (request: express.Request, 
 });
 
 export const addSpecification = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const dataToSet = request.body as UpdateDataSpecification;
+
     const specification = await dataSpecificationModel.createDataSpecification();
-    response.send(replaceStoreDescriptorsInDataSpecification(specification));
+    const modifiedDataSpecification = await dataSpecificationModel.modifyDataSpecification(specification.iri as string, dataToSet);
+    response.send(replaceStoreDescriptorsInDataSpecification(modifiedDataSpecification));
 });
 
 export const deleteSpecification = asyncHandler(async (request: express.Request, response: express.Response) => {

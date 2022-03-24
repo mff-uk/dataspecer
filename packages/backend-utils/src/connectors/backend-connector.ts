@@ -25,9 +25,13 @@ export class BackendConnector {
     return await data.json();
   }
 
-  public async createDataSpecification(): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
+  public async createDataSpecification(set: UpdateDataSpecification = {}): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
     const data = await fetch(this.backendUrl + "/data-specification", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(set),
     });
     return await data.json();
   }

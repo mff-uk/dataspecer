@@ -10,6 +10,8 @@ import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor
 import {useConstructedStoresFromDescriptors} from "./store/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@model-driven-data/core/core";
+import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
+import {useLocalStorage} from "./utils/use-local-storage";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -70,32 +72,45 @@ function App() {
         setRootDataSpecificationIris,
     ]);
 
+    // Basic filtering
+
+    const filter = useLocalStorage<string>("filter-by-tag", "_");
+    const tags = useMemo(() =>
+        [...new Set(Object.values(dataSpecifications)
+            .filter(ds => rootDataSpecificationIris.includes(ds.iri as string))
+            .reduce((previousValue, currentValue) => [...previousValue, ...currentValue.tags], [] as string[]))]
+    , [dataSpecifications, rootDataSpecificationIris]);
+
     return (
         <BrowserRouter>
             <DataSpecificationsContext.Provider value={dataSpecificationContext}>
                 <BackendConnectorContext.Provider value={backendConnector}>
                     <StoreContext.Provider value={store}>
                         <ConstructedStoreCacheContext.Provider value={constructedStoreCache}>
-                            <AppBar position="static">
-                                <Toolbar>
-                                    <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none"}}>
-                                        Specification manager
-                                    </Typography>
-                                </Toolbar>
-                            </AppBar>
-                            <Container>
-                                <Routes>
-                                    <Route path="/" element={<Home/>}/>
-                                    <Route path="/specification" element={<Specification/>}/>
-                                </Routes>
-                                <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                Report a bug on <a href="https://github.com/opendata-mvcr/model-driven-data/issues">GitHub</a>.
-                                {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
-                                    <>
-                                        {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
-                                    </>
-                                }
-                            </Container>
+                            <AvailableTags.Provider value={tags}>
+                                <FilterContext.Provider value={filter}>
+                                    <AppBar position="static">
+                                        <Toolbar>
+                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none"}}>
+                                                Specification manager
+                                            </Typography>
+                                        </Toolbar>
+                                    </AppBar>
+                                    <Container>
+                                        <Routes>
+                                            <Route path="/" element={<Home/>}/>
+                                            <Route path="/specification" element={<Specification/>}/>
+                                        </Routes>
+                                        <Divider style={{margin: "1rem 0 1rem 0"}} />
+                                        Report a bug on <a href="https://github.com/opendata-mvcr/model-driven-data/issues">GitHub</a>.
+                                        {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                                            <>
+                                                {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                            </>
+                                        }
+                                    </Container>
+                                </FilterContext.Provider>
+                            </AvailableTags.Provider>
                         </ConstructedStoreCacheContext.Provider>
                     </StoreContext.Provider>
                 </BackendConnectorContext.Provider>
