@@ -208,10 +208,11 @@ async function writeAnnotation(
   annotated: XmlSchemaAnnotated,
   writer: XmlWriter
 ): Promise<void> {
-  if (annotated?.annotation != null) {
+  const annotation = annotated?.annotation;
+  if (annotation != null) {
     await writer.writeElementFull("xs", "annotation")(async writer => {
       await writer.writeElementValue(
-        "xs", "documentation", annotated.annotation.documentation
+        "xs", "documentation", annotation.documentation
       );
     });
   }

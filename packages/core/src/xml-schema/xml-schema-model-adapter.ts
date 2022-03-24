@@ -85,7 +85,9 @@ class XmlSchemaAdapter {
     this.model = model;
     const map: ClassMap = {};
     for (const classData of Object.values(model.classes)) {
-      map[classData.psmIri] = classData;
+      if (classData.psmIri != null) {
+        map[classData.psmIri] = classData;
+      }
     }
     this.classMap = map;
     this.imports = {};
@@ -367,8 +369,8 @@ class XmlSchemaAdapter {
   ): XmlSchemaComplexContentItem {
     return {
       item: this.classToComplexType(classData),
-      cardinalityMin: null,
-      cardinalityMax: null,
+      cardinalityMin: 1,
+      cardinalityMax: 1,
     };
   }
 

@@ -75,15 +75,17 @@ export class XmlSchemaSimpleType extends XmlSchemaType {
 }
 
 export function xmlSchemaTypeIsComplex(
-  type: XmlSchemaType
+  type: XmlSchemaType | null
 ): type is XmlSchemaComplexType {
-  return (type as XmlSchemaComplexType).complexDefinition !== undefined;
+  return type != null &&
+    (type as XmlSchemaComplexType).complexDefinition !== undefined;
 }
 
 export function xmlSchemaTypeIsSimple(
-  type: XmlSchemaType
+  type: XmlSchemaType | null
 ): type is XmlSchemaSimpleType {
-  return (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
+  return type != null &&
+    (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
 }
 
 /**
