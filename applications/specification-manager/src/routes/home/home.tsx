@@ -1,9 +1,11 @@
-import React, {useCallback, useContext} from "react";
+import React, {useCallback, useContext, useMemo} from "react";
 import {Link} from "react-router-dom";
 import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import {CreateSpecification} from "./create-specification";
 import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
 import {DataSpecificationNameCell} from "../../name-cells";
+import {SpecificationTags} from "../../components/specification-tags";
+import {FilterByTag, FilterContext} from "./filter-by-tag";
 
 export const Home: React.FC = () => {
     const {
@@ -22,12 +24,24 @@ export const Home: React.FC = () => {
         setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => iri !== id));
     }, [backendConnector, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
+    const [filter] = useContext(FilterContext);
+    const specificationsToShow = useMemo(() =>
+        rootDataSpecificationIris.filter(iri =>
+            filter === "_" ||
+            (
+                dataSpecifications[iri] &&
+                dataSpecifications[iri].tags.includes(filter)
+            )
+        )
+    , [rootDataSpecificationIris, dataSpecifications, filter]);
+
     return <>
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
             <Typography variant="h4" component="div" gutterBottom>
                 List of data specifications
             </Typography>
+            <FilterByTag />
             <CreateSpecification />
         </Box>
 
@@ -36,18 +50,24 @@ export const Home: React.FC = () => {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{width: "100%"}}>Name</TableCell>
+                        <TableCell sx={{width: "80%"}}>Name</TableCell>
+                        <TableCell sx={{width: "20%"}}>Tags</TableCell>
                         <TableCell>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rootDataSpecificationIris.map(dataSpecificationIri => (
+                    {specificationsToShow.map(dataSpecificationIri => (
                         <TableRow
                             key={dataSpecificationIri}
                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                         >
                             <TableCell component="th" scope="row">
-                                <DataSpecificationNameCell dataSpecificationIri={dataSpecificationIri as string} />
+                                <Box sx={{display: "flex", flexDirection: 'row'}}>
+                                    <DataSpecificationNameCell dataSpecificationIri={dataSpecificationIri as string} />
+                                    <SpecificationTags iri={dataSpecificationIri} />
+                                </Box>
+                            </TableCell>
+                            <TableCell>
                             </TableCell>
                             <TableCell align="right">
                                 <Box sx={{

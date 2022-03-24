@@ -5,7 +5,10 @@ import {DataSpecification} from "@model-driven-data/core/data-specification/mode
  * date, access rights, etc.
  */
 export interface DataSpecificationWithMetadata extends DataSpecification {
-  // There are no additional metadata for now.
+    /**
+     * Tags as a way of categorization
+     */
+    tags: string[],
 }
 
 

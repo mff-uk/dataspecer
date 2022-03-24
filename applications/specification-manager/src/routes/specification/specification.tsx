@@ -19,6 +19,7 @@ import {HttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/htt
 import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
 import {ModifySpecification} from "./modify-specification";
+import {SpecificationTags} from "../../components/specification-tags";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -128,6 +129,7 @@ export const Specification: React.FC = () => {
             </DataSpecificationName>
             <ModifySpecification iri={dataSpecificationIri} />
         </Box>
+        <SpecificationTags iri={dataSpecificationIri} />
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 5}}>
             <Typography variant="h5" component="div" gutterBottom>Data structures </Typography>

@@ -6,8 +6,8 @@ import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
 import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
 import {Resource} from "@model-driven-data/federated-observable-store/resource";
 import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
-import {SpecificationEditDialog} from "../../components/specification-edit-dialog";
-import {LanguageString} from "@model-driven-data/core/core";
+import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
+import {UpdateDataSpecification} from "@model-driven-data/backend-utils/interfaces/update-data-specification";
 
 export const CreateSpecification: React.FC = () => {
     const dialog = useToggle();
@@ -20,8 +20,13 @@ export const CreateSpecification: React.FC = () => {
     } = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
     const store = useFederatedObservableStore();
-    const create = useCallback(async ({label}: {label?: LanguageString}) => {
-        const dataSpecification = await backendConnector.createDataSpecification();
+    const create = useCallback(async ({label, tags}: Partial<SpecificationEditDialogEditableProperties>) => {
+        const options: UpdateDataSpecification = {};
+        if (tags) {
+            options.tags = tags;
+        }
+
+        const dataSpecification = await backendConnector.createDataSpecification(options);
         const pim = dataSpecification.pim as string;
 
         // Wait for store to be initialized

@@ -24,6 +24,10 @@ model DataSpecification {
   // Assigns a store id for given PIM schema.
   // Currently every PIM and PSM schemas has its own store managed by the backand.
   storeId String @unique
+
+  // Tags as means of categorization
+  // JSON array of strings
+  tags String @default("[]")
 }
 
 // Data structure represents single Data PSM schema with its entities. It
