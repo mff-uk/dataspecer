@@ -16,12 +16,7 @@ import {DataSpecificationModel} from "./models/data-specification-model";
 import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 
-require('dotenv').config();
-
-// Default values
-
-process.env.PORT = process.env.PORT || '3100';
-process.env.HOST = process.env.HOST || 'http://localhost:3100';
+require('dotenv-defaults').config();
 
 // Create models
 

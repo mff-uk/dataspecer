@@ -1,4 +1,3 @@
-import {processEnv} from "../index";
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@model-driven-data/core/generator";
 import {Bikeshed, BIKESHED, writeBikeshed} from "@model-driven-data/core/bikeshed";
 import {DataSpecification, DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model";
@@ -55,7 +54,7 @@ export class BikeshedHtmlGenerator implements ArtefactGenerator {
     private async generateFromSource(source: string): Promise<string | null> {
         try {
             const response = await fetch(
-              `${processEnv.REACT_APP_BACKEND}/transformer/bikeshed`,
+              `${process.env.REACT_APP_BACKEND}/transformer/bikeshed`,
               {
                 method: "POST",
                 headers: {

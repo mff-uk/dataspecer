@@ -26,7 +26,7 @@
     "array-move": "^4.0.0",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
-    "dotenv": "^8.2.0",
+    "dotenv-defaults": "^5.0.0",
     "file-dialog": "^0.0.8",
     "file-saver": "^2.0.5",
     "i18next": "^21.6.3",
@@ -50,8 +50,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "extract-languages": "i18next",
-    "node-version": "node --version"
+    "extract-languages": "i18next"
   },
   "eslintConfig": {
     "extends": "react-app"
