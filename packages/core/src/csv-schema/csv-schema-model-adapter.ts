@@ -8,9 +8,15 @@ import {
     StructureModelPrimitiveType, StructureModelProperty
 } from "../structure-model";
 import { DataSpecification } from "../data-specification/model";
-import { assert } from "../core";
+import {
+    assert,
+    LanguageString
+} from "../core";
 import { OFN } from "../well-known";
 
+/**
+ * This function creates CSV schema from StructureModel and DataSpecification
+ */
 export function structureModelToCsvSchema(
     specification: DataSpecification,
     model: StructureModel
@@ -42,17 +48,36 @@ function createTableSchemaFromProperties (
     for (const prop of properties) {
         const col = new Column();
         col.name = prop.technicalLabel;
-        col.titles = prop.technicalLabel;
+        col.titles = prop.humanLabel;
         col.propertyUrl = prop.cimIri;
-
+        col["dc:description"] = transformLanguageString(prop.humanDescription);
         const dataType = prop.dataTypes[0];
-        if(dataType.isAssociation()) col.datatype = "string";
-        if(dataType.isAttribute()) col.datatype = structureModelPrimitiveToCsvDefinition(dataType);
-
+        if (dataType.isAssociation()) col.datatype = "string";
+        if (dataType.isAttribute()) col.datatype = structureModelPrimitiveToCsvDefinition(dataType);
         col.lang = "cs";
+        if (prop.cardinalityMin > 0) col.required = true;
         tableSchema.columns.push(col);
     }
     return tableSchema;
+}
+
+/**
+ * This function transforms our common language string to CSVW format
+ * @param langString Language string for transformation
+ * @returns Different representation of the language string used in CSVW
+ */
+function transformLanguageString (
+    langString: LanguageString
+) : { [i: string]: string } | { [i: string]: string }[] | null {
+    if (!langString) return null;
+    const languages = Object.keys(langString);
+    if (languages.length === 0) return null;
+    if (languages.length === 1) return { "@value": langString[languages[0]], "@lang": languages[0] };
+    const result = [];
+    for (const language in langString) {
+        result.push({ "@value": langString[language], "@lang": language });
+    }
+    return result;
 }
 
 /**
