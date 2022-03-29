@@ -6,7 +6,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Installation instructions
 
 1. Clone the whole mono repository. `git clone ...`
-2. Optionally create `./env` file that overrides `./.env.defaults` or use environmental variables during the build.
+2. Optionally create `./env.local` file that overrides `./.env` or use environmental variables during the build.
 3. Run `npm install` from the root of the repository to install Lerna.
 4. Run `lerna bootstrap` to install and link all packages.
 5. Run `lerna run build` to build `@model-driven-data/core` and other packages and the schema-generator. All generated files are in the `./buid` directory.
