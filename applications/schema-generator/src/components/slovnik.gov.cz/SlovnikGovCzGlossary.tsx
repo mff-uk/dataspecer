@@ -1,6 +1,6 @@
 import React from "react";
 import {createStyles, makeStyles} from "@mui/styles";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {alpha, Theme} from "@mui/material";
 
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const SlovnikGovCzGlossary: React.FC<{cimResourceIri: string}> = ({cimResourceIri}) => {
-    const {cim} = React.useContext(StoreContext);
+    const {cim} = React.useContext(ConfigurationContext);
     const [groups] = useAsyncMemo(() => cim.cimAdapter.getResourceGroup(cimResourceIri), [cimResourceIri, cim.cimAdapter]);
     const styles = useStyles();
 

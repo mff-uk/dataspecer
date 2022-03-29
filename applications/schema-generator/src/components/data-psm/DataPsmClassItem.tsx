@@ -6,10 +6,9 @@ import {MenuItem, Skeleton} from "@mui/material";
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {PimClass} from "@model-driven-data/core/pim/model";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmClassDetailDialog} from "../detail/data-psm-class-detail-dialog";
 import {useTranslation} from "react-i18next";
-import {isReadOnly} from "../../store/federated-observable-store";
 import {ItemRow} from "./item-row";
 import {useDialog} from "../../dialog";
 import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings";
@@ -19,8 +18,8 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
 
-    const {dataPsmResource: dataPsmClass, dataPsmResourceStore, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
-    const readOnly = isReadOnly(dataPsmResourceStore);
+    const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const readOnly = false;
     const cimClassIri = pimClass?.pimInterpretation;
 
     const DetailDialog = useDialog(DataPsmClassDetailDialog, ["iri"]);

@@ -1,36 +1,41 @@
 import React, {ReactElement} from "react";
 import {Box, Typography} from "@mui/material";
-import {CoreResourceReader} from "@model-driven-data/core/core";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import {FederatedObservableStore} from "../../store/federated-observable-store";
 import {CSV_SCHEMA} from "@model-driven-data/core/csv-schema/csv-schema-vocabulary";
 import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
-import {getGeneratedArtifactFromRoot} from "./artifact-generator";
+import {Configuration} from "../../configuration/configuration";
+import {getSingleArtifact} from "./get-single-artifact";
 
 SyntaxHighlighter.registerLanguage("json", json);
 
-async function generate(reader: CoreResourceReader, fromSchema: string): Promise<string> {
-    return await getGeneratedArtifactFromRoot(
-        reader as FederatedObservableStore,
-        artefact =>
-            artefact.generator === CSV_SCHEMA.Generator &&
-            DataSpecificationSchema.is(artefact) &&
-            artefact.psm === fromSchema
-    );
+async function generate(configuration: Configuration): Promise<string|null> {
+    if (configuration.dataSpecificationIri) {
+        return await getSingleArtifact(
+            configuration.store,
+            configuration.dataSpecificationIri,
+            configuration.dataSpecifications,
+            artefact =>
+                artefact.generator === CSV_SCHEMA.Generator &&
+                DataSpecificationSchema.is(artefact) &&
+                artefact.psm === configuration.dataPsmSchemaIri,
+        );
+    }
+
+    return null;
 }
 
-export async function GetCsvSchemaArtifact(reader: CoreResourceReader, schema: string): Promise<string> {
-    const csvSchema = await generate(reader, schema);
+export async function GetCsvSchemaArtifact(configuration: Configuration): Promise<string> {
+    const csvSchema = await generate(configuration);
     if (!csvSchema) {
         throw new Error("No schema returned");
     }
     return csvSchema;
 }
 
-export async function GetPreviewComponentCsvSchemaArtifact(reader: CoreResourceReader, schema: string): Promise<ReactElement> {
-    const csvSchema = await generate(reader, schema);
+export async function GetPreviewComponentCsvSchemaArtifact(configuration: Configuration): Promise<ReactElement> {
+    const csvSchema = await generate(configuration);
     if (!csvSchema) {
         throw new Error("No schema returned");
     }

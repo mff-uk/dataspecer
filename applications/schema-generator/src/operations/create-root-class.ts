@@ -1,10 +1,9 @@
 import {PimClass} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreByPropertyDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {createPimClassIfMissing} from "./helper/pim";
-import {SCHEMA} from "@model-driven-data/core/data-psm/data-psm-vocabulary";
 import {LanguageString} from "@model-driven-data/core/core";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 /**
  * For the given pimClass, it creates a new schema and new PIM and DataPSM classes representing the given class.
@@ -16,45 +15,49 @@ import {LanguageString} from "@model-driven-data/core/core";
  */
 export class CreateRootClass implements ComplexOperation {
     private readonly pimClass: PimClass;
+    private readonly pimSchemaIri: string;
+    private readonly dataPsmSchemaIri: string;
     private readonly schemaHumanLabel?: LanguageString;
     private readonly schemaHumanDescription?: LanguageString;
+    private store!: FederatedObservableStore;
 
-    constructor(pimClass: PimClass, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
+    constructor(pimClass: PimClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
         this.pimClass = pimClass;
+        this.pimSchemaIri = pimSchemaIri;
+        this.dataPsmSchemaIri = dataPsmSchemaIri;
         this.schemaHumanLabel = schemaHumanLabel;
         this.schemaHumanDescription = schemaHumanDescription;
     }
 
-    async execute(executor: OperationExecutor): Promise<void> {
-        const dataPsmStoreDescriptor = new StoreByPropertyDescriptor(["data-psm", "root"]);
+    setStore(store: FederatedObservableStore) {
+        this.store = store;
+    }
 
-        const pimClassIri = await createPimClassIfMissing(this.pimClass, new StoreByPropertyDescriptor(["pim", "root"]), executor);
+    async execute(): Promise<void> {
+        const pimClassIri = await createPimClassIfMissing(this.pimClass, this.pimSchemaIri, this.store);
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
-        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreDescriptor);
+        const dataPsmCreateClassResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateClass);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();
         dataPsmUpdateSchemaRoots.dataPsmRoots = [dataPsmCreateClassResult.created[0]];
-        await executor.applyOperation(dataPsmUpdateSchemaRoots, dataPsmStoreDescriptor);
+        await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmUpdateSchemaRoots);
 
         // Schema label and description
 
-        const schemas = await executor.store.listResourcesOfType(SCHEMA, dataPsmStoreDescriptor);
-        const schemaIri = schemas[0] as string;
-
         if (this.schemaHumanLabel) {
             const dataPsmSetHumanLabel = new DataPsmSetHumanLabel();
-            dataPsmSetHumanLabel.dataPsmResource = schemaIri;
+            dataPsmSetHumanLabel.dataPsmResource = this.dataPsmSchemaIri;
             dataPsmSetHumanLabel.dataPsmHumanLabel = this.schemaHumanLabel;
-            await executor.applyOperation(dataPsmSetHumanLabel, dataPsmStoreDescriptor);
+            await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmSetHumanLabel);
         }
 
         if (this.schemaHumanDescription) {
             const dataPsmSetHumanDescription = new DataPsmSetHumanDescription();
-            dataPsmSetHumanDescription.dataPsmResource = schemaIri;
+            dataPsmSetHumanDescription.dataPsmResource = this.dataPsmSchemaIri;
             dataPsmSetHumanDescription.dataPsmHumanDescription = this.schemaHumanDescription;
-            await executor.applyOperation(dataPsmSetHumanDescription, dataPsmStoreDescriptor);
+            await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmSetHumanDescription);
         }
     }
 }

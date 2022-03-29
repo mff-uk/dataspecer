@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./lib/",
+    "sourceMap": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "lib": [
+      "ES2020", "dom"
+    ]
+  }
+}

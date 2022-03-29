@@ -5,7 +5,10 @@
   "dependencies": {
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
+    "@model-driven-data/backend-utils": "^0.0.0",
     "@model-driven-data/core": "*",
+    "@model-driven-data/federated-observable-store": "^0.0.0",
+    "@model-driven-data/federated-observable-store-react": "^0.0.0",
     "@mui/icons-material": "^5.1.0",
     "@mui/lab": "^5.0.0-alpha.63",
     "@mui/material": "^5.1.0",
@@ -17,12 +20,12 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "axios": "^0.24.0",
-    "dotenv": "^10.0.0",
+    "dotenv-defaults": "^5.0.0",
     "file-saver": "^2.0.5",
     "history": "5",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
+    "lodash.isequal": "^4.5.0",
     "pako": "^2.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -36,6 +39,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "build:watch": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -61,6 +65,7 @@
   "devDependencies": {
     "@types/file-saver": "^2.0.4",
     "@types/lodash": "^4.14.178",
+    "@types/lodash.isequal": "^4.5.5",
     "@types/pako": "^1.0.3"
   }
 }

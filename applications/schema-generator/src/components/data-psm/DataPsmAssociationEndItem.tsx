@@ -9,18 +9,16 @@ import {IconButton, MenuItem} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
 import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "@model-driven-data/core/data-psm/model";
-import {useDataPsmAndInterpretedPim} from "../../hooks/useDataPsmAndInterpretedPim";
+import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
 import {DataPsmAssociationToClassDetailDialog} from "../detail/data-psm-association-to-class-detail-dialog";
-import {StoreContext} from "../App";
 import {InlineEdit} from "./common/InlineEdit";
 import {LanguageString} from "@model-driven-data/core/core";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
 import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
-import {useResource} from "../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
-import {isReadOnly} from "../../store/federated-observable-store";
 import {ItemRow} from "./item-row";
 import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
 import {ReplaceAssociationEndWithReference} from "./replace-association-with-reference/replace-association-end-with-reference";
@@ -31,6 +29,7 @@ import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-
 import {getCardinalityFromResource} from "./common/cardinality";
 import {ReplaceAlongInheritanceDialog} from "./replace-along-inheritance/replace-along-inheritance-dialog";
 import {ActionsOther} from "./common/actions-other";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -42,12 +41,12 @@ import {ActionsOther} from "./common/actions-other";
 export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAssociationEndIri, parentDataPsmClassIri, dragHandleProps}) => {
     const {t} = useTranslation("psm");
     const styles = useItemStyles();
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
 
     // Data PSM association end
 
-    const {dataPsmResource: dataPsmAssociationEnd, dataPsmResourceStore, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
-    const readOnly = isReadOnly(dataPsmResourceStore);
+    const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
+    const readOnly = false;
 
     // PIM Association and check if it is backward association
 
@@ -61,8 +60,8 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const isClassReference = associationPointsTo && DataPsmClassReference.is(associationPointsTo); // Whether the association points to a class reference or just a normal class
 
     const dataPsmClassIri = isClassReference ? associationPointsTo.dataPsmClass : associationPointsToIri;
-    const {dataPsmResource: dataPsmClass, pimResource: pimClass, dataPsmResourceStore: dataPsmClassStore} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
-    const dataPsmClassIsReadOnly = isReadOnly(dataPsmClassStore);
+    const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
+    const dataPsmClassIsReadOnly = false;
 
     const isCodelist = pimClass?.pimIsCodelist ?? false;
 
@@ -79,7 +78,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
     const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);
 
     const del = useCallback(() => dataPsmAssociationEnd && dataPsmClass &&
-            store.executeOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
+            store.executeComplexOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
         [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri, store]);
 
     const inlineEdit = useToggle();

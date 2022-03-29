@@ -4,8 +4,7 @@ import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@mui/material";
 import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {useResource} from "../../hooks/useResource";
-import {isReadOnly} from "../../store/federated-observable-store";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {TransitionGroup} from "react-transition-group";
 
 interface DataPsmResourceSwitchProperties {
@@ -41,8 +40,8 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
  * Renders parts (class attributes and class associations) for specified class.
  */
 export const DataPsmClassParts: React.FC<{dataPsmClassIri: string, isOpen: boolean}> = memo(({dataPsmClassIri, isOpen}) => {
-    const {resource: dataPsmClass, store} = useResource<DataPsmClass>(dataPsmClassIri);
-    const readOnly = isReadOnly(store);
+    const {resource: dataPsmClass} = useResource<DataPsmClass>(dataPsmClassIri);
+    const readOnly = false;
 
     return <Collapse in={isOpen} unmountOnExit>
         <Droppable droppableId={dataPsmClassIri} type={dataPsmClassIri} isDropDisabled={readOnly}>

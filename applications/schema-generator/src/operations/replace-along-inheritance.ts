@@ -2,13 +2,13 @@ import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {PimClass, PimResource} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
 import {isPimAncestorOf} from "../store/utils/is-ancestor-of";
 import {getPimHavingInterpretation} from "../store/utils/get-pim-having-interpretation";
 import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 /**
  * Replaces an existing DataPSM class with a new one that interprets given CIM
@@ -25,6 +25,7 @@ export class ReplaceAlongInheritance implements ComplexOperation {
     private readonly fromDataPsmClassIri: string;
     private readonly toPimClassIri: string;
     private readonly sourcePimModel: CoreResourceReader;
+    private store!: FederatedObservableStore;
 
     /**
      * @param fromDataPsmClassIri Class IRI from the local store that is to be replaced and removed.
@@ -41,10 +42,14 @@ export class ReplaceAlongInheritance implements ComplexOperation {
         this.sourcePimModel = sourcePimModel;
     }
 
-    async execute(executor: OperationExecutor): Promise<void> {
-        const fromDataPsmClass = await executor.store.readResource(this.fromDataPsmClassIri) as DataPsmClass;
-        const fromPimClass = await executor.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as PimClass;
-        const dataPsmStoreSelector = new StoreHavingResourceDescriptor(fromDataPsmClass.iri as string);
+    setStore(store: FederatedObservableStore) {
+        this.store = store;
+    }
+
+    async execute(): Promise<void> {
+        const fromDataPsmClass = await this.store.readResource(this.fromDataPsmClassIri) as DataPsmClass;
+        const fromPimClass = await this.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as PimClass;
+        const dataPsmSchemaIri = this.store.getSchemaForResource(fromDataPsmClass.iri as string) as string;
 
         const sourceFromPimClassIri = await getPimHavingInterpretation(this.sourcePimModel, fromPimClass.pimInterpretation as string) as string;
 
@@ -58,13 +63,13 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
         const sourceFromPimClass = await this.sourcePimModel.readResource(sourceFromPimClassIri) as PimClass;
         const sourceToPimClass = await this.sourcePimModel.readResource(this.toPimClassIri) as PimClass; //vec
-        const pimStoreSelector = new StoreHavingResourceDescriptor(fromPimClass.iri as string);
+        const pimSchemaIri = this.store.getSchemaForResource(fromPimClass.iri as string) as string;
 
         const result = await extendPimClassesAlongInheritance(
             !isSpecialization ? sourceFromPimClass : sourceToPimClass,
             isSpecialization ? sourceFromPimClass : sourceToPimClass,
-            pimStoreSelector,
-            executor,
+            pimSchemaIri,
+            this.store,
             this.sourcePimModel
         );
         if (!result) {
@@ -74,14 +79,14 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
         // Create data PSM class
 
-        const toPimClassIri = await executor.store.getPimHavingInterpretation(sourceToPimClass.pimInterpretation as string, pimStoreSelector);
-        const toPimClass = await executor.store.readResource(toPimClassIri as string) as PimClass;
+        const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.pimInterpretation as string, pimSchemaIri);
+        const toPimClass = await this.store.readResource(toPimClassIri as string) as PimClass;
         console.log(toPimClass);
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = toPimClassIri;
         dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(toPimClass) ?? null;
-        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
+        const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchemaIri, dataPsmCreateClass);
         const toPsmClassIri = dataPsmCreateClassResult.created[0];
 
         // Replace data psm classes
@@ -89,13 +94,13 @@ export class ReplaceAlongInheritance implements ComplexOperation {
         const dataPsmReplaceAlongInheritance = new DataPsmReplaceAlongInheritance();
         dataPsmReplaceAlongInheritance.dataPsmOriginalClass = fromDataPsmClass.iri;
         dataPsmReplaceAlongInheritance.dataPsmReplacingClass = toPsmClassIri;
-        await executor.applyOperation(dataPsmReplaceAlongInheritance, dataPsmStoreSelector);
+        await this.store.applyOperation(dataPsmSchemaIri, dataPsmReplaceAlongInheritance);
 
         // Remove the old class
 
         const dataPsmDeleteClass = new DataPsmDeleteClass();
         dataPsmDeleteClass.dataPsmClass = fromDataPsmClass.iri;
-        await executor.applyOperation(dataPsmDeleteClass, dataPsmStoreSelector);
+        await this.store.applyOperation(dataPsmSchemaIri, dataPsmDeleteClass);
     }
 
     private getTechnicalLabelFromPim(pimResource: PimResource): string | undefined {

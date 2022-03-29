@@ -2,7 +2,7 @@ import {IconButton, ListItem, ListItemText, Typography} from "@mui/material";
 import {LanguageStringUndefineable, translateFrom} from "../../helper/LanguageStringComponents";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import React from "react";
-import {useResource} from "../../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {PimClass} from "@model-driven-data/core/pim/model";
 import {SlovnikGovCzGlossary} from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";

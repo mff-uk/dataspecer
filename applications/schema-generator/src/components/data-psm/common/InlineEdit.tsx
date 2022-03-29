@@ -1,6 +1,5 @@
 import React, {memo, useState} from "react";
 import {DataPsmAttribute, DataPsmResource} from "@model-driven-data/core/data-psm/model";
-import {StoreContext} from "../../App";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";
 import {Button, InputBase} from "@mui/material";
@@ -8,6 +7,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 function emptyStringToNull(value: string | null) {
     return value === "" ? null : value;
@@ -19,7 +19,7 @@ function emptyStringToNull(value: string | null) {
 export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmResource, resourceType: "attribute" | "associationEnd"}> = memo(({close, dataPsmResource, resourceType}) => {
   const dataPsmAttribute = dataPsmResource as DataPsmAttribute;
 
-  const {store} = React.useContext(StoreContext);
+  const store = useFederatedObservableStore();
 
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
@@ -29,10 +29,10 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
 
   const process = async () => {
     if (label !== dataPsmResource.dataPsmTechnicalLabel) {
-      await store.executeOperation(new SetTechnicalLabel(dataPsmResource.iri as string, label));
+      await store.executeComplexOperation(new SetTechnicalLabel(dataPsmResource.iri as string, label));
     }
     if (resourceType === "attribute" && emptyStringToNull(datatype) !== dataPsmAttribute.dataPsmDatatype) {
-      await store.executeOperation(new SetDataPsmDatatype(dataPsmResource.iri as string, emptyStringToNull(datatype)));
+      await store.executeComplexOperation(new SetDataPsmDatatype(dataPsmResource.iri as string, emptyStringToNull(datatype)));
     }
     close();
   };

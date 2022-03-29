@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {PimClass} from "@model-driven-data/core/pim/model";
-import {StoreContext} from "../components/App";
-import {Resource} from "../store/resource";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {Resource} from "@model-driven-data/federated-observable-store/resource";
 
 /**
  * Returns all ancestors or self for the given class by iri.
  * @param pimClassIri
  */
 export const usePimExtends = (pimClassIri: string | null): {[iri: string]: Resource<PimClass>} => {
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
     const [resources, setResources] = useState<{[iri: string]: Resource<PimClass>}>({});
 
     useEffect(() => {

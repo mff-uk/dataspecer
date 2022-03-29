@@ -3,13 +3,13 @@ import {CoreResourceReader} from "@model-driven-data/core/core";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
 import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality} from "@model-driven-data/core/pim/operation";
-import {ComplexOperation} from "../store/complex-operation";
-import {OperationExecutor, StoreDescriptor, StoreHavingResourceDescriptor} from "../store/operation-executor";
+import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
 import {selectLanguage} from "../utils/selectLanguage";
 import {removeDiacritics} from "../utils/remove-diacritics";
 import {createPimClassIfMissing} from "./helper/pim";
 import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
+import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
 
 /**
  * true - the resource is a range, false - the resource is a domain
@@ -37,6 +37,7 @@ export class AddClassSurroundings implements ComplexOperation {
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, AssociationOrientation][];
+    private store!: FederatedObservableStore;
 
     /**
      * @param forDataPsmClass
@@ -49,10 +50,15 @@ export class AddClassSurroundings implements ComplexOperation {
         this.resourcesToAdd = resourcesToAdd;
     }
 
-    async execute(executor: OperationExecutor): Promise<void> {
-        const pimStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.dataPsmInterpretation as string);
-        const dataPsmStoreSelector = new StoreHavingResourceDescriptor(this.forDataPsmClass.iri as string);
-        const interpretedPimClass = await executor.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
+    setStore(store: FederatedObservableStore) {
+        this.store = store;
+    }
+
+    async execute(): Promise<void> {
+        const interpretedPimClass = await this.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
+
+        const pimSchema = this.store.getSchemaForResource(this.forDataPsmClass.dataPsmInterpretation as string) as string;
+        const dataPsmSchema = this.store.getSchemaForResource(this.forDataPsmClass.iri as string) as string;
 
         let correspondingSourcePimClass: PimClass | null = null;
         let allResources = await this.sourcePimModel.listResources();
@@ -68,10 +74,10 @@ export class AddClassSurroundings implements ComplexOperation {
             const resource = await this.sourcePimModel.readResource(resourceIri);
             if (PimAttribute.is(resource)) {
                 console.assert(orientation, `Attribute ${resourceIri} should not have a reverse orientation.`);
-                await this.processAttribute(resource, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
+                await this.processAttribute(resource, pimSchema, dataPsmSchema, correspondingSourcePimClass as PimClass);
             }
             if (PimAssociation.is(resource)) {
-                await this.processAssociation(resource, orientation, executor, pimStoreSelector, dataPsmStoreSelector, correspondingSourcePimClass as PimClass);
+                await this.processAssociation(resource, orientation, pimSchema, dataPsmSchema, correspondingSourcePimClass as PimClass);
             }
         }
     }
@@ -106,16 +112,15 @@ export class AddClassSurroundings implements ComplexOperation {
 
     private async processAttribute(
         attribute: PimAttribute,
-        executor: OperationExecutor,
-        pimStoreSelector: StoreDescriptor,
-        dataPsmStoreSelector: StoreDescriptor,
+        pimSchema: string,
+        dataPsmSchema: string,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
         const ownerClass = await this.sourcePimModel.readResource(attribute.pimOwnerClass as string) as PimClass;
         await extendPimClassesAlongInheritance(
-            correspondingSourcePimClass, ownerClass, pimStoreSelector, executor, this.sourcePimModel);
+            correspondingSourcePimClass, ownerClass, pimSchema, this.store, this.sourcePimModel);
 
-        const pimAttributeIri = await this.createPimAttributeIfMissing(attribute, pimStoreSelector, executor);
+        const pimAttributeIri = await this.createPimAttributeIfMissing(attribute, pimSchema);
 
         // PSM attribute
 
@@ -123,15 +128,14 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAttribute.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(attribute) ?? null;
-        await executor.applyOperation(dataPsmCreateAttribute, dataPsmStoreSelector);
+        await this.store.applyOperation(dataPsmSchema, dataPsmCreateAttribute);
     }
 
     private async processAssociation(
         association: PimAssociation,
         orientation: AssociationOrientation, // true if outgoing
-        executor: OperationExecutor,
-        pimStoreSelector: StoreDescriptor,
-        dataPsmStoreSelector: StoreDescriptor,
+        pimSchema: string,
+        dataPsmSchema: string,
         correspondingSourcePimClass: PimClass, // "parent" PIM class
     ) {
         const domainAssociationEnd = await this.sourcePimModel.readResource(association.pimEnd[0]) as PimAssociationEnd;
@@ -144,20 +148,20 @@ export class AddClassSurroundings implements ComplexOperation {
 
         // Because the domain class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
         await extendPimClassesAlongInheritance(
-            correspondingSourcePimClass, thisAssociationEndClass, pimStoreSelector, executor, this.sourcePimModel);
+            correspondingSourcePimClass, thisAssociationEndClass, pimSchema, this.store, this.sourcePimModel);
 
         // Pim other class is created always. Mainly because of the association on PIM level.
-        const pimOtherClassIri = await createPimClassIfMissing(otherAssociationEndClass, pimStoreSelector, executor);
+        const pimOtherClassIri = await createPimClassIfMissing(otherAssociationEndClass, pimSchema, this.store);
 
         // Data PSM the other class
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
         dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(otherAssociationEndClass) ?? null;
-        const dataPsmCreateClassResult = await executor.applyOperation(dataPsmCreateClass, dataPsmStoreSelector);
+        const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 
-        const {associationEnds} = await this.createPimAssociationIfMissing(association, pimStoreSelector, executor);
+        const {associationEnds} = await this.createPimAssociationIfMissing(association, pimSchema);
 
         // Data PSM association end
 
@@ -166,15 +170,14 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAssociationEnd.dataPsmPart = psmEndRefersToIri;
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
-        await executor.applyOperation(dataPsmCreateAssociationEnd, dataPsmStoreSelector);
+        await this.store.applyOperation(dataPsmSchema, dataPsmCreateAssociationEnd);
     }
 
     private async createPimAttributeIfMissing(
         resource: PimAttribute,
-        pimStoreSelector: StoreDescriptor,
-        executor: OperationExecutor,
+        pimSchema: string,
     ): Promise<string> {
-        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
 
         if (existingPimIri) {
             // todo it does not perform any checks
@@ -182,7 +185,7 @@ export class AddClassSurroundings implements ComplexOperation {
         }
 
         const ownerClassSource = await this.sourcePimModel.readResource(resource.pimOwnerClass as string) as PimClass;
-        const ownerClassIri = await executor.store.getPimHavingInterpretation(ownerClassSource.pimInterpretation as string, pimStoreSelector);
+        const ownerClassIri = await this.store.getPimHavingInterpretation(ownerClassSource.pimInterpretation as string, pimSchema);
         if (ownerClassIri === null) {
             throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
         }
@@ -192,7 +195,7 @@ export class AddClassSurroundings implements ComplexOperation {
         pimCreateAttribute.pimOwnerClass = ownerClassIri;
         pimCreateAttribute.pimCardinalityMin = resource.pimCardinalityMin;
         pimCreateAttribute.pimCardinalityMax = resource.pimCardinalityMax;
-        const pimCreateAttributeResult = await executor.applyOperation(pimCreateAttribute, pimStoreSelector);
+        const pimCreateAttributeResult = await this.store.applyOperation(pimSchema, pimCreateAttribute);
         return pimCreateAttributeResult.created[0];
     }
 
@@ -200,23 +203,21 @@ export class AddClassSurroundings implements ComplexOperation {
      * Takes a current PimResource and creates it in the store if not exists. If it exists, it does not perform any
      * checks, so it supposes the CIM is immutable.
      * @param resource Fresh PimResource to add to the store
-     * @param pimStoreSelector
-     * @param executor
+     * @param pimSchema
      * @return IRI of PimResource in the store
      */
     private async createPimAssociationIfMissing(
         resource: PimAssociation,
-        pimStoreSelector: StoreDescriptor,
-        executor: OperationExecutor,
+        pimSchema: string,
     ): Promise<{
         associationIri: string,
         associationEnds: string[]
     }> {
-        const existingPimIri = await executor.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimStoreSelector);
+        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
 
         if (existingPimIri) {
             // todo it does not perform any checks
-            const association = await executor.store.readResource(existingPimIri) as PimAssociation;
+            const association = await this.store.readResource(existingPimIri) as PimAssociation;
             return {
                 associationIri: existingPimIri,
                 associationEnds: association.pimEnd,
@@ -229,7 +230,7 @@ export class AddClassSurroundings implements ComplexOperation {
         for (const endIri of resource.pimEnd) {
             const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
             const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
-            const localPimIri = await executor.store.getPimHavingInterpretation(endClass.pimInterpretation as string, pimStoreSelector);
+            const localPimIri = await this.store.getPimHavingInterpretation(endClass.pimInterpretation as string, pimSchema);
             if (localPimIri === null) {
                 throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
             }
@@ -240,7 +241,7 @@ export class AddClassSurroundings implements ComplexOperation {
         const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
         pimCreateAssociation.pimAssociationEnds = pimEndIris;
-        const pimCreateAssociationResult = await executor.applyOperation(pimCreateAssociation, pimStoreSelector);
+        const pimCreateAssociationResult = await this.store.applyOperation(pimSchema, pimCreateAssociation);
         const operationResult =  {
             associationIri: pimCreateAssociationResult.created[0],
             associationEnds: pimCreateAssociationResult.created.slice(1)
@@ -248,7 +249,7 @@ export class AddClassSurroundings implements ComplexOperation {
 
         // Set cardinalities of association ends if differs
         for (let i = 0; i < operationResult.associationEnds.length; i++) {
-            const associationEnd = await executor.store.readResource(operationResult.associationEnds[i]) as PimAssociationEnd;
+            const associationEnd = await this.store.readResource(operationResult.associationEnds[i]) as PimAssociationEnd;
 
             if (associationEnd.pimCardinalityMin !== pimEnds[i].pimCardinalityMin ||
                 associationEnd.pimCardinalityMax !== pimEnds[i].pimCardinalityMax) {
@@ -257,7 +258,7 @@ export class AddClassSurroundings implements ComplexOperation {
                 pimSetCardinality.pimCardinalityMin = pimEnds[i].pimCardinalityMin;
                 pimSetCardinality.pimCardinalityMax = pimEnds[i].pimCardinalityMax;
                 pimSetCardinality.pimResource = associationEnd.iri;
-                await executor.applyOperation(pimSetCardinality, pimStoreSelector);
+                await this.store.applyOperation(pimSchema, pimSetCardinality);
             }
         }
 

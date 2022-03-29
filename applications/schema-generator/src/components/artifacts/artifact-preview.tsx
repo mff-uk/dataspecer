@@ -1,22 +1,30 @@
-import React, {ReactElement, useEffect, useState} from "react";
-import {CoreResourceReader} from "@model-driven-data/core/core";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {Alert, Container, Fab, Paper} from "@mui/material";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {StoreContext} from "../App";
+import {ConfigurationContext} from "../App";
 import {useTranslation} from "react-i18next";
 import CloseIcon from '@mui/icons-material/Close';
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {Configuration} from "../../configuration/configuration";
 
+/**
+ * Previews a generated artifact content in a dialog.
+ * @param artifactPreview
+ * @param setArtifactPreview
+ * @constructor
+ */
 export const ArtifactPreview: React.FC<{
-    artifactPreview: ((store: CoreResourceReader, schema: string) => Promise<ReactElement>) | null,
+    artifactPreview: ((configuration: Configuration) => Promise<ReactElement>) | null,
     setArtifactPreview: (value: null) => void,
 }> = ({artifactPreview, setArtifactPreview}) => {
     const {t} = useTranslation("artifacts");
-    const {psmSchemas, store} = React.useContext(StoreContext);
+    const configuration = useContext(ConfigurationContext);
+    const store = useFederatedObservableStore();
 
-    const [storeState, setStoreState] = useState<{}>({});
+    const [changeTrigger, setChangeTrigger] = useState<{}>({});
 
     useEffect(() => {
-        const listener = () => setStoreState({});
+        const listener = () => setChangeTrigger({});
         store.addEventListener("afterOperationExecuted", listener);
         return () => store.removeEventListener("afterOperationExecuted", listener);
     }, [store]);
@@ -24,13 +32,13 @@ export const ArtifactPreview: React.FC<{
     const component = useAsyncMemo(async () => {
         if (artifactPreview) {
             try {
-                return await artifactPreview(store, psmSchemas[0]);
+                return await artifactPreview(configuration);
             } catch (error) {
                 return <Alert severity="error"><strong>{t("error mdd")}</strong><br />{(error as Error).message}</Alert>;
             }
         }
         return null;
-    }, [artifactPreview, store, psmSchemas, storeState]);
+    }, [artifactPreview, configuration, changeTrigger]); // Keep changeTrigger as a dependency
 
     if (!artifactPreview) {
         return null;

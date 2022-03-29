@@ -1,17 +1,18 @@
 import {Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, ListItem, Typography} from "@mui/material";
-import React, {memo, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {memo, useCallback, useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {dialog, useDialog} from "../../../dialog";
-import {StoreContext} from "../../App";
 import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/useDataPsmAndInterpretedPim";
 import {Item} from "./item";
-import {FederatedObservableStore, StoreWithMetadata} from "../../../store/federated-observable-store";
 import {CLASS} from "@model-driven-data/core/pim/pim-vocabulary";
 import {isPimAncestorOf} from "../../../store/utils/is-ancestor-of";
 import {getPimHavingInterpretation} from "../../../store/utils/get-pim-having-interpretation";
 import {ReplaceAlongInheritance} from "../../../operations/replace-along-inheritance";
 import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
+import {StoreContext, useFederatedObservableStore, useNewFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {ConfigurationContext} from "../../App";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
+import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 
 /**
  * This dialog prompts the user to select one class, descendant or ancestor of
@@ -27,15 +28,13 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 }>({maxWidth: "md", fullWidth: true}, memo(({dataPsmClassIri, close}) => {
     const {t, i18n} = useTranslation("psm");
 
-    // Replace store context
-    const storeContext = useContext(StoreContext);
-    const [store] = useState(() => new FederatedObservableStore());
-    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
+    const store = useFederatedObservableStore();
+    const previewStore = useNewFederatedObservableStore();
 
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
     const cimIri = pimResource?.pimInterpretation;
 
-    const {cim: {cimAdapter}} = React.useContext(StoreContext);
+    const {cim: {cimAdapter}} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await cimAdapter.getFullHierarchy(cimIri) : null, [cimIri]);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);
@@ -43,16 +42,11 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     // Register new store into the context
     useEffect(() => {
         if (fullInheritance) {
-            const storeWithMetadata = {
-                store: fullInheritance,
-                metadata: {
-                    tags: ["cim-as-pim", "read-only"]
-                },
-            } as StoreWithMetadata;
-            store.addStore(storeWithMetadata);
-            return () => store.removeStore(storeWithMetadata);
+            const wrappedStore = new ReadOnlyMemoryStoreWithDummyPimSchema(fullInheritance, "http://dummy-schema/");
+            previewStore.addStore(wrappedStore);
+            return () => previewStore.removeStore(wrappedStore);
         }
-    }, [fullInheritance, store]);
+    }, [fullInheritance, previewStore]);
 
     const [[ancestors, descendants]] = useAsyncMemo(async () => {
         if (!fullInheritance || !cimIri) {
@@ -91,12 +85,12 @@ export const ReplaceAlongInheritanceDialog = dialog<{
             namingConvention: "snake_case",
             specialCharacters: "allow",
         };
-        storeContext.store.executeOperation(replaceOperation).then();
+        store.executeComplexOperation(replaceOperation).then();
         close();
-    }, [i18n.languages, storeContext.store, fullInheritance, dataPsmClassIri, close]);
+    }, [i18n.languages, store, fullInheritance, dataPsmClassIri, close]);
 
     return <>
-        <StoreContext.Provider value={NewStoreContext}>
+        <StoreContext.Provider value={previewStore}>
             <DialogTitle>
                 {t("replace along inheritance.title")}
             </DialogTitle>

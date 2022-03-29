@@ -1,5 +1,5 @@
 import {IconButton, Paper, Typography} from "@mui/material";
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmClassItem} from "./DataPsmClassItem";
@@ -9,12 +9,11 @@ import Skeleton from '@mui/material/Skeleton';
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";
 import {useTranslation} from "react-i18next";
-import {useResource} from "../../hooks/useResource";
-import {StoreContext} from "../App";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {SetOrder} from "../../operations/set-order";
 import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
-import {isReadOnly} from "../../store/federated-observable-store";
 import {Icons} from "../../icons";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -25,9 +24,9 @@ const useStyles = makeStyles(() =>
 );
 
 export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsmSchemaIri}) => {
-  const {resource: dataPsmSchema, store: schemaStore} = useResource<DataPsmSchema>(dataPsmSchemaIri);
-  const readOnly = isReadOnly(schemaStore);
-  const {store} = useContext(StoreContext);
+  const {resource: dataPsmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
+  const readOnly = false;
+  const store = useFederatedObservableStore();
 
   const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
 
@@ -38,7 +37,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         description: dataPsmSchema?.dataPsmHumanDescription ?? {},
       },
       update: data => {
-        store.executeOperation(new SetDataPsmLabelAndDescription(dataPsmSchema?.iri as string, data.label, data.description)).then();
+        store.executeComplexOperation(new SetDataPsmLabelAndDescription(dataPsmSchema?.iri as string, data.label, data.description)).then();
       },
     });
   }, [dataPsmSchema, store, updateLabels]);
@@ -50,7 +49,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
    */
   const itemsDragged = useCallback(({draggableId, destination}: DropResult) => {
     if (destination) {
-      store.executeOperation(new SetOrder(destination.droppableId, draggableId, destination.index)).then();
+      store.executeComplexOperation(new SetOrder(destination.droppableId, draggableId, destination.index)).then();
     }
   }, [store]);
 

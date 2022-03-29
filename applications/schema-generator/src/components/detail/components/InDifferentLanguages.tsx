@@ -1,14 +1,14 @@
 import React, {memo, useCallback, useMemo} from "react";
 import {Button, Card, CardContent, Grid, Typography} from "@mui/material";
 import {LanguageString} from "@model-driven-data/core/core";
-import {useResource} from "../../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import {PimClass} from "@model-driven-data/core/pim/model";
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {SetPimLabelAndDescription} from "../../../operations/set-pim-label-and-description";
 import {DialogAppProviderContext} from "../../dialog-app-provider";
-import {StoreContext} from "../../App";
 import {SetDataPsmLabelAndDescription} from "../../../operations/set-data-psm-label-and-description";
 import {useTranslation} from "react-i18next";
+import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 
 interface Properties {
     label: LanguageString,
@@ -27,7 +27,7 @@ interface Properties {
  * resourceType. Therefore the parent component may also decide which resource is editable in this simplified form.
  */
 export const InDifferentLanguages: React.FC<Properties> = memo(({label, description, resourceType, iri}) => {
-    const {store} = React.useContext(StoreContext);
+    const store = useFederatedObservableStore();
     const {updateLabels} = React.useContext(DialogAppProviderContext);
     const {t} = useTranslation("detail");
 
@@ -49,7 +49,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
                 label: currentLabel ?? {},
                 description: currentDescription ?? {},
             },
-            update: data => iri && (store.executeOperation((resourceType === "pim") ?
+            update: data => iri && (store.executeComplexOperation((resourceType === "pim") ?
                 new SetPimLabelAndDescription(iri, data.label, data.description) :
                 new SetDataPsmLabelAndDescription(iri, data.label, data.description))
             ),

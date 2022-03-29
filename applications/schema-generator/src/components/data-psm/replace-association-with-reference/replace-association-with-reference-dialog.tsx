@@ -1,7 +1,7 @@
 import {Alert, Button, DialogActions, DialogContent, DialogTitle, Grid, List, ListItemButton, ListItemText} from "@mui/material";
 import {DataPsmSchemaItem} from "../DataPsmSchemaItem";
 import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
-import {useResource} from "../../../hooks/useResource";
+import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
 import React, {memo, useEffect, useState} from "react";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
 import {useTranslation} from "react-i18next";

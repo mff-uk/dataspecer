@@ -4,6 +4,8 @@ For more information please see individual packages and applications.
 - [@model-driven-data/core](./packages/core) package
 - [schema-generator](./applications/schema-generator) application
 - [specification-manager](./applications/specification-manager) application
+- [backend](./services/backend) service
+- *and other packages under [@model-driven-data/*](./packages)*
 
 ## How to build 
 - Clone the whole repository. `git clone ...`
@@ -11,7 +13,7 @@ For more information please see individual packages and applications.
 - Run `lerna bootstrap` to install all packages.
 - *Optional* Run `lerna run test` to run test, to be sure nothing is broken. 
 - Run `lerna run build` to build all applications.
-- Navigate to package/application of interest and find the generated files in the `buidl` directory.
+- Navigate to package/application of interest and find the generated files in the `build` directory.
 
 ***
 

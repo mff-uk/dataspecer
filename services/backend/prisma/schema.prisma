@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../database/database.db"
+}
+
+// Represents a data specification with additional metadata needed for the
+// application to work.
+model DataSpecification {
+  // ID is a part of the final IRI of the data specification.
+  id        String @id
+  // Iri of the pim schema.
+  pimSchema String @unique
+
+  importsDataSpecifications     DataSpecification[] @relation("DataSpecificationReuse")
+  isImportedByDataSpecification DataSpecification[] @relation("DataSpecificationReuse")
+
+  // List of DataStructures that belongs to this specification
+  dataStructures DataStructure[]
+
+  // Assigns a store id for given PIM schema.
+  // Currently every PIM and PSM schemas has its own store managed by the backand.
+  storeId String @unique
+
+  // Tags as means of categorization
+  // JSON array of strings
+  tags String @default("[]")
+}
+
+// Data structure represents single Data PSM schema with its entities. It
+// belongs to DataSpecification.
+model DataStructure {
+  id      String @id
+  // Assigns a store id for the given PSM schema.
+  // Currently every PIM and PSM schemas has its own store managed by the backand.
+  storeId String
+
+  psmSchema String @unique
+
+  // List of artifacts that should be generated with from the schema.
+  // Due to limitations of SQLite, we can't use array here, therefore the list
+  // is a comma separated string.
+  //artifacts String
+
+  belongsToDataSpecification   DataSpecification? @relation(fields: [belongsToDataSpecificationId], references: [id])
+  belongsToDataSpecificationId String?
+}
