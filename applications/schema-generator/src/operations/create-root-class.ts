@@ -4,6 +4,7 @@ import {ComplexOperation} from "@model-driven-data/federated-observable-store/co
 import {createPimClassIfMissing} from "./helper/pim";
 import {LanguageString} from "@model-driven-data/core/core";
 import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
 
 /**
  * For the given pimClass, it creates a new schema and new PIM and DataPSM classes representing the given class.
@@ -20,6 +21,7 @@ export class CreateRootClass implements ComplexOperation {
     private readonly schemaHumanLabel?: LanguageString;
     private readonly schemaHumanDescription?: LanguageString;
     private store!: FederatedObservableStore;
+    private context: TechnicalLabelOperationContext|null = null;
 
     constructor(pimClass: PimClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
         this.pimClass = pimClass;
@@ -33,11 +35,16 @@ export class CreateRootClass implements ComplexOperation {
         this.store = store;
     }
 
+    setContext(context: TechnicalLabelOperationContext) {
+        this.context = context;
+    }
+
     async execute(): Promise<void> {
         const pimClassIri = await createPimClassIfMissing(this.pimClass, this.pimSchemaIri, this.store);
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(this.pimClass) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateClass);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();

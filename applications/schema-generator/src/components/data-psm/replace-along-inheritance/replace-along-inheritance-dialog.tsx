@@ -26,7 +26,7 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     // Data Psm class IRI that is going to be replaced by another class.
     dataPsmClassIri: string,
 }>({maxWidth: "md", fullWidth: true}, memo(({dataPsmClassIri, close}) => {
-    const {t, i18n} = useTranslation("psm");
+    const {t} = useTranslation("psm");
 
     const store = useFederatedObservableStore();
     const previewStore = useNewFederatedObservableStore();
@@ -34,7 +34,7 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
     const cimIri = pimResource?.pimInterpretation;
 
-    const {cim: {cimAdapter}} = React.useContext(ConfigurationContext);
+    const {cim: {cimAdapter}, operationContext} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await cimAdapter.getFullHierarchy(cimIri) : null, [cimIri]);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);
@@ -80,14 +80,10 @@ export const ReplaceAlongInheritanceDialog = dialog<{
             selectedPimIriFromStore,
             fullInheritance
         );
-        replaceOperation.labelRules = {
-            languages: i18n.languages as string[],
-            namingConvention: "snake_case",
-            specialCharacters: "allow",
-        };
+        replaceOperation.setContext(operationContext);
         store.executeComplexOperation(replaceOperation).then();
         close();
-    }, [i18n.languages, store, fullInheritance, dataPsmClassIri, close]);
+    }, [operationContext, store, fullInheritance, dataPsmClassIri, close]);
 
     return <>
         <StoreContext.Provider value={previewStore}>

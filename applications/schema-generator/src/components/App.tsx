@@ -36,7 +36,7 @@ const ButtonMenuTheme = createTheme({
 });
 
 const App: React.FC = () => {
-    const { t } = useTranslation('ui');
+    const { t, i18n } = useTranslation('ui');
 
     /**
      * Based on a configuration type, corresponding hook provides a configuration for the app. The configuration
@@ -49,6 +49,15 @@ const App: React.FC = () => {
     } as Configuration;
 
     useEffect(() => {(window as any).store = configuration.store}, [configuration.store]);
+
+    const operationContext = configuration.operationContext;
+    useEffect(() => {
+        operationContext.labelRules = {
+            languages: i18n.languages as string[],
+            namingConvention: "snake_case",
+            specialCharacters: "allow",
+        };
+    }, [operationContext, i18n.languages]);
 
     const [artifactPreview, setArtifactPreview] = useState<((configuration: Configuration) => Promise<ReactElement>) | null>(null);
 

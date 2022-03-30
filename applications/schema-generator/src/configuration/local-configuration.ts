@@ -9,6 +9,7 @@ import {useAsyncMemo} from "../hooks/useAsyncMemo";
 import {useMemo} from "react";
 import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
 import {Configuration} from "./configuration";
+import {OperationContext} from "../operations/context/operation-context";
 
 /**
  * Creates a configuration, that is purely local and does not require any
@@ -21,6 +22,7 @@ export const useLocalConfiguration = (
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
     const cim = useMemo(() => enabled ? getSlovnikGovCzAdapter() : null, [enabled]);
+    const operationContext = useMemo(() => new OperationContext(), []);
 
     const [dataSpecification] = useAsyncMemo(async () => {
         if (enabled && store) {
@@ -46,13 +48,13 @@ export const useLocalConfiguration = (
     }, [enabled, store]);
 
     if (enabled) {
-        // @ts-ignore
         return {
             store: store as FederatedObservableStore,
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
             dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
-            cim: cim as ReturnType<typeof getSlovnikGovCzAdapter>
+            cim: cim as ReturnType<typeof getSlovnikGovCzAdapter>,
+            operationContext,
         };
     } else {
         return null;
