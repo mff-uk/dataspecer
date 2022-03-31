@@ -1,15 +1,14 @@
 import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
 import {CoreResourceReader} from "@model-driven-data/core/core";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource} from "@model-driven-data/core/pim/model";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
 import {DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass} from "@model-driven-data/core/data-psm/operation";
 import {PimCreateAssociation, PimCreateAttribute, PimSetCardinality} from "@model-driven-data/core/pim/operation";
 import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
 import {copyPimPropertiesFromResourceToOperation} from "./helper/copyPimPropertiesFromResourceToOperation";
-import {selectLanguage} from "../utils/selectLanguage";
-import {removeDiacritics} from "../utils/remove-diacritics";
 import {createPimClassIfMissing} from "./helper/pim";
 import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
 import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
 
 /**
  * true - the resource is a range, false - the resource is a domain
@@ -28,16 +27,11 @@ export type AssociationOrientation = boolean;
  *     source class. Therefore all the inheritance is flattened.
  */
 export class AddClassSurroundings implements ComplexOperation {
-    public labelRules: {
-        languages: string[],
-        namingConvention: "camelCase" | "PascalCase" | "kebab-case" | "snake_case",
-        specialCharacters: "allow" | "remove-diacritics" | "remove-all",
-    } | null = null;
-
     private readonly forDataPsmClass: DataPsmClass;
     private readonly sourcePimModel: CoreResourceReader;
     private readonly resourcesToAdd: [string, AssociationOrientation][];
     private store!: FederatedObservableStore;
+    private context: TechnicalLabelOperationContext|null = null;
 
     /**
      * @param forDataPsmClass
@@ -52,6 +46,10 @@ export class AddClassSurroundings implements ComplexOperation {
 
     setStore(store: FederatedObservableStore) {
         this.store = store;
+    }
+
+    setContext(context: TechnicalLabelOperationContext) {
+        this.context = context;
     }
 
     async execute(): Promise<void> {
@@ -82,34 +80,6 @@ export class AddClassSurroundings implements ComplexOperation {
         }
     }
 
-    private getTechnicalLabelFromPim(pimResource: PimResource): string | undefined {
-        if (this.labelRules === null) return undefined;
-
-        let text = selectLanguage(pimResource.pimHumanLabel ?? {}, this.labelRules.languages);
-
-        if (text === undefined) return undefined;
-
-        switch (this.labelRules.specialCharacters) {
-            case "remove-all":
-                text = removeDiacritics(text);
-                text = text.replace(/[^a-zA-Z0-9-_\s]/g, "");
-                break;
-            case "remove-diacritics":
-                text = removeDiacritics(text);
-        }
-
-        const lowercaseWords = text.replace(/\s+/g, " ").split(" ").map(w => w.toLowerCase());
-
-        switch (this.labelRules.namingConvention) {
-            case "snake_case": text = lowercaseWords.join("_"); break
-            case "kebab-case": text = lowercaseWords.join("-"); break
-            case "camelCase": text = lowercaseWords.map((w, index) => index > 0 ? w[0].toUpperCase() + w.substring(1) : w).join(""); break
-            case "PascalCase": text = lowercaseWords.map(w => w[0].toUpperCase()).join(""); break
-        }
-
-        return text;
-    }
-
     private async processAttribute(
         attribute: PimAttribute,
         pimSchema: string,
@@ -127,7 +97,7 @@ export class AddClassSurroundings implements ComplexOperation {
         const dataPsmCreateAttribute = new DataPsmCreateAttribute();
         dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
-        dataPsmCreateAttribute.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(attribute) ?? null;
+        dataPsmCreateAttribute.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(attribute) ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAttribute);
     }
 
@@ -157,7 +127,7 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(otherAssociationEndClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(otherAssociationEndClass) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 
@@ -169,7 +139,7 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAssociationEnd.dataPsmInterpretation = associationEnds[orientation ? 1 : 0] as string;
         dataPsmCreateAssociationEnd.dataPsmPart = psmEndRefersToIri;
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
-        dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.getTechnicalLabelFromPim(association) ?? null;
+        dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(association) ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAssociationEnd);
     }
 

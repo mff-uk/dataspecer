@@ -1,6 +1,3 @@
 # specification-manager
 
-Do not forget to create `.env` file from `.env.sample`.
-
-This application is still under the development, hence unstable.
-  
+Please use the [build instructions from the schema-generator](../schema-generator/README.md). The apps are similar in structure.

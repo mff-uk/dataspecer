@@ -3,9 +3,8 @@ import {AppBar, Container, Divider, Toolbar, Typography} from "@mui/material";
 import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import {Home} from "./routes/home/home";
 import {Specification} from "./routes/specification/specification";
-import {processEnv} from "./index";
 import {BackendConnector} from "@model-driven-data/backend-utils/connectors/backend-connector";
-import {useNewFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
+import {StoreContext, useNewFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
 import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./store/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
@@ -36,7 +35,7 @@ function App() {
     const [rootDataSpecificationIris, setRootDataSpecificationIris] = useState<string[]>([]);
 
 
-    const [backendConnector] = useState(new BackendConnector(processEnv.REACT_APP_BACKEND));
+    const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND));
     useEffect(() => {
         backendConnector.readDataSpecifications().then(spec => {
             setDataSpecifications(Object.fromEntries(spec.map(s => [s.iri, s])));

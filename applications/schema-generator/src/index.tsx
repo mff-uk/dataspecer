@@ -4,8 +4,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './i18n';
 
-require('dotenv').config();
-
 const root = document.getElementById('root') as HTMLElement;
 ReactDOM.createRoot(root).render(
     //<React.StrictMode> // https://github.com/atlassian/react-beautiful-dnd/issues/2350

@@ -1,14 +1,16 @@
-Schema generator
+schema-generator
 ================
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Building from the source
+## Installation instructions
 
 1. Clone the whole mono repository. `git clone ...`
-2. Run `npm install` to install Lerna.
-3. Run `lerna bootstrap` to install all packages, specifically link the `@model-driven-data/core` package.
-4. Run `lerna run build` to build `@model-driven-data/core` and the schema-generator. All generated files are in the `./buid` directory.
+2. Optionally create `./env.local` file that overrides `./.env` or use environmental variables during the build.
+3. Run `npm install` from the root of the repository to install Lerna.
+4. Run `lerna bootstrap` to install and link all packages.
+5. Run `lerna run build` to build `@model-driven-data/core` and other packages and the schema-generator. All generated files are in the `./buid` directory.
 
-Alternatively, you can run live server by `npm run start` from the schema-generator directory.
-   
+Alternatively, you can run the live server by `npm run build:watch` from the schema-generator directory. This would require all dependencies to be built, either by Lerna itself, or directly through npm in each package it depends on.
+
+If you are working on a package, run `build:watch` both in the package directory and schema-generator directory. The build of application may fail due to removed files by the build process of the package. Then you need to restart the build job.
