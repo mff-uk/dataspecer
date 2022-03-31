@@ -11,6 +11,7 @@ import {useAsyncMemo} from "../hooks/useAsyncMemo";
 import {useEffect, useMemo, useState} from "react";
 import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
 import {BackendConnector} from "@model-driven-data/backend-utils/connectors/backend-connector";
+import {OperationContext} from "../operations/context/operation-context";
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -27,6 +28,7 @@ export const useProvidedConfiguration = (
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
     const cim = useMemo(() => enabled ? getSlovnikGovCzAdapter() : null, [enabled]);
+    const operationContext = useMemo(() => new OperationContext(), []);
 
     const specifications = useLoadedDataSpecification(dataSpecificationIri);
     const descriptors = useStoreDescriptorsFromSpecifications(specifications ?? null, dataSpecificationIri, dataPsmSchemaIri);
@@ -39,6 +41,7 @@ export const useProvidedConfiguration = (
             dataSpecificationIri,
             dataPsmSchemaIri,
             cim: cim as ReturnType<typeof getSlovnikGovCzAdapter>,
+            operationContext,
         }
     } else {
         return null;

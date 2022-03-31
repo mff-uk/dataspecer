@@ -16,7 +16,7 @@ function formatString(input: string, args: {[key: string]: string}): string {
 }
 
 const ButtonSetRoot: React.FC = () => {
-    const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications} = useContext(ConfigurationContext);
+    const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
     const store = useFederatedObservableStore();
     const {isOpen, open, close} = useToggle();
     const {t, i18n} = useTranslation("ui");
@@ -55,9 +55,11 @@ const ButtonSetRoot: React.FC = () => {
         );
 
         if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].pim) {
-            store.executeComplexOperation(new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription)).then();
+            const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
+            op.setContext(operationContext);
+            store.executeComplexOperation(op).then();
         }
-    }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, store]);
+    }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
 
     return <>
         {

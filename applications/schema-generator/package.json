@@ -26,7 +26,6 @@
     "array-move": "^4.0.0",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
-    "dotenv-defaults": "^5.0.0",
     "file-dialog": "^0.0.8",
     "file-saver": "^2.0.5",
     "i18next": "^21.6.3",
@@ -48,7 +47,6 @@
     "start": "react-scripts start",
     "build:watch": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "extract-languages": "i18next"
   },

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './i18n';
-import "dotenv-defaults/config";
 
 const root = document.getElementById('root') as HTMLElement;
 ReactDOM.createRoot(root).render(

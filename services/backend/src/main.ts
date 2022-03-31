@@ -16,7 +16,10 @@ import {DataSpecificationModel} from "./models/data-specification-model";
 import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 
-require('dotenv-defaults').config();
+require('dotenv-defaults').config({
+    path: ".env.local",
+    defaults: ".env",
+});
 
 // Create models
 
