@@ -5,17 +5,20 @@ import {
 } from "./csv-schema-model";
 import {
     StructureModel,
-    StructureModelPrimitiveType, StructureModelProperty
+    StructureModelPrimitiveType,
+    StructureModelProperty,
+    StructureModelClass
 } from "../structure-model";
 import { DataSpecification } from "../data-specification/model";
 import {
     assert,
+    assertFailed,
     LanguageString
 } from "../core";
 import { OFN } from "../well-known";
 
 /**
- * This function creates CSV schema from StructureModel and DataSpecification
+ * This function creates CSV schema from StructureModel and DataSpecification.
  */
 export function structureModelToCsvSchema(
     specification: DataSpecification,
@@ -23,8 +26,10 @@ export function structureModelToCsvSchema(
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
     const schema = new CsvSchema();
-    schema["@id"] = "https://ofn.gov.cz/schema/" + specification.artefacts[2].publicUrl;
-    schema.tableSchema = createTableSchemaFromProperties(model.classes[model.roots[0]].properties);
+    schema["@id"] = "https://ofn.gov.cz/schema/" + specification.artefacts[4].publicUrl;
+
+    schema.tableSchema = new TableSchema();
+    fillTableSchemaRecursive(model.classes, schema.tableSchema, model.roots[0], "");
 
     // adds rdf:type virtual column
     const virtualCol = new Column();
@@ -37,32 +42,54 @@ export function structureModelToCsvSchema(
 }
 
 /**
- * This function creates columns of table schema according to provided properties.
- * @param properties Properties of root class in structure model
- * @returns Table schema with columns in it
+ * This function recursively adds columns to the table schema. It calls itself if it finds an association with some properties.
+ * @param classes Object with used classes
+ * @param tableSchema The table schema to be filled
+ * @param currentClass The parameter of recursion
+ * @param prefix Prefix of created columns
  */
-function createTableSchemaFromProperties (
-    properties: StructureModelProperty[]
-) : TableSchema {
-    const tableSchema = new TableSchema();
-    for (const prop of properties) {
-        const col = new Column();
-        col.name = prop.technicalLabel;
-        col.titles = prop.humanLabel;
-        col.propertyUrl = prop.cimIri;
-        col["dc:description"] = transformLanguageString(prop.humanDescription);
-        const dataType = prop.dataTypes[0];
-        if (dataType.isAssociation()) col.datatype = "string";
-        if (dataType.isAttribute()) col.datatype = structureModelPrimitiveToCsvDefinition(dataType);
-        col.lang = "cs";
-        if (prop.cardinalityMin > 0) col.required = true;
-        tableSchema.columns.push(col);
+function fillTableSchemaRecursive (
+    classes: { [i: string]: StructureModelClass },
+    tableSchema: TableSchema,
+    currentClass: string,
+    prefix: string
+) : void {
+    for (const property of classes[currentClass].properties) {
+        const dataType = property.dataTypes[0];
+        if (dataType.isAssociation()) {
+            const associatedClass = dataType.psmClassIri;
+            if (classes[associatedClass].properties.length === 0) tableSchema.columns.push(makeSimpleColumn(property, prefix, "string"));
+            else fillTableSchemaRecursive(classes, tableSchema, associatedClass, prefix + property.technicalLabel + "_");
+        }
+        else if (dataType.isAttribute()) tableSchema.columns.push(makeSimpleColumn(property, prefix, structureModelPrimitiveToCsvDefinition(dataType)));
+        else assertFailed("Unexpected datatype!");
     }
-    return tableSchema;
 }
 
 /**
- * This function transforms our common language string to CSVW format
+ * This function creates a simple column and fills its data.
+ * @param property Most of the column's data are taken from this property.
+ * @param namePrefix Name of the column has this prefix.
+ * @param datatype The column has this datatype.
+ * @returns The new and prepared column
+ */
+function makeSimpleColumn(
+    property: StructureModelProperty,
+    namePrefix: string,
+    datatype: string | null
+) : Column {
+    const column = new Column();
+    column.name = namePrefix + property.technicalLabel;
+    column.titles = property.humanLabel;
+    column.propertyUrl = property.cimIri;
+    column["dc:description"] = transformLanguageString(property.humanDescription);
+    column.lang = "cs";
+    column.datatype = datatype;
+    return column;
+}
+
+/**
+ * This function transforms our common language string to CSVW format.
  * @param langString Language string for transformation
  * @returns Different representation of the language string used in CSVW
  */
@@ -74,14 +101,12 @@ function transformLanguageString (
     if (languages.length === 0) return null;
     if (languages.length === 1) return { "@value": langString[languages[0]], "@lang": languages[0] };
     const result = [];
-    for (const language in langString) {
-        result.push({ "@value": langString[language], "@lang": language });
-    }
+    for (const language in langString) result.push({ "@value": langString[language], "@lang": language });
     return result;
 }
 
 /**
- * This function translates primitive types from structure model to CSVW types according to https://www.w3.org/TR/tabular-metadata/#datatypes
+ * This function translates primitive types from structure model to CSVW types according to https://www.w3.org/TR/tabular-metadata/#datatypes.
  * @param primitive Primitive type from structure model
  * @returns String name of the translated datatype or null if not applicable
  */
