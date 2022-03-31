@@ -62,6 +62,6 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         documentationIdentifier: string,
         callerContext: unknown
     ): Promise<unknown | null> {
-        return null;
+        return null; //Todo: What is this good for?
     }
 }
