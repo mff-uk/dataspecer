@@ -18,7 +18,15 @@ import { executeDataPsmCreateClassReference } from "./data-psm-create-class-refe
 import { executeDataPsmDeleteClassReference } from "./data-psm-delete-class-reference-executor";
 import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
 import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
-import {executeDataPsmReplaceAlongInheritance} from "./data-psm-replace-along-inheritance";
+import { executeDataPsmReplaceAlongInheritance } from "./data-psm-replace-along-inheritance";
+import { executeDataPsmCreateInclude } from "./data-psm-create-include-executor";
+import { executeDataPsmDeleteInclude } from "./data-psm-delete-include-executor";
+import { executeDataPsmCreateOr } from "./data-psm-create-or-executor";
+import { executeDataPsmDeleteOr } from "./data-psm-delete-or-executor";
+import { executeDataPsmUnwrapOr } from "./data-psm-unwrap-or-executor";
+import { executeDataPsmWrapWithOr } from "./data-psm-wrap-with-or-executor";
+import {executeDataPsmSetChoice} from "./data-psm-set-choice-executor";
+import {executeDataPsmUnsetChoice} from "./data-psm-unset-choice-executor";
 
 export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -40,6 +48,16 @@ export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmCreateClassReference.is,
     executeDataPsmCreateClassReference,
     Operations.DataPsmCreateClassReference.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateInclude.is,
+    executeDataPsmCreateInclude,
+    Operations.DataPsmCreateInclude.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmCreateOr.is,
+    executeDataPsmCreateOr,
+    Operations.DataPsmCreateOr.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmCreateSchema.is,
@@ -67,9 +85,24 @@ export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteClassReference.TYPE
   ),
   CoreOperationExecutor.create(
+    Operations.DataPsmDeleteInclude.is,
+    executeDataPsmDeleteInclude,
+    Operations.DataPsmDeleteInclude.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmDeleteOr.is,
+    executeDataPsmDeleteOr,
+    Operations.DataPsmDeleteOr.TYPE
+  ),
+  CoreOperationExecutor.create(
     Operations.DataPsmReplaceAlongInheritance.is,
     executeDataPsmReplaceAlongInheritance,
     Operations.DataPsmReplaceAlongInheritance.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetChoice.is,
+    executeDataPsmSetChoice,
+    Operations.DataPsmSetChoice.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetDatatype.is,
@@ -115,5 +148,20 @@ export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetDematerialized.is,
     executeDataPsmSetDematerialize,
     Operations.DataPsmSetDematerialized.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmUnsetChoice.is,
+    executeDataPsmUnsetChoice,
+    Operations.DataPsmUnsetChoice.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmUnwrapOr.is,
+    executeDataPsmUnwrapOr,
+    Operations.DataPsmUnwrapOr.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmWrapWithOr.is,
+    executeDataPsmWrapWithOr,
+    Operations.DataPsmWrapWithOr.TYPE
   ),
 ];

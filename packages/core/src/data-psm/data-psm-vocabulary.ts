@@ -20,6 +20,10 @@ export const CLASS = PSM + "Class";
 
 export const SCHEMA = PSM + "Schema";
 
+export const INCLUDE = PSM + "Include";
+
+export const OR = PSM + "Or";
+
 export const CLASS_REFERENCE = PSM + "ClassReference";
 
 export const HAS_REFERS_TO = PSM + "refersTo";
@@ -46,6 +50,14 @@ export const CREATE_CLASS_RESULT = PSM + "CreateClassResult";
 
 export const CREATE_CLASS_REFERENCE = PSM + "CreateClassReference";
 
+export const CREATE_INCLUDE = PSM + "CreateInclude";
+
+export const CREATE_INCLUDE_RESULT = PSM + "CreateIncludeResult";
+
+export const CREATE_OR = PSM + "CreateOr";
+
+export const CREATE_OR_RESULT = PSM + "CreateOrResult";
+
 export const CREATE_CLASS_REFERENCE_RESULT = PSM + "CreateClassReferenceResult";
 
 export const CREATE_SCHEMA = PSM + "CreateSchema";
@@ -60,7 +72,13 @@ export const DELETE_CLASS = PSM + "DeleteClass";
 
 export const DELETE_CLASS_REFERENCE = PSM + "DeleteClassReference";
 
+export const DELETE_INCLUDE = PSM + "DeleteInclude";
+
+export const DELETE_OR = PSM + "DeleteOr";
+
 export const REPLACE_ALONG_INHERITANCE = PSM + "ReplaceAlongInheritance";
+
+export const SET_CHOICE = PSM + "SetChoice";
 
 export const SET_DATATYPE = PSM + "SetDataType";
 
@@ -79,3 +97,13 @@ export const SET_MATERIALIZED = PSM + "SetMaterialized";
 export const SET_ROOTS = PSM + "SetRoots";
 
 export const SET_TECHNICAL_LABEL = PSM + "SetTechnicalLabel";
+
+export const UNSET_CHOICE = PSM + "UnsetChoice";
+
+export const UNWRAP_OR = PSM + "UnwrapOr";
+
+export const UNWRAP_OR_RESULT = PSM + "UnwrapOrResult";
+
+export const WRAP_WITH_OR = PSM + "WrapWithOr";
+
+export const WRAP_WITH_OR_RESULT = PSM + "WrapWithOrResult";
