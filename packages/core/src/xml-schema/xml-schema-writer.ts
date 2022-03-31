@@ -11,7 +11,6 @@ import {
   xmlSchemaComplexContentIsItem,
   xmlSchemaComplexTypeDefinitionIsGroup,
   XmlSchemaGroupDefinition,
-  XmlSchemaAnnotation,
   XmlSchemaSimpleType,
   XmlSchemaComplexType,
   xmlSchemaComplexTypeDefinitionIsSequence,
@@ -19,6 +18,7 @@ import {
   xmlSchemaComplexTypeDefinitionIsAll,
   XmlSchemaComplexContainer,
   XmlSchemaAnnotated,
+  XmlSchemaType,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -258,6 +258,21 @@ async function writeElement(
 }
 
 /**
+ * Writes attributes and elements for an xs:complexType or an xs:simpleType.
+ */
+async function writeTypeAttributes(
+  type: XmlSchemaType,
+  writer: XmlWriter
+): Promise<void> {
+  if (type.name != null) {
+    await writer.writeLocalAttributeValue(
+      "name", writer.getQName(...type.name)
+    );
+  }
+  await writeAnnotation(type, writer);
+}
+
+/**
  * Writes out an xs:complexType.
  */
 async function writeComplexType(
@@ -269,7 +284,7 @@ async function writeComplexType(
     if (type.mixed) {
       await writer.writeLocalAttributeValue("mixed", "true");
     }
-    await writeAnnotation(type, writer);
+    await writeTypeAttributes(type, writer);
     await writeComplexContent(definition, null, writer);
   });
 }
@@ -372,7 +387,7 @@ async function writeSimpleType(
   const definition = type.simpleDefinition;
   const contents = definition.contents;
   await writer.writeElementFull("xs", "simpleType")(async writer => {
-    await writeAnnotation(type, writer);
+    await writeTypeAttributes(type, writer);
     if (definition.xsType != null) {
       await writer.writeElementFull("xs", definition.xsType)(async writer => {
         await writer.writeLocalAttributeValue(
