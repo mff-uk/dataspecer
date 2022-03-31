@@ -121,6 +121,8 @@ class XmlSchemaAdapter {
         contents: [
           {
             item: element.type.complexDefinition,
+            cardinalityMin: 1,
+            cardinalityMax: 1,
           } as XmlSchemaComplexContentItem,
         ],
       });
