@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {isEqual} from "lodash";
 import {EagerHttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/eager-http-synchronized-store";
+import {httpFetch} from "@model-driven-data/core/io/fetch/fetch-browser";
 
 /**
  * Takes an array of store descriptors and registers them properly in the
@@ -32,7 +33,7 @@ export const useConstructedStoresFromDescriptors = (
                 }
 
                 if (!found) {
-                    const store = EagerHttpSynchronizedStore.createFromDescriptor(descriptor);
+                    const store = EagerHttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
                     constructedStoreCache.set(descriptor, store);
                     store.load().then(() => {
                         if ([...constructedStoreCache.values()].includes(store)) {

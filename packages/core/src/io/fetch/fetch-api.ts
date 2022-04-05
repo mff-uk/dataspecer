@@ -3,11 +3,13 @@
  */
 export type HttpFetch = (
   url: string,
-  options: FetchOptions
+  options?: FetchOptions
 ) => Promise<FetchResponse>;
 
 export interface FetchOptions {
-  headers: { [name: string]: string };
+  headers?: { [name: string]: string };
+  method?: string;
+  body?: string;
 }
 
 export interface FetchResponse {

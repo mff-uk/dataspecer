@@ -11,6 +11,7 @@ import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@model-driven-data/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
 import {useLocalStorage} from "./utils/use-local-storage";
+import {httpFetch} from "@model-driven-data/core/io/fetch/fetch-browser";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -35,7 +36,7 @@ function App() {
     const [rootDataSpecificationIris, setRootDataSpecificationIris] = useState<string[]>([]);
 
 
-    const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND));
+    const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
     useEffect(() => {
         backendConnector.readDataSpecifications().then(spec => {
             setDataSpecifications(Object.fromEntries(spec.map(s => [s.iri, s])));
