@@ -1,0 +1,13 @@
+/** Custom styles */
+
+.dark-only {
+    display: none;
+}
+
+[data-dark-mode] .light-only {
+    display: none;
+}
+
+[data-dark-mode] .dark-only {
+    display: initial;
+}

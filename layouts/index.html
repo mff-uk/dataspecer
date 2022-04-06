@@ -1,0 +1,60 @@
+{{ define "main" }}
+<section class="section container-fluid mt-n3 pb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-12 text-center">
+      <h1 class="mt-0">{{ .Title }}</h1>
+    </div>
+    <div class="col-lg-9 col-xl-8 text-center">
+      <p class="lead">{{ .Params.lead | safeHTML }}</p>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}prologue/introduction/" role="button">Read the documentation</a>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-prefooter" }}
+  {{ if eq $.Site.Language.LanguageName "English" }}
+  <section class="section section-sm">
+    <div class="container">
+      <div class="row justify-content-center text-start">
+        <div class="col-lg-8">
+          <h2 class="h4">Domain ontology<br>to data schemas easily</h2>
+          <p>Use your own domain ontology to create data schemas in different formats such as XML, JSON, CSV. Everything without coding.</p>
+        </div>
+        <div class="col-lg-8 d-flex justify-content-center">
+          {{ $diagramLight := resources.Get "images/diagram-light.png" }}
+          <img src="{{ $diagramLight.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="light-only img-fluid">
+          {{ $diagramDark := resources.Get "images/diagram-dark.png" }}
+          <img src="{{ $diagramDark.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="dark-only img-fluid">
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section section-sm">
+    <div class="container">
+      <div class="row justify-content-center text-end">
+        <div class="col-lg-8 order-lg-2">
+          <h2 class="h4">With data transformations,<br>documentation, plantUML,<br>diagrams, and more...</h2>
+          <p>Our goal is to generate Bikeshed documentation with examples, images and descriptions and transformation scripts that can convert data between different data schemas and serialization technologies.</p>
+        </div>
+        <div class="col-lg-8 order-lg-1 d-flex justify-content-center">
+          {{ $technologiesLight := resources.Get "images/technologies-light.png" }}
+          <img src="{{ $technologiesLight.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="light-only img-fluid">
+          {{ $technologiesDark := resources.Get "images/technologies-dark.png" }}
+          <img src="{{ $technologiesDark.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="dark-only img-fluid">
+        </div>
+      </div>
+    </div>
+  </section>
+  {{ end }}
+{{ end }}
+
+{{ define "sidebar-footer" }}
+<section class="section section-sm container-fluid">
+  <div class="row justify-content-center text-center">
+    <div class="col-lg-9">
+      {{- .Content -}}
+    </div>
+  </div>
+</section>
+{{ end }}
