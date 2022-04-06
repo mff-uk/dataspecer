@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/manager" }
+  ],
+  "rewrites": [
+    { "source": "/manager/(.*)", "destination": "/manager" },
+    { "source": "/editor/(.*)", "destination": "/editor" }
+  ]
+}
