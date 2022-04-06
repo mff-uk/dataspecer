@@ -1,4 +1,4 @@
-baseurl = "https://dataspecer.com/"
+baseurl = "/"
 canonifyURLs = false
 disableAliases = true
 disableHugoGeneratorInject = true
