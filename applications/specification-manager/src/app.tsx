@@ -81,7 +81,7 @@ function App() {
     , [dataSpecifications, rootDataSpecificationIris]);
 
     return (
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.REACT_APP_BASENAME}>
             <DataSpecificationsContext.Provider value={dataSpecificationContext}>
                 <BackendConnectorContext.Provider value={backendConnector}>
                     <StoreContext.Provider value={store}>

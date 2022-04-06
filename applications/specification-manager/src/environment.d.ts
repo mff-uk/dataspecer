@@ -4,6 +4,10 @@ declare global {
             // URL of services/backend
             REACT_APP_BACKEND: string;
 
+            // Basename URL
+            // To change the basename, change also "homepage" attribute in package.json
+            REACT_APP_BASENAME: string;
+
             // URL of applications/specification-manager
             REACT_APP_SCHEMA_GENERATOR: string;
 
