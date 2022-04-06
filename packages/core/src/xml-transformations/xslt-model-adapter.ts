@@ -11,7 +11,6 @@ import {
   XmlTemplate,
   XmlRootTemplate,
   XmlMatch,
-  QName,
   XmlClassMatch,
   XmlLiteralMatch,
   XmlTransformationInclude,
@@ -23,8 +22,9 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { XSD, OFN } from "../well-known";
+import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
+import { QName, simpleTypeMapIri } from "../xml/xml-conventions";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -40,20 +40,6 @@ const anyUriType: StructureModelPrimitiveType = (function () {
   type.dataType = XSD.anyURI;
   return type;
 })();
-
-/**
- * Map from common datatype URIs to XSD datatypes.
- */
-const simpleTypeMap: Record<string, string> = {
-  [OFN.boolean]: XSD.boolean,
-  [OFN.date]: XSD.date,
-  [OFN.time]: XSD.time,
-  [OFN.dateTime]: XSD.dateTimeStamp,
-  [OFN.integer]: XSD.integer,
-  [OFN.decimal]: XSD.decimal,
-  [OFN.url]: XSD.anyURI,
-  [OFN.string]: XSD.string,
-};
 
 type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
@@ -314,6 +300,6 @@ class XsltAdapter {
     if (primitiveData.dataType == null || primitiveData.dataType == OFN.text) {
       return null;
     }
-    return simpleTypeMap[primitiveData.dataType] ?? primitiveData.dataType;
+    return simpleTypeMapIri[primitiveData.dataType] ?? primitiveData.dataType;
   }
 }

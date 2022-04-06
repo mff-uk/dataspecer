@@ -1,4 +1,4 @@
-export type QName = [prefix: string, localName: string];
+import { QName } from "../xml/xml-conventions";
 
 export class XmlTransformation {
   targetNamespace: string | null;

@@ -1,7 +1,7 @@
 import { OutputStream } from "../io/stream/output-stream";
 
 export interface XmlNamespaceMap {
-  getQName(namespacePrefix: string, elementName: string): string;
+  getQName(namespacePrefix: string | null, elementName: string): string;
   getPrefixForUri(uri: string): string | undefined;
   getUriForPrefix(prefix: string): string | undefined;
   registerNamespace(prefix: string, uri: string): void;
@@ -10,35 +10,36 @@ export interface XmlNamespaceMap {
 export interface XmlWriter extends XmlNamespaceMap {
   writeXmlDeclaration(version: string, encoding: string): Promise<void>;
   writeElementBegin(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string
   ): Promise<void>;
   writeElementValue(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string,
-    elementValue: string
+    elementValue: string | null
   ): Promise<void>;
   writeElementFull(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string
   ): (content: (writer: XmlWriter) => Promise<void>) => Promise<void>;
   writeAttributeValue(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     attributeName: string,
-    attributeValue: string
+    attributeValue: string | null
   ): Promise<void>;
   writeLocalAttributeValue(
     attributeName: string,
-    attributeValue: string
+    attributeValue: string | null
   ): Promise<void>;
   writeNamespaceDeclaration(prefix: string, uri: string): Promise<void>;
   writeAndRegisterNamespaceDeclaration(
-    prefix: string,
-    uri: string
+    prefix: string, uri: string
   ): Promise<void>;
   writeComment(comment: string): Promise<void>;
   writeText(text: string): Promise<void>;
-  writeElementEnd(namespacePrefix: string, elementName: string): Promise<void>;
+  writeElementEnd(
+    namespacePrefix: string | null, elementName: string
+  ): Promise<void>;
 }
 
 class XmlSimpleNamespaceMap implements XmlNamespaceMap {
@@ -76,7 +77,10 @@ class XmlSimpleNamespaceMap implements XmlNamespaceMap {
     this.prefixToUri[prefix] = uri;
   }
 
-  getQName(namespacePrefix: string, localName: string): string {
+  getQName(
+    namespacePrefix: string | null,
+    localName: string
+  ): string {
     if (namespacePrefix != null) {
       if (this.getUriForPrefix(namespacePrefix) == null) {
         throw new Error(
@@ -145,7 +149,7 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeElementBegin(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string
   ): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
@@ -155,9 +159,9 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeElementValue(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string,
-    elementValue: string
+    elementValue: string | null
   ): Promise<void> {
     const qname = this.getQName(namespacePrefix, elementName);
     if (elementValue != null) {
@@ -169,7 +173,7 @@ export abstract class XmlIndentingTextWriter
   }
 
   writeElementFull(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     elementName: string
   ): (content: (writer: XmlWriter) => Promise<void>) => Promise<void> {
     return async content => {
@@ -180,9 +184,9 @@ export abstract class XmlIndentingTextWriter
   }
 
   async writeAttributeValue(
-    namespacePrefix: string,
+    namespacePrefix: string | null,
     attributeName: string,
-    attributeValue: string
+    attributeValue: string | null
   ): Promise<void> {
     if (!this.elementTagOpen) {
       throw new Error(
@@ -197,7 +201,7 @@ export abstract class XmlIndentingTextWriter
 
   async writeLocalAttributeValue(
     attributeName: string,
-    attributeValue: string
+    attributeValue: string | null
   ): Promise<void> {
     await this.writeAttributeValue(null, attributeName, attributeValue);
   }

@@ -1,5 +1,3 @@
-import * as fileSystem from "fs";
-import * as path from "path";
 import {OutputStream} from "../io/stream/output-stream";
 
 import {
@@ -11,41 +9,11 @@ import {
   XmlMatch,
 } from "./xslt-model";
 
-import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LOWERING } from "./xslt-vocabulary";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
-
-export async function saveXsltLoweringToDirectory(
-  model: XmlTransformation,
-  directory: string,
-  name: string
-): Promise<void> {
-  if (!fileSystem.existsSync(directory)) {
-    fileSystem.mkdirSync(directory);
-  }
-
-  const outputStream = fileSystem.createWriteStream(
-    path.join(directory, name + ".xsd")
-  );
-
-  const result = new Promise<void>((accept, reject) => {
-    outputStream.on("close", accept);
-    outputStream.on("error", reject);
-  });
-
-  const stream = {
-    write: async (chunk) => {
-      outputStream.write(chunk);
-    },
-  } as OutputStream;
-  await writeXsltLowering(model, stream);
-  
-  outputStream.end();
-
-  return result;
-}
 
 export async function writeXsltLowering(
   model: XmlTransformation,
