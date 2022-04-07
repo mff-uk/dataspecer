@@ -54,7 +54,7 @@ lqipWidth = "20x"
 smallLimit = "300"
 
 # Footer
-footer = "Tento projekt je udržován v rámci projektu OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983. Powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>"
+footer = "Dataspecer is supported by project OPZ No. CZ.03.4.74/0.0/0.0/15_025/0013983.<br>Powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>."
 
 # Feed
 #copyRight = "Copyright (c) 2020-2021 Henk Verlinde"
@@ -72,7 +72,7 @@ repoHost = "GitHub"
 docsRepo = "https://github.com/mff-uk/dataspecer-docs"
 docsRepoBranch = "master"
 docsRepoSubPath = ""
-editPage = false
+editPage = true
 lastMod = false
 
 [options]
@@ -82,7 +82,7 @@ lastMod = false
   flexSearch = true
   darkMode = true
   bootStrapJs = true
-  breadCrumb = false
+  breadCrumb = true
   highLight = true
   kaTex = false
   multilingualMode = false

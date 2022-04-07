@@ -2,7 +2,7 @@
   name = "Tutorial"
   weight = 10
   identifier = "tutorial"
-  url = "/tutorial/start/"
+  url = "/docs/tutorial/start/"
 
 [[main]]
   name = "Tutorial"

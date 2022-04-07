@@ -6,7 +6,7 @@
     </div>
     <div class="col-lg-9 col-xl-8 text-center">
       <p class="lead">{{ .Params.lead | safeHTML }}</p>
-      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}prologue/introduction/" role="button">Read the documentation</a>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/tutorial/start/" role="button">Read the documentation</a>
     </div>
   </div>
 </section>
@@ -18,8 +18,12 @@
     <div class="container">
       <div class="row justify-content-center text-start">
         <div class="col-lg-8">
-          <h2 class="h4">Domain ontology<br>to data schemas easily</h2>
-          <p>Use your own domain ontology to create data schemas in different formats such as XML, JSON, CSV. Everything without coding.</p>
+          <h2 class="h4">Your domain ontology<br>to data schemas easily</h2>
+          <p>
+            Use your own domain ontology to easily create data schemas in different formats such as XML, JSON, CSV.
+            All this without the need to write any code. The tool understands the structure of your data and suggests
+            the correct entities to use.
+          </p>
         </div>
         <div class="col-lg-8 d-flex justify-content-center">
           {{ $diagramLight := resources.Get "images/diagram-light.png" }}
@@ -30,18 +34,46 @@
       </div>
     </div>
   </section>
-  <section class="section section-sm">
+  <section class="section section-sm mt-4">
     <div class="container">
-      <div class="row justify-content-center text-end">
+      <div class="row justify-content-center text-lg-end">
         <div class="col-lg-8 order-lg-2">
           <h2 class="h4">With data transformations,<br>documentation, plantUML,<br>diagrams, and more...</h2>
-          <p>Our goal is to generate Bikeshed documentation with examples, images and descriptions and transformation scripts that can convert data between different data schemas and serialization technologies.</p>
+          <p>
+            We intent to create a tool, that can generate transformation scripts converting data between different data
+            schemas and serialization technologies, generate Bikeshed documentation with examples, images and
+            descriptions, small webapps working with the data and many other things.
+          </p>
         </div>
         <div class="col-lg-8 order-lg-1 d-flex justify-content-center">
           {{ $technologiesLight := resources.Get "images/technologies-light.png" }}
           <img src="{{ $technologiesLight.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="light-only img-fluid">
           {{ $technologiesDark := resources.Get "images/technologies-dark.png" }}
           <img src="{{ $technologiesDark.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="dark-only img-fluid">
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section section-sm mt-4">
+    <div class="container">
+      <div class="row justify-content-center text-lg-center">
+        <div class="col-lg-5">
+          <h2 class="h4">Accepted as a demo to ESWC 2022</h2>
+          <p>
+            Our paper "DataSpecer: A Model-Driven Approach to Managing Data Specifications" has been accepted to the
+            ESWC 2022 conference.
+          </p>
+        </div>
+        <div class="col-lg-6">
+          <h2 class="h4">Already used in Czechia</h2>
+          <p>
+            Currently, only Semantic Government Vocabulary (SGOV) is supported as the tool is used and tested by the
+            Ministry of the Interior of the Czech Republic.
+          </p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Actively developed at Charles University ⚡</h2>
+          <p>The tool is actively developed by 6 people at the Faculty of Mathematics and Physics, Charles University.</p>
         </div>
       </div>
     </div>
