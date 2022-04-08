@@ -54,7 +54,7 @@ lqipWidth = "20x"
 smallLimit = "300"
 
 # Footer
-footer = "Dataspecer is supported by project OPZ No. CZ.03.4.74/0.0/0.0/15_025/0013983.<br>Powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>."
+footer = "This documentation site is powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>."
 
 # Feed
 #copyRight = "Copyright (c) 2020-2021 Henk Verlinde"
