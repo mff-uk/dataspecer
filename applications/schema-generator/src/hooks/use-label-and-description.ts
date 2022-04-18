@@ -1,6 +1,6 @@
 import {useMemo} from "react";
-import {PimResource} from "@model-driven-data/core/pim/model";
-import {DataPsmResource} from "@model-driven-data/core/data-psm/model";
+import {PimResource} from "@dataspecer/core/pim/model";
+import {DataPsmResource} from "@dataspecer/core/data-psm/model";
 
 export const useLabelAndDescription = (dataPsmResource?: DataPsmResource | null, pimResource?: PimResource | null) => {
     return useMemo(() => {

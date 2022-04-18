@@ -1,9 +1,9 @@
-import {DataPsmResource} from "@model-driven-data/core/data-psm/model";
+import {DataPsmResource} from "@dataspecer/core/data-psm/model";
 import {useDialog} from "./useDialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import {useCallback, useContext} from "react";
 import {SetDataPsmLabelAndDescription} from "../operations/set-data-psm-label-and-description";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 export const useDataPsmUpdateLabelAndDescription = (dataPsmResource: DataPsmResource) => {
   const store = useFederatedObservableStore();

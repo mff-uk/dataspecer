@@ -3,12 +3,12 @@ import {AppBar, Container, Divider, Toolbar, Typography} from "@mui/material";
 import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import {Home} from "./routes/home/home";
 import {Specification} from "./routes/specification/specification";
-import {BackendConnector} from "@model-driven-data/backend-utils/connectors/backend-connector";
-import {StoreContext, useNewFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
-import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
+import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
+import {StoreContext, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./store/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
-import {CoreResourceReader} from "@model-driven-data/core/core";
+import {CoreResourceReader} from "@dataspecer/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
 import {useLocalStorage} from "./utils/use-local-storage";
 
@@ -101,7 +101,7 @@ function App() {
                                             <Route path="/specification" element={<Specification/>}/>
                                         </Routes>
                                         <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                        Report a bug on <a href="https://github.com/opendata-mvcr/model-driven-data/issues">GitHub</a>.
+                                        Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
                                         {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
                                             <>
                                                 {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>

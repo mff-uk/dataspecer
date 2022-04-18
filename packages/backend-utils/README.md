@@ -1,4 +1,4 @@
-@model-driven-data/backend-utils
+@dataspecer/backend-utils
 ================================
 
 This library provides a set of tools and interfaces for communication with the

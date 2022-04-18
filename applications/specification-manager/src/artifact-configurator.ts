@@ -1,8 +1,8 @@
-import {DefaultArtifactConfigurator} from "@model-driven-data/core/data-specification/default-artifact-configurator";
-import {DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
-import {PlantUmlGenerator} from "@model-driven-data/core/plant-uml";
+import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
+import {DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
+import {PlantUmlGenerator} from "@dataspecer/core/plant-uml";
 import {PlantUmlImageGenerator} from "./artifacts/plant-uml-image-generator";
-import {BIKESHED} from "@model-driven-data/core/bikeshed";
+import {BIKESHED} from "@dataspecer/core/bikeshed";
 import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {

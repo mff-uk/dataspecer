@@ -1,7 +1,7 @@
 import {FederatedObservableStore, Subscriber} from "./federated-observable-store";
-import {ReadOnlyMemoryStore} from "@model-driven-data/core/core";
-import {PimSchema} from "@model-driven-data/core/pim/model";
-import * as PIM from "@model-driven-data/core/pim/pim-vocabulary";
+import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
+import {PimSchema} from "@dataspecer/core/pim/model";
+import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
 
 
 describe("FederatedObservableStore reading", () => {

@@ -1,4 +1,4 @@
-import {CoreOperation} from "@model-driven-data/core/core";
+import {CoreOperation} from "@dataspecer/core/core";
 import {FederatedObservableStore} from "./federated-observable-store";
 
 /**

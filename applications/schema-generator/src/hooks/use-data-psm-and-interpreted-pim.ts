@@ -1,6 +1,6 @@
-import {DataPsmResource} from "@model-driven-data/core/data-psm/model";
-import {PimResource} from "@model-driven-data/core/pim/model";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {DataPsmResource} from "@dataspecer/core/data-psm/model";
+import {PimResource} from "@dataspecer/core/pim/model";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 
 /**
  * For the given data-PSM IRI it returns {@link DataPsmResource} object along with {@link PimResource} object if

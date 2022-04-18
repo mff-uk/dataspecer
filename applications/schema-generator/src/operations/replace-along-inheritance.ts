@@ -1,12 +1,12 @@
-import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {PimClass} from "@model-driven-data/core/pim/model";
-import {DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
+import {DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {PimClass} from "@dataspecer/core/pim/model";
+import {DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance} from "@dataspecer/core/data-psm/operation";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {isPimAncestorOf} from "../store/utils/is-ancestor-of";
 import {getPimHavingInterpretation} from "../store/utils/get-pim-having-interpretation";
 import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
 
 /**

@@ -8,16 +8,16 @@ import {DataPsmClassParts} from "./DataPsmClassParts";
 import {IconButton, MenuItem} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
-import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "@model-driven-data/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "@dataspecer/core/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
-import {PimAssociationEnd, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmAssociationToClassDetailDialog} from "../detail/data-psm-association-to-class-detail-dialog";
 import {InlineEdit} from "./common/InlineEdit";
-import {LanguageString} from "@model-driven-data/core/core";
+import {LanguageString} from "@dataspecer/core/core";
 import {LanguageStringUndefineable} from "../helper/LanguageStringComponents";
 import {DeleteAssociationClass} from "../../operations/delete-association-class";
 import {usePimAssociationFromPimAssociationEnd} from "./use-pim-association-from-pim-association-end";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import ListRoundedIcon from '@mui/icons-material/ListRounded';
 import {ItemRow} from "./item-row";
 import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
@@ -29,7 +29,7 @@ import {ReplaceAssociationWithReferenceDialog} from "./replace-association-with-
 import {getCardinalityFromResource} from "./common/cardinality";
 import {ReplaceAlongInheritanceDialog} from "./replace-along-inheritance/replace-along-inheritance-dialog";
 import {ActionsOther} from "./common/actions-other";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.

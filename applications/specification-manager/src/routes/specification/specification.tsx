@@ -10,12 +10,12 @@ import {useConstructedStoresFromDescriptors} from "../../store/use-stores-by-des
 import {DataStructureRow} from "./data-structure-row";
 import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
 import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {DataSpecifications} from "../../data-specifications";
-import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
-import {CoreResourceReader, ReadOnlyFederatedStore} from "@model-driven-data/core/core";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
+import {CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/http-synchronized-store";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
 import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
 import {ModifySpecification} from "./modify-specification";

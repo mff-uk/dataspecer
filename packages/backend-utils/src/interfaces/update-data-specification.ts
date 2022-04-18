@@ -1,4 +1,4 @@
-import {DataSpecification} from "@model-driven-data/core/data-specification/model";
+import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {DataSpecificationWithMetadata} from "./data-specification-with-metadata";
 
 /**

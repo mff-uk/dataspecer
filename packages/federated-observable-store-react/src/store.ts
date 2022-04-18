@@ -1,5 +1,5 @@
 import {createContext, useContext, useState} from "react";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 /**
  * The context that holds the FederatedObservableStore.

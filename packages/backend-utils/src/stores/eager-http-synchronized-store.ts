@@ -1,9 +1,9 @@
 import {HttpSynchronizedStore} from "./http-synchronized-store";
-import {CoreOperation, CoreOperationResult, createExecutorMap} from "@model-driven-data/core/core";
+import {CoreOperation, CoreOperationResult, createExecutorMap} from "@dataspecer/core/core";
 import {StoreDescriptor} from "../store-descriptor";
 import {HttpStoreDescriptor} from "../store-descriptor/http-store-descriptor";
-import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {pimExecutors} from "@dataspecer/core/pim/executor";
 
 /**
  * This variant of the store synchronizes itself automatically before and after

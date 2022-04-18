@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, ListItemText, MenuItem, Select, TextField} from "@mui/material";
-import {LanguageString} from "@model-driven-data/core/core";
+import {LanguageString} from "@dataspecer/core/core";
 import {AvailableTags} from "../routes/home/filter-by-tag";
 import {isEqual} from "lodash";
 

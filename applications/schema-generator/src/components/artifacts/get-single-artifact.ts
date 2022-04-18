@@ -1,8 +1,8 @@
-import {DataSpecification, DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model";
-import {createDefaultArtefactGenerators, Generator} from "@model-driven-data/core/generator";
-import {MemoryStreamDictionary} from "@model-driven-data/core/io/stream/memory-stream-dictionary";
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {DefaultArtifactConfigurator} from "@model-driven-data/core/data-specification/default-artifact-configurator";
+import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
+import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
+import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
 
 /**
  * Returns a single generated artifact based on the given artifact definition.

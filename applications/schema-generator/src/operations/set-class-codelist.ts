@@ -1,6 +1,6 @@
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {PimSetClassCodelist} from "@model-driven-data/core/pim/operation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {PimSetClassCodelist} from "@dataspecer/core/pim/operation";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetClassCodelist implements ComplexOperation {
     private readonly forPimClassIri: string;

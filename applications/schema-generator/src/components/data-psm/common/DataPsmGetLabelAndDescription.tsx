@@ -1,6 +1,6 @@
 import React, {memo, ReactElement, useMemo} from "react";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
-import {LanguageString} from "@model-driven-data/core/core";
+import {LanguageString} from "@dataspecer/core/core";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 
 export const DataPsmGetLabelAndDescription: React.FC<{dataPsmResourceIri: string, children: (label?: string, description?: string) => ReactElement}> = memo(({dataPsmResourceIri, children}) => {

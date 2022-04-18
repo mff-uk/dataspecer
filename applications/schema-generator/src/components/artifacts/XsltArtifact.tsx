@@ -3,8 +3,8 @@ import {Box, Typography} from "@mui/material";
 import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import {githubGist} from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import {XSLT_LIFTING, XSLT_LOWERING} from "@model-driven-data/core/xml-transformations/xslt-vocabulary";
-import {DataSpecificationSchema} from "@model-driven-data/core/data-specification/model";
+import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/core/xml-transformations/xslt-vocabulary";
+import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {Configuration} from "../../configuration/configuration";
 import {getSingleArtifact} from "./get-single-artifact";
 

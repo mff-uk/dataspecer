@@ -1,6 +1,6 @@
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {CLASS} from "@model-driven-data/core/pim/pim-vocabulary";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {CLASS} from "@dataspecer/core/pim/pim-vocabulary";
+import {PimClass} from "@dataspecer/core/pim/model";
 
 /**
  * Returns the IRI of the PIM class having the interpretation

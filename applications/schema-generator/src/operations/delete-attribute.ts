@@ -1,7 +1,7 @@
-import {DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {DataPsmDeleteAttribute} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {DataPsmDeleteAttribute} from "@dataspecer/core/data-psm/operation";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class DeleteAttribute implements ComplexOperation {
   private attribute: DataPsmAttribute;

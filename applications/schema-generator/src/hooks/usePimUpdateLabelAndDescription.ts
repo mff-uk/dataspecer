@@ -1,9 +1,9 @@
 import {useDialog} from "./useDialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import {useCallback, useContext} from "react";
-import {PimResource} from "@model-driven-data/core/pim/model";
+import {PimResource} from "@dataspecer/core/pim/model";
 import {SetPimLabelAndDescription} from "../operations/set-pim-label-and-description";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 export const usePimUpdateLabelAndDescription = (pimResource: PimResource) => {
   const store = useFederatedObservableStore();

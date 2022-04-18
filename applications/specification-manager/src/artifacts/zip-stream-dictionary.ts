@@ -1,7 +1,7 @@
 import JSZip from "jszip";
-import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
-import {InputStream} from "@model-driven-data/core/io/stream/input-stream";
-import {OutputStream} from "@model-driven-data/core/io/stream/output-stream";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import {InputStream} from "@dataspecer/core/io/stream/input-stream";
+import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
 
 export class ZipStreamDictionary implements StreamDictionary {
     private readonly zip: JSZip;

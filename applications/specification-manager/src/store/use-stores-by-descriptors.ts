@@ -1,9 +1,9 @@
-import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import {useEffect, useState} from "react";
-import {CoreResourceReader} from "@model-driven-data/core/core";
+import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {EagerHttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/eager-http-synchronized-store";
+import {EagerHttpSynchronizedStore} from "@dataspecer/backend-utils/stores/eager-http-synchronized-store";
 
 /**
  * Takes an array of store descriptors and registers them properly in the

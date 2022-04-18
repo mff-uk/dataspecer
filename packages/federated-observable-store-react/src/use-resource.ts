@@ -1,8 +1,8 @@
-import {CoreResource} from "@model-driven-data/core/core";
+import {CoreResource} from "@dataspecer/core/core";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {StoreContext} from "./store";
-import {Resource} from "@model-driven-data/federated-observable-store/resource";
-import {Subscriber} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {Resource} from "@dataspecer/federated-observable-store/resource";
+import {Subscriber} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 const loadingEmptyLink = {
     resource: null,

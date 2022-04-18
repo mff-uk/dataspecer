@@ -1,13 +1,13 @@
 import React, {useCallback, useContext} from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {useTranslation} from "react-i18next";
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {AddClassSurroundings} from "../../../operations/add-class-surroundings";
 import {MenuItem} from "@mui/material";
 import {AddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
 import {UseDialogOpenFunction} from "../../../dialog";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {ConfigurationContext} from "../../App";
 
 export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFunction<typeof AddInterpretedSurroundingsDialog, "dataPsmClassIri">}> = ({open}) => {

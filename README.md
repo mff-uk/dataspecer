@@ -1,11 +1,11 @@
 # About
 This codebase is managed by Lerna.
 For more information please see individual packages and applications.
-- [@model-driven-data/core](./packages/core) package
+- [@dataspecer/core](./packages/core) package
 - [schema-generator](./applications/schema-generator) application
 - [specification-manager](./applications/specification-manager) application
 - [backend](./services/backend) service
-- *and other packages under [@model-driven-data/*](./packages)*
+- *and other packages under [@dataspecer/*](./packages)*
 
 ## How to build 
 - Clone the whole repository. `git clone ...`

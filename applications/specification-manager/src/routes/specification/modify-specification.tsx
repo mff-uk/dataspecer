@@ -4,10 +4,10 @@ import {Fab} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
 import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
-import {PimSchema} from "@model-driven-data/core/pim/model";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {PimSchema} from "@dataspecer/core/pim/model";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 
 export const ModifySpecification: React.FC<{ iri: string }> = ({iri}) => {
     const dialog = useToggle();

@@ -1,8 +1,8 @@
 import {Box, Button, TableCell, TableRow, Typography} from "@mui/material";
 import React, {useCallback, useContext} from "react";
 import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
-import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {DataSchemaNameCell} from "../../name-cells";
 import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";
 

@@ -1,7 +1,7 @@
-import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {DataPsmSetOrder} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {DataPsmSetOrder} from "@dataspecer/core/data-psm/operation";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetOrder implements ComplexOperation {
   private readonly parentDataPsmClassIri: string;

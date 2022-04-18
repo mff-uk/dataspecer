@@ -3,8 +3,8 @@ import {Grid} from "@mui/material";
 import {InDifferentLanguages} from "./InDifferentLanguages";
 import {RightPanel} from "./right-panel";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {PimClass} from "@dataspecer/core/pim/model";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
 
 export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> = memo(({iri, onClose}) => {

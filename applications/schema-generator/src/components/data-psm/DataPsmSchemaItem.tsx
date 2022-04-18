@@ -4,16 +4,16 @@ import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmClassItem} from "./DataPsmClassItem";
 import {createStyles, makeStyles} from "@mui/styles";
-import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
 import {useDialog} from "../../hooks/useDialog";
 import {useTranslation} from "react-i18next";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {SetOrder} from "../../operations/set-order";
 import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
 import {Icons} from "../../icons";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 const useStyles = makeStyles(() =>
     createStyles({

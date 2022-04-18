@@ -1,8 +1,8 @@
-import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "@model-driven-data/core/core";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "@dataspecer/core/core";
 import {LocalStoreModel} from "./local-store-model";
 import {LocalStoreDescriptor} from "./local-store-descriptor";
-import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {pimExecutors} from "@dataspecer/core/pim/executor";
 
 export class LocalStore implements CoreResourceReader, CoreResourceWriter {
   protected storeDescriptor: LocalStoreDescriptor;

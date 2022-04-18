@@ -5,11 +5,11 @@ import {SearchDialog} from "./search-dialog";
 import {useToggle} from "../../hooks/useToggle";
 import {useTranslation} from "react-i18next";
 import {ConfigurationContext} from "../App";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {PimClass} from "@dataspecer/core/pim/model";
 import {CreateRootClass} from "../../operations/create-root-class";
 import {selectLanguage} from "../../utils/selectLanguage";
 import {languages} from "../../i18n";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);

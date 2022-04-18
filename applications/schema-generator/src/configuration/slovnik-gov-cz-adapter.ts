@@ -1,6 +1,6 @@
-import {PrefixIriProvider} from "@model-driven-data/core/cim";
-import {SgovAdapter} from "@model-driven-data/core/sgov";
-import {httpFetch} from "@model-driven-data/core/io/fetch/fetch-browser";
+import {PrefixIriProvider} from "@dataspecer/core/cim";
+import {SgovAdapter} from "@dataspecer/core/sgov";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 export const getSlovnikGovCzAdapter = () => {
     const iriProvider = new PrefixIriProvider();

@@ -1,4 +1,4 @@
-import {PimResource} from "@model-driven-data/core/pim/model";
+import {PimResource} from "@dataspecer/core/pim/model";
 
 export function copyPimPropertiesFromResourceToOperation(from: PimResource, to: Pick<PimResource, "pimHumanLabel" | "pimHumanDescription" | "pimTechnicalLabel" | "pimInterpretation">) {
     to.pimHumanLabel = from.pimHumanLabel;

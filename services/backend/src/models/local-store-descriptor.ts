@@ -1,4 +1,4 @@
-import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {LocalStoreModel} from "./local-store-model";
 import {LocalStore} from "./local-store";
 

@@ -4,14 +4,14 @@ import {LoadingDialog} from "../helper/LoadingDialog";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";
 import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStringComponents";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {PimClass} from "@dataspecer/core/pim/model";
 import {ConfigurationContext} from "../App";
-import {CoreResourceReader, ReadOnlyMemoryStore} from "@model-driven-data/core/core";
+import {CoreResourceReader, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {useDialog} from "../../hooks/useDialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
-import {StoreContext, useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {StoreContext, useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 interface AncestorSelectorPanelParameters {
     forCimClassIri: string,

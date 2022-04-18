@@ -1,7 +1,7 @@
-import {CoreResource, CoreResourceReader} from "@model-driven-data/core/core";
-import {createDefaultArtefactGenerators, Generator} from "@model-driven-data/core/generator";
+import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
+import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
 import {ZipStreamDictionary} from "./zip-stream-dictionary";
-import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {PlantUmlImageGenerator} from "./plant-uml-image-generator";
 import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 import {DataSpecifications} from "../data-specifications";

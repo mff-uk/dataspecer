@@ -1,7 +1,7 @@
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "@model-driven-data/core/data-psm/operation";
-import {DataPsmAssociationEnd, DataPsmSchema} from "@model-driven-data/core/data-psm/model";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "@dataspecer/core/data-psm/operation";
+import {DataPsmAssociationEnd, DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperation {
     private readonly dataPsmAssociationEnd: string;

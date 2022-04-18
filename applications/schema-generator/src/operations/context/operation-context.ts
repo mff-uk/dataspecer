@@ -1,4 +1,4 @@
-import {PimResource} from "@model-driven-data/core/pim/model";
+import {PimResource} from "@dataspecer/core/pim/model";
 import { removeDiacritics } from "../../utils/remove-diacritics";
 import { selectLanguage } from "../../utils/selectLanguage";
 import {TechnicalLabelOperationContext} from "./technical-label-operation-context";

@@ -18,8 +18,8 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@model-driven-data/backend-utils": "^0.0.0",
-    "@model-driven-data/core": "^0.0.0",
+    "@dataspecer/backend-utils": "^0.0.0",
+    "@dataspecer/core": "^0.0.0",
     "@prisma/client": "^3.4.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",

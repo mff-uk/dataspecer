@@ -3,8 +3,8 @@ import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beau
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@mui/material";
 import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {TransitionGroup} from "react-transition-group";
 
 interface DataPsmResourceSwitchProperties {

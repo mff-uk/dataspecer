@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useEffect, useState} from "react";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
 import {Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";
@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue} from "../../helper/datatype-selector";
 import {knownDatatypes} from "../../../utils/known-datatypes";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
 import {Icons} from "../../../icons";
 import {isEqual} from "lodash";
 import {SetClassCodelist} from "../../../operations/set-class-codelist";
@@ -16,7 +16,7 @@ import {CardContent} from "../../../mui-overrides";
 import {TransitionGroup} from "react-transition-group";
 import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
 import {SetCardinality} from "../../../operations/set-cardinality";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();

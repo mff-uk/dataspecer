@@ -1,5 +1,5 @@
 import React, {memo, useState} from "react";
-import {DataPsmAttribute, DataPsmResource} from "@model-driven-data/core/data-psm/model";
+import {DataPsmAttribute, DataPsmResource} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {useItemStyles} from "../PsmItemCommon";
 import {Button, InputBase} from "@mui/material";
@@ -7,7 +7,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 function emptyStringToNull(value: string | null) {
     return value === "" ? null : value;

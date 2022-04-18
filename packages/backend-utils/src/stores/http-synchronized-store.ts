@@ -1,9 +1,9 @@
-import {createExecutorMap, CreateNewIdentifier, ExecutorMap, MemoryStore} from "@model-driven-data/core/core";
+import {createExecutorMap, CreateNewIdentifier, ExecutorMap, MemoryStore} from "@dataspecer/core/core";
 import {HttpSynchronizedStoreConnector} from "../connectors/http-synchronized-store-connector";
 import {StoreDescriptor} from "../store-descriptor";
 import {HttpStoreDescriptor} from "../store-descriptor/http-store-descriptor";
-import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {pimExecutors} from "@dataspecer/core/pim/executor";
 
 /**
  * Naive implementation of {@link MemoryStore} that can synchronize data with

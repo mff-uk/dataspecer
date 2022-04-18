@@ -4,7 +4,7 @@ import {useAsyncMemo} from "../../hooks/useAsyncMemo";
 import {ConfigurationContext} from "../App";
 import {useTranslation} from "react-i18next";
 import CloseIcon from '@mui/icons-material/Close';
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {Configuration} from "../../configuration/configuration";
 
 /**

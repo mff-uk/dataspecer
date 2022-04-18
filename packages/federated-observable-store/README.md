@@ -1,4 +1,4 @@
-@model-driven-data/federated-observable-store
+@dataspecer/federated-observable-store
 =============================================
 
 This package provides store that

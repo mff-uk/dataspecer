@@ -13,7 +13,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { generateBikeshedRoute } from "./routes/bikeshed";
 import {DataSpecificationModel} from "./models/data-specification-model";
-import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 
 require('dotenv-defaults').config({

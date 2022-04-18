@@ -4,10 +4,10 @@ import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
-import {DataPsmClass} from "@model-driven-data/core/data-psm/model";
-import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "@model-driven-data/core/core";
+import {DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
 import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@model-driven-data/core/pim/model";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
 import {ConfigurationContext} from "../App";
 import {AncestorSelectorPanel} from "./ancestor-selector-panel";
 import {useAsyncMemo} from "../../hooks/useAsyncMemo";
@@ -19,8 +19,8 @@ import {dialog} from "../../dialog";
 import {DialogContent, DialogTitle} from "../detail/common";
 import {AssociationItem} from "./association-item";
 import {translateFrom} from "../helper/LanguageStringComponents";
-import {useFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
-import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
+import {useFederatedObservableStore, StoreContext} from "@dataspecer/federated-observable-store-react/store";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

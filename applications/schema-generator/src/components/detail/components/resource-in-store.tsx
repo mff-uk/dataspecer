@@ -6,10 +6,10 @@ import {Box, Card, Grid, Typography} from "@mui/material/";
 import CheckIcon from "@mui/icons-material/Check";
 import WarningIcon from '@mui/icons-material/Warning';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {useTranslation} from "react-i18next";
 import {ObjectDump} from "../../helper/object-dump";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 /**
  * Renders a part of UI dealing with everything about a specific resource which is located in the store. Specifically

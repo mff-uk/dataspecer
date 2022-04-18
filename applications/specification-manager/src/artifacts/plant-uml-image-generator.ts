@@ -1,8 +1,8 @@
 import pako from "pako";
-import {ArtefactGenerator, ArtefactGeneratorContext} from "@model-driven-data/core/generator";
-import {DataSpecification, DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model";
-import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
-import { PlantUmlGenerator, PlantUmlGeneratorObject } from "@model-driven-data/core/plant-uml";
+import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
+import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import { PlantUmlGenerator, PlantUmlGeneratorObject } from "@dataspecer/core/plant-uml";
 
 export class PlantUmlImageGenerator implements ArtefactGenerator {
   static readonly IDENTIFIER = PlantUmlGenerator.IDENTIFIER + "/image";

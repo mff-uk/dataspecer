@@ -1,8 +1,8 @@
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {PimClass} from "@dataspecer/core/pim/model";
 import {createPimClassIfMissing} from "./pim";
-import {PimSetExtends} from "@model-driven-data/core/pim/operation";
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {PimSetExtends} from "@dataspecer/core/pim/operation";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 /**
  * Adds necessary PIM classes to the store, that there will be a path from

@@ -5,19 +5,19 @@ import {useTranslation} from "react-i18next";
 import {DataPsmDeleteButton} from "./class/DataPsmDeleteButton";
 import RemoveIcon from '@mui/icons-material/Remove';
 import {DataPsmGetLabelAndDescription} from "./common/DataPsmGetLabelAndDescription";
-import {DataPsmAttribute, DataPsmClass} from "@model-driven-data/core/data-psm/model";
+import {DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import classNames from "classnames";
 import {DataPsmAttributeDetailDialog} from "../detail/data-psm-attribute-detail-dialog";
 import {InlineEdit} from "./common/InlineEdit";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DeleteAttribute} from "../../operations/delete-attribute";
 import {Datatype} from "./common/Datatype";
 import {ItemRow} from "./item-row";
 import {MenuItem} from "@mui/material";
 import {Icons} from "../../icons";
 import {getCardinalityFromResource} from "./common/cardinality";
-import {PimAttribute} from "@model-driven-data/core/pim/model";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {PimAttribute} from "@dataspecer/core/pim/model";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 export const DataPsmAttributeItem: React.FC<DataPsmClassPartItemProperties> = memo(({dataPsmResourceIri: dataPsmAttributeIri, dragHandleProps, parentDataPsmClassIri}) => {
     const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(dataPsmAttributeIri);

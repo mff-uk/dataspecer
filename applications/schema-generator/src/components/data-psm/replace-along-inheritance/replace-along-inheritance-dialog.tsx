@@ -4,14 +4,14 @@ import {useTranslation} from "react-i18next";
 import {dialog, useDialog} from "../../../dialog";
 import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
 import {Item} from "./item";
-import {CLASS} from "@model-driven-data/core/pim/pim-vocabulary";
+import {CLASS} from "@dataspecer/core/pim/pim-vocabulary";
 import {isPimAncestorOf} from "../../../store/utils/is-ancestor-of";
 import {getPimHavingInterpretation} from "../../../store/utils/get-pim-having-interpretation";
 import {ReplaceAlongInheritance} from "../../../operations/replace-along-inheritance";
 import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
-import {StoreContext, useFederatedObservableStore, useNewFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
+import {StoreContext, useFederatedObservableStore, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {ConfigurationContext} from "../../App";
-import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 
 /**

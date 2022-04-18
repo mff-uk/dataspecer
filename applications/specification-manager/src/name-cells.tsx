@@ -1,10 +1,10 @@
-import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {Skeleton, Typography} from "@mui/material";
 import React, {ReactElement, useContext} from "react";
-import {PimSchema} from "@model-driven-data/core/pim/model";
+import {PimSchema} from "@dataspecer/core/pim/model";
 import {DataSpecificationsContext} from "./app";
-import {LanguageString} from "@model-driven-data/core/core";
+import {LanguageString} from "@dataspecer/core/core";
 
 export function selectLanguage(input: LanguageString, languages: readonly string[]): string | undefined {
     for (const language of languages) {

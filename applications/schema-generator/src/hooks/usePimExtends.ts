@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
-import {PimClass} from "@model-driven-data/core/pim/model";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
-import {Resource} from "@model-driven-data/federated-observable-store/resource";
+import {PimClass} from "@dataspecer/core/pim/model";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {Resource} from "@dataspecer/federated-observable-store/resource";
 
 /**
  * Returns all ancestors or self for the given class by iri.

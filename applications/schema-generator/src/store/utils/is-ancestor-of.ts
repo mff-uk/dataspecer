@@ -1,5 +1,5 @@
-import {CoreResourceReader} from "@model-driven-data/core/core";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {CoreResourceReader} from "@dataspecer/core/core";
+import {PimClass} from "@dataspecer/core/pim/model";
 
 /**
  * Checks whether the given resources are in ancestor - descendant relation.

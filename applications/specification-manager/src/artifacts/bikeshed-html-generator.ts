@@ -1,8 +1,8 @@
-import {ArtefactGenerator, ArtefactGeneratorContext} from "@model-driven-data/core/generator";
-import {Bikeshed, BIKESHED, writeBikeshed} from "@model-driven-data/core/bikeshed";
-import {DataSpecification, DataSpecificationArtefact} from "@model-driven-data/core/data-specification/model";
-import {StreamDictionary} from "@model-driven-data/core/io/stream/stream-dictionary";
-import {MemoryOutputStream} from "@model-driven-data/core/io/stream/memory-output-stream";
+import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
+import {Bikeshed, BIKESHED, writeBikeshed} from "@dataspecer/core/bikeshed";
+import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import {MemoryOutputStream} from "@dataspecer/core/io/stream/memory-output-stream";
 
 /**
  * This artefact generator generates a bikeshed documentation in HTML using

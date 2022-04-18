@@ -1,7 +1,7 @@
-import {PimClass} from "@model-driven-data/core/pim/model";
-import {PimCreateClass} from "@model-driven-data/core/pim/operation";
+import {PimClass} from "@dataspecer/core/pim/model";
+import {PimCreateClass} from "@dataspecer/core/pim/operation";
 import {copyPimPropertiesFromResourceToOperation} from "./copyPimPropertiesFromResourceToOperation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export async function createPimClassIfMissing(
     resource: PimClass,

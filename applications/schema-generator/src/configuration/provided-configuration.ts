@@ -1,16 +1,16 @@
 import {Configuration} from "./configuration";
-import {DataSpecification} from "@model-driven-data/core/data-specification/model";
-import {DataSpecificationWithMetadata} from "@model-driven-data/backend-utils/interfaces/data-specification-with-metadata";
-import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
-import {StoreDescriptor} from "@model-driven-data/backend-utils/store-descriptor";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
-import {CoreResourceReader} from "@model-driven-data/core/core";
+import {DataSpecification} from "@dataspecer/core/data-specification/model";
+import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
+import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@model-driven-data/backend-utils/stores/http-synchronized-store";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
 import {useAsyncMemo} from "../hooks/useAsyncMemo";
 import {useEffect, useMemo, useState} from "react";
 import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
-import {BackendConnector} from "@model-driven-data/backend-utils/connectors/backend-connector";
+import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
 import {OperationContext} from "../operations/context/operation-context";
 
 /**

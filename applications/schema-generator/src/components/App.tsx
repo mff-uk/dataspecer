@@ -15,7 +15,7 @@ import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {useLocalConfiguration} from "../configuration/local-configuration";
 import {useProvidedConfiguration} from "../configuration/provided-configuration";
 import {Configuration} from "../configuration/configuration";
-import {StoreContext} from "@model-driven-data/federated-observable-store-react/store"
+import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
 
 // @ts-ignore default value
 export const ConfigurationContext = React.createContext<Configuration>(null);
@@ -114,7 +114,7 @@ const App: React.FC = () => {
                             }
                             <Divider style={{margin: "1rem 0 1rem 0"}} />
                             <Trans i18nKey="footer report bug" t={t}>
-                                Report a bug on <a href="https://github.com/opendata-mvcr/model-driven-data/issues">GitHub</a>.
+                                Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
                             </Trans>
                             {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
                                 <>

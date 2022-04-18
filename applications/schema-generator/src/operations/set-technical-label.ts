@@ -1,6 +1,6 @@
-import {DataPsmSetTechnicalLabel} from "@model-driven-data/core/data-psm/operation";
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {DataPsmSetTechnicalLabel} from "@dataspecer/core/data-psm/operation";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetTechnicalLabel implements ComplexOperation {
   private readonly forDataPsmResourceIri: string;

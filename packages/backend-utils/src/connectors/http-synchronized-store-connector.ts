@@ -1,4 +1,4 @@
-import {CoreOperation, CoreResource} from "@model-driven-data/core/core";
+import {CoreOperation, CoreResource} from "@dataspecer/core/core";
 
 type StoreData = {
   operations: CoreOperation[];

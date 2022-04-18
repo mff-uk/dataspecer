@@ -1,5 +1,5 @@
-import {CoreResource, CoreResourceReader} from "@model-driven-data/core/core";
-import {PimSchema} from "@model-driven-data/core/pim/model";
+import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
+import {PimSchema} from "@dataspecer/core/pim/model";
 
 /**
  * Wraps a {@link CoreResourceReader} and adds a {@link PimSchema} with a given

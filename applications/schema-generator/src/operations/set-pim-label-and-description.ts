@@ -1,7 +1,7 @@
-import {LanguageString} from "@model-driven-data/core/core";
-import {PimSetHumanDescription, PimSetHumanLabel} from "@model-driven-data/core/pim/operation";
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {LanguageString} from "@dataspecer/core/core";
+import {PimSetHumanDescription, PimSetHumanLabel} from "@dataspecer/core/pim/operation";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetPimLabelAndDescription implements ComplexOperation {
   private readonly forPimResourceIri: string;

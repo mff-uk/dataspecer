@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import React, {useCallback, useEffect, useState} from "react";
 import TranslateIcon from '@mui/icons-material/Translate';
-import {LanguageString} from "@model-driven-data/core/core";
+import {LanguageString} from "@dataspecer/core/core";
 
 export interface LabelAndDescriptionLanguageStrings {
     label: LanguageString;

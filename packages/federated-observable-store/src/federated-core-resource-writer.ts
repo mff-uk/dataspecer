@@ -1,8 +1,8 @@
 /**
  * This is temporary interface until {@link CoreResourceWriter} is reimplemented
- * according to https://github.com/opendata-mvcr/model-driven-data/issues/151
+ * according to https://github.com/mff-uk/dataspecer/issues/151
  */
-import {CoreOperation, CoreOperationResult} from "@model-driven-data/core/core";
+import {CoreOperation, CoreOperationResult} from "@dataspecer/core/core";
 
 export interface FederatedCoreResourceWriter {
   applyOperation(schema: string, operation: CoreOperation): Promise<CoreOperationResult>;

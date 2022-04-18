@@ -1,15 +1,15 @@
-@model-driven-data/federated-observable-store-react
+@dataspecer/federated-observable-store-react
 ===================================================
 
-React hooks and utils for easy work with @model-driven-data/federated-observable-store.
+React hooks and utils for easy work with @dataspecer/federated-observable-store.
 
 ## Example use
 
 ```tsx
 import React from "react";
-import {useNewFederatedObservableStore, StoreContext} from "@model-driven-data/federated-observable-store-react/store";
-import {CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/core";
-import {useResource} from "@model-driven-data/federated-observable-store-react/use-resource";
+import {useNewFederatedObservableStore, StoreContext} from "@dataspecer/federated-observable-store-react/store";
+import {CoreResourceReader, CoreResourceWriter} from "@dataspecer/core/core";
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 
 const yourCoreStore: CoreResourceReader & CoreResourceWriter = ...;
 

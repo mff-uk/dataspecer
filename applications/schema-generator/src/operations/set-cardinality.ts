@@ -1,6 +1,6 @@
-import {ComplexOperation} from "@model-driven-data/federated-observable-store/complex-operation";
-import {PimSetCardinality} from "@model-driven-data/core/pim/operation/pim-set-cardinality";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
+import {PimSetCardinality} from "@dataspecer/core/pim/operation/pim-set-cardinality";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetCardinality implements ComplexOperation {
   readonly pimResource: string;

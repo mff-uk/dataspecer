@@ -1,5 +1,5 @@
 {
-  "name": "@model-driven-data/backend-utils",
+  "name": "@dataspecer/backend-utils",
   "version": "0.0.0",
   "scripts": {
     "build": "node copy-package-json.js && tsc"
@@ -11,6 +11,6 @@
     "directory": "lib"
   },
   "dependencies": {
-    "@model-driven-data/core": "^0.0.0"
+    "@dataspecer/core": "^0.0.0"
   }
 }

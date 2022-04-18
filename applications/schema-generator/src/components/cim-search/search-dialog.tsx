@@ -3,19 +3,19 @@ import React, {memo, useContext, useEffect, useMemo, useState} from "react";
 import {BehaviorSubject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
 import {useTranslation} from "react-i18next";
-import {PimClass} from "@model-driven-data/core/pim/model";
+import {PimClass} from "@dataspecer/core/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {ConfigurationContext} from "../App";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
-import {ReadOnlyMemoryStore} from "@model-driven-data/core/core";
+import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import {CloseDialogButton} from "../detail/components/close-dialog-button";
 import {dialog, DialogParameters, useDialog} from "../../dialog";
 import {translateFrom} from "../helper/LanguageStringComponents";
-import {useFederatedObservableStore} from "@model-driven-data/federated-observable-store-react/store";
-import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@model-driven-data/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
 export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass) => void}>
     = dialog({maxWidth: "md", fullWidth: true}, memo(({close, selected}) => {
