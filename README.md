@@ -8,10 +8,12 @@ General documentation can be found in [the documentation directory](./documentat
 - [@dataspecer/federated-observable-store](./packages/federated-observable-store) package
 - [@dataspecer/federated-observable-store-react](./packages/federated-observable-store-react) package
 
+<!-- -->
 
 - [editor](./applications/editor) application
 - [manager](./applications/manager) application
 
+<!-- -->
 
 - [backend](./services/backend) service
 
