@@ -1,5 +1,5 @@
 ---
-title: "Demo site⚡"
+title: "Demo site ⚡"
 url: "/demo/"
 ---
 
