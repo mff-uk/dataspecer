@@ -8,8 +8,8 @@ declare global {
             // To change the basename, change also "homepage" attribute in package.json
             REACT_APP_BASENAME: string;
 
-            // URL of applications/specification-manager
-            REACT_APP_SCHEMA_GENERATOR: string;
+            // URL of applications/editor
+            REACT_APP_EDITOR: string;
 
             // Current version string that will be shown in footer
             // @optional

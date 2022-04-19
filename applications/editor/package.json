@@ -1,5 +1,5 @@
 {
-  "name": "schema-generator",
+  "name": "editor",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

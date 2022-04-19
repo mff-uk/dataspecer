@@ -1,10 +1,10 @@
 * @sstenchlak
 
-# schema-generator application
-/applications/schema-generator/ @sstenchlak
+# editor application
+/applications/editor/ @sstenchlak
 
-# specification-manager application
-/applications/specification-manager/ @sstenchlak
+# manager application
+/applications/manager/ @sstenchlak
 
 # packages
 /packages/backend-utils/ @sstenchlak

@@ -2,8 +2,8 @@
 This codebase is managed by Lerna.
 For more information please see individual packages and applications.
 - [@dataspecer/core](./packages/core) package
-- [schema-generator](./applications/schema-generator) application
-- [specification-manager](./applications/specification-manager) application
+- [editor](./applications/editor) application
+- [manager](./applications/manager) application
 - [backend](./services/backend) service
 - *and other packages under [@dataspecer/*](./packages)*
 
