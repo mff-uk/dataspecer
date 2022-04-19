@@ -3,7 +3,6 @@ import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {PimSchema} from "@dataspecer/core/pim/model";
 import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
 
-
 describe("FederatedObservableStore reading", () => {
     let store: FederatedObservableStore = null;
     let coreReader = ReadOnlyMemoryStore.create({

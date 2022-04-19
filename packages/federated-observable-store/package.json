@@ -2,7 +2,8 @@
   "name": "@dataspecer/federated-observable-store",
   "version": "0.0.0",
   "scripts": {
-    "build": "node copy-package-json.js && tsc"
+    "build": "node copy-package-json.js && tsc",
+    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
