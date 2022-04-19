@@ -1,7 +1,7 @@
 import {CoreResource} from "@dataspecer/core/core";
 
 /**
- * Interface for immediate access to resources.
+ * Interface for immediate access to resources without using promises.
  */
 export interface ImmediateCoreResourceReader {
     /**

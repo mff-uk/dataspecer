@@ -9,6 +9,12 @@ const loadingEmptyLink = {
     isLoading: true, // The whole idea is that if IRI is null, that means that some other resource is being loaded, therefore transitively also this resource is loading
 }
 
+/**
+ * Returns resource data if available, with info, whether the resource is being loaded. It automatically re-renders the
+ * component, if the resource has changed, either by operation, or store manipulation.
+ *
+ * @param iri
+ */
 export const useResource = <ResourceType extends CoreResource>(iri: string | null) => {
     const store = useContext(StoreContext);
     const [state, setState] = useState<Resource<ResourceType>>(() => {

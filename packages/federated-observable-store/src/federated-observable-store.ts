@@ -60,6 +60,11 @@ function isPromise<T>(value: Promise<T>|T): value is Promise<T> {
     return value instanceof Promise;
 }
 
+/**
+ * Federates multiple stores into one, allowing reading and modifying resources, observing changes and caching the results.
+ *
+ * @see {@link ../README.md README file}
+ */
 export class FederatedObservableStore implements CoreResourceReader, FederatedCoreResourceWriter {
     // Individual source stores that are used to read and write resources
     private stores: StoreWrapper[] = [];
