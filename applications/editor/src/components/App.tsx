@@ -67,8 +67,8 @@ const App: React.FC = () => {
                 <CssBaseline />
                 <AppBar position="static">
                     <Toolbar>
-                        <Typography variant="h6">
-                            {t("title")}
+                        <Typography variant="h6" sx={{fontWeight: "normal"}}>
+                            <strong>Dataspecer</strong> {t("title")}
                         </Typography>
                         {backlink && backlink.length > 0 &&
                             <ThemeProvider theme={ButtonMenuTheme}>

@@ -90,8 +90,8 @@ function App() {
                                 <FilterContext.Provider value={filter}>
                                     <AppBar position="static">
                                         <Toolbar>
-                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none"}}>
-                                                Specification manager
+                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                                <strong>Dataspecer</strong> specification manager
                                             </Typography>
                                         </Toolbar>
                                     </AppBar>
