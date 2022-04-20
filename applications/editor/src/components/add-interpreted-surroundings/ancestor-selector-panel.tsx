@@ -7,9 +7,9 @@ import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStri
 import {PimClass} from "@dataspecer/core/pim/model";
 import {ConfigurationContext} from "../App";
 import {CoreResourceReader, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
-import {useDialog} from "../../hooks/useDialog";
+import {useDialog} from "../../hooks/use-dialog";
 import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
 import {StoreContext, useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 

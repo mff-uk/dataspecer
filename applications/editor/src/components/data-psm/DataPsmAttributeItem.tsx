@@ -1,5 +1,5 @@
 import React, {memo, useCallback} from "react";
-import {useToggle} from "../../hooks/useToggle";
+import {useToggle} from "../../hooks/use-toggle";
 import {DataPsmClassPartItemProperties, useItemStyles} from "./PsmItemCommon";
 import {useTranslation} from "react-i18next";
 import {DataPsmDeleteButton} from "./class/DataPsmDeleteButton";

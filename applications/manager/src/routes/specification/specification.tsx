@@ -6,7 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {saveAs} from "file-saver";
 import LoadingButton from '@mui/lab/LoadingButton';
 import {BackendConnectorContext, ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
-import {useConstructedStoresFromDescriptors} from "../../store/use-stores-by-descriptors";
+import {useConstructedStoresFromDescriptors} from "../../utils/use-stores-by-descriptors";
 import {DataStructureRow} from "./data-structure-row";
 import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
 import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";

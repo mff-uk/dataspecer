@@ -4,6 +4,11 @@ import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/dat
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import { PlantUmlGenerator, PlantUmlGeneratorObject } from "@dataspecer/core/plant-uml";
 
+/**
+ * Generates PlantUml images from the given data specification.
+ *
+ * The code uses plantuml.com api and therefore is not in core package.
+ */
 export class PlantUmlImageGenerator implements ArtefactGenerator {
   static readonly IDENTIFIER = PlantUmlGenerator.IDENTIFIER + "/image";
 

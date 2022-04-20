@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useMemo} from "react";
-import {useToggle} from "../../hooks/useToggle";
+import {useToggle} from "../../hooks/use-toggle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {DataPsmClassPartItemProperties, useItemStyles} from "./PsmItemCommon";

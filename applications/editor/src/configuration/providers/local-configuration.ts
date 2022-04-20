@@ -5,11 +5,11 @@ import {PimCreateSchema} from "@dataspecer/core/pim/operation";
 import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {useAsyncMemo} from "../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useMemo} from "react";
-import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
-import {Configuration} from "./configuration";
-import {OperationContext} from "../operations/context/operation-context";
+import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
+import {Configuration} from "../configuration";
+import {OperationContext} from "../../operations/context/operation-context";
 
 /**
  * Creates a configuration, that is purely local and does not require any

@@ -1,5 +1,5 @@
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../../hooks/use-async-memo";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";

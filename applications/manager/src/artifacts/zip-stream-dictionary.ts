@@ -3,6 +3,10 @@ import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {InputStream} from "@dataspecer/core/io/stream/input-stream";
 import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
 
+/**
+ * Stream dictionary, that can create zip files instead of saving the content
+ * directly to the file system. Some methods have missing implementation.
+ */
 export class ZipStreamDictionary implements StreamDictionary {
     private readonly zip: JSZip;
 

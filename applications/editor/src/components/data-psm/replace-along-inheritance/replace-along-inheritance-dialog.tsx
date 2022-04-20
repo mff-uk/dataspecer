@@ -2,11 +2,11 @@ import {Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, Lis
 import React, {memo, useCallback, useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {dialog, useDialog} from "../../../dialog";
-import {useAsyncMemo} from "../../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../../hooks/use-async-memo";
 import {Item} from "./item";
 import {CLASS} from "@dataspecer/core/pim/pim-vocabulary";
-import {isPimAncestorOf} from "../../../store/utils/is-ancestor-of";
-import {getPimHavingInterpretation} from "../../../store/utils/get-pim-having-interpretation";
+import {isPimAncestorOf} from "../../../utils/is-ancestor-of";
+import {getPimHavingInterpretation} from "../../../utils/get-pim-having-interpretation";
 import {ReplaceAlongInheritance} from "../../../operations/replace-along-inheritance";
 import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
 import {StoreContext, useFederatedObservableStore, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";

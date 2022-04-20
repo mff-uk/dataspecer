@@ -17,6 +17,9 @@ async function writeToStreamDictionary(
     await stream.close();
 }
 
+/**
+ * Class handling a construction of the zip file. Configuration, helper files, etc.
+ */
 export class DefaultArtifactBuilder {
     private readonly store: CoreResourceReader;
     private readonly dataSpecifications: DataSpecifications;

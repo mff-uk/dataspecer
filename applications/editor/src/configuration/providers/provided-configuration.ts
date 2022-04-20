@@ -1,4 +1,4 @@
-import {Configuration} from "./configuration";
+import {Configuration} from "../configuration";
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
 import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
@@ -7,11 +7,11 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
-import {useAsyncMemo} from "../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useEffect, useMemo, useState} from "react";
-import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
+import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
-import {OperationContext} from "../operations/context/operation-context";
+import {OperationContext} from "../../operations/context/operation-context";
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly

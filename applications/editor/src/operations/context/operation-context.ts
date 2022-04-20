@@ -1,6 +1,6 @@
 import {PimResource} from "@dataspecer/core/pim/model";
 import { removeDiacritics } from "../../utils/remove-diacritics";
-import { selectLanguage } from "../../utils/selectLanguage";
+import { selectLanguage } from "../../utils/select-language";
 import {TechnicalLabelOperationContext} from "./technical-label-operation-context";
 
 /**

@@ -4,7 +4,7 @@ import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpre
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
-import {selectLanguage} from "../../utils/selectLanguage";
+import {selectLanguage} from "../../utils/select-language";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmClassCard} from "./components/data-psm-class-card";
 import {ResourceInStore} from "./components/resource-in-store";

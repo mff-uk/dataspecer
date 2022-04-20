@@ -1,13 +1,13 @@
 # Code style
-As more developers contribute to this code it become clear that we need to agree on a common codestyle.
-Without it, each file would look different, it would also not be clear which code style should be used when one developer edit file from other developer.
-There could also be discussion about line endings, line len, variable naming etc...
+As more developers contribute to this code, it becomes clear that we need to agree on a common code style.
+Without it, each file would look different; it would also not be clear which code style should be used when one developer edits file from other developer.
+There could also be discussion about line endings, line length, variable naming etc...
 While a solution is to enforce consistent code style across the whole monorepo, we respect that developers may have strong preferences.
 To address this, the code style is not enforced globally but on the level of individual packages.
-Each package can thus define its own codestyle, preferably using [ESlint](https://eslint.org/).
+Each package can thus define its own code style, preferably using [ESlint](https://eslint.org/).
 
 Despite that, there are few rules that should be respected in the whole monorepo and are specified in the root ESlint configuration file.
- * The first rule is use of Linux style line endings. 
+ * The first rule is the use of Linux style line endings. 
  * The second one is using double quotes. 
    The main benefit from this decision is to allow developer to use same type of quotes in different languages. 
    Double quotes can be used in JavaScript, TypeScript, JSON, Java, C++, Python, ... the same is not true for single quotes.

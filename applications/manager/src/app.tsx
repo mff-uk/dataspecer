@@ -6,7 +6,7 @@ import {Specification} from "./routes/specification/specification";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
 import {StoreContext, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {useConstructedStoresFromDescriptors} from "./store/use-stores-by-descriptors";
+import {useConstructedStoresFromDescriptors} from "./utils/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";

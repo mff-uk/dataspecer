@@ -3,9 +3,12 @@ import {Button, Menu, MenuItem} from "@mui/material";
 import TranslateIcon from "@mui/icons-material/Translate";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {useTranslation} from "react-i18next";
-import {useToggle} from "../hooks/useToggle";
+import {useToggle} from "../hooks/use-toggle";
 import {languages} from "../i18n";
 
+/**
+ * The button in top application bar which selects the language of the application.
+ */
 export const LanguageSelector: React.FC = () => {
     const {t, i18n} = useTranslation(["_"]);
     const ref = useRef(null);

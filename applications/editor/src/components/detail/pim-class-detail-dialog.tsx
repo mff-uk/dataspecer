@@ -3,7 +3,7 @@ import {Box, DialogContentText, Grid, Tab, Tabs} from "@mui/material";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {PimClass} from "@dataspecer/core/pim/model";
-import {selectLanguage} from "../../utils/selectLanguage";
+import {selectLanguage} from "../../utils/select-language";
 import {useTranslation} from "react-i18next";
 import {InDifferentLanguages} from "./components/InDifferentLanguages";
 import {CimLinks} from "./components/cim-links";

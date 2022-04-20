@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import {DataPsmAssociationEnd, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
-import {selectLanguage} from "../../utils/selectLanguage";
+import {selectLanguage} from "../../utils/select-language";
 import {usePimAssociationFromPimAssociationEnd} from "../data-psm/use-pim-association-from-pim-association-end";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {DataPsmAssociationEndCard} from "./components/data-psm-association-end-card";

@@ -2,7 +2,7 @@ import React, {useRef} from "react";
 import {Menu, MenuItem} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {useToggle} from "../../../hooks/useToggle";
+import {useToggle} from "../../../hooks/use-toggle";
 
 /**
  * Creates a menu "More" button with a submenu as child.

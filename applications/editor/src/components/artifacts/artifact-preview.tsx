@@ -1,6 +1,6 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {Alert, Container, Fab, Paper} from "@mui/material";
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {ConfigurationContext} from "../App";
 import {useTranslation} from "react-i18next";
 import CloseIcon from '@mui/icons-material/Close';

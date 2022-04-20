@@ -1,9 +1,21 @@
 editor
 ======
 
+The webapp where you can edit and create individual data schemas. The main part of the application is the schema visualized as a tree. You can add entities, search for them, modify them, link other schemas etc.
+
+The editor itself can be used as a stand-alone app only for testing purposes. It needs context provided by the [manager](../manager) to make the changes persistent.
+
+## Documentation
+
+See individual directories for README.md files with documentation or documentation in code.
+
+Most relevant starting component is [src/components/App.tsx](src/components/App.tsx).
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Installation instructions
+## Build instructions
 
 1. Clone the whole mono repository. `git clone ...`
 2. Optionally create `./env.local` file that overrides `./.env` or use environmental variables during the build.

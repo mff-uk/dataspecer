@@ -1,5 +1,5 @@
 import React, {useMemo} from "react";
-import {useDialog} from "../hooks/useDialog";
+import {useDialog} from "../hooks/use-dialog";
 import {LabelAndDescriptionLanguageStrings, LabelDescriptionEditor} from "./helper/LabelDescriptionEditor";
 
 interface Context {

@@ -1,5 +1,5 @@
 // todo This hook is just temporary until we fix problem with accessing the association from its association end.
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {PimAssociation} from "@dataspecer/core/pim/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
