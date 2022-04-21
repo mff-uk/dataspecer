@@ -2,7 +2,10 @@
 
 ## Documentation
 
-General documentation can be found in [the documentation directory](./documentation), containing design decisions and project structure. Start there. For more information about individual packages, applications, and services, please see the given directory.
+General documentation can be found in [the documentation directory](./documentation), containing design decisions and a project structure. Start there if you want to know the basic structure.
+
+For more information about individual packages, applications, and services, please see the given directory. Each contains a README.md file with build instructions and additional documentation.
+
 - [@dataspecer/backend-utils](./packages/backend-utils) package
 - [@dataspecer/core](./packages/core) package
 - [@dataspecer/federated-observable-store](./packages/federated-observable-store) package
