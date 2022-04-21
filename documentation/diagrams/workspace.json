@@ -1,0 +1,680 @@
+{
+    "id": 73542,
+    "name": "Dataspecer",
+    "description": "Description",
+    "revision": 7,
+    "lastModifiedDate": "2022-04-21T10:48:03Z",
+    "lastModifiedUser": "s.stenchlak@gmail.com",
+    "lastModifiedAgent": "structurizr-web/2716/dsl",
+    "properties": {
+        "structurizr.dsl": "d29ya3NwYWNlICJEYXRhc3BlY2VyIiAiRGVzY3JpcHRpb24iIHsKCiAgICBtb2RlbCB7CiAgICAgICAgb250b2xvZ3kgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZGF0YWJhc2UiICJDb250YWlucyB0aGUgZG9tYWluIG9udG9sb2d5IHRoYXQgaXMgdXNlZCB0byBjcmVhdGUgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgb250b2xvZ3lFZGl0b3IgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZWRpdG9yIiAiRXh0ZXJuYWwgc3lzdGVtIHRoYXQgaXMgdXNlZCB0byBlZGl0IHRoZSBvbnRvbG9neSIKICAgICAgICBzb2xpZCA9IHNvZnR3YXJlU3lzdGVtICJTT0xJRCBwb2RzIiAiRXh0ZXJuYWwgc3RvcmFnZSBmb3IgZGF0YSBzcGVjaWZpY2F0aW9ucyBhbmQgZGF0YSBzY2hlbWFzIiAiTm90IGltcGxlbWVudGVkIgogICAgICAgIHVzZXIgPSBwZXJzb24gIlNjaGVtYSBkZXNpZ25lciIgIiIgIkludGVybmFsIHVzZXIiCiAgICAgICAgZGF0YU1vZGVsbGVyID0gcGVyc29uICJEYXRhIG1vZGVsbGVyIgogICAgICAgIGRhdGFzcGVjZXIgPSBzb2Z0d2FyZVN5c3RlbSAiRGF0YXNwZWNlciIgIlRvb2wgZm9yIG1hbmFnZW1lbnQgb2YgZGF0YSBzcGVjaWZpY2F0aW9ucyIgIkludGVybmFsIHN5c3RlbSIgewogICAgICAgICAgICBncm91cCAiVXNlZCBhcyBhIHNpbmdsZSB3ZWIgYXBwIiB7CiAgICAgICAgICAgICAgICBlZGl0b3IgPSBjb250YWluZXIgIlNjaGVtYSBlZGl0b3IiICJFZGl0cyB0aGUgZ2l2ZW4gc2NoZW1hIiAiVHlwZXNjcmlwdCwgUmVhY3QiICJXZWIgRnJvbnQtRW5kIiB7CiAgICAgICAgICAgICAgICAgICAgZ3JvdXAgImNvcmUgcGFja2FnZSIgewogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsID0gY29tcG9uZW50ICJTdG9yZSBtb2RlbCIgIlN0b3JlIGNvbnRhaW5zIFBJTSBhbmQgRGF0YSBQU00gcmVzb3VyY2VzIHRoYXQgZGVzY3JpYmUgdGhlIGNvbnN0cnVjdGVkIHNjaGVtYSB0cmVlIiAiQ29yZVJlc291cmNlUmVhZGVyIgogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU9wZXJhdGlvbnMgPSBjb21wb25lbnQgIlN0b3JlIG9wZXJhdGlvbnMiICJBdG9taWMgb3BlcmF0aW9ucyB0aGF0IG1vZGlmeSB0aGUgcmVzb3VyY2UgaW4gdGhlIHN0b3JlIgogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU9wZXJhdGlvbnMgLT4gc3RvcmVNb2RlbCAiTW9kaWZ5IgogICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9ycyA9IGNvbXBvbmVudCAiQXJ0aWZhY3QgZ2VuZXJhdG9ycyIgIkdlbmVyYXRlcyBzY2hlbWFzIGFuZCBkb2N1bWVudGF0aW9uIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsV3JhcHBlciA9IGNvbXBvbmVudCAiU3RvcmUgbW9kZWwgd3JhcHBlciIgIk1hbmFnZXMgbXVsdGlwbGUgc3RvcmVzIGFzIG9uZSBhbmQgcHJvdmlkZXMgaW50ZXJmYWNlIGZvciBlYXNpZXIgYWNjZXNzIHRvIHRoZSBkYXRhLiIgIkZlZGVyYXRlZE9ic2VydmFibGVTdG9yZSIKICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsV3JhcHBlciAtPiBzdG9yZU1vZGVsICJNYW5hZ2VzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zID0gY29tcG9uZW50ICJDb21wbGV4IG9wZXJhdGlvbnMiICJTZXQgb2YgYWR2YW5jZWQgb3BlcmF0aW9ucyB0aGF0IGNhbiBwZXJmb3JtIGxhcmdlIHRhc2tzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zIC0+IHN0b3JlTW9kZWxXcmFwcGVyICJBcmUgZXhlY3V0ZWQgb24gbXVsdGlwbGUgc3RvcmVzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zIC0+IHN0b3JlT3BlcmF0aW9ucyAiVXNlIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIGNvbmZpZ3VyYXRpb24gPSBjb21wb25lbnQgIkNvbmZpZ3VyYXRpb24iICJDcmVhdGVzIHRoZSBzdG9yZXMsIHByb3ZpZGVzIHRoZSBjb250ZXh0IGluIHdoaWNoIHRoZSBlZGl0b3Igb3BlcmF0ZXMiCiAgICAgICAgICAgICAgICAgICAgY29uZmlndXJhdGlvbiAtPiBzdG9yZU1vZGVsICJDcmVhdGVzIGFuZCByZWdpc3RlcnMgc3RvcmVzIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIGFkZFN1cnJvdW5kaW5nc0RpYWxvZyA9IGNvbXBvbmVudCAiQWRkIHN1cnJvdW5kaW5ncyBkaWFsb2ciICJBZGRzIGVudGl0aWVzIHRvIHRoZSBzY2hlbWEgYnkgZXhwYW5kaW5nIGl0IgogICAgICAgICAgICAgICAgICAgIGFkZFN1cnJvdW5kaW5nc0RpYWxvZyAtPiBzdG9yZU1vZGVsV3JhcHBlciAiQWRkcyByZXNvdXJjZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSA9IGNvbXBvbmVudCAiVmlzdWFsaXplZCBzY2hlbWEiCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSAtPiBzdG9yZU1vZGVsV3JhcHBlciAiUmVhZHMgZGF0YSIKICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICBhcnRpZmFjdHNHZW5lcmF0b3JzIC0+IGNvbmZpZ3VyYXRpb24gIlJlYWQgZGF0YSBzcGVjaWZpY2F0aW9uIgogICAgICAgICAgICAgICAgICAgIGFydGlmYWN0c0dlbmVyYXRvcnMgLT4gc3RvcmVNb2RlbFdyYXBwZXIgIlJlYWQgcmVzb3VyY2VzIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgbWFuYWdlciA9IGNvbnRhaW5lciAiU2NoZW1hIG1hbmFnZXIiICJNYW5hZ2VzIGRhdGEgc3BlY2lmaWNhdGlvbnMsIGFjY2VzcywgZ2VuZXJhdGVzIGFydGlmYWN0cyIgIlR5cGVzY3JpcHQsIFJlYWN0IiAiV2ViIEZyb250LUVuZCIKICAgICAgICAgICAgfQogICAgICAgICAgICBiYWNrZW5kID0gY29udGFpbmVyICJCYWNrZW5kIHNlcnZpY2UiICJTZXJ2ZXMgYXMgYSBzdG9yYWdlIGZvciBkYXRhIHNwZWNpZmljYXRpb25zIGFuZCBkYXRhIHNjaGVtYXMiICJUeXBlc2NyaXB0LCBOb2RlIgogICAgICAgICAgICBjbGkgPSBjb250YWluZXIgIkNMSSBzZXJ2aWNlIiAiVG9vbCBmb3IgZ2VuZXJhdGluZyBhcnRpZmFjdHMgZnJvbSB0aGUgY29tbWFuZCBsaW5lIGluc3RlYWQgb2YgdXNpbmcgdGhlIG1hbmFnZXIgZGlyZWN0bHkiICJUeXBlc2NyaXB0LCBOb2RlIgogICAgICAgICAgICAKICAgICAgICAgICAgbWFuYWdlciAtPiBjb25maWd1cmF0aW9uICJPcGVucyB0aGUgZWRpdG9yIGluIGNvbnRleHQgb2YgZGF0YSBzY2hlbWEiCiAgICAgICAgICAgIHN0b3JlTW9kZWwgLT4gYmFja2VuZCAiUmVhZHMgYW5kIHdyaXRlcyBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgbWFuYWdlciAtPiBiYWNrZW5kICJSZWFkcyBhbmQgd3JpdGVzIHNjaGVtYXMgYW5kIHNwZWNpZmljYXRpb25zIgogICAgICAgICAgICBjbGkgLT4gYmFja2VuZCAiUmVhZHMgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIAogICAgICAgICAgICAKICAgICAgICAgICAgYWRkU3Vycm91bmRpbmdzRGlhbG9nIC0+IG9udG9sb2d5ICJSZWFkcyB0aGUgb250b2xvZ3kgdG8gZXh0ZW5kIHRoZSBzY2hlbWEiCiAgICAgICAgICAgIAogICAgICAgICAgICBtYW5hZ2VyIC0+IHNvbGlkICJSZWFkcyBhbmQgd3JpdGVzIHNjaGVtYXMgYW5kIHNwZWNpZmljYXRpb25zIgogICAgICAgICAgICBlZGl0b3IgLT4gc29saWQgIlJlYWRzIGFuZCB3cml0ZXMgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIGNsaSAtPiBzb2xpZCAiUmVhZHMgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgfQogICAgICAgIAogICAgICAgIC8vIGRhdGFzcGVjZXIgLT4gb250b2xvZ3kgIlJlYWRzIHRoZSBvbnRvbG9neSBhcyB0aGUgdXNlciBpcyBleHBhbmRpbmcgdGhlIHNjaGVtYSIKICAgICAgICB1c2VyIC0+IGRhdGFzcGVjZXIgIlVzZXMgdGhlIHRvb2wgdG8gY3JlYXRlIGRhdGEgc2NoZW1hcyIKICAgICAgICAvLyBkYXRhc3BlY2VyIC0+IHNvbGlkICJVc2VzIGV4dGVybmFsIHN0b3JhZ2UiCiAgICAgICAgZGF0YU1vZGVsbGVyIC0+IG9udG9sb2d5RWRpdG9yICJVc2VzIHRoZSBleHRlcm5hbCBvbnRvbG9neSBlZGl0b3IgdG8gY3JlYXRlIHRoZSBvbnRvbG9neSIKICAgICAgICBvbnRvbG9neUVkaXRvciAtPiBvbnRvbG9neSAiTW9kaWZpZXMgdGhlIG9udG9sb2d5IgogICAgfQogICAgCiAgICB2aWV3cyB7CiAgICAgICAgc3lzdGVtQ29udGV4dCBkYXRhc3BlY2VyIGRhdGFzcGVjZXJWaWV3ICJEYXRhc3BlY2VyIHN5c3RlbSBjb250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKiBvbnRvbG9neUVkaXRvciBkYXRhTW9kZWxsZXIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KICAgICAgICAKICAgICAgICBjb250YWluZXIgZGF0YXNwZWNlciBkYXRhc3BlY2VyQ29udGFpbmVyVmlldyAiRGF0YXNwZWNlciBjb250YWluZXJzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKiBzb2xpZCBvbnRvbG9neQogICAgICAgIH0KICAgICAgICAKICAgICAgICBjb21wb25lbnQgZWRpdG9yIGVkaXRvckNvbXBvbmVudFZpZXcgIkVkaXRvciBjb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgIH0KICAgICAgICAKICAgICAgICBzdHlsZXMgewogICAgICAgICAgICBlbGVtZW50ICJJbnRlcm5hbCBzeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICBlbGVtZW50ICJFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICBlbGVtZW50ICJJbnRlcm5hbCB1c2VyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMwODQyN2IKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAiUGVyc29uIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBQZXJzb24KICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICAgICAgZWxlbWVudCAiQ29udGFpbmVyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJXZWIgRnJvbnQtRW5kIiAgewogICAgICAgICAgICAgICAgc2hhcGUgV2ViQnJvd3NlcgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIk5vdCBpbXBsZW1lbnRlZCIgewogICAgICAgICAgICAgICAgY29sb3IgIzk2OTY5NgogICAgICAgICAgICAgICAgc2hhcGUgRm9sZGVyCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29tcG9uZW50IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1MGE4ZmYKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICB9Cgp9Cg=="
+    },
+    "model": {
+        "people": [
+            {
+                "id": "5",
+                "tags": "Element,Person",
+                "name": "Data modeller",
+                "relationships": [
+                    {
+                        "id": "42",
+                        "tags": "Relationship",
+                        "sourceId": "5",
+                        "destinationId": "2",
+                        "description": "Uses the external ontology editor to create the ontology"
+                    }
+                ],
+                "location": "Unspecified"
+            },
+            {
+                "id": "4",
+                "tags": "Element,Person,Internal user",
+                "name": "Schema designer",
+                "relationships": [
+                    {
+                        "id": "41",
+                        "tags": "Relationship",
+                        "sourceId": "4",
+                        "destinationId": "6",
+                        "description": "Uses the tool to create data schemas"
+                    }
+                ],
+                "location": "Unspecified"
+            }
+        ],
+        "softwareSystems": [
+            {
+                "id": "6",
+                "tags": "Element,Software System,Internal system",
+                "name": "Dataspecer",
+                "description": "Tool for management of data specifications",
+                "relationships": [
+                    {
+                        "id": "36",
+                        "sourceId": "6",
+                        "destinationId": "1",
+                        "description": "Reads the ontology to extend the schema",
+                        "linkedRelationshipId": "34"
+                    },
+                    {
+                        "id": "38",
+                        "sourceId": "6",
+                        "destinationId": "3",
+                        "description": "Reads and writes schemas and specifications",
+                        "linkedRelationshipId": "37"
+                    }
+                ],
+                "location": "Unspecified",
+                "containers": [
+                    {
+                        "id": "26",
+                        "tags": "Element,Container",
+                        "name": "Backend service",
+                        "description": "Serves as a storage for data specifications and data schemas",
+                        "technology": "Typescript, Node"
+                    },
+                    {
+                        "id": "27",
+                        "tags": "Element,Container",
+                        "name": "CLI service",
+                        "description": "Tool for generating artifacts from the command line instead of using the manager directly",
+                        "relationships": [
+                            {
+                                "id": "33",
+                                "tags": "Relationship",
+                                "sourceId": "27",
+                                "destinationId": "26",
+                                "description": "Reads schemas and specifications"
+                            },
+                            {
+                                "id": "40",
+                                "tags": "Relationship",
+                                "sourceId": "27",
+                                "destinationId": "3",
+                                "description": "Reads schemas and specifications"
+                            }
+                        ],
+                        "technology": "Typescript, Node"
+                    },
+                    {
+                        "id": "7",
+                        "tags": "Element,Container,Web Front-End",
+                        "name": "Schema editor",
+                        "description": "Edits the given schema",
+                        "relationships": [
+                            {
+                                "id": "35",
+                                "sourceId": "7",
+                                "destinationId": "1",
+                                "description": "Reads the ontology to extend the schema",
+                                "linkedRelationshipId": "34"
+                            },
+                            {
+                                "id": "31",
+                                "sourceId": "7",
+                                "destinationId": "26",
+                                "description": "Reads and writes specifications",
+                                "linkedRelationshipId": "30"
+                            },
+                            {
+                                "id": "39",
+                                "tags": "Relationship",
+                                "sourceId": "7",
+                                "destinationId": "3",
+                                "description": "Reads and writes specifications"
+                            }
+                        ],
+                        "group": "Used as a single web app",
+                        "technology": "Typescript, React",
+                        "components": [
+                            {
+                                "id": "19",
+                                "tags": "Element,Component",
+                                "name": "Add surroundings dialog",
+                                "description": "Adds entities to the schema by expanding it",
+                                "relationships": [
+                                    {
+                                        "id": "20",
+                                        "tags": "Relationship",
+                                        "sourceId": "19",
+                                        "destinationId": "12",
+                                        "description": "Adds resources"
+                                    },
+                                    {
+                                        "id": "34",
+                                        "tags": "Relationship",
+                                        "sourceId": "19",
+                                        "destinationId": "1",
+                                        "description": "Reads the ontology to extend the schema"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "11",
+                                "tags": "Element,Component",
+                                "name": "Artifact generators",
+                                "description": "Generates schemas and documentation",
+                                "relationships": [
+                                    {
+                                        "id": "23",
+                                        "tags": "Relationship",
+                                        "sourceId": "11",
+                                        "destinationId": "17",
+                                        "description": "Read data specification"
+                                    },
+                                    {
+                                        "id": "24",
+                                        "tags": "Relationship",
+                                        "sourceId": "11",
+                                        "destinationId": "12",
+                                        "description": "Read resources"
+                                    }
+                                ],
+                                "group": "core package",
+                                "size": 0
+                            },
+                            {
+                                "id": "14",
+                                "tags": "Element,Component",
+                                "name": "Complex operations",
+                                "description": "Set of advanced operations that can perform large tasks",
+                                "relationships": [
+                                    {
+                                        "id": "15",
+                                        "tags": "Relationship",
+                                        "sourceId": "14",
+                                        "destinationId": "12",
+                                        "description": "Are executed on multiple stores"
+                                    },
+                                    {
+                                        "id": "16",
+                                        "tags": "Relationship",
+                                        "sourceId": "14",
+                                        "destinationId": "9",
+                                        "description": "Use"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "17",
+                                "tags": "Element,Component",
+                                "name": "Configuration",
+                                "description": "Creates the stores, provides the context in which the editor operates",
+                                "relationships": [
+                                    {
+                                        "id": "18",
+                                        "tags": "Relationship",
+                                        "sourceId": "17",
+                                        "destinationId": "8",
+                                        "description": "Creates and registers stores"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "8",
+                                "tags": "Element,Component",
+                                "name": "Store model",
+                                "description": "Store contains PIM and Data PSM resources that describe the constructed schema tree",
+                                "relationships": [
+                                    {
+                                        "id": "30",
+                                        "tags": "Relationship",
+                                        "sourceId": "8",
+                                        "destinationId": "26",
+                                        "description": "Reads and writes specifications"
+                                    }
+                                ],
+                                "group": "core package",
+                                "technology": "CoreResourceReader",
+                                "size": 0
+                            },
+                            {
+                                "id": "12",
+                                "tags": "Element,Component",
+                                "name": "Store model wrapper",
+                                "description": "Manages multiple stores as one and provides interface for easier access to the data.",
+                                "relationships": [
+                                    {
+                                        "id": "13",
+                                        "tags": "Relationship",
+                                        "sourceId": "12",
+                                        "destinationId": "8",
+                                        "description": "Manages"
+                                    }
+                                ],
+                                "technology": "FederatedObservableStore",
+                                "size": 0
+                            },
+                            {
+                                "id": "9",
+                                "tags": "Element,Component",
+                                "name": "Store operations",
+                                "description": "Atomic operations that modify the resource in the store",
+                                "relationships": [
+                                    {
+                                        "id": "10",
+                                        "tags": "Relationship",
+                                        "sourceId": "9",
+                                        "destinationId": "8",
+                                        "description": "Modify"
+                                    }
+                                ],
+                                "group": "core package",
+                                "size": 0
+                            },
+                            {
+                                "id": "21",
+                                "tags": "Element,Component",
+                                "name": "Visualized schema",
+                                "relationships": [
+                                    {
+                                        "id": "22",
+                                        "tags": "Relationship",
+                                        "sourceId": "21",
+                                        "destinationId": "12",
+                                        "description": "Reads data"
+                                    }
+                                ],
+                                "size": 0
+                            }
+                        ]
+                    },
+                    {
+                        "id": "25",
+                        "tags": "Element,Container,Web Front-End",
+                        "name": "Schema manager",
+                        "description": "Manages data specifications, access, generates artifacts",
+                        "relationships": [
+                            {
+                                "id": "37",
+                                "tags": "Relationship",
+                                "sourceId": "25",
+                                "destinationId": "3",
+                                "description": "Reads and writes schemas and specifications"
+                            },
+                            {
+                                "id": "29",
+                                "sourceId": "25",
+                                "destinationId": "7",
+                                "description": "Opens the editor in context of data schema",
+                                "linkedRelationshipId": "28"
+                            },
+                            {
+                                "id": "32",
+                                "tags": "Relationship",
+                                "sourceId": "25",
+                                "destinationId": "26",
+                                "description": "Reads and writes schemas and specifications"
+                            },
+                            {
+                                "id": "28",
+                                "tags": "Relationship",
+                                "sourceId": "25",
+                                "destinationId": "17",
+                                "description": "Opens the editor in context of data schema"
+                            }
+                        ],
+                        "group": "Used as a single web app",
+                        "technology": "Typescript, React"
+                    }
+                ],
+                "documentation": {}
+            },
+            {
+                "id": "1",
+                "tags": "Element,Software System",
+                "name": "Ontology database",
+                "description": "Contains the domain ontology that is used to create schemas and specifications",
+                "location": "Unspecified",
+                "documentation": {}
+            },
+            {
+                "id": "2",
+                "tags": "Element,Software System",
+                "name": "Ontology editor",
+                "description": "External system that is used to edit the ontology",
+                "relationships": [
+                    {
+                        "id": "43",
+                        "tags": "Relationship",
+                        "sourceId": "2",
+                        "destinationId": "1",
+                        "description": "Modifies the ontology"
+                    }
+                ],
+                "location": "Unspecified",
+                "documentation": {}
+            },
+            {
+                "id": "3",
+                "tags": "Element,Software System,Not implemented",
+                "name": "SOLID pods",
+                "description": "External storage for data specifications and data schemas",
+                "location": "Unspecified",
+                "documentation": {}
+            }
+        ],
+        "customElements": [],
+        "deploymentNodes": []
+    },
+    "documentation": {
+        "sections": [],
+        "decisions": [],
+        "images": []
+    },
+    "views": {
+        "systemContextViews": [
+            {
+                "softwareSystemId": "6",
+                "description": "Dataspecer system context",
+                "key": "dataspecerView",
+                "order": 1,
+                "paperSize": "A5_Portrait",
+                "dimensions": {
+                    "width": 1616,
+                    "height": 2016
+                },
+                "automaticLayout": {
+                    "implementation": "Graphviz",
+                    "rankDirection": "TopBottom",
+                    "rankSeparation": 300,
+                    "nodeSeparation": 300,
+                    "edgeSeparation": 0,
+                    "vertices": false
+                },
+                "enterpriseBoundaryVisible": true,
+                "elements": [
+                    {
+                        "id": "1",
+                        "x": 207,
+                        "y": 1507
+                    },
+                    {
+                        "id": "2",
+                        "x": 207,
+                        "y": 907
+                    },
+                    {
+                        "id": "3",
+                        "x": 957,
+                        "y": 1507
+                    },
+                    {
+                        "id": "4",
+                        "x": 982,
+                        "y": 207
+                    },
+                    {
+                        "id": "5",
+                        "x": 232,
+                        "y": 207
+                    },
+                    {
+                        "id": "6",
+                        "x": 957,
+                        "y": 907
+                    }
+                ],
+                "relationships": [
+                    {
+                        "id": "36"
+                    },
+                    {
+                        "id": "41"
+                    },
+                    {
+                        "id": "42"
+                    },
+                    {
+                        "id": "43"
+                    },
+                    {
+                        "id": "38"
+                    }
+                ],
+                "animations": []
+            }
+        ],
+        "containerViews": [
+            {
+                "softwareSystemId": "6",
+                "description": "Dataspecer containers",
+                "key": "dataspecerContainerView",
+                "order": 2,
+                "dimensions": {
+                    "width": 2500,
+                    "height": 2158
+                },
+                "externalSoftwareSystemBoundariesVisible": true,
+                "elements": [
+                    {
+                        "id": "1",
+                        "x": 240,
+                        "y": 200
+                    },
+                    {
+                        "id": "3",
+                        "x": 1030,
+                        "y": 205
+                    },
+                    {
+                        "id": "25",
+                        "x": 1030,
+                        "y": 880
+                    },
+                    {
+                        "id": "26",
+                        "x": 1030,
+                        "y": 1565
+                    },
+                    {
+                        "id": "27",
+                        "x": 1830,
+                        "y": 880
+                    },
+                    {
+                        "id": "7",
+                        "x": 240,
+                        "y": 880
+                    }
+                ],
+                "relationships": [
+                    {
+                        "id": "29"
+                    },
+                    {
+                        "id": "37"
+                    },
+                    {
+                        "id": "40"
+                    },
+                    {
+                        "id": "35"
+                    },
+                    {
+                        "id": "33"
+                    },
+                    {
+                        "id": "32"
+                    },
+                    {
+                        "id": "31"
+                    },
+                    {
+                        "id": "39"
+                    }
+                ],
+                "animations": []
+            }
+        ],
+        "componentViews": [
+            {
+                "description": "Editor components",
+                "key": "editorComponentView",
+                "order": 3,
+                "dimensions": {
+                    "width": 3400,
+                    "height": 3000
+                },
+                "containerId": "7",
+                "externalContainerBoundariesVisible": true,
+                "elements": [
+                    {
+                        "id": "11",
+                        "x": 1341,
+                        "y": 1194
+                    },
+                    {
+                        "id": "12",
+                        "x": 961,
+                        "y": 718
+                    },
+                    {
+                        "id": "1",
+                        "x": 2750,
+                        "y": 718
+                    },
+                    {
+                        "id": "25",
+                        "x": 1921,
+                        "y": 2499
+                    },
+                    {
+                        "id": "14",
+                        "x": 220,
+                        "y": 718
+                    },
+                    {
+                        "id": "26",
+                        "x": 961,
+                        "y": 2499
+                    },
+                    {
+                        "id": "17",
+                        "x": 1921,
+                        "y": 1785
+                    },
+                    {
+                        "id": "19",
+                        "x": 1921,
+                        "y": 718
+                    },
+                    {
+                        "id": "8",
+                        "x": 961,
+                        "y": 1785
+                    },
+                    {
+                        "id": "9",
+                        "x": 591,
+                        "y": 1194
+                    },
+                    {
+                        "id": "21",
+                        "x": 961,
+                        "y": 219
+                    }
+                ],
+                "relationships": [
+                    {
+                        "id": "32"
+                    },
+                    {
+                        "id": "20"
+                    },
+                    {
+                        "id": "10"
+                    },
+                    {
+                        "id": "30"
+                    },
+                    {
+                        "id": "18"
+                    },
+                    {
+                        "id": "28"
+                    },
+                    {
+                        "id": "16"
+                    },
+                    {
+                        "id": "15"
+                    },
+                    {
+                        "id": "24"
+                    },
+                    {
+                        "id": "13"
+                    },
+                    {
+                        "id": "23"
+                    },
+                    {
+                        "id": "34"
+                    },
+                    {
+                        "id": "22"
+                    }
+                ],
+                "animations": []
+            }
+        ],
+        "configuration": {
+            "branding": {},
+            "styles": {
+                "elements": [
+                    {
+                        "tag": "Internal system",
+                        "background": "#438dd5",
+                        "color": "#ffffff"
+                    },
+                    {
+                        "tag": "Existing System",
+                        "background": "#999999",
+                        "color": "#ffffff"
+                    },
+                    {
+                        "tag": "Internal user",
+                        "background": "#08427b",
+                        "color": "#ffffff"
+                    },
+                    {
+                        "tag": "Person",
+                        "shape": "Person"
+                    },
+                    {
+                        "tag": "Container",
+                        "background": "#438dd5",
+                        "color": "#ffffff"
+                    },
+                    {
+                        "tag": "Web Front-End",
+                        "shape": "WebBrowser"
+                    },
+                    {
+                        "tag": "Not implemented",
+                        "color": "#969696",
+                        "shape": "Folder"
+                    },
+                    {
+                        "tag": "Component",
+                        "background": "#50a8ff",
+                        "color": "#ffffff"
+                    }
+                ],
+                "relationships": []
+            },
+            "terminology": {},
+            "lastSavedView": "dataspecerContainerView",
+            "themes": []
+        },
+        "customViews": [],
+        "systemLandscapeViews": [],
+        "dynamicViews": [],
+        "deploymentViews": [],
+        "filteredViews": []
+    }
+}
