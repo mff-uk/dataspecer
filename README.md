@@ -15,6 +15,7 @@ For more information about individual packages, applications, and services, plea
 
 - [editor](./applications/editor) application
 - [manager](./applications/manager) application
+- [cli](./applications/cli) application
 
 <!-- -->
 

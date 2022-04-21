@@ -20,6 +20,7 @@ import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
 import {ModifySpecification} from "./modify-specification";
 import {SpecificationTags} from "../../components/specification-tags";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -97,7 +98,7 @@ export const Specification: React.FC = () => {
             }
 
             // Build store
-            const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor);
+            const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
             await store.load();
             constructedStores.push(store);
         }

@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
 import {EagerHttpSynchronizedStore} from "@dataspecer/backend-utils/stores/eager-http-synchronized-store";
-
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 /**
  * Takes an array of store descriptors and registers them properly in the
  * {@link FederatedObservableStore}.
@@ -32,7 +32,7 @@ export const useConstructedStoresFromDescriptors = (
                 }
 
                 if (!found) {
-                    const store = EagerHttpSynchronizedStore.createFromDescriptor(descriptor);
+                    const store = EagerHttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
                     constructedStoreCache.set(descriptor, store);
                     store.load().then(() => {
                         if ([...constructedStoreCache.values()].includes(store)) {
