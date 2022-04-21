@@ -7,7 +7,7 @@ The editor itself can be used as a stand-alone app only for testing purposes. It
 
 ## Documentation
 
-See individual directories for README.md files with documentation or documentation in code.
+See individual directories for README.md files with documentation or documentation in code. Or read the [project structure](documentation/2022-04-21-project-structure.md). 
 
 Most relevant starting component is [src/components/App.tsx](src/components/App.tsx).
 
