@@ -19,15 +19,14 @@
 
 ## Package documentation
 
-Some packages have no documentation or are just in a few sentences.
+Some packages have no documentation or just in a few sentences.
 
 ### Applications
 
 See the [project structure](#project-structure) if you are interested in that.
 
 - [Dataspecer cli - command line interface](../applications/cli/README.md)
-- [schema editor](../applications/editor/README.md)
-    
+- [schema editor](../applications/editor/README.md) \
   Functionality worth mentioning: 
   - [configuration](../applications/editor/src/configuration/README.md)
   - [complex operations](../applications/editor/src/operations/README.md)
