@@ -1,11 +1,15 @@
-# manager's components structure
+# manager application components structure
 
-The schema manager is a single-page application that communicates with the **[backend](../../../services/backend) service** to load and store data specifications and create schemas. It also opens the [editor](../../editor) in the context of data specification and schema that is being edited.
+The schema manager is a single-page application that communicates with the **[backend](../../../services/backend) service** to load and store data specifications and create schemas. It also opens the [editor](../../editor) application in the context of data specification and schema that is being edited.
 
-Similarly to the editor, the main components are **Store**, that represents storage of PIM and Data PSM resources and **Store Wrapper** which merges the stores into one.
+Similar to the editor, the main components are [**Store**](../../../packages/core/src/core/core-reader.ts), which represents s storage of PIM and Data PSM resources, and [**Store Wrapper**](../../../packages/federated-observable-store), which merges the stores into one.
 
-**Artifact generators** generate schemas, documentation, images and transformations that are zipped and available to download by users.
+**Artifact generators** generate schemas, documentation, images, and transformations that are zipped and available to download by users.
 
-To communicate with the **Backend service**, **Backend connector** is used.
+To communicate with the [**Backend service**](../../../services/backend), a [**Backend connector**](../../../packages/backend-utils/src/connectors/backend-connector.ts) is used.
+
+---
+
+The manager uses React router to create multiple pages. The components for pages are in the `routes` directory. `artifact` directory contains functionality to generate artifacts, helper files, and zip compressor.
 
 ![Editor's components](../../../documentation/diagrams/managerComponentView.png)

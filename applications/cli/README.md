@@ -1,4 +1,4 @@
-# cli
+# cli application
 
 Dataspecer command-line interface. The cli allows you to generate artifacts from the command line for the given data specification IRI. It connects to the [backend](../../services/backend) service to download all data.
 
