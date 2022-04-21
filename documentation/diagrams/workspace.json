@@ -2,12 +2,12 @@
     "id": 73542,
     "name": "Dataspecer",
     "description": "Description",
-    "revision": 7,
-    "lastModifiedDate": "2022-04-21T10:48:03Z",
+    "revision": 12,
+    "lastModifiedDate": "2022-04-21T19:27:05Z",
     "lastModifiedUser": "s.stenchlak@gmail.com",
-    "lastModifiedAgent": "structurizr-web/2716/dsl",
+    "lastModifiedAgent": "structurizr-web/2718/dsl",
     "properties": {
-        "structurizr.dsl": "d29ya3NwYWNlICJEYXRhc3BlY2VyIiAiRGVzY3JpcHRpb24iIHsKCiAgICBtb2RlbCB7CiAgICAgICAgb250b2xvZ3kgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZGF0YWJhc2UiICJDb250YWlucyB0aGUgZG9tYWluIG9udG9sb2d5IHRoYXQgaXMgdXNlZCB0byBjcmVhdGUgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgb250b2xvZ3lFZGl0b3IgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZWRpdG9yIiAiRXh0ZXJuYWwgc3lzdGVtIHRoYXQgaXMgdXNlZCB0byBlZGl0IHRoZSBvbnRvbG9neSIKICAgICAgICBzb2xpZCA9IHNvZnR3YXJlU3lzdGVtICJTT0xJRCBwb2RzIiAiRXh0ZXJuYWwgc3RvcmFnZSBmb3IgZGF0YSBzcGVjaWZpY2F0aW9ucyBhbmQgZGF0YSBzY2hlbWFzIiAiTm90IGltcGxlbWVudGVkIgogICAgICAgIHVzZXIgPSBwZXJzb24gIlNjaGVtYSBkZXNpZ25lciIgIiIgIkludGVybmFsIHVzZXIiCiAgICAgICAgZGF0YU1vZGVsbGVyID0gcGVyc29uICJEYXRhIG1vZGVsbGVyIgogICAgICAgIGRhdGFzcGVjZXIgPSBzb2Z0d2FyZVN5c3RlbSAiRGF0YXNwZWNlciIgIlRvb2wgZm9yIG1hbmFnZW1lbnQgb2YgZGF0YSBzcGVjaWZpY2F0aW9ucyIgIkludGVybmFsIHN5c3RlbSIgewogICAgICAgICAgICBncm91cCAiVXNlZCBhcyBhIHNpbmdsZSB3ZWIgYXBwIiB7CiAgICAgICAgICAgICAgICBlZGl0b3IgPSBjb250YWluZXIgIlNjaGVtYSBlZGl0b3IiICJFZGl0cyB0aGUgZ2l2ZW4gc2NoZW1hIiAiVHlwZXNjcmlwdCwgUmVhY3QiICJXZWIgRnJvbnQtRW5kIiB7CiAgICAgICAgICAgICAgICAgICAgZ3JvdXAgImNvcmUgcGFja2FnZSIgewogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsID0gY29tcG9uZW50ICJTdG9yZSBtb2RlbCIgIlN0b3JlIGNvbnRhaW5zIFBJTSBhbmQgRGF0YSBQU00gcmVzb3VyY2VzIHRoYXQgZGVzY3JpYmUgdGhlIGNvbnN0cnVjdGVkIHNjaGVtYSB0cmVlIiAiQ29yZVJlc291cmNlUmVhZGVyIgogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU9wZXJhdGlvbnMgPSBjb21wb25lbnQgIlN0b3JlIG9wZXJhdGlvbnMiICJBdG9taWMgb3BlcmF0aW9ucyB0aGF0IG1vZGlmeSB0aGUgcmVzb3VyY2UgaW4gdGhlIHN0b3JlIgogICAgICAgICAgICAgICAgICAgICAgICBzdG9yZU9wZXJhdGlvbnMgLT4gc3RvcmVNb2RlbCAiTW9kaWZ5IgogICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9ycyA9IGNvbXBvbmVudCAiQXJ0aWZhY3QgZ2VuZXJhdG9ycyIgIkdlbmVyYXRlcyBzY2hlbWFzIGFuZCBkb2N1bWVudGF0aW9uIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsV3JhcHBlciA9IGNvbXBvbmVudCAiU3RvcmUgbW9kZWwgd3JhcHBlciIgIk1hbmFnZXMgbXVsdGlwbGUgc3RvcmVzIGFzIG9uZSBhbmQgcHJvdmlkZXMgaW50ZXJmYWNlIGZvciBlYXNpZXIgYWNjZXNzIHRvIHRoZSBkYXRhLiIgIkZlZGVyYXRlZE9ic2VydmFibGVTdG9yZSIKICAgICAgICAgICAgICAgICAgICBzdG9yZU1vZGVsV3JhcHBlciAtPiBzdG9yZU1vZGVsICJNYW5hZ2VzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zID0gY29tcG9uZW50ICJDb21wbGV4IG9wZXJhdGlvbnMiICJTZXQgb2YgYWR2YW5jZWQgb3BlcmF0aW9ucyB0aGF0IGNhbiBwZXJmb3JtIGxhcmdlIHRhc2tzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zIC0+IHN0b3JlTW9kZWxXcmFwcGVyICJBcmUgZXhlY3V0ZWQgb24gbXVsdGlwbGUgc3RvcmVzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zIC0+IHN0b3JlT3BlcmF0aW9ucyAiVXNlIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIGNvbmZpZ3VyYXRpb24gPSBjb21wb25lbnQgIkNvbmZpZ3VyYXRpb24iICJDcmVhdGVzIHRoZSBzdG9yZXMsIHByb3ZpZGVzIHRoZSBjb250ZXh0IGluIHdoaWNoIHRoZSBlZGl0b3Igb3BlcmF0ZXMiCiAgICAgICAgICAgICAgICAgICAgY29uZmlndXJhdGlvbiAtPiBzdG9yZU1vZGVsICJDcmVhdGVzIGFuZCByZWdpc3RlcnMgc3RvcmVzIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIGFkZFN1cnJvdW5kaW5nc0RpYWxvZyA9IGNvbXBvbmVudCAiQWRkIHN1cnJvdW5kaW5ncyBkaWFsb2ciICJBZGRzIGVudGl0aWVzIHRvIHRoZSBzY2hlbWEgYnkgZXhwYW5kaW5nIGl0IgogICAgICAgICAgICAgICAgICAgIGFkZFN1cnJvdW5kaW5nc0RpYWxvZyAtPiBzdG9yZU1vZGVsV3JhcHBlciAiQWRkcyByZXNvdXJjZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSA9IGNvbXBvbmVudCAiVmlzdWFsaXplZCBzY2hlbWEiCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSAtPiBzdG9yZU1vZGVsV3JhcHBlciAiUmVhZHMgZGF0YSIKICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICBhcnRpZmFjdHNHZW5lcmF0b3JzIC0+IGNvbmZpZ3VyYXRpb24gIlJlYWQgZGF0YSBzcGVjaWZpY2F0aW9uIgogICAgICAgICAgICAgICAgICAgIGFydGlmYWN0c0dlbmVyYXRvcnMgLT4gc3RvcmVNb2RlbFdyYXBwZXIgIlJlYWQgcmVzb3VyY2VzIgogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgbWFuYWdlciA9IGNvbnRhaW5lciAiU2NoZW1hIG1hbmFnZXIiICJNYW5hZ2VzIGRhdGEgc3BlY2lmaWNhdGlvbnMsIGFjY2VzcywgZ2VuZXJhdGVzIGFydGlmYWN0cyIgIlR5cGVzY3JpcHQsIFJlYWN0IiAiV2ViIEZyb250LUVuZCIKICAgICAgICAgICAgfQogICAgICAgICAgICBiYWNrZW5kID0gY29udGFpbmVyICJCYWNrZW5kIHNlcnZpY2UiICJTZXJ2ZXMgYXMgYSBzdG9yYWdlIGZvciBkYXRhIHNwZWNpZmljYXRpb25zIGFuZCBkYXRhIHNjaGVtYXMiICJUeXBlc2NyaXB0LCBOb2RlIgogICAgICAgICAgICBjbGkgPSBjb250YWluZXIgIkNMSSBzZXJ2aWNlIiAiVG9vbCBmb3IgZ2VuZXJhdGluZyBhcnRpZmFjdHMgZnJvbSB0aGUgY29tbWFuZCBsaW5lIGluc3RlYWQgb2YgdXNpbmcgdGhlIG1hbmFnZXIgZGlyZWN0bHkiICJUeXBlc2NyaXB0LCBOb2RlIgogICAgICAgICAgICAKICAgICAgICAgICAgbWFuYWdlciAtPiBjb25maWd1cmF0aW9uICJPcGVucyB0aGUgZWRpdG9yIGluIGNvbnRleHQgb2YgZGF0YSBzY2hlbWEiCiAgICAgICAgICAgIHN0b3JlTW9kZWwgLT4gYmFja2VuZCAiUmVhZHMgYW5kIHdyaXRlcyBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgbWFuYWdlciAtPiBiYWNrZW5kICJSZWFkcyBhbmQgd3JpdGVzIHNjaGVtYXMgYW5kIHNwZWNpZmljYXRpb25zIgogICAgICAgICAgICBjbGkgLT4gYmFja2VuZCAiUmVhZHMgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIAogICAgICAgICAgICAKICAgICAgICAgICAgYWRkU3Vycm91bmRpbmdzRGlhbG9nIC0+IG9udG9sb2d5ICJSZWFkcyB0aGUgb250b2xvZ3kgdG8gZXh0ZW5kIHRoZSBzY2hlbWEiCiAgICAgICAgICAgIAogICAgICAgICAgICBtYW5hZ2VyIC0+IHNvbGlkICJSZWFkcyBhbmQgd3JpdGVzIHNjaGVtYXMgYW5kIHNwZWNpZmljYXRpb25zIgogICAgICAgICAgICBlZGl0b3IgLT4gc29saWQgIlJlYWRzIGFuZCB3cml0ZXMgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIGNsaSAtPiBzb2xpZCAiUmVhZHMgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgfQogICAgICAgIAogICAgICAgIC8vIGRhdGFzcGVjZXIgLT4gb250b2xvZ3kgIlJlYWRzIHRoZSBvbnRvbG9neSBhcyB0aGUgdXNlciBpcyBleHBhbmRpbmcgdGhlIHNjaGVtYSIKICAgICAgICB1c2VyIC0+IGRhdGFzcGVjZXIgIlVzZXMgdGhlIHRvb2wgdG8gY3JlYXRlIGRhdGEgc2NoZW1hcyIKICAgICAgICAvLyBkYXRhc3BlY2VyIC0+IHNvbGlkICJVc2VzIGV4dGVybmFsIHN0b3JhZ2UiCiAgICAgICAgZGF0YU1vZGVsbGVyIC0+IG9udG9sb2d5RWRpdG9yICJVc2VzIHRoZSBleHRlcm5hbCBvbnRvbG9neSBlZGl0b3IgdG8gY3JlYXRlIHRoZSBvbnRvbG9neSIKICAgICAgICBvbnRvbG9neUVkaXRvciAtPiBvbnRvbG9neSAiTW9kaWZpZXMgdGhlIG9udG9sb2d5IgogICAgfQogICAgCiAgICB2aWV3cyB7CiAgICAgICAgc3lzdGVtQ29udGV4dCBkYXRhc3BlY2VyIGRhdGFzcGVjZXJWaWV3ICJEYXRhc3BlY2VyIHN5c3RlbSBjb250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKiBvbnRvbG9neUVkaXRvciBkYXRhTW9kZWxsZXIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KICAgICAgICAKICAgICAgICBjb250YWluZXIgZGF0YXNwZWNlciBkYXRhc3BlY2VyQ29udGFpbmVyVmlldyAiRGF0YXNwZWNlciBjb250YWluZXJzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKiBzb2xpZCBvbnRvbG9neQogICAgICAgIH0KICAgICAgICAKICAgICAgICBjb21wb25lbnQgZWRpdG9yIGVkaXRvckNvbXBvbmVudFZpZXcgIkVkaXRvciBjb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgIH0KICAgICAgICAKICAgICAgICBzdHlsZXMgewogICAgICAgICAgICBlbGVtZW50ICJJbnRlcm5hbCBzeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICBlbGVtZW50ICJFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICBlbGVtZW50ICJJbnRlcm5hbCB1c2VyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMwODQyN2IKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAiUGVyc29uIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBQZXJzb24KICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICAgICAgZWxlbWVudCAiQ29udGFpbmVyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJXZWIgRnJvbnQtRW5kIiAgewogICAgICAgICAgICAgICAgc2hhcGUgV2ViQnJvd3NlcgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIk5vdCBpbXBsZW1lbnRlZCIgewogICAgICAgICAgICAgICAgY29sb3IgIzk2OTY5NgogICAgICAgICAgICAgICAgc2hhcGUgRm9sZGVyCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29tcG9uZW50IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1MGE4ZmYKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICB9Cgp9Cg=="
+        "structurizr.dsl": "d29ya3NwYWNlICJEYXRhc3BlY2VyIiAiRGVzY3JpcHRpb24iIHsKCiAgICBtb2RlbCB7CiAgICAgICAgb250b2xvZ3kgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZGF0YWJhc2UiICJDb250YWlucyB0aGUgZG9tYWluIG9udG9sb2d5IHRoYXQgaXMgdXNlZCB0byBjcmVhdGUgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgb250b2xvZ3lFZGl0b3IgPSBzb2Z0d2FyZVN5c3RlbSAiT250b2xvZ3kgZWRpdG9yIiAiRXh0ZXJuYWwgc3lzdGVtIHRoYXQgaXMgdXNlZCB0byBlZGl0IHRoZSBvbnRvbG9neSIKICAgICAgICBzb2xpZCA9IHNvZnR3YXJlU3lzdGVtICJTT0xJRCBwb2RzIiAiRXh0ZXJuYWwgc3RvcmFnZSBmb3IgZGF0YSBzcGVjaWZpY2F0aW9ucyBhbmQgZGF0YSBzY2hlbWFzIiAiTm90IGltcGxlbWVudGVkIgogICAgICAgIHVzZXIgPSBwZXJzb24gIlNjaGVtYSBkZXNpZ25lciIgIiIgIkludGVybmFsIHVzZXIiCiAgICAgICAgZGF0YU1vZGVsbGVyID0gcGVyc29uICJEYXRhIG1vZGVsbGVyIgogICAgICAgIGRhdGFzcGVjZXIgPSBzb2Z0d2FyZVN5c3RlbSAiRGF0YXNwZWNlciIgIlRvb2wgZm9yIG1hbmFnZW1lbnQgb2YgZGF0YSBzcGVjaWZpY2F0aW9ucyIgIkludGVybmFsIHN5c3RlbSIgewogICAgICAgICAgICBiYWNrZW5kID0gY29udGFpbmVyICJCYWNrZW5kIHNlcnZpY2UiICJTZXJ2ZXMgYXMgYSBzdG9yYWdlIGZvciBkYXRhIHNwZWNpZmljYXRpb25zIGFuZCBkYXRhIHNjaGVtYXMiICJUeXBlc2NyaXB0LCBOb2RlIiB7CiAgICAgICAgICAgICAgICBiaWtlc2hlZEdlbmVyYXRvciA9IGNvbXBvbmVudCAiQmlrZXNoZWQgZ2VuZXJhdG9yIiAiQ2FsbHMgUHl0aG9uIHNjcmlwdCB0byBnZW5lcmF0ZSBCaWtlc2hlZCIKICAgICAgICAgICAgICAgIGJpa2VzaGVkID0gY29tcG9uZW50ICJCaWtlc2hlZCBjb21waWxlciIgIiIgIlB5dGhvbiBzY3JpcHQiCiAgICAgICAgICAgICAgICBiaWtlc2hlZEdlbmVyYXRvciAtPiBiaWtlc2hlZCAiQ2FsbHMiCiAgICAgICAgICAgICAgICBzdG9yZU1vZGVsID0gY29tcG9uZW50ICJTdG9yZSBtb2RlbCIgIk1hbmFnZXMgc3RvcmVzIChjb250YWlucyBQSU0gYW5kIERhdGEgUFNNIHJlc291cmNlcykiCiAgICAgICAgICAgICAgICBkYXRhU3BlY2lmaWNhdGlvbk1vZGVsID0gY29tcG9uZW50ICJEYXRhIHNwZWNpZmljYXRpb24gbW9kZWwiICJNYW5hZ2VzIGRhdGEgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgICAgICBwcmlzbWEgPSBjb21wb25lbnQgIlByaXNtYSBkYXRhYmFzZSIgIkxvY2FsIGRhdGFiYXNlIGZvciBzdG9yaW5nIGRhdGEgc3BlY2lmaWNhdGlvbnMgYW5kIHN0b3JlIG1ldGFkYXRhIiAiU1FMaXRlIiAiRm9sZGVyIgogICAgICAgICAgICAgICAgZmlsZXN5c3RlbSA9IGNvbXBvbmVudCAiRmlsZXN5c3RlbSIgIlN0b3JlcyBhcmUgc2F2ZWQgZGlyZWN0bHkgaW50byBmaWxlc3lzdGVtIGluIEpTT04gZm9ybWF0IiAiIiAiRm9sZGVyIgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBzdG9yZU1vZGVsIC0+IHByaXNtYSAiU3RvcmVzIG1ldGFkYXRhIgogICAgICAgICAgICAgICAgc3RvcmVNb2RlbCAtPiBmaWxlc3lzdGVtICJTdG9yZXMgZGF0YSIKICAgICAgICAgICAgICAgIGRhdGFTcGVjaWZpY2F0aW9uTW9kZWwgLT4gcHJpc21hICJTdG9yZXMgc3BlY2lmaWNhdGlvbnMgbWV0YWRhdGEiCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZ3JvdXAgIlVzZWQgYXMgYSBzaW5nbGUgd2ViIGFwcCIgewogICAgICAgICAgICAgICAgZWRpdG9yID0gY29udGFpbmVyICJTY2hlbWEgZWRpdG9yIiAiRWRpdHMgdGhlIGdpdmVuIHNjaGVtYSIgIlR5cGVzY3JpcHQsIFJlYWN0IiAiV2ViIEZyb250LUVuZCIgewogICAgICAgICAgICAgICAgICAgIGdyb3VwICJjb3JlIHBhY2thZ2UiIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3RvcmUgPSBjb21wb25lbnQgIlN0b3JlIiAiU3RvcmUgY29udGFpbnMgUElNIGFuZCBEYXRhIFBTTSByZXNvdXJjZXMgdGhhdCBkZXNjcmliZSB0aGUgY29uc3RydWN0ZWQgc2NoZW1hIHRyZWUiICJDb3JlUmVzb3VyY2VSZWFkZXIiCiAgICAgICAgICAgICAgICAgICAgICAgIHN0b3JlT3BlcmF0aW9ucyA9IGNvbXBvbmVudCAiQXRvbWljIG9wZXJhdGlvbnMiICJPcGVyYXRpb25zIHRoYXQgbW9kaWZ5IHRoZSByZXNvdXJjZSBpbiB0aGUgc3RvcmUiCiAgICAgICAgICAgICAgICAgICAgICAgIHN0b3JlT3BlcmF0aW9ucyAtPiBzdG9yZSAiTW9kaWZ5IgogICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9ycyA9IGNvbXBvbmVudCAiQXJ0aWZhY3QgZ2VuZXJhdG9ycyIgIkdlbmVyYXRlcyBzY2hlbWFzIGFuZCBkb2N1bWVudGF0aW9uIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBzdG9yZVdyYXBwZXIgPSBjb21wb25lbnQgIlN0b3JlIHdyYXBwZXIiICJNYW5hZ2VzIG11bHRpcGxlIHN0b3JlcyBhcyBvbmUgYW5kIHByb3ZpZGVzIGludGVyZmFjZSBmb3IgZWFzaWVyIGFjY2VzcyB0byB0aGUgZGF0YS4iICJGZWRlcmF0ZWRPYnNlcnZhYmxlU3RvcmUiCiAgICAgICAgICAgICAgICAgICAgc3RvcmVXcmFwcGVyIC0+IHN0b3JlICJNYW5hZ2VzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zID0gY29tcG9uZW50ICJDb21wbGV4IG9wZXJhdGlvbnMiICJTZXQgb2YgYWR2YW5jZWQgb3BlcmF0aW9ucyB0aGF0IGNhbiBwZXJmb3JtIGxhcmdlIHRhc2tzIgogICAgICAgICAgICAgICAgICAgIGNvbXBsZXhPcGVyYXRpb25zIC0+IHN0b3JlV3JhcHBlciAiQXJlIGV4ZWN1dGVkIG9uIG11bHRpcGxlIHN0b3JlcyIKICAgICAgICAgICAgICAgICAgICBjb21wbGV4T3BlcmF0aW9ucyAtPiBzdG9yZU9wZXJhdGlvbnMgIlVzZSIKICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICBjb25maWd1cmF0aW9uID0gY29tcG9uZW50ICJDb25maWd1cmF0aW9uIiAiQ3JlYXRlcyB0aGUgc3RvcmVzLCBwcm92aWRlcyB0aGUgY29udGV4dCBpbiB3aGljaCB0aGUgZWRpdG9yIG9wZXJhdGVzIgogICAgICAgICAgICAgICAgICAgIGNvbmZpZ3VyYXRpb24gLT4gc3RvcmUgIkNyZWF0ZXMgYW5kIHJlZ2lzdGVycyBzdG9yZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgYWRkU3Vycm91bmRpbmdzRGlhbG9nID0gY29tcG9uZW50ICJBZGQgc3Vycm91bmRpbmdzIGRpYWxvZyIgIkFkZHMgZW50aXRpZXMgdG8gdGhlIHNjaGVtYSBieSBleHBhbmRpbmcgaXQiCiAgICAgICAgICAgICAgICAgICAgYWRkU3Vycm91bmRpbmdzRGlhbG9nIC0+IHN0b3JlV3JhcHBlciAiQWRkcyByZXNvdXJjZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgY2ltQWRhcHRlciA9IGNvbXBvbmVudCAiQ2ltIGFkYXB0ZXIiICJMb2FkcyBkYXRhIGZyb20gdGhlIGRvbWFpbiBvbnRvbG9neSBkYXRhYmFzZSIKICAgICAgICAgICAgICAgICAgICBhZGRTdXJyb3VuZGluZ3NEaWFsb2cgLT4gY2ltQWRhcHRlciAiUmVhZHMgZGF0YSIKICAgICAgICAgICAgICAgICAgICBjb25maWd1cmF0aW9uIC0+IGNpbUFkYXB0ZXIgIkNyZWF0ZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSA9IGNvbXBvbmVudCAiVmlzdWFsaXplZCBzY2hlbWEiCiAgICAgICAgICAgICAgICAgICAgdmlzdWFsaXplZFNjaGVtYSAtPiBzdG9yZVdyYXBwZXIgIlJlYWRzIGRhdGEiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9ycyAtPiBjb25maWd1cmF0aW9uICJSZWFkIGRhdGEgc3BlY2lmaWNhdGlvbiIKICAgICAgICAgICAgICAgICAgICBhcnRpZmFjdHNHZW5lcmF0b3JzIC0+IHN0b3JlV3JhcHBlciAiUmVhZCByZXNvdXJjZXMiCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIG1hbmFnZXIgPSBjb250YWluZXIgIlNjaGVtYSBtYW5hZ2VyIiAiTWFuYWdlcyBkYXRhIHNwZWNpZmljYXRpb25zLCBhY2Nlc3MsIGdlbmVyYXRlcyBhcnRpZmFjdHMiICJUeXBlc2NyaXB0LCBSZWFjdCIgIldlYiBGcm9udC1FbmQiIHsKICAgICAgICAgICAgICAgICAgICBiYWNrZW5kQ29ubmVjdG9yID0gY29tcG9uZW50ICJCYWNrZW5kIGNvbm5lY3RvciIgIkNvbW11bmljYXRlcyB3aXRoIHRoZSBiYWNrZW5kIGFuZCByZXRyaWV2ZXMgYW5kIHVwZGF0ZXMgZGF0YSBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgICAgICAgICBncm91cCAiY29yZSBwYWNrYWdlIiB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN0b3JlMiA9IGNvbXBvbmVudCAiU3RvcmUiICJTdG9yZSBjb250YWlucyBQSU0gYW5kIERhdGEgUFNNIHJlc291cmNlcyB0aGF0IGRlc2NyaWJlIHRoZSBjb25zdHJ1Y3RlZCBzY2hlbWEgdHJlZSIgIkNvcmVSZXNvdXJjZVJlYWRlciIKICAgICAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9yczIgPSBjb21wb25lbnQgIkFydGlmYWN0IGdlbmVyYXRvcnMiICJHZW5lcmF0ZXMgc2NoZW1hcyBhbmQgZG9jdW1lbnRhdGlvbiIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgYmFja2VuZENvbm5lY3RvciAtPiBzdG9yZTIgIkNyZWF0ZXMiCiAgICAgICAgICAgICAgICAgICAgc3RvcmVXcmFwcGVyMiA9IGNvbXBvbmVudCAiU3RvcmUgd3JhcHBlciIgIk1hbmFnZXMgbXVsdGlwbGUgc3RvcmVzIGFzIG9uZSBhbmQgcHJvdmlkZXMgaW50ZXJmYWNlIGZvciBlYXNpZXIgYWNjZXNzIHRvIHRoZSBkYXRhLiIgIkZlZGVyYXRlZE9ic2VydmFibGVTdG9yZSIKICAgICAgICAgICAgICAgICAgICBzdG9yZVdyYXBwZXIyIC0+IHN0b3JlMiAiTWFuYWdlcyIKICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICBhcnRpZmFjdHNHZW5lcmF0b3JzMiAtPiBiYWNrZW5kQ29ubmVjdG9yICJSZWFkIGRhdGEgc3BlY2lmaWNhdGlvbiIKICAgICAgICAgICAgICAgICAgICBhcnRpZmFjdHNHZW5lcmF0b3JzMiAtPiBzdG9yZVdyYXBwZXIyICJSZWFkIHJlc291cmNlcyIKICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICBzdG9yZTIgLT4gYmFja2VuZCAiUmVhZHMgYW5kIHdyaXRlcyBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICBjbGkgPSBjb250YWluZXIgIkNMSSBzZXJ2aWNlIiAiVG9vbCBmb3IgZ2VuZXJhdGluZyBhcnRpZmFjdHMgZnJvbSB0aGUgY29tbWFuZCBsaW5lIGluc3RlYWQgb2YgdXNpbmcgdGhlIG1hbmFnZXIgZGlyZWN0bHkiICJUeXBlc2NyaXB0LCBOb2RlIgogICAgICAgICAgICAKICAgICAgICAgICAgbWFuYWdlciAtPiBjb25maWd1cmF0aW9uICJPcGVucyB0aGUgZWRpdG9yIGluIGNvbnRleHQgb2YgZGF0YSBzY2hlbWEiCiAgICAgICAgICAgIHN0b3JlIC0+IGJhY2tlbmQgIlJlYWRzIGFuZCB3cml0ZXMgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIGJhY2tlbmRDb25uZWN0b3IgLT4gYmFja2VuZCAiUmVhZHMgYW5kIHdyaXRlcyBzY2hlbWFzIGFuZCBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgY2xpIC0+IGJhY2tlbmQgIlJlYWRzIHNjaGVtYXMgYW5kIHNwZWNpZmljYXRpb25zIgogICAgICAgICAgICAKICAgICAgICAgICAgCiAgICAgICAgICAgIGNpbUFkYXB0ZXIgLT4gb250b2xvZ3kgIlJlYWRzIHRoZSBvbnRvbG9neSB0byBleHRlbmQgdGhlIHNjaGVtYSIKICAgICAgICAgICAgYXJ0aWZhY3RzR2VuZXJhdG9yczIgLT4gYmFja2VuZCAiVXNlcyBiYWNrZW5kIHRvIGdlbmVyYXRlIEJpa2VzaGVkIGh0bWwgZmlsZSIKICAgICAgICAgICAgCiAgICAgICAgICAgIG1hbmFnZXIgLT4gc29saWQgIlJlYWRzIGFuZCB3cml0ZXMgc2NoZW1hcyBhbmQgc3BlY2lmaWNhdGlvbnMiCiAgICAgICAgICAgIGVkaXRvciAtPiBzb2xpZCAiUmVhZHMgYW5kIHdyaXRlcyBzcGVjaWZpY2F0aW9ucyIKICAgICAgICAgICAgY2xpIC0+IHNvbGlkICJSZWFkcyBzY2hlbWFzIGFuZCBzcGVjaWZpY2F0aW9ucyIKICAgICAgICB9CiAgICAgICAgCiAgICAgICAgLy8gZGF0YXNwZWNlciAtPiBvbnRvbG9neSAiUmVhZHMgdGhlIG9udG9sb2d5IGFzIHRoZSB1c2VyIGlzIGV4cGFuZGluZyB0aGUgc2NoZW1hIgogICAgICAgIHVzZXIgLT4gZGF0YXNwZWNlciAiVXNlcyB0aGUgdG9vbCB0byBjcmVhdGUgZGF0YSBzY2hlbWFzIgogICAgICAgIC8vIGRhdGFzcGVjZXIgLT4gc29saWQgIlVzZXMgZXh0ZXJuYWwgc3RvcmFnZSIKICAgICAgICBkYXRhTW9kZWxsZXIgLT4gb250b2xvZ3lFZGl0b3IgIlVzZXMgdGhlIGV4dGVybmFsIG9udG9sb2d5IGVkaXRvciB0byBjcmVhdGUgdGhlIG9udG9sb2d5IgogICAgICAgIG9udG9sb2d5RWRpdG9yIC0+IG9udG9sb2d5ICJNb2RpZmllcyB0aGUgb250b2xvZ3kiCiAgICB9CiAgICAKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1Db250ZXh0IGRhdGFzcGVjZXIgZGF0YXNwZWNlclZpZXcgIkRhdGFzcGVjZXIgc3lzdGVtIGNvbnRleHQiIHsKICAgICAgICAgICAgaW5jbHVkZSAqIG9udG9sb2d5RWRpdG9yIGRhdGFNb2RlbGxlcgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQogICAgICAgIAogICAgICAgIGNvbnRhaW5lciBkYXRhc3BlY2VyIGRhdGFzcGVjZXJDb250YWluZXJWaWV3ICJEYXRhc3BlY2VyIGNvbnRhaW5lcnMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqIHNvbGlkIG9udG9sb2d5CiAgICAgICAgfQogICAgICAgIAogICAgICAgIGNvbXBvbmVudCBlZGl0b3IgZWRpdG9yQ29tcG9uZW50VmlldyAiRWRpdG9yIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgfQogICAgICAgIAogICAgICAgIGNvbXBvbmVudCBtYW5hZ2VyIG1hbmFnZXJDb21wb25lbnRWaWV3ICJNYW5hZ2VyIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgfQogICAgICAgIAogICAgICAgIGNvbXBvbmVudCBiYWNrZW5kIGJhY2tlbmRDb21wb25lbnRWaWV3ICJCYWNrZW5kIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CiAgICAgICAgCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiSW50ZXJuYWwgc3lzdGVtIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICAgICAgZWxlbWVudCAiRXhpc3RpbmcgU3lzdGVtIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM5OTk5OTkKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICAgICAgZWxlbWVudCAiSW50ZXJuYWwgdXNlciIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMDg0MjdiCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgIlBlcnNvbiIgewogICAgICAgICAgICAgICAgc2hhcGUgUGVyc29uCiAgICAgICAgICAgIH0KICAgICAgICAgICAgCiAgICAgICAgICAgIGVsZW1lbnQgIkNvbnRhaW5lciIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNDM4ZGQ1CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiV2ViIEZyb250LUVuZCIgIHsKICAgICAgICAgICAgICAgIHNoYXBlIFdlYkJyb3dzZXIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJOb3QgaW1wbGVtZW50ZWQiIHsKICAgICAgICAgICAgICAgIGNvbG9yICM5Njk2OTYKICAgICAgICAgICAgICAgIHNoYXBlIEZvbGRlcgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkZvbGRlciIgewogICAgICAgICAgICAgICAgc2hhcGUgRm9sZGVyCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29tcG9uZW50IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1MGE4ZmYKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICB9Cgp9Cg=="
     },
     "model": {
         "people": [
@@ -17,7 +17,7 @@
                 "name": "Data modeller",
                 "relationships": [
                     {
-                        "id": "42",
+                        "id": "66",
                         "tags": "Relationship",
                         "sourceId": "5",
                         "destinationId": "2",
@@ -32,7 +32,7 @@
                 "name": "Schema designer",
                 "relationships": [
                     {
-                        "id": "41",
+                        "id": "65",
                         "tags": "Relationship",
                         "sourceId": "4",
                         "destinationId": "6",
@@ -50,76 +50,155 @@
                 "description": "Tool for management of data specifications",
                 "relationships": [
                     {
-                        "id": "36",
+                        "id": "59",
                         "sourceId": "6",
                         "destinationId": "1",
                         "description": "Reads the ontology to extend the schema",
-                        "linkedRelationshipId": "34"
+                        "linkedRelationshipId": "57"
                     },
                     {
-                        "id": "38",
+                        "id": "62",
                         "sourceId": "6",
                         "destinationId": "3",
                         "description": "Reads and writes schemas and specifications",
-                        "linkedRelationshipId": "37"
+                        "linkedRelationshipId": "61"
                     }
                 ],
                 "location": "Unspecified",
                 "containers": [
                     {
-                        "id": "26",
+                        "id": "7",
                         "tags": "Element,Container",
                         "name": "Backend service",
                         "description": "Serves as a storage for data specifications and data schemas",
-                        "technology": "Typescript, Node"
+                        "technology": "Typescript, Node",
+                        "components": [
+                            {
+                                "id": "9",
+                                "tags": "Element,Component",
+                                "name": "Bikeshed compiler",
+                                "technology": "Python script",
+                                "size": 0
+                            },
+                            {
+                                "id": "8",
+                                "tags": "Element,Component",
+                                "name": "Bikeshed generator",
+                                "description": "Calls Python script to generate Bikeshed",
+                                "relationships": [
+                                    {
+                                        "id": "10",
+                                        "tags": "Relationship",
+                                        "sourceId": "8",
+                                        "destinationId": "9",
+                                        "description": "Calls"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "12",
+                                "tags": "Element,Component",
+                                "name": "Data specification model",
+                                "description": "Manages data specifications",
+                                "relationships": [
+                                    {
+                                        "id": "17",
+                                        "tags": "Relationship",
+                                        "sourceId": "12",
+                                        "destinationId": "13",
+                                        "description": "Stores specifications metadata"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "14",
+                                "tags": "Element,Component,Folder",
+                                "name": "Filesystem",
+                                "description": "Stores are saved directly into filesystem in JSON format",
+                                "size": 0
+                            },
+                            {
+                                "id": "13",
+                                "tags": "Element,Component,Folder",
+                                "name": "Prisma database",
+                                "description": "Local database for storing data specifications and store metadata",
+                                "technology": "SQLite",
+                                "size": 0
+                            },
+                            {
+                                "id": "11",
+                                "tags": "Element,Component",
+                                "name": "Store model",
+                                "description": "Manages stores (contains PIM and Data PSM resources)",
+                                "relationships": [
+                                    {
+                                        "id": "15",
+                                        "tags": "Relationship",
+                                        "sourceId": "11",
+                                        "destinationId": "13",
+                                        "description": "Stores metadata"
+                                    },
+                                    {
+                                        "id": "16",
+                                        "tags": "Relationship",
+                                        "sourceId": "11",
+                                        "destinationId": "14",
+                                        "description": "Stores data"
+                                    }
+                                ],
+                                "size": 0
+                            }
+                        ]
                     },
                     {
-                        "id": "27",
+                        "id": "50",
                         "tags": "Element,Container",
                         "name": "CLI service",
                         "description": "Tool for generating artifacts from the command line instead of using the manager directly",
                         "relationships": [
                             {
-                                "id": "33",
+                                "id": "64",
                                 "tags": "Relationship",
-                                "sourceId": "27",
-                                "destinationId": "26",
+                                "sourceId": "50",
+                                "destinationId": "3",
                                 "description": "Reads schemas and specifications"
                             },
                             {
-                                "id": "40",
+                                "id": "56",
                                 "tags": "Relationship",
-                                "sourceId": "27",
-                                "destinationId": "3",
+                                "sourceId": "50",
+                                "destinationId": "7",
                                 "description": "Reads schemas and specifications"
                             }
                         ],
                         "technology": "Typescript, Node"
                     },
                     {
-                        "id": "7",
+                        "id": "18",
                         "tags": "Element,Container,Web Front-End",
                         "name": "Schema editor",
                         "description": "Edits the given schema",
                         "relationships": [
                             {
-                                "id": "35",
-                                "sourceId": "7",
+                                "id": "58",
+                                "sourceId": "18",
                                 "destinationId": "1",
                                 "description": "Reads the ontology to extend the schema",
-                                "linkedRelationshipId": "34"
+                                "linkedRelationshipId": "57"
                             },
                             {
-                                "id": "31",
-                                "sourceId": "7",
-                                "destinationId": "26",
+                                "id": "54",
+                                "sourceId": "18",
+                                "destinationId": "7",
                                 "description": "Reads and writes specifications",
-                                "linkedRelationshipId": "30"
+                                "linkedRelationshipId": "53"
                             },
                             {
-                                "id": "39",
+                                "id": "63",
                                 "tags": "Relationship",
-                                "sourceId": "7",
+                                "sourceId": "18",
                                 "destinationId": "3",
                                 "description": "Reads and writes specifications"
                             }
@@ -128,46 +207,46 @@
                         "technology": "Typescript, React",
                         "components": [
                             {
-                                "id": "19",
+                                "id": "30",
                                 "tags": "Element,Component",
                                 "name": "Add surroundings dialog",
                                 "description": "Adds entities to the schema by expanding it",
                                 "relationships": [
                                     {
-                                        "id": "20",
+                                        "id": "31",
                                         "tags": "Relationship",
-                                        "sourceId": "19",
-                                        "destinationId": "12",
+                                        "sourceId": "30",
+                                        "destinationId": "23",
                                         "description": "Adds resources"
                                     },
                                     {
-                                        "id": "34",
+                                        "id": "33",
                                         "tags": "Relationship",
-                                        "sourceId": "19",
-                                        "destinationId": "1",
-                                        "description": "Reads the ontology to extend the schema"
+                                        "sourceId": "30",
+                                        "destinationId": "32",
+                                        "description": "Reads data"
                                     }
                                 ],
                                 "size": 0
                             },
                             {
-                                "id": "11",
+                                "id": "22",
                                 "tags": "Element,Component",
                                 "name": "Artifact generators",
                                 "description": "Generates schemas and documentation",
                                 "relationships": [
                                     {
-                                        "id": "23",
+                                        "id": "37",
                                         "tags": "Relationship",
-                                        "sourceId": "11",
-                                        "destinationId": "17",
+                                        "sourceId": "22",
+                                        "destinationId": "28",
                                         "description": "Read data specification"
                                     },
                                     {
-                                        "id": "24",
+                                        "id": "38",
                                         "tags": "Relationship",
-                                        "sourceId": "11",
-                                        "destinationId": "12",
+                                        "sourceId": "22",
+                                        "destinationId": "23",
                                         "description": "Read resources"
                                     }
                                 ],
@@ -175,55 +254,95 @@
                                 "size": 0
                             },
                             {
-                                "id": "14",
+                                "id": "20",
                                 "tags": "Element,Component",
-                                "name": "Complex operations",
-                                "description": "Set of advanced operations that can perform large tasks",
+                                "name": "Atomic operations",
+                                "description": "Operations that modify the resource in the store",
                                 "relationships": [
                                     {
-                                        "id": "15",
+                                        "id": "21",
                                         "tags": "Relationship",
-                                        "sourceId": "14",
-                                        "destinationId": "12",
-                                        "description": "Are executed on multiple stores"
-                                    },
+                                        "sourceId": "20",
+                                        "destinationId": "19",
+                                        "description": "Modify"
+                                    }
+                                ],
+                                "group": "core package",
+                                "size": 0
+                            },
+                            {
+                                "id": "32",
+                                "tags": "Element,Component",
+                                "name": "Cim adapter",
+                                "description": "Loads data from the domain ontology database",
+                                "relationships": [
                                     {
-                                        "id": "16",
+                                        "id": "57",
                                         "tags": "Relationship",
-                                        "sourceId": "14",
-                                        "destinationId": "9",
-                                        "description": "Use"
+                                        "sourceId": "32",
+                                        "destinationId": "1",
+                                        "description": "Reads the ontology to extend the schema"
                                     }
                                 ],
                                 "size": 0
                             },
                             {
-                                "id": "17",
+                                "id": "25",
+                                "tags": "Element,Component",
+                                "name": "Complex operations",
+                                "description": "Set of advanced operations that can perform large tasks",
+                                "relationships": [
+                                    {
+                                        "id": "27",
+                                        "tags": "Relationship",
+                                        "sourceId": "25",
+                                        "destinationId": "20",
+                                        "description": "Use"
+                                    },
+                                    {
+                                        "id": "26",
+                                        "tags": "Relationship",
+                                        "sourceId": "25",
+                                        "destinationId": "23",
+                                        "description": "Are executed on multiple stores"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "28",
                                 "tags": "Element,Component",
                                 "name": "Configuration",
                                 "description": "Creates the stores, provides the context in which the editor operates",
                                 "relationships": [
                                     {
-                                        "id": "18",
+                                        "id": "34",
                                         "tags": "Relationship",
-                                        "sourceId": "17",
-                                        "destinationId": "8",
+                                        "sourceId": "28",
+                                        "destinationId": "32",
+                                        "description": "Creates"
+                                    },
+                                    {
+                                        "id": "29",
+                                        "tags": "Relationship",
+                                        "sourceId": "28",
+                                        "destinationId": "19",
                                         "description": "Creates and registers stores"
                                     }
                                 ],
                                 "size": 0
                             },
                             {
-                                "id": "8",
+                                "id": "19",
                                 "tags": "Element,Component",
-                                "name": "Store model",
+                                "name": "Store",
                                 "description": "Store contains PIM and Data PSM resources that describe the constructed schema tree",
                                 "relationships": [
                                     {
-                                        "id": "30",
+                                        "id": "53",
                                         "tags": "Relationship",
-                                        "sourceId": "8",
-                                        "destinationId": "26",
+                                        "sourceId": "19",
+                                        "destinationId": "7",
                                         "description": "Reads and writes specifications"
                                     }
                                 ],
@@ -232,16 +351,16 @@
                                 "size": 0
                             },
                             {
-                                "id": "12",
+                                "id": "23",
                                 "tags": "Element,Component",
-                                "name": "Store model wrapper",
+                                "name": "Store wrapper",
                                 "description": "Manages multiple stores as one and provides interface for easier access to the data.",
                                 "relationships": [
                                     {
-                                        "id": "13",
+                                        "id": "24",
                                         "tags": "Relationship",
-                                        "sourceId": "12",
-                                        "destinationId": "8",
+                                        "sourceId": "23",
+                                        "destinationId": "19",
                                         "description": "Manages"
                                     }
                                 ],
@@ -249,32 +368,15 @@
                                 "size": 0
                             },
                             {
-                                "id": "9",
-                                "tags": "Element,Component",
-                                "name": "Store operations",
-                                "description": "Atomic operations that modify the resource in the store",
-                                "relationships": [
-                                    {
-                                        "id": "10",
-                                        "tags": "Relationship",
-                                        "sourceId": "9",
-                                        "destinationId": "8",
-                                        "description": "Modify"
-                                    }
-                                ],
-                                "group": "core package",
-                                "size": 0
-                            },
-                            {
-                                "id": "21",
+                                "id": "35",
                                 "tags": "Element,Component",
                                 "name": "Visualized schema",
                                 "relationships": [
                                     {
-                                        "id": "22",
+                                        "id": "36",
                                         "tags": "Relationship",
-                                        "sourceId": "21",
-                                        "destinationId": "12",
+                                        "sourceId": "35",
+                                        "destinationId": "23",
                                         "description": "Reads data"
                                     }
                                 ],
@@ -283,42 +385,133 @@
                         ]
                     },
                     {
-                        "id": "25",
+                        "id": "39",
                         "tags": "Element,Container,Web Front-End",
                         "name": "Schema manager",
                         "description": "Manages data specifications, access, generates artifacts",
                         "relationships": [
                             {
-                                "id": "37",
+                                "id": "61",
                                 "tags": "Relationship",
-                                "sourceId": "25",
+                                "sourceId": "39",
                                 "destinationId": "3",
                                 "description": "Reads and writes schemas and specifications"
                             },
                             {
-                                "id": "29",
-                                "sourceId": "25",
+                                "id": "49",
+                                "sourceId": "39",
                                 "destinationId": "7",
-                                "description": "Opens the editor in context of data schema",
-                                "linkedRelationshipId": "28"
+                                "description": "Reads and writes specifications",
+                                "linkedRelationshipId": "48"
                             },
                             {
-                                "id": "32",
+                                "id": "51",
                                 "tags": "Relationship",
-                                "sourceId": "25",
-                                "destinationId": "26",
-                                "description": "Reads and writes schemas and specifications"
-                            },
-                            {
-                                "id": "28",
-                                "tags": "Relationship",
-                                "sourceId": "25",
-                                "destinationId": "17",
+                                "sourceId": "39",
+                                "destinationId": "28",
                                 "description": "Opens the editor in context of data schema"
+                            },
+                            {
+                                "id": "52",
+                                "sourceId": "39",
+                                "destinationId": "18",
+                                "description": "Opens the editor in context of data schema",
+                                "linkedRelationshipId": "51"
                             }
                         ],
                         "group": "Used as a single web app",
-                        "technology": "Typescript, React"
+                        "technology": "Typescript, React",
+                        "components": [
+                            {
+                                "id": "42",
+                                "tags": "Element,Component",
+                                "name": "Artifact generators",
+                                "description": "Generates schemas and documentation",
+                                "relationships": [
+                                    {
+                                        "id": "46",
+                                        "tags": "Relationship",
+                                        "sourceId": "42",
+                                        "destinationId": "40",
+                                        "description": "Read data specification"
+                                    },
+                                    {
+                                        "id": "47",
+                                        "tags": "Relationship",
+                                        "sourceId": "42",
+                                        "destinationId": "44",
+                                        "description": "Read resources"
+                                    },
+                                    {
+                                        "id": "60",
+                                        "tags": "Relationship",
+                                        "sourceId": "42",
+                                        "destinationId": "7",
+                                        "description": "Uses backend to generate Bikeshed html file"
+                                    }
+                                ],
+                                "group": "core package",
+                                "size": 0
+                            },
+                            {
+                                "id": "40",
+                                "tags": "Element,Component",
+                                "name": "Backend connector",
+                                "description": "Communicates with the backend and retrieves and updates data specifications",
+                                "relationships": [
+                                    {
+                                        "id": "43",
+                                        "tags": "Relationship",
+                                        "sourceId": "40",
+                                        "destinationId": "41",
+                                        "description": "Creates"
+                                    },
+                                    {
+                                        "id": "55",
+                                        "tags": "Relationship",
+                                        "sourceId": "40",
+                                        "destinationId": "7",
+                                        "description": "Reads and writes schemas and specifications"
+                                    }
+                                ],
+                                "size": 0
+                            },
+                            {
+                                "id": "41",
+                                "tags": "Element,Component",
+                                "name": "Store",
+                                "description": "Store contains PIM and Data PSM resources that describe the constructed schema tree",
+                                "relationships": [
+                                    {
+                                        "id": "48",
+                                        "tags": "Relationship",
+                                        "sourceId": "41",
+                                        "destinationId": "7",
+                                        "description": "Reads and writes specifications"
+                                    }
+                                ],
+                                "group": "core package",
+                                "technology": "CoreResourceReader",
+                                "size": 0
+                            },
+                            {
+                                "id": "44",
+                                "tags": "Element,Component",
+                                "name": "Store wrapper",
+                                "description": "Manages multiple stores as one and provides interface for easier access to the data.",
+                                "relationships": [
+                                    {
+                                        "id": "45",
+                                        "tags": "Relationship",
+                                        "sourceId": "44",
+                                        "destinationId": "41",
+                                        "description": "Manages"
+                                    }
+                                ],
+                                "technology": "FederatedObservableStore",
+                                "size": 0
+                            }
+                        ]
                     }
                 ],
                 "documentation": {}
@@ -338,7 +531,7 @@
                 "description": "External system that is used to edit the ontology",
                 "relationships": [
                     {
-                        "id": "43",
+                        "id": "67",
                         "tags": "Relationship",
                         "sourceId": "2",
                         "destinationId": "1",
@@ -420,19 +613,19 @@
                 ],
                 "relationships": [
                     {
-                        "id": "36"
+                        "id": "62"
                     },
                     {
-                        "id": "41"
+                        "id": "65"
                     },
                     {
-                        "id": "42"
+                        "id": "67"
                     },
                     {
-                        "id": "43"
+                        "id": "66"
                     },
                     {
-                        "id": "38"
+                        "id": "59"
                     }
                 ],
                 "animations": []
@@ -461,50 +654,50 @@
                         "y": 205
                     },
                     {
-                        "id": "25",
+                        "id": "39",
                         "x": 1030,
-                        "y": 880
-                    },
-                    {
-                        "id": "26",
-                        "x": 1030,
-                        "y": 1565
-                    },
-                    {
-                        "id": "27",
-                        "x": 1830,
                         "y": 880
                     },
                     {
                         "id": "7",
+                        "x": 1030,
+                        "y": 1565
+                    },
+                    {
+                        "id": "18",
                         "x": 240,
+                        "y": 880
+                    },
+                    {
+                        "id": "50",
+                        "x": 1830,
                         "y": 880
                     }
                 ],
                 "relationships": [
                     {
-                        "id": "29"
+                        "id": "61"
                     },
                     {
-                        "id": "37"
+                        "id": "63"
                     },
                     {
-                        "id": "40"
+                        "id": "52"
                     },
                     {
-                        "id": "35"
+                        "id": "64"
                     },
                     {
-                        "id": "33"
+                        "id": "54"
                     },
                     {
-                        "id": "32"
+                        "id": "56"
                     },
                     {
-                        "id": "31"
+                        "id": "58"
                     },
                     {
-                        "id": "39"
+                        "id": "49"
                     }
                 ],
                 "animations": []
@@ -512,90 +705,254 @@
         ],
         "componentViews": [
             {
+                "description": "Manager components",
+                "key": "managerComponentView",
+                "order": 4,
+                "dimensions": {
+                    "width": 3070,
+                    "height": 1461
+                },
+                "containerId": "39",
+                "externalContainerBoundariesVisible": true,
+                "elements": [
+                    {
+                        "id": "44",
+                        "x": 220,
+                        "y": 495
+                    },
+                    {
+                        "id": "7",
+                        "x": 2420,
+                        "y": 495
+                    },
+                    {
+                        "id": "40",
+                        "x": 1636,
+                        "y": 495
+                    },
+                    {
+                        "id": "41",
+                        "x": 928,
+                        "y": 240
+                    },
+                    {
+                        "id": "42",
+                        "x": 928,
+                        "y": 794
+                    }
+                ],
+                "relationships": [
+                    {
+                        "id": "60",
+                        "vertices": [
+                            {
+                                "x": 2140,
+                                "y": 940
+                            }
+                        ]
+                    },
+                    {
+                        "id": "43"
+                    },
+                    {
+                        "id": "55"
+                    },
+                    {
+                        "id": "45"
+                    },
+                    {
+                        "id": "46"
+                    },
+                    {
+                        "id": "47"
+                    },
+                    {
+                        "id": "48",
+                        "vertices": [
+                            {
+                                "x": 2165,
+                                "y": 390
+                            }
+                        ]
+                    }
+                ],
+                "animations": []
+            },
+            {
                 "description": "Editor components",
                 "key": "editorComponentView",
                 "order": 3,
                 "dimensions": {
-                    "width": 3400,
-                    "height": 3000
+                    "width": 3399,
+                    "height": 2963
+                },
+                "containerId": "18",
+                "externalContainerBoundariesVisible": true,
+                "elements": [
+                    {
+                        "id": "22",
+                        "x": 1341,
+                        "y": 1159
+                    },
+                    {
+                        "id": "23",
+                        "x": 961,
+                        "y": 683
+                    },
+                    {
+                        "id": "35",
+                        "x": 955,
+                        "y": 220
+                    },
+                    {
+                        "id": "25",
+                        "x": 220,
+                        "y": 683
+                    },
+                    {
+                        "id": "28",
+                        "x": 1921,
+                        "y": 1750
+                    },
+                    {
+                        "id": "39",
+                        "x": 1921,
+                        "y": 2464
+                    },
+                    {
+                        "id": "19",
+                        "x": 961,
+                        "y": 1750
+                    },
+                    {
+                        "id": "1",
+                        "x": 2750,
+                        "y": 1159
+                    },
+                    {
+                        "id": "7",
+                        "x": 961,
+                        "y": 2464
+                    },
+                    {
+                        "id": "30",
+                        "x": 1921,
+                        "y": 683
+                    },
+                    {
+                        "id": "20",
+                        "x": 591,
+                        "y": 1159
+                    },
+                    {
+                        "id": "32",
+                        "x": 1921,
+                        "y": 1159
+                    }
+                ],
+                "relationships": [
+                    {
+                        "id": "51"
+                    },
+                    {
+                        "id": "53"
+                    },
+                    {
+                        "id": "21"
+                    },
+                    {
+                        "id": "31"
+                    },
+                    {
+                        "id": "29"
+                    },
+                    {
+                        "id": "27"
+                    },
+                    {
+                        "id": "37"
+                    },
+                    {
+                        "id": "26"
+                    },
+                    {
+                        "id": "36"
+                    },
+                    {
+                        "id": "24"
+                    },
+                    {
+                        "id": "34"
+                    },
+                    {
+                        "id": "33"
+                    },
+                    {
+                        "id": "57"
+                    },
+                    {
+                        "id": "49"
+                    },
+                    {
+                        "id": "38"
+                    }
+                ],
+                "animations": []
+            },
+            {
+                "description": "Backend components",
+                "key": "backendComponentView",
+                "order": 5,
+                "paperSize": "A4_Landscape",
+                "dimensions": {
+                    "width": 2608,
+                    "height": 1558
+                },
+                "automaticLayout": {
+                    "implementation": "Graphviz",
+                    "rankDirection": "TopBottom",
+                    "rankSeparation": 300,
+                    "nodeSeparation": 300,
+                    "edgeSeparation": 0,
+                    "vertices": false
                 },
                 "containerId": "7",
                 "externalContainerBoundariesVisible": true,
                 "elements": [
                     {
                         "id": "11",
-                        "x": 1341,
-                        "y": 1194
+                        "x": 1829,
+                        "y": 292
                     },
                     {
                         "id": "12",
-                        "x": 961,
-                        "y": 718
+                        "x": 1079,
+                        "y": 292
                     },
                     {
-                        "id": "1",
-                        "x": 2750,
-                        "y": 718
-                    },
-                    {
-                        "id": "25",
-                        "x": 1921,
-                        "y": 2499
+                        "id": "13",
+                        "x": 1079,
+                        "y": 892
                     },
                     {
                         "id": "14",
-                        "x": 220,
-                        "y": 718
-                    },
-                    {
-                        "id": "26",
-                        "x": 961,
-                        "y": 2499
-                    },
-                    {
-                        "id": "17",
-                        "x": 1921,
-                        "y": 1785
-                    },
-                    {
-                        "id": "19",
-                        "x": 1921,
-                        "y": 718
+                        "x": 1829,
+                        "y": 892
                     },
                     {
                         "id": "8",
-                        "x": 961,
-                        "y": 1785
+                        "x": 329,
+                        "y": 292
                     },
                     {
                         "id": "9",
-                        "x": 591,
-                        "y": 1194
-                    },
-                    {
-                        "id": "21",
-                        "x": 961,
-                        "y": 219
+                        "x": 329,
+                        "y": 892
                     }
                 ],
                 "relationships": [
                     {
-                        "id": "32"
-                    },
-                    {
-                        "id": "20"
-                    },
-                    {
-                        "id": "10"
-                    },
-                    {
-                        "id": "30"
-                    },
-                    {
-                        "id": "18"
-                    },
-                    {
-                        "id": "28"
+                        "id": "17"
                     },
                     {
                         "id": "16"
@@ -604,19 +961,7 @@
                         "id": "15"
                     },
                     {
-                        "id": "24"
-                    },
-                    {
-                        "id": "13"
-                    },
-                    {
-                        "id": "23"
-                    },
-                    {
-                        "id": "34"
-                    },
-                    {
-                        "id": "22"
+                        "id": "10"
                     }
                 ],
                 "animations": []
@@ -660,6 +1005,10 @@
                         "shape": "Folder"
                     },
                     {
+                        "tag": "Folder",
+                        "shape": "Folder"
+                    },
+                    {
                         "tag": "Component",
                         "background": "#50a8ff",
                         "color": "#ffffff"
@@ -668,7 +1017,7 @@
                 "relationships": []
             },
             "terminology": {},
-            "lastSavedView": "dataspecerContainerView",
+            "lastSavedView": "managerComponentView",
             "themes": []
         },
         "customViews": [],
