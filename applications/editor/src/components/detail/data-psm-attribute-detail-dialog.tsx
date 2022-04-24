@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
 import {PimAttribute} from "@dataspecer/core/pim/model";
-import {selectLanguage} from "../../utils/selectLanguage";
+import {selectLanguage} from "../../utils/select-language";
 import {BasicInfo} from "./components/basic-info";
 import {ResourceInStore} from "./components/resource-in-store";
 import {useLabelAndDescription} from "../../hooks/use-label-and-description";

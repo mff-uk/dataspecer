@@ -1,7 +1,11 @@
-# About
+# Data PSM level
 
-Data platform specific model (data-psm) level represent model on a platform specific level.
-It can represent, for example, a specific file format.
+See [model-driven architecture in data modeling](../../../../documentation/2022-04-21-model-driven-architecture.md) for more details.
 
-The PSM level classes does not automatically have all properties of their PIM interpretations.
-They need to be added explicitly.
+Schema is represented by `DataPsmSchema`, which is a root of the PSM tree. Then, the schema may contain classes or references to class, attributes, and association ends.
+
+This directory is divided into several subdirectories:
+- [adapter](adapter) - contains functionality to recreate or save the model, such as RDF representation
+- [model](model) - classes representing PSM entities - class, attribute, class reference, etc.
+- [operation](operation) - `CoreOperation` to manipulate the model, such as create class, remove the attribute, etc.
+- [executor](executor) - methods that can execute the operations above and modify the model

@@ -12,6 +12,11 @@ export interface PlantUmlGeneratorObject {
   data: string;
 }
 
+/**
+ * Generator that can generate PlantUML source for the given data specification.
+ *
+ * This generator does not generate the images, only their source.
+ */
 export class PlantUmlGenerator implements ArtefactGenerator {
   static readonly IDENTIFIER = "plant-uml"; // todo: use IRI
 

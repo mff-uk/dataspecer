@@ -1,4 +1,4 @@
-import {Configuration} from "./configuration";
+import {Configuration} from "../configuration";
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
 import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
@@ -7,11 +7,12 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
-import {useAsyncMemo} from "../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useEffect, useMemo, useState} from "react";
-import {getSlovnikGovCzAdapter} from "./slovnik-gov-cz-adapter";
+import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
-import {OperationContext} from "../operations/context/operation-context";
+import {OperationContext} from "../../operations/context/operation-context";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -49,7 +50,7 @@ export const useProvidedConfiguration = (
 }
 
 // So far only supported connector
-const backendConnector = new BackendConnector(process.env.REACT_APP_BACKEND as string);
+const backendConnector = new BackendConnector(process.env.REACT_APP_BACKEND as string, httpFetch);
 const connector = backendConnector;
 
 const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
@@ -159,7 +160,7 @@ export const useConstructedStoresFromDescriptors = (
                     }
 
                     if (!found) {
-                        const store = HttpSynchronizedStore.createFromDescriptor(descriptor);
+                        const store = HttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
                         constructedStoreCache.set(descriptor, store);
                         store.load().then(() => {
                             if ([...constructedStoreCache.values()].includes(store)) {

@@ -1,4 +1,4 @@
-import {useDialog} from "./useDialog";
+import {useDialog} from "./use-dialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import {useCallback, useContext} from "react";
 import {PimResource} from "@dataspecer/core/pim/model";

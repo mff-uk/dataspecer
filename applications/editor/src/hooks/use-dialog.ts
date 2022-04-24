@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {useToggle} from "./useToggle";
+import {useToggle} from "./use-toggle";
 
 // noinspection JSUnusedLocalSymbols
 /**

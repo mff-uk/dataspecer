@@ -1,6 +1,6 @@
 import React, {memo} from "react";
 import {knownDatatypes} from "../../../utils/known-datatypes";
-import {selectLanguage} from "../../../utils/selectLanguage";
+import {selectLanguage} from "../../../utils/select-language";
 import {useTranslation} from "react-i18next";
 
 export const Datatype: React.FC<{iri: string} & React.HTMLAttributes<HTMLSpanElement>> = memo(({iri, ...params}) => {

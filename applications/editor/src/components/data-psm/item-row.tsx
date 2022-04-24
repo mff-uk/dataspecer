@@ -2,7 +2,7 @@ import React from "react";
 import {Box, Fade, Typography} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
-import {useToggle} from "../../hooks/useToggle";
+import {useToggle} from "../../hooks/use-toggle";
 import {DataPsmItemTreeContext} from "./data-psm-item-tree-context";
 
 const LightTooltip = styled<typeof Tooltip>(({ className, ...props }) => (

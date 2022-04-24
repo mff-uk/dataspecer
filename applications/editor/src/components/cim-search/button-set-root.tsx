@@ -2,12 +2,12 @@ import React, {useCallback, useContext} from "react";
 import {Fab} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {SearchDialog} from "./search-dialog";
-import {useToggle} from "../../hooks/useToggle";
+import {useToggle} from "../../hooks/use-toggle";
 import {useTranslation} from "react-i18next";
 import {ConfigurationContext} from "../App";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {CreateRootClass} from "../../operations/create-root-class";
-import {selectLanguage} from "../../utils/selectLanguage";
+import {selectLanguage} from "../../utils/select-language";
 import {languages} from "../../i18n";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 

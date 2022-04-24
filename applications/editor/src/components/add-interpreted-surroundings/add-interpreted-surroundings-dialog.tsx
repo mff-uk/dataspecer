@@ -10,8 +10,8 @@ import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpre
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
 import {ConfigurationContext} from "../App";
 import {AncestorSelectorPanel} from "./ancestor-selector-panel";
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
-import {useDialog} from "../../hooks/useDialog";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
+import {useDialog} from "../../hooks/use-dialog";
 import {PimAttributeDetailDialog} from "../detail/pim-attribute-detail-dialog";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import {PimAssociationToClassDetailDialog} from "../detail/pim-association-to-class-detail-dialog";

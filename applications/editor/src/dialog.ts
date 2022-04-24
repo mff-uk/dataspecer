@@ -1,9 +1,13 @@
 import {Dialog, DialogProps} from "@mui/material";
 import React, {FunctionComponent, useCallback, useState} from "react";
-import {useToggle} from "./hooks/useToggle";
+import {useToggle} from "./hooks/use-toggle";
 
 type FunctionComponentParameters<Component> = Component extends FunctionComponent<infer P> ? P : never;
 export type UseDialogOpenFunction<Dialog extends FunctionComponent<any>, staticParameters extends keyof FunctionComponentParameters<Dialog> = never> = (data: Omit<FunctionComponentParameters<Dialog>, staticParameters | "isOpen" | "close">) => void;
+export interface DialogParameters {
+    isOpen: boolean,
+    close: () => void,
+}
 
 /**
  * Wraps component with {@link Dialog} element and automatically passes isOpen and close props.
@@ -12,9 +16,6 @@ export type UseDialogOpenFunction<Dialog extends FunctionComponent<any>, staticP
  * @param dialogProps
  * @param Node
  */
-// export const dialog = <ComponentProperties extends {isOpen: boolean, close: () => void}>(dialogProps: Omit<DialogProps, "open" | "onClose">, Node: FunctionComponent<ComponentProperties>) => (props: ComponentProperties) =>
-//     React.createElement(Dialog, {open: props.isOpen, onClose: props.close, ...dialogProps}, React.createElement(Node, props));
-
 export const dialog =
   <ComponentProperties>(
     dialogProps: Omit<DialogProps, "open" | "onClose">,
@@ -52,7 +53,3 @@ export const useDialog = <Parameters extends {isOpen: boolean, close: () => void
     }
 }
 
-export interface DialogParameters {
-    isOpen: boolean,
-    close: () => void,
-}

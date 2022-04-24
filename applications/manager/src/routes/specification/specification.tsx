@@ -6,7 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {saveAs} from "file-saver";
 import LoadingButton from '@mui/lab/LoadingButton';
 import {BackendConnectorContext, ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
-import {useConstructedStoresFromDescriptors} from "../../store/use-stores-by-descriptors";
+import {useConstructedStoresFromDescriptors} from "../../utils/use-stores-by-descriptors";
 import {DataStructureRow} from "./data-structure-row";
 import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
 import {getSchemaGeneratorLink} from "../../shared/get-schema-generator-link";
@@ -20,6 +20,7 @@ import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
 import {ModifySpecification} from "./modify-specification";
 import {SpecificationTags} from "../../components/specification-tags";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -97,7 +98,7 @@ export const Specification: React.FC = () => {
             }
 
             // Build store
-            const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor);
+            const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
             await store.load();
             constructedStores.push(store);
         }

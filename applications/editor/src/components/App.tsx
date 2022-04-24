@@ -5,15 +5,15 @@ import ButtonSetRoot from "./cim-search/button-set-root";
 import {DataPsmSchemaItem} from "./data-psm/DataPsmSchemaItem";
 import {GenerateArtifacts} from "./artifacts/GenerateArtifacts";
 import {SnackbarProvider} from "notistack";
-import {LanguageSelector} from "./LanguageSelector";
+import {LanguageSelector} from "./language-selector";
 import {Trans, useTranslation} from "react-i18next";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
 import {ArtifactPreview} from "./artifacts/artifact-preview";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
-import {useLocalConfiguration} from "../configuration/local-configuration";
-import {useProvidedConfiguration} from "../configuration/provided-configuration";
+import {useLocalConfiguration} from "../configuration/providers/local-configuration";
+import {useProvidedConfiguration} from "../configuration/providers/provided-configuration";
 import {Configuration} from "../configuration/configuration";
 import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
 
@@ -35,6 +35,10 @@ const ButtonMenuTheme = createTheme({
     },
 });
 
+/**
+ * Main component that renders the whole editor UI. The editor is only one-page application, therefore no router is
+ * required.
+ */
 const App: React.FC = () => {
     const { t, i18n } = useTranslation('ui');
 

@@ -1,6 +1,6 @@
 import {DataPsmClass, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
-import {selectLanguage} from "./selectLanguage";
+import {selectLanguage} from "./select-language";
 import {CoreResourceReader} from "@dataspecer/core/core";
 
 /**

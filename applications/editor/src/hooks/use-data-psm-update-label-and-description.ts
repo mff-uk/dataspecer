@@ -1,5 +1,5 @@
 import {DataPsmResource} from "@dataspecer/core/data-psm/model";
-import {useDialog} from "./useDialog";
+import {useDialog} from "./use-dialog";
 import {LabelDescriptionEditor} from "../components/helper/LabelDescriptionEditor";
 import {useCallback, useContext} from "react";
 import {SetDataPsmLabelAndDescription} from "../operations/set-data-psm-label-and-description";

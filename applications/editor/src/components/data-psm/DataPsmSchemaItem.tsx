@@ -7,7 +7,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
 import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
-import {useDialog} from "../../hooks/useDialog";
+import {useDialog} from "../../hooks/use-dialog";
 import {useTranslation} from "react-i18next";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {SetOrder} from "../../operations/set-order";

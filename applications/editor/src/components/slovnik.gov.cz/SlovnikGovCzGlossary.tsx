@@ -1,7 +1,7 @@
 import React from "react";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ConfigurationContext} from "../App";
-import {useAsyncMemo} from "../../hooks/useAsyncMemo";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {alpha, Theme} from "@mui/material";
 
 const useStyles = makeStyles((theme: Theme) =>
