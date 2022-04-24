@@ -36,6 +36,3 @@ You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the 
 - Run `npx lerna bootstrap` to install and link all packages.
 - *Optionally* run `npx lerna run test` to run test, to be sure nothing is broken. 
 - Run `lerna run build` to build everything.
-
-Tento repozitář je udržován v rámci projektu OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983.
-![Evropská unie - Evropský sociální fond - Operační program Zaměstnanost](https://data.gov.cz/images/ozp_logo_cz.jpg)
