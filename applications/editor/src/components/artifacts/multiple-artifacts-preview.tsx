@@ -7,11 +7,13 @@ import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
+import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
 
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("xsd", xml);
 SyntaxHighlighter.registerLanguage("xslt", xml);
+SyntaxHighlighter.registerLanguage("sparql", sparql);
 
 /**
  * Component that renders single artifact result by generator id.
