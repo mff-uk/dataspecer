@@ -59,8 +59,6 @@ const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
             return null;
         }
 
-        console.log("sdfdf");
-
         const dataSpecificationIrisToLoad = [dataSpecificationIri];
         const dataSpecifications: { [iri: string]: DataSpecification } = {};
 

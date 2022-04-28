@@ -1,13 +1,15 @@
 {
   "button generate load artifacts": "Artefakty",
   "close": "zavřít",
-  "copy": "zkopírovat",
-  "download": "stáhnout",
-  "error mdd": "Chyba na straně model-driven-data knihovny",
-  "live preview": "živý náhled",
-  "preview": "náhled",
+  "error": "Nelze vygenerovat artefakt. Více informací je v developerské konzoli.",
+  "note use checkbox to live preview": "Zaškrtnutím checkboxu se daný artefakt zobrazí vedle schématu a bude živě aktualizován.",
+  "note use manager for all artifacts": "Pro vygenerování všech artefaktů použijte manažer specifikací.",
   "snackbar copied to clipboard": {
     "failed": "Kopírování do schránky selhalo",
     "ok": "Zkopírováno do schránky"
-  }
+  },
+  "title generate artifacts": "Generovat artefakty",
+  "tooltip copy": "zkopíruje obsah artefaktu do schránky",
+  "tooltip download": "stáhne artefakt jako soubor",
+  "tooltip preview": "zobrazí artefakt"
 }

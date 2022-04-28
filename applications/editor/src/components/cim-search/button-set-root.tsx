@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from "react";
-import {Fab} from "@mui/material";
+import {Button} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {SearchDialog} from "./search-dialog";
 import {useToggle} from "../../hooks/use-toggle";
@@ -63,10 +63,10 @@ const ButtonSetRoot: React.FC = () => {
 
     return <>
         {
-            <Fab variant="extended" size="medium" color="primary" onClick={open}>
+            <Button variant="contained" onClick={open}>
                 <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
                 {t("set root element button")}
-            </Fab>
+            </Button>
         }
         <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
     </>;
