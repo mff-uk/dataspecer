@@ -10,7 +10,7 @@
   "cancel": "cancel",
   "datatype": "datatype",
   "generalization": {
-    "description": "more generic classes",
+    "no-ancestors": "No ancestors",
     "title": "Generalization"
   },
   "no description": "no description",
@@ -27,7 +27,7 @@
   },
   "replace with reference": "replace with reference",
   "specialization": {
-    "description": "more concrete classes",
+    "no-descendants": "No descendants",
     "title": "Specialization"
   },
   "technical label": "technical label"

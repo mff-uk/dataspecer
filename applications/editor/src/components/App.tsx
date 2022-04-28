@@ -3,13 +3,13 @@ import {AppBar, Box, Button, Container, Divider, Toolbar, Typography} from "@mui
 import CssBaseline from "@mui/material/CssBaseline";
 import ButtonSetRoot from "./cim-search/button-set-root";
 import {DataPsmSchemaItem} from "./data-psm/DataPsmSchemaItem";
-import {GenerateArtifacts} from "./artifacts/GenerateArtifacts";
+import {GenerateArtifactsMenu} from "./artifacts/generate-artifacts-menu";
 import {SnackbarProvider} from "notistack";
 import {LanguageSelector} from "./language-selector";
 import {Trans, useTranslation} from "react-i18next";
 import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
-import {ArtifactPreview} from "./artifacts/artifact-preview";
+import {MultipleArtifactsPreview} from "./artifacts/multiple-artifacts-preview";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {useLocalConfiguration} from "../configuration/providers/local-configuration";
@@ -63,7 +63,8 @@ const App: React.FC = () => {
         };
     }, [operationContext, i18n.languages]);
 
-    const [artifactPreview, setArtifactPreview] = useState<((configuration: Configuration) => Promise<ReactElement>) | null>(null);
+    // List of generators that their artifacts will be shown as a live preview next to the modelled schema
+    const [artifactPreview, setArtifactPreview] = useState<string[]>([]);
 
     return <>
         <SnackbarProvider maxSnack={5}>
@@ -98,7 +99,7 @@ const App: React.FC = () => {
                             <Box height="30px"/>
                             <Box display="flex" flexDirection="row" justifyContent="space-between">
                                 <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-                                <GenerateArtifacts artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
+                                <GenerateArtifactsMenu artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
                                 <ButtonSetRoot />
                             </Box>
                         </Container>
@@ -106,7 +107,7 @@ const App: React.FC = () => {
                             <Container>
                                 {configuration.dataPsmSchemaIri && <DataPsmSchemaItem dataPsmSchemaIri={configuration.dataPsmSchemaIri}/>}
                             </Container>
-                            <ArtifactPreview artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
+                            <MultipleArtifactsPreview artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
                         </Box>
                         <Container>
                             {configuration.dataPsmSchemaIri === null &&

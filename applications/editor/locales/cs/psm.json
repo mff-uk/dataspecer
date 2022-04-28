@@ -6,11 +6,11 @@
   "button info": "detail",
   "button inline discard": "zahodit",
   "button inline save": "uložit",
-  "button replace along inheritace": "Nahradit třídu podél dědičnosti (specializace a generalizace)",
+  "button replace along inheritance": "Nahradit podél dědičnosti",
   "cancel": "zrušit",
   "datatype": "datový typ",
   "generalization": {
-    "description": "zobecňují zvolenou třídu",
+    "no-ancestors": "Žádní předchůdci",
     "title": "Generalizace"
   },
   "no description": "bez popisku",
@@ -27,7 +27,7 @@
   },
   "replace with reference": "nahradit referencí",
   "specialization": {
-    "description": "konkretizují zvolenou třídu",
+    "no-descendants": "Žádní potomci",
     "title": "Specializace"
   },
   "technical label": "technický popisek"

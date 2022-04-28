@@ -5,21 +5,24 @@ import {CoreResourceReader} from "@dataspecer/core/core";
 import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
 
 /**
- * Returns a single generated artifact based on the given artifact definition.
+ * Returns a single generated artifact with its name based on the given artifact
+ * definition.
  * @param store
  * @param forDataSpecificationIri
  * @param dataSpecifications
  * @param artifactSelector Function that returns true for the artifact
  * definition that should be generated.
+ * @return [artifact content, filename]
  */
 export async function getSingleArtifact(
   store: CoreResourceReader,
   forDataSpecificationIri: string,
   dataSpecifications: { [key: string]: DataSpecification },
   artifactSelector: (artifact: DataSpecificationArtefact) => boolean,
-): Promise<string> {
+): Promise<[string, string]> {
   // Generate artifacts definitions
 
+  // todo: list of artifacts is generated in place by DefaultArtifactConfigurator
   const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store);
   const dataSpecificationsWithArtifacts: typeof dataSpecifications = {};
   for (const dataSpecification of Object.values(dataSpecifications)) {
@@ -45,5 +48,5 @@ export async function getSingleArtifact(
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);
   const stream = dict.readPath(path as string);
-  return await stream.read() as string;
+  return [await stream.read() as string, path?.split("/").pop() as string];
 }
