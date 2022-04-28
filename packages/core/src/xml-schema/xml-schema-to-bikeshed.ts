@@ -22,6 +22,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
 } from "../data-specification/model";
+import {pathRelative} from "../core/utilities/path-relative";
 
 // TODO This is temporary solution we need to be able to extend common version with JSON.
 export async function createBikeshedSchemaXml(
@@ -31,13 +32,13 @@ export async function createBikeshedSchemaXml(
   const label = context.selectString(structureModel.humanLabel) + " XML";
   const result = new BikeshedContentSection(label, null);
 
-  const linkToSchema = removeCommonPrefix(
+  const linkToSchema = pathRelative(
     context.ownerArtefact.publicUrl,
     context.artefact.publicUrl
   );
   result.content.push(
     new BikeshedContentText(
-      `Tato sekce je dokumentací pro [XML schéma](.${linkToSchema}).`
+      `Tato sekce je dokumentací pro [XML schéma](${linkToSchema}).`
     )
   );
 
@@ -49,20 +50,6 @@ export async function createBikeshedSchemaXml(
     result.content.push(createEntitySection(context, entity));
   }
   return result;
-}
-
-function removeCommonPrefix(prefix: string, value: string): string {
-  let index = 0;
-  const length = Math.min(prefix.length, value.length);
-  while (index < length) {
-    const nextIndex = index + 1;
-    if (prefix[nextIndex] === value[nextIndex]) {
-      ++index;
-    } else {
-      break;
-    }
-  }
-  return value.substring(index);
 }
 
 function createEntitySection(
