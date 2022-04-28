@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {AppBar, Box, Button, Container, Divider, Toolbar, Typography} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import ButtonSetRoot from "./cim-search/button-set-root";
@@ -7,7 +7,6 @@ import {GenerateArtifactsMenu} from "./artifacts/generate-artifacts-menu";
 import {SnackbarProvider} from "notistack";
 import {LanguageSelector} from "./language-selector";
 import {Trans, useTranslation} from "react-i18next";
-import OpenInBrowserTwoToneIcon from "@mui/icons-material/OpenInBrowserTwoTone";
 import {DialogAppProvider} from "./dialog-app-provider";
 import {MultipleArtifactsPreview} from "./artifacts/multiple-artifacts-preview";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -16,6 +15,8 @@ import {useLocalConfiguration} from "../configuration/providers/local-configurat
 import {useProvidedConfiguration} from "../configuration/providers/provided-configuration";
 import {Configuration} from "../configuration/configuration";
 import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 
 // @ts-ignore default value
 export const ConfigurationContext = React.createContext<Configuration>(null);
@@ -34,6 +35,56 @@ const ButtonMenuTheme = createTheme({
         },
     },
 });
+
+const AppContent: React.FC = () => {
+    // List of generators that their artifacts will be shown as a live preview next to the modelled schema
+    const [artifactPreview, setArtifactPreview] = useState<string[]>([]);
+
+    const configuration = useContext(ConfigurationContext);
+    const {t} = useTranslation('ui');
+
+    const {resource: root} = useResource<DataPsmSchema>(configuration.dataPsmSchemaIri);
+    const rootHasPart = root && root.dataPsmParts.length > 0;
+
+    return <>
+        <Container>
+            <Box height="30px"/>
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+                <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
+                <div>
+                    <div style={{display: "flex", gap: "1rem"}}>
+                        <GenerateArtifactsMenu artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
+                        <ButtonSetRoot />
+                    </div>
+                </div>
+            </Box>
+        </Container>
+        <Box sx={{display: "flex"}}>
+            <Container>
+                {configuration.dataPsmSchemaIri && rootHasPart && <DataPsmSchemaItem dataPsmSchemaIri={configuration.dataPsmSchemaIri}/>}
+            </Container>
+            <MultipleArtifactsPreview artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
+        </Box>
+        <Container>
+            {!rootHasPart &&
+                <Typography color={"textSecondary"} sx={{py: 4}}>
+                    <Trans i18nKey="no schema text" t={t}>
+                        _ <strong /> _
+                    </Trans>
+                </Typography>
+            }
+            <Divider style={{margin: "1rem 0 1rem 0"}} />
+            <Trans i18nKey="footer report bug" t={t}>
+                Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
+            </Trans>
+            {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                <>
+                    {" | "}{t("version")}: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                </>
+            }
+        </Container>
+    </>
+}
 
 /**
  * Main component that renders the whole editor UI. The editor is only one-page application, therefore no router is
@@ -62,9 +113,6 @@ const App: React.FC = () => {
             specialCharacters: "allow",
         };
     }, [operationContext, i18n.languages]);
-
-    // List of generators that their artifacts will be shown as a live preview next to the modelled schema
-    const [artifactPreview, setArtifactPreview] = useState<string[]>([]);
 
     return <>
         <SnackbarProvider maxSnack={5}>
@@ -95,38 +143,7 @@ const App: React.FC = () => {
                 </AppBar>
                 <ConfigurationContext.Provider value={configuration}>
                     <StoreContext.Provider value={configuration.store}>
-                        <Container>
-                            <Box height="30px"/>
-                            <Box display="flex" flexDirection="row" justifyContent="space-between">
-                                <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
-                                <GenerateArtifactsMenu artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
-                                <ButtonSetRoot />
-                            </Box>
-                        </Container>
-                        <Box sx={{display: "flex"}}>
-                            <Container>
-                                {configuration.dataPsmSchemaIri && <DataPsmSchemaItem dataPsmSchemaIri={configuration.dataPsmSchemaIri}/>}
-                            </Container>
-                            <MultipleArtifactsPreview artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
-                        </Box>
-                        <Container>
-                            {configuration.dataPsmSchemaIri === null &&
-                                <Typography color={"textSecondary"}>
-                                    <Trans i18nKey="no schema text" t={t}>
-                                        _ <strong /> _ <OpenInBrowserTwoToneIcon fontSize="small" /> _
-                                    </Trans>
-                                </Typography>
-                            }
-                            <Divider style={{margin: "1rem 0 1rem 0"}} />
-                            <Trans i18nKey="footer report bug" t={t}>
-                                Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
-                            </Trans>
-                            {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
-                                <>
-                                    {" | "}{t("version")}: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
-                                </>
-                            }
-                        </Container>
+                        <AppContent />
                     </StoreContext.Provider>
                 </ConfigurationContext.Provider>
             </DialogAppProvider>

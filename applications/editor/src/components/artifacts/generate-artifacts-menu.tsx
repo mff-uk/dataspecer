@@ -1,5 +1,5 @@
-import React, {memo, useCallback, useContext, useRef, useState} from "react";
-import {Button, CardContent, Checkbox, DialogActions, DialogContent, Divider, Fab, IconButton, ListItemText, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
+import React, {useCallback, useContext, useRef, useState} from "react";
+import {Button, CardContent, Checkbox, DialogActions, DialogContent, Divider, IconButton, ListItemText, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useToggle} from "../../hooks/use-toggle";
 import {uniqueId} from "lodash";
@@ -21,6 +21,9 @@ import {getSingleArtifact} from "./get-single-artifact";
 import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import mime from "mime/lite";
 import {SingleArtifactPreview} from "./multiple-artifacts-preview";
+import PrintTwoToneIcon from '@mui/icons-material/PrintTwoTone';
+import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -161,12 +164,16 @@ export const GenerateArtifactsMenu: React.FC<{
 
     const del = (artifact: string) => setArtifactPreview(artifactPreview.filter(a => a !== artifact));
 
+    const {dataPsmSchemaIri} = useContext(ConfigurationContext);
+    const {resource: root} = useResource<DataPsmSchema>(dataPsmSchemaIri);
+
     return (
         <>
-            <Fab aria-controls={id} aria-haspopup="true" variant="extended" size="medium" color="primary" onClick={open} ref={ref}>
+            <Button aria-controls={id} aria-haspopup="true" variant="contained" onClick={open} ref={ref} disabled={!root || root.dataPsmParts.length === 0}>
+                <PrintTwoToneIcon style={{marginRight: ".25em"}}/>
                 {t("button generate load artifacts")}
                 <ExpandMoreIcon />
-            </Fab>
+            </Button>
             <StyledMenu
                 id={id}
                 anchorEl={ref.current}
