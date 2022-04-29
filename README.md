@@ -35,4 +35,4 @@ You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the 
 - Run `npm install` to install Lerna.
 - Run `npx lerna bootstrap` to install and link all packages.
 - *Optionally* run `npx lerna run test` to run test, to be sure nothing is broken. 
-- Run `lerna run build` to build everything.
+- Run `npx lerna run build` to build everything.
