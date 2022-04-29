@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './i18n';
 
 const root = document.getElementById('root') as HTMLElement;
-ReactDOM.createRoot(root).render(
+createRoot(root).render(
     //<React.StrictMode> // https://github.com/atlassian/react-beautiful-dnd/issues/2350
         <App />
     //</React.StrictMode>
