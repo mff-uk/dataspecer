@@ -18,7 +18,6 @@
     "@dataspecer/core": "^0.0.0",
     "@types/yargs": "^17.0.10",
     "chalk": "^5.0.1",
-    "dotenv-defaults": "^5.0.0",
     "yargs": "^17.4.0"
   }
 }

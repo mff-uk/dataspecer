@@ -23,7 +23,6 @@ module.exports = {
     },
     plugins: [
         new ShebangPlugin(),
-        new Dotenv({path: "./.env"}),
-        new Dotenv({path: "./.env.local"}),
+        new Dotenv({defaults: "./.env", path: "./.env.local"}),
     ]
 };

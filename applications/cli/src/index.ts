@@ -4,10 +4,11 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {generate} from "./commands/generate";
 
-require('dotenv-defaults').config({
+// See webpack configuration
+/*require('dotenv-defaults').config({
     path: ".env.local",
     defaults: ".env",
-});
+});*/
 
 /**
  * Main script that routes different commands and parses the command line.
@@ -19,8 +20,9 @@ yargs(hideBin(process.argv))
         'Generate artifacts from the given data specification.',
         yargs => yargs.option("backend-url", {
             type: "string",
-            default: process.env.BACKEND,
+            ... process.env.BACKEND ? {default: process.env.BACKEND} : {},
             describe: "The URL of the backend to use.",
+            demandOption: true,
         }),
         generate as any,
     )
