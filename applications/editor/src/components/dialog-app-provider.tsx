@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, {useMemo, ReactNode} from "react";
 import {useDialog} from "../hooks/use-dialog";
 import {LabelAndDescriptionLanguageStrings, LabelDescriptionEditor} from "./helper/LabelDescriptionEditor";
 
@@ -11,7 +11,7 @@ interface Context {
 
 export const DialogAppProviderContext = React.createContext<Context>({} as Context);
 
-export const DialogAppProvider: React.FC = ({children}) => {
+export const DialogAppProvider: React.FC<{children: ReactNode}> = ({children}) => {
     const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {
         data: {label: {}, description: {}},
         update: () => {}

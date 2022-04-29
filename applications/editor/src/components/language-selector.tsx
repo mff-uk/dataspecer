@@ -35,7 +35,7 @@ export const LanguageSelector: React.FC = () => {
             open={isOpen}
             onClose={close}
         >
-            {languages.map(language => <MenuItem onClick={() => setLanguage(language)} key={language}>{i18n.getFixedT(language, "_")("locale")}</MenuItem>)}
+            {languages.map(language => <MenuItem onClick={() => setLanguage(language)} key={language}>{i18n.getFixedT(language, "_")("locale") as string}</MenuItem>)}
         </Menu>
     </>;
 };
