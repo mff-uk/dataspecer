@@ -7,6 +7,7 @@ import {
   xmlMatchIsClass,
   XmlRootTemplate,
   XmlMatch,
+  xmlMatchIsCodelist,
 } from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -236,6 +237,13 @@ async function writeTemplateMatch(
 
       if (xmlMatchIsLiteral(match)) {
         await writer.writeElementFull("xsl", "apply-templates")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "select",
+            "sp:binding[@name=$obj]/*"
+          );
+        });
+      } else if (xmlMatchIsCodelist(match)) {
+        await writer.writeElementFull("xsl", "value-of")(async writer => {
           await writer.writeLocalAttributeValue(
             "select",
             "sp:binding[@name=$obj]/*"

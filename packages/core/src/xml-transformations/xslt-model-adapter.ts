@@ -14,6 +14,7 @@ import {
   XmlClassMatch,
   XmlLiteralMatch,
   XmlTransformationInclude,
+  XmlCodelistMatch,
 } from "./xslt-model";
 
 import {
@@ -34,12 +35,6 @@ export function structureModelToXslt(
   const adapter = new XsltAdapter(specifications, specification, model);
   return adapter.fromRoots(model.roots);
 }
-
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
 
 type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
@@ -78,7 +73,8 @@ class XsltAdapter {
       targetNamespacePrefix: null,
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
-      templates: Object.keys(this.classMap).map(this.classToTemplate, this),
+      templates: Object.keys(this.classMap).map(this.classToTemplate, this)
+        .filter(template => template != null),
       includes: Object.values(this.includes),
     };
   }
@@ -152,8 +148,11 @@ class XsltAdapter {
     };
   }
 
-  classToTemplate(classIri: string): XmlTemplate {
+  classToTemplate(classIri: string): XmlTemplate | null {
     const classData = this.classMap[classIri];
+    if (classData.isCodelist) {
+      return null;
+    }
     if (this.resolveImportedElement(classData)) {
       return {
         name: this.classTemplateName(classData),
@@ -185,11 +184,16 @@ class XsltAdapter {
         "not supported."
       );
     }
-    // Treat codelists as URIs
-    dataTypes = dataTypes.map(this.replaceCodelistWithUri, this);
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
+      this.propertyToMatchCheckType(
+        propertyData,
+        dataTypes,
+        (type) => type.isAssociation() &&
+          this.getClass(type.psmClassIri).isCodelist,
+        this.classPropertyToCodelistMatch
+      ) ??
       this.propertyToMatchCheckType(
         propertyData,
         dataTypes,
@@ -209,16 +213,6 @@ class XsltAdapter {
       );
     }
     return result;
-  }
-
-  replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
-    if (
-      dataType.isAssociation() &&
-      this.getClass(dataType.psmClassIri).isCodelist
-    ) {
-      return anyUriType;
-    }
-    return dataType;
   }
 
   iriToQName(iri: string): QName {
@@ -293,6 +287,20 @@ class XsltAdapter {
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       dataTypeIri: this.primitiveToIri(dataTypes[0])
+    };
+  }
+
+  classPropertyToCodelistMatch(
+    propertyData: StructureModelProperty,
+    interpretation: QName,
+    propertyName: QName,
+    dataTypes: StructureModelComplexType[]
+  ): XmlCodelistMatch {
+    return {
+      interpretation: interpretation,
+      propertyIri: propertyData.cimIri,
+      propertyName: propertyName,
+      isCodelist: true,
     };
   }
 

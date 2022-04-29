@@ -75,6 +75,11 @@ async function writeSchemaBegin(
       );
     }
   }
+  
+  await writer.writeAndRegisterNamespaceDeclaration(
+    "sawsdl",
+    "http://www.w3.org/ns/sawsdl"
+  );
 }
 
 async function writeSchemaEnd(writer: XmlWriter): Promise<void> {
@@ -210,6 +215,9 @@ async function writeAnnotation(
 ): Promise<void> {
   const annotation = annotated?.annotation;
   if (annotation != null) {
+    await writer.writeAttributeValue(
+      "sawsdl", "modelReference", annotation.modelReference
+    );
     await writer.writeElementFull("xs", "annotation")(async writer => {
       await writer.writeElementValue(
         "xs", "documentation", annotation.documentation
