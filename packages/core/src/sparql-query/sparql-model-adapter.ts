@@ -146,13 +146,7 @@ class SparqlAdapter {
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = this.classMap[type.psmClassIri];
-        const classElements = [];
-        this.classToTriples(obj, classData, false, classElements);
-        elements.push({
-          optionalPattern: {
-            elements: classElements
-          }
-        } as SparqlOptionalPattern);
+        this.classToTriples(obj, classData, false, elements);
       }
     }
   }

@@ -14,12 +14,17 @@ import { SPARQL } from "./sparql-vocabulary";
 
 const indentStep = "  ";
 
+const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
 export async function writeSparqlQuery(
   model: SparqlQuery,
   stream: OutputStream
 ): Promise<void> {
   await writePrefixes(model.prefixes, stream);
   await writeQueryProjection(model, stream);
+  await writeLine("WHERE {", stream);
+  await writePattern(model.where, false, indentStep, stream);
+  await writeLine("}", stream);
 }
 
 async function writeLine(text: string, stream: OutputStream): Promise<void> {
@@ -48,7 +53,7 @@ async function writeQueryProjection(
     await writeLine("", stream);
   } else if (sparqlQueryIsConstruct(model)) {
     await writeLine("CONSTRUCT {", stream);
-    await writePattern(model.construct, false, indentStep, stream);
+    await writePattern(model.construct, true, indentStep, stream);
     await writeLine("}", stream);
   }
 }
@@ -68,11 +73,11 @@ async function writePattern(
           element.optionalPattern, onlyTriples, indent, stream
         );
       } else {
-        await writeLine("OPTIONAL {", stream);
+        await writeLine(indent + "OPTIONAL {", stream);
         await writePattern(
           element.optionalPattern, onlyTriples, indent + indentStep, stream
         );
-        await writeLine("}", stream);
+        await writeLine(indent + "}", stream);
       }
     }
   }
@@ -82,20 +87,24 @@ async function writeTriple(
   triple: SparqlTriple, indent: string, stream: OutputStream
 ): Promise<void> {
   await stream.write(indent);
-  await writeNode(triple.subject, stream);
+  await writeNode(triple.subject, stream, false);
   await stream.write(" ");
-  await writeNode(triple.predicate, stream);
+  await writeNode(triple.predicate, stream, true);
   await stream.write(" ");
-  await writeNode(triple.object, stream);
+  await writeNode(triple.object, stream, false);
   await writeLine(" .", stream);
 }
 
 async function writeNode(
-  node: SparqlNode, stream: OutputStream
+  node: SparqlNode, stream: OutputStream, isPredicate: boolean
 ): Promise<void> {
   if (sparqlNodeIsUri(node)) {
-    await stream.write(`<${node.uri}>`);
+    if (node.uri === RDF_TYPE && isPredicate) {
+      await stream.write("a");
+    } else {
+      await stream.write(`<${node.uri}>`);
+    }
   } else if (sparqlNodeIsVariable(node)) {
-    await stream.write(`?${node.variableName}>`);
+    await stream.write(`?${node.variableName}`);
   }
 }
