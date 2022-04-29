@@ -202,14 +202,14 @@ export const GenerateArtifactsMenu: React.FC<{
                     setLive={v => (v ? add : del)(XML_SCHEMA.Generator)}
                 />
                 <GeneratedArtifactItem
-                    title={"Lifting"}
+                    title={"Lifting XSLT"}
                     generator={XSLT_LIFTING.Generator}
                     live={artifactPreview.includes(XSLT_LIFTING.Generator)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: XSLT_LIFTING.Generator})}
                     setLive={v => (v ? add : del)(XSLT_LIFTING.Generator)}
                 />
                 <GeneratedArtifactItem
-                    title={"Lowering"}
+                    title={"Lowering XSLT"}
                     generator={XSLT_LOWERING.Generator}
                     live={artifactPreview.includes(XSLT_LOWERING.Generator)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: XSLT_LOWERING.Generator})}
