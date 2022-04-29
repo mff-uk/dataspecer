@@ -14,7 +14,7 @@ import { SPARQL } from "./sparql-vocabulary";
 
 const indentStep = "  ";
 
-const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+import { RDF_TYPE_URI } from "./sparql-model-adapter"
 
 export async function writeSparqlQuery(
   model: SparqlQuery,
@@ -99,7 +99,7 @@ async function writeNode(
   node: SparqlNode, stream: OutputStream, isPredicate: boolean
 ): Promise<void> {
   if (sparqlNodeIsUri(node)) {
-    if (node.uri === RDF_TYPE && isPredicate) {
+    if (node.uri === RDF_TYPE_URI && isPredicate) {
       await stream.write("a");
     } else {
       await stream.write(`<${node.uri}>`);

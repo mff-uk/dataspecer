@@ -27,8 +27,10 @@ import {
 import { OFN, XSD } from "../well-known";
 import { SPARQL } from "./sparql-vocabulary";
 
+export const RDF_TYPE_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
 const rdfType: SparqlUriNode = {
-  uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+  uri: RDF_TYPE_URI
 };
 
 export function structureModelToSparql(
@@ -74,7 +76,7 @@ class SparqlAdapter {
     const rootClass = this.classMap[roots[0]];
     const rootSubject = this.newVariable();
     const elements = [];
-    this.classToTriples(rootSubject, rootClass, true, elements);
+    this.classToTriples(rootSubject, rootClass, false, elements);
     const pattern = {
       elements: elements
     } as SparqlPattern;
@@ -102,17 +104,24 @@ class SparqlAdapter {
   classToTriples(
     subject: SparqlNode,
     classData: StructureModelClass,
-    includeType: boolean,
+    optionalType: boolean,
     elements: SparqlElement[]
   ) {
-    if (includeType) {
+    const typeTriple: SparqlTriple = {
+      subject: subject,
+      predicate: rdfType,
+      object: {
+        uri: classData.cimIri
+      } as SparqlUriNode
+    };
+    if (optionalType) {
       elements.push({
-        subject: subject,
-        predicate: rdfType,
-        object: {
-          uri: classData.cimIri
-        } as SparqlUriNode
-      } as SparqlTriple);
+        optionalPattern: {
+          elements: [typeTriple]
+        }
+      } as SparqlOptionalPattern);
+    } else {
+      elements.push(typeTriple);
     }
     for (const property of classData.properties) {
       this.propertyToTriples(subject, property, elements);
@@ -146,7 +155,7 @@ class SparqlAdapter {
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = this.classMap[type.psmClassIri];
-        this.classToTriples(obj, classData, false, elements);
+        this.classToTriples(obj, classData, true, elements);
       }
     }
   }
