@@ -275,6 +275,7 @@ class XmlSchemaAdapter {
       }
     }
     return lines.length == 0 ? null : {
+      modelReference: data.cimIri,
       documentation: lines.join("\n")
     }
   }
