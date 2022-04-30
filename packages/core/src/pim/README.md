@@ -1,10 +1,9 @@
-# About
+# PIM level
 
-On the platform-independent-model (PIM) level the diagram must be complete, i.e., there must not be any need to load a CIM level entities to resolve the diagram.
-The reason for this decision is to be able to change the CIM level for a PIM diagram.
+See [model-driven architecture in data modeling](../../../../documentation/2022-04-21-model-driven-architecture.md) for more details.
 
-This is archived by full specification of all relevant resources when creating a PIM resources.
-The interpretations are used to propagate any changes in the CIM level as PIM actions.
-
-Unlike connections with CIM the "extends" operations on PIM level are implicit.
-When one class extends another, it transparently inherits all attributes nad associations without the need to specify them.
+This directory is divided into several subdirectories:
+- [adapter](adapter) - contains functionality to recreate or save the model, such as RDF representation
+- [model](model) - classes representing PIM entities - class, attribute, association, etc.
+- [operation](operation) - `CoreOperation` to manipulate the model, such as create class, remove the attribute, etc.
+- [executor](executor) - methods that can execute the operations above and modify the model

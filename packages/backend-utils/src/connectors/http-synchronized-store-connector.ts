@@ -1,4 +1,5 @@
-import {CoreOperation, CoreResource} from "@model-driven-data/core/core";
+import {CoreOperation, CoreResource} from "@dataspecer/core/core";
+import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 
 type StoreData = {
   operations: CoreOperation[];
@@ -12,18 +13,20 @@ const headers = {
 
 export class HttpSynchronizedStoreConnector {
   private readonly backendUrl: string;
+  protected readonly httpFetch: HttpFetch;
 
-  constructor(backendUrl: string) {
+  constructor(backendUrl: string, httpFetch: HttpFetch) {
     this.backendUrl = backendUrl;
+    this.httpFetch = httpFetch;
   }
 
-  public async load(): Promise<StoreData>{
-    const fetchData = await fetch(this.backendUrl, {method: 'GET', headers});
-    return await fetchData.json();
+  public async load() {
+    const fetchData = await this.httpFetch(this.backendUrl, {method: 'GET', headers});
+    return await fetchData.json() as StoreData;
   }
 
-  public async save(storeData: StoreData): Promise<void> {
+  public async save(storeData: StoreData) {
     const body = JSON.stringify(storeData);
-    await fetch(this.backendUrl, {method: 'PUT', headers, body});
+    await this.httpFetch(this.backendUrl, {method: 'PUT', headers, body});
   }
 }

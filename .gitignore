@@ -2,6 +2,8 @@
 .*
 *.iml
 *.log
+!.gitignore
+!.gitkeep
 
 # Directories
 lib/

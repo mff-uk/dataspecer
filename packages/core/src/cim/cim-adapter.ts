@@ -2,6 +2,9 @@ import { PimClass } from "../pim/model";
 import { CoreResourceReader } from "../core";
 import { IriProvider } from "./iri-provider";
 
+/**
+ * Reads the ontology from the CIM layer.
+ */
 export interface CimAdapter {
   /**
    * Resources returned by the adapter are on the PIM level, therefore the

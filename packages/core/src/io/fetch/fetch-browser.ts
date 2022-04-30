@@ -1,2 +1,4 @@
+import {HttpFetch} from "./fetch-api";
+
 // @ts-ignore
-export const httpFetch = fetch;
+export const httpFetch: HttpFetch = (...p) => fetch(...p);

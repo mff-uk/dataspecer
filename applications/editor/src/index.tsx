@@ -1,0 +1,16 @@
+import {createRoot} from 'react-dom/client';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
+import './i18n';
+
+const root = document.getElementById('root') as HTMLElement;
+createRoot(root).render(
+    //<React.StrictMode> // https://github.com/atlassian/react-beautiful-dnd/issues/2350
+        <App />
+    //</React.StrictMode>
+);
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+serviceWorker.unregister();

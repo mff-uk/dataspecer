@@ -1,5 +1,5 @@
 {
-  "name": "@model-driven-data/core",
+  "name": "@dataspecer/core",
   "version": "0.0.0",
   "private": true,
   "scripts": {

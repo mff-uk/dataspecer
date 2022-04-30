@@ -11,10 +11,10 @@ import {
   XmlTemplate,
   XmlRootTemplate,
   XmlMatch,
-  QName,
   XmlClassMatch,
   XmlLiteralMatch,
   XmlTransformationInclude,
+  XmlCodelistMatch,
 } from "./xslt-model";
 
 import {
@@ -23,8 +23,9 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { XSD, OFN } from "../well-known";
+import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
+import { QName, simpleTypeMapIri } from "../xml/xml-conventions";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -34,26 +35,6 @@ export function structureModelToXslt(
   const adapter = new XsltAdapter(specifications, specification, model);
   return adapter.fromRoots(model.roots);
 }
-
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
-
-/**
- * Map from common datatype URIs to XSD datatypes.
- */
-const simpleTypeMap: Record<string, string> = {
-  [OFN.boolean]: XSD.boolean,
-  [OFN.date]: XSD.date,
-  [OFN.time]: XSD.time,
-  [OFN.dateTime]: XSD.dateTimeStamp,
-  [OFN.integer]: XSD.integer,
-  [OFN.decimal]: XSD.decimal,
-  [OFN.url]: XSD.anyURI,
-  [OFN.string]: XSD.string,
-};
 
 type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
@@ -92,7 +73,8 @@ class XsltAdapter {
       targetNamespacePrefix: null,
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
-      templates: Object.keys(this.classMap).map(this.classToTemplate, this),
+      templates: Object.keys(this.classMap).map(this.classToTemplate, this)
+        .filter(template => template != null),
       includes: Object.values(this.includes),
     };
   }
@@ -166,8 +148,11 @@ class XsltAdapter {
     };
   }
 
-  classToTemplate(classIri: string): XmlTemplate {
+  classToTemplate(classIri: string): XmlTemplate | null {
     const classData = this.classMap[classIri];
+    if (classData.isCodelist) {
+      return null;
+    }
     if (this.resolveImportedElement(classData)) {
       return {
         name: this.classTemplateName(classData),
@@ -199,11 +184,16 @@ class XsltAdapter {
         "not supported."
       );
     }
-    // Treat codelists as URIs
-    dataTypes = dataTypes.map(this.replaceCodelistWithUri, this);
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
+      this.propertyToMatchCheckType(
+        propertyData,
+        dataTypes,
+        (type) => type.isAssociation() &&
+          this.getClass(type.psmClassIri).isCodelist,
+        this.classPropertyToCodelistMatch
+      ) ??
       this.propertyToMatchCheckType(
         propertyData,
         dataTypes,
@@ -223,16 +213,6 @@ class XsltAdapter {
       );
     }
     return result;
-  }
-
-  replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
-    if (
-      dataType.isAssociation() &&
-      this.getClass(dataType.psmClassIri).isCodelist
-    ) {
-      return anyUriType;
-    }
-    return dataType;
   }
 
   iriToQName(iri: string): QName {
@@ -310,10 +290,24 @@ class XsltAdapter {
     };
   }
 
+  classPropertyToCodelistMatch(
+    propertyData: StructureModelProperty,
+    interpretation: QName,
+    propertyName: QName,
+    dataTypes: StructureModelComplexType[]
+  ): XmlCodelistMatch {
+    return {
+      interpretation: interpretation,
+      propertyIri: propertyData.cimIri,
+      propertyName: propertyName,
+      isCodelist: true,
+    };
+  }
+
   primitiveToIri(primitiveData: StructureModelPrimitiveType): string {
     if (primitiveData.dataType == null || primitiveData.dataType == OFN.text) {
       return null;
     }
-    return simpleTypeMap[primitiveData.dataType] ?? primitiveData.dataType;
+    return simpleTypeMapIri[primitiveData.dataType] ?? primitiveData.dataType;
   }
 }

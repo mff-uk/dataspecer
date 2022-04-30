@@ -1,10 +1,10 @@
 import {Resource} from "./resource";
-import {PimClass, PimSchema} from "@model-driven-data/core/pim/model";
-import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "@model-driven-data/core/core";
+import {PimClass, PimSchema} from "@dataspecer/core/pim/model";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "@dataspecer/core/core";
 import {FederatedCoreResourceWriter} from "./federated-core-resource-writer";
-import * as PIM from "@model-driven-data/core/pim/pim-vocabulary";
-import * as DataPSM from "@model-driven-data/core/data-psm/data-psm-vocabulary";
-import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
+import * as DataPSM from "@dataspecer/core/data-psm/data-psm-vocabulary";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {ComplexOperation} from "./complex-operation";
 import {ImmediateCoreResourceReader} from "./immediate-core-resource-reader";
 import {cloneDeep} from "lodash";
@@ -60,6 +60,11 @@ function isPromise<T>(value: Promise<T>|T): value is Promise<T> {
     return value instanceof Promise;
 }
 
+/**
+ * Federates multiple stores into one, allowing reading and modifying resources, observing changes and caching the results.
+ *
+ * @see {@link ../README.md README file}
+ */
 export class FederatedObservableStore implements CoreResourceReader, FederatedCoreResourceWriter {
     // Individual source stores that are used to read and write resources
     private stores: StoreWrapper[] = [];
@@ -221,7 +226,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     }
 
     /**
-     * @see https://github.com/opendata-mvcr/model-driven-data/issues/151
+     * @see https://github.com/mff-uk/dataspecer/issues/151
      * @param schemaIri Schema IRI under which the operation is applied
      * @param operation The operation to be applied
      */

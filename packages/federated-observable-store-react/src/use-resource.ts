@@ -1,14 +1,20 @@
-import {CoreResource} from "@model-driven-data/core/core";
+import {CoreResource} from "@dataspecer/core/core";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {StoreContext} from "./store";
-import {Resource} from "@model-driven-data/federated-observable-store/resource";
-import {Subscriber} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {Resource} from "@dataspecer/federated-observable-store/resource";
+import {Subscriber} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 const loadingEmptyLink = {
     resource: null,
     isLoading: true, // The whole idea is that if IRI is null, that means that some other resource is being loaded, therefore transitively also this resource is loading
 }
 
+/**
+ * Returns resource data if available, with info, whether the resource is being loaded. It automatically re-renders the
+ * component, if the resource has changed, either by operation, or store manipulation.
+ *
+ * @param iri
+ */
 export const useResource = <ResourceType extends CoreResource>(iri: string | null) => {
     const store = useContext(StoreContext);
     const [state, setState] = useState<Resource<ResourceType>>(() => {

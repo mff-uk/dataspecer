@@ -1,9 +1,10 @@
 import {HttpSynchronizedStore} from "./http-synchronized-store";
-import {CoreOperation, CoreOperationResult, createExecutorMap} from "@model-driven-data/core/core";
+import {CoreOperation, CoreOperationResult, createExecutorMap} from "@dataspecer/core/core";
 import {StoreDescriptor} from "../store-descriptor";
 import {HttpStoreDescriptor} from "../store-descriptor/http-store-descriptor";
-import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {pimExecutors} from "@dataspecer/core/pim/executor";
+import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 
 /**
  * This variant of the store synchronizes itself automatically before and after
@@ -28,9 +29,8 @@ export class EagerHttpSynchronizedStore extends HttpSynchronizedStore {
   /**
    * Creates a function which creates a new store instance from the given store
    * descriptor.
-   * @param descriptor
    */
-  static createFromDescriptor(descriptor: StoreDescriptor):
+  static createFromDescriptor(descriptor: StoreDescriptor, httpFetch: HttpFetch):
     EagerHttpSynchronizedStore {
     if (!EagerHttpSynchronizedStore.supportsDescriptor(descriptor)) {
       throw new Error("The given descriptor is not supported.");
@@ -44,7 +44,8 @@ export class EagerHttpSynchronizedStore extends HttpSynchronizedStore {
       baseIri,
       createExecutorMap([...dataPsmExecutors, ...pimExecutors]),
       createNewIdentifier,
-      url
+      url,
+      httpFetch,
     );
   }
 }

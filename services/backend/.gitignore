@@ -1,0 +1,8 @@
+dist
+database/*
+!database/stores
+database/stores/*
+!database/stores/.gitkeep
+node_modules
+.env.local
+!.env

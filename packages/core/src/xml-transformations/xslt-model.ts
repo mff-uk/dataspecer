@@ -1,4 +1,4 @@
-export type QName = [prefix: string, localName: string];
+import { QName } from "../xml/xml-conventions";
 
 export class XmlTransformation {
   targetNamespace: string | null;
@@ -37,6 +37,10 @@ export class XmlClassMatch extends XmlMatch {
   targetTemplate: string;
 }
 
+export class XmlCodelistMatch extends XmlMatch {
+  isCodelist: true;
+}
+
 export function xmlMatchIsLiteral(
   match: XmlMatch
 ): match is XmlLiteralMatch {
@@ -47,6 +51,12 @@ export function xmlMatchIsClass(
   match: XmlMatch
 ): match is XmlClassMatch {
   return (match as XmlClassMatch).targetTemplate !== undefined;
+}
+
+export function xmlMatchIsCodelist(
+  match: XmlMatch
+): match is XmlCodelistMatch {
+  return (match as XmlCodelistMatch).isCodelist === true;
 }
 
 export class XmlTransformationInclude {

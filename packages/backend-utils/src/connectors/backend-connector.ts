@@ -1,28 +1,31 @@
-import {DataSpecification} from "@model-driven-data/core/data-specification/model";
+import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {DataSpecificationWithStores} from "../interfaces/data-specification-with-stores";
 import {DataSpecificationWithMetadata} from "../interfaces/data-specification-with-metadata";
 import {UpdateDataSpecification} from "../interfaces/update-data-specification";
+import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 
 /**
  * Handles the communication with the applications/backend package.
  */
 export class BackendConnector {
   private readonly backendUrl: string;
+  protected readonly httpFetch: HttpFetch;
 
-  constructor(backendUrl: string) {
+  constructor(backendUrl: string, httpFetch: HttpFetch) {
     this.backendUrl = backendUrl;
+    this.httpFetch = httpFetch;
   }
 
-  public async readDataSpecifications(): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[]> {
-    const data = await fetch(this.backendUrl + "/data-specification");
-    return await data.json();
+  public async readDataSpecifications() {
+    const data = await this.httpFetch(this.backendUrl + "/data-specification");
+    return await data.json() as (DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[];
   }
 
-  public async readDataSpecification(iri: string): Promise<(DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)|null> {
+  public async readDataSpecification(iri: string) {
     const url = new URL(this.backendUrl + "/data-specification");
     url.searchParams.append("dataSpecificationIri", iri);
-    const data = await fetch(url.toString());
-    return await data.json();
+    const data = await this.httpFetch(url.toString());
+    return await data.json() as (DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)|null;
   }
 
   public async createDataSpecification(set: UpdateDataSpecification = {}): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {

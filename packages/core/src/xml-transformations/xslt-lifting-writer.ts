@@ -1,5 +1,3 @@
-import * as fileSystem from "fs";
-import * as path from "path";
 import {OutputStream} from "../io/stream/output-stream";
 
 import {
@@ -8,43 +6,14 @@ import {
   xmlMatchIsLiteral,
   xmlMatchIsClass,
   XmlMatch,
+  xmlMatchIsCodelist,
 } from "./xslt-model";
 
-import { XmlWriter, XmlStreamWriter } from "../xml-schema/xml-writer";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LIFTING } from "./xslt-vocabulary";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
-
-export async function saveXsltLiftingToDirectory(
-  model: XmlTransformation,
-  directory: string,
-  name: string
-): Promise<void> {
-  if (!fileSystem.existsSync(directory)) {
-    fileSystem.mkdirSync(directory);
-  }
-
-  const outputStream = fileSystem.createWriteStream(
-    path.join(directory, name + ".xsd")
-  );
-
-  const result = new Promise<void>((accept, reject) => {
-    outputStream.on("close", accept);
-    outputStream.on("error", reject);
-  });
-
-  const stream = {
-    write: async (chunk) => {
-      outputStream.write(chunk);
-    },
-  } as OutputStream;
-  await writeXsltLifting(model, stream);
-  
-  outputStream.end();
-
-  return result;
-}
 
 export async function writeXsltLifting(
   model: XmlTransformation,
@@ -214,6 +183,15 @@ async function writeTemplateMatch(
         
         await writer.writeElementFull("xsl", "value-of")(async writer => {
           await writer.writeLocalAttributeValue("select", ".");
+        });
+      } else if (xmlMatchIsCodelist(match)) {
+        await writer.writeElementFull("rdf", "Description")(async writer => {
+          await writer.writeElementFull("xsl", "attribute")(async writer => {
+            await writer.writeLocalAttributeValue("name", "rdf:about");
+            await writer.writeElementFull("xsl", "value-of")(async writer => {
+              await writer.writeLocalAttributeValue("select", ".");
+            });
+          });
         });
       } else if (xmlMatchIsClass(match)) {
         // TODO dematerialized

@@ -1,17 +1,21 @@
 import {createContext, useContext, useState} from "react";
-import {FederatedObservableStore} from "@model-driven-data/federated-observable-store/federated-observable-store";
+import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 /**
- * The context that holds the FederatedObservableStore.
+ * React context that contains the instance of the {@link FederatedObservableStore}.
  */
 export const StoreContext = createContext<FederatedObservableStore>(null);
 
 /**
- * Creates a new FederatedObservableStore and return its value.
+ * React hook to create new instance of the {@link FederatedObservableStore} that is memoized.
+ *
+ * Use this hook if you want to create new context with the store.
  */
 export const useNewFederatedObservableStore = () => useState(new FederatedObservableStore())[0];
 
 /**
- * Uses the FederatedObservableStore from the context.
+ * React hook to access the instance of the {@link FederatedObservableStore} from the context.
+ *
+ * Use this hook to access the instance for operation execution, adding or removing stores, etc.
  */
 export const useFederatedObservableStore = () => useContext(StoreContext);

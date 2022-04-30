@@ -1,13 +1,13 @@
-import {DataSpecification} from "@model-driven-data/core/data-specification/model";
+import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {Prisma, PrismaClient} from "@prisma/client";
 import {LocalStoreModel} from "./local-store-model";
 import {v4 as uuidv4} from "uuid";
-import {PimCreateSchema} from "@model-driven-data/core/pim/operation";
+import {PimCreateSchema} from "@dataspecer/core/pim/operation";
 import {LocalStoreDescriptor} from "./local-store-descriptor";
-import {DataSpecificationWithMetadata} from "@model-driven-data/backend-utils/interfaces/data-specification-with-metadata";
-import {DataSpecificationWithStores} from "@model-driven-data/backend-utils/interfaces/data-specification-with-stores";
-import {DataPsmCreateSchema} from "@model-driven-data/core/data-psm/operation";
-import {UpdateDataSpecification} from "@model-driven-data/backend-utils/interfaces/update-data-specification";
+import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
+import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
+import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces/update-data-specification";
 
 const prismaDataSpecificationConfig = {
   include: {

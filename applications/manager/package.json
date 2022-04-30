@@ -1,0 +1,70 @@
+{
+  "name": "manager",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@dataspecer/backend-utils": "*",
+    "@dataspecer/core": "*",
+    "@dataspecer/federated-observable-store": "*",
+    "@dataspecer/federated-observable-store-react": "*",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.6.2",
+    "@mui/lab": "^5.0.0-alpha.79",
+    "@mui/material": "^5.6.3",
+    "@mui/x-data-grid": "^5.10.0",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
+    "@testing-library/user-event": "^14.1.1",
+    "@types/file-saver": "^2.0.5",
+    "@types/jest": "^27.4.1",
+    "@types/lodash": "^4.14.182",
+    "@types/lodash.isequal": "^4.5.6",
+    "@types/node": "^17.0.30",
+    "@types/pako": "^1.0.3",
+    "@types/react": "^18.0.8",
+    "@types/react-dom": "^18.0.3",
+    "copy-to-clipboard": "^3.3.1",
+    "file-saver": "^2.0.5",
+    "history": "^5.3.0",
+    "jszip": "^3.9.1",
+    "lodash": "^4.17.21",
+    "lodash.isequal": "^4.5.0",
+    "notistack": "^2.0.4",
+    "pako": "^2.0.4",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-error-overlay": "6.0.9",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "4.0.3",
+    "typescript": "^4.6.4",
+    "web-vitals": "^2.1.4"
+  },
+  "overrides": {
+    "postcss": "8.4.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build:watch": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

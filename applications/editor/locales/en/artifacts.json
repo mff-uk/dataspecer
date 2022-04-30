@@ -1,0 +1,15 @@
+{
+  "button generate load artifacts": "Artifacts",
+  "close": "close",
+  "error": "Unable to generate the artifact. Check the developer console for more details.",
+  "note use checkbox to live preview": "To show a live preview of the given artifact, please check the appropriate checkbox.",
+  "note use manager for all artifacts": "Use the manager to generate all artifacts simultaneously.",
+  "snackbar copied to clipboard": {
+    "failed": "Unable to copy to clipboard",
+    "ok": "Copied to clipboard"
+  },
+  "title generate artifacts": "Generate artifacts",
+  "tooltip copy": "copy to clipboard",
+  "tooltip download": "download",
+  "tooltip preview": "preview"
+}

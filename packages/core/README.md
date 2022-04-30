@@ -1,7 +1,5 @@
-# About
-For more information please see [documentation](./documentation/).
+# @dataspecer/core
 
-***
+This package groups several core functionalities of Dataspecer. Please be aware that we plan to break the package into several smaller ones, therefore it may be unclear why some functionality is part of core and some isn't.
 
-Tento repozitář je udržován v rámci projektu OPZ č. CZ.03.4.74/0.0/0.0/15_025/0013983.
-![Evropská unie - Evropský sociální fond - Operační program Zaměstnanost](https://data.gov.cz/images/ozp_logo_cz.jpg)
+Please see [individual directories](./src/) for detailed documentation.

@@ -6,7 +6,7 @@ This would lead to up to four repositories that need to be synchronized.
 In addition, having multiple repositories make it hard to test and propagate changes, especially from the core repository. 
 As there is a real possibility that the core repository itself will split into multiple repositories the situation start to get a bit out of hands. 
 
-We decided to tackle this issues by introducing repository.
+We decided to tackle this issues by introducing monorepository.
 The idea of monorepo is not new and is adopted by some big players in the filed. 
 The benefit is that there is no need to synchronize different repositories all code is under shared version control.
 

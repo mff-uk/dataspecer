@@ -1,9 +1,10 @@
-import {createExecutorMap, CreateNewIdentifier, ExecutorMap, MemoryStore} from "@model-driven-data/core/core";
+import {createExecutorMap, CreateNewIdentifier, ExecutorMap, MemoryStore} from "@dataspecer/core/core";
 import {HttpSynchronizedStoreConnector} from "../connectors/http-synchronized-store-connector";
 import {StoreDescriptor} from "../store-descriptor";
 import {HttpStoreDescriptor} from "../store-descriptor/http-store-descriptor";
-import {dataPsmExecutors} from "@model-driven-data/core/data-psm/executor";
-import {pimExecutors} from "@model-driven-data/core/pim/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {pimExecutors} from "@dataspecer/core/pim/executor";
+import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 
 /**
  * Naive implementation of {@link MemoryStore} that can synchronize data with
@@ -12,9 +13,9 @@ import {pimExecutors} from "@model-driven-data/core/pim/executor";
 export class HttpSynchronizedStore extends MemoryStore {
   protected connector: HttpSynchronizedStoreConnector;
 
-  constructor(baseIri: string, executors: ExecutorMap, createNewIdentifier: CreateNewIdentifier | null, url: string) {
+  constructor(baseIri: string, executors: ExecutorMap, createNewIdentifier: CreateNewIdentifier | null, url: string, httpFetch: HttpFetch) {
     super(baseIri, executors, createNewIdentifier);
-    this.connector = new HttpSynchronizedStoreConnector(url);
+    this.connector = new HttpSynchronizedStoreConnector(url, httpFetch);
   }
 
   async save() {
@@ -42,9 +43,8 @@ export class HttpSynchronizedStore extends MemoryStore {
   /**
    * Creates a function which creates a new store instance from the given store
    * descriptor.
-   * @param descriptor
    */
-  static createFromDescriptor(descriptor: StoreDescriptor):
+  static createFromDescriptor(descriptor: StoreDescriptor, httpFetch: HttpFetch):
     HttpSynchronizedStore {
     if (!HttpSynchronizedStore.supportsDescriptor(descriptor)) {
       throw new Error("The given descriptor is not supported.");
@@ -58,7 +58,8 @@ export class HttpSynchronizedStore extends MemoryStore {
       baseIri,
       createExecutorMap([...dataPsmExecutors, ...pimExecutors]),
       createNewIdentifier,
-      url
+      url,
+      httpFetch,
     );
   }
 }

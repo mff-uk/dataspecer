@@ -10,5 +10,5 @@ export function assert(condition: boolean, message: string): void {
   if (condition) {
     return;
   }
-  assertFailed("Assert failed: " + message);
+  assertFailed(message);
 }

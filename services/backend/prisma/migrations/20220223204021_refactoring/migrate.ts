@@ -1,8 +1,8 @@
 import {PrismaClient} from "@prisma/client";
 import {LocalStoreModel} from "../../../src/models/local-store-model";
-import {CoreResource} from "@model-driven-data/core/core";
-import {PimSchema} from "@model-driven-data/core/pim/model";
-import {DataPsmSchema} from "@model-driven-data/core/data-psm/model";
+import {CoreResource} from "@dataspecer/core/core";
+import {PimSchema} from "@dataspecer/core/pim/model";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 
 (async() => {
     const prismaClient = new PrismaClient();
