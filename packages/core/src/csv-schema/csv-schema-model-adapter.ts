@@ -1,5 +1,7 @@
 import {
     CsvSchema,
+    SingleTableSchema,
+    MultipleTableSchema,
     TableSchema,
     Column
 } from "./csv-schema-model";
@@ -25,18 +27,45 @@ export function structureModelToCsvSchema(
     model: StructureModel
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
-    const schema = new CsvSchema();
-    schema["@id"] = "https://ofn.gov.cz/schema/" + specification.artefacts[4].publicUrl;
 
-    schema.tableSchema = new TableSchema();
-    fillTableSchemaRecursive(model.classes, schema.tableSchema, model.roots[0], "");
+    const single = true;
+
+    if (single) return createSingleTableSchema(specification, model);
+    else return createMultipleTableSchema(specification, model);
+}
+
+/**
+ * This function creates a schema that consists of multiple tables.
+ * @param specification
+ * @param model
+ */
+function createMultipleTableSchema(
+    specification: DataSpecification,
+    model: StructureModel
+) : MultipleTableSchema {
+    return new MultipleTableSchema();
+}
+
+/**
+ * This function creates a schema that consists of a single table.
+ * @param specification
+ * @param model
+ */
+function createSingleTableSchema(
+    specification: DataSpecification,
+    model: StructureModel
+) : SingleTableSchema {
+    const schema = new SingleTableSchema();
+    schema.table["@id"] = "https://ofn.gov.cz/schema/" + specification.artefacts[4].publicUrl;
+    schema.table.tableSchema = new TableSchema();
+    fillTableSchemaRecursive(model.classes, schema.table.tableSchema, model.roots[0], "");
 
     // adds rdf:type virtual column
     const virtualCol = new Column();
     virtualCol.virtual = true;
     virtualCol.propertyUrl = "rdf:type";
     virtualCol.valueUrl = model.classes[model.roots[0]].cimIri;
-    schema.tableSchema.columns.push(virtualCol);
+    schema.table.tableSchema.columns.push(virtualCol);
 
     return schema;
 }

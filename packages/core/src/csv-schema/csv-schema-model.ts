@@ -1,8 +1,19 @@
 import { LanguageString } from "../core";
 
-export class CsvSchema {
-    "@id": string | null = null;
+export abstract class CsvSchema {
     "@context": [ string, { "@language": string } ] = [ "http://www.w3.org/ns/csvw", { "@language": "cs" } ];
+}
+
+export class SingleTableSchema extends CsvSchema {
+    "table": Table = new Table();
+}
+
+export class MultipleTableSchema extends CsvSchema {
+    "tables": Table[] = [];
+}
+
+export class Table {
+    "@id": string | null = null;
     "@type": string = "Table";
     "url": string | null = null;
     "tableSchema": TableSchema | null = null;
