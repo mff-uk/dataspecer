@@ -2,6 +2,7 @@ import {
     CsvSchema,
     SingleTableSchema,
     MultipleTableSchema,
+    Table,
     TableSchema,
     Column
 } from "./csv-schema-model";
@@ -28,7 +29,7 @@ export function structureModelToCsvSchema(
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    const single = true;
+    const single = false;
 
     if (single) return createSingleTableSchema(specification, model);
     else return createMultipleTableSchema(specification, model);
@@ -43,7 +44,47 @@ function createMultipleTableSchema(
     specification: DataSpecification,
     model: StructureModel
 ) : MultipleTableSchema {
-    return new MultipleTableSchema();
+    const schema = new MultipleTableSchema();
+    makeTablesRecursive(model.classes, schema.tables, model.roots[0], "");
+    return schema;
+}
+
+/**
+ * Every call of this function adds a table to tables.
+ * @param classes Object with classes to process
+ * @param tables Array to store created tables
+ * @param currentClass The parameter of recursion
+ * @param prefix Prefix for table identifier
+ */
+function makeTablesRecursive (
+    classes: { [i: string]: StructureModelClass },
+    tables: Table[],
+    currentClass: string,
+    prefix: string
+) : void {
+    const table = new Table();
+    tables.push(table);
+    table.tableSchema = new TableSchema();
+
+    //Todo: Add id (key) column, figure out urls for tables and add references.
+
+    for (const property of classes[currentClass].properties) {
+        const dataType = property.dataTypes[0];
+        if (dataType.isAssociation()) {
+            const associatedClass = dataType.psmClassIri;
+            table.tableSchema.columns.push(makeSimpleColumn(property, "", "string"));
+            if (classes[associatedClass].properties.length !== 0) makeTablesRecursive(classes, tables, associatedClass, "");
+        }
+        else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType)));
+        else assertFailed("Unexpected datatype!");
+    }
+
+    // adds rdf:type virtual column
+    const virtualCol = new Column();
+    virtualCol.virtual = true;
+    virtualCol.propertyUrl = "rdf:type";
+    virtualCol.valueUrl = classes[currentClass].cimIri;
+    table.tableSchema.columns.push(virtualCol);
 }
 
 /**
@@ -56,7 +97,7 @@ function createSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = "https://ofn.gov.cz/schema/" + specification.artefacts[4].publicUrl;
+    schema.table["@id"] = "https://ofn.gov.cz/schema" + specification.artefacts[4].publicUrl;
     schema.table.tableSchema = new TableSchema();
     fillTableSchemaRecursive(model.classes, schema.table.tableSchema, model.roots[0], "");
 
@@ -72,7 +113,7 @@ function createSingleTableSchema(
 
 /**
  * This function recursively adds columns to the table schema. It calls itself if it finds an association with some properties.
- * @param classes Object with used classes
+ * @param classes Object with classes to process
  * @param tableSchema The table schema to be filled
  * @param currentClass The parameter of recursion
  * @param prefix Prefix of created columns

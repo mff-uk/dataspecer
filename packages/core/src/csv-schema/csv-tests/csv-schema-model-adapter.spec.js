@@ -32,13 +32,13 @@ async function arrangeSpecAndModel(storeResource, specificationResource) {
     return { dataSpecification, structureModel };
 }
 
-test(testNamePrefix + "correct @id", async () => {
+test.skip(testNamePrefix + "correct @id", async () => {
     const arranged = await arrangeSpecAndModel(resources.storeResource_1, resources.specificationResource_1);
     const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel);
     expect(result["@id"]).toBe("https://ofn.gov.cz/schema/testjj/jazyk/schema.csv-metadata.json");
 });
 
-test(testNamePrefix + "rdf::type column", async () => {
+test.skip(testNamePrefix + "rdf::type column", async () => {
     const arranged = await arrangeSpecAndModel(resources.storeResource_1, resources.specificationResource_1);
     const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel);
     expect(result.tableSchema.columns[result.tableSchema.columns.length - 1].propertyUrl).toBe("rdf:type");
