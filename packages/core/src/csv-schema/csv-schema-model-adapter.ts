@@ -68,7 +68,7 @@ function makeTablesRecursive (
 ) : void {
     const table = new Table();
     tables.push(table);
-    table.url = namePrefix + nameNumber.value++;
+    table.url = namePrefix + nameNumber.value++ + ".csv";
     table.tableSchema = new TableSchema();
 
     //Todo: Add id (key) column, figure out urls for tables and add references.
@@ -103,6 +103,7 @@ function createSingleTableSchema(
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
     schema.table["@id"] = idPrefix + specification.artefacts[4].publicUrl;
+    schema.table.url = idPrefix + specification.artefacts[4].publicUrl + "/table.csv";
     schema.table.tableSchema = new TableSchema();
     fillTableSchemaRecursive(model.classes, schema.table.tableSchema, model.roots[0], "");
 
