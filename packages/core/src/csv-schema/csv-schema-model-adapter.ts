@@ -20,6 +20,8 @@ import {
 } from "../core";
 import { OFN } from "../well-known";
 
+const idPrefix = "https://ofn.gov.cz/schema";
+
 /**
  * This function creates CSV schema from StructureModel and DataSpecification.
  */
@@ -45,7 +47,7 @@ function createMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(model.classes, schema.tables, model.roots[0], "");
+    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/table/", { value: 1 });
     return schema;
 }
 
@@ -54,16 +56,19 @@ function createMultipleTableSchema(
  * @param classes Object with classes to process
  * @param tables Array to store created tables
  * @param currentClass The parameter of recursion
- * @param prefix Prefix for table identifier
+ * @param namePrefix Prefix for table identifier
+ * @param nameNumber Number of the table in its identifier, it is in an object because it must be passed by reference
  */
 function makeTablesRecursive (
     classes: { [i: string]: StructureModelClass },
     tables: Table[],
     currentClass: string,
-    prefix: string
+    namePrefix: string,
+    nameNumber: { value: number }
 ) : void {
     const table = new Table();
     tables.push(table);
+    table.url = namePrefix + nameNumber.value++;
     table.tableSchema = new TableSchema();
 
     //Todo: Add id (key) column, figure out urls for tables and add references.
@@ -73,7 +78,7 @@ function makeTablesRecursive (
         if (dataType.isAssociation()) {
             const associatedClass = dataType.psmClassIri;
             table.tableSchema.columns.push(makeSimpleColumn(property, "", "string"));
-            if (classes[associatedClass].properties.length !== 0) makeTablesRecursive(classes, tables, associatedClass, "");
+            if (classes[associatedClass].properties.length !== 0) makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber);
         }
         else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType)));
         else assertFailed("Unexpected datatype!");
@@ -97,7 +102,7 @@ function createSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = "https://ofn.gov.cz/schema" + specification.artefacts[4].publicUrl;
+    schema.table["@id"] = idPrefix + specification.artefacts[4].publicUrl;
     schema.table.tableSchema = new TableSchema();
     fillTableSchemaRecursive(model.classes, schema.table.tableSchema, model.roots[0], "");
 
