@@ -33,7 +33,7 @@ export function structureModelToCsvSchema(
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    const single = false;
+    const single = Math.random() < 0.5; // Todo: replace by a configuration
 
     if (single) return createSingleTableSchema(specification, model);
     else return createMultipleTableSchema(specification, model);

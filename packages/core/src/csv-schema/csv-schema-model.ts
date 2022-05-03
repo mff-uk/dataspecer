@@ -1,15 +1,24 @@
-import { LanguageString } from "../core";
-
 export abstract class CsvSchema {
     "@context": [ string, { "@language": string } ] = [ "http://www.w3.org/ns/csvw", { "@language": "cs" } ];
+
+    abstract makeJsonLD(): string;
 }
 
 export class SingleTableSchema extends CsvSchema {
     "table": Table = new Table();
+
+    makeJsonLD(): string {
+        const combined = { "@context": this["@context"], ...this.table }
+        return JSON.stringify(combined, replacer, 4);
+    }
 }
 
 export class MultipleTableSchema extends CsvSchema {
     "tables": Table[] = [];
+
+    makeJsonLD(): string {
+        return JSON.stringify(this, replacer, 4);
+    }
 }
 
 export class Table {
@@ -47,4 +56,14 @@ export class ForeignKey {
 export class Reference {
     "resource": string;
     "columnReference": string;
+}
+
+function replacer(
+    key: any,
+    value: any
+) : any {
+    if (value === null) return undefined;
+    if (typeof value === "boolean" && !value) return undefined;
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
 }
