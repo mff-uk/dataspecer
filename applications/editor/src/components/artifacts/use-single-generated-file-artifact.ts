@@ -1,0 +1,40 @@
+import {useContext, useEffect, useState} from "react";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {useAsyncMemo} from "../../hooks/use-async-memo";
+import {ConfigurationContext} from "../App";
+import {getSingleArtifact} from "./get-single-artifact";
+import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
+
+/**
+ * Hook that generates given artifacts every time the store changes and returns
+ * memory stream dictionary containing the generated data.
+ */
+export const useSingleGeneratedFileArtifact = (generatorId: string) => {
+    const {dataSpecifications, dataSpecificationIri, dataPsmSchemaIri} = useContext(ConfigurationContext);
+
+    // Every instance represents a constant state of the store
+    const [storeChangeTrigger, setStoreChangeTrigger] = useState<{}>({});
+    const store = useFederatedObservableStore();
+    useEffect(() => {
+        const listener = () => setStoreChangeTrigger({});
+        store.addEventListener("afterOperationExecuted", listener);
+        return () => store.removeEventListener("afterOperationExecuted", listener);
+    }, [store]);
+
+    // Run artifacts if something changes
+    return useAsyncMemo(async () => {
+        try {
+            return await getSingleArtifact(
+                store,
+                dataSpecificationIri as string,
+                dataSpecifications,
+                artefact =>
+                    artefact.generator === generatorId &&
+                    (!DataSpecificationSchema.is(artefact) ||
+                        artefact.psm === dataPsmSchemaIri)
+            );
+        } catch (e) {
+            return null;
+        }
+    }, [storeChangeTrigger, generatorId, dataSpecifications, dataSpecificationIri, dataPsmSchemaIri]);
+};

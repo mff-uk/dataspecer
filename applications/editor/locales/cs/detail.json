@@ -27,14 +27,6 @@
     "ok": "úspěšně načtena"
   },
   "some translations other sources": "některé překlady mohou pocházet z jiných zdrojů",
-  "store is editable": "Store je modifikovatelný",
-  "store is read-only": "Store je read-only",
-  "store metadata tag cim-as-pim": "PIM store jako dump CIMu",
-  "store metadata tag data-psm": "Data PSM store",
-  "store metadata tag pim": "PIM store",
-  "store metadata tag reused": "Přepoužitý store (jeho resources lze napojit na kořenový store, je součástí přepoužívané datové specifikace)",
-  "store metadata tag reused-recursively": "Rekurzivně přepoužitý store (store je vyžadován v rámci přepoužívané datové specifikace)",
-  "store metadata tag root": "Kořenový store (obsahuje kořen generovaného stromu)",
   "tab association": "asociace",
   "tab basic info": "základní informace",
   "tab class": "třída",
@@ -54,6 +46,5 @@
   "title cardinality": "Kardinalita",
   "title class": "Třída",
   "title data type": "Datový typ",
-  "title store where item is located": "Store zvolené položky",
   "title to class": "Odkazovaná třída"
 }

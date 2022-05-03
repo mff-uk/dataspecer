@@ -22,6 +22,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
 } from "../data-specification/model";
+import {pathRelative} from "../core/utilities/path-relative";
 
 export async function createBikeshedSchemaJson(
   context: BikeshedAdapterArtefactContext
@@ -30,13 +31,13 @@ export async function createBikeshedSchemaJson(
   const label = context.selectString(structureModel.humanLabel) + " JSON";
   const result = new BikeshedContentSection(label, null);
 
-  const linkToSchema = removeCommonPrefix(
+  const linkToSchema = pathRelative(
     context.ownerArtefact.publicUrl,
     context.artefact.publicUrl
   );
   result.content.push(
     new BikeshedContentText(
-      `Tato sekce je dokumentací pro [JSON schéma](.${linkToSchema}).`
+      `Tato sekce je dokumentací pro [JSON schéma](${linkToSchema}).`
     )
   );
 
@@ -48,20 +49,6 @@ export async function createBikeshedSchemaJson(
     result.content.push(createEntitySection(context, entity));
   }
   return result;
-}
-
-function removeCommonPrefix(prefix: string, value: string): string {
-  let index = 0;
-  const length = Math.min(prefix.length, value.length);
-  while (index < length) {
-    const nextIndex = index + 1;
-    if (prefix[nextIndex] === value[nextIndex]) {
-      ++index;
-    } else {
-      break;
-    }
-  }
-  return value.substring(index);
 }
 
 function createEntitySection(

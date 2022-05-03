@@ -65,7 +65,7 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
             </Box>
         )}
         // Used for searching.
-        getOptionLabel={datatype => `${datatype.prefix}:${datatype.localPart}\0${datatype.iri}\0${Object.values(datatype.label ?? {}).join("\0")}`}
+        getOptionLabel={datatype => `${(datatype as KnownDatatype).prefix}:${(datatype as KnownDatatype).localPart}\0${(datatype as KnownDatatype).iri}\0${Object.values((datatype as KnownDatatype).label ?? {}).join("\0")}`}
         renderInput={(params) =>  {
             return <TextField
                 {...params}

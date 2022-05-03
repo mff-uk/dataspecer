@@ -12,6 +12,7 @@ import {useEffect, useMemo, useState} from "react";
 import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
 import {OperationContext} from "../../operations/context/operation-context";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -49,7 +50,7 @@ export const useProvidedConfiguration = (
 }
 
 // So far only supported connector
-const backendConnector = new BackendConnector(process.env.REACT_APP_BACKEND as string);
+const backendConnector = new BackendConnector(process.env.REACT_APP_BACKEND as string, httpFetch);
 const connector = backendConnector;
 
 const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
@@ -57,8 +58,6 @@ const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
         if (!dataSpecificationIri) {
             return null;
         }
-
-        console.log("sdfdf");
 
         const dataSpecificationIrisToLoad = [dataSpecificationIri];
         const dataSpecifications: { [iri: string]: DataSpecification } = {};
@@ -159,7 +158,7 @@ export const useConstructedStoresFromDescriptors = (
                     }
 
                     if (!found) {
-                        const store = HttpSynchronizedStore.createFromDescriptor(descriptor);
+                        const store = HttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
                         constructedStoreCache.set(descriptor, store);
                         store.load().then(() => {
                             if ([...constructedStoreCache.values()].includes(store)) {

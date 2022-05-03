@@ -1,8 +1,13 @@
 # Dataspecer ![GitHub last commit](https://img.shields.io/github/last-commit/mff-uk/dataspecer) ![GitHub contributors](https://img.shields.io/github/contributors/mff-uk/dataspecer) [![dataspecer.com](https://img.shields.io/badge/-dataspecer.com-informational)](https://dataspecer.com/)
 
+A tool for effortless management of data specifications based on a domain ontology.
+
 ## Documentation
 
-General documentation can be found in [the documentation directory](./documentation), containing design decisions and project structure. Start there. For more information about individual packages, applications, and services, please see the given directory.
+See the [documentation index](./documentation/README.md).
+
+For more information about individual packages, applications, and services, please see the given directory. Each contains a README.md file with build instructions and additional documentation.
+
 - [@dataspecer/backend-utils](./packages/backend-utils) package
 - [@dataspecer/core](./packages/core) package
 - [@dataspecer/federated-observable-store](./packages/federated-observable-store) package
@@ -12,6 +17,7 @@ General documentation can be found in [the documentation directory](./documentat
 
 - [editor](./applications/editor) application
 - [manager](./applications/manager) application
+- [cli](./applications/cli) application
 
 <!-- -->
 
@@ -29,4 +35,4 @@ You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the 
 - Run `npm install` to install Lerna.
 - Run `npx lerna bootstrap` to install and link all packages.
 - *Optionally* run `npx lerna run test` to run test, to be sure nothing is broken. 
-- Run `lerna run build` to build everything.
+- Run `npx lerna run build` to build everything.

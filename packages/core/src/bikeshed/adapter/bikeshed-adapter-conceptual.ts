@@ -15,6 +15,7 @@ import {
   DataSpecification,
   DataSpecificationDocumentation,
 } from "../../data-specification/model";
+import {pathRelative} from "../../core/utilities/path-relative";
 
 export async function conceptualModelToBikeshedContent(
   context: BikeshedAdapterContext,
@@ -45,27 +46,13 @@ function mockInsertDiagram(
   const baseUrl = artefact.publicUrl;
   const generatorIdentifier = "plant-uml/image";
 
-  function removeCommonPrefix(prefix: string, value: string): string {
-    let index = 0;
-    const length = Math.min(prefix.length, value.length);
-    while (index < length) {
-      const nextIndex = index + 1;
-      if (prefix[nextIndex] === value[nextIndex]) {
-        ++index;
-      } else {
-        break;
-      }
-    }
-    return value.substring(index);
-  }
-
   // This is quick workaround. We just search for an artefact from the
   // right generator and include it here.
   for (const artefact of specification.artefacts) {
     if (artefact.generator === generatorIdentifier) {
       return new BikeshedContentText(
         "\n<br/>" +
-          `<img src=".${removeCommonPrefix(baseUrl, artefact.publicUrl)}">`
+          `<img src="${pathRelative(baseUrl, artefact.publicUrl)}">`
       );
     }
   }

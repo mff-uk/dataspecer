@@ -1,13 +1,12 @@
-editor
-======
+# editor application
 
-The webapp where you can edit and create individual data schemas. The main part of the application is the schema visualized as a tree. You can add entities, search for them, modify them, link other schemas etc.
+The editor is a web application where you can modify individual data schemas. The main part of the application is the schema visualized as a tree. You can add entities, search for them, modify them, link other schemas etc.
 
-The editor itself can be used as a stand-alone app only for testing purposes. It needs context provided by the [manager](../manager) to make the changes persistent.
+The editor itself can be used as a stand-alone app only for testing purposes. It needs context provided by the [manager](../manager) application to make the changes persistent.
 
 ## Documentation
 
-See individual directories for README.md files with documentation or documentation in code.
+See the [project structure](documentation/2022-04-21-project-structure.md), the individual directories for README.md files with documentation, or documentation in the code. 
 
 Most relevant starting component is [src/components/App.tsx](src/components/App.tsx).
 
