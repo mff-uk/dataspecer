@@ -49,7 +49,7 @@ function createMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/table/", { value: 1 }, null);
+    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/tables/", { value: 1 }, null);
     return schema;
 }
 
@@ -178,9 +178,10 @@ function makeSimpleColumn(
 ) : Column {
     const column = new Column();
     column.name = namePrefix + property.technicalLabel;
-    column.titles = property.humanLabel;
-    column.propertyUrl = property.cimIri;
+    column.titles = namePrefix + property.technicalLabel;
+    column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
+    column.propertyUrl = property.cimIri;
     column.lang = "cs";
     column.datatype = datatype;
     return column;

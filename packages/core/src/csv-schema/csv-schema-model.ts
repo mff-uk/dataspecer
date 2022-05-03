@@ -22,14 +22,14 @@ export class Table {
 export class TableSchema {
     "@type": string = "Schema";
     "columns": Column[] = [];
-    "primaryKey": string | null = null;
     "foreignKeys": ForeignKey[] = [];
 }
 
 export class Column {
     "@type": string = "Column";
     "name": string | null = null;
-    "titles": LanguageString | null = null;
+    "titles": string | null = null;
+    "dc:title": { [i: string]: string } | { [i: string]: string }[] | null = null;
     "propertyUrl": string | null = null;
     "valueUrl": string | null = null;
     "dc:description": { [i: string]: string } | { [i: string]: string }[] | null = null;
