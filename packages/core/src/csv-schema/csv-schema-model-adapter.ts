@@ -4,7 +4,9 @@ import {
     MultipleTableSchema,
     Table,
     TableSchema,
-    Column
+    Column,
+    ForeignKey,
+    Reference
 } from "./csv-schema-model";
 import {
     StructureModel,
@@ -47,7 +49,7 @@ function createMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/table/", { value: 1 });
+    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/table/", { value: 1 }, null);
     return schema;
 }
 
@@ -58,27 +60,47 @@ function createMultipleTableSchema(
  * @param currentClass The parameter of recursion
  * @param namePrefix Prefix for table identifier
  * @param nameNumber Number of the table in its identifier, it is in an object because it must be passed by reference
+ * @param reference Reference for the foreign key
  */
 function makeTablesRecursive (
     classes: { [i: string]: StructureModelClass },
     tables: Table[],
     currentClass: string,
     namePrefix: string,
-    nameNumber: { value: number }
+    nameNumber: { value: number },
+    reference: Reference | null
 ) : void {
     const table = new Table();
     tables.push(table);
     table.url = namePrefix + nameNumber.value++ + ".csv";
     table.tableSchema = new TableSchema();
 
-    //Todo: Add id (key) column, figure out urls for tables and add references.
+    const idColName = "ReferenceId";
+
+    if (reference !== null) {
+        const fkey = new ForeignKey();
+        fkey.columnReference = idColName;
+        fkey.reference = reference;
+        table.tableSchema.foreignKeys.push(fkey);
+    }
+
+    // adds a column for identifier
+    const idCol = new Column();
+    idCol.name = idColName;
+    idCol.datatype = "string";
+    table.tableSchema.columns.push(idCol);
 
     for (const property of classes[currentClass].properties) {
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
             const associatedClass = dataType.psmClassIri;
             table.tableSchema.columns.push(makeSimpleColumn(property, "", "string"));
-            if (classes[associatedClass].properties.length !== 0) makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber);
+            if (classes[associatedClass].properties.length !== 0) {
+                const reference = new Reference();
+                reference.resource = table.url;
+                reference.columnReference = property.technicalLabel;
+                makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber, reference);
+            }
         }
         else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType)));
         else assertFailed("Unexpected datatype!");
@@ -143,7 +165,7 @@ function fillTableSchemaRecursive (
 }
 
 /**
- * This function creates a simple column and fills its data.
+ * This function creates a simple column and fills its data from the property.
  * @param property Most of the column's data are taken from this property.
  * @param namePrefix Name of the column has this prefix.
  * @param datatype The column has this datatype.

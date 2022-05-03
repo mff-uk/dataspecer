@@ -23,6 +23,7 @@ export class TableSchema {
     "@type": string = "Schema";
     "columns": Column[] = [];
     "primaryKey": string | null = null;
+    "foreignKeys": ForeignKey[] = [];
 }
 
 export class Column {
@@ -36,4 +37,14 @@ export class Column {
     "lang": string | null = null;
     "required": boolean = false;
     "virtual": boolean = false;
+}
+
+export class ForeignKey {
+    "columnReference": string;
+    "reference": Reference;
+}
+
+export class Reference {
+    "resource": string;
+    "columnReference": string;
 }
