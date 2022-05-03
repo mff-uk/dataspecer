@@ -94,7 +94,7 @@ function makeTablesRecursive (
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
             const associatedClass = dataType.psmClassIri;
-            table.tableSchema.columns.push(makeSimpleColumn(property, "", "string"));
+            table.tableSchema.columns.push(makeSimpleColumn(property, "", "string", classes[associatedClass].isCodelist));
             if (classes[associatedClass].properties.length !== 0) {
                 const reference = new Reference();
                 reference.resource = table.url;
@@ -102,7 +102,7 @@ function makeTablesRecursive (
                 makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber, reference);
             }
         }
-        else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType)));
+        else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType), false));
         else assertFailed("Unexpected datatype!");
     }
 
@@ -156,10 +156,10 @@ function fillTableSchemaRecursive (
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
             const associatedClass = dataType.psmClassIri;
-            if (classes[associatedClass].properties.length === 0) tableSchema.columns.push(makeSimpleColumn(property, prefix, "string"));
+            if (classes[associatedClass].properties.length === 0) tableSchema.columns.push(makeSimpleColumn(property, prefix, "string", classes[associatedClass].isCodelist));
             else fillTableSchemaRecursive(classes, tableSchema, associatedClass, prefix + property.technicalLabel + "_");
         }
-        else if (dataType.isAttribute()) tableSchema.columns.push(makeSimpleColumn(property, prefix, structureModelPrimitiveToCsvDefinition(dataType)));
+        else if (dataType.isAttribute()) tableSchema.columns.push(makeSimpleColumn(property, prefix, structureModelPrimitiveToCsvDefinition(dataType), false));
         else assertFailed("Unexpected datatype!");
     }
 }
@@ -169,21 +169,24 @@ function fillTableSchemaRecursive (
  * @param property Most of the column's data are taken from this property.
  * @param namePrefix Name of the column has this prefix.
  * @param datatype The column has this datatype.
+ * @param isCodelist Does the column contain a code list?
  * @returns The new and prepared column
  */
 function makeSimpleColumn(
     property: StructureModelProperty,
     namePrefix: string,
-    datatype: string | null
+    datatype: string | null,
+    isCodelist: boolean
 ) : Column {
     const column = new Column();
     column.name = encodeURI(namePrefix + property.technicalLabel);
     column.titles = namePrefix + property.technicalLabel;
     column["dc:title"] = transformLanguageString(property.humanLabel);
+    if (isCodelist) column.valueUrl = "{+" + column.name + "}";
+    else column.datatype = datatype;
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = property.cimIri;
     column.lang = "cs";
-    column.datatype = datatype;
     column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
     return column;
 }
