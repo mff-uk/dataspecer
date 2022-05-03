@@ -177,7 +177,7 @@ function makeSimpleColumn(
     datatype: string | null
 ) : Column {
     const column = new Column();
-    column.name = namePrefix + property.technicalLabel;
+    column.name = encodeURI(namePrefix + property.technicalLabel);
     column.titles = namePrefix + property.technicalLabel;
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
