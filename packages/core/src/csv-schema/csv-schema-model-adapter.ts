@@ -199,9 +199,9 @@ function transformLanguageString (
     if (!langString) return null;
     const languages = Object.keys(langString);
     if (languages.length === 0) return null;
-    if (languages.length === 1) return { "@value": langString[languages[0]], "@lang": languages[0] };
+    if (languages.length === 1) return { "@value": langString[languages[0]], "@language": languages[0] };
     const result = [];
-    for (const language in langString) result.push({ "@value": langString[language], "@lang": language });
+    for (const language in langString) result.push({ "@value": langString[language], "@language": language });
     return result;
 }
 
