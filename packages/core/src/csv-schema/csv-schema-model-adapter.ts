@@ -98,7 +98,7 @@ function makeTablesRecursive (
             if (classes[associatedClass].properties.length !== 0) {
                 const reference = new Reference();
                 reference.resource = table.url;
-                reference.columnReference = property.technicalLabel;
+                reference.columnReference = encodeURI(property.technicalLabel);
                 makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber, reference);
             }
         }
@@ -184,6 +184,7 @@ function makeSimpleColumn(
     column.propertyUrl = property.cimIri;
     column.lang = "cs";
     column.datatype = datatype;
+    column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
     return column;
 }
 
