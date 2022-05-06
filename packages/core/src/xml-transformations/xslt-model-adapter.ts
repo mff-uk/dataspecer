@@ -26,6 +26,7 @@ import {
 import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { pathRelative } from "../core/utilities/path-relative";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -102,6 +103,15 @@ class XsltAdapter {
     });
   }
 
+  currentPath(generator: string): string {
+    for (const artifact of this.specification.artefacts) {
+      if (artifact.generator === generator) {
+        return artifact.publicUrl;
+      }
+    }
+    return "";
+  }
+
   resolveImportedElement(
     classData: StructureModelClass
   ): boolean {
@@ -113,7 +123,11 @@ class XsltAdapter {
           locations: Object.fromEntries(
             artifacts.map(
               artifact => {
-                return [artifact.generator, artifact.publicUrl]
+                return [
+                  artifact.generator, pathRelative(
+                    this.currentPath(artifact.generator),
+                  artifact.publicUrl)
+                ]
               }
             )
           )
