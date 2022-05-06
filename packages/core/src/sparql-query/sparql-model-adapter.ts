@@ -12,6 +12,7 @@ import {
   SparqlNode,
   SparqlOptionalPattern,
   SparqlPattern,
+  SparqlQNameNode,
   SparqlQuery,
   SparqlTriple,
   SparqlUriNode,
@@ -25,6 +26,7 @@ import {
 } from "../data-specification/model";
 
 import { OFN, XSD } from "../well-known";
+import { namespaceFromIri } from "../xml/xml-conventions";
 import { SPARQL } from "./sparql-vocabulary";
 
 export const RDF_TYPE_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -55,6 +57,10 @@ class SparqlAdapter {
   private specification: DataSpecification;
   private model: StructureModel;
   private variableCounter: number;
+  
+  private namespaces: Record<string, string>;
+  private namespacesIris: Record<string, string>;
+  private namespaceCounter: number;
 
   constructor(
     specifications: { [iri: string]: DataSpecification },
@@ -70,6 +76,9 @@ class SparqlAdapter {
     }
     this.classMap = map;
     this.variableCounter = 0;
+    this.namespaces = {};
+    this.namespacesIris = {};
+    this.namespaceCounter = 0;
   }
 
   public fromRoots(roots: string[]): SparqlQuery {
@@ -81,7 +90,7 @@ class SparqlAdapter {
       elements: elements
     } as SparqlPattern;
     return {
-      prefixes: {},
+      prefixes: this.namespaces,
       construct: pattern,
       where: pattern,
     } as SparqlConstructQuery;
@@ -101,6 +110,27 @@ class SparqlAdapter {
     };
   }
 
+  nodeFromIri(iri: string): SparqlNode {
+    const parts = namespaceFromIri(iri);
+    if (parts == null) {
+      return {
+        uri: iri
+      } as SparqlUriNode;
+    }
+    const [namespaceIri, localName] = parts;
+    if (this.namespacesIris[namespaceIri] != null) {
+      return {
+        qname: [this.namespacesIris[namespaceIri], localName]
+      } as SparqlQNameNode;
+    }
+    const ns = "ns" + (this.namespaceCounter++);
+    this.namespaces[ns] = namespaceIri;
+    this.namespacesIris[namespaceIri] = ns;
+    return {
+      qname: [ns, localName]
+    } as SparqlQNameNode;
+  }
+
   classToTriples(
     subject: SparqlNode,
     classData: StructureModelClass,
@@ -110,9 +140,7 @@ class SparqlAdapter {
     const typeTriple: SparqlTriple = {
       subject: subject,
       predicate: rdfType,
-      object: {
-        uri: classData.cimIri
-      } as SparqlUriNode
+      object: this.nodeFromIri(classData.cimIri)
     };
     if (optionalType) {
       elements.push({
@@ -147,9 +175,7 @@ class SparqlAdapter {
     const obj = this.newVariable();
     elements.push({
       subject: subject,
-      predicate: {
-        uri: propertyData.cimIri
-      } as SparqlUriNode,
+      predicate: this.nodeFromIri(propertyData.cimIri),
       object: obj
     } as SparqlTriple);
     for (const type of propertyData.dataTypes) {

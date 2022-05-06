@@ -4,6 +4,7 @@ import {
   sparqlElementIsOptional,
   sparqlElementIsTriple,
   SparqlNode,
+  sparqlNodeIsQName,
   sparqlNodeIsUri,
   sparqlNodeIsVariable,
   SparqlPattern,
@@ -106,5 +107,7 @@ async function writeNode(
     }
   } else if (sparqlNodeIsVariable(node)) {
     await stream.write(`?${node.variableName}`);
+  } else if (sparqlNodeIsQName(node)) {
+    await stream.write(`${node.qname[0]}:${node.qname[1]}`);
   }
 }

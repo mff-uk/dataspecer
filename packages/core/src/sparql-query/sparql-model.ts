@@ -1,3 +1,5 @@
+import { QName } from "../xml/xml-conventions";
+
 export class SparqlQuery {
   prefixes: Record<string, string>;
   where: SparqlPattern;
@@ -61,6 +63,10 @@ export class SparqlUriNode {
   uri: string;
 }
 
+export class SparqlQNameNode {
+  qname: QName;
+}
+
 export class SparqlVariableNode {
   variableName: string;
 }
@@ -69,6 +75,12 @@ export function sparqlNodeIsUri(
   node: SparqlNode
 ): node is SparqlUriNode {
   return (node as SparqlUriNode).uri !== undefined;
+}
+
+export function sparqlNodeIsQName(
+  node: SparqlNode
+): node is SparqlQNameNode {
+  return (node as SparqlQNameNode).qname !== undefined;
 }
 
 export function sparqlNodeIsVariable(
