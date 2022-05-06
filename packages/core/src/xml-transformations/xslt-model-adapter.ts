@@ -14,6 +14,7 @@ import {
   XmlClassMatch,
   XmlLiteralMatch,
   XmlTransformationInclude,
+  XmlCodelistMatch,
 } from "./xslt-model";
 
 import {
@@ -24,7 +25,8 @@ import {
 
 import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
-import { QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { pathRelative } from "../core/utilities/path-relative";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -34,12 +36,6 @@ export function structureModelToXslt(
   const adapter = new XsltAdapter(specifications, specification, model);
   return adapter.fromRoots(model.roots);
 }
-
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
 
 type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
@@ -78,7 +74,8 @@ class XsltAdapter {
       targetNamespacePrefix: null,
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
-      templates: Object.keys(this.classMap).map(this.classToTemplate, this),
+      templates: Object.keys(this.classMap).map(this.classToTemplate, this)
+        .filter(template => template != null),
       includes: Object.values(this.includes),
     };
   }
@@ -106,6 +103,15 @@ class XsltAdapter {
     });
   }
 
+  currentPath(generator: string): string {
+    for (const artifact of this.specification.artefacts) {
+      if (artifact.generator === generator) {
+        return artifact.publicUrl;
+      }
+    }
+    return "";
+  }
+
   resolveImportedElement(
     classData: StructureModelClass
   ): boolean {
@@ -117,7 +123,11 @@ class XsltAdapter {
           locations: Object.fromEntries(
             artifacts.map(
               artifact => {
-                return [artifact.generator, artifact.publicUrl]
+                return [
+                  artifact.generator, pathRelative(
+                    this.currentPath(artifact.generator),
+                  artifact.publicUrl)
+                ]
               }
             )
           )
@@ -152,8 +162,11 @@ class XsltAdapter {
     };
   }
 
-  classToTemplate(classIri: string): XmlTemplate {
+  classToTemplate(classIri: string): XmlTemplate | null {
     const classData = this.classMap[classIri];
+    if (classData.isCodelist) {
+      return null;
+    }
     if (this.resolveImportedElement(classData)) {
       return {
         name: this.classTemplateName(classData),
@@ -185,11 +198,16 @@ class XsltAdapter {
         "not supported."
       );
     }
-    // Treat codelists as URIs
-    dataTypes = dataTypes.map(this.replaceCodelistWithUri, this);
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
+      this.propertyToMatchCheckType(
+        propertyData,
+        dataTypes,
+        (type) => type.isAssociation() &&
+          this.getClass(type.psmClassIri).isCodelist,
+        this.classPropertyToCodelistMatch
+      ) ??
       this.propertyToMatchCheckType(
         propertyData,
         dataTypes,
@@ -211,25 +229,14 @@ class XsltAdapter {
     return result;
   }
 
-  replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
-    if (
-      dataType.isAssociation() &&
-      this.getClass(dataType.psmClassIri).isCodelist
-    ) {
-      return anyUriType;
-    }
-    return dataType;
-  }
-
   iriToQName(iri: string): QName {
-    const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
-    if (match == null) {
+    const parts = namespaceFromIri(iri);
+    if (parts == null) {
       throw new Error(
         `Cannot extract namespace from property ${iri}.`
       );
     }
-    const namespaceIri = match[1];
-    const localName = match[2];
+    const [namespaceIri, localName] = parts;
     if (this.rdfNamespacesIris[namespaceIri] != null) {
       return [this.rdfNamespacesIris[namespaceIri], localName];
     }
@@ -293,6 +300,20 @@ class XsltAdapter {
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       dataTypeIri: this.primitiveToIri(dataTypes[0])
+    };
+  }
+
+  classPropertyToCodelistMatch(
+    propertyData: StructureModelProperty,
+    interpretation: QName,
+    propertyName: QName,
+    dataTypes: StructureModelComplexType[]
+  ): XmlCodelistMatch {
+    return {
+      interpretation: interpretation,
+      propertyIri: propertyData.cimIri,
+      propertyName: propertyName,
+      isCodelist: true,
     };
   }
 

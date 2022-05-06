@@ -35,6 +35,7 @@ import { XSD } from "../well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
 import { langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
+import { pathRelative } from "../core/utilities/path-relative";
 
 export function structureModelToXmlSchema(
   specifications: { [iri: string]: DataSpecification },
@@ -236,6 +237,15 @@ class XmlSchemaAdapter {
     return this.model.psmIri !== classData.structureSchema;
   }
 
+  currentPath(): string {
+    for (const artifact of this.specification.artefacts) {
+      if (artifact.generator === XML_SCHEMA.Generator) {
+        return artifact.publicUrl;
+      }
+    }
+    return "";
+  }
+
   resolveImportedElementName(
     classData: StructureModelClass
   ): QName {
@@ -249,7 +259,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[classData.specification] = {
           namespace: null, // TODO from extension
           prefix: null, // TODO from extension
-          schemaLocation: artefact.publicUrl,
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
         };
         return [imported.prefix, classData.technicalLabel];
       }
@@ -275,6 +285,7 @@ class XmlSchemaAdapter {
       }
     }
     return lines.length == 0 ? null : {
+      modelReference: data.cimIri,
       documentation: lines.join("\n")
     }
   }

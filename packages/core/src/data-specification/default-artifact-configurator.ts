@@ -20,6 +20,15 @@ export class DefaultArtifactConfigurator {
   protected readonly dataSpecifications: DataSpecification[];
   protected readonly store: CoreResourceReader;
 
+  /**
+   * Root URL for the generated artifacts.
+   * @example
+   * "/"
+   * @example
+   * "http://example.com/files/"
+   */
+  baseURL = "/";
+
   constructor(
     dataSpecifications: DataSpecification[],
     store: CoreResourceReader,
@@ -54,7 +63,7 @@ export class DefaultArtifactConfigurator {
       const jsonSchema = new DataSpecificationSchema();
       jsonSchema.iri = `${name}#jsonschema`;
       jsonSchema.outputPath = `${dataSpecificationName}/${name}/schema.json`;
-      jsonSchema.publicUrl = jsonSchema.outputPath;
+      jsonSchema.publicUrl = this.baseURL + jsonSchema.outputPath;
       jsonSchema.generator = JSON_SCHEMA.Generator;
       jsonSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(jsonSchema);
@@ -62,7 +71,7 @@ export class DefaultArtifactConfigurator {
       const xmlSchema = new DataSpecificationSchema();
       xmlSchema.iri = `${name}#xmlschema`;
       xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;
-      xmlSchema.publicUrl = xmlSchema.outputPath;
+      xmlSchema.publicUrl = this.baseURL + xmlSchema.outputPath;
       xmlSchema.generator = XML_SCHEMA.Generator;
       xmlSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(xmlSchema);
@@ -70,7 +79,7 @@ export class DefaultArtifactConfigurator {
       const xsltLifting = new DataSpecificationSchema();
       xsltLifting.iri = `${name}#xsltlifting`;
       xsltLifting.outputPath = `${dataSpecificationName}/${name}/lifting.xslt`;
-      xsltLifting.publicUrl = xsltLifting.outputPath;
+      xsltLifting.publicUrl = this.baseURL + xsltLifting.outputPath;
       xsltLifting.generator = XSLT_LIFTING.Generator;
       xsltLifting.psm = psmSchemaIri;
       currentSchemaArtefacts.push(xsltLifting);
@@ -78,7 +87,7 @@ export class DefaultArtifactConfigurator {
       const xsltLowering = new DataSpecificationSchema();
       xsltLowering.iri = `${name}#xsltlowering`;
       xsltLowering.outputPath = `${dataSpecificationName}/${name}/lowering.xslt`;
-      xsltLowering.publicUrl = xsltLowering.outputPath;
+      xsltLowering.publicUrl = this.baseURL + xsltLowering.outputPath;
       xsltLowering.generator = XSLT_LOWERING.Generator;
       xsltLowering.psm = psmSchemaIri;
       currentSchemaArtefacts.push(xsltLowering);
@@ -86,7 +95,7 @@ export class DefaultArtifactConfigurator {
       const csvSchema = new DataSpecificationSchema();
       csvSchema.iri = `${name}#csvschema`;
       csvSchema.outputPath = `${dataSpecificationName}/${name}/schema.csv-metadata.json`;
-      csvSchema.publicUrl = csvSchema.outputPath;
+      csvSchema.publicUrl = this.baseURL + csvSchema.outputPath;
       csvSchema.generator = CSV_SCHEMA.Generator;
       csvSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(csvSchema);

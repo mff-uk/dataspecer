@@ -33,6 +33,7 @@ export class XmlSchemaAnnotated {
  * Represents an annotation of an XML Schema object.
  */
 export class XmlSchemaAnnotation {
+  modelReference: string | null;
   documentation: string | null;
 }
 

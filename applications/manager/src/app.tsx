@@ -12,6 +12,7 @@ import {CoreResourceReader} from "@dataspecer/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
 import {useLocalStorage} from "./utils/use-local-storage";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
+import {SnackbarProvider} from 'notistack';
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -89,26 +90,28 @@ function App() {
                         <ConstructedStoreCacheContext.Provider value={constructedStoreCache}>
                             <AvailableTags.Provider value={tags}>
                                 <FilterContext.Provider value={filter}>
-                                    <AppBar position="static">
-                                        <Toolbar>
-                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
-                                                <strong>Dataspecer</strong> specification manager
-                                            </Typography>
-                                        </Toolbar>
-                                    </AppBar>
-                                    <Container>
-                                        <Routes>
-                                            <Route path="/" element={<Home/>}/>
-                                            <Route path="/specification" element={<Specification/>}/>
-                                        </Routes>
-                                        <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                        Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
-                                        {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
-                                            <>
-                                                {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
-                                            </>
-                                        }
-                                    </Container>
+                                    <SnackbarProvider maxSnack={3}>
+                                        <AppBar position="static">
+                                            <Toolbar>
+                                                <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                                    <strong>Dataspecer</strong> specification manager
+                                                </Typography>
+                                            </Toolbar>
+                                        </AppBar>
+                                        <Container>
+                                            <Routes>
+                                                <Route path="/" element={<Home/>}/>
+                                                <Route path="/specification" element={<Specification/>}/>
+                                            </Routes>
+                                            <Divider style={{margin: "1rem 0 1rem 0"}} />
+                                            Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
+                                            {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                                                <>
+                                                    {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                                </>
+                                            }
+                                        </Container>
+                                    </SnackbarProvider>
                                 </FilterContext.Provider>
                             </AvailableTags.Provider>
                         </ConstructedStoreCacheContext.Provider>
