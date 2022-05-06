@@ -38,3 +38,16 @@ export const simpleTypeMapIri: Record<string, string> = {
   [OFN.url]: XSD.anyURI,
   [OFN.string]: XSD.string,
 };
+
+/**
+ * Splits IRI to a namespace part and local part.
+ */
+export function namespaceFromIri(
+  iri: string
+): [namespaceIri: string, localName: string] | null {
+  const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
+  if (match == null) {
+    return null;
+  }
+  return [match[1], match[2]];
+}

@@ -25,7 +25,7 @@ import {
 
 import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
-import { QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
@@ -216,14 +216,13 @@ class XsltAdapter {
   }
 
   iriToQName(iri: string): QName {
-    const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
-    if (match == null) {
+    const parts = namespaceFromIri(iri);
+    if (parts == null) {
       throw new Error(
         `Cannot extract namespace from property ${iri}.`
       );
     }
-    const namespaceIri = match[1];
-    const localName = match[2];
+    const [namespaceIri, localName] = parts;
     if (this.rdfNamespacesIris[namespaceIri] != null) {
       return [this.rdfNamespacesIris[namespaceIri], localName];
     }
