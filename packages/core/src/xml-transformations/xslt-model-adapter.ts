@@ -109,7 +109,7 @@ class XsltAdapter {
     });
   }
 
-  currentPath(generator: string): string {
+  currentPath(): string {
     return this.artifact.publicUrl;
   }
 
@@ -125,9 +125,8 @@ class XsltAdapter {
             artifacts.map(
               artifact => {
                 return [
-                  artifact.generator, pathRelative(
-                    this.currentPath(artifact.generator),
-                  artifact.publicUrl)
+                  artifact.generator,
+                  pathRelative(this.currentPath(), artifact.publicUrl)
                 ]
               }
             )
