@@ -40,6 +40,7 @@ import { pathRelative } from "../core/utilities/path-relative";
 export function structureModelToXmlSchema(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
+  artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlSchema {
   const options = new XmlSchemaAdapterOptions();
@@ -48,7 +49,7 @@ export function structureModelToXmlSchema(
   //options.otherClasses.extractGroup = true;
   //options.otherClasses.extractType = true;
   const adapter = new XmlSchemaAdapter(
-    specifications, specification, model, options
+    specifications, specification, artifact, model, options
   );
   return adapter.fromRoots(model.roots);
 }
@@ -96,17 +97,20 @@ class XmlSchemaAdapter {
   private usesLangString: boolean;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
+  private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private options: XmlSchemaAdapterOptions;
 
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
+    artifact: DataSpecificationSchema,
     model: StructureModel,
     options: XmlSchemaAdapterOptions
   ) {
     this.specifications = specifications;
     this.specification = specification;
+    this.artifact = artifact;
     this.model = model;
     this.options = options;
 
@@ -238,12 +242,7 @@ class XmlSchemaAdapter {
   }
 
   currentPath(): string {
-    for (const artifact of this.specification.artefacts) {
-      if (artifact.generator === XML_SCHEMA.Generator) {
-        return artifact.publicUrl;
-      }
-    }
-    return "";
+    return this.artifact.publicUrl;
   }
 
   resolveImportedElementName(

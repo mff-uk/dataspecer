@@ -56,7 +56,9 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       Object.values(context.specifications)
     );
     return Promise.resolve(
-      structureModelToXmlSchema(context.specifications, specification, model)
+      structureModelToXmlSchema(
+        context.specifications, specification, schemaArtefact, model
+      )
     );
   }
 
