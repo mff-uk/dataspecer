@@ -5,18 +5,16 @@ import {
 } from "../data-specification/model";
 import { StreamDictionary } from "../io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
-import { XmlSchema } from "./xml-schema-model";
-import { writeXmlSchema } from "./xml-schema-writer";
-import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
+import { SparqlQuery } from "./sparql-model";
+import { writeSparqlQuery } from "./sparql-writer";
+import { structureModelToSparql } from "./sparql-model-adapter";
 import { assertFailed, assertNot } from "../core";
 import { transformStructureModel } from "../structure-model/transformation";
-import { BIKESHED, BikeshedAdapterArtefactContext } from "../bikeshed";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
-import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
+import { SPARQL } from "./sparql-vocabulary";
 
-export class XmlSchemaGenerator implements ArtefactGenerator {
+export class SparqlGenerator implements ArtefactGenerator {
   identifier(): string {
-    return XML_SCHEMA.Generator;
+    return SPARQL.Generator;
   }
 
   async generateToStream(
@@ -27,7 +25,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
   ) {
     const model = await this.generateToObject(context, artefact, specification);
     const stream = output.writePath(artefact.outputPath);
-    await writeXmlSchema(model, stream);
+    await writeSparqlQuery(model, stream);
     await stream.close();
   }
 
@@ -35,7 +33,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification
-  ): Promise<XmlSchema> {
+  ): Promise<SparqlQuery> {
     if (!DataSpecificationSchema.is(artefact)) {
       assertFailed("Invalid artefact type.");
     }
@@ -50,15 +48,15 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
-    model = transformStructureModel(
-      conceptualModel,
-      model,
-      Object.values(context.specifications)
-    );
+    for (const conceptualModel of Object.values(context.conceptualModels)) {
+      model = transformStructureModel(
+        conceptualModel,
+        model,
+        Object.values(context.specifications)
+      );
+    }
     return Promise.resolve(
-      structureModelToXmlSchema(
-        context.specifications, specification, schemaArtefact, model
-      )
+      structureModelToSparql(context.specifications, specification, model)
     );
   }
 
@@ -69,17 +67,6 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     documentationIdentifier: string,
     callerContext: unknown
   ): Promise<unknown | null> {
-    if (documentationIdentifier === BIKESHED.Generator) {
-      const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-      return createBikeshedSchemaXml({
-        ...bikeshedContext,
-        structureModel: transformStructureModel(
-          bikeshedContext.conceptualModel,
-          bikeshedContext.structureModel,
-          Object.values(context.specifications)
-        ),
-      });
-    }
     return null;
   }
 }

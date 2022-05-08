@@ -25,14 +25,18 @@ import {
 
 import { OFN, XSD } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
-import { QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
+import { pathRelative } from "../core/utilities/path-relative";
 
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
+  artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlTransformation {
-  const adapter = new XsltAdapter(specifications, specification, model);
+  const adapter = new XsltAdapter(
+    specifications, specification, artifact, model
+  );
   return adapter.fromRoots(model.roots);
 }
 
@@ -41,6 +45,7 @@ class XsltAdapter {
   private classMap: ClassMap;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
+  private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private namespacePrefix: string;
   private rdfNamespaces: Record<string, string>;
@@ -51,10 +56,12 @@ class XsltAdapter {
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
+    artifact: DataSpecificationSchema,
     model: StructureModel
   ) {
     this.specifications = specifications;
     this.specification = specification;
+    this.artifact = artifact;
     this.model = model;
     const map: ClassMap = {};
     for (const classData of Object.values(model.classes)) {
@@ -102,6 +109,10 @@ class XsltAdapter {
     });
   }
 
+  currentPath(generator: string): string {
+    return this.artifact.publicUrl;
+  }
+
   resolveImportedElement(
     classData: StructureModelClass
   ): boolean {
@@ -113,7 +124,11 @@ class XsltAdapter {
           locations: Object.fromEntries(
             artifacts.map(
               artifact => {
-                return [artifact.generator, artifact.publicUrl]
+                return [
+                  artifact.generator, pathRelative(
+                    this.currentPath(artifact.generator),
+                  artifact.publicUrl)
+                ]
               }
             )
           )
@@ -216,14 +231,13 @@ class XsltAdapter {
   }
 
   iriToQName(iri: string): QName {
-    const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
-    if (match == null) {
+    const parts = namespaceFromIri(iri);
+    if (parts == null) {
       throw new Error(
         `Cannot extract namespace from property ${iri}.`
       );
     }
-    const namespaceIri = match[1];
-    const localName = match[2];
+    const [namespaceIri, localName] = parts;
     if (this.rdfNamespacesIris[namespaceIri] != null) {
       return [this.rdfNamespacesIris[namespaceIri], localName];
     }

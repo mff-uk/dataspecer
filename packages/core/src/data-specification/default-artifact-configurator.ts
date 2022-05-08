@@ -8,6 +8,7 @@ import {CoreResourceReader} from "../core";
 import {DataSpecificationArtefact} from "./model";
 import {PimSchema} from "../pim/model";
 import {DataPsmSchema} from "../data-psm/model";
+import {SPARQL} from "../sparql-query/sparql-vocabulary";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -98,6 +99,14 @@ export class DefaultArtifactConfigurator {
       csvSchema.generator = CSV_SCHEMA.Generator;
       csvSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(csvSchema);
+
+      const sparqlSchema = new DataSpecificationSchema();
+      sparqlSchema.iri = `${name}#sparqlschema`;
+      sparqlSchema.outputPath = `${dataSpecificationName}/${name}/query.sparql`;
+      sparqlSchema.publicUrl = this.baseURL + sparqlSchema.outputPath;
+      sparqlSchema.generator = SPARQL.Generator;
+      sparqlSchema.psm = psmSchemaIri;
+      currentSchemaArtefacts.push(sparqlSchema);
     }
 
     return currentSchemaArtefacts;
