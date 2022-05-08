@@ -103,7 +103,7 @@ export class DefaultArtifactConfigurator {
       const sparqlSchema = new DataSpecificationSchema();
       sparqlSchema.iri = `${name}#sparqlschema`;
       sparqlSchema.outputPath = `${dataSpecificationName}/${name}/query.sparql`;
-      sparqlSchema.publicUrl = sparqlSchema.outputPath;
+      sparqlSchema.publicUrl = this.baseURL + sparqlSchema.outputPath;
       sparqlSchema.generator = SPARQL.Generator;
       sparqlSchema.psm = psmSchemaIri;
       currentSchemaArtefacts.push(sparqlSchema);
