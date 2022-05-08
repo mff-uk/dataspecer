@@ -61,7 +61,9 @@ class XsltGenerator implements ArtefactGenerator {
       Object.values(context.specifications)
     );
     return Promise.resolve(
-      structureModelToXslt(context.specifications, specification, model)
+      structureModelToXslt(
+        context.specifications, specification, schemaArtefact, model
+      )
     );
   }
 

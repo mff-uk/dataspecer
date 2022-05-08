@@ -31,9 +31,12 @@ import { pathRelative } from "../core/utilities/path-relative";
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
+  artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlTransformation {
-  const adapter = new XsltAdapter(specifications, specification, model);
+  const adapter = new XsltAdapter(
+    specifications, specification, artifact, model
+  );
   return adapter.fromRoots(model.roots);
 }
 
@@ -42,6 +45,7 @@ class XsltAdapter {
   private classMap: ClassMap;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
+  private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private namespacePrefix: string;
   private rdfNamespaces: Record<string, string>;
@@ -52,10 +56,12 @@ class XsltAdapter {
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
+    artifact: DataSpecificationSchema,
     model: StructureModel
   ) {
     this.specifications = specifications;
     this.specification = specification;
+    this.artifact = artifact;
     this.model = model;
     const map: ClassMap = {};
     for (const classData of Object.values(model.classes)) {
@@ -104,12 +110,7 @@ class XsltAdapter {
   }
 
   currentPath(generator: string): string {
-    for (const artifact of this.specification.artefacts) {
-      if (artifact.generator === generator) {
-        return artifact.publicUrl;
-      }
-    }
-    return "";
+    return this.artifact.publicUrl;
   }
 
   resolveImportedElement(
