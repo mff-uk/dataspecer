@@ -3,9 +3,11 @@ import {Draggable, DraggableProvidedDragHandleProps, Droppable} from "react-beau
 import {DataPsmAttributeItem} from "./DataPsmAttributeItem";
 import {Collapse} from "@mui/material";
 import {DataPsmAssociationEndItem} from "./DataPsmAssociationEndItem";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {TransitionGroup} from "react-transition-group";
+import {DataPsmIncludeItem} from "./DataPsmIncludeItem";
+import {DataPsmAssociationEndToOrItem} from "./DataPsmAssociationEndToOrItem";
 
 interface DataPsmResourceSwitchProperties {
     dataPsmResourceIri: string,
@@ -20,9 +22,14 @@ interface DataPsmResourceSwitchProperties {
  */
 const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((props) => {
     const {resource: dataPsmResource, isLoading} = useResource(props.dataPsmResourceIri);
+    let secondResourceIri = null;
+    if (DataPsmAssociationEnd.is(dataPsmResource)) {
+        secondResourceIri = dataPsmResource.dataPsmPart;
+    }
+    const {resource: secondResource, isLoading: isSecondLoading} = useResource(secondResourceIri);
 
-    if (!dataPsmResource) {
-        if (isLoading) {
+    if (!dataPsmResource || (!secondResource && secondResourceIri)) {
+        if (isLoading || isSecondLoading) {
             return <div {...props.dragHandleProps}>Loading resource...</div>;
         } else {
             return <div {...props.dragHandleProps}>Unable to read resource {props.dataPsmResourceIri}</div>;
@@ -30,7 +37,13 @@ const DataPsmResourceSwitch: React.FC<DataPsmResourceSwitchProperties> = memo((p
     } else if (DataPsmAttribute.is(dataPsmResource)) {
         return <DataPsmAttributeItem {...props}/>;
     } else if (DataPsmAssociationEnd.is(dataPsmResource)) {
-        return <DataPsmAssociationEndItem {...props} />;
+        if (DataPsmOr.is(secondResource)) {
+            return <DataPsmAssociationEndToOrItem {...props} />;
+        } else {
+            return <DataPsmAssociationEndItem {...props} />;
+        }
+    } else if (DataPsmInclude.is(dataPsmResource)) {
+        return <DataPsmIncludeItem {...props} />;
     } else {
         return <div {...props.dragHandleProps}>Unsupported resource</div>;
     }

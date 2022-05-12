@@ -1,4 +1,8 @@
 {
+  "Add import": "Importovat obsah jiné třídy",
+  "add to or dialog": {
+    "title": "Přidat třídu do ORu"
+  },
   "backwards association": "zpětná asociace",
   "button add": "přidat",
   "button delete": "odstranit",

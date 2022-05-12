@@ -50,6 +50,14 @@ export const useItemStyles = makeStyles((theme: Theme) =>
             fontWeight: "bold",
             color: theme.palette.secondary.main,
         },
+        include: {
+            fontWeight: "bold",
+            color: "#b57e3f",
+        },
+        or: {
+            fontWeight: "bold",
+            color: "#4caf50",
+        },
         class: {
             fontWeight: "bold",
         },

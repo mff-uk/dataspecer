@@ -30,6 +30,8 @@ import {getCardinalityFromResource} from "./common/cardinality";
 import {ReplaceAlongInheritanceDialog} from "./replace-along-inheritance/replace-along-inheritance-dialog";
 import {ActionsOther} from "./common/actions-other";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {CreateInclude} from "../../operations/create-include";
+import {WrapWithOr} from "../../operations/wrap-with-or";
 
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
@@ -81,6 +83,14 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
             store.executeComplexOperation(new DeleteAssociationClass(dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri)),
         [dataPsmAssociationEnd, dataPsmClass, parentDataPsmClassIri, store]);
 
+    const include = useCallback(() =>
+        dataPsmClassIri && store.executeComplexOperation(new CreateInclude(prompt("Insert data-psm class iri") as string, dataPsmClassIri))
+    , [store, dataPsmClassIri]);
+
+    const wrapWithOr = useCallback(() =>
+            dataPsmClassIri && store.executeComplexOperation(new WrapWithOr(dataPsmClassIri, dataPsmAssociationEndIri))
+        , [dataPsmClassIri, store, dataPsmAssociationEndIri]);
+
     const inlineEdit = useToggle();
 
     // We need to decide whether there is a human label on Data PSM association end or PIM association end.
@@ -112,6 +122,20 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                             }}
                             title={t("button replace along inheritance")}>
                             {t("button replace along inheritance")}
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                close();
+                                include();
+                            }}>
+                            {t("Add import")}
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                close();
+                                wrapWithOr();
+                            }}>
+                            {t("Wrap with OR")}
                         </MenuItem>
                     </>}
                 </ActionsOther>
