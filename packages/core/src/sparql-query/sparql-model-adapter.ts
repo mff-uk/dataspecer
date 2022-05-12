@@ -2,10 +2,8 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-  StructureModel,
-  StructureModelType,
-  StructureModelComplexType,
-} from "../structure-model";
+  StructureModel, StructureModelSchemaRoot,
+} from "../structure-model/model/base";
 import {
   SparqlConstructQuery,
   SparqlElement,
@@ -52,7 +50,6 @@ const anyUriType: StructureModelPrimitiveType = (function () {
 
 type ClassMap = Record<string, StructureModelClass>;
 class SparqlAdapter {
-  private classMap: ClassMap;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
   private model: StructureModel;
@@ -70,19 +67,14 @@ class SparqlAdapter {
     this.specifications = specifications;
     this.specification = specification;
     this.model = model;
-    const map: ClassMap = {};
-    for (const classData of Object.values(model.classes)) {
-      map[classData.psmIri] = classData;
-    }
-    this.classMap = map;
     this.variableCounter = 0;
     this.namespaces = {};
     this.namespacesIris = {};
     this.namespaceCounter = 0;
   }
 
-  public fromRoots(roots: string[]): SparqlQuery {
-    const rootClass = this.classMap[roots[0]];
+  public fromRoots(roots: StructureModelSchemaRoot[]): SparqlQuery {
+    const rootClass = roots[0].classes[0];
     const rootSubject = this.newVariable();
     const elements = [];
     this.classToTriples(rootSubject, rootClass, false, elements);
@@ -94,14 +86,6 @@ class SparqlAdapter {
       construct: pattern,
       where: pattern,
     } as SparqlConstructQuery;
-  }
-
-  getClass(iri: string): StructureModelClass {
-    const cls = this.classMap[iri];
-    if (cls == null) {
-      throw new Error(`Class ${iri} is not defined in the model.`);
-    }
-    return cls;
   }
 
   newVariable(): SparqlVariableNode {
@@ -180,7 +164,7 @@ class SparqlAdapter {
     } as SparqlTriple);
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
-        const classData = this.classMap[type.psmClassIri];
+        const classData = type.dataType;
         this.classToTriples(obj, classData, true, elements);
       }
     }
