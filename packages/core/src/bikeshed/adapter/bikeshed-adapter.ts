@@ -18,7 +18,7 @@ import {
   DataSpecificationSchema,
 } from "../../data-specification/model";
 import { assertNot } from "../../core";
-import { StructureModel } from "../../structure-model";
+import { StructureModel } from "../../structure-model/model/base";
 import { BIKESHED } from "../bikeshed-vocabulary";
 
 export async function specificationToBikeshed(

@@ -17,7 +17,7 @@ import {
   StructureModel,
   StructureModelClass,
   StructureModelProperty,
-} from "../structure-model";
+} from "../structure-model/model/base";
 import { BIKESHED } from "./bikeshed-vocabulary";
 
 export class BikeshedGenerator implements ArtefactGenerator {
