@@ -10,7 +10,7 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../structure-model";
+} from "../structure-model/model/base";
 import { assertNot } from "../core";
 import { OFN_LABELS } from "../well-known";
 import {
@@ -42,7 +42,7 @@ export async function createBikeshedSchemaXml(
     )
   );
 
-  for (const entity of Object.values(structureModel.classes)) {
+  for (const entity of structureModel.getClasses()) {
     if (entity.structureSchema !== context.structureModel.psmIri) {
       // Class is not from this structure model.
       continue;
@@ -327,10 +327,7 @@ function propertyTypeAssociation(
   context: BikeshedAdapterArtefactContext,
   type: StructureModelComplexType
 ): string {
-  const target = context.structureModel.classes[type.psmClassIri];
-  if (target === null) {
-    throw new Error("Specification re-use is not supported.");
-  }
+  const target = type.dataType;
   if (context.structureModel.psmIri === target.structureSchema) {
     const label = classLabel(context, target);
     const href = classAnchor(context, target);

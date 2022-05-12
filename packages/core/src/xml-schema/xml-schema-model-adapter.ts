@@ -4,8 +4,8 @@ import {
   StructureModelProperty,
   StructureModel,
   StructureModelType,
-  StructureModelComplexType,
-} from "../structure-model";
+  StructureModelComplexType, StructureModelSchemaRoot,
+} from "../structure-model/model/base";
 import {
   XmlSchema,
   XmlSchemaComplexContent,
@@ -93,7 +93,6 @@ const iriProperty: XmlSchemaComplexContentElement = {
 type ClassMap = Record<string, StructureModelClass>;
 
 class XmlSchemaAdapter {
-  private classMap: ClassMap;
   private usesLangString: boolean;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
@@ -113,26 +112,18 @@ class XmlSchemaAdapter {
     this.artifact = artifact;
     this.model = model;
     this.options = options;
-
-    const map: ClassMap = {};
-    for (const classData of Object.values(model.classes)) {
-      if (classData.psmIri != null) {
-        map[classData.psmIri] = classData;
-      }
-    }
-    this.classMap = map;
   }
   
   private imports: { [specification: string]: XmlSchemaImportDeclaration };
   private groups: Record<string, XmlSchemaGroupDefinition>;
   private types: Record<string, XmlSchemaType>;
 
-  public fromRoots(roots: string[]): XmlSchema {
+  public fromRoots(roots: StructureModelSchemaRoot[]): XmlSchema {
     this.imports = {};
     this.groups = {};
     this.types = {};
     const elements = roots
-      .map(this.getClass, this)
+      .map(root => root.classes[0])
       .map(this.classToElement, this)
       .map(this.extractGroupFromRoot, this)
       .map(this.extractTypeFromRoot, this);
@@ -204,14 +195,6 @@ class XmlSchemaAdapter {
       };
     }
     return element;
-  }
-
-  getClass(iri: string): StructureModelClass {
-    const cls = this.classMap[iri];
-    if (cls == null) {
-      throw new Error(`Class ${iri} is not defined in the model.`);
-    }
-    return cls;
   }
 
   findArtefactForImport(
@@ -397,7 +380,7 @@ class XmlSchemaAdapter {
   replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
     if (
       dataType.isAssociation() &&
-      this.getClass(dataType.psmClassIri).isCodelist
+      dataType.dataType.isCodelist
     ) {
       return anyUriType;
     }
@@ -446,7 +429,7 @@ class XmlSchemaAdapter {
     dataTypes: StructureModelComplexType[]
   ): [XmlSchemaComplexItem, string] {
     if (dataTypes.length === 1) {
-      const typeClass = this.getClass(dataTypes[0].psmClassIri);
+      const typeClass = dataTypes[0].dataType;
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
       const classContent = this.classToComplexContent(typeClass);
@@ -455,7 +438,7 @@ class XmlSchemaAdapter {
     return [{
       xsType: "choice",
       contents: dataTypes
-        .map(dataType => this.getClass(dataType.psmClassIri))
+        .map(dataType => dataType.dataType)
         .map(this.classToComplexContent, this),
     } as XmlSchemaComplexChoice, null];
   }
