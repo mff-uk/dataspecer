@@ -24,6 +24,7 @@ import {SingleArtifactPreview} from "./multiple-artifacts-preview";
 import PrintTwoToneIcon from '@mui/icons-material/PrintTwoTone';
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {SPARQL} from "@dataspecer/core/sparql-query/sparql-vocabulary";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -222,6 +223,14 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(CSV_SCHEMA.Generator)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: CSV_SCHEMA.Generator})}
                     setLive={v => (v ? add : del)(CSV_SCHEMA.Generator)}
+                />
+                <Divider />
+                <GeneratedArtifactItem
+                    title={"SPARQL"}
+                    generator={SPARQL.Generator}
+                    live={artifactPreview.includes(SPARQL.Generator)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: SPARQL.Generator})}
+                    setLive={v => (v ? add : del)(SPARQL.Generator)}
                 />
 
                 <MenuNote>

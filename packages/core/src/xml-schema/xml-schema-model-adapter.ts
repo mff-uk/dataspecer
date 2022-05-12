@@ -35,10 +35,12 @@ import { XSD } from "../well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
 import { langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
+import { pathRelative } from "../core/utilities/path-relative";
 
 export function structureModelToXmlSchema(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
+  artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlSchema {
   const options = new XmlSchemaAdapterOptions();
@@ -47,7 +49,7 @@ export function structureModelToXmlSchema(
   //options.otherClasses.extractGroup = true;
   //options.otherClasses.extractType = true;
   const adapter = new XmlSchemaAdapter(
-    specifications, specification, model, options
+    specifications, specification, artifact, model, options
   );
   return adapter.fromRoots(model.roots);
 }
@@ -95,17 +97,20 @@ class XmlSchemaAdapter {
   private usesLangString: boolean;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
+  private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private options: XmlSchemaAdapterOptions;
 
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
+    artifact: DataSpecificationSchema,
     model: StructureModel,
     options: XmlSchemaAdapterOptions
   ) {
     this.specifications = specifications;
     this.specification = specification;
+    this.artifact = artifact;
     this.model = model;
     this.options = options;
 
@@ -236,6 +241,10 @@ class XmlSchemaAdapter {
     return this.model.psmIri !== classData.structureSchema;
   }
 
+  currentPath(): string {
+    return this.artifact.publicUrl;
+  }
+
   resolveImportedElementName(
     classData: StructureModelClass
   ): QName {
@@ -249,7 +258,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[classData.specification] = {
           namespace: null, // TODO from extension
           prefix: null, // TODO from extension
-          schemaLocation: artefact.publicUrl,
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
         };
         return [imported.prefix, classData.technicalLabel];
       }
