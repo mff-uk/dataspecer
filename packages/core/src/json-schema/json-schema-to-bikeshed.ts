@@ -10,7 +10,7 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../structure-model";
+} from "../structure-model/model/base";
 import { assertNot } from "../core";
 import { OFN_LABELS } from "../well-known";
 import {
@@ -41,7 +41,7 @@ export async function createBikeshedSchemaJson(
     )
   );
 
-  for (const entity of Object.values(structureModel.classes)) {
+  for (const entity of structureModel.getClasses()) {
     if (entity.structureSchema !== context.structureModel.psmIri) {
       // Class is not from this structure model.
       continue;
@@ -326,7 +326,7 @@ function propertyTypeAssociation(
   context: BikeshedAdapterArtefactContext,
   type: StructureModelComplexType
 ): string {
-  const target = context.structureModel.classes[type.psmClassIri];
+  const target = type.dataType;
   if (target === null) {
     throw new Error("Specification re-use is not supported.");
   }

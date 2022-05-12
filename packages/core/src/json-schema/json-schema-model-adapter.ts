@@ -23,7 +23,7 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-} from "../structure-model";
+} from "../structure-model/model/base";
 import { XSD, OFN, OFN_LABELS } from "../well-known";
 import {
   DataSpecification,
@@ -74,7 +74,7 @@ export function structureModelToJsonSchema(
   };
   result.root = structureModelClassToJsonSchemaDefinition(
     contex,
-    model.classes[model.roots[0]]
+    model.roots[0].classes[0]
   );
   return result;
 }
@@ -152,7 +152,7 @@ function structureModelPropertyToJsonDefinition(
   const dataTypes: JsonSchemaDefinition[] = [];
   for (const dataType of property.dataTypes) {
     if (dataType.isAssociation()) {
-      const classData = context.model.classes[dataType.psmClassIri];
+      const classData = dataType.dataType;
       dataTypes.push(
         structureModelClassToJsonSchemaDefinition(context, classData)
       );
