@@ -3,8 +3,8 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../model";
-import { assertFailed, assertNot } from "../../core";
+} from "../model/base";
+import {assertFailed, assertNot, clone} from "../../core";
 
 /**
  * Dematerialize association by moving their content to their owner.
@@ -12,12 +12,11 @@ import { assertFailed, assertNot } from "../../core";
 export function structureModelDematerialize(
   structure: StructureModel
 ): StructureModel {
-  const result = { ...structure, classes: {} } as StructureModel;
-  for (const [iri, classData] of Object.entries(structure.classes)) {
-    result.classes[iri] = {
-      ...classData,
-      properties: dematerializeClassProperties(structure, classData),
-    };
+  const result = clone(structure) as StructureModel;
+  const classes = result.getClasses();
+
+  for (const classData of classes) {
+    classData.properties = dematerializeClassProperties(structure, classData);
   }
   return result;
 }
@@ -48,11 +47,7 @@ function dematerializeClassProperties(
     }
     const isOptional = isPropertyOptional(property);
     for (const type of collectComplexTypes(classData, property)) {
-      const typeClassData = structure.classes[type.psmClassIri];
-      assertNot(
-        typeClassData === undefined,
-        `Missing type '${typeClassData}'.`
-      );
+      const typeClassData = type.dataType;
       dematerializeClassProperties(structure, typeClassData, visited).forEach(
         (property) => {
           const propertyClone = { ...property } as StructureModelProperty;

@@ -1,8 +1,5 @@
-import {
-  StructureModel,
-  StructureModelClass,
-  StructureModelProperty,
-} from "../model";
+import {StructureModel, StructureModelClass,} from "../model/base";
+import {clone} from "../../core";
 
 /**
  * Copy properties from extending classes to the specializations, effectively
@@ -11,34 +8,32 @@ import {
 export function structureModelFlattenInheritance(
   structure: StructureModel
 ): StructureModel {
-  const result = { ...structure, classes: {} } as StructureModel;
-  for (const [iri, classData] of Object.entries(structure.classes)) {
-    result.classes[iri] = {
-      ...classData,
-      properties: collectProperties(classData),
-    };
+  const result = clone(structure) as StructureModel;
+  const classes = result.getClasses();
+  for (const classData of classes) {
+    classData.properties = findTopologicalSortOfExtends(classData)
+      .flatMap(cls => cls.properties);
   }
   return result;
 }
 
-function collectProperties(
-  classData: StructureModelClass
-): StructureModelProperty[] {
-  const result = [...classData.properties];
-  const visited = new Set();
-  const stack = [...classData.extends];
-  while (stack.length > 0) {
-    const ancestorClass = stack.pop();
-    if (ancestorClass === null || ancestorClass === undefined) {
-      continue;
+/**
+ * Applies DFS and return class hierarchy topologically sorted.
+ */
+function findTopologicalSortOfExtends(
+  cls: StructureModelClass
+): StructureModelClass[] {
+  const visited = new Set<string>();
+  const result = [] as StructureModelClass[];
+  function visit(cls: StructureModelClass): void {
+    visited.add(cls.psmIri);
+    for (const ext of cls.extends) {
+      if (!visited.has(ext.psmIri)) {
+        visit(ext);
+      }
     }
-    if (visited.has(ancestorClass.psmIri)) {
-      continue;
-    }
-    visited.add(ancestorClass.psmIri);
-    //
-    result.push(...ancestorClass.properties);
-    stack.push(...ancestorClass.extends);
+    result.push(cls);
   }
+  visit(cls);
   return result;
 }

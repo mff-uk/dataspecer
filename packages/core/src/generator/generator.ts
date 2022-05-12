@@ -8,9 +8,9 @@ import {
 } from "./artefact-generator-context";
 import { coreResourcesToConceptualModel } from "../conceptual-model";
 import {
-  coreResourcesToStructuralModel,
   StructureModel,
-} from "../structure-model";
+} from "../structure-model/model/base";
+import {coreResourcesToStructuralModel} from "../structure-model";
 
 export class Generator {
   private readonly specifications: { [iri: string]: DataSpecification } = {};
@@ -151,10 +151,10 @@ function findStructureClassModel(
   iri: string
 ): StructureModel | null {
   for (const structureModel of Object.values(structureModels)) {
-    if (structureModel.classes[iri] === undefined) {
-      continue;
+    const found = structureModel.getClasses().find(cls => cls.psmIri === iri)
+    if (found) {
+      return structureModel;
     }
-    return structureModel;
   }
   return null;
 }

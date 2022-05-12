@@ -2,7 +2,8 @@ import {
   ConceptualModel,
   ConceptualModelProperty,
 } from "../../conceptual-model";
-import { StructureModel, StructureModelClass } from "../model";
+import {StructureModel} from "../model/base";
+import {clone} from "../../core";
 
 /**
  * Add cardinalities from {@link ConceptualModel} if they are missing.
@@ -11,24 +12,20 @@ export function propagateCardinality(
   conceptual: ConceptualModel,
   structure: StructureModel
 ): StructureModel {
-  const result = { ...structure, classes: {} } as StructureModel;
+  const result = clone(structure) as StructureModel;
+  const classes = result.getClasses();
   const propertyMap = buildPropertyMap(conceptual);
-  for (const [iri, structureClass] of Object.entries(structure.classes)) {
-    const classData = { ...structureClass } as StructureModelClass;
-    result.classes[iri] = classData;
+  for (const classData of classes) {
     const conceptualClass = conceptual.classes[classData.pimIri];
     if (conceptualClass === null || conceptualClass === undefined) {
       continue;
     }
-    classData.properties = classData.properties.map((property) => {
+    classData.properties.forEach(property => {
       const conceptualProperty = propertyMap[property.pimIri];
-      return {
-        ...property,
-        cardinalityMin:
-          property.cardinalityMin ?? conceptualProperty.cardinalityMin,
-        cardinalityMax:
-          property.cardinalityMax ?? conceptualProperty.cardinalityMax,
-      };
+      property.cardinalityMin =
+        property.cardinalityMin ?? conceptualProperty.cardinalityMin;
+      property.cardinalityMax =
+        property.cardinalityMax ?? conceptualProperty.cardinalityMax
     });
   }
   return result;

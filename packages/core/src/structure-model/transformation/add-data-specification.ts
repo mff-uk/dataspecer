@@ -1,5 +1,6 @@
-import { StructureModel } from "../model";
 import { DataSpecification } from "../../data-specification/model";
+import {clone} from "../../core";
+import {StructureModel} from "../model/base";
 
 /**
  * For each class set the owner specification.
@@ -9,16 +10,12 @@ export function addDataSpecification(
   specifications: DataSpecification[]
 ): StructureModel {
   const schemaToSpecification = buildSchemaToSpecificationMap(specifications);
-  const result = {
-    ...structure,
-    classes: {},
-    specification: schemaToSpecification[structure.psmIri] ?? null,
-  } as StructureModel;
-  for (const [iri, classData] of Object.entries(structure.classes)) {
-    result.classes[iri] = {
-      ...classData,
-      specification: schemaToSpecification[classData.structureSchema] ?? null,
-    };
+  const result = clone(structure) as StructureModel;
+  const classes = result.getClasses();
+
+  result.specification = schemaToSpecification[structure.psmIri] ?? null;
+  for (const structureClass of classes) {
+    structureClass.specification = schemaToSpecification[structureClass.structureSchema] ?? null;
   }
   return result;
 }
