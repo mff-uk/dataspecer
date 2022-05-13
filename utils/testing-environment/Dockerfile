@@ -10,11 +10,11 @@ RUN npm install i -g xslt3
 
 # Apache Jena (e.g. riot for transformations among RDF serializations)
 RUN apt-get install -y openjdk-17-jre
-RUN wget https://dlcdn.apache.org/jena/binaries/apache-jena-4.4.0.tar.gz
-RUN tar -zxf apache-jena-4.4.0.tar.gz -C /usr/local
-RUN rm apache-jena-4.4.0.tar.gz
-ENV JENA_HOME=/usr/local/apache-jena-4.4.0
-ENV PATH="/usr/local/apache-jena-4.4.0/bin:${PATH}"
+RUN wget https://dlcdn.apache.org/jena/binaries/apache-jena-4.5.0.tar.gz
+RUN tar -zxf apache-jena-4.5.0.tar.gz -C /usr/local
+RUN rm apache-jena-4.5.0.tar.gz
+ENV JENA_HOME=/usr/local/apache-jena-4.5.0
+ENV PATH="/usr/local/apache-jena-4.5.0/bin:${PATH}"
 
 # rdf-tabular for CSV on the Web validation and transformation
 RUN apt-get install -y ruby
