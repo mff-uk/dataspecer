@@ -1,5 +1,4 @@
 import { ConceptualModel } from "../../conceptual-model";
-import { StructureModel } from "../model";
 import { propagateCardinality } from "./propagate-cardinality";
 import { structureModelAddCodelists } from "./add-codelists";
 import { structureModelFlattenInheritance } from "./instantiate-properties";
@@ -8,6 +7,7 @@ import { propagateLabel } from "./propagate-label";
 import { DataSpecification } from "../../data-specification/model";
 import { addDataSpecification } from "./add-data-specification";
 import {propagateCimIri} from "./propagate-cim-iri";
+import {StructureModel} from "../model/base";
 
 /**
  * Apply all transformations.

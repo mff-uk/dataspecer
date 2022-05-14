@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import {useItemStyles} from "./PsmItemCommon";
 import {DataPsmClassParts} from "./DataPsmClassParts";
 import {DataPsmClassAddSurroundingsButton} from "./class/DataPsmClassAddSurroundingsButton";
@@ -13,6 +13,9 @@ import {ItemRow} from "./item-row";
 import {useDialog} from "../../dialog";
 import {AddInterpretedSurroundingsDialog} from "../add-interpreted-surroundings";
 import {Icons} from "../../icons";
+import {CreateInclude} from "../../operations/create-include";
+import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {ActionsOther} from "./common/actions-other";
 
 export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmClassIri}) => {
     const {t} = useTranslation("psm");
@@ -25,6 +28,11 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
     const DetailDialog = useDialog(DataPsmClassDetailDialog, ["iri"]);
     const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
+    const store = useFederatedObservableStore();
+    const include = useCallback(() =>
+            dataPsmClassIri && store.executeComplexOperation(new CreateInclude(prompt("Insert data-psm class iri") as string, dataPsmClassIri))
+        , [store, dataPsmClassIri]);
+
     return <li className={styles.li}>
         <ItemRow open actions={<>
             {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
@@ -32,6 +40,18 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
                 <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
                 <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
             }
+
+            <ActionsOther>
+                {close => <>
+                    <MenuItem
+                        onClick={() => {
+                            close();
+                            include();
+                        }}>
+                        {t("Add import")}
+                    </MenuItem>
+                </>}
+            </ActionsOther>
         </>} readOnly={readOnly}>
             {dataPsmClass === undefined && <Skeleton />}
             {dataPsmClass &&

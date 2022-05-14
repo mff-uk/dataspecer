@@ -1,3 +1,5 @@
+import {StructureModelClass} from "./structure-model-class";
+
 export interface StructureModelType {
   isAttribute(): this is StructureModelPrimitiveType;
 
@@ -17,11 +19,7 @@ export class StructureModelPrimitiveType implements StructureModelType {
 }
 
 export class StructureModelComplexType implements StructureModelType {
-  /**
-   * We do not store reference to a class to allow for simple
-   * serialization.
-   */
-  psmClassIri: string | null = null;
+  dataType: StructureModelClass = null;
 
   isAttribute(): this is StructureModelPrimitiveType {
     return false;

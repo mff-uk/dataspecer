@@ -13,7 +13,7 @@ import {
     StructureModelPrimitiveType,
     StructureModelProperty,
     StructureModelClass
-} from "../structure-model";
+} from "../structure-model/model/base";
 import { DataSpecification } from "../data-specification/model";
 import {
     assert,
@@ -49,13 +49,12 @@ function createMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(model.classes, schema.tables, model.roots[0], idPrefix + specification.artefacts[4].publicUrl + "/tables/", { value: 1 }, null);
+    makeTablesRecursive(schema.tables, model.roots[0].classes[0], idPrefix + specification.artefacts[4].publicUrl + "/tables/", { value: 1 }, null);
     return schema;
 }
 
 /**
  * Every call of this function adds a table to tables.
- * @param classes Object with classes to process
  * @param tables Array to store created tables
  * @param currentClass The parameter of recursion
  * @param namePrefix Prefix for table identifier
@@ -63,9 +62,8 @@ function createMultipleTableSchema(
  * @param reference Reference for the foreign key
  */
 function makeTablesRecursive (
-    classes: { [i: string]: StructureModelClass },
     tables: Table[],
-    currentClass: string,
+    currentClass: StructureModelClass,
     namePrefix: string,
     nameNumber: { value: number },
     reference: Reference | null
@@ -90,16 +88,16 @@ function makeTablesRecursive (
     idCol.datatype = "string";
     table.tableSchema.columns.push(idCol);
 
-    for (const property of classes[currentClass].properties) {
+    for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
-            const associatedClass = dataType.psmClassIri;
-            table.tableSchema.columns.push(makeSimpleColumn(property, "", "string", classes[associatedClass].isCodelist));
-            if (classes[associatedClass].properties.length !== 0) {
+            const associatedClass = dataType.dataType;
+            table.tableSchema.columns.push(makeSimpleColumn(property, "", "string", associatedClass.isCodelist));
+            if (associatedClass.properties.length !== 0) {
                 const reference = new Reference();
                 reference.resource = table.url;
                 reference.columnReference = encodeURI(property.technicalLabel);
-                makeTablesRecursive(classes, tables, associatedClass, namePrefix, nameNumber, reference);
+                makeTablesRecursive(tables, associatedClass, namePrefix, nameNumber, reference);
             }
         }
         else if (dataType.isAttribute()) table.tableSchema.columns.push(makeSimpleColumn(property, "", structureModelPrimitiveToCsvDefinition(dataType), false));
@@ -110,7 +108,7 @@ function makeTablesRecursive (
     const virtualCol = new Column();
     virtualCol.virtual = true;
     virtualCol.propertyUrl = "rdf:type";
-    virtualCol.valueUrl = classes[currentClass].cimIri;
+    virtualCol.valueUrl = currentClass.cimIri;
     table.tableSchema.columns.push(virtualCol);
 }
 
@@ -127,13 +125,13 @@ function createSingleTableSchema(
     schema.table["@id"] = idPrefix + specification.artefacts[4].publicUrl;
     schema.table.url = idPrefix + specification.artefacts[4].publicUrl + "/table.csv";
     schema.table.tableSchema = new TableSchema();
-    fillTableSchemaRecursive(model.classes, schema.table.tableSchema, model.roots[0], "");
+    fillTableSchemaRecursive(schema.table.tableSchema, model.roots[0].classes[0], "");
 
     // adds rdf:type virtual column
     const virtualCol = new Column();
     virtualCol.virtual = true;
     virtualCol.propertyUrl = "rdf:type";
-    virtualCol.valueUrl = model.classes[model.roots[0]].cimIri;
+    virtualCol.valueUrl = model.roots[0].classes[0].cimIri;
     schema.table.tableSchema.columns.push(virtualCol);
 
     return schema;
@@ -141,23 +139,21 @@ function createSingleTableSchema(
 
 /**
  * This function recursively adds columns to the table schema. It calls itself if it finds an association with some properties.
- * @param classes Object with classes to process
  * @param tableSchema The table schema to be filled
  * @param currentClass The parameter of recursion
  * @param prefix Prefix of created columns
  */
 function fillTableSchemaRecursive (
-    classes: { [i: string]: StructureModelClass },
     tableSchema: TableSchema,
-    currentClass: string,
+    currentClass: StructureModelClass,
     prefix: string
 ) : void {
-    for (const property of classes[currentClass].properties) {
+    for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
-            const associatedClass = dataType.psmClassIri;
-            if (classes[associatedClass].properties.length === 0) tableSchema.columns.push(makeSimpleColumn(property, prefix, "string", classes[associatedClass].isCodelist));
-            else fillTableSchemaRecursive(classes, tableSchema, associatedClass, prefix + property.technicalLabel + "_");
+            const associatedClass = dataType.dataType;
+            if (associatedClass.properties.length === 0) tableSchema.columns.push(makeSimpleColumn(property, prefix, "string", associatedClass.isCodelist));
+            else fillTableSchemaRecursive(tableSchema, associatedClass, prefix + property.technicalLabel + "_");
         }
         else if (dataType.isAttribute()) tableSchema.columns.push(makeSimpleColumn(property, prefix, structureModelPrimitiveToCsvDefinition(dataType), false));
         else assertFailed("Unexpected datatype!");

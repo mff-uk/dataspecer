@@ -95,6 +95,6 @@ export async function removeFromClass(
   );
 }
 
-function removeValue<T>(valueToRemove: T, array: T[]): T[] {
+export function removeValue<T>(valueToRemove: T, array: T[]): T[] {
   return array.filter((value) => value !== valueToRemove);
 }

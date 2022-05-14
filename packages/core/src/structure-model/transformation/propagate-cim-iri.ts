@@ -1,5 +1,6 @@
 import {ConceptualModel, ConceptualModelProperty} from "../../conceptual-model";
-import {StructureModel, StructureModelClass} from "../model";
+import {StructureModel} from "../model/base";
+import {clone} from "../../core";
 
 /**
  * Adds CIM iris from {@link ConceptualModel} to {@link StructureModel}.
@@ -10,12 +11,11 @@ export function propagateCimIri(
     conceptual: ConceptualModel,
     structure: StructureModel
 ): StructureModel {
-    const result = { ...structure, classes: {} } as StructureModel;
+    const result = clone(structure) as StructureModel;
+    const classes = result.getClasses();
 
-    // Process classes
-    for (const [iri, structureClass] of Object.entries(structure.classes)) {
-        const classData = { ...structureClass } as StructureModelClass;
-        result.classes[iri] = classData;
+    // Process classes and extend classes
+    for (const classData of classes) {
         const conceptualClass = conceptual.classes[classData.pimIri];
         if (conceptualClass === null || conceptualClass === undefined) {
             continue;
@@ -23,16 +23,9 @@ export function propagateCimIri(
         classData.cimIri = conceptualClass.cimIri;
     }
 
-    // Update extend classes
-    for (const structureClass of Object.values(result.classes)) {
-        structureClass.extends = structureClass.extends.map(
-            cls => result.classes[cls.psmIri] ?? cls
-        );
-    }
-
     // Process properties
-    for (const structureClass of Object.values(result.classes)) {
-        structureClass.properties = structureClass.properties.map(
+    for (const structureClass of classes) {
+        structureClass.properties.forEach(
             property => {
                 // Find the correct class that contains the given property
                 let conceptualProperty: ConceptualModelProperty|null = null;
@@ -46,12 +39,7 @@ export function propagateCimIri(
                 }
 
                 if (conceptualProperty) {
-                    return {
-                        ...property,
-                        cimIri: conceptualProperty.cimIri
-                    };
-                } else {
-                    return property;
+                    property.cimIri = conceptualProperty.cimIri;
                 }
             }
         );

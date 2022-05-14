@@ -1,7 +1,7 @@
 import * as resources from "./csv-test-resources";
 import { ReadOnlyMemoryStore } from "../../core";
 import { coreResourcesToConceptualModel } from "../../conceptual-model";
-import { coreResourcesToStructuralModel } from "../../structure-model";
+import { coreResourcesToStructuralModel } from "../../structure-model/model/base";
 import { transformStructureModel } from "../../structure-model/transformation";
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
 

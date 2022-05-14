@@ -4,8 +4,8 @@ import {
   StructureModelProperty,
   StructureModel,
   StructureModelType,
-  StructureModelComplexType,
-} from "../structure-model";
+  StructureModelComplexType, StructureModelSchemaRoot,
+} from "../structure-model/model/base";
 import {
   XmlTransformation,
   XmlTemplate,
@@ -42,7 +42,6 @@ export function structureModelToXslt(
 
 type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
-  private classMap: ClassMap;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
@@ -63,24 +62,19 @@ class XsltAdapter {
     this.specification = specification;
     this.artifact = artifact;
     this.model = model;
-    const map: ClassMap = {};
-    for (const classData of Object.values(model.classes)) {
-      map[classData.psmIri] = classData;
-    }
-    this.classMap = map;
     this.rdfNamespaces = {};
     this.rdfNamespacesIris = {};
     this.rdfNamespaceCounter = 0;
     this.includes = {};
   }
 
-  public fromRoots(roots: string[]): XmlTransformation {
+  public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
     return {
       targetNamespace: null,
       targetNamespacePrefix: null,
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
-      templates: Object.keys(this.classMap).map(this.classToTemplate, this)
+      templates: this.model.getClasses().map(this.classToTemplate, this)
         .filter(template => template != null),
       includes: Object.values(this.includes),
     };
@@ -138,14 +132,6 @@ class XsltAdapter {
     return false;
   }
 
-  getClass(iri: string): StructureModelClass {
-    const cls = this.classMap[iri];
-    if (cls == null) {
-      throw new Error(`Class ${iri} is not defined in the model.`);
-    }
-    return cls;
-  }
-
   classTemplateName(classData: StructureModelClass) {
     return "_" + classData.psmIri.replace(
       /[^-.\p{L}\p{N}]/gu,
@@ -153,8 +139,8 @@ class XsltAdapter {
     );
   }
 
-  rootToTemplate(rootIri: string): XmlRootTemplate {
-    const classData = this.classMap[rootIri];
+  rootToTemplate(root: StructureModelSchemaRoot): XmlRootTemplate {
+    const classData = root.classes[0];
     return {
       typeIri: classData.cimIri,
       elementName: [this.namespacePrefix, classData.technicalLabel],
@@ -162,8 +148,7 @@ class XsltAdapter {
     };
   }
 
-  classToTemplate(classIri: string): XmlTemplate | null {
-    const classData = this.classMap[classIri];
+  classToTemplate(classData: StructureModelClass): XmlTemplate | null {
     if (classData.isCodelist) {
       return null;
     }
@@ -205,7 +190,7 @@ class XsltAdapter {
         propertyData,
         dataTypes,
         (type) => type.isAssociation() &&
-          this.getClass(type.psmClassIri).isCodelist,
+          type.dataType.isCodelist,
         this.classPropertyToCodelistMatch
       ) ??
       this.propertyToMatchCheckType(
@@ -283,9 +268,7 @@ class XsltAdapter {
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       isDematerialized: propertyData.dematerialize,
-      targetTemplate: this.classTemplateName(
-        this.getClass(dataTypes[0].psmClassIri)
-      ),
+      targetTemplate: this.classTemplateName(dataTypes[0].dataType),
     };
   }
 
