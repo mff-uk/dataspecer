@@ -34,6 +34,7 @@ export const useSingleGeneratedFileArtifact = (generatorId: string) => {
                         artefact.psm === dataPsmSchemaIri)
             );
         } catch (e) {
+            console.error(e);
             return null;
         }
     }, [storeChangeTrigger, generatorId, dataSpecifications, dataSpecificationIri, dataPsmSchemaIri]);

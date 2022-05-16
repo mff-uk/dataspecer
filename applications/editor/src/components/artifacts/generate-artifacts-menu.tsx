@@ -64,6 +64,7 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
                     artefact.psm === configuration.dataPsmSchemaIri,
             );
         } catch (error) {
+            console.error(error);
             enqueueSnackbar(<><strong>{t("error")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
         if (artifact !== undefined && configuration.dataPsmSchemaIri && filename !== undefined) {
