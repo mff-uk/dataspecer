@@ -2,7 +2,7 @@ import {createExecutorMap, CreateNewIdentifier, ExecutorMap, MemoryStore} from "
 import {HttpSynchronizedStoreConnector} from "../connectors/http-synchronized-store-connector";
 import {StoreDescriptor} from "../store-descriptor";
 import {HttpStoreDescriptor} from "../store-descriptor/http-store-descriptor";
-import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/data-psm-executors";
 import {pimExecutors} from "@dataspecer/core/pim/executor";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 

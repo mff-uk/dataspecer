@@ -1,7 +1,7 @@
 import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter, MemoryStore} from "@dataspecer/core/core";
 import {LocalStoreModel} from "./local-store-model";
 import {LocalStoreDescriptor} from "./local-store-descriptor";
-import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/data-psm-executors";
 import {pimExecutors} from "@dataspecer/core/pim/executor";
 
 export class LocalStore implements CoreResourceReader, CoreResourceWriter {

@@ -1,7 +1,7 @@
 import { PimCreateSchema, PimCreateSchemaResult } from "../operation";
 import { executePimCreateSchema } from "./pim-create-schema-executor";
 import { MemoryStore } from "../../core";
-import { dataPsmExecutors } from "../../data-psm/executor";
+import { baseDataPsmExecutors } from "../../data-psm/executor";
 import * as PIM from "../pim-vocabulary";
 
 test("Create schema.", async () => {
@@ -12,7 +12,7 @@ test("Create schema.", async () => {
   let counter = 0;
   const store = MemoryStore.create(
     "http://localhost",
-    dataPsmExecutors,
+    baseDataPsmExecutors,
     (type) => `http://localhost/${type}/${++counter}`
   );
 
@@ -48,7 +48,7 @@ test("Create schema with given IRI.", async () => {
   let counter = 0;
   const store = MemoryStore.create(
     "http://localhost",
-    dataPsmExecutors,
+    baseDataPsmExecutors,
     (type) => `http://localhost/${type}/${++counter}`
   );
 

@@ -1,4 +1,5 @@
-import { CoreResource } from "../../core";
+import {CoreResource} from "../../core";
+import {ExtendableCoreResource} from "./extendable-core-resource";
 import * as PSM from "../data-psm-vocabulary";
 /**
  * Represents PSM OR construct that select one entity from the given set of
@@ -7,7 +8,7 @@ import * as PSM from "../data-psm-vocabulary";
  * be linked to {@link DataPsmAssociationEnd} that requires specialization of
  * the corresponding class type, hence this or may be used.
  */
-export class DataPsmOr extends CoreResource {
+export class DataPsmOr extends ExtendableCoreResource {
   private static readonly TYPE = PSM.OR;
 
   /**

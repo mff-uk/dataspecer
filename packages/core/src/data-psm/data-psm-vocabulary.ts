@@ -1,5 +1,10 @@
 const PSM = "https://ofn.gov.cz/slovník/psm/";
 
+/**
+ * Base IRI for PSM extensions vocabulary.
+ */
+export const PSM_EXTENSIONS = PSM + "extensions/" as `${typeof PSM}extensions/`; // as const
+
 export const HAS_TECHNICAL_LABEL = PSM + "technicalLabel";
 
 export const HAS_ROOT = PSM + "hasRoot";

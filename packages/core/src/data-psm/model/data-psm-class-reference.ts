@@ -1,10 +1,11 @@
-import { CoreResource } from "../../core";
+import {CoreResource} from "../../core";
+import {ExtendableCoreResource} from "./extendable-core-resource";
 import * as PSM from "../data-psm-vocabulary";
 
 /**
  * Allow us to reference a class in another schema.
  */
-export class DataPsmClassReference extends CoreResource {
+export class DataPsmClassReference extends ExtendableCoreResource {
   private static readonly TYPE = PSM.CLASS_REFERENCE;
 
   /**

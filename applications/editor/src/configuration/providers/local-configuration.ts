@@ -1,5 +1,5 @@
 import {MemoryStore} from "@dataspecer/core/core";
-import {dataPsmExecutors} from "@dataspecer/core/data-psm/executor";
+import {dataPsmExecutors} from "@dataspecer/core/data-psm/data-psm-executors";
 import {pimExecutors} from "@dataspecer/core/pim/executor";
 import {PimCreateSchema} from "@dataspecer/core/pim/operation";
 import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";

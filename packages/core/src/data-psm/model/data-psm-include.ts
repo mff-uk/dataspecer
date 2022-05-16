@@ -1,7 +1,8 @@
-import { CoreResource } from "../../core";
+import {CoreResource} from "../../core";
+import {ExtendableCoreResource} from "./extendable-core-resource";
 import * as PSM from "../data-psm-vocabulary";
 
-export class DataPsmInclude extends CoreResource {
+export class DataPsmInclude extends ExtendableCoreResource {
   private static readonly TYPE = PSM.INCLUDE;
 
   /**

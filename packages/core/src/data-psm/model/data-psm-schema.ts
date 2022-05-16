@@ -1,5 +1,6 @@
 import { CoreResource, LanguageString } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
+import {ExtendableCoreResource} from "./extendable-core-resource";
 
 /**
  * Originally the schema point only to root classes. The rest of the diagram
@@ -16,7 +17,7 @@ import * as PSM from "../data-psm-vocabulary";
  * all resources in the schema. A class can then be optionally added
  * to the list of root classes.
  */
-export class DataPsmSchema extends CoreResource {
+export class DataPsmSchema extends ExtendableCoreResource {
   private static readonly TYPE = PSM.SCHEMA;
 
   /**

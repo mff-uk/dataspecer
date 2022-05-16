@@ -28,7 +28,7 @@ import { executeDataPsmWrapWithOr } from "./data-psm-wrap-with-or-executor";
 import {executeDataPsmSetChoice} from "./data-psm-set-choice-executor";
 import {executeDataPsmUnsetChoice} from "./data-psm-unset-choice-executor";
 
-export const dataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
+export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
     Operations.DataPsmCreateAssociationEnd.is,
     executeDataPsmCreateAssociationEnd,

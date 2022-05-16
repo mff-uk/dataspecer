@@ -1,6 +1,7 @@
-import { CoreResource, LanguageString } from "../../core";
+import {LanguageString} from "../../core";
+import {ExtendableCoreResource} from "./extendable-core-resource";
 
-export class DataPsmResource extends CoreResource {
+export class DataPsmResource extends ExtendableCoreResource {
   /**
    * Label used in human readable documents as a name for this resource.
    */

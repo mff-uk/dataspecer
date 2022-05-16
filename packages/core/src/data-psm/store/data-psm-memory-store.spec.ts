@@ -1,13 +1,13 @@
 import * as Operations from "../operation";
 import { MemoryStore } from "../../core";
-import { dataPsmExecutors } from "../executor";
+import { baseDataPsmExecutors } from "../executor";
 import * as PSM from "../data-psm-vocabulary";
 
 test("Create data PSM schema with class and attribute.", async () => {
   let counter = 0;
   const store = MemoryStore.create(
     "http://localhost",
-    dataPsmExecutors,
+    baseDataPsmExecutors,
     (type) => `http://localhost/${type}/${++counter}`
   );
 
@@ -87,7 +87,7 @@ test("Create and delete data PSM class", async () => {
   let counter = 0;
   const store = MemoryStore.create(
     "http://localhost",
-    dataPsmExecutors,
+    baseDataPsmExecutors,
     (type) => `http://localhost/${type}/${++counter}`
   );
 
