@@ -2,7 +2,7 @@ import {
   ConceptualModel,
   ConceptualModelProperty,
 } from "../../conceptual-model";
-import {StructureModel} from "../model/base";
+import {StructureModel} from "../model";
 import {clone} from "../../core";
 
 /**

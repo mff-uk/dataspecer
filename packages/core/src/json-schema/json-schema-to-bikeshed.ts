@@ -10,7 +10,7 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import { assertNot } from "../core";
 import { OFN_LABELS } from "../well-known";
 import {

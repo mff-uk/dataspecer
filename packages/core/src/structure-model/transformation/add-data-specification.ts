@@ -1,6 +1,6 @@
 import { DataSpecification } from "../../data-specification/model";
 import {clone} from "../../core";
-import {StructureModel} from "../model/base";
+import {StructureModel} from "../model";
 
 /**
  * For each class set the owner specification.

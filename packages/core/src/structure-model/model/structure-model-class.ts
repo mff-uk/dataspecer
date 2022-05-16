@@ -1,4 +1,4 @@
-import {LanguageString} from "../../../core";
+import {LanguageString} from "../../core";
 import {StructureModelProperty} from "./structure-model-property";
 
 export class StructureModelClass {

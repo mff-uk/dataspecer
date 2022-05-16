@@ -3,7 +3,7 @@ import {
   StructureModelPrimitiveType,
   StructureModelProperty,
   StructureModel, StructureModelSchemaRoot,
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import {
   SparqlConstructQuery,
   SparqlElement,

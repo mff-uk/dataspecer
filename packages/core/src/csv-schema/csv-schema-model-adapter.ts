@@ -13,7 +13,7 @@ import {
     StructureModelPrimitiveType,
     StructureModelProperty,
     StructureModelClass
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import { DataSpecification } from "../data-specification/model";
 import {
     assert,

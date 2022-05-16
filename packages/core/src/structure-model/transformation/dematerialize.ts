@@ -3,7 +3,7 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../model/base";
+} from "../model";
 import {assertFailed, assertNot, clone} from "../../core";
 
 /**

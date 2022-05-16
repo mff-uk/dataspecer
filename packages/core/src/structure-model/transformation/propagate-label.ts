@@ -1,6 +1,6 @@
 import {ConceptualModel, ConceptualModelProperty,} from "../../conceptual-model";
 import {clone} from "../../core";
-import {StructureModel} from "../model/base";
+import {StructureModel} from "../model";
 
 /**
  * Add labels from {@link ConceptualModel} if they are missing.

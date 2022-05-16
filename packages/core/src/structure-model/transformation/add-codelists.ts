@@ -1,6 +1,6 @@
 import {ConceptualModel} from "../../conceptual-model";
 import {clone} from "../../core";
-import {StructureModel} from "../model/base";
+import {StructureModel} from "../model";
 
 /**
  * Add codelist information from {@link ConceptualModel}.

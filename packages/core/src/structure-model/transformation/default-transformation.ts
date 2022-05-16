@@ -7,7 +7,7 @@ import { propagateLabel } from "./propagate-label";
 import { DataSpecification } from "../../data-specification/model";
 import { addDataSpecification } from "./add-data-specification";
 import {propagateCimIri} from "./propagate-cim-iri";
-import {StructureModel} from "../model/base";
+import {StructureModel} from "../model";
 
 /**
  * Apply all transformations.

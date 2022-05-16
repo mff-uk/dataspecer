@@ -9,7 +9,7 @@ import {
 import { coreResourcesToConceptualModel } from "../conceptual-model";
 import {
   StructureModel,
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import {coreResourcesToStructuralModel} from "../structure-model";
 
 export class Generator {

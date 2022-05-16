@@ -1,4 +1,4 @@
-import {LanguageString} from "../../../core";
+import {LanguageString} from "../../core";
 import {StructureModelSchemaRoot} from "./structure-model-schema-root";
 import {StructureModelClass} from "./structure-model-class";
 

@@ -23,7 +23,7 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import { XSD, OFN, OFN_LABELS } from "../well-known";
 import {
   DataSpecification,

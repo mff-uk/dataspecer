@@ -1,4 +1,4 @@
-import {StructureModel, StructureModelClass,} from "../model/base";
+import {StructureModel, StructureModelClass,} from "../model";
 import {clone} from "../../core";
 
 /**

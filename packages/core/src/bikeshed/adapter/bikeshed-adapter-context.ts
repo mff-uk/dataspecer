@@ -9,7 +9,7 @@ import {
   StructureModel,
   StructureModelClass,
   StructureModelProperty,
-} from "../../structure-model/model/base";
+} from "../../structure-model/model";
 import {
   DataSpecification,
   DataSpecificationArtefact,

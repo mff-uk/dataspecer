@@ -1,6 +1,6 @@
 import { DataSpecification } from "../data-specification/model";
 import { ConceptualModel } from "../conceptual-model";
-import { StructureModel } from "../structure-model/model/base";
+import { StructureModel } from "../structure-model/model";
 import { CoreResourceReader } from "../core";
 import type { ArtefactGenerator } from "./artefact-generator";
 

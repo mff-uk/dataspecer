@@ -1,7 +1,7 @@
 import {CoreResourceReader} from "../../core";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
 import {PimAssociationEnd, PimAttribute} from "../../pim/model";
-import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model/base";
+import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
 
 /**
  * Adapter that converts given schema from PIM and Data PSM models to Structure

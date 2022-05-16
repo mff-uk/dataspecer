@@ -5,7 +5,7 @@ import {
   StructureModel,
   StructureModelType,
   StructureModelComplexType, StructureModelSchemaRoot,
-} from "../structure-model/model/base";
+} from "../structure-model/model";
 import {
   XmlSchema,
   XmlSchemaComplexContent,
