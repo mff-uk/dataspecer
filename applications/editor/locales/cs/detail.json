@@ -38,6 +38,7 @@
   "tab pim association end": "pim konec asociace",
   "tab pim child": "pim potomek",
   "tab range class": "ukazovaná třída",
+  "tab schema": "Schéma",
   "tab store": "store",
   "tab title association": "asociace",
   "tab title range class": "ukazovaná třída",
@@ -46,5 +47,9 @@
   "title cardinality": "Kardinalita",
   "title class": "Třída",
   "title data type": "Datový typ",
-  "title to class": "Odkazovaná třída"
+  "title schema": "Schéma",
+  "title to class": "Odkazovaná třída",
+  "XML attributes": "XML specifické atributy",
+  "XML namespace": "namespace",
+  "XML prefix": "prefix"
 }

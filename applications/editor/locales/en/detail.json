@@ -38,6 +38,7 @@
   "tab pim association end": "pim association end",
   "tab pim child": "pim child",
   "tab range class": "range class",
+  "tab schema": "Schema",
   "tab store": "store",
   "tab title association": "Association",
   "tab title range class": "Range class",
@@ -46,5 +47,9 @@
   "title cardinality": "Cardinality",
   "title class": "Class",
   "title data type": "Data type",
-  "title to class": "To class"
+  "title schema": "Schema",
+  "title to class": "To class",
+  "XML attributes": "XML specific attributes",
+  "XML namespace": "namespace",
+  "XML prefix": "prefix"
 }

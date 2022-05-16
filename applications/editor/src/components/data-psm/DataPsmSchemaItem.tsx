@@ -6,14 +6,14 @@ import {DataPsmClassItem} from "./DataPsmClassItem";
 import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
-import {LabelDescriptionEditor} from "../helper/LabelDescriptionEditor";
-import {useDialog} from "../../hooks/use-dialog";
 import {useTranslation} from "react-i18next";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {SetOrder} from "../../operations/set-order";
-import {SetDataPsmLabelAndDescription} from "../../operations/set-data-psm-label-and-description";
 import {Icons} from "../../icons";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {useDialog} from "../../dialog";
+import {DataPsmSchemaDetailDialog} from "../detail/data-psm-schema-detail-dialog";
+
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -28,19 +28,8 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
   const readOnly = false;
   const store = useFederatedObservableStore();
 
-  const updateLabels = useDialog(LabelDescriptionEditor, ["data", "update"], {data: {label: {}, description: {}}, update: () => {}});
-
-  const openUpdateLabelsDialog = useCallback(() => {
-    updateLabels.open({
-      data: {
-        label: dataPsmSchema?.dataPsmHumanLabel ?? {},
-        description: dataPsmSchema?.dataPsmHumanDescription ?? {},
-      },
-      update: data => {
-        store.executeComplexOperation(new SetDataPsmLabelAndDescription(dataPsmSchema?.iri as string, data.label, data.description)).then();
-      },
-    });
-  }, [dataPsmSchema, store, updateLabels]);
+  const DetailDialog = useDialog(DataPsmSchemaDetailDialog, ["iri"]);
+  const openDetail = useCallback(() => DetailDialog.open({}), [DetailDialog]);
 
   const styles = useStyles();
 
@@ -57,11 +46,11 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
-        <updateLabels.Component />
+        <DetailDialog.Component iri={dataPsmSchemaIri} />
         <Typography variant="h5">
           <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel} fallback={<i>{t("no label")}</i>}/>
           {readOnly ||
-              <IconButton sx={{ml: .5}} onClick={openUpdateLabelsDialog}>
+              <IconButton sx={{ml: .5}} onClick={openDetail}>
                 <Icons.Tree.Edit/>
               </IconButton>
           }
