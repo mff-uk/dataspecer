@@ -10,6 +10,12 @@
   "codelist": "Číselník",
   "codelist url": "URL číselníku",
   "confirm": "potvrdit",
+  "dematerialization": {
+    "cardinality restriction": "Dematerializovat lze pouze ty asociace, které nemají kardinalitu vyšší než 1.",
+    "help": "Dematerializováním asociace se všechny prvky odkazované třídy přesunou přímo do rodičovské třídy. Asociace pak nebude ve schématu zanesena.",
+    "checkbox": "dematerializovat asociaci",
+    "title": "Dematerializace"
+  },
   "in all languages": "Ve všech jazycích",
   "IRI": "IRI",
   "is codelist": "je číselníkem",

@@ -33,6 +33,13 @@ import {useFederatedObservableStore} from "@dataspecer/federated-observable-stor
 import {CreateInclude} from "../../operations/create-include";
 import {WrapWithOr} from "../../operations/wrap-with-or";
 
+const StrikeOut: React.FC<{
+    children: React.ReactNode,
+    strikeOut?: boolean,
+}> = ({children, strikeOut}) =>
+    strikeOut ? <del>{children}</del> : <>{children}</>;
+
+
 /**
  * This component handles rendering of data PSM association end item in the tree representation.
  *
@@ -49,6 +56,7 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
 
     const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(dataPsmAssociationEndIri);
     const readOnly = false;
+    const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize;
 
     // PIM Association and check if it is backward association
 
@@ -152,24 +160,27 @@ export const DataPsmAssociationEndItem: React.FC<DataPsmClassPartItemProperties>
                 )
             }
             <span {...dragHandleProps} onDoubleClick={readOnly ? () => null : inlineEdit.open}>
-                        {hasHumanLabelOnAssociationEnd ?
-                            <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
-                                {(label, description) =>
-                                    <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
-                                }
-                            </DataPsmGetLabelAndDescription>
-                            :
-                            <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
-                                {label =>
-                                    <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
-                                        {description => <>
-                                            {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                                            <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
-                                        </>}
-                                    </LanguageStringUndefineable>
-                                }
-                            </LanguageStringUndefineable>
-                        }
+                <StrikeOut strikeOut={isDematerialized}>
+                    {hasHumanLabelOnAssociationEnd ?
+                        <DataPsmGetLabelAndDescription dataPsmResourceIri={dataPsmAssociationEndIri}>
+                            {(label, description) =>
+                                <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
+                            }
+                        </DataPsmGetLabelAndDescription>
+                        :
+                        <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
+                            {label =>
+                                <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
+                                    {description => <>
+                                        {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
+                                        <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
+                                    </>}
+                                </LanguageStringUndefineable>
+                            }
+                        </LanguageStringUndefineable>
+                    }
+                </StrikeOut>
+                {isDematerialized && ` [${t("is dematerialized")}]`}
                 {dataPsmClassIri && <>
                     {': '}
                     {isClassReference && `[${t("refers to")}] `}

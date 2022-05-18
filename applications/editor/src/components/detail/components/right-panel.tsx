@@ -2,7 +2,7 @@ import React, {memo, useCallback, useEffect, useState} from "react";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
-import {Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";
+import {Alert, Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue} from "../../helper/datatype-selector";
 import {knownDatatypes} from "../../../utils/known-datatypes";
@@ -17,6 +17,7 @@ import {TransitionGroup} from "react-transition-group";
 import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
 import {SetCardinality} from "../../../operations/set-cardinality";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {SetDematerialize} from "../../../operations/set-dematerialize";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -58,7 +59,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         if (isClass) {
             setCodelistUrl((pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false);
         }
-    }, [pimResource, isClass])
+    }, [pimResource, isClass]);
 
     const {t} = useTranslation("detail");
 
@@ -79,6 +80,26 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             [pimResource, codelistUrl, store]
         ),
     );
+
+    // region association end dematerialization
+
+    const [isAssociationDematerialized, setIsAssociationDematerialized] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (isAssociationEnd) {
+            setIsAssociationDematerialized(!!(resource as DataPsmAssociationEnd).dataPsmIsDematerialize);
+        }
+    }, [resource, isAssociationEnd]);
+
+    useSaveHandler(
+        isAssociationEnd && isAssociationDematerialized !== !!(resource as DataPsmAssociationEnd).dataPsmIsDematerialize,
+        useCallback(
+            async () => resource && await store.executeComplexOperation(new SetDematerialize(resource.iri as string, isAssociationDematerialized)),
+            [resource, store, isAssociationDematerialized]
+        ),
+    );
+
+    // endregion association end dematerialization
 
     const [cardinality, setCardinality] = useState<Cardinality | null>(null);
 
@@ -223,6 +244,30 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
                 {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
             </Box>
+        }
+
+        {isAssociationEnd &&
+            <Box sx={{mb: 3}}>
+                <Typography variant="subtitle1" component="h2">
+                  {t('dematerialization.title')}
+                </Typography>
+
+                <Alert severity="info">{t('dematerialization.help')}</Alert>
+                <Alert severity={
+                    isAssociationDematerialized ? (
+                        (cardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
+                    ): "info"
+                }>{t('dematerialization.cardinality restriction')}</Alert>
+
+                {/* "Set dematerialized" checkbox */}
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={isAssociationDematerialized}
+                        onChange={event => setIsAssociationDematerialized(event.target.checked)}
+                    />}
+                    label={t('dematerialization.checkbox') as string}
+                />
+          </Box>
         }
     </>
 });

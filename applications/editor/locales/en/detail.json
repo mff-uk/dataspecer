@@ -10,6 +10,12 @@
   "codelist": "codelist",
   "codelist url": "codelist url",
   "confirm": "confirm",
+  "dematerialization": {
+    "cardinality restriction": "Only those associations that do not have a cardinality higher than 1 can be dematerialized.",
+    "help": "By dematerializing the association, all elements of the referenced class are moved directly to the parent class. The association will then not be included in the diagram.",
+    "checkbox": "dematerialize",
+    "title": "Dematerialization"
+  },
   "in all languages": "In all languages",
   "IRI": "IRI",
   "is codelist": "is codelist",
