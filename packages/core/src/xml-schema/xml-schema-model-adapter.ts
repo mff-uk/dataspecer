@@ -286,7 +286,8 @@ class XmlSchemaAdapter {
 
   classToComplexType(
     classData: StructureModelClass,
-    extractGroup?: boolean
+    extractGroup?: boolean,
+    skipIri?: boolean
   ): XmlSchemaComplexItem {
     if (this.classIsImported(classData)) {
       return {
@@ -297,7 +298,7 @@ class XmlSchemaAdapter {
     const contents = classData.properties.map(
       this.propertyToComplexContent, this
     );
-    contents.splice(0, 0, iriProperty);
+    if (!skipIri) contents.splice(0, 0, iriProperty);
     if (extractGroup && this.options.otherClasses.extractGroup) {
       const groupName = classData.technicalLabel;
 
@@ -439,7 +440,7 @@ class XmlSchemaAdapter {
       xsType: "choice",
       contents: dataTypes
         .map(dataType => dataType.dataType)
-        .map(this.classToComplexContent, this),
+        .map(this.classToComplexContentInChoice, this),
     } as XmlSchemaComplexChoice, null];
   }
 
@@ -448,6 +449,16 @@ class XmlSchemaAdapter {
   ): XmlSchemaComplexContentItem {
     return {
       item: this.classToComplexType(classData, true),
+      cardinalityMin: 1,
+      cardinalityMax: 1,
+    };
+  }
+
+  classToComplexContentInChoice(
+    classData: StructureModelClass
+  ): XmlSchemaComplexContentItem {
+    return {
+      item: this.classToComplexType(classData, false),
       cardinalityMin: 1,
       cardinalityMax: 1,
     };
