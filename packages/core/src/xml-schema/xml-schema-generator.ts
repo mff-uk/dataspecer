@@ -13,6 +13,7 @@ import { defaultStructureTransformations, structureModelDematerialize,structureM
 import { BIKESHED, BikeshedAdapterArtefactContext } from "../bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"
 
 export class XmlSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -31,7 +32,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     await stream.close();
   }
 
-  generateToObject(
+  async generateToObject(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification
@@ -50,6 +51,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
+    
     const transformations = defaultStructureTransformations.filter(
       transformation =>
         transformation !== structureModelFlattenInheritance &&
@@ -62,10 +64,13 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       null,
       transformations
     );
-    return Promise.resolve(
-      structureModelToXmlSchema(
-        context.specifications, specification, schemaArtefact, model
-      )
+
+    const xmlModel = await structureModelAddXmlProperties(
+      model, context.reader
+    );
+
+    return structureModelToXmlSchema(
+      context.specifications, specification, schemaArtefact, xmlModel
     );
   }
 

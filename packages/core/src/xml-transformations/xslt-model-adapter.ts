@@ -2,10 +2,14 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-  StructureModel,
   StructureModelType,
   StructureModelComplexType, StructureModelSchemaRoot,
 } from "../structure-model/model";
+
+import {
+  XmlStructureModel as StructureModel
+} from "../xml-structure-model/model/xml-structure-model";
+
 import {
   XmlTransformation,
   XmlTemplate,
@@ -70,8 +74,8 @@ class XsltAdapter {
 
   public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
     return {
-      targetNamespace: null,
-      targetNamespacePrefix: null,
+      targetNamespace: this.model.namespace,
+      targetNamespacePrefix: this.model.namespacePrefix,
       rdfNamespaces: this.rdfNamespaces,
       rootTemplates: roots.map(this.rootToTemplate, this),
       templates: this.model.getClasses().map(this.classToTemplate, this)

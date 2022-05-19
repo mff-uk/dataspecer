@@ -2,10 +2,14 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-  StructureModel,
   StructureModelType,
   StructureModelComplexType, StructureModelSchemaRoot,
 } from "../structure-model/model";
+
+import {
+  XmlStructureModel as StructureModel
+} from "../xml-structure-model/model/xml-structure-model";
+
 import {
   XmlSchema,
   XmlSchemaComplexContent,
@@ -128,8 +132,8 @@ class XmlSchemaAdapter {
       .map(this.extractGroupFromRoot, this)
       .map(this.extractTypeFromRoot, this);
     return {
-      targetNamespace: null,
-      targetNamespacePrefix: null,
+      targetNamespace: this.model.namespace,
+      targetNamespacePrefix: this.model.namespacePrefix,
       elements: elements,
       defineLangString: this.usesLangString,
       imports: Object.values(this.imports),

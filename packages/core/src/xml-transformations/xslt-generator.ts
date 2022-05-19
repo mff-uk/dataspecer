@@ -12,6 +12,7 @@ import { structureModelToXslt } from "./xslt-model-adapter";
 import { assertFailed, assertNot } from "../core";
 import { transformStructureModel } from "../structure-model/transformation";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 
 class XsltGenerator implements ArtefactGenerator {
   isLifting: boolean;
@@ -36,7 +37,7 @@ class XsltGenerator implements ArtefactGenerator {
     await stream.close();
   }
 
-  generateToObject(
+  async generateToObject(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification
@@ -55,15 +56,19 @@ class XsltGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
+
     model = transformStructureModel(
       conceptualModel,
       model,
       Object.values(context.specifications)
     );
-    return Promise.resolve(
-      structureModelToXslt(
-        context.specifications, specification, schemaArtefact, model
-      )
+    
+    const xmlModel = await structureModelAddXmlProperties(
+      model, context.reader
+    );
+
+    return structureModelToXslt(
+      context.specifications, specification, schemaArtefact, xmlModel
     );
   }
 
