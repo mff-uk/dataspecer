@@ -66,6 +66,7 @@ export class XmlSchemaType extends XmlSchemaAnnotated {
 export class XmlSchemaComplexType extends XmlSchemaType {
   complexDefinition: XmlSchemaComplexItem;
   mixed: boolean;
+  abstract: boolean;
 }
 
 /**
@@ -132,6 +133,14 @@ export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   name: QName;
 }
 
+/**
+ * Represents an xs:extension element in an xs:complexType.
+ */
+export class XmlSchemaComplexExtension extends XmlSchemaComplexContainer {
+  xsType: "extension";
+  base: QName;
+}
+
 export function xmlSchemaComplexTypeDefinitionIsSequence(
   typeDefinition: XmlSchemaComplexItem
 ): typeDefinition is XmlSchemaComplexSequence {
@@ -154,6 +163,12 @@ export function xmlSchemaComplexTypeDefinitionIsGroup(
   typeDefinition: XmlSchemaComplexItem
 ): typeDefinition is XmlSchemaComplexGroup {
   return typeDefinition.xsType === "group";
+}
+
+export function xmlSchemaComplexTypeDefinitionIsExtension(
+  typeDefinition: XmlSchemaComplexItem
+): typeDefinition is XmlSchemaComplexExtension {
+  return typeDefinition.xsType === "extension";
 }
 
 /**

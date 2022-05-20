@@ -27,6 +27,7 @@ import {
   XmlSchemaAnnotation,
   XmlSchemaComplexSequence,
   XmlSchemaComplexChoice,
+  XmlSchemaComplexExtension,
 } from "./xml-schema-model";
 
 import {
@@ -168,6 +169,7 @@ class XmlSchemaAdapter {
           name: element.type.name,
           annotation: element.type.annotation,
           mixed: false,
+          abstract: false,
           complexDefinition: {
             xsType: "group",
             name: [null, groupName],
@@ -411,11 +413,12 @@ class XmlSchemaAdapter {
   classPropertyToType(
     dataTypes: StructureModelComplexType[]
   ): XmlSchemaComplexType {
-    const [defition, name] = this.classPropertyToComplexDefinition(dataTypes);
+    const [defition, name, abstract] = this.classPropertyToComplexDefinition(dataTypes);
     if (name != null) {
       const type: XmlSchemaComplexType = {
         name: [null, name],
         mixed: false,
+        abstract: abstract,
         annotation: null,
         complexDefinition: defition
       };
@@ -425,6 +428,7 @@ class XmlSchemaAdapter {
     return {
       name: null,
       mixed: false,
+      abstract: abstract,
       annotation: null,
       complexDefinition: defition
     };
@@ -432,40 +436,82 @@ class XmlSchemaAdapter {
 
   classPropertyToComplexDefinition(
     dataTypes: StructureModelComplexType[]
-  ): [XmlSchemaComplexItem, string] {
+  ): [XmlSchemaComplexItem, string, boolean] {
     if (dataTypes.length === 1) {
       const typeClass = dataTypes[0].dataType;
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
-      const classContent = this.classToComplexContent(typeClass);
-      return [classContent.item, name];
+      const classItem = this.classToComplexType(typeClass, true);
+      return [classItem, name, false];
     }
-    return [{
-      xsType: "choice",
-      contents: dataTypes
-        .map(dataType => dataType.dataType)
-        .map(this.classToComplexContentInChoice, this),
-    } as XmlSchemaComplexChoice, null];
+    const classes = new Set<string>();
+    const roots: StructureModelClass[] = [];
+    for (const type of dataTypes) {
+      const classData = type.dataType;
+      classes.add(classData.psmIri);
+      if(classData.extends.length == 0) {
+        roots.push(classData);
+      } else if (classData.extends.length > 1) {
+        throw new Error(`Multiple inheritance is not supported (class ${classData.technicalLabel}).`);
+      }
+    }
+    for (const type of dataTypes) {
+      const classData = type.dataType;
+      if (classData.extends.length > 0) {
+        if (!classes.has(classData.extends[0].psmIri)) {
+          throw new Error(`Class ${classData.technicalLabel} extends from a class outside the group.`);
+        }
+      }
+    }
+
+    const [rootClass, root, rootName] = this.pickChoiceRoot(roots);
+
+    for (const type of dataTypes) {
+      const classData = type.dataType;
+      if (classData !== rootClass) {
+        const definition = this.classToComplexType(classData, false, true);
+        const baseName = classData.extends[0]?.technicalLabel ?? rootName;
+        this.types[classData.technicalLabel] = {
+          name: [null, classData.technicalLabel],
+          mixed: false,
+          abstract: false,
+          annotation: null,
+          complexDefinition: {
+            xsType: "extension",
+            base: [null, baseName],
+            contents: [
+              {
+                item: definition,
+                cardinalityMax: 1,
+                cardinalityMin: 1
+              } as XmlSchemaComplexContentItem
+            ]
+          } as XmlSchemaComplexExtension
+        } as XmlSchemaComplexType;
+      }
+    }
+    
+    return [root, rootName, rootClass === null];
   }
 
-  classToComplexContent(
-    classData: StructureModelClass
-  ): XmlSchemaComplexContentItem {
-    return {
-      item: this.classToComplexType(classData, true),
-      cardinalityMin: 1,
-      cardinalityMax: 1,
-    };
-  }
-
-  classToComplexContentInChoice(
-    classData: StructureModelClass
-  ): XmlSchemaComplexContentItem {
-    return {
-      item: this.classToComplexType(classData, false),
-      cardinalityMin: 1,
-      cardinalityMax: 1,
-    };
+  pickChoiceRoot(
+    roots: StructureModelClass[]
+  ): [StructureModelClass | null, XmlSchemaComplexItem, string] {
+    if (roots.length == 1) {
+      const classData = roots[0];
+      return [
+        classData,
+        this.classToComplexType(classData, true),
+        classData.technicalLabel
+      ];
+    }
+    const name = "_" + roots.map(cls => cls.technicalLabel).join("_");
+    return [null, {
+      xsType: "sequence",
+      contents: [
+        iriProperty
+      ]
+    } as XmlSchemaComplexSequence, name];
   }
 
   datatypePropertyToType(

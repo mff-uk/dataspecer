@@ -19,6 +19,7 @@ import {
   XmlSchemaComplexContainer,
   XmlSchemaAnnotated,
   XmlSchemaType,
+  xmlSchemaComplexTypeDefinitionIsExtension,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -292,8 +293,17 @@ async function writeComplexType(
     if (type.mixed) {
       await writer.writeLocalAttributeValue("mixed", "true");
     }
+    if (type.abstract) {
+      await writer.writeLocalAttributeValue("abstract", "true");
+    }
     await writeTypeAttributes(type, writer);
-    await writeComplexContent(definition, null, writer);
+    if (xmlSchemaComplexTypeDefinitionIsExtension(definition)) {
+      await writer.writeElementFull("xs", "complexContent")(async writer => {
+        await writeComplexContent(definition, null, writer);
+      });
+    } else {
+      await writeComplexContent(definition, null, writer);
+    }
   });
 }
 
@@ -353,14 +363,18 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroup(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref",
-        writer.getQName(...definition.name)
+        "ref", writer.getQName(...definition.name)
       );
     } else if (
       xmlSchemaComplexTypeDefinitionIsSequence(definition) ||
       xmlSchemaComplexTypeDefinitionIsChoice(definition) ||
       xmlSchemaComplexTypeDefinitionIsAll(definition)
     ) {
+      await writeComplexContainer(definition, writer);
+    } else if (xmlSchemaComplexTypeDefinitionIsExtension(definition)) {
+      await writer.writeLocalAttributeValue(
+        "base", writer.getQName(...definition.base)
+      );
       await writeComplexContainer(definition, writer);
     } else {
       await writeUnrecognizedObject(definition, writer);
