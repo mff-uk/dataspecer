@@ -398,12 +398,15 @@ class XmlSchemaAdapter {
     propertyData: StructureModelProperty,
     dataTypes: StructureModelType[],
     rangeChecker: (rangeType: StructureModelType) => boolean,
-    typeConstructor: (dataTypes: StructureModelType[]) => XmlSchemaType
+    typeConstructor: (
+      propertyData: StructureModelProperty,
+      dataTypes: StructureModelType[]
+    ) => XmlSchemaType
   ): XmlSchemaElement | null {
     if (dataTypes.every(rangeChecker)) {
       return {
         elementName: [null, propertyData.technicalLabel],
-        type: typeConstructor.call(this, dataTypes),
+        type: typeConstructor.call(this, propertyData, dataTypes),
         annotation: this.getAnnotation(propertyData),
       };
     }
@@ -411,16 +414,19 @@ class XmlSchemaAdapter {
   }
 
   classPropertyToType(
+    propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
   ): XmlSchemaComplexType {
-    const [defition, name, abstract] = this.classPropertyToComplexDefinition(dataTypes);
+    const [definition, name, abstract] = this.classPropertyToComplexDefinition(
+      propertyData, dataTypes
+    );
     if (name != null) {
       const type: XmlSchemaComplexType = {
         name: [null, name],
         mixed: false,
         abstract: abstract,
         annotation: null,
-        complexDefinition: defition
+        complexDefinition: definition
       };
       this.types[name] = type;
       return type;
@@ -430,18 +436,20 @@ class XmlSchemaAdapter {
       mixed: false,
       abstract: abstract,
       annotation: null,
-      complexDefinition: defition
+      complexDefinition: definition
     };
   }
 
   classPropertyToComplexDefinition(
+    propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
   ): [XmlSchemaComplexItem, string, boolean] {
+    const skipIri: boolean = propertyData.dematerialize;
     if (dataTypes.length === 1) {
       const typeClass = dataTypes[0].dataType;
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
-      const classItem = this.classToComplexType(typeClass, true);
+      const classItem = this.classToComplexType(typeClass, true, skipIri);
       return [classItem, name, false];
     }
     const classes = new Set<string>();
@@ -515,6 +523,7 @@ class XmlSchemaAdapter {
   }
 
   datatypePropertyToType(
+    propertyData: StructureModelProperty,
     dataTypes: StructureModelPrimitiveType[]
   ): XmlSchemaType {
     if (dataTypes.length === 1) {
