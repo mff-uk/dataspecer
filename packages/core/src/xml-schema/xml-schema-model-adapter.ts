@@ -49,10 +49,10 @@ export function structureModelToXmlSchema(
   model: StructureModel
 ): XmlSchema {
   const options = new XmlSchemaAdapterOptions();
-  options.rootClass.extractGroup = true;
-  //options.rootClass.extractType = true;
-  //options.otherClasses.extractGroup = true;
-  //options.otherClasses.extractType = true;
+  options.rootClass.extractGroup = model.xsdExtractRootGroup ?? true;
+  options.rootClass.extractType = model.xsdExtractRootType ?? false;
+  options.otherClasses.extractGroup = model.xsdExtractPropertyGroup ?? false;
+  options.otherClasses.extractType = model.xsdExtractPropertyType ?? false;
   const adapter = new XmlSchemaAdapter(
     specifications, specification, artifact, model, options
   );
