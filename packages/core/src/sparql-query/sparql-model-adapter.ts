@@ -162,10 +162,12 @@ class SparqlAdapter {
       predicate: this.nodeFromIri(propertyData.cimIri),
       object: obj
     } as SparqlTriple);
+    
+    const optionalType = propertyData.dataTypes.length == 1;
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = type.dataType;
-        this.classToTriples(obj, classData, true, elements);
+        this.classToTriples(obj, classData, optionalType, elements);
       }
     }
   }
