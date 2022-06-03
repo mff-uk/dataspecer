@@ -181,12 +181,6 @@ class XsltAdapter {
         `Property ${propertyData.psmIri} has no specified types.`
       );
     }
-    if (dataTypes.length > 1) {
-      throw new Error(
-        `Multiple datatypes on a property ${propertyData.psmIri} are ` +
-        "not supported."
-      );
-    }
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
@@ -272,7 +266,13 @@ class XsltAdapter {
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
       isDematerialized: propertyData.dematerialize,
-      targetTemplate: this.classTemplateName(dataTypes[0].dataType),
+      targetTemplates: dataTypes.map(
+        type => ({
+          templateName: this.classTemplateName(type.dataType),
+          typeName: type.dataType.technicalLabel,
+          typeIri: type.dataType.cimIri,
+        })
+      ),
     };
   }
 
@@ -282,6 +282,12 @@ class XsltAdapter {
     propertyName: QName,
     dataTypes: StructureModelPrimitiveType[]
   ): XmlLiteralMatch {
+    if (dataTypes.length > 1) {
+      throw new Error(
+        `Multiple datatypes on a property ${propertyData.psmIri} are ` +
+        "not supported."
+      );
+    }
     return {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,

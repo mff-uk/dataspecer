@@ -41,6 +41,9 @@ async function writeTransformationBegin(
   await writer.writeAndRegisterNamespaceDeclaration(
     "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   );
+  await writer.writeAndRegisterNamespaceDeclaration(
+    "xsi", "http://www.w3.org/2001/XMLSchema-instance"
+  );
   await writer.writeLocalAttributeValue("version", "2.0");
   
   if (model.targetNamespacePrefix != null) {
@@ -195,11 +198,31 @@ async function writeTemplateMatch(
         });
       } else if (xmlMatchIsClass(match)) {
         // TODO dematerialized
-        await writer.writeElementFull("xsl", "call-template")(async writer => {
-          await writer.writeLocalAttributeValue("name", match.targetTemplate);
-        });
+        const templates = match.targetTemplates;
+        if (templates.length == 1) {
+          await writeTemplateCall(templates[0].templateName, writer);
+        } else {
+          await writer.writeElementFull("xsl", "choose")(async writer => {
+            for (const template of match.targetTemplates) {
+              await writer.writeElementFull("xsl", "when")(async writer => {
+                const condition = `@xsi:type="${template.typeName}"`;
+                await writer.writeLocalAttributeValue("test", condition);
+                await writeTemplateCall(template.templateName, writer);
+              });
+            }
+          });
+        }
       }
     });
+  });
+}
+
+async function writeTemplateCall(
+  templateName: string,
+  writer: XmlWriter,
+): Promise<void> {
+  await writer.writeElementFull("xsl", "call-template")(async writer => {
+    await writer.writeLocalAttributeValue("name", templateName);
   });
 }
 

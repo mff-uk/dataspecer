@@ -34,7 +34,13 @@ export class XmlLiteralMatch extends XmlMatch {
 
 export class XmlClassMatch extends XmlMatch {
   isDematerialized: boolean;
-  targetTemplate: string;
+  targetTemplates: XmlClassTargetTemplate[];
+}
+
+export class XmlClassTargetTemplate {
+  templateName: string;
+  typeName: string;
+  typeIri: string;
 }
 
 export class XmlCodelistMatch extends XmlMatch {
@@ -50,7 +56,7 @@ export function xmlMatchIsLiteral(
 export function xmlMatchIsClass(
   match: XmlMatch
 ): match is XmlClassMatch {
-  return (match as XmlClassMatch).targetTemplate !== undefined;
+  return (match as XmlClassMatch).targetTemplates !== undefined;
 }
 
 export function xmlMatchIsCodelist(

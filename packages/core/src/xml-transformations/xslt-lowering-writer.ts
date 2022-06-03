@@ -42,6 +42,9 @@ async function writeTransformationBegin(
   await writer.writeAndRegisterNamespaceDeclaration(
     "sp", "http://www.w3.org/2005/sparql-results#"
   );
+  await writer.writeAndRegisterNamespaceDeclaration(
+    "xsi", "http://www.w3.org/2001/XMLSchema-instance"
+  );
   await writer.writeLocalAttributeValue("version", "2.0");
   
   if (model.targetNamespacePrefix != null) {
@@ -204,6 +207,20 @@ async function writeTemplateContents(
   await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "id");
   });
+  
+  await writer.writeElementFull("xsl", "param")(async writer => {
+    await writer.writeLocalAttributeValue("name", "type_name");
+  });
+
+  await writer.writeElementFull("xsl", "if")(async writer => {
+    await writer.writeLocalAttributeValue("test", "$type_name!=''");
+    await writer.writeElementFull("xsl", "attribute")(async writer => {
+      await writer.writeLocalAttributeValue("name", "xsi:type");
+      await writer.writeElementFull("xsl", "value-of")(async writer => {
+        await writer.writeLocalAttributeValue("select", "$type_name");
+      });
+    });
+  });
 
   await writer.writeElementFull("xsl", "apply-templates")(async writer => {
     await writer.writeLocalAttributeValue("select", "$id/*");
@@ -251,20 +268,53 @@ async function writeTemplateMatch(
         });
       } else if (xmlMatchIsClass(match)) {
         // TODO dematerialized
-        await writer.writeElementFull("xsl", "call-template")(async writer => {
-          await writer.writeLocalAttributeValue("name", match.targetTemplate);
-          await writer.writeElementFull("xsl", "with-param")(async writer => {
-            await writer.writeLocalAttributeValue("name", "id");
-            await writer.writeElementFull("xsl", "copy-of")(async writer => {
-              await writer.writeLocalAttributeValue(
-                "select",
-                "sp:binding[@name=$obj]/*"
-              );
-            });
+        const templates = match.targetTemplates;
+        if (templates.length == 1) {
+          await writeTemplateCall(templates[0].templateName, null, writer);
+        } else {
+          await writer.writeElementFull("xsl", "choose")(async writer => {
+            for (const template of match.targetTemplates) {
+              const condition =
+                "//sp:result[sp:binding[@name=$subj]/*[$id_test = " +
+                elementIdTest("") +
+                "] and sp:binding[@name=$pred]/sp:uri/text()=$type" + 
+                `and sp:binding[@name=$obj]/sp:uri/text()=${template.typeIri}]`;
+              await writer.writeElementFull("xsl", "when")(async writer => {
+                await writer.writeLocalAttributeValue("test", condition);
+                await writeTemplateCall(
+                  template.templateName, template.typeName, writer
+                );
+              });
+            }
           });
-        });
+        }
       }
     });
+  });
+}
+
+async function writeTemplateCall(
+  templateName: string,
+  typeName: string | null,
+  writer: XmlWriter,
+): Promise<void> {
+  await writer.writeElementFull("xsl", "call-template")(async writer => {
+    await writer.writeLocalAttributeValue("name", templateName);
+    await writer.writeElementFull("xsl", "with-param")(async writer => {
+      await writer.writeLocalAttributeValue("name", "id");
+      await writer.writeElementFull("xsl", "copy-of")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "select",
+          "sp:binding[@name=$obj]/*"
+        );
+      });
+    });
+    if (typeName != null) {
+      await writer.writeElementFull("xsl", "with-param")(async writer => {
+        await writer.writeLocalAttributeValue("name", "type_name");
+        await writer.writeText(typeName);
+      });
+    }
   });
 }
 
