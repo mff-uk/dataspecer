@@ -46,5 +46,5 @@ export const ItemRow: React.FC<{
         <Content style={{opacity: readOnly && !ignoreReadOnlyStyles ? 0.5 : 1}}>
             {children}
         </Content>
-    </LightTooltip>
+    </LightTooltip>;
 };

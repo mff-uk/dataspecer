@@ -66,7 +66,6 @@ const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
             const dataSpecificationIri = dataSpecificationIrisToLoad[i];
             const dataSpecification = await connector.readDataSpecification(dataSpecificationIri);
             if (dataSpecification) {
-                console.log(dataSpecification);
                 dataSpecifications[dataSpecificationIri] = dataSpecification;
                 dataSpecification.importsDataSpecifications.forEach(importIri => {
                     if (!dataSpecificationIrisToLoad.includes(importIri)) {

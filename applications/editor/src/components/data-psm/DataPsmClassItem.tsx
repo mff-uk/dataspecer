@@ -42,15 +42,13 @@ export const DataPsmClassItem: React.FC<{dataPsmClassIri: string}> = ({dataPsmCl
             }
 
             <ActionsOther>
-                {close => <>
-                    <MenuItem
-                        onClick={() => {
-                            close();
-                            include();
-                        }}>
-                        {t("Add import")}
-                    </MenuItem>
-                </>}
+                {close => <MenuItem
+                    onClick={() => {
+                        close();
+                        include();
+                    }}>
+                    {t("Add import")}
+                </MenuItem>}
             </ActionsOther>
         </>} readOnly={readOnly}>
             {dataPsmClass === undefined && <Skeleton />}
