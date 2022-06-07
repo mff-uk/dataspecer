@@ -15,4 +15,10 @@ export class ConceptualModelProperty {
   cardinalityMax: number | null = null;
 
   dataTypes: ConceptualModelType[] = [];
+
+  /**
+   * Whether the given property represent association that is oriented and
+   * points in other direction.
+   */
+  isReverse: boolean | null = null;
 }

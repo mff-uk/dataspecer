@@ -8,6 +8,7 @@ import { DataSpecification } from "../../data-specification/model";
 import { addDataSpecification } from "./add-data-specification";
 import {propagateCimIri} from "./propagate-cim-iri";
 import {StructureModel} from "../model";
+import {propagateReverse} from "./propagate-reverse";
 
 type ConceptualTransformation = (
   conceptualModel: ConceptualModel,
@@ -26,7 +27,8 @@ export const defaultConceptualTransformations: ConceptualTransformation[] = [
   propagateCardinality,
   structureModelAddCodelists,
   propagateLabel,
-  propagateCimIri
+  propagateCimIri,
+  propagateReverse,
 ];
 
 /**

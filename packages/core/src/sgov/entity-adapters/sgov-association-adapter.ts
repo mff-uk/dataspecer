@@ -40,6 +40,8 @@ export async function loadSgovAssociation(
 
   const association = new PimAssociation();
   await loadSgovEntityToResource(entity, idProvider, association);
+  // Every association in Sgov vocabulary is oriented
+  association.pimIsOriented = true;
 
   association.pimEnd = [mediates1.iri, mediates2.iri];
 

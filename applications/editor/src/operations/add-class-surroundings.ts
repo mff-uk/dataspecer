@@ -210,6 +210,7 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
         copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
+        pimCreateAssociation.pimIsOriented = resource.pimIsOriented;
         pimCreateAssociation.pimAssociationEnds = pimEndIris;
         const pimCreateAssociationResult = await this.store.applyOperation(pimSchema, pimCreateAssociation);
         const operationResult =  {
