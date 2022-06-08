@@ -26,6 +26,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
 
     // PlantUML source
     const plantUml = new DataSpecificationDocumentation();
+    plantUml.iri = `${dataSpecificationIri}#plantUml`;
     plantUml.outputPath = `${dataSpecificationName}/conceptual-model.plantuml`;
     plantUml.publicUrl = this.baseURL + plantUml.outputPath;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
@@ -33,6 +34,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
 
     // PlantUml image
     const plantUmlImage = new DataSpecificationDocumentation();
+    plantUmlImage.iri = `${dataSpecificationIri}#plantUmlImage`;
     plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.png`;
     plantUmlImage.publicUrl = this.baseURL + plantUmlImage.outputPath;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
@@ -41,6 +43,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
 
     // Bikeshed source
     const bikeshed = new DataSpecificationDocumentation();
+    bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
     bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
     bikeshed.publicUrl = this.baseURL + bikeshed.outputPath;
     bikeshed.generator = BIKESHED.Generator;
@@ -49,6 +52,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
 
     // Bikeshed HTML
     const bikeshedHtml = new DataSpecificationDocumentation();
+    bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
     bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
     bikeshedHtml.publicUrl = this.baseURL + bikeshedHtml.outputPath;
     bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
