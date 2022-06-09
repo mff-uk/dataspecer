@@ -3,8 +3,9 @@ import {Alert, Box, Container, Fab, Paper, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import CloseIcon from '@mui/icons-material/Close';
 import {useSingleGeneratedFileArtifact} from "./use-single-generated-file-artifact";
-import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
+import {Light as SyntaxHighlighter, PrismLight as PrismSyntaxHighlighter} from "react-syntax-highlighter";
 import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {coy} from "react-syntax-highlighter/dist/esm/styles/prism";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
@@ -13,7 +14,7 @@ SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("xsd", xml);
 SyntaxHighlighter.registerLanguage("xslt", xml);
-SyntaxHighlighter.registerLanguage("sparql", sparql);
+PrismSyntaxHighlighter.registerLanguage("sparql", sparql);
 
 /**
  * Component that renders single artifact result by generator id.
@@ -35,7 +36,11 @@ export const SingleArtifactPreview: React.FC<{
 
     return <Box sx={{whiteSpace: "pre"}}>
         <Typography variant="h5" sx={{mb: 2}}>{filename}</Typography>
-        <SyntaxHighlighter language={extension} style={githubGist}>{data}</SyntaxHighlighter>
+        {["sparql"].includes(extension) ?
+          <PrismSyntaxHighlighter language={extension} style={coy}>{data}</PrismSyntaxHighlighter>
+        :
+          <SyntaxHighlighter language={extension} style={githubGist}>{data}</SyntaxHighlighter>
+        }
     </Box>
 }
 

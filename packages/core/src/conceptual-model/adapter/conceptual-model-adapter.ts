@@ -88,17 +88,15 @@ class ConceptualModelAdapter {
     const rightClass = this.getClass(right.pimPart);
 
     this.createAssociationEnd(leftClass, rightClass, associationData, right);
-    // If there is no orientation then add this.
-    if (!associationData.pimIsOriented) {
-      this.createAssociationEnd(rightClass, leftClass, associationData, left);
-    }
+    this.createAssociationEnd(rightClass, leftClass, associationData, left, associationData.pimIsOriented);
   }
 
   private createAssociationEnd(
     source: ConceptualModelClass,
     target: ConceptualModelClass,
     association: PimAssociation,
-    associationEnd: PimAssociationEnd
+    associationEnd: PimAssociationEnd,
+    isReverse = false,
   ) {
     const property = new ConceptualModelProperty();
     property.pimIri = associationEnd.iri;
@@ -110,6 +108,7 @@ class ConceptualModelAdapter {
       associationEnd.pimHumanDescription ?? association.pimHumanDescription;
     property.cardinalityMin = associationEnd.pimCardinalityMin;
     property.cardinalityMax = associationEnd.pimCardinalityMax;
+    property.isReverse = isReverse;
 
     const type = new ConceptualModelComplexType();
     type.pimClassIri = target.pimIri;

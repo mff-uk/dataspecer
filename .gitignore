@@ -4,6 +4,7 @@
 *.log
 !.gitignore
 !.gitkeep
+!.npmrc
 
 # Directories
 lib/

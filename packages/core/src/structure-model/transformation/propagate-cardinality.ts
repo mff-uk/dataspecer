@@ -1,9 +1,7 @@
-import {
-  ConceptualModel,
-  ConceptualModelProperty,
-} from "../../conceptual-model";
+import {ConceptualModel,} from "../../conceptual-model";
 import {StructureModel} from "../model";
-import {clone} from "../../core";
+import {assert, clone} from "../../core";
+import {buildPropertyMap} from "../../conceptual-model/utils";
 
 /**
  * Add cardinalities from {@link ConceptualModel} if they are missing.
@@ -22,21 +20,12 @@ export function propagateCardinality(
     }
     classData.properties.forEach(property => {
       const conceptualProperty = propertyMap[property.pimIri];
+      assert(!!conceptualProperty, `propagateCardinality: Conceptual property ${property.pimIri} should exists.`)
       property.cardinalityMin =
         property.cardinalityMin ?? conceptualProperty.cardinalityMin;
       property.cardinalityMax =
         property.cardinalityMax ?? conceptualProperty.cardinalityMax
     });
-  }
-  return result;
-}
-
-function buildPropertyMap(conceptual: ConceptualModel) {
-  const result: Record<string, ConceptualModelProperty> = {};
-  for (const entity of Object.values(conceptual.classes)) {
-    for (const property of entity.properties) {
-      result[property.pimIri] = property;
-    }
   }
   return result;
 }

@@ -22,6 +22,8 @@ import {ModifySpecification} from "./modify-specification";
 import {SpecificationTags} from "../../components/specification-tags";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {CopyIri} from "./copy-iri";
+import {GeneratingDialog} from "./generating-dialog";
+import {GenerateReport} from "../../artifacts/generate-report";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -51,9 +53,13 @@ export const Specification: React.FC = () => {
     }, [backendConnector, dataSpecificationIri]);
 
     const [zipLoading, setZipLoading] = React.useState<false|"stores-loading"|"generating">(false);
+    const [generateDialogOpen, setGenerateDialogOpen] = React.useState<boolean>(false);
+    const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
     const generateZip = async () => {
         setZipLoading("stores-loading");
+        setGenerateState([]);
+        setGenerateDialogOpen(true);
 
         // Gather all data specifications
 
@@ -109,7 +115,8 @@ export const Specification: React.FC = () => {
         setZipLoading("generating");
 
         const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications);
-        const data = await generator.build(Object.keys(gatheredDataSpecifications));
+        await generator.prepare(Object.keys(gatheredDataSpecifications), setGenerateState);
+        const data = await generator.build();
         saveAs(data, "artifact.zip");
         setZipLoading(false);
     };
@@ -203,6 +210,7 @@ export const Specification: React.FC = () => {
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
             Generate artifacts
         </Typography>
+        <GeneratingDialog isOpen={generateDialogOpen} close={() => setGenerateDialogOpen(false)} inProgress={!!zipLoading} generateReport={generateState} />
         <Box sx={{
             height: "5rem",
             display: "flex",
