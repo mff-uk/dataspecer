@@ -252,12 +252,10 @@ async function writeForwardProperty(
         await writer.writeLocalAttributeValue("select", ".");
       });
     } else if (xmlMatchIsCodelist(match)) {
-      await writer.writeElementFull("rdf", "Description")(async writer => {
-        await writer.writeElementFull("xsl", "attribute")(async writer => {
-          await writer.writeLocalAttributeValue("name", "rdf:about");
-          await writer.writeElementFull("xsl", "value-of")(async writer => {
-            await writer.writeLocalAttributeValue("select", ".");
-          });
+      await writer.writeElementFull("xsl", "attribute")(async writer => {
+        await writer.writeLocalAttributeValue("name", "rdf:resource");
+        await writer.writeElementFull("xsl", "value-of")(async writer => {
+          await writer.writeLocalAttributeValue("select", ".");
         });
       });
     } else if (xmlMatchIsClass(match)) {
