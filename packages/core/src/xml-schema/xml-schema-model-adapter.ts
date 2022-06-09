@@ -194,7 +194,7 @@ class XmlSchemaAdapter {
       return {
         elementName: element.elementName,
         type: {
-          name: [null, typeName],
+          name: [this.model.namespacePrefix, typeName],
           annotation: null
         },
         annotation: element.annotation,
@@ -315,7 +315,7 @@ class XmlSchemaAdapter {
 
       return {
         xsType: "group",
-        name: [null, groupName],
+        name: [this.model.namespacePrefix, groupName],
         contents: [],
       } as XmlSchemaComplexGroup;
     }
@@ -486,7 +486,7 @@ class XmlSchemaAdapter {
           annotation: null,
           complexDefinition: {
             xsType: "extension",
-            base: [null, baseName],
+            base: [this.model.namespacePrefix, baseName],
             contents: [
               {
                 item: definition,
