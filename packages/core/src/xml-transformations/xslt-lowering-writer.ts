@@ -246,9 +246,13 @@ async function writeTemplateMatch(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xsl", "for-each")(async writer => {
+    const [subj, obj] = match.isReverse ? ["$obj", "$subj"] : ["$subj", "$obj"];
+
     const path =
-      "//sp:result[sp:binding[@name=$subj]/*[$id_test = " + elementIdTest("") +
+      `//sp:result[sp:binding[@name=${subj}]/*[$id_test = ` +
+      elementIdTest("") +
       `] and sp:binding[@name=$pred]/sp:uri/text()="${match.propertyIri}"]`;
+    
     await writer.writeLocalAttributeValue("select", path);
     await writer.writeElementFull(...match.propertyName)(async writer => {
 
@@ -256,33 +260,35 @@ async function writeTemplateMatch(
         await writer.writeElementFull("xsl", "apply-templates")(async writer => {
           await writer.writeLocalAttributeValue(
             "select",
-            "sp:binding[@name=$obj]/*"
+            `sp:binding[@name=${obj}]/*`
           );
         });
       } else if (xmlMatchIsCodelist(match)) {
         await writer.writeElementFull("xsl", "value-of")(async writer => {
           await writer.writeLocalAttributeValue(
             "select",
-            "sp:binding[@name=$obj]/*"
+            `sp:binding[@name=${obj}]/*`
           );
         });
       } else if (xmlMatchIsClass(match)) {
         // TODO dematerialized
         const templates = match.targetTemplates;
         if (templates.length == 1) {
-          await writeTemplateCall(templates[0].templateName, null, writer);
+          await writeTemplateCall(
+            templates[0].templateName, null, obj, writer
+          );
         } else {
           await writer.writeElementFull("xsl", "choose")(async writer => {
             for (const template of match.targetTemplates) {
               const condition =
-                "//sp:result[sp:binding[@name=$subj]/*[$id_test = " +
+                `//sp:result[sp:binding[@name=${subj}]/*[$id_test = ` +
                 elementIdTest("") +
-                "] and sp:binding[@name=$pred]/sp:uri/text()=$type" + 
-                `and sp:binding[@name=$obj]/sp:uri/text()=${template.typeIri}]`;
+                "] and sp:binding[@name=$pred]/sp:uri/text()=$type and " + 
+                `sp:binding[@name=${obj}]/sp:uri/text()=${template.typeIri}]`;
               await writer.writeElementFull("xsl", "when")(async writer => {
                 await writer.writeLocalAttributeValue("test", condition);
                 await writeTemplateCall(
-                  template.templateName, template.typeName, writer
+                  template.templateName, template.typeName, obj, writer
                 );
               });
             }
@@ -296,6 +302,7 @@ async function writeTemplateMatch(
 async function writeTemplateCall(
   templateName: string,
   typeName: string | null,
+  obj: string,
   writer: XmlWriter,
 ): Promise<void> {
   await writer.writeElementFull("xsl", "call-template")(async writer => {
@@ -305,7 +312,7 @@ async function writeTemplateCall(
       await writer.writeElementFull("xsl", "copy-of")(async writer => {
         await writer.writeLocalAttributeValue(
           "select",
-          "sp:binding[@name=$obj]/*"
+          `sp:binding[@name=${obj}]/*`
         );
       });
     });

@@ -25,6 +25,7 @@ export class XmlRootTemplate {
 export class XmlMatch {
   propertyName: QName;
   propertyIri: string;
+  isReverse: boolean;
   interpretation: QName;
 }
 

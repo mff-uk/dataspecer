@@ -265,6 +265,7 @@ class XsltAdapter {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       isDematerialized: propertyData.dematerialize,
       targetTemplates: dataTypes.map(
         type => ({
@@ -292,6 +293,7 @@ class XsltAdapter {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       dataTypeIri: this.primitiveToIri(dataTypes[0])
     };
   }
@@ -306,6 +308,7 @@ class XsltAdapter {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       isCodelist: true,
     };
   }

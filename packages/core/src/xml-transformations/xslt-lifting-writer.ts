@@ -7,6 +7,7 @@ import {
   xmlMatchIsClass,
   XmlMatch,
   xmlMatchIsCodelist,
+  XmlClassMatch,
 } from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -14,6 +15,8 @@ import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 import { XSLT_LIFTING } from "./xslt-vocabulary";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
+
+const topLevelContainer = "top-level";
 
 export async function writeXsltLifting(
   model: XmlTransformation,
@@ -85,16 +88,6 @@ async function writeCommonTemplates(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xsl", "template")(async writer => {
-    await writer.writeLocalAttributeValue("match", "iri");
-    await writer.writeElementFull("xsl", "attribute")(async writer => {
-      await writer.writeLocalAttributeValue("name", "rdf:about");
-      await writer.writeElementFull("xsl", "value-of")(async writer => {
-        await writer.writeLocalAttributeValue("select", ".");
-      });
-    });
-  })
-  
-  await writer.writeElementFull("xsl", "template")(async writer => {
     await writer.writeLocalAttributeValue("match", "@xml:lang");
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
       await writer.writeLocalAttributeValue("select", ".");
@@ -141,6 +134,10 @@ async function writeTemplates(
     await writer.writeElementFull("xsl", "template")(async writer => {
       await writer.writeLocalAttributeValue("name", template.name);
       
+      await writer.writeElementFull("xsl", "param")(async writer => {
+        await writer.writeLocalAttributeValue("name", "arc");
+      });
+      
       await writeTemplateContents(template, writer);
     });
   }
@@ -152,15 +149,50 @@ async function writeTemplateContents(
 ): Promise<void> {
   await writer.writeElementFull("rdf", "Description")(async writer => {
     await writer.writeElementFull("xsl", "apply-templates")(async writer => {
-      await writer.writeLocalAttributeValue("select", "@*|*");
+      await writer.writeLocalAttributeValue("select", "@*");
     });
-  
+
+    await writer.writeElementFull("xsl", "variable")(async writer => {
+      await writer.writeLocalAttributeValue("name", "id");
+      await writer.writeElementFull("xsl", "choose")(async writer => {
+        await writer.writeElementFull("xsl", "when")(async writer => {
+          await writer.writeLocalAttributeValue("test", "iri");
+          await writer.writeElementFull("xsl", "attribute")(async writer => {
+            await writer.writeLocalAttributeValue("name", "rdf:about");
+            await writer.writeElementFull("xsl", "value-of")(async writer => {
+              await writer.writeLocalAttributeValue("select", "iri");
+            });
+          });
+        });
+
+        await writer.writeElementFull("xsl", "otherwise")(async writer => {
+          await writer.writeElementFull("xsl", "attribute")(async writer => {
+            await writer.writeLocalAttributeValue("name", "rdf:nodeID");
+            await writer.writeElementFull("xsl", "value-of")(async writer => {
+              await writer.writeLocalAttributeValue("select", "generate-id()");
+            });
+          });
+        });
+      });
+    });
+    
+    await writer.writeElementFull("xsl", "copy-of")(async writer => {
+      await writer.writeLocalAttributeValue("select", "$id");
+    });
+    
     if (template.classIri != null) {
       await writer.writeElementFull("rdf", "type")(async writer => {
         await writer.writeAttributeValue("rdf", "resource", template.classIri);
       });
     }
-  
+    
+    await writer.writeElementFull("xsl", "if")(async writer => {
+      await writer.writeLocalAttributeValue("test", "$arc!=''");
+      await writer.writeElementFull("xsl", "copy-of")(async writer => {
+        await writer.writeLocalAttributeValue("select", "$arc");
+      });
+    });
+    
     for (const match of template.propertyMatches) {
       await writeTemplateMatch(match, writer);
     }
@@ -174,55 +206,101 @@ async function writeTemplateMatch(
   await writer.writeElementFull("xsl", "for-each")(async writer => {
     const name = writer.getQName(...match.propertyName);
     await writer.writeLocalAttributeValue("select", name);
-    await writer.writeElementFull(...match.interpretation)(async writer => {
-      if (xmlMatchIsLiteral(match)) {
-        await writer.writeAttributeValue(
-          "rdf", "datatype", match.dataTypeIri
+
+    if (match.isReverse) {
+      if (!xmlMatchIsClass(match)) {
+        throw new Error(
+          `Reverse property ${match.propertyName} must be of a class type.`
         );
-      
-        await writer.writeElementFull("xsl", "apply-templates")(async writer => {
-          await writer.writeLocalAttributeValue("select", "@*");
-        });
-        
-        await writer.writeElementFull("xsl", "value-of")(async writer => {
-          await writer.writeLocalAttributeValue("select", ".");
-        });
-      } else if (xmlMatchIsCodelist(match)) {
-        await writer.writeElementFull("rdf", "Description")(async writer => {
-          await writer.writeElementFull("xsl", "attribute")(async writer => {
-            await writer.writeLocalAttributeValue("name", "rdf:about");
-            await writer.writeElementFull("xsl", "value-of")(async writer => {
-              await writer.writeLocalAttributeValue("select", ".");
+      }
+
+      await writer.writeElementFull("xsl", "variable")(async writer => {
+        await writer.writeLocalAttributeValue("name", "arc");
+        await writer.writeElementFull(...match.interpretation)(async writer => {
+          await writer.writeElementFull("rdf", "Description")(async writer => {
+            await writer.writeElementFull("xsl", "copy-of")(async writer => {
+              await writer.writeLocalAttributeValue("select", "$id");
             });
           });
         });
-      } else if (xmlMatchIsClass(match)) {
-        // TODO dematerialized
-        const templates = match.targetTemplates;
-        if (templates.length == 1) {
-          await writeTemplateCall(templates[0].templateName, writer);
-        } else {
-          await writer.writeElementFull("xsl", "choose")(async writer => {
-            for (const template of match.targetTemplates) {
-              await writer.writeElementFull("xsl", "when")(async writer => {
-                const condition = `@xsi:type="${template.typeName}"`;
-                await writer.writeLocalAttributeValue("test", condition);
-                await writeTemplateCall(template.templateName, writer);
-              });
-            }
+      });
+
+      await writer.writeElementFull(null, topLevelContainer)(async writer => {
+        await writeClassTemplateCall(match, writer);
+      });
+    } else {
+      await writeForwardProperty(match, writer);
+    }
+  });
+}
+
+async function writeForwardProperty(
+  match: XmlMatch,
+  writer: XmlWriter
+) {
+  await writer.writeElementFull(...match.interpretation)(async writer => {
+    if (xmlMatchIsLiteral(match)) {
+      await writer.writeAttributeValue(
+        "rdf", "datatype", match.dataTypeIri
+      );
+    
+      await writer.writeElementFull("xsl", "apply-templates")(async writer => {
+        await writer.writeLocalAttributeValue("select", "@*");
+      });
+      
+      await writer.writeElementFull("xsl", "value-of")(async writer => {
+        await writer.writeLocalAttributeValue("select", ".");
+      });
+    } else if (xmlMatchIsCodelist(match)) {
+      await writer.writeElementFull("rdf", "Description")(async writer => {
+        await writer.writeElementFull("xsl", "attribute")(async writer => {
+          await writer.writeLocalAttributeValue("name", "rdf:about");
+          await writer.writeElementFull("xsl", "value-of")(async writer => {
+            await writer.writeLocalAttributeValue("select", ".");
           });
-        }
+        });
+      });
+    } else if (xmlMatchIsClass(match)) {
+      await writeClassTemplateCall(match, writer);
+    }
+  });
+}
+
+async function writeClassTemplateCall(
+  match: XmlClassMatch,
+  writer: XmlWriter
+) {
+  // TODO dematerialized
+  const templates = match.targetTemplates;
+  const hasArc = match.isReverse;
+  if (templates.length == 1) {
+    await writeTemplateCall(templates[0].templateName, hasArc, writer);
+  } else {
+    await writer.writeElementFull("xsl", "choose")(async writer => {
+      for (const template of match.targetTemplates) {
+        await writer.writeElementFull("xsl", "when")(async writer => {
+          const condition = `@xsi:type="${template.typeName}"`;
+          await writer.writeLocalAttributeValue("test", condition);
+          await writeTemplateCall(template.templateName, hasArc, writer);
+        });
       }
     });
-  });
+  }
 }
 
 async function writeTemplateCall(
   templateName: string,
+  hasArc: boolean,
   writer: XmlWriter,
 ): Promise<void> {
   await writer.writeElementFull("xsl", "call-template")(async writer => {
     await writer.writeLocalAttributeValue("name", templateName);
+    if (hasArc) {
+      await writer.writeElementFull("xsl", "with-param")(async writer => {
+        await writer.writeLocalAttributeValue("name", "arc");
+        await writer.writeLocalAttributeValue("select", "$arc");
+      });
+    }
   });
 }
 

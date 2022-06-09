@@ -157,11 +157,21 @@ class SparqlAdapter {
     }
 
     const obj = this.newVariable();
-    elements.push({
-      subject: subject,
-      predicate: this.nodeFromIri(propertyData.cimIri),
-      object: obj
-    } as SparqlTriple);
+    const pred = this.nodeFromIri(propertyData.cimIri);
+
+    if (propertyData.isReverse) {
+      elements.push({
+        subject: obj,
+        predicate: pred,
+        object: subject
+      } as SparqlTriple);
+    } else {
+      elements.push({
+        subject: subject,
+        predicate: pred,
+        object: obj
+      } as SparqlTriple);
+    }
     
     const optionalType = propertyData.dataTypes.length == 1;
     for (const type of propertyData.dataTypes) {
