@@ -50,7 +50,6 @@ class XsltAdapter {
   private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
-  private namespacePrefix: string;
   private rdfNamespaces: Record<string, string>;
   private rdfNamespacesIris: Record<string, string>;
   private rdfNamespaceCounter: number;
@@ -147,7 +146,7 @@ class XsltAdapter {
     const classData = root.classes[0];
     return {
       typeIri: classData.cimIri,
-      elementName: [this.namespacePrefix, classData.technicalLabel],
+      elementName: [this.model.namespacePrefix, classData.technicalLabel],
       targetTemplate: this.classTemplateName(classData),
     };
   }
@@ -247,7 +246,10 @@ class XsltAdapter {
         );
       }
       const interpretation = this.iriToQName(propertyData.cimIri);
-      const propertyName = [this.namespacePrefix, propertyData.technicalLabel];
+      const propertyName = [
+        this.model.namespacePrefix,
+        propertyData.technicalLabel
+      ];
       return typeConstructor.call(
         this, propertyData, interpretation, propertyName, dataTypes
       );
