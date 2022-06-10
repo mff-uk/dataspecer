@@ -16,10 +16,18 @@ See the [project structure](documentation/2022-04-21-project-structure.md) or lo
 6. Start the server by `npm run start` from this directory. To keep the server running permanently, use `tmux`, for example.
 
 This project uses [Prisma](https://www.prisma.io/) and SQLite database. After updating the package, you need to migrate the database file if the [schema](prisma/schema.prisma) changes.
-- To update production database schema, use `npx prisma migrate deploy`.
+- To create the migration after a schema update, use `npx prisma migrate dev --name ...`
 - To update development database schema, use `npx prisma migrate dev`.
 
 All data are stored in the `database` directory.
 
 ### Optional dependencies
 - [Install Bikeshed](https://tabatkins.github.io/bikeshed/#install-pyenv) to be accessible from the command line. Use `pip3`, for example. If the Bikeshed is not installed, the generation will fail, but it does not break the whole process.
+
+### Using bundle
+
+You can use `npm run build-packed` to create a single bundle file. To make things work, keep the following files:
+- `./node_modules/.prisma/`
+- `./database/`
+- `./build/backend-bundle.js`
+- `./prisma/schema.prisma`

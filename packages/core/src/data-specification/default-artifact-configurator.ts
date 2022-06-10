@@ -9,6 +9,7 @@ import {DataSpecificationArtefact} from "./model";
 import {PimSchema} from "../pim/model";
 import {DataPsmSchema} from "../data-psm/model";
 import {SPARQL} from "../sparql-query/sparql-vocabulary";
+import {DefaultArtifactConfiguratorConfiguration} from "./default-artifact-configurator-configuration";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -51,6 +52,10 @@ export class DefaultArtifactConfigurator {
     if (dataSpecification === undefined) {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
+
+    // Todo: Artefact can be generated only from the artefact configuration, which should be provided as a parameter.
+    const configuration = DefaultArtifactConfiguratorConfiguration.create(
+      dataSpecification.artefactConfiguration[0] ?? {});
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
@@ -98,6 +103,7 @@ export class DefaultArtifactConfigurator {
       csvSchema.publicUrl = this.baseURL + csvSchema.outputPath;
       csvSchema.generator = CSV_SCHEMA.Generator;
       csvSchema.psm = psmSchemaIri;
+      csvSchema.configuration = configuration.generatorOptions[CSV_SCHEMA.Generator] ?? null;
       currentSchemaArtefacts.push(csvSchema);
 
       const sparqlSchema = new DataSpecificationSchema();
