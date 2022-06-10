@@ -24,10 +24,15 @@ All data are stored in the `database` directory.
 ### Optional dependencies
 - [Install Bikeshed](https://tabatkins.github.io/bikeshed/#install-pyenv) to be accessible from the command line. Use `pip3`, for example. If the Bikeshed is not installed, the generation will fail, but it does not break the whole process.
 
-### Using bundle
+### Using as a bundle
 
 You can use `npm run build-packed` to create a single bundle file. To make things work, keep the following files:
-- `./node_modules/.prisma/`
-- `./database/`
-- `./build/backend-bundle.js`
+- `./node_modules/.prisma/` - contains necessary binaries
+- `./database/` - your database directory
+- `./dist/backend-bundle.js` - this is the file that you need to execute
 - `./prisma/schema.prisma`
+- `.env`
+
+```shell
+zip -r backend.zip ./node_modules/.prisma/ ./dist/backend-bundle.js ./prisma/schema.prisma .env
+```
