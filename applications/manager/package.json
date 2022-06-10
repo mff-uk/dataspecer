@@ -40,9 +40,6 @@
     "typescript": "^4.6.4",
     "web-vitals": "^2.1.4"
   },
-  "overrides": {
-    "postcss": "8.4.5"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build:watch": "react-scripts start",
