@@ -17,8 +17,8 @@ export class XmlSchema {
  * Represents an import/include declaration to an artifact.
  */
 export class XmlSchemaImportDeclaration {
-  prefix: string | null;
-  namespace: string | null;
+  prefix: Promise<string | null>;
+  namespace: Promise<string | null>;
   schemaLocation: string;
 }
 
@@ -49,7 +49,7 @@ export class XmlSchemaGroupDefinition {
  * Represents an xs:element definition.
  */
 export class XmlSchemaElement extends XmlSchemaAnnotated {
-  elementName: QName;
+  elementName: QName | Promise<QName>;
   type: XmlSchemaType | null;
 }
 
@@ -130,7 +130,7 @@ export class XmlSchemaComplexAll extends XmlSchemaComplexContainer {
  */
 export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   xsType: "group";
-  name: QName;
+  name: QName | Promise<QName>;
 }
 
 /**

@@ -41,9 +41,11 @@ import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
 import { langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
 import { pathRelative } from "../core/utilities/path-relative";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
+import { ArtefactGeneratorContext } from "../generator";
 
 export function structureModelToXmlSchema(
-  specifications: { [iri: string]: DataSpecification },
+  context: ArtefactGeneratorContext,
   specification: DataSpecification,
   artifact: DataSpecificationSchema,
   model: StructureModel
@@ -54,7 +56,7 @@ export function structureModelToXmlSchema(
   options.otherClasses.extractGroup = model.xsdExtractPropertyGroup ?? false;
   options.otherClasses.extractType = model.xsdExtractPropertyType ?? false;
   const adapter = new XmlSchemaAdapter(
-    specifications, specification, artifact, model, options
+    context, specification, artifact, model, options
   );
   return adapter.fromRoots(model.roots);
 }
@@ -99,6 +101,7 @@ type ClassMap = Record<string, StructureModelClass>;
 
 class XmlSchemaAdapter {
   private usesLangString: boolean;
+  private context: ArtefactGeneratorContext;
   private specifications: { [iri: string]: DataSpecification };
   private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
@@ -106,13 +109,14 @@ class XmlSchemaAdapter {
   private options: XmlSchemaAdapterOptions;
 
   constructor(
-    specifications: { [iri: string]: DataSpecification },
+    context: ArtefactGeneratorContext,
     specification: DataSpecification,
     artifact: DataSpecificationSchema,
     model: StructureModel,
     options: XmlSchemaAdapterOptions
   ) {
-    this.specifications = specifications;
+    this.context = context;
+    this.specifications = context.specifications;
     this.specification = specification;
     this.artifact = artifact;
     this.model = model;
@@ -234,25 +238,46 @@ class XmlSchemaAdapter {
     return this.artifact.publicUrl;
   }
 
-  resolveImportedElementName(
+  async resolveImportedElementName(
     classData: StructureModelClass
-  ): QName {
+  ): Promise<QName> {
     if (this.model.psmIri !== classData.structureSchema) {
       const importDeclaration = this.imports[classData.specification];
       if (importDeclaration != null) {
-        return [importDeclaration.prefix, classData.technicalLabel];
+        return [await importDeclaration.prefix, classData.technicalLabel];
       }
       const artefact = this.findArtefactForImport(classData);
       if (artefact != null) {
+        const model = this.getImportedModel(classData.structureSchema);
         const imported = this.imports[classData.specification] = {
-          namespace: null, // TODO from extension
-          prefix: null, // TODO from extension
+          namespace: this.getModelNamespace(model),
+          prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
         };
-        return [imported.prefix, classData.technicalLabel];
+        return [await imported.prefix, classData.technicalLabel];
       }
     }
     return [null, classData.technicalLabel];
+  }
+
+  async getImportedModel(
+    iri: string
+  ): Promise<StructureModel> {
+    const model = this.context.structureModels[iri];
+    if (model != null) {
+      return await structureModelAddXmlProperties(
+        model, this.context.reader
+      );
+    }
+    return null;
+  }
+
+  async getModelNamespace(model: Promise<StructureModel>) {
+    return (await model)?.namespace;
+  }
+
+  async getModelPrefix(model: Promise<StructureModel>) {
+    return (await model)?.namespacePrefix;
   }
 
   getAnnotation(

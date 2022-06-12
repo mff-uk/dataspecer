@@ -40,6 +40,14 @@ export async function writeXmlSchema(
   await writeSchemaEnd(writer);
 }
 
+async function either<T>(value: T | Promise<T>): Promise<T> {
+  const promise = value as Promise<T>;
+  if (promise.then !== undefined) {
+    return await promise;
+  }
+  return value as T;
+}
+
 async function writeSchemaBegin(
   model: XmlSchema,
   writer: XmlWriter
@@ -66,13 +74,15 @@ async function writeSchemaBegin(
   }
   
   for (const importDeclaration of model.imports) {
+    const namespace = await importDeclaration.namespace;
+    const prefix = await importDeclaration.prefix;
     if (
-      importDeclaration.namespace != null &&
-      importDeclaration.prefix != null
+      namespace != null &&
+      prefix != null
     ) {
       await writer.writeAndRegisterNamespaceDeclaration(
-        importDeclaration.prefix,
-        importDeclaration.namespace
+        prefix,
+        namespace
       );
     }
   }
@@ -132,7 +142,7 @@ async function writeImportsAndDefinitions(
       await writer.writeElementBegin("xs", "include");
       await writer.writeLocalAttributeValue(
         "namespace",
-        importDeclaration.namespace
+        await either(importDeclaration.namespace)
       );
     }
     await writer.writeLocalAttributeValue(
@@ -240,7 +250,7 @@ async function writeElement(
     if (element.type == null) {
       await writer.writeLocalAttributeValue(
         "ref",
-        writer.getQName(...element.elementName)
+        writer.getQName(...await either(element.elementName))
       );
       await writeAnnotation(element, writer);
     } else {
@@ -363,7 +373,7 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroup(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref", writer.getQName(...definition.name)
+        "ref", writer.getQName(...await either(definition.name))
       );
     } else if (
       xmlSchemaComplexTypeDefinitionIsSequence(definition) ||

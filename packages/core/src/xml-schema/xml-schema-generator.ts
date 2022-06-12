@@ -70,7 +70,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     );
 
     return structureModelToXmlSchema(
-      context.specifications, specification, schemaArtefact, xmlModel
+      context, specification, schemaArtefact, xmlModel
     );
   }
 
