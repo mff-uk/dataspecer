@@ -37,28 +37,15 @@ const getSurroundings = [
   getSurroundingsComplexAttributes,
 ];
 
-const compressQueryString = (query: string): string => {
-  return query.replace(/^\s*#.*$/gm, "").replace(/[ \t]+/g, " ");
-};
+const searchQuery = (searchString: string) => search({query: `"${jsStringEscape(searchString)}"`});
 
-const searchQuery = (searchString: string) =>
-  compressQueryString(
-    search.replace("%QUERY%", `"${jsStringEscape(searchString)}"`)
-  );
+const getClassQuery = (cimIri: string) => getClass({node: `<${cimIri}>`});
 
-const getClassQuery = (cimIri: string) =>
-  compressQueryString(getClass.replace(/%NODE%/g, `<${cimIri}>`));
+const getHierarchyQuery = (cimIri: string) => getHierarchy({node: `<${cimIri}>`});
 
-const getHierarchyQuery = (cimIri: string) =>
-  compressQueryString(getHierarchy.replace(/%NODE%/g, `<${cimIri}>`));
+const getGroupQuery = (cimIri: string) => getGroup({node: `<${cimIri}>`});
 
-const getGroupQuery = (cimIri: string) =>
-  compressQueryString(getGroup.replace(/%NODE%/g, `<${cimIri}>`));
-
-const getSurroundingsQueries = (cimIri: string) =>
-  getSurroundings.map((q) =>
-    compressQueryString(q.replace(/%NODE%/g, `<${cimIri}>`))
-  );
+const getSurroundingsQueries = (cimIri: string) => getSurroundings.map(q => q({node: `<${cimIri}>`}));
 
 const IRI_REGEXP = new RegExp("^https?://");
 

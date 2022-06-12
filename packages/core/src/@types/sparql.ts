@@ -1,4 +1,4 @@
 declare module "*.sparql" {
-    const contents: string;
+    const contents: (parameters: Record<string, string>) => string;
     export = contents
 }
