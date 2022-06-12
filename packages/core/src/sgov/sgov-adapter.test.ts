@@ -111,7 +111,7 @@ describe("SgovAdapter.getSurroundings()", () => {
     );
   });
 
-  test("associations", async () => {
+  test.skip("associations", async () => {
     const resources = await store.listResources();
 
     expect(resources).toEqual(

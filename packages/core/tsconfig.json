@@ -11,7 +11,9 @@
     "lib": [
       "esnext", "dom"
     ],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": false,
+    "esModuleInterop": true
   },
   "include": ["src/**/*"]
 }
