@@ -9,9 +9,9 @@
     "declaration": true,
     "downlevelIteration": true,
     "lib": [
-      "ES2020"
+      "esnext", "dom"
     ],
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "@types"]
+  "include": ["src/**/*"]
 }
