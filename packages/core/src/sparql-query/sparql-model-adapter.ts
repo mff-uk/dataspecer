@@ -13,6 +13,7 @@ import {
   SparqlQNameNode,
   SparqlQuery,
   SparqlTriple,
+  SparqlUnionPattern,
   SparqlUriNode,
   SparqlVariableNode,
 } from "./sparql-model";
@@ -39,7 +40,7 @@ export function structureModelToSparql(
   model: StructureModel
 ): SparqlQuery {
   const adapter = new SparqlAdapter(specifications, specification, model);
-  return adapter.fromRoots(model.roots);
+  return adapter.fromRoots(model.roots.flatMap(root => root.classes));
 }
 
 const anyUriType: StructureModelPrimitiveType = (function () {
@@ -73,14 +74,20 @@ class SparqlAdapter {
     this.namespaceCounter = 0;
   }
 
-  public fromRoots(roots: StructureModelSchemaRoot[]): SparqlQuery {
-    const rootClass = roots[0].classes[0];
+  public fromRoots(classes: StructureModelClass[]): SparqlQuery {
     const rootSubject = this.newVariable();
-    const elements = [];
-    this.classToTriples(rootSubject, rootClass, false, elements);
-    const pattern = {
-      elements: elements
-    } as SparqlPattern;
+    const patterns = [];
+    for (const cls of classes) {
+      const elements = [];
+      this.classToTriples(rootSubject, cls, false, elements);   
+      patterns.push(elements);
+    }
+    const union: SparqlUnionPattern = {
+      unionPatterns: patterns
+    }
+    const pattern: SparqlPattern = {
+      elements: [union]
+    };
     return {
       prefixes: this.namespaces,
       construct: pattern,
@@ -174,11 +181,18 @@ class SparqlAdapter {
     }
     
     const optionalType = propertyData.dataTypes.length == 1;
+    const patterns = [];
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = type.dataType;
-        this.classToTriples(obj, classData, optionalType, elements);
+        const patternElements = [];
+        this.classToTriples(obj, classData, optionalType, patternElements);
+        patterns.push(patternElements);
       }
     }
+
+    elements.push({
+      unionPatterns: patterns
+    } as SparqlUnionPattern);
   }
 }

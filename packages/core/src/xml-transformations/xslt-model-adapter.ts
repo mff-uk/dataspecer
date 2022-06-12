@@ -76,7 +76,9 @@ class XsltAdapter {
       targetNamespace: this.model.namespace,
       targetNamespacePrefix: this.model.namespacePrefix,
       rdfNamespaces: this.rdfNamespaces,
-      rootTemplates: roots.map(this.rootToTemplate, this),
+      rootTemplates: roots
+        .flatMap(root => root.classes)
+        .map(this.rootToTemplate, this),
       templates: this.model.getClasses().map(this.classToTemplate, this)
         .filter(template => template != null),
       includes: Object.values(this.includes),
@@ -142,8 +144,7 @@ class XsltAdapter {
     );
   }
 
-  rootToTemplate(root: StructureModelSchemaRoot): XmlRootTemplate {
-    const classData = root.classes[0];
+  rootToTemplate(classData: StructureModelClass): XmlRootTemplate {
     return {
       typeIri: classData.cimIri,
       elementName: [this.model.namespacePrefix, classData.technicalLabel],

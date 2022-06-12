@@ -132,7 +132,7 @@ class XmlSchemaAdapter {
     this.groups = {};
     this.types = {};
     const elements = roots
-      .map(root => root.classes[0])
+      .flatMap(root => root.classes)
       .map(this.classToElement, this)
       .map(this.extractGroupFromRoot, this)
       .map(this.extractTypeFromRoot, this);

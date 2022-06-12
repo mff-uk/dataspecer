@@ -3,6 +3,7 @@ import {OutputStream} from "../io/stream/output-stream";
 import {
   sparqlElementIsOptional,
   sparqlElementIsTriple,
+  sparqlElementIsUnion,
   SparqlNode,
   sparqlNodeIsQName,
   sparqlNodeIsUri,
@@ -78,6 +79,24 @@ async function writePattern(
         await writePattern(
           element.optionalPattern, onlyTriples, indent + indentStep, stream
         );
+        await writeLine(indent + "}", stream);
+      }
+    } else if (sparqlElementIsUnion(element)) {
+      if (onlyTriples || element.unionPatterns.length <= 1) {
+        for (const pattern of element.unionPatterns) {
+          await writePattern(
+            pattern, onlyTriples, indent, stream
+          );
+        }
+      } else {
+        let first = true;
+        for (const pattern of element.unionPatterns) {
+          await writeLine(indent + first ? "{" : "} UNION {", stream);
+          await writePattern(
+            pattern, onlyTriples, indent + indentStep, stream
+          );
+          first = false;
+        }
         await writeLine(indent + "}", stream);
       }
     }
