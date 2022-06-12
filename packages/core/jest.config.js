@@ -5,8 +5,8 @@ module.exports = {
     "ts",
   ],
   "transform": {
-    "^.+\\.[t|j]sx?$": "babel-jest",
-    "\\.sparql$": "jest-raw-loader",
+    "^.+\\.[t|j]sx?$": "ts-jest",
+    "\\.sparql$": "./build/sparql-loader.js",
   },
   "roots": [
     "src",
