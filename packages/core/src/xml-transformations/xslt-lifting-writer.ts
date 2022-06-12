@@ -13,10 +13,11 @@ import {
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LIFTING } from "./xslt-vocabulary";
+import { QName } from "../xml/xml-conventions";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
-const topLevelContainer = "top-level";
+const inverseContainer: QName = ["rdfs", "seeAlso"];
 
 export async function writeXsltLifting(
   model: XmlTransformation,
@@ -43,6 +44,9 @@ async function writeTransformationBegin(
   await writer.writeNamespaceDeclaration("xsl", xslNamespace);
   await writer.writeAndRegisterNamespaceDeclaration(
     "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  );
+  await writer.writeAndRegisterNamespaceDeclaration(
+    "rdfs", "http://www.w3.org/2000/01/rdf-schema#"
   );
   await writer.writeAndRegisterNamespaceDeclaration(
     "xsi", "http://www.w3.org/2001/XMLSchema-instance"
@@ -225,7 +229,7 @@ async function writeTemplateMatch(
         });
       });
 
-      await writer.writeElementFull(null, topLevelContainer)(async writer => {
+      await writer.writeElementFull(...inverseContainer)(async writer => {
         await writeClassTemplateCall(match, writer);
       });
     } else {
