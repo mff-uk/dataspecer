@@ -50,6 +50,7 @@ export class DataSpecificationModel {
       psms: dataSpecification.dataStructures.map(dataStructure => dataStructure.psmSchema),
       importsDataSpecifications: dataSpecification.importsDataSpecifications.map(importDataSpecification => importDataSpecification.id),
       artefacts: [],
+      artefactConfiguration: JSON.parse(dataSpecification.artifactsConfiguration),
       pimStores: [
         this.storeModel.getById(dataSpecification.storeId)
       ],
@@ -153,6 +154,9 @@ export class DataSpecificationModel {
         } : undefined,
         tags: dataSpecification.tags ? {
           set: JSON.stringify([...dataSpecification.tags])
+        } : undefined,
+        artifactsConfiguration: dataSpecification.artefactConfiguration ? {
+          set: JSON.stringify(dataSpecification.artefactConfiguration)
         } : undefined,
       },
       ...prismaDataSpecificationConfig

@@ -24,6 +24,7 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {CopyIri} from "./copy-iri";
 import {GeneratingDialog} from "./generating-dialog";
 import {GenerateReport} from "../../artifacts/generate-report";
+import {ConfigureArtifacts} from "../../artifacts/configuration/configure-artifacts";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -216,7 +217,9 @@ export const Specification: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            gap: "1rem",
         }}>
+            {dataSpecificationIri && <ConfigureArtifacts dataSpecificationIri={dataSpecificationIri} />}
             <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading !== false}>Generate .ZIP file</LoadingButton>
         </Box>
 

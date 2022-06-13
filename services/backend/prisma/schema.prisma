@@ -28,6 +28,10 @@ model DataSpecification {
   // Tags as means of categorization
   // JSON array of strings
   tags String @default("[]")
+
+  // User defined data specification object
+  // JSON serialized object
+  artifactsConfiguration String @default("[]")
 }
 
 // Data structure represents single Data PSM schema with its entities. It
