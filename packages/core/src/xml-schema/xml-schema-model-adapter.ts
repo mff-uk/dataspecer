@@ -155,7 +155,6 @@ class XmlSchemaAdapter {
       xmlSchemaTypeIsComplex(element.type)
     ) {
       const groupName = element.elementName[1];
-
       this.groups[groupName] = {
         name: groupName,
         contents: [
@@ -238,13 +237,13 @@ class XmlSchemaAdapter {
     return this.artifact.publicUrl;
   }
 
-  async resolveImportedElementName(
+  resolveImportedElementName(
     classData: StructureModelClass
-  ): Promise<QName> {
+  ): QName | Promise<QName> {
     if (this.model.psmIri !== classData.structureSchema) {
       const importDeclaration = this.imports[classData.specification];
       if (importDeclaration != null) {
-        return [await importDeclaration.prefix, classData.technicalLabel];
+        return this.getQName(importDeclaration.prefix, classData.technicalLabel);
       }
       const artefact = this.findArtefactForImport(classData);
       if (artefact != null) {
@@ -254,10 +253,17 @@ class XmlSchemaAdapter {
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
         };
-        return [await imported.prefix, classData.technicalLabel];
+        return this.getQName(imported.prefix, classData.technicalLabel);
       }
     }
     return [null, classData.technicalLabel];
+  }
+
+  async getQName(
+    prefix: Promise<string>,
+    name: string
+  ): Promise<QName> {
+    return [await prefix, name];
   }
 
   async getImportedModel(
@@ -482,7 +488,7 @@ class XmlSchemaAdapter {
     for (const type of dataTypes) {
       const classData = type.dataType;
       classes.add(classData.psmIri);
-      if(classData.extends.length == 0) {
+      if (classData.extends.length == 0) {
         roots.push(classData);
       } else if (classData.extends.length > 1) {
         throw new Error(`Multiple inheritance is not supported (class ${classData.technicalLabel}).`);

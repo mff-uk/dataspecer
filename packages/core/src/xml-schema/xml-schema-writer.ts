@@ -247,14 +247,15 @@ async function writeElement(
 ): Promise<void> {
   await writer.writeElementFull("xs", "element")(async writer => {
     await writeAttributesForComplexContent(parentContent, writer);
+    const name = await either(element.elementName);
     if (element.type == null) {
       await writer.writeLocalAttributeValue(
         "ref",
-        writer.getQName(...await either(element.elementName))
+        writer.getQName(...name)
       );
       await writeAnnotation(element, writer);
     } else {
-      await writer.writeLocalAttributeValue("name", element.elementName[1]);
+      await writer.writeLocalAttributeValue("name", name[1]);
       const type = element.type;
       if (type.name != null) {
         await writer.writeLocalAttributeValue(
