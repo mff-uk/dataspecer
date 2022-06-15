@@ -180,12 +180,16 @@ function makeSimpleColumn(
     column.name = encodeURI(namePrefix + property.technicalLabel);
     column.titles = namePrefix + property.technicalLabel;
     column["dc:title"] = transformLanguageString(property.humanLabel);
-    if (isCodelist) column.valueUrl = "{+" + column.name + "}";
-    else column.datatype = datatype;
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = property.cimIri;
-    column.lang = "cs";
     column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
+    if (isCodelist) {
+        column.valueUrl = "{+" + column.name + "}";
+    }
+    else {
+        column.datatype = datatype;
+        column.lang = "cs";
+    }
     return column;
 }
 
