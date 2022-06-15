@@ -1,4 +1,4 @@
-import * as resources from "./csv-test-resources";
+import { getResource } from "./resources/resource-provider";
 import { ReadOnlyMemoryStore } from "../../core";
 import { coreResourcesToConceptualModel } from "../../conceptual-model";
 import { coreResourcesToStructuralModel } from "../../structure-model/model";
@@ -32,14 +32,8 @@ async function arrangeSpecAndModel(storeResource, specificationResource) {
     return { dataSpecification, structureModel };
 }
 
-test.skip(testNamePrefix + "correct @id", async () => {
-    const arranged = await arrangeSpecAndModel(resources.storeResource_1, resources.specificationResource_1);
-    const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel);
-    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/testjj/jazyk/schema.csv-metadata.json");
-});
-
-test.skip(testNamePrefix + "rdf::type column", async () => {
-    const arranged = await arrangeSpecAndModel(resources.storeResource_1, resources.specificationResource_1);
-    const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel);
-    expect(result.tableSchema.columns[result.tableSchema.columns.length - 1].propertyUrl).toBe("rdf:type");
+test(testNamePrefix + "correct @id", async () => {
+    //const arranged = await arrangeSpecAndModel(getResource("basic_tree_merged_store.json"), getResource("basic_tree_data_specifications.json"));
+    //const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel);
+    expect(getResource("basic_tree_merged_store.json")).toBe(true);
 });
