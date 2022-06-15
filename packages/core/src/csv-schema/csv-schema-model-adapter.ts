@@ -21,24 +21,22 @@ import {
     LanguageString
 } from "../core";
 import { OFN } from "../well-known";
-import {CsvSchemaGeneratorOptions} from "./csv-schema-generator-options";
+import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
 const idPrefix = "https://ofn.gov.cz/schema";
 
 /**
- * This function creates CSV schema from StructureModel and DataSpecification.
+ * This function creates CSV schema from StructureModel, DataSpecification and a configuration.
  */
 export function structureModelToCsvSchema(
     specification: DataSpecification,
     model: StructureModel,
-    configuration: CsvSchemaGeneratorOptions,
+    configuration: CsvSchemaGeneratorOptions
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    const single = !configuration.enableMultipleTableSchema;
-
-    if (single) return createSingleTableSchema(specification, model);
-    else return createMultipleTableSchema(specification, model);
+    if (configuration.enableMultipleTableSchema) return createMultipleTableSchema(specification, model);
+    else return createSingleTableSchema(specification, model);
 }
 
 /**
