@@ -136,20 +136,21 @@ async function writeImportsAndDefinitions(
     });
   }
   for (const importDeclaration of model.imports) {
-    if (importDeclaration.namespace != null) {
+    const namespace = await either(importDeclaration.namespace);
+    if (namespace != null) {
       await writer.writeElementBegin("xs", "import");
-    } else {
-      await writer.writeElementBegin("xs", "include");
       await writer.writeLocalAttributeValue(
         "namespace",
-        await either(importDeclaration.namespace)
+        namespace
       );
+    } else {
+      await writer.writeElementBegin("xs", "include");
     }
     await writer.writeLocalAttributeValue(
       "schemaLocation",
       importDeclaration.schemaLocation
     );
-    if (importDeclaration.namespace != null) {
+    if (namespace != null) {
       await writer.writeElementEnd("xs", "import");
     } else {
       await writer.writeElementEnd("xs", "include");
