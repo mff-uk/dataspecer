@@ -5,7 +5,7 @@
         ],
         "iri": "https://ofn.gov.cz/schema/1655284995412-43b1-b93e-b31e",
         "pimHumanLabel": {
-            "en": "UnitTesty"
+            "en": "UnitTests"
         },
         "pimHumanDescription": {},
         "pimParts": [
@@ -336,7 +336,7 @@
         },
         "pimHumanDescription": {},
         "pimExtends": [],
-        "pimIsCodelist": false,
+        "pimIsCodelist": true,
         "pimCodelistUrl": []
     },
     "https://ofn.gov.cz/association/1655285351172-6c86-fda3-b5ba": {

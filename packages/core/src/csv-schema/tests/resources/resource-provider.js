@@ -2,8 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 export function getResource(fileName) {
-    const data = readFileSync(join(__dirname, fileName), "utf8");
-    return JSON.parse(data);
+    return JSON.parse(readFileSync(join(__dirname, fileName), "utf8"));
 }
 
 /*

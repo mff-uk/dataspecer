@@ -10,8 +10,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#jsonschema",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/schema.json",
-                "publicUrl": "/unittesty/tourist-destination/schema.json",
+                "outputPath": "unittests/tourist-destination/schema.json",
+                "publicUrl": "/unittests/tourist-destination/schema.json",
                 "generator": "http://example.com/generator/json-schema",
                 "configuration": null,
                 "psm": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533",
@@ -20,8 +20,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#xmlschema",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/schema.xsd",
-                "publicUrl": "/unittesty/tourist-destination/schema.xsd",
+                "outputPath": "unittests/tourist-destination/schema.xsd",
+                "publicUrl": "/unittests/tourist-destination/schema.xsd",
                 "generator": "http://example.com/generator/xml-schema",
                 "configuration": null,
                 "psm": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533",
@@ -30,8 +30,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#xsltlifting",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/lifting.xslt",
-                "publicUrl": "/unittesty/tourist-destination/lifting.xslt",
+                "outputPath": "unittests/tourist-destination/lifting.xslt",
+                "publicUrl": "/unittests/tourist-destination/lifting.xslt",
                 "generator": "http://example.com/generator/xslt-lifting",
                 "configuration": null,
                 "psm": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533",
@@ -40,8 +40,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#xsltlowering",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/lowering.xslt",
-                "publicUrl": "/unittesty/tourist-destination/lowering.xslt",
+                "outputPath": "unittests/tourist-destination/lowering.xslt",
+                "publicUrl": "/unittests/tourist-destination/lowering.xslt",
                 "generator": "http://example.com/generator/xslt-lowering",
                 "configuration": null,
                 "psm": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533",
@@ -50,8 +50,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#csvschema",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/schema.csv-metadata.json",
-                "publicUrl": "/unittesty/tourist-destination/schema.csv-metadata.json",
+                "outputPath": "unittests/tourist-destination/schema.csv-metadata.json",
+                "publicUrl": "/unittests/tourist-destination/schema.csv-metadata.json",
                 "generator": "http://example.com/generator/csv-schema",
                 "configuration": {
                     "enableMultipleTableSchema": false
@@ -62,8 +62,8 @@
             {
                 "iri": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533#sparqlschema",
                 "name": null,
-                "outputPath": "unittesty/tourist-destination/query.sparql",
-                "publicUrl": "/unittesty/tourist-destination/query.sparql",
+                "outputPath": "unittests/tourist-destination/query.sparql",
+                "publicUrl": "/unittests/tourist-destination/query.sparql",
                 "generator": "http://example.com/generator/sparql",
                 "configuration": null,
                 "psm": "https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533",
@@ -72,8 +72,8 @@
             {
                 "iri": "https://ofn.gov.cz/data-specification/e8052e0e-f434-469b-bce3-28884d1db529#plantUml",
                 "name": null,
-                "outputPath": "unittesty/conceptual-model.plantuml",
-                "publicUrl": "/unittesty/conceptual-model.plantuml",
+                "outputPath": "unittests/conceptual-model.plantuml",
+                "publicUrl": "/unittests/conceptual-model.plantuml",
                 "generator": "plant-uml",
                 "configuration": null,
                 "artefacts": [],
@@ -82,8 +82,8 @@
             {
                 "iri": "https://ofn.gov.cz/data-specification/e8052e0e-f434-469b-bce3-28884d1db529#plantUmlImage",
                 "name": null,
-                "outputPath": "unittesty/conceptual-model.png",
-                "publicUrl": "/unittesty/conceptual-model.png",
+                "outputPath": "unittests/conceptual-model.png",
+                "publicUrl": "/unittests/conceptual-model.png",
                 "generator": "plant-uml/image",
                 "configuration": null,
                 "artefacts": [],
@@ -92,8 +92,8 @@
             {
                 "iri": "https://ofn.gov.cz/data-specification/e8052e0e-f434-469b-bce3-28884d1db529#bikeshed",
                 "name": null,
-                "outputPath": "unittesty/documentation.bs",
-                "publicUrl": "/unittesty/documentation.bs",
+                "outputPath": "unittests/documentation.bs",
+                "publicUrl": "/unittests/documentation.bs",
                 "generator": "http://example.com/generator/bikeshed",
                 "configuration": null,
                 "artefacts": [
@@ -109,8 +109,8 @@
             {
                 "iri": "https://ofn.gov.cz/data-specification/e8052e0e-f434-469b-bce3-28884d1db529#bikeshedHtml",
                 "name": null,
-                "outputPath": "unittesty/documentation.html",
-                "publicUrl": "/unittesty/documentation.html",
+                "outputPath": "unittests/documentation.html",
+                "publicUrl": "/unittests/documentation.html",
                 "generator": "http://example.com/generator/bikeshed/html-output",
                 "configuration": null,
                 "artefacts": [
