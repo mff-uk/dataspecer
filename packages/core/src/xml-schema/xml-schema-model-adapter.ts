@@ -175,7 +175,7 @@ class XmlSchemaAdapter {
           abstract: false,
           complexDefinition: {
             xsType: "group",
-            name: [null, groupName],
+            name: [this.model.namespacePrefix, groupName],
             contents: [],
           } as XmlSchemaComplexGroup,
         } as XmlSchemaComplexType,
@@ -453,7 +453,7 @@ class XmlSchemaAdapter {
     );
     if (name != null) {
       const type: XmlSchemaComplexType = {
-        name: [null, name],
+        name: [this.model.namespacePrefix, name],
         mixed: false,
         abstract: abstract,
         annotation: null,
@@ -582,6 +582,9 @@ class XmlSchemaAdapter {
       : simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
       this.usesLangString = true;
+      if (type[0] == null) {
+        return [this.model.namespacePrefix, type[1]];
+      }
     }
     return type;
   }
