@@ -8,7 +8,7 @@ import { CsvSchemaGeneratorOptions } from "../csv-schema-generator-options";
 
 const testNamePrefix = "CSV generator: ";
 
-async function arrangeSpecAndModel(storeResource, specificationResource) {
+async function arrangeSpecAndModel(specificationResource, storeResource) {
     const dataSpecificationIri = Object.values(specificationResource)[0].iri;
     const psmIri = specificationResource[dataSpecificationIri].psms[0];
 
@@ -33,9 +33,172 @@ async function arrangeSpecAndModel(storeResource, specificationResource) {
     return { dataSpecification, structureModel };
 }
 
-test(testNamePrefix + "correct @id", async () => {
-    const arranged = await arrangeSpecAndModel(getResource("basic_tree_merged_store.json"), getResource("basic_tree_data_specifications.json"));
+/**
+ * Arrange basic tree and single table schema
+ */
+async function commonArrange1(multipleTable) {
+    const arranged = await arrangeSpecAndModel(getResource("basic_tree_data_specifications.json"), getResource("basic_tree_merged_store.json"));
     const options = new CsvSchemaGeneratorOptions();
-    const result = structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options);
-    expect(result.table["@id"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json");
+    options.enableMultipleTableSchema = multipleTable;
+    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+}
+
+test(testNamePrefix + "@context", async () => {
+    const result = await commonArrange1(false);
+    expect(result["@context"][0]).toBe("http://www.w3.org/ns/csvw");
+});
+
+test(testNamePrefix + "@id", async () => {
+    const result = await commonArrange1(false);
+    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json");
+});
+
+test(testNamePrefix + "@type", async () => {
+    const result = await commonArrange1(false);
+    expect(result["@type"]).toBe("Table");
+});
+
+test(testNamePrefix + "url", async () => {
+    const result = await commonArrange1(false);
+    expect(result["url"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/table.csv");
+});
+
+test(testNamePrefix + "tableSchema @type", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema["@type"]).toBe("Schema");
+});
+
+test(testNamePrefix + "number of columns", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns.length).toBe(9);
+});
+
+test(testNamePrefix + "column @type", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["@type"]).toBe("Column");
+});
+
+test(testNamePrefix + "column name", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["name"]).toBe("kapacita");
+});
+
+test(testNamePrefix + "column titles", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["titles"]).toBe("kapacita");
+});
+
+test(testNamePrefix + "column dc:title @value", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["dc:title"]["@value"]).toBe("kapacita");
+});
+
+test(testNamePrefix + "column dc:title @language", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["dc:title"]["@language"]).toBe("cs");
+});
+
+test(testNamePrefix + "column propertyUrl", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["propertyUrl"]).toBe("https://slovník.gov.cz/datový/sportoviště/pojem/kapacita");
+});
+
+test(testNamePrefix + "column lang", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[0]["lang"]).toBe("cs");
+});
+
+test(testNamePrefix + "encoded name", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[1]["name"]).toBe("bezbari%C3%A9rovost_braillovo_p%C3%ADsmo");
+});
+
+test(testNamePrefix + "encoded title", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[1]["titles"]).toBe("bezbariérovost_braillovo_písmo");
+});
+
+test(testNamePrefix + "more dc:titles", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[1]["dc:title"].length).toBe(2);
+});
+
+test(testNamePrefix + "more dc:titles second @language", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[1]["dc:title"][1]["@language"]).toBe("en");
+});
+
+test(testNamePrefix + "flattened nested property titles", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[5]["titles"]).toBe("bezbariérovost_přístupnost_pro_seniory_popis_popsaného_prvku");
+});
+
+test(testNamePrefix + "bare association title", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[6]["titles"]).toBe("má_dostupný_jazyk");
+});
+
+test(testNamePrefix + "codelist column valueUrl", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[3]["valueUrl"]).toBe("{+bezbari%C3%A9rovost_m%C3%A1_mapuj%C3%ADc%C3%AD_subjekt}");
+});
+
+test(testNamePrefix + "codelist column no lang", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[3]["lang"]).toBe(undefined);
+});
+
+test(testNamePrefix + "virtual column", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[8]["virtual"]).toBe(true);
+});
+
+test(testNamePrefix + "virtual column valueUrl", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[8]["valueUrl"]).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
+});
+
+test(testNamePrefix + "number of tables", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables.length).toBe(3);
+});
+
+test(testNamePrefix + "id column", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[0].tableSchema.columns[0]["name"]).toBe("ReferenceId");
+});
+
+test(testNamePrefix + "numeric table url", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1]["url"].slice(-5)).toBe("2.csv");
+});
+
+test(testNamePrefix + "association virtual column", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema.columns[5]["valueUrl"]).toBe("https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup");
+});
+
+test(testNamePrefix + "foreign key table", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/tables/1.csv");
+});
+
+test(testNamePrefix + "foreign key column", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["columnReference"]).toBe("bezbari%C3%A9rovost");
+});
+
+test(testNamePrefix + "first level number of columns", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[0].tableSchema.columns.length).toBe(6);
+});
+
+test(testNamePrefix + "second level number of columns", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema.columns.length).toBe(6);
+});
+
+test(testNamePrefix + "third level number of columns", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[2].tableSchema.columns.length).toBe(4);
 });
