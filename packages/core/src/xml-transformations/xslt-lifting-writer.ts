@@ -17,7 +17,7 @@ import { QName } from "../xml/xml-conventions";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
-const inverseContainer: QName = ["rdfs", "seeAlso"];
+const inverseContainer: QName = [null, "top-level"];
 
 export async function writeXsltLifting(
   model: XmlTransformation,
@@ -97,6 +97,31 @@ async function writeCommonTemplates(
       await writer.writeLocalAttributeValue("select", ".");
     });
   });
+  
+  await writer.writeElementFull("xsl", "template")(async writer => {
+    await writer.writeLocalAttributeValue("name", "remove-top");
+    
+    await writer.writeElementFull("xsl", "for-each")(async writer => {
+      await writer.writeLocalAttributeValue("select", "@*");
+  
+      await writer.writeElementFull("xsl", "copy")(async writer => {
+        
+      });
+    });
+    
+    await writer.writeElementFull("xsl", "for-each")(async writer => {
+      const path = `node()[not(. instance of element(${writer.getQName(...inverseContainer)}))]`;
+      await writer.writeLocalAttributeValue("select", path);
+  
+      await writer.writeElementFull("xsl", "copy")(async writer => {
+        await writer.writeElementFull("xsl", "call-template")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "name", "remove-top"
+          );
+        });
+      });
+    });
+  });
 }
 
 async function writeFinalTemplates(
@@ -117,10 +142,42 @@ async function writeRootTemplates(
       await writer.writeLocalAttributeValue("match", match);
 
       await writer.writeElementFull("rdf", "RDF")(async writer => {
-        await writer.writeElementFull("xsl", "call-template")(async writer => {
+        await writer.writeElementFull("xsl", "variable")(async writer => {
           await writer.writeLocalAttributeValue(
-            "name", rootTemplate.targetTemplate
+            "name", "result"
           );
+          await writer.writeElementFull("xsl", "sequence")(async writer => {
+            await writer.writeElementFull("xsl", "call-template")(async writer => {
+              await writer.writeLocalAttributeValue(
+                "name", rootTemplate.targetTemplate
+              );
+            });
+          });
+        });
+        
+        await writer.writeElementFull("xsl", "for-each")(async writer => {
+          await writer.writeLocalAttributeValue("select", "$result");
+      
+          await writer.writeElementFull("xsl", "copy")(async writer => {
+            await writer.writeElementFull("xsl", "call-template")(async writer => {
+              await writer.writeLocalAttributeValue(
+                "name", "remove-top"
+              );
+            });
+          });
+        });
+        
+        await writer.writeElementFull("xsl", "for-each")(async writer => {
+          const path = "$result//" + writer.getQName(...inverseContainer);
+          await writer.writeLocalAttributeValue("select", path);
+      
+          await writer.writeElementFull("xsl", "copy")(async writer => {
+            await writer.writeElementFull("xsl", "call-template")(async writer => {
+              await writer.writeLocalAttributeValue(
+                "name", "remove-top"
+              );
+            });
+          });
         });
       });
     })
