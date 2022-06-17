@@ -13,7 +13,7 @@ import {
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LIFTING } from "./xslt-vocabulary";
-import { QName } from "../xml/xml-conventions";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, QName } from "../xml/xml-conventions";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
@@ -57,6 +57,13 @@ async function writeTransformationBegin(
     await writer.writeAndRegisterNamespaceDeclaration(
       model.targetNamespacePrefix,
       model.targetNamespace
+    );
+  }
+  
+  if (commonXmlNamespace != null) {
+    await writer.writeAndRegisterNamespaceDeclaration(
+      commonXmlPrefix,
+      commonXmlNamespace
     );
   }
 
@@ -222,12 +229,13 @@ async function writeTemplateContents(
       await writer.writeLocalAttributeValue("name", "id");
       await writer.writeElementFull("xsl", "choose")(async writer => {
         await writer.writeElementFull("xsl", "when")(async writer => {
-          const condition = "iri and $no_iri!=true";
+          const iri = writer.getQName(...iriElementName);
+          const condition = `${iri} and $no_iri!=true`;
           await writer.writeLocalAttributeValue("test", condition);
           await writer.writeElementFull("xsl", "attribute")(async writer => {
             await writer.writeLocalAttributeValue("name", "rdf:about");
             await writer.writeElementFull("xsl", "value-of")(async writer => {
-              await writer.writeLocalAttributeValue("select", "iri");
+              await writer.writeLocalAttributeValue("select", iri);
             });
           });
         });

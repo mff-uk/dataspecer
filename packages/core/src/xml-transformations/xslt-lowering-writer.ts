@@ -13,6 +13,7 @@ import {
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LOWERING } from "./xslt-vocabulary";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName } from "../xml/xml-conventions";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
@@ -51,6 +52,13 @@ async function writeTransformationBegin(
     await writer.writeAndRegisterNamespaceDeclaration(
       model.targetNamespacePrefix,
       model.targetNamespace
+    );
+  }
+  
+  if (commonXmlNamespace != null) {
+    await writer.writeAndRegisterNamespaceDeclaration(
+      commonXmlPrefix,
+      commonXmlNamespace
     );
   }
 }
@@ -222,8 +230,7 @@ async function writeTemplateContents(
     await writer.writeElementFull("xsl", "for-each")(async writer => {
       await writer.writeLocalAttributeValue("select", "$id/sp:uri");
   
-      //TODO use namespace
-      await writer.writeElementFull(null, "iri")(async writer => {
+      await writer.writeElementFull(...iriElementName)(async writer => {
         await writer.writeElementFull("xsl", "value-of")(async writer => {
           await writer.writeLocalAttributeValue("select", ".");
         });

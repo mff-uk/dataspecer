@@ -39,7 +39,7 @@ import {
 import { XSD } from "../well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
-import { langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
+import { commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
 import { pathRelative } from "../core/utilities/path-relative";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { ArtefactGeneratorContext } from "../generator";
@@ -88,16 +88,11 @@ const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
   cardinalityMax: 1,
   element: {
-    elementName: [null, "iri"],
+    elementName: iriElementName,
     annotation: null,
-    type: {
-      name: ["xs", "anyURI"],
-      annotation: null,
-    }
+    type: null
   }
 };
-
-type ClassMap = Record<string, StructureModelClass>;
 
 class XmlSchemaAdapter {
   private usesLangString: boolean;

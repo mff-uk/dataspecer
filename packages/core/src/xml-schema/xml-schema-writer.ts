@@ -23,7 +23,7 @@ import {
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
-import { langStringName } from "../xml/xml-conventions";
+import { commonXmlNamespace, commonXmlPrefix, commonXmlSchema, langStringName } from "../xml/xml-conventions";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 
@@ -71,6 +71,13 @@ async function writeSchemaBegin(
     }
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
+  }
+  
+  if (commonXmlNamespace != null) {
+    await writer.writeAndRegisterNamespaceDeclaration(
+      commonXmlPrefix,
+      commonXmlNamespace
+    );
   }
 
   const registered: Record<string, string> = {};
@@ -145,6 +152,20 @@ async function writeImportsAndDefinitions(
       });
     });
   }
+  
+  if (commonXmlNamespace != null) {
+    await writer.writeElementFull("xs", "import")(async writer => {
+      await writer.writeLocalAttributeValue(
+        "namespace",
+        commonXmlNamespace
+      );
+      await writer.writeLocalAttributeValue(
+        "schemaLocation",
+        commonXmlSchema
+      );
+    });
+  }
+
   for (const importDeclaration of model.imports) {
     const namespace = await either(importDeclaration.namespace);
     if (namespace != null) {
