@@ -72,6 +72,8 @@ async function writeSchemaBegin(
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
+
+  const registered: Record<string, string> = {};
   
   for (const importDeclaration of model.imports) {
     const namespace = await importDeclaration.namespace;
@@ -80,10 +82,18 @@ async function writeSchemaBegin(
       namespace != null &&
       prefix != null
     ) {
-      await writer.writeAndRegisterNamespaceDeclaration(
-        prefix,
-        namespace
-      );
+      if (registered[prefix] == null) {
+        await writer.writeAndRegisterNamespaceDeclaration(
+          prefix,
+          namespace
+        );
+        registered[prefix] = namespace;
+      } else if (registered[prefix] !== namespace) {
+        throw new Error(
+          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `different namespaces, "${registered[prefix]}" and "${namespace}".`
+        );
+      }
     }
   }
   
