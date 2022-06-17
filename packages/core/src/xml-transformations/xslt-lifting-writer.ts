@@ -142,6 +142,10 @@ async function writeTemplates(
         await writer.writeLocalAttributeValue("name", "arc");
       });
       
+      await writer.writeElementFull("xsl", "param")(async writer => {
+        await writer.writeLocalAttributeValue("name", "no_iri");
+      });
+      
       await writeTemplateContents(template, writer);
     });
   }
@@ -152,6 +156,7 @@ async function writeTemplateContents(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("rdf", "Description")(async writer => {
+
     await writer.writeElementFull("xsl", "apply-templates")(async writer => {
       await writer.writeLocalAttributeValue("select", "@*");
     });
@@ -160,7 +165,8 @@ async function writeTemplateContents(
       await writer.writeLocalAttributeValue("name", "id");
       await writer.writeElementFull("xsl", "choose")(async writer => {
         await writer.writeElementFull("xsl", "when")(async writer => {
-          await writer.writeLocalAttributeValue("test", "iri");
+          const condition = "iri and $no_iri!=true";
+          await writer.writeLocalAttributeValue("test", condition);
           await writer.writeElementFull("xsl", "attribute")(async writer => {
             await writer.writeLocalAttributeValue("name", "rdf:about");
             await writer.writeElementFull("xsl", "value-of")(async writer => {
@@ -207,35 +213,47 @@ async function writeTemplateMatch(
   match: XmlMatch,
   writer: XmlWriter
 ): Promise<void> {
-  await writer.writeElementFull("xsl", "for-each")(async writer => {
-    const name = writer.getQName(...match.propertyName);
-    await writer.writeLocalAttributeValue("select", name);
+  if (xmlMatchIsClass(match) && match.isDematerialized) {
+    // Possibly find the range of corresponding elements
+    await writeProperty(match, writer);
+  } else {
+    await writer.writeElementFull("xsl", "for-each")(async writer => {
+      const name = writer.getQName(...match.propertyName);
+      await writer.writeLocalAttributeValue("select", name);
+  
+      await writeProperty(match, writer);
+    });
+  }
+}
 
-    if (match.isReverse) {
-      if (!xmlMatchIsClass(match)) {
-        throw new Error(
-          `Reverse property ${match.propertyName} must be of a class type.`
-        );
-      }
+async function writeProperty(
+  match: XmlMatch,
+  writer: XmlWriter
+) {
+  if (match.isReverse) {
+    if (!xmlMatchIsClass(match)) {
+      throw new Error(
+        `Reverse property ${match.propertyName} must be of a class type.`
+      );
+    }
 
-      await writer.writeElementFull("xsl", "variable")(async writer => {
-        await writer.writeLocalAttributeValue("name", "arc");
-        await writer.writeElementFull(...match.interpretation)(async writer => {
-          await writer.writeElementFull("rdf", "Description")(async writer => {
-            await writer.writeElementFull("xsl", "copy-of")(async writer => {
-              await writer.writeLocalAttributeValue("select", "$id");
-            });
+    await writer.writeElementFull("xsl", "variable")(async writer => {
+      await writer.writeLocalAttributeValue("name", "arc");
+      await writer.writeElementFull(...match.interpretation)(async writer => {
+        await writer.writeElementFull("rdf", "Description")(async writer => {
+          await writer.writeElementFull("xsl", "copy-of")(async writer => {
+            await writer.writeLocalAttributeValue("select", "$id");
           });
         });
       });
+    });
 
-      await writer.writeElementFull(...inverseContainer)(async writer => {
-        await writeClassTemplateCall(match, writer);
-      });
-    } else {
-      await writeForwardProperty(match, writer);
-    }
-  });
+    await writer.writeElementFull(...inverseContainer)(async writer => {
+      await writeClassTemplateCall(match, writer);
+    });
+  } else {
+    await writeForwardProperty(match, writer);
+  }
 }
 
 async function writeForwardProperty(
@@ -272,18 +290,21 @@ async function writeClassTemplateCall(
   match: XmlClassMatch,
   writer: XmlWriter
 ) {
-  // TODO dematerialized
   const templates = match.targetTemplates;
   const hasArc = match.isReverse;
-  if (templates.length == 1) {
-    await writeTemplateCall(templates[0].templateName, hasArc, writer);
+  if (match.isDematerialized) {
+    for (const template of templates) {
+      await writeTemplateCall(template.templateName, hasArc, true, writer);
+    }
+  } else if (templates.length == 1) {
+    await writeTemplateCall(templates[0].templateName, hasArc, false, writer);
   } else {
     await writer.writeElementFull("xsl", "choose")(async writer => {
-      for (const template of match.targetTemplates) {
+      for (const template of templates) {
         await writer.writeElementFull("xsl", "when")(async writer => {
           const condition = `@xsi:type="${template.typeName}"`;
           await writer.writeLocalAttributeValue("test", condition);
-          await writeTemplateCall(template.templateName, hasArc, writer);
+          await writeTemplateCall(template.templateName, hasArc, false, writer);
         });
       }
     });
@@ -293,6 +314,7 @@ async function writeClassTemplateCall(
 async function writeTemplateCall(
   templateName: string,
   hasArc: boolean,
+  noIri: boolean,
   writer: XmlWriter,
 ): Promise<void> {
   await writer.writeElementFull("xsl", "call-template")(async writer => {
@@ -301,6 +323,12 @@ async function writeTemplateCall(
       await writer.writeElementFull("xsl", "with-param")(async writer => {
         await writer.writeLocalAttributeValue("name", "arc");
         await writer.writeLocalAttributeValue("select", "$arc");
+      });
+    }
+    if (noIri) {
+      await writer.writeElementFull("xsl", "with-param")(async writer => {
+        await writer.writeLocalAttributeValue("name", "no_iri");
+        await writer.writeLocalAttributeValue("select", "true");
       });
     }
   });
