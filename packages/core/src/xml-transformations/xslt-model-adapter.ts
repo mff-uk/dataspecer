@@ -273,7 +273,7 @@ class XsltAdapter {
       targetTemplates: dataTypes.map(
         type => ({
           templateName: this.classTemplateName(type.dataType),
-          typeName: type.dataType.technicalLabel,
+          typeName: [this.model.namespacePrefix, type.dataType.technicalLabel],
           typeIri: type.dataType.cimIri,
         })
       ),

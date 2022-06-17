@@ -76,11 +76,13 @@ class SparqlAdapter {
 
   public fromRoots(classes: StructureModelClass[]): SparqlQuery {
     const rootSubject = this.newVariable();
-    const patterns = [];
+    const patterns: SparqlPattern[] = [];
     for (const cls of classes) {
       const elements = [];
       this.classToTriples(rootSubject, cls, false, elements);   
-      patterns.push(elements);
+      patterns.push({
+        elements: elements
+      });
     }
     const union: SparqlUnionPattern = {
       unionPatterns: patterns
@@ -153,7 +155,7 @@ class SparqlAdapter {
     elements: SparqlElement[]
   ) {
     if (propertyData.cardinalityMin === 0) {
-      const optionalElements = [];
+      const optionalElements: SparqlElement[] = [];
       const optional: SparqlOptionalPattern = {
         optionalPattern: {
           elements: optionalElements
@@ -181,13 +183,16 @@ class SparqlAdapter {
     }
     
     const optionalType = propertyData.dataTypes.length == 1;
-    const patterns = [];
+    const patterns: SparqlPattern[] = [];
+
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = type.dataType;
-        const patternElements = [];
+        const patternElements: SparqlElement[] = [];
         this.classToTriples(obj, classData, optionalType, patternElements);
-        patterns.push(patternElements);
+        patterns.push({
+          elements: patternElements
+        });
       }
     }
 

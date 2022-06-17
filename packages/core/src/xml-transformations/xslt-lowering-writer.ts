@@ -13,7 +13,7 @@ import {
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 
 import { XSLT_LOWERING } from "./xslt-vocabulary";
-import { commonXmlNamespace, commonXmlPrefix, iriElementName } from "../xml/xml-conventions";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, QName } from "../xml/xml-conventions";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
@@ -209,14 +209,16 @@ async function writeTemplateContents(
   
   await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "type_name");
+    await writer.writeLocalAttributeValue("select", "()");
   });
   
   await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "no_iri");
+    await writer.writeLocalAttributeValue("select", "false()");
   });
 
   await writer.writeElementFull("xsl", "if")(async writer => {
-    await writer.writeLocalAttributeValue("test", "$type_name!=''");
+    await writer.writeLocalAttributeValue("test", "not(empty($type_name))");
     await writer.writeElementFull("xsl", "attribute")(async writer => {
       await writer.writeLocalAttributeValue("name", "xsi:type");
       await writer.writeElementFull("xsl", "value-of")(async writer => {
@@ -226,7 +228,7 @@ async function writeTemplateContents(
   });
   
   await writer.writeElementFull("xsl", "if")(async writer => {
-    await writer.writeLocalAttributeValue("test", "$no_iri!=true");
+    await writer.writeLocalAttributeValue("test", "not($no_iri)");
     await writer.writeElementFull("xsl", "for-each")(async writer => {
       await writer.writeLocalAttributeValue("select", "$id/sp:uri");
   
@@ -268,10 +270,10 @@ async function writeTemplateMatch(
     await writer.writeLocalAttributeValue("select", path);
 
     if (xmlMatchIsClass(match) && match.isDematerialized) {
-      await writeProperty(match, subj, obj, writer);
+      await writeProperty(match, obj, writer);
     } else {
       await writer.writeElementFull(...match.propertyName)(async writer => {
-        await writeProperty(match, subj, obj, writer);
+        await writeProperty(match, obj, writer);
       });
     }
   });
@@ -279,7 +281,6 @@ async function writeTemplateMatch(
 
 async function writeProperty(
   match: XmlMatch,
-  subj: string,
   obj: string,
   writer: XmlWriter
 ): Promise<void> {
@@ -308,10 +309,10 @@ async function writeProperty(
       await writer.writeElementFull("xsl", "choose")(async writer => {
         for (const template of match.targetTemplates) {
           const condition =
-            `//sp:result[sp:binding[@name=${subj}]/*[$id_test = ` +
-            elementIdTest("") +
+            `//sp:result[sp:binding[@name=$subj]/*[$id_test = ` +
+            elementIdTest(`current()/sp:binding[@name=${obj}]/*`) +
             "] and sp:binding[@name=$pred]/sp:uri/text()=$type and " + 
-            `sp:binding[@name=${obj}]/sp:uri/text()=${template.typeIri}]`;
+            `sp:binding[@name=$obj]/sp:uri/text()="${template.typeIri}"]`;
           await writer.writeElementFull("xsl", "when")(async writer => {
             await writer.writeLocalAttributeValue("test", condition);
             await writeTemplateCall(
@@ -326,7 +327,7 @@ async function writeProperty(
 
 async function writeTemplateCall(
   templateName: string,
-  typeName: string | null,
+  typeName: QName | null,
   noIri: boolean,
   obj: string,
   writer: XmlWriter,
@@ -345,13 +346,14 @@ async function writeTemplateCall(
     if (typeName != null) {
       await writer.writeElementFull("xsl", "with-param")(async writer => {
         await writer.writeLocalAttributeValue("name", "type_name");
-        await writer.writeText(typeName);
+        const type = writer.getQName(...typeName);
+        await writer.writeLocalAttributeValue("select", type);
       });
     }
     if (noIri) {
       await writer.writeElementFull("xsl", "with-param")(async writer => {
         await writer.writeLocalAttributeValue("name", "no_iri");
-        await writer.writeLocalAttributeValue("select", "true");
+        await writer.writeLocalAttributeValue("select", "true()");
       });
     }
   });

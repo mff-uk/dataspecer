@@ -129,28 +129,6 @@ async function writeImportsAndDefinitions(
         "http://www.w3.org/2001/xml.xsd"
       );
     });
-
-    await writer.writeElementFull("xs", "complexType")(async writer => {
-      await writer.writeLocalAttributeValue(
-        "name",
-        writer.getQName(...langStringName)
-      );
-      await writer.writeElementFull("xs", "simpleContent")(async writer => {
-        await writer.writeElementFull("xs", "extension")(async writer => {
-          await writer.writeLocalAttributeValue(
-            "base",
-            writer.getQName("xs", "string")
-          );
-          await writer.writeElementFull("xs", "attribute")(async writer => {
-            await writer.writeLocalAttributeValue(
-              "ref",
-              writer.getQName("xml", "lang")
-            );
-            await writer.writeLocalAttributeValue("use", "required");
-          });
-        });
-      });
-    });
   }
   
   if (commonXmlNamespace != null) {
@@ -186,6 +164,30 @@ async function writeImportsAndDefinitions(
     } else {
       await writer.writeElementEnd("xs", "include");
     }
+  }
+  
+  if (model.defineLangString) {
+    await writer.writeElementFull("xs", "complexType")(async writer => {
+      await writer.writeLocalAttributeValue(
+        "name",
+        writer.getQName(...langStringName)
+      );
+      await writer.writeElementFull("xs", "simpleContent")(async writer => {
+        await writer.writeElementFull("xs", "extension")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "base",
+            writer.getQName("xs", "string")
+          );
+          await writer.writeElementFull("xs", "attribute")(async writer => {
+            await writer.writeLocalAttributeValue(
+              "ref",
+              writer.getQName("xml", "lang")
+            );
+            await writer.writeLocalAttributeValue("use", "required");
+          });
+        });
+      });
+    });
   }
 }
 

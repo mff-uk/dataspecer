@@ -46,9 +46,6 @@ async function writeTransformationBegin(
     "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   );
   await writer.writeAndRegisterNamespaceDeclaration(
-    "rdfs", "http://www.w3.org/2000/01/rdf-schema#"
-  );
-  await writer.writeAndRegisterNamespaceDeclaration(
     "xsi", "http://www.w3.org/2001/XMLSchema-instance"
   );
   await writer.writeLocalAttributeValue("version", "2.0");
@@ -111,9 +108,7 @@ async function writeCommonTemplates(
     await writer.writeElementFull("xsl", "for-each")(async writer => {
       await writer.writeLocalAttributeValue("select", "@*");
   
-      await writer.writeElementFull("xsl", "copy")(async writer => {
-        
-      });
+      await writer.writeElementEmpty("xsl", "copy");
     });
     
     await writer.writeElementFull("xsl", "for-each")(async writer => {
@@ -175,7 +170,7 @@ async function writeRootTemplates(
         });
         
         await writer.writeElementFull("xsl", "for-each")(async writer => {
-          const path = "$result//" + writer.getQName(...inverseContainer);
+          const path = `$result//${writer.getQName(...inverseContainer)}/node()`;
           await writer.writeLocalAttributeValue("select", path);
       
           await writer.writeElementFull("xsl", "copy")(async writer => {
@@ -204,10 +199,12 @@ async function writeTemplates(
       
       await writer.writeElementFull("xsl", "param")(async writer => {
         await writer.writeLocalAttributeValue("name", "arc");
+        await writer.writeLocalAttributeValue("select", "()");
       });
       
       await writer.writeElementFull("xsl", "param")(async writer => {
         await writer.writeLocalAttributeValue("name", "no_iri");
+        await writer.writeLocalAttributeValue("select", "false()");
       });
       
       await writeTemplateContents(template, writer);
@@ -227,24 +224,26 @@ async function writeTemplateContents(
 
     await writer.writeElementFull("xsl", "variable")(async writer => {
       await writer.writeLocalAttributeValue("name", "id");
-      await writer.writeElementFull("xsl", "choose")(async writer => {
-        await writer.writeElementFull("xsl", "when")(async writer => {
-          const iri = writer.getQName(...iriElementName);
-          const condition = `${iri} and $no_iri!=true`;
-          await writer.writeLocalAttributeValue("test", condition);
-          await writer.writeElementFull("xsl", "attribute")(async writer => {
-            await writer.writeLocalAttributeValue("name", "rdf:about");
-            await writer.writeElementFull("xsl", "value-of")(async writer => {
-              await writer.writeLocalAttributeValue("select", iri);
+      await writer.writeElementFull(null, "id")(async writer => {
+        await writer.writeElementFull("xsl", "choose")(async writer => {
+          await writer.writeElementFull("xsl", "when")(async writer => {
+            const iri = writer.getQName(...iriElementName);
+            const condition = `${iri} and not($no_iri)`;
+            await writer.writeLocalAttributeValue("test", condition);
+            await writer.writeElementFull("xsl", "attribute")(async writer => {
+              await writer.writeLocalAttributeValue("name", "rdf:about");
+              await writer.writeElementFull("xsl", "value-of")(async writer => {
+                await writer.writeLocalAttributeValue("select", iri);
+              });
             });
           });
-        });
 
-        await writer.writeElementFull("xsl", "otherwise")(async writer => {
-          await writer.writeElementFull("xsl", "attribute")(async writer => {
-            await writer.writeLocalAttributeValue("name", "rdf:nodeID");
-            await writer.writeElementFull("xsl", "value-of")(async writer => {
-              await writer.writeLocalAttributeValue("select", "generate-id()");
+          await writer.writeElementFull("xsl", "otherwise")(async writer => {
+            await writer.writeElementFull("xsl", "attribute")(async writer => {
+              await writer.writeLocalAttributeValue("name", "rdf:nodeID");
+              await writer.writeElementFull("xsl", "value-of")(async writer => {
+                await writer.writeLocalAttributeValue("select", "'_'||generate-id()");
+              });
             });
           });
         });
@@ -252,7 +251,7 @@ async function writeTemplateContents(
     });
     
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
-      await writer.writeLocalAttributeValue("select", "$id");
+      await writer.writeLocalAttributeValue("select", "$id//@*");
     });
     
     if (template.classIri != null) {
@@ -261,11 +260,8 @@ async function writeTemplateContents(
       });
     }
     
-    await writer.writeElementFull("xsl", "if")(async writer => {
-      await writer.writeLocalAttributeValue("test", "$arc!=''");
-      await writer.writeElementFull("xsl", "copy-of")(async writer => {
-        await writer.writeLocalAttributeValue("select", "$arc");
-      });
+    await writer.writeElementFull("xsl", "copy-of")(async writer => {
+      await writer.writeLocalAttributeValue("select", "$arc");
     });
     
     for (const match of template.propertyMatches) {
@@ -307,7 +303,7 @@ async function writeProperty(
       await writer.writeElementFull(...match.interpretation)(async writer => {
         await writer.writeElementFull("rdf", "Description")(async writer => {
           await writer.writeElementFull("xsl", "copy-of")(async writer => {
-            await writer.writeLocalAttributeValue("select", "$id");
+            await writer.writeLocalAttributeValue("select", "$id//@*");
           });
         });
       });
@@ -364,12 +360,32 @@ async function writeClassTemplateCall(
   } else if (templates.length == 1) {
     await writeTemplateCall(templates[0].templateName, hasArc, false, writer);
   } else {
+    await writer.writeElementFull("xsl", "variable")(async writer => {
+      await writer.writeLocalAttributeValue(
+        "name", "type"
+      );
+      await writer.writeLocalAttributeValue(
+        "select", "resolve-QName(@xsi:type,.)"
+      );
+    });
+    await writer.writeElementFull("xsl", "variable")(async writer => {
+      await writer.writeLocalAttributeValue(
+        "name", "types"
+      );
+      await writer.writeElementFull("xsl", "sequence")(async writer => {
+        for (const template of templates) {
+          await writer.writeElementEmpty(...template.typeName);
+        }
+      });
+    });
     await writer.writeElementFull("xsl", "choose")(async writer => {
-      for (const template of templates) {
+      for (let template = 0; template < templates.length; template++) {
         await writer.writeElementFull("xsl", "when")(async writer => {
-          const condition = `@xsi:type="${template.typeName}"`;
+          const condition = `$type=node-name($types/*[${template + 1}])`;
           await writer.writeLocalAttributeValue("test", condition);
-          await writeTemplateCall(template.templateName, hasArc, false, writer);
+          await writeTemplateCall(
+            templates[template].templateName, hasArc, false, writer
+          );
         });
       }
     });
@@ -393,7 +409,7 @@ async function writeTemplateCall(
     if (noIri) {
       await writer.writeElementFull("xsl", "with-param")(async writer => {
         await writer.writeLocalAttributeValue("name", "no_iri");
-        await writer.writeLocalAttributeValue("select", "true");
+        await writer.writeLocalAttributeValue("select", "true()");
       });
     }
   });

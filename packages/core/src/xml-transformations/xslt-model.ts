@@ -40,7 +40,7 @@ export class XmlClassMatch extends XmlMatch {
 
 export class XmlClassTargetTemplate {
   templateName: string;
-  typeName: string;
+  typeName: QName;
   typeIri: string;
 }
 

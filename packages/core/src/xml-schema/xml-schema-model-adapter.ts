@@ -447,15 +447,20 @@ class XmlSchemaAdapter {
       propertyData, dataTypes
     );
     if (name != null) {
-      const type: XmlSchemaComplexType = {
+      this.types[name] = {
+        name: [null, name],
+        mixed: false,
+        abstract: abstract,
+        annotation: null,
+        complexDefinition: definition
+      } as XmlSchemaComplexType;
+      return {
         name: [this.model.namespacePrefix, name],
         mixed: false,
         abstract: abstract,
         annotation: null,
         complexDefinition: definition
       };
-      this.types[name] = type;
-      return type;
     }
     return {
       name: null,
