@@ -34,10 +34,20 @@ async function arrangeSpecAndModel(specificationResource, storeResource) {
 }
 
 /**
- * Arrange basic tree and single table schema
+ * Arrange a basic tree
  */
 async function commonArrange1(multipleTable) {
     const arranged = await arrangeSpecAndModel(getResource("basic_tree_data_specifications.json"), getResource("basic_tree_merged_store.json"));
+    const options = new CsvSchemaGeneratorOptions();
+    options.enableMultipleTableSchema = multipleTable;
+    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+}
+
+/**
+ * Arrange a tree with advanced features: dematerialization, include, or
+ */
+async function commonArrange2(multipleTable) {
+    const arranged = await arrangeSpecAndModel(getResource("demat_include_or_data_specifications.json"), getResource("demat_include_or_merged_store.json"));
     const options = new CsvSchemaGeneratorOptions();
     options.enableMultipleTableSchema = multipleTable;
     return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
@@ -201,4 +211,44 @@ test(testNamePrefix + "second level number of columns", async () => {
 test(testNamePrefix + "third level number of columns", async () => {
     const result = await commonArrange1(true);
     expect(result.tables[2].tableSchema.columns.length).toBe(4);
+});
+
+test(testNamePrefix + "include", async () => {
+    const result = await commonArrange2(false);
+    expect(result.tableSchema.columns[1]["titles"]).toBe("má_lokalizaci_název_městského_obvodu/městské_části");
+});
+
+test(testNamePrefix + "or", async () => {
+    const result = await commonArrange2(false);
+    expect(result.tableSchema.columns[2]["titles"]).toBe("má_místnost_lokalizační_popis");
+});
+
+test(testNamePrefix + "dematerialization", async () => {
+    const result = await commonArrange2(false);
+    expect(result.tableSchema.columns[3]["titles"]).toBe("týká_se_místa_informace");
+});
+
+test(testNamePrefix + "advanced features multiple tables", async () => {
+    const result = await commonArrange2(true);
+    expect(result.tables.length).toBe(4);
+});
+
+test(testNamePrefix + "advanced features top columns", async () => {
+    const result = await commonArrange2(true);
+    expect(result.tables[0].tableSchema.columns.length).toBe(6);
+});
+
+test(testNamePrefix + "include table", async () => {
+    const result = await commonArrange2(true);
+    expect(result.tables[2].tableSchema.columns[1]["titles"]).toBe(result.tables[1].tableSchema.columns[1]["titles"]);
+});
+
+test(testNamePrefix + "or table", async () => {
+    const result = await commonArrange2(true);
+    expect(result.tables[3].tableSchema.columns[1]["titles"]).toBe("lokalizační_popis");
+});
+
+test(testNamePrefix + "dematerialization in tables", async () => {
+    const result = await commonArrange2(true);
+    expect(result.tables[0].tableSchema.columns[4]["titles"]).toBe("týká_se_místa_informace");
 });
