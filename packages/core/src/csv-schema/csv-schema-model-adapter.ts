@@ -21,24 +21,22 @@ import {
     LanguageString
 } from "../core";
 import { OFN } from "../well-known";
-import {CsvSchemaGeneratorOptions} from "./csv-schema-generator-options";
+import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
 const idPrefix = "https://ofn.gov.cz/schema";
 
 /**
- * This function creates CSV schema from StructureModel and DataSpecification.
+ * This function creates CSV schema from StructureModel, DataSpecification and a configuration.
  */
 export function structureModelToCsvSchema(
     specification: DataSpecification,
     model: StructureModel,
-    configuration: CsvSchemaGeneratorOptions,
+    configuration: CsvSchemaGeneratorOptions
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    const single = !configuration.enableMultipleTableSchema;
-
-    if (single) return createSingleTableSchema(specification, model);
-    else return createMultipleTableSchema(specification, model);
+    if (configuration.enableMultipleTableSchema) return createMultipleTableSchema(specification, model);
+    else return createSingleTableSchema(specification, model);
 }
 
 /**
@@ -180,12 +178,16 @@ function makeSimpleColumn(
     column.name = encodeURI(namePrefix + property.technicalLabel);
     column.titles = namePrefix + property.technicalLabel;
     column["dc:title"] = transformLanguageString(property.humanLabel);
-    if (isCodelist) column.valueUrl = "{+" + column.name + "}";
-    else column.datatype = datatype;
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = property.cimIri;
-    column.lang = "cs";
     column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
+    if (isCodelist) {
+        column.valueUrl = "{+" + column.name + "}";
+    }
+    else {
+        column.datatype = datatype;
+        column.lang = "cs";
+    }
     return column;
 }
 
