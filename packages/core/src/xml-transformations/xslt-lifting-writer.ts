@@ -242,7 +242,8 @@ async function writeTemplateContents(
             await writer.writeElementFull("xsl", "attribute")(async writer => {
               await writer.writeLocalAttributeValue("name", "rdf:nodeID");
               await writer.writeElementFull("xsl", "value-of")(async writer => {
-                await writer.writeLocalAttributeValue("select", "'_'||generate-id()");
+                const expression = "concat('_',generate-id())";
+                await writer.writeLocalAttributeValue("select", expression);
               });
             });
           });
