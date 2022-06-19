@@ -370,7 +370,7 @@ async function writeTemplateCall(
       await writer.writeElementFull("xsl", "with-param")(async writer => {
         await writer.writeLocalAttributeValue("name", "type_name");
         const type = writer.getQName(...typeName);
-        await writer.writeLocalAttributeValue("select", type);
+        await writer.writeLocalAttributeValue("select", `"${type}"`);
       });
     }
     if (noIri) {
