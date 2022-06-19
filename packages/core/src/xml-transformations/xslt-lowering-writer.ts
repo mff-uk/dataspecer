@@ -132,6 +132,13 @@ async function writeCommonTemplates(
   });
   
   await writer.writeElementFull("xsl", "template")(async writer => {
+    await writer.writeLocalAttributeValue("match", "sp:uri");
+    await writer.writeElementFull("xsl", "value-of")(async writer => {
+      await writer.writeLocalAttributeValue("select", ".");
+    });
+  });
+  
+  await writer.writeElementFull("xsl", "template")(async writer => {
     await writer.writeLocalAttributeValue("match", "@xml:lang");
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
       await writer.writeLocalAttributeValue("select", ".");
@@ -304,14 +311,14 @@ async function writeProperty(
     await writer.writeElementFull("xsl", "apply-templates")(async writer => {
       await writer.writeLocalAttributeValue(
         "select",
-        `sp:binding[@name=${obj}]/*`
+        `sp:binding[@name=${obj}]/sp:literal`
       );
     });
   } else if (xmlMatchIsCodelist(match)) {
-    await writer.writeElementFull("xsl", "value-of")(async writer => {
+    await writer.writeElementFull("xsl", "apply-templates")(async writer => {
       await writer.writeLocalAttributeValue(
         "select",
-        `sp:binding[@name=${obj}]/*`
+        `sp:binding[@name=${obj}]/sp:uri`
       );
     });
   } else if (xmlMatchIsClass(match)) {
