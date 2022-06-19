@@ -77,17 +77,17 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("elements", "*");
   });
   
-  await writer.writeElementFull("xsl", "variable")(async writer => {
+  await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "subj");
     await writer.writeLocalAttributeValue("select", "'s'");
   });
   
-  await writer.writeElementFull("xsl", "variable")(async writer => {
+  await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "pred");
     await writer.writeLocalAttributeValue("select", "'p'");
   });
   
-  await writer.writeElementFull("xsl", "variable")(async writer => {
+  await writer.writeElementFull("xsl", "param")(async writer => {
     await writer.writeLocalAttributeValue("name", "obj");
     await writer.writeLocalAttributeValue("select", "'o'");
   });
