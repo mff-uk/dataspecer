@@ -99,6 +99,19 @@ async function writeSettings(
       "'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'"
     );
   });
+  
+  await writer.writeElementFull("xsl", "function")(async writer => {
+    const name = writer.getQName(commonXmlPrefix, "id-key");
+    await writer.writeLocalAttributeValue("name", name);
+    await writer.writeElementFull("xsl", "param")(async writer => {
+      await writer.writeLocalAttributeValue("name", "node");
+    });
+    await writer.writeElementFull("xsl", "value-of")(async writer => {
+      const expression = "concat(namespace-uri($node),'|'," +
+      "local-name($node),'|',string($node))";
+      await writer.writeLocalAttributeValue("select", expression);
+    });
+  });
 }
 
 async function writeTransformationEnd(writer: XmlWriter): Promise<void> {
@@ -194,9 +207,12 @@ async function writeTemplates(
   }
 }
 
-function elementIdTest(expression: string) {
-  return `concat(namespace-uri(${expression}), '|', ` +
-    `local-name(${expression}), '|', string(${expression}))`;
+function elementIdTest(
+  expression: string,
+  writer: XmlWriter
+) {
+  const name = writer.getQName(commonXmlPrefix, "id-key");
+  return `${name}(${expression})`;
 }
 
 async function writeTemplateContents(
@@ -245,7 +261,7 @@ async function writeTemplateContents(
     await writer.writeElementFull("xsl", "value-of")(async writer => {
       await writer.writeLocalAttributeValue(
         "select",
-        elementIdTest("$id/*")
+        elementIdTest("$id/*", writer)
       );
     });
   });
@@ -264,7 +280,7 @@ async function writeTemplateMatch(
 
     const path =
       `//sp:result[sp:binding[@name=${subj}]/*[$id_test = ` +
-      elementIdTest("") +
+      elementIdTest(".", writer) +
       `] and sp:binding[@name=$pred]/sp:uri/text()="${match.propertyIri}"]`;
     
     await writer.writeLocalAttributeValue("select", path);
@@ -310,7 +326,7 @@ async function writeProperty(
         for (const template of match.targetTemplates) {
           const condition =
             `//sp:result[sp:binding[@name=$subj]/*[$id_test = ` +
-            elementIdTest(`current()/sp:binding[@name=${obj}]/*`) +
+            elementIdTest(`current()/sp:binding[@name=${obj}]/*`, writer) +
             "] and sp:binding[@name=$pred]/sp:uri/text()=$type and " + 
             `sp:binding[@name=$obj]/sp:uri/text()="${template.typeIri}"]`;
           await writer.writeElementFull("xsl", "when")(async writer => {
