@@ -71,6 +71,7 @@ export class DefaultArtifactConfigurator {
       jsonSchema.publicUrl = this.baseURL + jsonSchema.outputPath;
       jsonSchema.generator = JSON_SCHEMA.Generator;
       jsonSchema.psm = psmSchemaIri;
+      jsonSchema.configuration = configuration.generatorOptions[JSON_SCHEMA.Generator] ?? null;
       currentSchemaArtefacts.push(jsonSchema);
 
       const xmlSchema = new DataSpecificationSchema();
@@ -79,6 +80,7 @@ export class DefaultArtifactConfigurator {
       xmlSchema.publicUrl = this.baseURL + xmlSchema.outputPath;
       xmlSchema.generator = XML_SCHEMA.Generator;
       xmlSchema.psm = psmSchemaIri;
+      xmlSchema.configuration = configuration.generatorOptions[XML_SCHEMA.Generator] ?? null;
       currentSchemaArtefacts.push(xmlSchema);
 
       const xsltLifting = new DataSpecificationSchema();
@@ -87,6 +89,7 @@ export class DefaultArtifactConfigurator {
       xsltLifting.publicUrl = this.baseURL + xsltLifting.outputPath;
       xsltLifting.generator = XSLT_LIFTING.Generator;
       xsltLifting.psm = psmSchemaIri;
+      xsltLifting.configuration = configuration.generatorOptions[XSLT_LIFTING.Generator] ?? null;
       currentSchemaArtefacts.push(xsltLifting);
 
       const xsltLowering = new DataSpecificationSchema();
@@ -95,6 +98,7 @@ export class DefaultArtifactConfigurator {
       xsltLowering.publicUrl = this.baseURL + xsltLowering.outputPath;
       xsltLowering.generator = XSLT_LOWERING.Generator;
       xsltLowering.psm = psmSchemaIri;
+      xsltLowering.configuration = configuration.generatorOptions[XSLT_LOWERING.Generator] ?? null;
       currentSchemaArtefacts.push(xsltLowering);
 
       const csvSchema = new DataSpecificationSchema();
@@ -112,6 +116,7 @@ export class DefaultArtifactConfigurator {
       sparqlSchema.publicUrl = this.baseURL + sparqlSchema.outputPath;
       sparqlSchema.generator = SPARQL.Generator;
       sparqlSchema.psm = psmSchemaIri;
+      sparqlSchema.configuration = configuration.generatorOptions[SPARQL.Generator] ?? null;
       currentSchemaArtefacts.push(sparqlSchema);
     }
 
