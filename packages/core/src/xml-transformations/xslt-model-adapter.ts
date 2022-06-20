@@ -2,10 +2,14 @@ import {
   StructureModelClass,
   StructureModelPrimitiveType,
   StructureModelProperty,
-  StructureModel,
   StructureModelType,
   StructureModelComplexType, StructureModelSchemaRoot,
 } from "../structure-model/model";
+
+import {
+  XmlStructureModel as StructureModel
+} from "../xml-structure-model/model/xml-structure-model";
+
 import {
   XmlTransformation,
   XmlTemplate,
@@ -46,7 +50,6 @@ class XsltAdapter {
   private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
-  private namespacePrefix: string;
   private rdfNamespaces: Record<string, string>;
   private rdfNamespacesIris: Record<string, string>;
   private rdfNamespaceCounter: number;
@@ -70,10 +73,12 @@ class XsltAdapter {
 
   public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
     return {
-      targetNamespace: null,
-      targetNamespacePrefix: null,
+      targetNamespace: this.model.namespace,
+      targetNamespacePrefix: this.model.namespacePrefix,
       rdfNamespaces: this.rdfNamespaces,
-      rootTemplates: roots.map(this.rootToTemplate, this),
+      rootTemplates: roots
+        .flatMap(root => root.classes)
+        .map(this.rootToTemplate, this),
       templates: this.model.getClasses().map(this.classToTemplate, this)
         .filter(template => template != null),
       includes: Object.values(this.includes),
@@ -139,11 +144,10 @@ class XsltAdapter {
     );
   }
 
-  rootToTemplate(root: StructureModelSchemaRoot): XmlRootTemplate {
-    const classData = root.classes[0];
+  rootToTemplate(classData: StructureModelClass): XmlRootTemplate {
     return {
       typeIri: classData.cimIri,
-      elementName: [this.namespacePrefix, classData.technicalLabel],
+      elementName: [this.model.namespacePrefix, classData.technicalLabel],
       targetTemplate: this.classTemplateName(classData),
     };
   }
@@ -175,12 +179,6 @@ class XsltAdapter {
     if (dataTypes.length === 0) {
       throw new Error(
         `Property ${propertyData.psmIri} has no specified types.`
-      );
-    }
-    if (dataTypes.length > 1) {
-      throw new Error(
-        `Multiple datatypes on a property ${propertyData.psmIri} are ` +
-        "not supported."
       );
     }
     // Enforce the same type (class or datatype)
@@ -249,7 +247,10 @@ class XsltAdapter {
         );
       }
       const interpretation = this.iriToQName(propertyData.cimIri);
-      const propertyName = [this.namespacePrefix, propertyData.technicalLabel];
+      const propertyName = [
+        this.model.namespacePrefix,
+        propertyData.technicalLabel
+      ];
       return typeConstructor.call(
         this, propertyData, interpretation, propertyName, dataTypes
       );
@@ -267,8 +268,15 @@ class XsltAdapter {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       isDematerialized: propertyData.dematerialize,
-      targetTemplate: this.classTemplateName(dataTypes[0].dataType),
+      targetTemplates: dataTypes.map(
+        type => ({
+          templateName: this.classTemplateName(type.dataType),
+          typeName: [this.model.namespacePrefix, type.dataType.technicalLabel],
+          typeIri: type.dataType.cimIri,
+        })
+      ),
     };
   }
 
@@ -278,10 +286,17 @@ class XsltAdapter {
     propertyName: QName,
     dataTypes: StructureModelPrimitiveType[]
   ): XmlLiteralMatch {
+    if (dataTypes.length > 1) {
+      throw new Error(
+        `Multiple datatypes on a property ${propertyData.psmIri} are ` +
+        "not supported."
+      );
+    }
     return {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       dataTypeIri: this.primitiveToIri(dataTypes[0])
     };
   }
@@ -296,6 +311,7 @@ class XsltAdapter {
       interpretation: interpretation,
       propertyIri: propertyData.cimIri,
       propertyName: propertyName,
+      isReverse: propertyData.isReverse,
       isCodelist: true,
     };
   }

@@ -43,6 +43,10 @@ export class SparqlOptionalPattern extends SparqlElement {
   optionalPattern: SparqlPattern;
 }
 
+export class SparqlUnionPattern extends SparqlElement {
+  unionPatterns: SparqlPattern[];
+}
+
 export function sparqlElementIsTriple(
   element: SparqlElement
 ): element is SparqlTriple {
@@ -53,6 +57,12 @@ export function sparqlElementIsOptional(
   element: SparqlElement
 ): element is SparqlOptionalPattern {
   return (element as SparqlOptionalPattern).optionalPattern !== undefined;
+}
+
+export function sparqlElementIsUnion(
+  element: SparqlElement
+): element is SparqlUnionPattern {
+  return (element as SparqlUnionPattern).unionPatterns !== undefined;
 }
 
 export abstract class SparqlNode {

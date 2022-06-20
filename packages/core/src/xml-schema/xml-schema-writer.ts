@@ -19,10 +19,11 @@ import {
   XmlSchemaComplexContainer,
   XmlSchemaAnnotated,
   XmlSchemaType,
+  xmlSchemaComplexTypeDefinitionIsExtension,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
-import { langStringName } from "../xml/xml-conventions";
+import { commonXmlNamespace, commonXmlPrefix, commonXmlSchema, langStringName } from "../xml/xml-conventions";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 
@@ -37,6 +38,14 @@ export async function writeXmlSchema(
   await writeGroups(model, writer);
   await writeElements(model, writer);
   await writeSchemaEnd(writer);
+}
+
+async function either<T>(value: T | Promise<T>): Promise<T> {
+  const promise = value as Promise<T>;
+  if (promise.then !== undefined) {
+    return await promise;
+  }
+  return value as T;
 }
 
 async function writeSchemaBegin(
@@ -64,15 +73,34 @@ async function writeSchemaBegin(
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
   
+  if (commonXmlNamespace != null) {
+    await writer.writeAndRegisterNamespaceDeclaration(
+      commonXmlPrefix,
+      commonXmlNamespace
+    );
+  }
+
+  const registered: Record<string, string> = {};
+  
   for (const importDeclaration of model.imports) {
+    const namespace = await importDeclaration.namespace;
+    const prefix = await importDeclaration.prefix;
     if (
-      importDeclaration.namespace != null &&
-      importDeclaration.prefix != null
+      namespace != null &&
+      prefix != null
     ) {
-      await writer.writeAndRegisterNamespaceDeclaration(
-        importDeclaration.prefix,
-        importDeclaration.namespace
-      );
+      if (registered[prefix] == null) {
+        await writer.writeAndRegisterNamespaceDeclaration(
+          prefix,
+          namespace
+        );
+        registered[prefix] = namespace;
+      } else if (registered[prefix] !== namespace) {
+        throw new Error(
+          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `different namespaces, "${registered[prefix]}" and "${namespace}".`
+        );
+      }
     }
   }
   
@@ -101,7 +129,44 @@ async function writeImportsAndDefinitions(
         "http://www.w3.org/2001/xml.xsd"
       );
     });
+  }
+  
+  if (commonXmlNamespace != null) {
+    await writer.writeElementFull("xs", "import")(async writer => {
+      await writer.writeLocalAttributeValue(
+        "namespace",
+        commonXmlNamespace
+      );
+      await writer.writeLocalAttributeValue(
+        "schemaLocation",
+        commonXmlSchema
+      );
+    });
+  }
 
+  for (const importDeclaration of model.imports) {
+    const namespace = await either(importDeclaration.namespace);
+    if (namespace != null) {
+      await writer.writeElementBegin("xs", "import");
+      await writer.writeLocalAttributeValue(
+        "namespace",
+        namespace
+      );
+    } else {
+      await writer.writeElementBegin("xs", "include");
+    }
+    await writer.writeLocalAttributeValue(
+      "schemaLocation",
+      importDeclaration.schemaLocation
+    );
+    if (namespace != null) {
+      await writer.writeElementEnd("xs", "import");
+    } else {
+      await writer.writeElementEnd("xs", "include");
+    }
+  }
+  
+  if (model.defineLangString) {
     await writer.writeElementFull("xs", "complexType")(async writer => {
       await writer.writeLocalAttributeValue(
         "name",
@@ -123,26 +188,6 @@ async function writeImportsAndDefinitions(
         });
       });
     });
-  }
-  for (const importDeclaration of model.imports) {
-    if (importDeclaration.namespace != null) {
-      await writer.writeElementBegin("xs", "import");
-    } else {
-      await writer.writeElementBegin("xs", "include");
-      await writer.writeLocalAttributeValue(
-        "namespace",
-        importDeclaration.namespace
-      );
-    }
-    await writer.writeLocalAttributeValue(
-      "schemaLocation",
-      importDeclaration.schemaLocation
-    );
-    if (importDeclaration.namespace != null) {
-      await writer.writeElementEnd("xs", "import");
-    } else {
-      await writer.writeElementEnd("xs", "include");
-    }
   }
 }
 
@@ -236,14 +281,15 @@ async function writeElement(
 ): Promise<void> {
   await writer.writeElementFull("xs", "element")(async writer => {
     await writeAttributesForComplexContent(parentContent, writer);
+    const name = await either(element.elementName);
     if (element.type == null) {
       await writer.writeLocalAttributeValue(
         "ref",
-        writer.getQName(...element.elementName)
+        writer.getQName(...name)
       );
       await writeAnnotation(element, writer);
     } else {
-      await writer.writeLocalAttributeValue("name", element.elementName[1]);
+      await writer.writeLocalAttributeValue("name", name[1]);
       const type = element.type;
       if (type.name != null) {
         await writer.writeLocalAttributeValue(
@@ -292,8 +338,17 @@ async function writeComplexType(
     if (type.mixed) {
       await writer.writeLocalAttributeValue("mixed", "true");
     }
+    if (type.abstract) {
+      await writer.writeLocalAttributeValue("abstract", "true");
+    }
     await writeTypeAttributes(type, writer);
-    await writeComplexContent(definition, null, writer);
+    if (xmlSchemaComplexTypeDefinitionIsExtension(definition)) {
+      await writer.writeElementFull("xs", "complexContent")(async writer => {
+        await writeComplexContent(definition, null, writer);
+      });
+    } else {
+      await writeComplexContent(definition, null, writer);
+    }
   });
 }
 
@@ -353,14 +408,18 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroup(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref",
-        writer.getQName(...definition.name)
+        "ref", writer.getQName(...await either(definition.name))
       );
     } else if (
       xmlSchemaComplexTypeDefinitionIsSequence(definition) ||
       xmlSchemaComplexTypeDefinitionIsChoice(definition) ||
       xmlSchemaComplexTypeDefinitionIsAll(definition)
     ) {
+      await writeComplexContainer(definition, writer);
+    } else if (xmlSchemaComplexTypeDefinitionIsExtension(definition)) {
+      await writer.writeLocalAttributeValue(
+        "base", writer.getQName(...definition.base)
+      );
       await writeComplexContainer(definition, writer);
     } else {
       await writeUnrecognizedObject(definition, writer);

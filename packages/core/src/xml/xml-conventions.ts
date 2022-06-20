@@ -10,6 +10,30 @@ export const langStringName: QName = [null, "langString"];
  
 import { OFN, XSD } from "../well-known";
 
+/**
+ * Namespace IRI containing common XML elements, such as {@link iriElementName}.
+ */
+export const commonXmlNamespace =
+  "urn:uuid:c01e3ea5-474d-4ffa-81b8-a38485a8f64f";
+
+/**
+ * Namespace prefix for {@link commonXmlNamespace}.
+ */
+export const commonXmlPrefix = "c";
+
+/**
+ * Schema location URL for {@link commonXmlNamespace}.
+ */
+export const commonXmlSchema =
+  "data:application/xml,%3Cxs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"+
+  ` elementFormDefault='qualified' targetNamespace='${commonXmlNamespace}'%3E` +
+  "%3Cxs:element name='iri' type='xs:anyURI'/%3E%3C/xs:schema%3E";
+
+/**
+ * Name of the element containing the IRI of an instance.
+ */
+export const iriElementName: QName = [commonXmlPrefix, "iri"];
+
  /**
  * Map from datatype URIs to QNames.
  */
@@ -45,7 +69,7 @@ export const simpleTypeMapIri: Record<string, string> = {
 export function namespaceFromIri(
   iri: string
 ): [namespaceIri: string, localName: string] | null {
-  const match = iri.match(/^(.*?)([_\p{L}][-_\p{L}\p{N}]+)$/u);
+  const match = iri.match(/^(.+?)([_\p{L}][-_\p{L}\p{N}]*)$/u);
   if (match == null) {
     return null;
   }

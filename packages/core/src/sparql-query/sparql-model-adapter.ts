@@ -13,6 +13,7 @@ import {
   SparqlQNameNode,
   SparqlQuery,
   SparqlTriple,
+  SparqlUnionPattern,
   SparqlUriNode,
   SparqlVariableNode,
 } from "./sparql-model";
@@ -39,7 +40,7 @@ export function structureModelToSparql(
   model: StructureModel
 ): SparqlQuery {
   const adapter = new SparqlAdapter(specifications, specification, model);
-  return adapter.fromRoots(model.roots);
+  return adapter.fromRoots(model.roots.flatMap(root => root.classes));
 }
 
 const anyUriType: StructureModelPrimitiveType = (function () {
@@ -73,14 +74,22 @@ class SparqlAdapter {
     this.namespaceCounter = 0;
   }
 
-  public fromRoots(roots: StructureModelSchemaRoot[]): SparqlQuery {
-    const rootClass = roots[0].classes[0];
+  public fromRoots(classes: StructureModelClass[]): SparqlQuery {
     const rootSubject = this.newVariable();
-    const elements = [];
-    this.classToTriples(rootSubject, rootClass, false, elements);
-    const pattern = {
-      elements: elements
-    } as SparqlPattern;
+    const patterns: SparqlPattern[] = [];
+    for (const cls of classes) {
+      const elements = [];
+      this.classToTriples(rootSubject, cls, false, elements);   
+      patterns.push({
+        elements: elements
+      });
+    }
+    const union: SparqlUnionPattern = {
+      unionPatterns: patterns
+    }
+    const pattern: SparqlPattern = {
+      elements: [union]
+    };
     return {
       prefixes: this.namespaces,
       construct: pattern,
@@ -146,7 +155,7 @@ class SparqlAdapter {
     elements: SparqlElement[]
   ) {
     if (propertyData.cardinalityMin === 0) {
-      const optionalElements = [];
+      const optionalElements: SparqlElement[] = [];
       const optional: SparqlOptionalPattern = {
         optionalPattern: {
           elements: optionalElements
@@ -157,16 +166,38 @@ class SparqlAdapter {
     }
 
     const obj = this.newVariable();
-    elements.push({
-      subject: subject,
-      predicate: this.nodeFromIri(propertyData.cimIri),
-      object: obj
-    } as SparqlTriple);
+    const pred = this.nodeFromIri(propertyData.cimIri);
+
+    if (propertyData.isReverse) {
+      elements.push({
+        subject: obj,
+        predicate: pred,
+        object: subject
+      } as SparqlTriple);
+    } else {
+      elements.push({
+        subject: subject,
+        predicate: pred,
+        object: obj
+      } as SparqlTriple);
+    }
+    
+    const optionalType = propertyData.dataTypes.length == 1;
+    const patterns: SparqlPattern[] = [];
+
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = type.dataType;
-        this.classToTriples(obj, classData, true, elements);
+        const patternElements: SparqlElement[] = [];
+        this.classToTriples(obj, classData, optionalType, patternElements);
+        patterns.push({
+          elements: patternElements
+        });
       }
     }
+
+    elements.push({
+      unionPatterns: patterns
+    } as SparqlUnionPattern);
   }
 }

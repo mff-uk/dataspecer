@@ -18,6 +18,10 @@ export interface XmlWriter extends XmlNamespaceMap {
     elementName: string,
     elementValue: string | null
   ): Promise<void>;
+  writeElementEmpty(
+    namespacePrefix: string | null,
+    elementName: string
+  ): Promise<void>;
   writeElementFull(
     namespacePrefix: string | null,
     elementName: string
@@ -170,6 +174,14 @@ export abstract class XmlIndentingTextWriter
         this.currentIndent + `<${qname}>${xmlEscape(elementValue)}</${qname}>`
       );
     }
+  }
+
+  async writeElementEmpty(
+    namespacePrefix: string | null,
+    elementName: string
+  ): Promise<void> {
+    await this.writeElementBegin(namespacePrefix, elementName);
+    await this.writeElementEnd(namespacePrefix, elementName);
   }
 
   writeElementFull(
