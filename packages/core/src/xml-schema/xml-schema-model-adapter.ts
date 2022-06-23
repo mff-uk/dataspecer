@@ -74,8 +74,8 @@ export class XmlSchemaAdapterOptions {
   static getFromConfiguration(configuration: Partial<XmlSchemaAdapterOptions>): XmlSchemaAdapterOptions {
     const options = new XmlSchemaAdapterOptions();
     if (configuration?.rootClass) {
-      options.rootClass.extractType = !!configuration?.rootClass?.extractType ?? true;
-      options.rootClass.extractGroup = !!configuration?.rootClass?.extractGroup ?? false;
+      options.rootClass.extractType = !!configuration?.rootClass?.extractType ?? false;
+      options.rootClass.extractGroup = !!configuration?.rootClass?.extractGroup ?? true;
     }
     if (configuration?.otherClasses) {
       options.otherClasses.extractType = !!configuration?.otherClasses?.extractType ?? false;
