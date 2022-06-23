@@ -19,6 +19,7 @@ import {
   XmlLiteralMatch,
   XmlTransformationInclude,
   XmlCodelistMatch,
+  XmlClassTargetTemplate,
 } from "./xslt-model";
 
 import {
@@ -146,7 +147,7 @@ class XsltAdapter {
 
   rootToTemplate(classData: StructureModelClass): XmlRootTemplate {
     return {
-      typeIri: classData.cimIri,
+      classIri: classData.cimIri,
       elementName: [this.model.namespacePrefix, classData.technicalLabel],
       targetTemplate: this.classTemplateName(classData),
     };
@@ -270,13 +271,17 @@ class XsltAdapter {
       propertyName: propertyName,
       isReverse: propertyData.isReverse,
       isDematerialized: propertyData.dematerialize,
-      targetTemplates: dataTypes.map(
-        type => ({
-          templateName: this.classTemplateName(type.dataType),
-          typeName: [this.model.namespacePrefix, type.dataType.technicalLabel],
-          typeIri: type.dataType.cimIri,
-        })
-      ),
+      targetTemplates: dataTypes.map(this.classTargetTypeTemplate, this),
+    };
+  }
+
+  classTargetTypeTemplate(
+    type: StructureModelComplexType
+  ): XmlClassTargetTemplate {
+    return {
+      templateName: this.classTemplateName(type.dataType),
+      typeName: [this.model.namespacePrefix, type.dataType.technicalLabel],
+      classIri: type.dataType.cimIri,
     };
   }
 

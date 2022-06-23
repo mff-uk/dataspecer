@@ -177,7 +177,7 @@ async function writeRootTemplate(
   await writer.writeElementFull("xsl", "template")(async writer => {
     const match =
       "sp:result[sp:binding[@name=$pred]/sp:uri/text()=$type and " +
-      `sp:binding[@name=$obj]/sp:uri/text()="${rootTemplate.typeIri}"]`;
+      `sp:binding[@name=$obj]/sp:uri/text()="${rootTemplate.classIri}"]`;
     await writer.writeLocalAttributeValue("match", match);
     await writer.writeElementFull(...rootTemplate.elementName)(async writer => {
       await writer.writeElementFull("xsl", "call-template")(async writer => {
@@ -335,7 +335,7 @@ async function writeProperty(
             `//sp:result[sp:binding[@name=$subj]/*[$id_test = ` +
             elementIdTest(`current()/sp:binding[@name=${obj}]/*`, writer) +
             "] and sp:binding[@name=$pred]/sp:uri/text()=$type and " + 
-            `sp:binding[@name=$obj]/sp:uri/text()="${template.typeIri}"]`;
+            `sp:binding[@name=$obj]/sp:uri/text()="${template.classIri}"]`;
           await writer.writeElementFull("xsl", "when")(async writer => {
             await writer.writeLocalAttributeValue("test", condition);
             await writeTemplateCall(
