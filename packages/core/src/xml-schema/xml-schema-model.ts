@@ -42,7 +42,7 @@ export class XmlSchemaAnnotation {
  */
 export class XmlSchemaGroupDefinition {
   name: string | null;
-  contents: XmlSchemaComplexContent[];
+  definition: XmlSchemaComplexItem;
 }
 
 /**

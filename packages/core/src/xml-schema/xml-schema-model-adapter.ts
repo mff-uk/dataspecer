@@ -138,7 +138,6 @@ class XmlSchemaAdapter {
     const elements = roots
       .flatMap(root => root.classes)
       .map(this.classToElement, this)
-      .map(this.extractGroupFromRoot, this)
       .map(this.extractTypeFromRoot, this);
     return {
       targetNamespace: this.model.namespace,
@@ -149,44 +148,6 @@ class XmlSchemaAdapter {
       groups: Object.values(this.groups),
       types: Object.values(this.types),
     };
-  }
-
-  extractGroupFromRoot(
-    element: XmlSchemaElement
-  ): XmlSchemaElement {
-    if (
-      this.options.rootClass.extractGroup &&
-      xmlSchemaTypeIsComplex(element.type)
-    ) {
-      const groupName = element.elementName[1];
-      this.groups[groupName] = {
-        name: groupName,
-        contents: [
-          {
-            item: element.type.complexDefinition,
-            cardinalityMin: 1,
-            cardinalityMax: 1,
-          } as XmlSchemaComplexContentItem,
-        ],
-      };
-
-      return {
-        elementName: element.elementName,
-        type: {
-          name: element.type.name,
-          annotation: element.type.annotation,
-          mixed: false,
-          abstract: false,
-          complexDefinition: {
-            xsType: "group",
-            name: [this.model.namespacePrefix, groupName],
-            contents: [],
-          } as XmlSchemaComplexGroup,
-        } as XmlSchemaComplexType,
-        annotation: element.annotation,
-      };
-    }
-    return element;
   }
 
   extractTypeFromRoot(
@@ -318,7 +279,10 @@ class XmlSchemaAdapter {
       elementName: this.resolveImportedElementName(classData),
       type: {
         name: null,
-        complexDefinition: this.classToComplexType(classData),
+        complexDefinition: this.classToComplexType(
+          classData,
+          this.options.rootClass.extractGroup
+        ),
         annotation: this.getAnnotation(classData),
       } as XmlSchemaComplexType,
       annotation: null,
@@ -327,37 +291,65 @@ class XmlSchemaAdapter {
 
   classToComplexType(
     classData: StructureModelClass,
-    extractGroup?: boolean,
+    extractGroup: boolean,
     skipIri?: boolean
   ): XmlSchemaComplexItem {
     if (this.classIsImported(classData)) {
-      return {
+      const name = this.resolveImportedElementName(classData);
+      const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
-        name: this.resolveImportedElementName(classData),
-      } as XmlSchemaComplexGroup;
+        name: name,
+      };
+      if (skipIri) {
+        return groupRef;
+      } else {
+        return this.getIriSequence(groupRef);
+      }
     }
     const contents = classData.properties.map(
       this.propertyToComplexContent, this
     );
-    if (!skipIri) contents.splice(0, 0, iriProperty);
-    if (extractGroup && this.options.otherClasses.extractGroup) {
+    const contentsSequence: XmlSchemaComplexSequence = {
+      xsType: "sequence",
+      contents: contents,
+    };
+    if (extractGroup) {
       const groupName = classData.technicalLabel;
 
       this.groups[groupName] = {
         name: groupName,
-        contents: contents,
+        definition: contentsSequence,
       };
 
-      return {
+      const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: [this.model.namespacePrefix, groupName],
-        contents: [],
-      } as XmlSchemaComplexGroup;
+      };
+      if (skipIri) {
+        return groupRef;
+      } else {
+        return this.getIriSequence(groupRef);
+      }
     }
+    if (!skipIri) {
+      contents.splice(0, 0, iriProperty);
+    }
+    return contentsSequence;
+  }
+
+  getIriSequence(item: XmlSchemaComplexItem): XmlSchemaComplexSequence {
+    const content: XmlSchemaComplexContentItem = {
+      cardinalityMax: 1,
+      cardinalityMin: 1,
+      item: item
+    };
     return {
       xsType: "sequence",
-      contents: contents,
-    } as XmlSchemaComplexSequence;
+      contents: [
+        iriProperty,
+        content
+      ],
+    };
   }
 
   propertyToComplexContent(
@@ -489,7 +481,9 @@ class XmlSchemaAdapter {
       const typeClass = dataTypes[0].dataType;
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
-      const classItem = this.classToComplexType(typeClass, true, skipIri);
+      const classItem = this.classToComplexType(
+        typeClass, this.options.otherClasses.extractGroup, skipIri
+      );
       return [classItem, name, false];
     }
     const classes = new Set<string>();
@@ -549,7 +543,9 @@ class XmlSchemaAdapter {
       const classData = roots[0];
       return [
         classData,
-        this.classToComplexType(classData, true),
+        this.classToComplexType(
+          classData, this.options.otherClasses.extractGroup
+        ),
         classData.technicalLabel
       ];
     }

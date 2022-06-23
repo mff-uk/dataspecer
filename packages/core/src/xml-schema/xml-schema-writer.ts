@@ -230,15 +230,7 @@ async function writeGroup(
 ): Promise<void> {
   await writer.writeElementFull("xs", "group")(async writer => {
     await writer.writeLocalAttributeValue("name", group.name);
-    for (const content of group.contents) {
-      if (xmlSchemaComplexContentIsElement(content)) {
-        await writeElement(content.element, content, writer);
-      } else if (xmlSchemaComplexContentIsItem(content)) {
-        await writeComplexContent(content.item, content, writer);
-      } else {
-        await writeUnrecognizedObject(content, writer);
-      }
-    }
+    await writeComplexContent(group.definition, null, writer);
   });
 }
 
