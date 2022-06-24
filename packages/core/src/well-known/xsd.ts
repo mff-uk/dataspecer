@@ -1,4 +1,4 @@
-const XSD_PREFIX = "http://www.w3.org/2001/XMLSchema#";
+export const XSD_PREFIX = "http://www.w3.org/2001/XMLSchema#";
 
 export const XSD = {
   string: XSD_PREFIX + "string",
