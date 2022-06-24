@@ -3,7 +3,8 @@ import {
   StructureModelPrimitiveType,
   StructureModelProperty,
   StructureModelType,
-  StructureModelComplexType, StructureModelSchemaRoot,
+  StructureModelComplexType,
+  StructureModelSchemaRoot,
 } from "../structure-model/model";
 
 import {
@@ -26,7 +27,6 @@ import {
   XmlSchemaGroupDefinition,
   XmlSchemaAnnotation,
   XmlSchemaComplexSequence,
-  XmlSchemaComplexChoice,
   XmlSchemaComplexExtension,
 } from "./xml-schema-model";
 
@@ -36,14 +36,17 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { XSD } from "../well-known";
+import { XSD, XSD_PREFIX } from "../well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
-import { commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
+import { iriElementName, langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
 import { pathRelative } from "../core/utilities/path-relative";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { ArtefactGeneratorContext } from "../generator";
 
+/**
+ * Converts a {@link StructureModel} to an {@link XmlSchema}.
+ */
 export function structureModelToXmlSchema(
   context: ArtefactGeneratorContext,
   specification: DataSpecification,
@@ -57,6 +60,10 @@ export function structureModelToXmlSchema(
   return adapter.fromRoots(model.roots);
 }
 
+/**
+ * Options controlling the extraction of types and groups, i.e. whether to
+ * define and use them via a name, or to use them inline when needed.
+ */
 class ExtractOptions {
   extractType: boolean;
   extractGroup: boolean;
@@ -85,14 +92,18 @@ export class XmlSchemaAdapterOptions {
   }
 }
 
+/**
+ * This type shall be used inside a codelist type in a property.
+ */
 const anyUriType: StructureModelPrimitiveType = (function () {
   const type = new StructureModelPrimitiveType();
   type.dataType = XSD.anyURI;
   return type;
 })();
 
-const xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
-
+/**
+ * The &lt;iri&gt; property defined at the beginning of every element.
+ */
 const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
   cardinalityMax: 1,
@@ -107,7 +118,6 @@ class XmlSchemaAdapter {
   private usesLangString: boolean;
   private context: ArtefactGeneratorContext;
   private specifications: { [iri: string]: DataSpecification };
-  private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private options: XmlSchemaAdapterOptions;
@@ -121,7 +131,6 @@ class XmlSchemaAdapter {
   ) {
     this.context = context;
     this.specifications = context.specifications;
-    this.specification = specification;
     this.artifact = artifact;
     this.model = model;
     this.options = options;
@@ -150,6 +159,9 @@ class XmlSchemaAdapter {
     };
   }
 
+  /**
+   * If allowed, registers the type of the root element and uses it by name.
+   */
   extractTypeFromRoot(
     element: XmlSchemaElement
   ): XmlSchemaElement {
@@ -192,27 +204,39 @@ class XmlSchemaAdapter {
     return null;
   }
 
+  /**
+   * Returns true if a class is from a different schema.
+   */
   classIsImported(
     classData: StructureModelClass
   ): boolean {
     return this.model.psmIri !== classData.structureSchema;
   }
 
+  /**
+   * Returns the path of the current artifact.
+   */
   currentPath(): string {
     return this.artifact.publicUrl;
   }
 
-  resolveImportedElementName(
+  /**
+   * Returns the {@link QName} of a class, potentially asynchronously if the
+   * class is imported from a different schema, in order to load the prefix.
+   */
+  resolveImportedClassName(
     classData: StructureModelClass
   ): QName | Promise<QName> {
-    if (this.model.psmIri !== classData.structureSchema) {
+    if (this.classIsImported(classData)) {
       const importDeclaration = this.imports[classData.specification];
       if (importDeclaration != null) {
+        // Already imported; construct it using the prefix.
         return this.getQName(importDeclaration.prefix, classData.technicalLabel);
       }
       const artefact = this.findArtefactForImport(classData);
       if (artefact != null) {
         const model = this.getImportedModel(classData.structureSchema);
+        // Register the import of the schema.
         const imported = this.imports[classData.specification] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
@@ -224,6 +248,10 @@ class XmlSchemaAdapter {
     return [null, classData.technicalLabel];
   }
 
+  /**
+   * Helper function to construct a {@link QName} from an asynchronously
+   * obtained prefix.
+   */
   async getQName(
     prefix: Promise<string>,
     name: string
@@ -231,6 +259,25 @@ class XmlSchemaAdapter {
     return [await prefix, name];
   }
 
+  /**
+   * Helper function to obtain the namespace IRI of an asynchronously
+   * obtained structure model.
+   */
+  async getModelNamespace(model: Promise<StructureModel>) {
+    return (await model)?.namespace;
+  }
+
+  /**
+   * Helper function to obtain the namespace prefix of an asynchronously
+   * obtained structure model.
+   */
+  async getModelPrefix(model: Promise<StructureModel>) {
+    return (await model)?.namespacePrefix;
+  }
+
+  /**
+   * Returns the structure model from an imported schema.
+   */
   async getImportedModel(
     iri: string
   ): Promise<StructureModel> {
@@ -243,14 +290,10 @@ class XmlSchemaAdapter {
     return null;
   }
 
-  async getModelNamespace(model: Promise<StructureModel>) {
-    return (await model)?.namespace;
-  }
-
-  async getModelPrefix(model: Promise<StructureModel>) {
-    return (await model)?.namespacePrefix;
-  }
-
+  /**
+   * Produces an {@link XmlSchemaAnnotation} from a class or property,
+   * storing its interpretation, name, and description.
+   */
   getAnnotation(
     data: StructureModelClass | StructureModelProperty
   ): XmlSchemaAnnotation {
@@ -274,14 +317,17 @@ class XmlSchemaAdapter {
     }
   }
 
+  /**
+   * Produces an element description from a structure model class.
+   */
   classToElement(classData: StructureModelClass): XmlSchemaElement {
     return {
-      elementName: this.resolveImportedElementName(classData),
+      elementName: this.resolveImportedClassName(classData),
       type: {
         name: null,
         complexDefinition: this.classToComplexType(
           classData,
-          this.options.rootClass.extractGroup
+          this.options.rootClass
         ),
         annotation: this.getAnnotation(classData),
       } as XmlSchemaComplexType,
@@ -289,13 +335,20 @@ class XmlSchemaAdapter {
     };
   }
 
+  /**
+   * Produces a complex type from a structure model class.
+   * @param classData The class from the structure model.
+   * @param extractOptions The extraction options for this class.
+   * @param skipIri True whether to omit &lt;iri&gt; in the result.
+   */
   classToComplexType(
     classData: StructureModelClass,
-    extractGroup: boolean,
+    extractOptions: ExtractOptions,
     skipIri?: boolean
   ): XmlSchemaComplexItem {
     if (this.classIsImported(classData)) {
-      const name = this.resolveImportedElementName(classData);
+      // For an imported type, construct a reference to its group.
+      const name = this.resolveImportedClassName(classData);
       const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: name,
@@ -313,7 +366,8 @@ class XmlSchemaAdapter {
       xsType: "sequence",
       contents: contents,
     };
-    if (extractGroup) {
+    if (extractOptions.extractGroup) {
+      // If extraction is enabled, define the group and return its reference.
       const groupName = classData.technicalLabel;
 
       this.groups[groupName] = {
@@ -337,6 +391,9 @@ class XmlSchemaAdapter {
     return contentsSequence;
   }
 
+  /**
+   * Constructs the sequence of {@link iriProperty} and another item.
+   */
   getIriSequence(item: XmlSchemaComplexItem): XmlSchemaComplexSequence {
     const content: XmlSchemaComplexContentItem = {
       cardinalityMax: 1,
@@ -352,6 +409,9 @@ class XmlSchemaAdapter {
     };
   }
 
+  /**
+   * Produces a complex content item from a property.
+   */
   propertyToComplexContent(
     propertyData: StructureModelProperty
   ): XmlSchemaComplexContent {
@@ -363,11 +423,13 @@ class XmlSchemaAdapter {
     if (propertyData.dematerialize) {
       const type = elementContent.element.type;
       if (xmlSchemaTypeIsComplex(type)) {
-        return {
+        // A dematerialized property item is its type definition.
+        const item: XmlSchemaComplexContentItem = {
           cardinalityMin: elementContent.cardinalityMin,
           cardinalityMax: elementContent.cardinalityMax,
           item: type.complexDefinition,
-        } as XmlSchemaComplexContentItem;
+        };
+        return item;
       } else {
         throw new Error(
           `Property ${propertyData.psmIri} must be of a class type ` +
@@ -378,6 +440,9 @@ class XmlSchemaAdapter {
     return elementContent;
   }
 
+  /**
+   * Produces an element definition from a property.
+   */
   propertyToElement(propertyData: StructureModelProperty): XmlSchemaElement {
     let dataTypes = propertyData.dataTypes;
     if (dataTypes.length === 0) {
@@ -411,6 +476,9 @@ class XmlSchemaAdapter {
     return result;
   }
 
+  /**
+   * Replaces a codelist datatype with {@link anyUriType}.
+   */
   replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
     if (
       dataType.isAssociation() &&
@@ -421,6 +489,15 @@ class XmlSchemaAdapter {
     return dataType;
   }
 
+  /**
+   * Calls {@link typeConstructor} if every type in {@link dataTypes}
+   * matches {@link rangeChecker}, and constructs an element from the property.
+   * @param propertyData The property in the structure model.
+   * @param dataTypes The datatypes used by the property.
+   * @param rangeChecker The type predicate.
+   * @param typeConstructor The function constructing the type.
+   * @returns The element with the type created by {@link typeConstructor}.
+   */
   propertyToElementCheckType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelType[],
@@ -440,6 +517,9 @@ class XmlSchemaAdapter {
     return null;
   }
 
+  /**
+   * Creates a complex type from a class property.
+   */
   classPropertyToType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
@@ -448,13 +528,15 @@ class XmlSchemaAdapter {
       propertyData, dataTypes
     );
     if (name != null) {
-      this.types[name] = {
+      // The type has a name; define it and use its name.
+      const complexType: XmlSchemaComplexType = {
         name: [null, name],
         mixed: false,
         abstract: abstract,
         annotation: null,
         complexDefinition: definition
-      } as XmlSchemaComplexType;
+      };
+      this.types[name] = complexType;
       return {
         name: [this.model.namespacePrefix, name],
         mixed: false,
@@ -472,20 +554,26 @@ class XmlSchemaAdapter {
     };
   }
 
+  /**
+   * Produces a complex type definition from a class property, and other
+   * information for its complex content item.
+   */
   classPropertyToComplexDefinition(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
-  ): [XmlSchemaComplexItem, string, boolean] {
+  ): [definition: XmlSchemaComplexItem, name: string, abstract: boolean] {
     const skipIri: boolean = propertyData.dematerialize;
     if (dataTypes.length === 1) {
       const typeClass = dataTypes[0].dataType;
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
       const classItem = this.classToComplexType(
-        typeClass, this.options.otherClasses.extractGroup, skipIri
+        typeClass, this.options.otherClasses, skipIri
       );
       return [classItem, name, false];
     }
+
+    // Find all classes which do not extend any class.
     const classes = new Set<string>();
     const roots: StructureModelClass[] = [];
     for (const type of dataTypes) {
@@ -497,6 +585,8 @@ class XmlSchemaAdapter {
         throw new Error(`Multiple inheritance is not supported (class ${classData.technicalLabel}).`);
       }
     }
+
+    // Check that no outside class is extended from.
     for (const type of dataTypes) {
       const classData = type.dataType;
       if (classData.extends.length > 0) {
@@ -506,45 +596,63 @@ class XmlSchemaAdapter {
       }
     }
 
+    // Select the root class, or create a new one.
     const [rootClass, root, rootName] = this.pickChoiceRoot(roots);
 
     for (const type of dataTypes) {
       const classData = type.dataType;
       if (classData !== rootClass) {
-        const definition = this.classToComplexType(classData, false, true);
+        const definition = this.classToComplexType(
+          classData, this.options.otherClasses, true
+        );
+        // Extend from the base class or root.
         const baseName = classData.extends[0]?.technicalLabel ?? rootName;
-        this.types[classData.technicalLabel] = {
+        const contentItem: XmlSchemaComplexContentItem = {
+          item: definition,
+          cardinalityMax: 1,
+          cardinalityMin: 1
+        };
+        const extension: XmlSchemaComplexExtension = {
+          xsType: "extension",
+          base: [this.model.namespacePrefix, baseName],
+          contents: [
+            contentItem
+          ]
+        };
+        const complexType: XmlSchemaComplexType = {
           name: [null, classData.technicalLabel],
           mixed: false,
           abstract: false,
           annotation: null,
-          complexDefinition: {
-            xsType: "extension",
-            base: [this.model.namespacePrefix, baseName],
-            contents: [
-              {
-                item: definition,
-                cardinalityMax: 1,
-                cardinalityMin: 1
-              } as XmlSchemaComplexContentItem
-            ]
-          } as XmlSchemaComplexExtension
-        } as XmlSchemaComplexType;
+          complexDefinition: extension
+        };
+        this.types[classData.technicalLabel] = complexType;
       }
     }
     
     return [root, rootName, rootClass === null];
   }
 
+  /**
+   * Select the single class from the list of root classes and create its
+   * complex item, or construct a new complex item from them all.
+   * @param roots The array of base root classes.
+   * @returns A tuple of the single selected class or null, the created
+   * complex item, and the name of the root type, if newly created.
+   */
   pickChoiceRoot(
     roots: StructureModelClass[]
-  ): [StructureModelClass | null, XmlSchemaComplexItem, string] {
+  ): [
+    rootClass: StructureModelClass | null,
+    root: XmlSchemaComplexItem,
+    rootName: string
+  ] {
     if (roots.length == 1) {
       const classData = roots[0];
       return [
         classData,
         this.classToComplexType(
-          classData, this.options.otherClasses.extractGroup
+          classData, this.options.otherClasses
         ),
         classData.technicalLabel
       ];
@@ -558,6 +666,9 @@ class XmlSchemaAdapter {
     } as XmlSchemaComplexSequence, name];
   }
 
+  /**
+   * Creates a simple type from a datatype property.
+   */
   datatypePropertyToType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelPrimitiveType[]
@@ -568,24 +679,33 @@ class XmlSchemaAdapter {
         annotation: null,
       };
     }
-    return {
+    // Use the union of all the datatypes.
+    const simpleType: XmlSchemaSimpleType = {
       name: null,
       annotation: null,
       simpleDefinition: {
         xsType: "union",
         contents: dataTypes.map(this.primitiveToQName, this),
       },
-    } as XmlSchemaSimpleType;
+    };
+    return simpleType;
   }
 
+  /**
+   * Obtains the {@link QName} corresponding to a primitive type.
+   */
   primitiveToQName(primitiveData: StructureModelPrimitiveType): QName {
     if (primitiveData.dataType == null) {
+      // No type defined.
       return ["xs", "anySimpleType"];
     }
-    const type: QName = primitiveData.dataType.startsWith(xsdNamespace)
-      ? ["xs", primitiveData.dataType.substring(xsdNamespace.length)]
+    const type: QName = primitiveData.dataType.startsWith(XSD_PREFIX)
+      // Type inside XSD is used.
+      ? ["xs", primitiveData.dataType.substring(XSD_PREFIX.length)]
+      // An interally mapped type (from OFN) is used, if defined.
       : simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
+      // Defined langString if it is used.
       this.usesLangString = true;
       if (type[0] == null) {
         return [this.model.namespacePrefix, type[1]];

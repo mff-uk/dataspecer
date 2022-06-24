@@ -12,12 +12,13 @@ import {
   SparqlQuery, sparqlQueryIsConstruct, sparqlQueryIsSelect, SparqlTriple,
 } from "./sparql-model";
 
-import { SPARQL } from "./sparql-vocabulary";
-
 const indentStep = "  ";
 
 import { RDF_TYPE_URI } from "./sparql-model-adapter"
 
+/**
+ * Writes a full SPARQL query to a stream.
+ */
 export async function writeSparqlQuery(
   model: SparqlQuery,
   stream: OutputStream
@@ -34,6 +35,9 @@ async function writeLine(text: string, stream: OutputStream): Promise<void> {
   await stream.write("\n");
 }
 
+/**
+ * Writes the namespace prefixes.
+ */
 async function writePrefixes(
   prefixes: Record<string, string>, stream: OutputStream
 ) {
@@ -42,6 +46,9 @@ async function writePrefixes(
   }
 }
 
+/**
+ * Writes the projection part of a query, i.e. the SELECT or CONSTRUCT clause. 
+ */
 async function writeQueryProjection(
   model: SparqlQuery,
   stream: OutputStream
@@ -60,6 +67,13 @@ async function writeQueryProjection(
   }
 }
 
+/**
+ * Writes a graph pattern.
+ * @param pattern The pattern to write.
+ * @param onlyTriples Write only RDF triples (used inside CONSTRUCT).
+ * @param indent The identation line prefix.
+ * @param stream The output stream.
+ */
 async function writePattern(
   pattern: SparqlPattern,
   onlyTriples: boolean,
@@ -83,6 +97,7 @@ async function writePattern(
       }
     } else if (sparqlElementIsUnion(element)) {
       if (onlyTriples || element.unionPatterns.length <= 1) {
+        // Do not write UNION for just one pattern.
         for (const pattern of element.unionPatterns) {
           await writePattern(
             pattern, onlyTriples, indent, stream
@@ -103,6 +118,9 @@ async function writePattern(
   }
 }
 
+/**
+ * Writes out a triple.
+ */
 async function writeTriple(
   triple: SparqlTriple, indent: string, stream: OutputStream
 ): Promise<void> {
@@ -115,6 +133,12 @@ async function writeTriple(
   await writeLine(" .", stream);
 }
 
+/**
+ * Writes out a SPARQL node.
+ * @param node The node to write.
+ * @param stream The output stream.
+ * @param isPredicate True if inside a predicate (shorten rdf:type to a).
+ */
 async function writeNode(
   node: SparqlNode, stream: OutputStream, isPredicate: boolean
 ): Promise<void> {

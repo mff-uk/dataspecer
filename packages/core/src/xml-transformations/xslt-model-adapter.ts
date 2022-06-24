@@ -3,7 +3,8 @@ import {
   StructureModelPrimitiveType,
   StructureModelProperty,
   StructureModelType,
-  StructureModelComplexType, StructureModelSchemaRoot,
+  StructureModelComplexType,
+  StructureModelSchemaRoot,
 } from "../structure-model/model";
 
 import {
@@ -28,11 +29,14 @@ import {
   DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { OFN, XSD } from "../well-known";
+import { OFN } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
 import { pathRelative } from "../core/utilities/path-relative";
 
+/**
+ * Converts a {@link StructureModel} to an {@link XmlTransformation}.
+ */
 export function structureModelToXslt(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
@@ -45,10 +49,8 @@ export function structureModelToXslt(
   return adapter.fromRoots(model.roots);
 }
 
-type ClassMap = Record<string, StructureModelClass>;
 class XsltAdapter {
   private specifications: { [iri: string]: DataSpecification };
-  private specification: DataSpecification;
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private rdfNamespaces: Record<string, string>;
@@ -63,7 +65,6 @@ class XsltAdapter {
     model: StructureModel
   ) {
     this.specifications = specifications;
-    this.specification = specification;
     this.artifact = artifact;
     this.model = model;
     this.rdfNamespaces = {};
@@ -109,10 +110,17 @@ class XsltAdapter {
     });
   }
 
+  /**
+   * Returns the path of the current artifact.
+   */
   currentPath(): string {
     return this.artifact.publicUrl;
   }
 
+  /**
+   * Returns true if the class is imported from a different schema,
+   * and registers its include if so.
+   */
   resolveImportedElement(
     classData: StructureModelClass
   ): boolean {
@@ -138,6 +146,10 @@ class XsltAdapter {
     return false;
   }
 
+  /**
+   * Escape characters to produce a valid NCName for a template from its
+   * class's PSM IRI.
+   */
   classTemplateName(classData: StructureModelClass) {
     return "_" + classData.psmIri.replace(
       /[^-.\p{L}\p{N}]/gu,
@@ -145,6 +157,9 @@ class XsltAdapter {
     );
   }
 
+  /**
+   * Create a template from a root class.
+   */
   rootToTemplate(classData: StructureModelClass): XmlRootTemplate {
     return {
       classIri: classData.cimIri,
@@ -153,11 +168,15 @@ class XsltAdapter {
     };
   }
 
+  /**
+   * Create a named template from a class (null for codelists).
+   */
   classToTemplate(classData: StructureModelClass): XmlTemplate | null {
     if (classData.isCodelist) {
       return null;
     }
     if (this.resolveImportedElement(classData)) {
+      // The class is imported.
       return {
         name: this.classTemplateName(classData),
         classIri: classData.cimIri,
@@ -173,6 +192,9 @@ class XsltAdapter {
     }
   }
 
+  /**
+   * Produces a match from a structure model property.
+   */
   propertyToMatch(
     propertyData: StructureModelProperty
   ): XmlMatch {
@@ -213,6 +235,10 @@ class XsltAdapter {
     return result;
   }
 
+  /**
+   * Attempts to separate an IRI into a namespace part and a local part,
+   * registers the namespace and returns a {@link QName} for use in RDF/XML.
+   */
   iriToQName(iri: string): QName {
     const parts = namespaceFromIri(iri);
     if (parts == null) {
@@ -230,16 +256,25 @@ class XsltAdapter {
     return [ns, localName];
   }
 
+  /**
+   * Calls {@link matchConstructor} if every type in {@link dataTypes}
+   * matches {@link rangeChecker}, and constructs a match from the property.
+   * @param propertyData The property in the structure model.
+   * @param dataTypes The datatypes used by the property.
+   * @param rangeChecker The type predicate.
+   * @param matchConstructor The function constructing the type.
+   * @returns The match created by {@link matchConstructor}.
+   */
   propertyToMatchCheckType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelType[],
     rangeChecker: (rangeType: StructureModelType) => boolean,
-    typeConstructor: (
-        propertyData: StructureModelProperty,
-        interpretation: QName,
-        propertyName: QName,
-        dataTypes: StructureModelType[]
-      ) => XmlMatch
+    matchConstructor: (
+      propertyData: StructureModelProperty,
+      interpretation: QName,
+      propertyName: QName,
+      dataTypes: StructureModelType[]
+    ) => XmlMatch
   ): XmlMatch | null {
     if (dataTypes.every(rangeChecker)) {
       if (propertyData.cimIri == null) {
@@ -252,13 +287,16 @@ class XsltAdapter {
         this.model.namespacePrefix,
         propertyData.technicalLabel
       ];
-      return typeConstructor.call(
+      return matchConstructor.call(
         this, propertyData, interpretation, propertyName, dataTypes
       );
     }
     return null;
   }
 
+  /**
+   * Construct a class match from a class property.
+   */
   classPropertyToClassMatch(
     propertyData: StructureModelProperty,
     interpretation: QName,
@@ -275,6 +313,9 @@ class XsltAdapter {
     };
   }
 
+  /**
+   * Create target class template information from a property's class type.
+   */
   classTargetTypeTemplate(
     type: StructureModelComplexType
   ): XmlClassTargetTemplate {
@@ -285,6 +326,9 @@ class XsltAdapter {
     };
   }
 
+  /**
+   * Construct a literal match from a class property.
+   */
   datatypePropertyToLiteralMatch(
     propertyData: StructureModelProperty,
     interpretation: QName,
@@ -306,6 +350,9 @@ class XsltAdapter {
     };
   }
 
+  /**
+   * Construct a codelist match from a class property.
+   */
   classPropertyToCodelistMatch(
     propertyData: StructureModelProperty,
     interpretation: QName,
@@ -321,6 +368,9 @@ class XsltAdapter {
     };
   }
 
+  /**
+   * Obtains the datatype IRI from a primitive type.
+   */
   primitiveToIri(primitiveData: StructureModelPrimitiveType): string {
     if (primitiveData.dataType == null || primitiveData.dataType == OFN.text) {
       return null;

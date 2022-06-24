@@ -8,6 +8,7 @@ import {
   XmlMatch,
   xmlMatchIsCodelist,
   XmlClassMatch,
+  XmlRootTemplate,
 } from "./xslt-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -17,8 +18,16 @@ import { commonXmlNamespace, commonXmlPrefix, iriElementName, QName } from "../x
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 
+/**
+ * This element will be generated from templates to denote content that should
+ * be placed at the top level. This process takes place after
+ * the normal templates.
+ */
 const inverseContainer: QName = [null, "top-level"];
 
+/**
+ * Writes out a lifting transformation. 
+ */
 export async function writeXsltLifting(
   model: XmlTransformation,
   stream: OutputStream
@@ -34,6 +43,10 @@ export async function writeXsltLifting(
   await writeTransformationEnd(writer);
 }
 
+/**
+ * Writes the beginning of the transformation, including the XML declaration,
+ * transformation definition and options, and declares used namespaces.  
+ */
 async function writeTransformationBegin(
   model: XmlTransformation,
   writer: XmlWriter
@@ -72,6 +85,9 @@ async function writeTransformationBegin(
   }
 }
 
+/**
+ * Writes the settings of the transformation.
+ */
 async function writeSettings(
   writer: XmlWriter
 ): Promise<void> {
@@ -83,19 +99,27 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("indent", "yes");
   });
   
+  // Treat whitespace nodes as insignificant.
   await writer.writeElementFull("xsl", "strip-space")(async writer => {
     await writer.writeLocalAttributeValue("elements", "*");
   });
 }
 
+/**
+ * Writes the end of the transformation.
+ */
 async function writeTransformationEnd(writer: XmlWriter): Promise<void> {
   await writer.writeElementEnd("xsl", "stylesheet");
 }
 
+/**
+ * Writes common templates used from other places.
+ */
 async function writeCommonTemplates(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xsl", "template")(async writer => {
+    // An xml:lang attribute is copied when encountered.
     await writer.writeLocalAttributeValue("match", "@xml:lang");
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
       await writer.writeLocalAttributeValue("select", ".");
@@ -103,19 +127,23 @@ async function writeCommonTemplates(
   });
   
   await writer.writeElementFull("xsl", "template")(async writer => {
+    // The remove-top template removes all occurrences of inverseContainer.
     await writer.writeLocalAttributeValue("name", "remove-top");
     
     await writer.writeElementFull("xsl", "for-each")(async writer => {
+      // Attributes are copied.
       await writer.writeLocalAttributeValue("select", "@*");
   
       await writer.writeElementEmpty("xsl", "copy");
     });
     
     await writer.writeElementFull("xsl", "for-each")(async writer => {
+      // Any non-inverseContainer element is iterated.
       const path = `node()[not(. instance of element(${writer.getQName(...inverseContainer)}))]`;
       await writer.writeLocalAttributeValue("select", path);
   
       await writer.writeElementFull("xsl", "copy")(async writer => {
+        // And copied with the template evaluated recursively.
         await writer.writeElementFull("xsl", "call-template")(async writer => {
           await writer.writeLocalAttributeValue(
             "name", "remove-top"
@@ -126,6 +154,9 @@ async function writeCommonTemplates(
   });
 }
 
+/**
+ * Writes the fallback template.
+ */
 async function writeFinalTemplates(
   writer: XmlWriter
 ): Promise<void> {
@@ -134,58 +165,79 @@ async function writeFinalTemplates(
   });
 }
 
+/**
+ * Writes the root templates of the transformation.
+ */
 async function writeRootTemplates(
   model: XmlTransformation,
   writer: XmlWriter
 ): Promise<void> {
   for (const rootTemplate of model.rootTemplates) {
-    await writer.writeElementFull("xsl", "template")(async writer => {
-      const match = "/" + writer.getQName(...rootTemplate.elementName);
-      await writer.writeLocalAttributeValue("match", match);
-
-      await writer.writeElementFull("rdf", "RDF")(async writer => {
-        await writer.writeElementFull("xsl", "variable")(async writer => {
-          await writer.writeLocalAttributeValue(
-            "name", "result"
-          );
-          await writer.writeElementFull("xsl", "sequence")(async writer => {
-            await writer.writeElementFull("xsl", "call-template")(async writer => {
-              await writer.writeLocalAttributeValue(
-                "name", rootTemplate.targetTemplate
-              );
-            });
-          });
-        });
-        
-        await writer.writeElementFull("xsl", "for-each")(async writer => {
-          await writer.writeLocalAttributeValue("select", "$result");
-      
-          await writer.writeElementFull("xsl", "copy")(async writer => {
-            await writer.writeElementFull("xsl", "call-template")(async writer => {
-              await writer.writeLocalAttributeValue(
-                "name", "remove-top"
-              );
-            });
-          });
-        });
-        
-        await writer.writeElementFull("xsl", "for-each")(async writer => {
-          const path = `$result//${writer.getQName(...inverseContainer)}/node()`;
-          await writer.writeLocalAttributeValue("select", path);
-      
-          await writer.writeElementFull("xsl", "copy")(async writer => {
-            await writer.writeElementFull("xsl", "call-template")(async writer => {
-              await writer.writeLocalAttributeValue(
-                "name", "remove-top"
-              );
-            });
-          });
-        });
-      });
-    })
+    await writeRootTemplate(rootTemplate, writer);
   }
 }
 
+/**
+ * Writes out a root template.
+ */
+async function writeRootTemplate(
+  rootTemplate: XmlRootTemplate,
+  writer: XmlWriter
+): Promise<void> {
+  await writer.writeElementFull("xsl", "template")(async writer => {
+    // Matches a root element with the specific name.
+    const match = "/" + writer.getQName(...rootTemplate.elementName);
+    await writer.writeLocalAttributeValue("match", match);
+
+    await writer.writeElementFull("rdf", "RDF")(async writer => {
+
+      // Stores the result of the target template.
+      await writer.writeElementFull("xsl", "variable")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "name", "result"
+        );
+        await writer.writeElementFull("xsl", "sequence")(async writer => {
+          await writer.writeElementFull("xsl", "call-template")(async writer => {
+            await writer.writeLocalAttributeValue(
+              "name", rootTemplate.targetTemplate
+            );
+          });
+        });
+      });
+      
+      // Calls remove-top on the result, removing inverseContainer.
+      await writer.writeElementFull("xsl", "for-each")(async writer => {
+        await writer.writeLocalAttributeValue("select", "$result");
+    
+        await writer.writeElementFull("xsl", "copy")(async writer => {
+          await writer.writeElementFull("xsl", "call-template")(async writer => {
+            await writer.writeLocalAttributeValue(
+              "name", "remove-top"
+            );
+          });
+        });
+      });
+      
+      // Write out the actual occurrences of inverseContainer.
+      await writer.writeElementFull("xsl", "for-each")(async writer => {
+        const path = `$result//${writer.getQName(...inverseContainer)}/node()`;
+        await writer.writeLocalAttributeValue("select", path);
+    
+        await writer.writeElementFull("xsl", "copy")(async writer => {
+          await writer.writeElementFull("xsl", "call-template")(async writer => {
+            await writer.writeLocalAttributeValue(
+              "name", "remove-top"
+            );
+          });
+        });
+      });
+    });
+  })
+}
+
+/**
+ * Writes out the named templates in a transformation. 
+ */
 async function writeTemplates(
   model: XmlTransformation,
   writer: XmlWriter
@@ -197,11 +249,13 @@ async function writeTemplates(
     await writer.writeElementFull("xsl", "template")(async writer => {
       await writer.writeLocalAttributeValue("name", template.name);
       
+      // Used for reverse properties to link back to the outer element.
       await writer.writeElementFull("xsl", "param")(async writer => {
         await writer.writeLocalAttributeValue("name", "arc");
         await writer.writeLocalAttributeValue("select", "()");
       });
       
+      // Do not match <iri>.
       await writer.writeElementFull("xsl", "param")(async writer => {
         await writer.writeLocalAttributeValue("name", "no_iri");
         await writer.writeLocalAttributeValue("select", "false()");
@@ -212,6 +266,9 @@ async function writeTemplates(
   }
 }
 
+/**
+ * Writes out the contents of a named template.
+ */
 async function writeTemplateContents(
   template: XmlTemplate,
   writer: XmlWriter
@@ -222,6 +279,8 @@ async function writeTemplateContents(
       await writer.writeLocalAttributeValue("select", "@*");
     });
 
+    // The id variable holds the attribute identifying this node, either
+    // via rdf:about or rdf:nodeID.
     await writer.writeElementFull("xsl", "variable")(async writer => {
       await writer.writeLocalAttributeValue("name", "id");
       await writer.writeElementFull(null, "id")(async writer => {
@@ -231,6 +290,7 @@ async function writeTemplateContents(
             const condition = `${iri} and not($no_iri)`;
             await writer.writeLocalAttributeValue("test", condition);
             await writer.writeElementFull("xsl", "attribute")(async writer => {
+              // If <iri> is found, use it in rdf:about
               await writer.writeLocalAttributeValue("name", "rdf:about");
               await writer.writeElementFull("xsl", "value-of")(async writer => {
                 await writer.writeLocalAttributeValue("select", iri);
@@ -240,6 +300,7 @@ async function writeTemplateContents(
 
           await writer.writeElementFull("xsl", "otherwise")(async writer => {
             await writer.writeElementFull("xsl", "attribute")(async writer => {
+              // Otherwise generate an identifier from the current context node.
               await writer.writeLocalAttributeValue("name", "rdf:nodeID");
               await writer.writeElementFull("xsl", "value-of")(async writer => {
                 const expression = "concat('_',generate-id())";
@@ -251,16 +312,19 @@ async function writeTemplateContents(
       });
     });
     
+    // Copy the id attribute.
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
       await writer.writeLocalAttributeValue("select", "$id//@*");
     });
     
     if (template.classIri != null) {
+      // Add the type of the resource.
       await writer.writeElementFull("rdf", "type")(async writer => {
         await writer.writeAttributeValue("rdf", "resource", template.classIri);
       });
     }
     
+    // If this was constructed from a reverse property, add the arc back.
     await writer.writeElementFull("xsl", "copy-of")(async writer => {
       await writer.writeLocalAttributeValue("select", "$arc");
     });
@@ -271,12 +335,15 @@ async function writeTemplateContents(
   });
 }
 
+/**
+ * Writes out a property match from a template.
+ */
 async function writeTemplateMatch(
   match: XmlMatch,
   writer: XmlWriter
 ): Promise<void> {
   if (xmlMatchIsClass(match) && match.isDematerialized) {
-    // Possibly find the range of corresponding elements
+    // Identifying the range of corresponding elements might be useful here.
     await writeProperty(match, writer);
   } else {
     await writer.writeElementFull("xsl", "for-each")(async writer => {
@@ -288,6 +355,9 @@ async function writeTemplateMatch(
   }
 }
 
+/**
+ * Writes out an RDF/XML property. 
+ */
 async function writeProperty(
   match: XmlMatch,
   writer: XmlWriter
@@ -299,6 +369,7 @@ async function writeProperty(
       );
     }
 
+    // Stores the property arc.
     await writer.writeElementFull("xsl", "variable")(async writer => {
       await writer.writeLocalAttributeValue("name", "arc");
       await writer.writeElementFull(...match.interpretation)(async writer => {
@@ -310,6 +381,8 @@ async function writeProperty(
       });
     });
 
+    // Generates a temporary inverseContainer with the rdf:Description created
+    // from the object instance.
     await writer.writeElementFull(...inverseContainer)(async writer => {
       await writeClassTemplateCall(match, writer);
     });
@@ -318,6 +391,9 @@ async function writeProperty(
   }
 }
 
+/**
+ * Writes out an RDF/XML property. 
+ */
 async function writeForwardProperty(
   match: XmlMatch,
   writer: XmlWriter
@@ -328,6 +404,7 @@ async function writeForwardProperty(
         "rdf", "datatype", match.dataTypeIri
       );
     
+      // Copy xml:lang and the value.
       await writer.writeElementFull("xsl", "apply-templates")(async writer => {
         await writer.writeLocalAttributeValue("select", "@*");
       });
@@ -348,6 +425,9 @@ async function writeForwardProperty(
   });
 }
 
+/**
+ * Writes out a template call from a class match.
+ */
 async function writeClassTemplateCall(
   match: XmlClassMatch,
   writer: XmlWriter
@@ -355,12 +435,14 @@ async function writeClassTemplateCall(
   const templates = match.targetTemplates;
   const hasArc = match.isReverse;
   if (match.isDematerialized) {
+    // Just call its templates, but do not look for <iri>.
     for (const template of templates) {
       await writeTemplateCall(template.templateName, hasArc, true, writer);
     }
   } else if (templates.length == 1) {
     await writeTemplateCall(templates[0].templateName, hasArc, false, writer);
   } else {
+    // Resolve the QName in xsi:type.
     await writer.writeElementFull("xsl", "variable")(async writer => {
       await writer.writeLocalAttributeValue(
         "name", "type"
@@ -369,6 +451,9 @@ async function writeClassTemplateCall(
         "select", "resolve-QName(@xsi:type,.)"
       );
     });
+    // A virtual "array" of elements is created to store the QNames for each
+    // of the types, to compare against the value of xsi:type but use the 
+    // namespace resolution in XSLT.
     await writer.writeElementFull("xsl", "variable")(async writer => {
       await writer.writeLocalAttributeValue(
         "name", "types"
@@ -382,6 +467,7 @@ async function writeClassTemplateCall(
     await writer.writeElementFull("xsl", "choose")(async writer => {
       for (let template = 0; template < templates.length; template++) {
         await writer.writeElementFull("xsl", "when")(async writer => {
+          // Find the QName of the type and compare.
           const condition = `$type=node-name($types/*[${template + 1}])`;
           await writer.writeLocalAttributeValue("test", condition);
           await writeTemplateCall(
@@ -393,6 +479,13 @@ async function writeClassTemplateCall(
   }
 }
 
+/**
+ * Writes out a call to a named template.
+ * @param templateName The name of the template.
+ * @param hasArc Whether to use the $arc variable as an argument.
+ * @param noIri Whether to set $no_iri to true.
+ * @param writer The XML writer.
+ */
 async function writeTemplateCall(
   templateName: string,
   hasArc: boolean,
@@ -416,6 +509,9 @@ async function writeTemplateCall(
   });
 }
 
+/**
+ * Writes out the includes to external lifting transformations.
+ */
 async function writeIncludes(
   model: XmlTransformation,
   writer: XmlWriter
