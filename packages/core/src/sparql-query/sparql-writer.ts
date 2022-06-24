@@ -106,7 +106,7 @@ async function writePattern(
       } else {
         let first = true;
         for (const pattern of element.unionPatterns) {
-          await writeLine(indent + first ? "{" : "} UNION {", stream);
+          await writeLine(indent + (first ? "{" : "} UNION {"), stream);
           await writePattern(
             pattern, onlyTriples, indent + indentStep, stream
           );
