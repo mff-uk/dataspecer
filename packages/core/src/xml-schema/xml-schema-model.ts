@@ -4,12 +4,39 @@ import { QName } from "../xml/xml-conventions";
  * Represents an xs:schema definition.
  */
 export class XmlSchema {
+  /**
+   * The target namespace IRI, if used.
+   */
   targetNamespace: string | null;
+
+  /**
+   * The target namespace prefix, if used.
+   */
   targetNamespacePrefix: string | null;
+
+  /**
+   * True if the schema uses language-tagged strings.
+   */
   defineLangString: boolean;
+
+  /**
+   * The array of import declarations for external schemas.
+   */
   imports: XmlSchemaImportDeclaration[];
+
+  /**
+   * The array of defined types.
+   */
   types: XmlSchemaType[];
+
+  /**
+   * The array of defined groups.
+   */
   groups: XmlSchemaGroupDefinition[];
+
+  /**
+   * The array of root elements.
+   */
   elements: XmlSchemaElement[];
 }
 
@@ -17,8 +44,19 @@ export class XmlSchema {
  * Represents an import/include declaration to an artifact.
  */
 export class XmlSchemaImportDeclaration {
+  /**
+   * The namespace prefix used by the schema.
+   */
   prefix: Promise<string | null>;
+  
+  /**
+   * The namespace IRI used by the schema.
+   */
   namespace: Promise<string | null>;
+
+  /**
+   * The location of the schema file.
+   */
   schemaLocation: string;
 }
 
@@ -26,6 +64,9 @@ export class XmlSchemaImportDeclaration {
  * Represents anything that can be provided with an annotation.
  */
 export class XmlSchemaAnnotated {
+  /**
+   * The annotation of the object.
+   */
   annotation: XmlSchemaAnnotation | null;
 }
 
@@ -33,7 +74,14 @@ export class XmlSchemaAnnotated {
  * Represents an annotation of an XML Schema object.
  */
 export class XmlSchemaAnnotation {
+  /**
+   * The value of the sawsdl:modelReference attribute.
+   */
   modelReference: string | null;
+
+  /**
+   * The xs:documentation content of the annotation.
+   */
   documentation: string | null;
 }
 
@@ -41,15 +89,30 @@ export class XmlSchemaAnnotation {
  * Represents a top-level xs:group definition.
  */
 export class XmlSchemaGroupDefinition {
+  /**
+   * The name of the group.
+   */
   name: string | null;
-  contents: XmlSchemaComplexContent[];
+
+  /**
+   * The item which serves as the definition of the group.
+   */
+  definition: XmlSchemaComplexItem;
 }
 
 /**
  * Represents an xs:element definition.
  */
 export class XmlSchemaElement extends XmlSchemaAnnotated {
+  /**
+   * The name of the element as a {@link QName}; may be a promise
+   * if the prefix is externally defined.
+   */
   elementName: QName | Promise<QName>;
+
+  /**
+   * The type of the element.
+   */
   type: XmlSchemaType | null;
 }
 
@@ -57,6 +120,9 @@ export class XmlSchemaElement extends XmlSchemaAnnotated {
  * Represents an xs:simpleType or xs:complexType.
  */
 export class XmlSchemaType extends XmlSchemaAnnotated {
+  /**
+   * The name of the type, or null if the type is inline.
+   */
   name: QName | null;
 }
 
@@ -64,8 +130,19 @@ export class XmlSchemaType extends XmlSchemaAnnotated {
  * Represents an xs:complexType.
  */
 export class XmlSchemaComplexType extends XmlSchemaType {
+  /**
+   * The definition of xs:complexType.
+   */
   complexDefinition: XmlSchemaComplexItem;
+
+  /**
+   * The value of the mixed attribute.
+   */
   mixed: boolean;
+
+  /**
+   * The value of the abstract attribute.
+   */
   abstract: boolean;
 }
 
@@ -73,6 +150,9 @@ export class XmlSchemaComplexType extends XmlSchemaType {
  * Represents an xs:simpleType.
  */
 export class XmlSchemaSimpleType extends XmlSchemaType {
+  /**
+   * The definition of xs:simpleType.
+   */
   simpleDefinition: XmlSchemaSimpleItem;
 }
 
@@ -94,6 +174,9 @@ export function xmlSchemaTypeIsSimple(
  * Represents an item in an xs:complexType.
  */
 export class XmlSchemaComplexItem {
+  /**
+   * The name of the item's type, in the xs: namespace.
+   */
   xsType: string;
 }
 
@@ -101,6 +184,9 @@ export class XmlSchemaComplexItem {
  * Represents an item in an xs:complexType that is a container of other items.
  */
 export class XmlSchemaComplexContainer extends XmlSchemaComplexItem {
+  /**
+   * The contents of the item.
+   */
   contents: XmlSchemaComplexContent[];
 }
 
@@ -130,6 +216,11 @@ export class XmlSchemaComplexAll extends XmlSchemaComplexContainer {
  */
 export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   xsType: "group";
+
+  /**
+   * The name of the group as a {@link QName}; may be a promise
+   * if the prefix is externally defined.
+   */
   name: QName | Promise<QName>;
 }
 
@@ -138,6 +229,10 @@ export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
  */
 export class XmlSchemaComplexExtension extends XmlSchemaComplexContainer {
   xsType: "extension";
+
+  /**
+   * The name of the base type.
+   */
   base: QName;
 }
 
@@ -175,7 +270,14 @@ export function xmlSchemaComplexTypeDefinitionIsExtension(
  * Represents an item in an xs:simpleType.
  */
 export class XmlSchemaSimpleItem {
+  /**
+   * The name of the item's type, in the xs: namespace.
+   */
   xsType: string;
+
+  /**
+   * The contents of the type, as a list of {@link QName}s.
+   */
   contents: QName[];
 }
 
@@ -183,7 +285,14 @@ export class XmlSchemaSimpleItem {
  * Represents an individual item inside a container item.
  */
 export class XmlSchemaComplexContent {
+  /**
+   * The minimum cardinality of the item.
+   */
   cardinalityMin: number;
+  
+  /**
+   * The maximum cardinality of the item.
+   */
   cardinalityMax: number | null;
 }
 
@@ -191,6 +300,9 @@ export class XmlSchemaComplexContent {
  * Represents a concrete xs:element inside a container item.
  */
 export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
+  /**
+   * The element represented by this item.
+   */
   element: XmlSchemaElement;
 }
 
@@ -198,6 +310,9 @@ export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
  * Represents a model item inside a container item.
  */
 export class XmlSchemaComplexContentItem extends XmlSchemaComplexContent {
+  /**
+   * The model item represented by this item.
+   */
   item: XmlSchemaComplexItem;
 }
 

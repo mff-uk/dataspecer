@@ -1,49 +1,151 @@
 import { OutputStream } from "../io/stream/output-stream";
 
+/**
+ * A namespace map is a prefix to URI mapping, supporting registering
+ * new namespaces and obtaining the URI from a prefix and vice versa.
+ */
 export interface XmlNamespaceMap {
-  getQName(namespacePrefix: string | null, elementName: string): string;
+  /**
+   * Converts a namespace prefix and a local name to a QName-formatted value.
+   * @param namespacePrefix The namespace prefix. May be null to omit.
+   * @param localName The local name part of the QName.
+   */
+  getQName(namespacePrefix: string | null, localName: string): string;
+
+  /**
+   * Returns one of the prefixes corresponding to a namepace URI, if defined.
+   * @param uri The namespace URI.
+   */
   getPrefixForUri(uri: string): string | undefined;
+
+  /**
+   * Returns the namespace URi registered using a specific prefix.
+   * @param prefix The prefix to lookup.
+   */
   getUriForPrefix(prefix: string): string | undefined;
+
+  /**
+   * Registers a new namespace prefix mapping to a specific URI.
+   * @param prefix The namespace prefix.
+   * @param uri The namespace URI.
+   */
   registerNamespace(prefix: string, uri: string): void;
 }
 
+/**
+ * An interface for an XML writer, supporting asynchronous writing of tags,
+ * attributes, and other parts of XML.
+ */
 export interface XmlWriter extends XmlNamespaceMap {
+  /**
+   * Writes an XML declaration.
+   * @param version The version attribute of the declaration.
+   * @param encoding The encoding attribute of the declaration.
+   */
   writeXmlDeclaration(version: string, encoding: string): Promise<void>;
+
+  /**
+   * Writes the start tag of an element.
+   * @param namespacePrefix The namespaces prefix of the element, or null.
+   * @param elementName The local name of the element.
+   */
   writeElementBegin(
     namespacePrefix: string | null,
     elementName: string
   ): Promise<void>;
+  
+  /**
+   * Writes the end tag of an element.
+   * @param namespacePrefix The namespaces prefix of the element, or null.
+   * @param elementName The local name of the element.
+   */
+  writeElementEnd(
+    namespacePrefix: string | null, elementName: string
+  ): Promise<void>;
+
+  /**
+   * Writes a full element with a text value and no attributes.
+   * @param namespacePrefix The namespaces prefix of the element, or null.
+   * @param elementName The local name of the element.
+   * @param elementValue The value of the element, or null to skip it.
+   */
   writeElementValue(
     namespacePrefix: string | null,
     elementName: string,
     elementValue: string | null
   ): Promise<void>;
+
+  /**
+   * Writes an empty element.
+   * @param namespacePrefix The namespaces prefix of the element, or null.
+   * @param elementName The local name of the element.
+   */
   writeElementEmpty(
     namespacePrefix: string | null,
     elementName: string
   ): Promise<void>;
+
+  /**
+   * Produces a function used for writing the full content of an element.
+   * @param namespacePrefix The namespaces prefix of the element, or null.
+   * @param elementName The local name of the element.
+   * @returns A function which, when called, calls its argument to produce
+   * the content, and automatically wraps it in the element's tags.
+   */
   writeElementFull(
     namespacePrefix: string | null,
     elementName: string
   ): (content: (writer: XmlWriter) => Promise<void>) => Promise<void>;
+
+  /**
+   * Writes an attribute on an element.
+   * @param namespacePrefix The namespaces prefix of the attribute, or null.
+   * @param attributeName The local name of the attribute.
+   * @param attributeValue The value of the attribute, or null to skip it.
+   */
   writeAttributeValue(
     namespacePrefix: string | null,
     attributeName: string,
     attributeValue: string | null
   ): Promise<void>;
+  
+  /**
+   * Writes an attribute on an element without a namespace.
+   * @param attributeName The local name of the attribute.
+   * @param attributeValue The value of the attribute, or null to skip it.
+   */
   writeLocalAttributeValue(
     attributeName: string,
     attributeValue: string | null
   ): Promise<void>;
+
+  /**
+   * Writes an xmlns declaration.
+   * @param prefix The prefix of the declared namespace.
+   * @param uri The namespace URI.
+   */
   writeNamespaceDeclaration(prefix: string, uri: string): Promise<void>;
+
+  /**
+   * Writes an xmlns declaration and automatically registers.
+   * @param prefix The prefix of the declared namespace.
+   * @param uri The namespace URI.
+   */
   writeAndRegisterNamespaceDeclaration(
     prefix: string, uri: string
   ): Promise<void>;
+
+  /**
+   * Writes a comment.
+   * @param comment The value of the comment.
+   */
   writeComment(comment: string): Promise<void>;
+
+  /**
+   * Writes a plain text. Characters are escaped automatically
+   * @param text The value of the text.
+   */
   writeText(text: string): Promise<void>;
-  writeElementEnd(
-    namespacePrefix: string | null, elementName: string
-  ): Promise<void>;
 }
 
 class XmlSimpleNamespaceMap implements XmlNamespaceMap {
@@ -107,14 +209,9 @@ function xmlEscape(text: string): string {
   });
 }
 
-function xml(template: TemplateStringsArray, ...values: string[]): string {
-  return template
-    .map((value, index) => {
-      return value + (values[index] ?? "");
-    })
-    .join("");
-}
-
+/**
+ * An abstract XML writer which writes to a text output, supporting indentation.
+ */
 export abstract class XmlIndentingTextWriter
   extends XmlSimpleNamespaceMap
   implements XmlWriter
@@ -138,7 +235,7 @@ export abstract class XmlIndentingTextWriter
 
   private async leaveElementAttributes(): Promise<void> {
     if (this.elementTagOpen) {
-      await this.writeLine(xml`>`);
+      await this.writeLine(">");
       this.elementTagOpen = false;
       this.indent(1);
     }
@@ -148,7 +245,7 @@ export abstract class XmlIndentingTextWriter
     await this.leaveElementAttributes();
     await this.writeLine(
       this.currentIndent +
-        xml`<?xml version="${version}" encoding="${encoding}"?>`
+        `<?xml version="${version}" encoding="${encoding}"?>`
     );
   }
 
@@ -255,6 +352,9 @@ export abstract class XmlIndentingTextWriter
   }
 }
 
+/**
+ * An implementation of an XML writer using an {@link OutputStream}.
+ */
 export class XmlStreamWriter extends XmlIndentingTextWriter {
   private readonly stream: OutputStream;
 

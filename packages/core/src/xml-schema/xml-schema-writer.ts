@@ -27,6 +27,9 @@ import { commonXmlNamespace, commonXmlPrefix, commonXmlSchema, langStringName } 
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 
+/**
+ * Writes the full XML Schema to output. 
+ */
 export async function writeXmlSchema(
   model: XmlSchema,
   stream: OutputStream
@@ -40,6 +43,10 @@ export async function writeXmlSchema(
   await writeSchemaEnd(writer);
 }
 
+/**
+ * Helper function for use with await; awais a promise or creates a new one if
+ * it is not a promise.
+ */
 async function either<T>(value: T | Promise<T>): Promise<T> {
   const promise = value as Promise<T>;
   if (promise.then !== undefined) {
@@ -48,6 +55,10 @@ async function either<T>(value: T | Promise<T>): Promise<T> {
   return value as T;
 }
 
+/**
+ * Writes the beginning of the schema, including the XML declaration,
+ * schema definition and options, and declares used namespaces. 
+ */
 async function writeSchemaBegin(
   model: XmlSchema,
   writer: XmlWriter
@@ -110,10 +121,17 @@ async function writeSchemaBegin(
   );
 }
 
+/**
+ * Writes the end tag of the schema.
+ */
 async function writeSchemaEnd(writer: XmlWriter): Promise<void> {
   await writer.writeElementEnd("xs", "schema");
 }
 
+/**
+ * Writes import/include declarations of external schemas, and defines
+ * langString if necessary.
+ */
 async function writeImportsAndDefinitions(
   model: XmlSchema,
   writer: XmlWriter
@@ -191,6 +209,9 @@ async function writeImportsAndDefinitions(
   }
 }
 
+/**
+ * Writes the list of types in the schema. 
+ */
 async function writeTypes(model: XmlSchema, writer: XmlWriter): Promise<void> {
   for (const type of model.types) {
     if (xmlSchemaTypeIsComplex(type)) {
@@ -203,6 +224,9 @@ async function writeTypes(model: XmlSchema, writer: XmlWriter): Promise<void> {
   }
 }
 
+/**
+ * Writes the list of groups in the schema. 
+ */
 async function writeGroups(model: XmlSchema, writer: XmlWriter): Promise<void> {
   for (const group of model.groups) {
     await writeGroup(group, writer);
@@ -210,7 +234,7 @@ async function writeGroups(model: XmlSchema, writer: XmlWriter): Promise<void> {
 }
 
 /**
- * Debug function - writes out an object that was not recognized from model
+ * Debug function - writes out an object that was not recognized from model.
  */
 async function writeUnrecognizedObject(
   object: any,
@@ -230,18 +254,13 @@ async function writeGroup(
 ): Promise<void> {
   await writer.writeElementFull("xs", "group")(async writer => {
     await writer.writeLocalAttributeValue("name", group.name);
-    for (const content of group.contents) {
-      if (xmlSchemaComplexContentIsElement(content)) {
-        await writeElement(content.element, content, writer);
-      } else if (xmlSchemaComplexContentIsItem(content)) {
-        await writeComplexContent(content.item, content, writer);
-      } else {
-        await writeUnrecognizedObject(content, writer);
-      }
-    }
+    await writeComplexContent(group.definition, null, writer);
   });
 }
 
+/**
+ * Writes out the list of elements in the schema. 
+ */
 async function writeElements(
   model: XmlSchema,
   writer: XmlWriter
@@ -283,6 +302,7 @@ async function writeElement(
     await writeAttributesForComplexContent(parentContent, writer);
     const name = await either(element.elementName);
     if (element.type == null) {
+      // An element with no type uses ref to its name.
       await writer.writeLocalAttributeValue(
         "ref",
         writer.getQName(...name)
@@ -292,12 +312,14 @@ async function writeElement(
       await writer.writeLocalAttributeValue("name", name[1]);
       const type = element.type;
       if (type.name != null) {
+        // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
           writer.getQName(...type.name)
         );
         await writeAnnotation(element, writer);
       } else {
+        // The type is defined inline.
         await writeAnnotation(element, writer);
         if (xmlSchemaTypeIsComplex(type)) {
           await writeComplexType(type, writer);
@@ -379,24 +401,6 @@ async function writeAttributesForComplexContent(
 }
 
 /**
- * Tests if an item in an xs:complexType has attributes.
- */
-function complexContentHasAttributes(
-  content: XmlSchemaComplexContent | null,
-): boolean {
-  if (content == null) {
-    return false;
-  }
-  if (content.cardinalityMin !== 1) {
-    return true;
-  }
-  if (content.cardinalityMax !== 1) {
-    return true;
-  }
-  return false;
-}
-
-/**
  * Writes out an aggregate element inside an xs:complexType.
  */
 async function writeComplexContent(
@@ -457,6 +461,7 @@ async function writeSimpleType(
     await writeTypeAttributes(type, writer);
     if (definition.xsType != null) {
       await writer.writeElementFull("xs", definition.xsType)(async writer => {
+        // In case of xs:union and similar.
         await writer.writeLocalAttributeValue(
           "memberTypes",
           contents.map(name => writer.getQName(...name)).join(" ")

@@ -1,8 +1,7 @@
 import {
   StructureModelClass,
-  StructureModelPrimitiveType,
   StructureModelProperty,
-  StructureModel, StructureModelSchemaRoot,
+  StructureModel,
 } from "../structure-model/model";
 import {
   SparqlConstructQuery,
@@ -20,13 +19,9 @@ import {
 
 import {
   DataSpecification,
-  DataSpecificationArtefact,
-  DataSpecificationSchema,
 } from "../data-specification/model";
 
-import { OFN, XSD } from "../well-known";
 import { namespaceFromIri } from "../xml/xml-conventions";
-import { SPARQL } from "./sparql-vocabulary";
 
 export const RDF_TYPE_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -34,6 +29,9 @@ const rdfType: SparqlUriNode = {
   uri: RDF_TYPE_URI
 };
 
+/**
+ * Converts a {@link StructureModel} to a {@link SparqlQuery}.
+ */
 export function structureModelToSparql(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
@@ -43,17 +41,7 @@ export function structureModelToSparql(
   return adapter.fromRoots(model.roots.flatMap(root => root.classes));
 }
 
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
-
-type ClassMap = Record<string, StructureModelClass>;
 class SparqlAdapter {
-  private specifications: { [iri: string]: DataSpecification };
-  private specification: DataSpecification;
-  private model: StructureModel;
   private variableCounter: number;
   
   private namespaces: Record<string, string>;
@@ -65,15 +53,15 @@ class SparqlAdapter {
     specification: DataSpecification,
     model: StructureModel
   ) {
-    this.specifications = specifications;
-    this.specification = specification;
-    this.model = model;
     this.variableCounter = 0;
     this.namespaces = {};
     this.namespacesIris = {};
     this.namespaceCounter = 0;
   }
 
+  /**
+   * Produces a SPARQL query from a list of root classes.
+   */
   public fromRoots(classes: StructureModelClass[]): SparqlQuery {
     const rootSubject = this.newVariable();
     const patterns: SparqlPattern[] = [];
@@ -97,25 +85,34 @@ class SparqlAdapter {
     } as SparqlConstructQuery;
   }
 
+  /**
+   * Creates a new variable node with a unique name.
+   */
   newVariable(): SparqlVariableNode {
     return {
       variableName: `v${this.variableCounter++}`
     };
   }
 
+  /**
+   * Creates a URI node and automatically shortens it using a prefix.
+   */
   nodeFromIri(iri: string): SparqlNode {
     const parts = namespaceFromIri(iri);
     if (parts == null) {
+      // Namespace cannot be extracted.
       return {
         uri: iri
       } as SparqlUriNode;
     }
     const [namespaceIri, localName] = parts;
     if (this.namespacesIris[namespaceIri] != null) {
+      // The namespace was already registered; use its prefix.
       return {
         qname: [this.namespacesIris[namespaceIri], localName]
       } as SparqlQNameNode;
     }
+    // Register a new namespace.
     const ns = "ns" + (this.namespaceCounter++);
     this.namespaces[ns] = namespaceIri;
     this.namespacesIris[namespaceIri] = ns;
@@ -124,6 +121,13 @@ class SparqlAdapter {
     } as SparqlQNameNode;
   }
 
+  /**
+   * Adds pattern elements to {@link elements} matching a class.
+   * @param subject The subject node for the instance of the class.
+   * @param classData The class in the structure model.
+   * @param optionalType Whether to wrap an rdf:match in OPTIONAL.
+   * @param elements The output array to hold the pattern elements.
+   */
   classToTriples(
     subject: SparqlNode,
     classData: StructureModelClass,
@@ -149,12 +153,19 @@ class SparqlAdapter {
     }
   }
 
+  /**
+   * Adds pattern elements to {@link elements} matching a property.
+   * @param subject The subject node for the instance.
+   * @param propertyData The property in the structure model.
+   * @param elements The output array to hold the pattern elements.
+   */
   propertyToTriples(
     subject: SparqlNode,
     propertyData: StructureModelProperty,
     elements: SparqlElement[]
   ) {
     if (propertyData.cardinalityMin === 0) {
+      // Wrap the match in OPTIONAL if cardinality includes 0.
       const optionalElements: SparqlElement[] = [];
       const optional: SparqlOptionalPattern = {
         optionalPattern: {
@@ -168,6 +179,7 @@ class SparqlAdapter {
     const obj = this.newVariable();
     const pred = this.nodeFromIri(propertyData.cimIri);
 
+    // Add the triple for the property itself.
     if (propertyData.isReverse) {
       elements.push({
         subject: obj,
@@ -185,6 +197,7 @@ class SparqlAdapter {
     const optionalType = propertyData.dataTypes.length == 1;
     const patterns: SparqlPattern[] = [];
 
+    // Produce the pattern for each class type of the property.
     for (const type of propertyData.dataTypes) {
       if (type.isAssociation()) {
         const classData = type.dataType;
@@ -196,6 +209,7 @@ class SparqlAdapter {
       }
     }
 
+    // Add the union of patterns for each of the class.
     elements.push({
       unionPatterns: patterns
     } as SparqlUnionPattern);
