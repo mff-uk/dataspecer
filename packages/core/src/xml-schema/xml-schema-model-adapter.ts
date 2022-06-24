@@ -50,11 +50,7 @@ export function structureModelToXmlSchema(
   artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlSchema {
-  const options = new XmlSchemaAdapterOptions();
-  options.rootClass.extractGroup = model.xsdExtractRootGroup ?? true;
-  options.rootClass.extractType = model.xsdExtractRootType ?? false;
-  options.otherClasses.extractGroup = model.xsdExtractPropertyGroup ?? false;
-  options.otherClasses.extractType = model.xsdExtractPropertyType ?? false;
+  const options = XmlSchemaAdapterOptions.getFromConfiguration(artifact.configuration);
   const adapter = new XmlSchemaAdapter(
     context, specification, artifact, model, options
   );
@@ -73,6 +69,19 @@ export class XmlSchemaAdapterOptions {
   constructor() {
     this.rootClass = new ExtractOptions();
     this.otherClasses = new ExtractOptions();
+  }
+
+  static getFromConfiguration(configuration: Partial<XmlSchemaAdapterOptions>): XmlSchemaAdapterOptions {
+    const options = new XmlSchemaAdapterOptions();
+    if (configuration?.rootClass) {
+      options.rootClass.extractType = !!configuration?.rootClass?.extractType ?? false;
+      options.rootClass.extractGroup = !!configuration?.rootClass?.extractGroup ?? true;
+    }
+    if (configuration?.otherClasses) {
+      options.otherClasses.extractType = !!configuration?.otherClasses?.extractType ?? false;
+      options.otherClasses.extractGroup = !!configuration?.otherClasses?.extractGroup ?? false;
+    }
+    return options;
   }
 }
 

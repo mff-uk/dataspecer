@@ -1,8 +1,10 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormGroup, Switch, Typography} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, Switch, Typography} from "@mui/material";
 import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
 import {DefaultArtifactConfiguratorConfiguration} from "@dataspecer/core/data-specification/default-artifact-configurator-configuration";
 import {CsvSchemaGeneratorOptions} from "@dataspecer/core/csv-schema/csv-schema-generator-options";
+import {XML_SCHEMA} from "@dataspecer/core/xml-schema/xml-schema-vocabulary";
+import {XmlSchemaAdapterOptions} from "@dataspecer/core/xml-schema/xml-schema-model-adapter";
 
 /**
  * Main component (Dialog) for the configuration of the artifacts.
@@ -28,6 +30,11 @@ export const ConfigureArtifactsDialog: FC<{
     CsvSchemaGeneratorOptions.getFromConfiguration(rawCsvConfiguration ?? {}),
     [rawCsvConfiguration]);
 
+  const rawXmlConfiguration = localConfiguration.generatorOptions[XML_SCHEMA.Generator];
+  const xmlConfiguration = useMemo(() =>
+      XmlSchemaAdapterOptions.getFromConfiguration(rawXmlConfiguration ?? {}),
+    [rawXmlConfiguration]);
+
   return <Dialog
     open={isOpen}
     onClose={close}
@@ -42,6 +49,12 @@ export const ConfigureArtifactsDialog: FC<{
       <CsvConfiguration
         input={csvConfiguration}
         onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [CSV_SCHEMA.Generator]: u}})}
+      />
+
+      <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>XSD schema</Typography>
+      <XsdConfiguration
+        input={xmlConfiguration}
+        onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [XML_SCHEMA.Generator]: u}})}
       />
     </DialogContent>
     <DialogActions>
@@ -73,4 +86,55 @@ const CsvConfiguration: FC<{
       label="Enable multiple table schema for CSV"
     />
   </FormGroup>
+}
+
+const XsdConfiguration: FC<{
+  input: XmlSchemaAdapterOptions,
+  onChange: (options: XmlSchemaAdapterOptions) => void,
+}> = ({input, onChange}) => {
+  return <FormGroup>
+    <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Root class</Typography>
+    <Grid container>
+      <Grid item xs={6}>
+        <FormControlLabel
+          control={<Switch
+            checked={input.rootClass.extractGroup}
+            onChange={e => onChange({...input, rootClass: {...input.rootClass, extractGroup: e.target.checked}})}
+          />}
+          label="Extract group"
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <FormControlLabel
+          control={<Switch
+            checked={input.rootClass.extractType}
+            onChange={e => onChange({...input, rootClass: {...input.rootClass, extractType: e.target.checked}})}
+          />}
+          label="Extract type"
+        />
+      </Grid>
+    </Grid>
+
+    <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Other classes</Typography>
+    <Grid container>
+      <Grid item xs={6}>
+        <FormControlLabel
+          control={<Switch
+            checked={input.otherClasses.extractGroup}
+            onChange={e => onChange({...input, otherClasses: {...input.otherClasses, extractGroup: e.target.checked}})}
+          />}
+          label="Extract group"
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <FormControlLabel
+          control={<Switch
+            checked={input.otherClasses.extractType}
+            onChange={e => onChange({...input, otherClasses: {...input.otherClasses, extractType: e.target.checked}})}
+          />}
+          label="Extract type"
+        />
+      </Grid>
+    </Grid>
+  </FormGroup>;
 }

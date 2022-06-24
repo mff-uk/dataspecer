@@ -25,10 +25,6 @@ export async function structureModelAddXmlProperties(
 
   result.namespace = data.namespace;
   result.namespacePrefix = data.namespacePrefix;
-  result.xsdExtractRootGroup = data.xsdExtractRootGroup;
-  result.xsdExtractRootType = data.xsdExtractRootType;
-  result.xsdExtractPropertyGroup = data.xsdExtractPropertyGroup;
-  result.xsdExtractPropertyType = data.xsdExtractPropertyType;
 
   return result;
 }
