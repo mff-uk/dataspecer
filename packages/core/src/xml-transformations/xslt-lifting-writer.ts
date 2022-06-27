@@ -298,7 +298,7 @@ async function writeTemplateContents(
               // Otherwise generate an identifier from the current context node.
               await writer.writeLocalAttributeValue("name", "rdf:nodeID");
               await writer.writeElementFull("xsl", "value-of")(async writer => {
-                const expression = "concat('_',generate-id())";
+                const expression = "generate-id()";
                 await writer.writeLocalAttributeValue("select", expression);
               });
             });
