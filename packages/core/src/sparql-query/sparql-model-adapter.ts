@@ -41,6 +41,10 @@ export function structureModelToSparql(
   return adapter.fromRoots(model.roots.flatMap(root => root.classes));
 }
 
+/**
+ * This class contains functions to process all parts of a {@link StructureModel}
+ * and create an instance of {@link SparqlQuery}.
+ */
 class SparqlAdapter {
   private variableCounter: number;
   
@@ -48,6 +52,12 @@ class SparqlAdapter {
   private namespacesIris: Record<string, string>;
   private namespaceCounter: number;
 
+  /**
+   * Creates a new instance of the adapter, for a particular structure model.
+   * @param specifications A list of all used specifications in the context.
+   * @param specification The specification containing the structure model.
+   * @param model The structure model.
+   */
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
@@ -61,6 +71,8 @@ class SparqlAdapter {
 
   /**
    * Produces a SPARQL query from a list of root classes.
+   * @param classes A list of classes to use as the roots in the query.
+   * @returns An instance of {@link SparqlQuery} looking for the specific roots.
    */
   public fromRoots(classes: StructureModelClass[]): SparqlQuery {
     const rootSubject = this.newVariable();

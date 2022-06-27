@@ -49,6 +49,10 @@ export function structureModelToXslt(
   return adapter.fromRoots(model.roots);
 }
 
+/**
+ * This class contains functions to process all parts of a {@link StructureModel}
+ * and create an instance of {@link XmlTransformation}.
+ */
 class XsltAdapter {
   private specifications: { [iri: string]: DataSpecification };
   private artifact: DataSpecificationSchema;
@@ -58,6 +62,14 @@ class XsltAdapter {
   private rdfNamespaceCounter: number;
   private includes: { [specification: string]: XmlTransformationInclude };
 
+  /**
+   * 
+   * Creates a new instance of the adapter, for a particular structure model.
+   * @param specifications A list of all used specifications in the context.
+   * @param specification The specification containing the structure model.
+   * @param artifact The artifact describing the output of the generator.
+   * @param model The structure model.
+   */
   constructor(
     specifications: { [iri: string]: DataSpecification },
     specification: DataSpecification,
@@ -73,6 +85,11 @@ class XsltAdapter {
     this.includes = {};
   }
 
+  /**
+   * Produces an XSLT model from a list of root classes.
+   * @param roots A list of roots to specify the desired root element templates.
+   * @returns An instance of {@link XmlTransformation} with the specific roots templates.
+   */
   public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
     return {
       targetNamespace: this.model.namespace,

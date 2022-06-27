@@ -69,6 +69,9 @@ class ExtractOptions {
   extractGroup: boolean;
 }
 
+/**
+ * Stores additional options of the generation, loaded from the generator's configuration.
+ */
 export class XmlSchemaAdapterOptions {
   rootClass: ExtractOptions;
   otherClasses: ExtractOptions;
@@ -114,6 +117,10 @@ const iriProperty: XmlSchemaComplexContentElement = {
   }
 };
 
+/**
+ * This class contains functions to process all parts of a {@link StructureModel}
+ * and create an instance of {@link XmlSchema}.
+ */
 class XmlSchemaAdapter {
   private usesLangString: boolean;
   private context: ArtefactGeneratorContext;
@@ -122,6 +129,14 @@ class XmlSchemaAdapter {
   private model: StructureModel;
   private options: XmlSchemaAdapterOptions;
 
+  /**
+   * Creates a new instance of the adapter, for a particular structure model.
+   * @param context The context of generation, used to access other models.
+   * @param specification The specification containing the structure model.
+   * @param artifact The artifact describing the output of the generator.
+   * @param model The structure model.
+   * @param options Additional options to the generator.
+   */
   constructor(
     context: ArtefactGeneratorContext,
     specification: DataSpecification,
@@ -140,6 +155,11 @@ class XmlSchemaAdapter {
   private groups: Record<string, XmlSchemaGroupDefinition>;
   private types: Record<string, XmlSchemaType>;
 
+  /**
+   * Produces an XML Schema model from a list of root classes.
+   * @param roots A list of roots to specify the desired root elements.
+   * @returns An instance of {@link XmlSchema} with the specific root elements.
+   */
   public fromRoots(roots: StructureModelSchemaRoot[]): XmlSchema {
     this.imports = {};
     this.groups = {};
