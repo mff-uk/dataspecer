@@ -98,11 +98,6 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("media-type", "application/rdf+xml");
     await writer.writeLocalAttributeValue("indent", "yes");
   });
-  
-  // Treat whitespace nodes as insignificant.
-  await writer.writeElementFull("xsl", "strip-space")(async writer => {
-    await writer.writeLocalAttributeValue("elements", "*");
-  });
 }
 
 /**

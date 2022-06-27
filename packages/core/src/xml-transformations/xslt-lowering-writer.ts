@@ -83,11 +83,6 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("indent", "yes");
   })
   
-  // Treat whitespace nodes as insignificant.
-  await writer.writeElementFull("xsl", "strip-space")(async writer => {
-    await writer.writeLocalAttributeValue("elements", "*");
-  });
-  
   // The SPARQL variable binding names are configurable if necessary.
 
   await writer.writeElementFull("xsl", "param")(async writer => {
