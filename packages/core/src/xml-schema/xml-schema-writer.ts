@@ -164,24 +164,16 @@ async function writeImportsAndDefinitions(
 
   for (const importDeclaration of model.imports) {
     const namespace = await either(importDeclaration.namespace);
-    if (namespace != null) {
-      await writer.writeElementBegin("xs", "import");
+    await writer.writeElementFull("xs", "import")(async writer => {
       await writer.writeLocalAttributeValue(
         "namespace",
         namespace
       );
-    } else {
-      await writer.writeElementBegin("xs", "include");
-    }
-    await writer.writeLocalAttributeValue(
-      "schemaLocation",
-      importDeclaration.schemaLocation
-    );
-    if (namespace != null) {
-      await writer.writeElementEnd("xs", "import");
-    } else {
-      await writer.writeElementEnd("xs", "include");
-    }
+      await writer.writeLocalAttributeValue(
+        "schemaLocation",
+        importDeclaration.schemaLocation
+      );
+    });
   }
   
   if (model.defineLangString) {
