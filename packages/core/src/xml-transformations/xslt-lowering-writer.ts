@@ -26,11 +26,11 @@ export async function writeXsltLowering(
 ): Promise<void> {
   const writer = new XmlStreamWriter(stream);
   await writeTransformationBegin(model, writer);
+  await writeImports(model, writer);
   await writeSettings(writer);
   await writeRootTemplates(model, writer);
   await writeCommonTemplates(writer);
   await writeTemplates(model, writer);
-  await writeIncludes(model, writer);
   await writeFinalTemplates(writer);
   await writeTransformationEnd(writer);
 }
@@ -448,16 +448,16 @@ async function writeTemplateCall(
 }
 
 /**
- * Writes out the includes to external lowering transformations.
+ * Writes out the imports to external lowering transformations.
  */
-async function writeIncludes(
+async function writeImports(
   model: XmlTransformation,
   writer: XmlWriter
 ): Promise<void> {
-  for (const include of model.includes) {
+  for (const include of model.imports) {
     const location = include.locations[XSLT_LOWERING.Generator];
     if (location != null) {
-      await writer.writeElementFull("xsl", "include")(async writer => {
+      await writer.writeElementFull("xsl", "import")(async writer => {
         await writer.writeLocalAttributeValue("href", location);
       });
     }

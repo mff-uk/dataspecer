@@ -18,7 +18,7 @@ import {
   XmlMatch,
   XmlClassMatch,
   XmlLiteralMatch,
-  XmlTransformationInclude,
+  XmlTransformationImport,
   XmlCodelistMatch,
   XmlClassTargetTemplate,
 } from "./xslt-model";
@@ -60,7 +60,7 @@ class XsltAdapter {
   private rdfNamespaces: Record<string, string>;
   private rdfNamespacesIris: Record<string, string>;
   private rdfNamespaceCounter: number;
-  private includes: { [specification: string]: XmlTransformationInclude };
+  private imports: { [specification: string]: XmlTransformationImport };
 
   /**
    * 
@@ -82,7 +82,7 @@ class XsltAdapter {
     this.rdfNamespaces = {};
     this.rdfNamespacesIris = {};
     this.rdfNamespaceCounter = 0;
-    this.includes = {};
+    this.imports = {};
   }
 
   /**
@@ -100,7 +100,7 @@ class XsltAdapter {
         .map(this.rootToTemplate, this),
       templates: this.model.getClasses().map(this.classToTemplate, this)
         .filter(template => template != null),
-      includes: Object.values(this.includes),
+      imports: Object.values(this.imports),
     };
   }
 
@@ -136,16 +136,16 @@ class XsltAdapter {
 
   /**
    * Returns true if the class is imported from a different schema,
-   * and registers its include if so.
+   * and registers its import if so.
    */
   resolveImportedElement(
     classData: StructureModelClass
   ): boolean {
     if (this.model.psmIri !== classData.structureSchema) {
-      const importDeclaration = this.includes[classData.specification];
+      const importDeclaration = this.imports[classData.specification];
       if (importDeclaration == null) {
         const artifacts = this.findArtefactsForImport(classData);
-        this.includes[classData.specification] = {
+        this.imports[classData.specification] = {
           locations: Object.fromEntries(
             artifacts.map(
               artifact => {

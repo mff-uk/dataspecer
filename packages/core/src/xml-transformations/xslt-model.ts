@@ -30,15 +30,15 @@ export class XmlTransformation {
   templates: XmlTemplate[];
 
   /**
-   * The array of includes of other stylesheets.
+   * The array of imports of other stylesheets.
    */
-  includes: XmlTransformationInclude[];
+  imports: XmlTransformationImport[];
 }
 
 /**
  * Stores the locations of included templates for each generator.
  */
-export class XmlTransformationInclude {
+export class XmlTransformationImport {
   /**
    * The locations of included templates, identified by the generator IRI.
    */
