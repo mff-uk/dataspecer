@@ -79,10 +79,6 @@ class XsltAdapter {
     this.specifications = specifications;
     this.artifact = artifact;
     this.model = model;
-    this.rdfNamespaces = {};
-    this.rdfNamespacesIris = {};
-    this.rdfNamespaceCounter = 0;
-    this.imports = {};
   }
 
   /**
@@ -91,6 +87,10 @@ class XsltAdapter {
    * @returns An instance of {@link XmlTransformation} with the specific roots templates.
    */
   public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
+    this.rdfNamespaces = {};
+    this.rdfNamespacesIris = {};
+    this.rdfNamespaceCounter = 0;
+    this.imports = {};
     return {
       targetNamespace: this.model.namespace,
       targetNamespacePrefix: this.model.namespacePrefix,
