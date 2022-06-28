@@ -30,19 +30,29 @@ export class XmlTransformation {
   templates: XmlTemplate[];
 
   /**
-   * The array of includes of other stylesheets.
+   * The array of imports of other stylesheets.
    */
-  includes: XmlTransformationInclude[];
+  imports: XmlTransformationImport[];
 }
 
 /**
  * Stores the locations of included templates for each generator.
  */
-export class XmlTransformationInclude {
+export class XmlTransformationImport {
   /**
    * The locations of included templates, identified by the generator IRI.
    */
   locations: Record<string, string>;
+  
+  /**
+   * The namespace prefix used by the schema.
+   */
+  prefix: Promise<string | null>;
+  
+  /**
+   * The namespace IRI used by the schema.
+   */
+  namespace: Promise<string | null>;
 }
 
 export class XmlTemplate {
@@ -60,11 +70,6 @@ export class XmlTemplate {
    * The array of matches for each used property of the class.
    */
   propertyMatches: XmlMatch[];
-
-  /**
-   * True if the template is imported from another stylesheet.
-   */
-  imported: boolean;
 }
 
 /**
@@ -145,7 +150,7 @@ export class XmlClassTargetTemplate {
   /**
    * The name of the type of the property in XML, used in xsi:type.
    */
-  typeName: QName;
+  typeName: QName | Promise<QName>;
 
   /**
    * The name of the template corresponding to this class.

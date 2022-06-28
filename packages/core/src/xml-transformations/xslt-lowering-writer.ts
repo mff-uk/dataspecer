@@ -26,11 +26,11 @@ export async function writeXsltLowering(
 ): Promise<void> {
   const writer = new XmlStreamWriter(stream);
   await writeTransformationBegin(model, writer);
+  await writeImports(model, writer);
   await writeSettings(writer);
   await writeRootTemplates(model, writer);
   await writeCommonTemplates(writer);
   await writeTemplates(model, writer);
-  await writeIncludes(model, writer);
   await writeFinalTemplates(writer);
   await writeTransformationEnd(writer);
 }
@@ -68,6 +68,30 @@ async function writeTransformationBegin(
       commonXmlNamespace
     );
   }
+
+  const registered: Record<string, string> = {};
+  
+  for (const importDeclaration of model.imports) {
+    const namespace = await importDeclaration.namespace;
+    const prefix = await importDeclaration.prefix;
+    if (
+      namespace != null &&
+      prefix != null
+    ) {
+      if (registered[prefix] == null) {
+        await writer.writeAndRegisterNamespaceDeclaration(
+          prefix,
+          namespace
+        );
+        registered[prefix] = namespace;
+      } else if (registered[prefix] !== namespace) {
+        throw new Error(
+          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `different namespaces, "${registered[prefix]}" and "${namespace}".`
+        );
+      }
+    }
+  }
 }
 
 /**
@@ -82,11 +106,6 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("encoding", "utf-8");
     await writer.writeLocalAttributeValue("indent", "yes");
   })
-  
-  // Treat whitespace nodes as insignificant.
-  await writer.writeElementFull("xsl", "strip-space")(async writer => {
-    await writer.writeLocalAttributeValue("elements", "*");
-  });
   
   // The SPARQL variable binding names are configurable if necessary.
 
@@ -253,9 +272,6 @@ async function writeTemplates(
   writer: XmlWriter
 ): Promise<void> {
   for (const template of model.templates) {
-    if (template.imported) {
-      continue;
-    }
     await writer.writeElementFull("xsl", "template")(async writer => {
       await writer.writeLocalAttributeValue("name", template.name);
       
@@ -401,7 +417,7 @@ async function writePropertyContents(
           await writer.writeElementFull("xsl", "when")(async writer => {
             await writer.writeLocalAttributeValue("test", condition);
             await writeTemplateCall(
-              template.templateName, template.typeName, noIri, obj, writer
+              template.templateName, await template.typeName, noIri, obj, writer
             );
           });
         }
@@ -453,16 +469,16 @@ async function writeTemplateCall(
 }
 
 /**
- * Writes out the includes to external lowering transformations.
+ * Writes out the imports to external lowering transformations.
  */
-async function writeIncludes(
+async function writeImports(
   model: XmlTransformation,
   writer: XmlWriter
 ): Promise<void> {
-  for (const include of model.includes) {
+  for (const include of model.imports) {
     const location = include.locations[XSLT_LOWERING.Generator];
     if (location != null) {
-      await writer.writeElementFull("xsl", "include")(async writer => {
+      await writer.writeElementFull("xsl", "import")(async writer => {
         await writer.writeLocalAttributeValue("href", location);
       });
     }

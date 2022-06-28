@@ -34,11 +34,11 @@ export async function writeXsltLifting(
 ): Promise<void> {
   const writer = new XmlStreamWriter(stream);
   await writeTransformationBegin(model, writer);
+  await writeImports(model, writer);
   await writeSettings(writer);
   await writeRootTemplates(model, writer);
   await writeCommonTemplates(writer);
   await writeTemplates(model, writer);
-  await writeIncludes(model, writer);
   await writeFinalTemplates(writer);
   await writeTransformationEnd(writer);
 }
@@ -77,6 +77,30 @@ async function writeTransformationBegin(
     );
   }
 
+  const registered: Record<string, string> = {};
+  
+  for (const importDeclaration of model.imports) {
+    const namespace = await importDeclaration.namespace;
+    const prefix = await importDeclaration.prefix;
+    if (
+      namespace != null &&
+      prefix != null
+    ) {
+      if (registered[prefix] == null) {
+        await writer.writeAndRegisterNamespaceDeclaration(
+          prefix,
+          namespace
+        );
+        registered[prefix] = namespace;
+      } else if (registered[prefix] !== namespace) {
+        throw new Error(
+          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `different namespaces, "${registered[prefix]}" and "${namespace}".`
+        );
+      }
+    }
+  }
+
   for (const prefix of Object.keys(model.rdfNamespaces)) {
     await writer.writeAndRegisterNamespaceDeclaration(
       prefix,
@@ -97,11 +121,6 @@ async function writeSettings(
     await writer.writeLocalAttributeValue("encoding", "utf-8");
     await writer.writeLocalAttributeValue("media-type", "application/rdf+xml");
     await writer.writeLocalAttributeValue("indent", "yes");
-  });
-  
-  // Treat whitespace nodes as insignificant.
-  await writer.writeElementFull("xsl", "strip-space")(async writer => {
-    await writer.writeLocalAttributeValue("elements", "*");
   });
 }
 
@@ -243,9 +262,6 @@ async function writeTemplates(
   writer: XmlWriter
 ): Promise<void> {
   for (const template of model.templates) {
-    if (template.imported) {
-      continue;
-    }
     await writer.writeElementFull("xsl", "template")(async writer => {
       await writer.writeLocalAttributeValue("name", template.name);
       
@@ -303,7 +319,7 @@ async function writeTemplateContents(
               // Otherwise generate an identifier from the current context node.
               await writer.writeLocalAttributeValue("name", "rdf:nodeID");
               await writer.writeElementFull("xsl", "value-of")(async writer => {
-                const expression = "concat('_',generate-id())";
+                const expression = "generate-id()";
                 await writer.writeLocalAttributeValue("select", expression);
               });
             });
@@ -460,7 +476,7 @@ async function writeClassTemplateCall(
       );
       await writer.writeElementFull("xsl", "sequence")(async writer => {
         for (const template of templates) {
-          await writer.writeElementEmpty(...template.typeName);
+          await writer.writeElementEmpty(...await template.typeName);
         }
       });
     });
@@ -510,16 +526,16 @@ async function writeTemplateCall(
 }
 
 /**
- * Writes out the includes to external lifting transformations.
+ * Writes out the imports to external lifting transformations.
  */
-async function writeIncludes(
+async function writeImports(
   model: XmlTransformation,
   writer: XmlWriter
 ): Promise<void> {
-  for (const include of model.includes) {
+  for (const include of model.imports) {
     const location = include.locations[XSLT_LIFTING.Generator];
     if (location != null) {
-      await writer.writeElementFull("xsl", "include")(async writer => {
+      await writer.writeElementFull("xsl", "import")(async writer => {
         await writer.writeLocalAttributeValue("href", location);
       });
     }

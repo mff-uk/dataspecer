@@ -9,7 +9,7 @@ import { SparqlQuery } from "./sparql-model";
 import { writeSparqlQuery } from "./sparql-writer";
 import { structureModelToSparql } from "./sparql-model-adapter";
 import { assertFailed, assertNot } from "../core";
-import { transformStructureModel } from "../structure-model/transformation";
+import { defaultStructureTransformations, structureModelDematerialize, transformStructureModel } from "../structure-model/transformation";
 import { SPARQL } from "./sparql-vocabulary";
 
 export class SparqlGenerator implements ArtefactGenerator {
@@ -48,11 +48,17 @@ export class SparqlGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
+    const transformations = defaultStructureTransformations.filter(
+      transformation =>
+        transformation !== structureModelDematerialize
+    );
     for (const conceptualModel of Object.values(context.conceptualModels)) {
       model = transformStructureModel(
         conceptualModel,
         model,
-        Object.values(context.specifications)
+        Object.values(context.specifications),
+        null,
+        transformations
       );
     }
     return Promise.resolve(

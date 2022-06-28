@@ -18,7 +18,7 @@ import {
   XmlMatch,
   XmlClassMatch,
   XmlLiteralMatch,
-  XmlTransformationInclude,
+  XmlTransformationImport,
   XmlCodelistMatch,
   XmlClassTargetTemplate,
 } from "./xslt-model";
@@ -33,47 +33,68 @@ import { OFN } from "../well-known";
 import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
 import { namespaceFromIri, QName, simpleTypeMapIri } from "../xml/xml-conventions";
 import { pathRelative } from "../core/utilities/path-relative";
+import { ArtefactGeneratorContext } from "../generator";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlTransformation}.
  */
 export function structureModelToXslt(
-  specifications: { [iri: string]: DataSpecification },
+  context: ArtefactGeneratorContext,
   specification: DataSpecification,
   artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlTransformation {
   const adapter = new XsltAdapter(
-    specifications, specification, artifact, model
+    context, specification, artifact, model
   );
   return adapter.fromRoots(model.roots);
 }
 
+/**
+ * This class contains functions to process all parts of a {@link StructureModel}
+ * and create an instance of {@link XmlTransformation}.
+ */
 class XsltAdapter {
+  private context: ArtefactGeneratorContext;
   private specifications: { [iri: string]: DataSpecification };
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private rdfNamespaces: Record<string, string>;
   private rdfNamespacesIris: Record<string, string>;
   private rdfNamespaceCounter: number;
-  private includes: { [specification: string]: XmlTransformationInclude };
+  private imports: { [specification: string]: XmlTransformationImport };
 
+  /**
+   * 
+   * Creates a new instance of the adapter, for a particular structure model.
+   * @param context The context of generation, used to access other models.
+   * @param specification The specification containing the structure model.
+   * @param artifact The artifact describing the output of the generator.
+   * @param model The structure model.
+   */
   constructor(
-    specifications: { [iri: string]: DataSpecification },
+    context: ArtefactGeneratorContext,
     specification: DataSpecification,
     artifact: DataSpecificationSchema,
     model: StructureModel
   ) {
-    this.specifications = specifications;
+    this.context = context;
+    this.specifications = context.specifications;
     this.artifact = artifact;
     this.model = model;
+  }
+
+  /**
+   * Produces an XSLT model from a list of root classes.
+   * @param roots A list of roots to specify the desired root element templates.
+   * @returns An instance of {@link XmlTransformation} with the specific roots templates.
+   */
+  public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
     this.rdfNamespaces = {};
     this.rdfNamespacesIris = {};
     this.rdfNamespaceCounter = 0;
-    this.includes = {};
-  }
-
-  public fromRoots(roots: StructureModelSchemaRoot[]): XmlTransformation {
+    this.imports = {};
     return {
       targetNamespace: this.model.namespace,
       targetNamespacePrefix: this.model.namespacePrefix,
@@ -83,7 +104,7 @@ class XsltAdapter {
         .map(this.rootToTemplate, this),
       templates: this.model.getClasses().map(this.classToTemplate, this)
         .filter(template => template != null),
-      includes: Object.values(this.includes),
+      imports: Object.values(this.imports),
     };
   }
 
@@ -111,6 +132,15 @@ class XsltAdapter {
   }
 
   /**
+   * Returns true if a class is from a different schema.
+   */
+  classIsImported(
+    classData: StructureModelClass
+  ): boolean {
+    return this.model.psmIri !== classData.structureSchema;
+  }
+
+  /**
    * Returns the path of the current artifact.
    */
   currentPath(): string {
@@ -118,17 +148,23 @@ class XsltAdapter {
   }
 
   /**
-   * Returns true if the class is imported from a different schema,
-   * and registers its include if so.
+   * Returns the {@link QName} of a class, potentially asynchronously if the
+   * class is imported from a different schema, in order to load the prefix.
    */
-  resolveImportedElement(
+  resolveImportedClassName(
     classData: StructureModelClass
-  ): boolean {
-    if (this.model.psmIri !== classData.structureSchema) {
-      const importDeclaration = this.includes[classData.specification];
-      if (importDeclaration == null) {
-        const artifacts = this.findArtefactsForImport(classData);
-        this.includes[classData.specification] = {
+    ): [imported: boolean, name: QName | Promise<QName>] {
+    if (this.classIsImported(classData)) {
+      const importDeclaration = this.imports[classData.specification];
+      if (importDeclaration != null) {
+        // Already imported; construct it using the prefix.
+        return [true, this.getQName(importDeclaration.prefix, classData.technicalLabel)];
+      }
+      const artifacts = this.findArtefactsForImport(classData);
+      if (artifacts.length > 0) {
+        const model = this.getImportedModel(classData.structureSchema);
+        // Register the import of the schema.
+        const imported = this.imports[classData.specification] = {
           locations: Object.fromEntries(
             artifacts.map(
               artifact => {
@@ -138,12 +174,56 @@ class XsltAdapter {
                 ]
               }
             )
-          )
+          ),
+          prefix: this.getModelPrefix(model),
+          namespace: this.getModelNamespace(model)
         };
+        return [true, this.getQName(imported.prefix, classData.technicalLabel)];
       }
-      return true;
     }
-    return false;
+    return [false, [this.model.namespacePrefix, classData.technicalLabel]];
+  }
+
+  /**
+   * Helper function to construct a {@link QName} from an asynchronously
+   * obtained prefix.
+   */
+  async getQName(
+    prefix: Promise<string>,
+    name: string
+  ): Promise<QName> {
+    return [await prefix, name];
+  }
+
+  /**
+   * Helper function to obtain the namespace IRI of an asynchronously
+   * obtained structure model.
+   */
+  async getModelNamespace(model: Promise<StructureModel>) {
+    return (await model)?.namespace ?? null;
+  }
+
+  /**
+   * Helper function to obtain the namespace prefix of an asynchronously
+   * obtained structure model.
+   */
+  async getModelPrefix(model: Promise<StructureModel>) {
+    return (await model)?.namespacePrefix ?? null;
+  }
+
+  /**
+   * Returns the structure model from an imported schema.
+   */
+  async getImportedModel(
+    iri: string
+  ): Promise<StructureModel> {
+    const model = this.context.structureModels[iri];
+    if (model != null) {
+      return await structureModelAddXmlProperties(
+        model, this.context.reader
+      );
+    }
+    return null;
   }
 
   /**
@@ -175,20 +255,14 @@ class XsltAdapter {
     if (classData.isCodelist) {
       return null;
     }
-    if (this.resolveImportedElement(classData)) {
-      // The class is imported.
-      return {
-        name: this.classTemplateName(classData),
-        classIri: classData.cimIri,
-        propertyMatches: [],
-        imported: true,
-      };
+    const [imported] = this.resolveImportedClassName(classData);
+    if (imported) {
+      return null;
     }
     return {
       name: this.classTemplateName(classData),
       classIri: classData.cimIri,
       propertyMatches: classData.properties.map(this.propertyToMatch, this),
-      imported: false,
     }
   }
 
@@ -319,9 +393,10 @@ class XsltAdapter {
   classTargetTypeTemplate(
     type: StructureModelComplexType
   ): XmlClassTargetTemplate {
+    const [imported, name] = this.resolveImportedClassName(type.dataType);
     return {
       templateName: this.classTemplateName(type.dataType),
-      typeName: [this.model.namespacePrefix, type.dataType.technicalLabel],
+      typeName: name,
       classIri: type.dataType.cimIri,
     };
   }

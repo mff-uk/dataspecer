@@ -4,10 +4,6 @@ import {XML_EXTENSION} from "../vocabulary";
 class XmlSchemaExtension {
   namespace: string | null = null;
   namespacePrefix: string | null = null;
-  xsdExtractRootGroup: boolean | null = null;
-  xsdExtractRootType: boolean | null = null;
-  xsdExtractPropertyGroup: boolean | null = null;
-  xsdExtractPropertyType: boolean | null = null;
 }
 
 export class DataPsmSchemaXmlExtension extends DataPsmSchema {
