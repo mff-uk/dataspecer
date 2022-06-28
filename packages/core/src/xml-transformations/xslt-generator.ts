@@ -74,7 +74,7 @@ class XsltGenerator implements ArtefactGenerator {
     );
 
     return structureModelToXslt(
-      context.specifications, specification, schemaArtefact, xmlModel
+      context, specification, schemaArtefact, xmlModel
     );
   }
 

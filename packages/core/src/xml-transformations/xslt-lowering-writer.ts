@@ -36,6 +36,18 @@ export async function writeXsltLowering(
 }
 
 /**
+ * Helper function for use with await; awais a promise or creates a new one if
+ * it is not a promise.
+ */
+async function either<T>(value: T | Promise<T>): Promise<T> {
+  const promise = value as Promise<T>;
+  if (promise.then !== undefined) {
+    return await promise;
+  }
+  return value as T;
+}
+
+/**
  * Writes the beginning of the transformation, including the XML declaration,
  * transformation definition and options, and declares used namespaces.  
  */
@@ -67,6 +79,30 @@ async function writeTransformationBegin(
       commonXmlPrefix,
       commonXmlNamespace
     );
+  }
+
+  const registered: Record<string, string> = {};
+  
+  for (const importDeclaration of model.imports) {
+    const namespace = await importDeclaration.namespace;
+    const prefix = await importDeclaration.prefix;
+    if (
+      namespace != null &&
+      prefix != null
+    ) {
+      if (registered[prefix] == null) {
+        await writer.writeAndRegisterNamespaceDeclaration(
+          prefix,
+          namespace
+        );
+        registered[prefix] = namespace;
+      } else if (registered[prefix] !== namespace) {
+        throw new Error(
+          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `different namespaces, "${registered[prefix]}" and "${namespace}".`
+        );
+      }
+    }
   }
 }
 
@@ -248,9 +284,6 @@ async function writeTemplates(
   writer: XmlWriter
 ): Promise<void> {
   for (const template of model.templates) {
-    if (template.imported) {
-      continue;
-    }
     await writer.writeElementFull("xsl", "template")(async writer => {
       await writer.writeLocalAttributeValue("name", template.name);
       
@@ -396,7 +429,7 @@ async function writePropertyContents(
           await writer.writeElementFull("xsl", "when")(async writer => {
             await writer.writeLocalAttributeValue("test", condition);
             await writeTemplateCall(
-              template.templateName, template.typeName, noIri, obj, writer
+              template.templateName, await either(template.typeName), noIri, obj, writer
             );
           });
         }
