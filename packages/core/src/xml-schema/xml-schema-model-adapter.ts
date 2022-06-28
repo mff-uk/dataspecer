@@ -284,7 +284,7 @@ class XmlSchemaAdapter {
    * obtained structure model.
    */
   async getModelNamespace(model: Promise<StructureModel>) {
-    return (await model)?.namespace;
+    return (await model)?.namespace ?? null;
   }
 
   /**
@@ -292,7 +292,7 @@ class XmlSchemaAdapter {
    * obtained structure model.
    */
   async getModelPrefix(model: Promise<StructureModel>) {
-    return (await model)?.namespacePrefix;
+    return (await model)?.namespacePrefix ?? null;
   }
 
   /**
