@@ -75,9 +75,9 @@ class SparqlAdapter {
    * @returns An instance of {@link SparqlQuery} looking for the specific roots.
    */
   public fromRoots(classes: StructureModelClass[]): SparqlQuery {
-    const rootSubject = this.newVariable();
     const patterns: SparqlPattern[] = [];
     for (const cls of classes) {
+      const rootSubject = this.newVariable();
       const elements = [];
       this.classToTriples(rootSubject, cls, false, elements);   
       patterns.push({
@@ -137,7 +137,7 @@ class SparqlAdapter {
    * Adds pattern elements to {@link elements} matching a class.
    * @param subject The subject node for the instance of the class.
    * @param classData The class in the structure model.
-   * @param optionalType Whether to wrap an rdf:match in OPTIONAL.
+   * @param optionalType Whether to wrap the rdf:type match in OPTIONAL.
    * @param elements The output array to hold the pattern elements.
    */
   classToTriples(
