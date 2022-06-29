@@ -6,7 +6,7 @@ import { ArtefactGeneratorContext } from "../../generator";
 import { coreResourcesToStructuralModel } from "../../structure-model";
 import { getResource } from "../../xml/tests/resources/resource-provider";
 import { SparqlGenerator } from "../sparql-generator";
-import { sparqlElementIsOptional, sparqlElementIsTriple, sparqlElementIsUnion, sparqlNodeIsVariable, SparqlQNameNode, sparqlQueryIsConstruct, SparqlTriple, SparqlUriNode, SparqlVariableNode } from "../sparql-model";
+import { sparqlElementIsOptional, sparqlElementIsTriple, sparqlElementIsUnion, sparqlNodeIsVariable, SparqlQNameNode, sparqlQueryIsConstruct, SparqlTriple, SparqlUnionPattern, SparqlUriNode, SparqlVariableNode } from "../sparql-model";
 
 const testPrefix = "SPARQL generator: ";
 
@@ -130,8 +130,8 @@ test(testPrefix + "properties", async () => {
   expectTrue(sparqlElementIsOptional(root.elements[1]));
 
   const property = root.elements[2];
-  expectTrue(sparqlElementIsTriple(property));
-  expect(property).toEqual({
+  
+  const triple: SparqlTriple = {
     subject: {
       variableName: "v0"
     } as SparqlVariableNode,
@@ -141,5 +141,15 @@ test(testPrefix + "properties", async () => {
     object: {
       variableName: "v2"
     } as SparqlVariableNode
-  } as SparqlTriple);
+  };
+
+  expect(property).toEqual(
+    sparqlElementIsTriple(property) ? triple : {
+      unionPatterns: [
+        {
+          elements: [triple]
+        }
+      ]
+    } as SparqlUnionPattern
+  );
 });
