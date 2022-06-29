@@ -187,43 +187,54 @@ class SparqlAdapter {
       elements.push(optional);
       elements = optionalElements;
     }
-
-    const obj = this.newVariable();
+    
     const pred = this.nodeFromIri(propertyData.cimIri);
 
-    // Add the triple for the property itself.
-    if (propertyData.isReverse) {
-      elements.push({
-        subject: obj,
-        predicate: pred,
-        object: subject
-      } as SparqlTriple);
-    } else {
-      elements.push({
-        subject: subject,
-        predicate: pred,
-        object: obj
-      } as SparqlTriple);
+    /**
+     * Add the triple for the property itself.
+     */
+    function addTriple(list: SparqlElement[], obj: SparqlNode) {
+      if (propertyData.isReverse) {
+        list.push({
+          subject: obj,
+          predicate: pred,
+          object: subject
+        } as SparqlTriple);
+      } else {
+        list.push({
+          subject: subject,
+          predicate: pred,
+          object: obj
+        } as SparqlTriple);
+      }
     }
-    
-    const optionalType = propertyData.dataTypes.length == 1;
-    const patterns: SparqlPattern[] = [];
 
-    // Produce the pattern for each class type of the property.
-    for (const type of propertyData.dataTypes) {
-      if (type.isAssociation()) {
-        const classData = type.dataType;
+    const dataTypes = propertyData.dataTypes;
+
+    if (dataTypes.length == 0) {
+      addTriple(elements, this.newVariable());
+    } else {
+      const optionalType = dataTypes.length == 1;
+      const patterns: SparqlPattern[] = [];
+  
+      // Produce the pattern for each type of the property.
+      for (const type of dataTypes) {
+        const obj = this.newVariable();
         const patternElements: SparqlElement[] = [];
-        this.classToTriples(obj, classData, optionalType, patternElements);
+        addTriple(patternElements, obj);
+        if (type.isAssociation()) {
+          const classData = type.dataType;
+          this.classToTriples(obj, classData, optionalType, patternElements);
+        }
         patterns.push({
           elements: patternElements
         });
       }
+  
+      // Add the union of patterns for each of the class.
+      elements.push({
+        unionPatterns: patterns
+      } as SparqlUnionPattern);
     }
-
-    // Add the union of patterns for each of the class.
-    elements.push({
-      unionPatterns: patterns
-    } as SparqlUnionPattern);
   }
 }
