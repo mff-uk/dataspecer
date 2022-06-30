@@ -33,3 +33,31 @@ Generated JSON file will then contain
     }
 }
 ```
+
+## Format-specific attributes
+
+Some formats offer unique features and constructs that are not found in other formats, and require specific settings. For this purpose, components of a data schema may support extensions for these specific features.
+
+### XML
+
+In XML, namespaces are used to differentiate elements which have the same name but are defined in different "vocabularies" and may have a largely different meaning.
+
+Namespaces are declared in XML documents using an IRI that uniquely identifies the namespace, usually bound to a prefix that is used to refer to the namespace. For this purpose, both these attributes can be set for a schema.
+
+{{% tutorial-image "images/tutorial/xml-specific/namespace-attributes.png" %}}
+
+This setting affects generators of XSD and XSLT. For example, without a namespace, XSD would start as
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.1" elementFormDefault="unqualified">
+```
+
+When the attributes are set as above, the schema uses `targetNamespace` to place all elements inside the specified namespace:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.1" elementFormDefault="qualified" targetNamespace="http://example.org/" xmlns:example="http://example.org/">
+```
+
+A schema with a namespace can also be reused from another schema, and a schema with no namespace can be reused from a schema with a namespace. In any case, the elements coming from either schema keep their namespaces when used together in a single XML document.
+
+When the "namespace" option is enabled, *both* the prefix and the namespace IRI must be specified. 

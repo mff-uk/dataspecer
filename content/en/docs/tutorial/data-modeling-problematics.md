@@ -69,7 +69,7 @@ The table below shows our goals. ✅ is done or almost done, ⚒ is that the fea
 |----------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | Designing a basic schema, using inheritance and schema reuse                                                         | ✅                                                                                       |
 | Schema generators                                                                                                    | ✅&nbsp;JSON <br> ✅ XML <br> ⚒ CSV <br> ❌ RDF                                            |
-| Data transformations                                                                                                 | ⚒ XML <br /> ❌&nbsp;*the&nbsp;rest*                                                     |
+| Data transformations                                                                                                 | ✅ XML <br /> ❌&nbsp;*the&nbsp;rest*                                                     |
 | Schemas with OR and including subschemas <br /> _Allowing choice on schema levels, such as `person or animal`._      | ⚒                                                                                       |
 | Generating documentation                                                                                             | ✅                                                                                       |
 | Ontology format <br /> _In which format the domain ontology is supported._                                           | ✅ SGOV <br /> ❌&nbsp;RDF&nbsp;Schema <br /> ❌ OWL <br /> ❌ Schema.org <br /> ❌ Wikidata |
