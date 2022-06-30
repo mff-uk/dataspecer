@@ -1,3 +1,9 @@
+// Load env variables in advance
+require('dotenv-defaults').config({
+    path: ".env.local",
+    defaults: ".env",
+});
+
 import express from "express";
 import { PrismaClient } from '@prisma/client';
 import {
@@ -15,11 +21,6 @@ import { generateBikeshedRoute } from "./routes/bikeshed";
 import {DataSpecificationModel} from "./models/data-specification-model";
 import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
-
-require('dotenv-defaults').config({
-    path: ".env.local",
-    defaults: ".env",
-});
 
 // Create models
 
@@ -65,4 +66,3 @@ application.post('/transformer/bikeshed', bodyParser.text({type:"*/*", limit: pr
 application.listen(Number(process.env.PORT), () =>
     console.log(`Server is listening on port ${Number(process.env.PORT)}`)
 );
-
