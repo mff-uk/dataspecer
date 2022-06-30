@@ -45,9 +45,10 @@ See the [project structure](#project-structure) if you are interested in that.
 - @dataspecer/core/csv-schema - CSV schema generator
 - @dataspecer/core/json-schema - JSON schema generator
 - @dataspecer/core/plant-uml - Plant UML source (diagrams)
-- @dataspecer/core/xml - Common utils for XML
-- @dataspecer/core/xml-schema - XML schema generator
-- @dataspecer/core/xml-transformations - XML lifting to RDF and lowering back to XML
+- [@dataspecer/core/xml](../packages/core/src/xml/README.md) - Common utils for XML
+- [@dataspecer/core/xml-schema](../packages/core/src/xml-schema/README.md) - XML schema generator
+- [@dataspecer/core/xml-transformations](../packages/core/src/xml-transformations/README.md) - XML lifting to RDF and lowering back to XML
+- [@dataspecer/core/sparql-query](../packages/core/src/sparql-query/README.md) - Generator of SPARQL CONSTRUCT queries
 
 #### Model driven architecture layers
 
