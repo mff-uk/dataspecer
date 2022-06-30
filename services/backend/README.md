@@ -14,7 +14,7 @@ See the [project structure](documentation/2022-04-21-project-structure.md) or lo
 4. Run `lerna bootstrap` to install and link all packages.
 5. Run `lerna run build` to build `@dataspecer/core` and other packages. All generated files are in the `./buid` directory.
 6. Run `npm run update-database` to create empty database or update the current one if the schema changes.
-6. Start the server by `npm run start` from this directory. To keep the server running permanently, use `tmux`, for example.
+7. Start the server by `npm run start` from this directory. To keep the server running permanently, use `tmux`, for example.
 
 This project uses [Prisma](https://www.prisma.io/) and SQLite database. After updating the package, you need to migrate the database file if the [schema](prisma/schema.prisma) changes.
 - To create the migration after a schema update, use `npx prisma migrate dev --name ...`
