@@ -30,6 +30,11 @@ export const dataSpecificationModel = new DataSpecificationModel(storeModel, pri
 
 export const storeApiUrl = process.env.HOST + '/store/{}';
 
+let basename = new URL(process.env.HOST).pathname;
+if (basename.endsWith('/')) {
+    basename = basename.slice(0, -1);
+}
+
 export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {
     return {
         ...dataSpecification,
@@ -46,23 +51,24 @@ application.use(bodyParser.json({limit: process.env.PAYLOAD_SIZE_LIMIT}));
 application.use(bodyParser.urlencoded({ extended: false, limit: process.env.PAYLOAD_SIZE_LIMIT }));
 application.use(bodyParser.urlencoded({ extended: true, limit: process.env.PAYLOAD_SIZE_LIMIT }));
 
-application.get('/data-specification', listSpecifications);
-application.post('/data-specification', addSpecification);
-application.delete('/data-specification', deleteSpecification);
-application.put('/data-specification', modifySpecification);
+application.get(basename + '/data-specification', listSpecifications);
+application.post(basename + '/data-specification', addSpecification);
+application.delete(basename + '/data-specification', deleteSpecification);
+application.put(basename + '/data-specification', modifySpecification);
 
-application.post('/data-specification/data-psm', createDataPsm);
-application.delete('/data-specification/data-psm', deleteDataPsm);
+application.post(basename + '/data-specification/data-psm', createDataPsm);
+application.delete(basename + '/data-specification/data-psm', deleteDataPsm);
 
 // API for reading and writing store content.
 
-application.get('/store/:storeId', readStore);
-application.put('/store/:storeId', writeStore);
+application.get(basename + '/store/:storeId', readStore);
+application.put(basename + '/store/:storeId', writeStore);
 
 // API for generators
 
-application.post('/transformer/bikeshed', bodyParser.text({type:"*/*", limit: process.env.PAYLOAD_SIZE_LIMIT}), generateBikeshedRoute);
+application.post(basename + '/transformer/bikeshed', bodyParser.text({type:"*/*", limit: process.env.PAYLOAD_SIZE_LIMIT}), generateBikeshedRoute);
 
-application.listen(Number(process.env.PORT), () =>
-    console.log(`Server is listening on port ${Number(process.env.PORT)}`)
-);
+application.listen(Number(process.env.PORT), () => {
+    console.log(`Server is listening on port ${Number(process.env.PORT)}.`);
+    console.log(`Try ${process.env.HOST}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
+});
