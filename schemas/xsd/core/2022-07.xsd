@@ -1,0 +1,3 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="https://schemas.dataspecer.com/xsd/core/"> 
+  <xs:element name="iri" type="xs:anyURI"/>
+</xs:schema>
