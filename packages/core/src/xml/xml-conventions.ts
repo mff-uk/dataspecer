@@ -14,7 +14,7 @@ import { OFN, XSD } from "../well-known";
  * Namespace IRI containing common XML elements, such as {@link iriElementName}.
  */
 export const commonXmlNamespace =
-  "urn:uuid:c01e3ea5-474d-4ffa-81b8-a38485a8f64f";
+  "https://schemas.dataspecer.com/xsd/core/";
 
 /**
  * Namespace prefix for {@link commonXmlNamespace}.
@@ -25,9 +25,7 @@ export const commonXmlPrefix = "c";
  * Schema location URL for {@link commonXmlNamespace}.
  */
 export const commonXmlSchema =
-  "data:application/xml,%3Cxs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"+
-  ` elementFormDefault='qualified' targetNamespace='${commonXmlNamespace}'%3E` +
-  "%3Cxs:element name='iri' type='xs:anyURI'/%3E%3C/xs:schema%3E";
+  "https://schemas.dataspecer.com/xsd/core/2022-07.xsd";
 
 /**
  * Name of the element containing the IRI of an instance.
