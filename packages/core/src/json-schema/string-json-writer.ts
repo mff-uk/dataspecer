@@ -86,15 +86,7 @@ class StringJsonObjectWriter implements JsonObjectWriter {
 }
 
 function valueToString(value: string | number | boolean | null) {
-  if (value === null) {
-    return "null";
-  }
-  const type = typeof value;
-  if (type === "number" || type === "boolean") {
-    return value;
-  } else {
-    return `"${value}"`;
-  }
+  return JSON.stringify(value);
 }
 
 class StringJsonArrayWriter {
