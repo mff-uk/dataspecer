@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {AppBar, Box, Button, Container, Divider, Toolbar, Typography} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import ButtonSetRoot from "./cim-search/button-set-root";
-import {DataPsmSchemaItem} from "./data-psm/DataPsmSchemaItem";
+import {DataPsmSchemaItem} from "./data-psm/schema";
 import {GenerateArtifactsMenu} from "./artifacts/generate-artifacts-menu";
 import {SnackbarProvider} from "notistack";
 import {LanguageSelector} from "./language-selector";

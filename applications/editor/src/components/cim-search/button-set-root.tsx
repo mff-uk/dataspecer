@@ -1,5 +1,5 @@
-import React, {useCallback, useContext} from "react";
-import {Button} from "@mui/material";
+import React, {useCallback, useContext, useRef} from "react";
+import {Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {SearchDialog} from "./search-dialog";
 import {useToggle} from "../../hooks/use-toggle";
@@ -10,6 +10,12 @@ import {CreateRootClass} from "../../operations/create-root-class";
 import {selectLanguage} from "../../utils/select-language";
 import {languages} from "../../i18n";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+import SearchIcon from '@mui/icons-material/Search';
+import CallSplitIcon from '@mui/icons-material/CallSplit';
+import AutorenewIcon from '@mui/icons-material/Autorenew'; // ref
+import CodeIcon from '@mui/icons-material/Code';
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);
@@ -22,6 +28,9 @@ const ButtonSetRoot: React.FC = () => {
     const {t, i18n} = useTranslation("ui");
     // t('new schema description format')
     // t('new schema label format')
+
+  const buttonRef = useRef(null);
+  const menuOpen = useToggle(false);
 
     const setRootClass = useCallback(async (cls: PimClass) => {
         const newSchemaLabel = Object.fromEntries(
@@ -62,13 +71,47 @@ const ButtonSetRoot: React.FC = () => {
     }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
 
     return <>
-        {
-            <Button variant="contained" onClick={open}>
-                <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
-                {t("set root element button")}
-            </Button>
-        }
-        <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
+      <ButtonGroup variant="contained" ref={buttonRef}>
+        <Button variant="contained" onClick={open}>
+            <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
+            {t("set root element button")}
+        </Button>
+        <Button size="small" onClick={menuOpen.open}>
+          <ArrowDropDownIcon />
+        </Button>
+      </ButtonGroup>
+
+      <Menu anchorEl={buttonRef.current} open={menuOpen.isOpen} onClose={menuOpen.close}>
+        <MenuItem>
+          <ListItemIcon>
+            <SearchIcon fontSize="small" fontWeight="bold" />
+          </ListItemIcon>
+          <ListItemText><strong>Search for class (interpreted entity)</strong></ListItemText>
+        </MenuItem>
+
+        <MenuItem>
+          <ListItemIcon>
+            <CallSplitIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Use OR</ListItemText>
+        </MenuItem>
+
+        <MenuItem>
+          <ListItemIcon>
+            <AutorenewIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Use class reference to another schema</ListItemText>
+        </MenuItem>
+
+        <MenuItem disabled>
+          <ListItemIcon>
+            <CodeIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Use structured class (non-interpreted entity)</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
     </>;
 };
 

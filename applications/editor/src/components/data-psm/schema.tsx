@@ -1,8 +1,7 @@
 import {IconButton, Paper, Typography} from "@mui/material";
-import React, {useCallback} from "react";
+import React, {useCallback, useState} from "react";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
-import {DataPsmClassItem} from "./DataPsmClassItem";
 import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
@@ -13,6 +12,7 @@ import {Icons} from "../../icons";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {useDialog} from "../../dialog";
 import {DataPsmSchemaDetailDialog} from "../detail/data-psm-schema-detail-dialog";
+import {DataPsmObjectType, RootContext} from "./data-psm-row";
 
 
 const useStyles = makeStyles(() =>
@@ -44,6 +44,8 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   const {t} = useTranslation("psm");
 
+  const [rootContext] = useState({contextType: "root"} as RootContext);
+
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
         <DetailDialog.Component iri={dataPsmSchemaIri} />
@@ -58,7 +60,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul className={styles.ul}>
-              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmClassItem dataPsmClassIri={root} key={root} />)}
+              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmObjectType iri={root} key={root} context={rootContext} />)}
             </ul>
         </DragDropContext>
     </>}

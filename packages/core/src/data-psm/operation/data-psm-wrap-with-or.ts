@@ -14,11 +14,6 @@ export class DataPsmWrapWithOr extends CoreOperation {
   dataPsmNewIri: string | null = null;
 
   /**
-   * Former owner of the wrapped resource
-   */
-  dataPsmOwner: string | null = null;
-
-  /**
    * The wrapped resource
    */
   dataPsmChild: string | null = null;

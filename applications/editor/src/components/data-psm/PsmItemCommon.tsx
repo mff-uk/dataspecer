@@ -3,7 +3,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Theme} from "@mui/material";
 
 /**
- * Component properties for both AssociationEnds and Attributes.
+ * Context properties for entities as parts of a class.
  */
 export interface DataPsmClassPartItemProperties {
     /**

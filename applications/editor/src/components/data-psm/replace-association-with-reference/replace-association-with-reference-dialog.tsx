@@ -1,5 +1,5 @@
 import {Alert, Button, DialogActions, DialogContent, DialogTitle, Grid, List, ListItemButton, ListItemText} from "@mui/material";
-import {DataPsmSchemaItem} from "../DataPsmSchemaItem";
+import {DataPsmSchemaItem} from "../schema";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import React, {memo, useEffect, useState} from "react";

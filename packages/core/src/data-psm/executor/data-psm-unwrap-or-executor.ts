@@ -1,7 +1,8 @@
 import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
 import {DataPsmUnwrapOr, DataPsmUnwrapOrResult,} from "../operation";
 import {DataPsmExecutorResultFactory, loadDataPsmSchema,} from "./data-psm-executor-utils";
-import {DataPsmAssociationEnd, DataPsmOr, DataPsmSchema} from "../model";
+import {DataPsmOr, DataPsmSchema} from "../model";
+import {replaceObjectInSchema} from "./replace-object-in-schema";
 
 export async function executeDataPsmUnwrapOr(
   reader: CoreResourceReader,
@@ -20,36 +21,16 @@ export async function executeDataPsmUnwrapOr(
   if (or.dataPsmChoices.length > 1) {
     return CoreExecutorResult.createError("Data-psm or has multiple choices.");
   }
-  const replacement = or.dataPsmChoices[0];
+  const replacementIri = or.dataPsmChoices[0];
 
-  let owner = await reader.readResource(operation.dataPsmOwner);
-  if (owner === null) {
-    return CoreExecutorResult.createError("Missing data-psm owner object.");
-  }
+  const changed = await replaceObjectInSchema(schema.iri, operation.dataPsmOr, replacementIri, reader);
 
-  if (DataPsmAssociationEnd.is(owner)) {
-    if (owner.dataPsmPart !== operation.dataPsmOr) {
-      return CoreExecutorResult.createError("Owner (data-psm association end) does not own the OR.");
-    }
-
-    owner.dataPsmPart = replacement;
-  } else if (DataPsmSchema.is(owner)) {
-    // Make the instances same
-    owner = schema;
-    const ownerAsSchema = owner as DataPsmSchema;
-
-    if (ownerAsSchema.dataPsmRoots[0] !== operation.dataPsmOr) {
-      return CoreExecutorResult.createError("Owner (data-psm schema) does not own the OR.");
-    }
-
-    ownerAsSchema.dataPsmRoots[0] = replacement;
+  const changedSchema = changed.some(c => c.iri === schema.iri);
+  if (changedSchema) {
+    changed.map(c => c.iri === schema.iri ? {...c, dataPsmParts: (c as DataPsmSchema).dataPsmParts.filter(p => p !== operation.dataPsmOr)} : c);
   } else {
-    return CoreExecutorResult.createError("Owner has unsupported type.");
+    changed.push({...schema, dataPsmParts: schema.dataPsmParts.filter(p => p !== operation.dataPsmOr)} as DataPsmSchema);
   }
-
-  schema.dataPsmParts = schema.dataPsmParts.filter(p => p !== operation.dataPsmOr);
-
-  const changed = schema === owner ? [schema] : [schema, owner];
 
   return CoreExecutorResult.createSuccess(
     [],
