@@ -1,10 +1,8 @@
-import React, {memo, useCallback} from "react";
+import React, {memo, useCallback, useEffect} from "react";
 import {useItemStyles} from "../PsmItemCommon";
-import {DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {useToggle} from "../../../hooks/use-toggle";
 import {useTranslation} from "react-i18next";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmOrSubtree} from "../subtrees/or-subtree";
 import CallSplitIcon from "@mui/icons-material/CallSplit";
 import {UnwrapOr} from "../../../operations/unwrap-or";
@@ -18,8 +16,46 @@ import {CoreResourceReader} from "@dataspecer/core/core";
 import {CreateNewClassInOr} from "../../../operations/create-new-class-in-or";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {ObjectContext} from "../data-psm-row";
+import {InheritanceOrTree, useInheritanceOr} from "../common/use-inheritance-or";
+import {DataPsmUnknownItem} from "./unknown";
+import {DataPsmClassItem} from "./class";
 
+/**
+ * Switch between regular and inheritance OR
+ */
 export const DataPsmOrItem: React.FC<{iri: string, context: ObjectContext} & RowSlots> = memo((props) => {
+  const [inheritanceOr, inheritanceOrLoading] = useInheritanceOr(props.iri);
+
+  if (inheritanceOr === undefined) {
+    return <DataPsmUnknownItem {...props} />
+  }
+
+  if (inheritanceOr) {
+    return <InheritanceOr {...props} inheritanceOrTree={inheritanceOr} />
+//    return <RegularOr {...props} />;
+  } else {
+    return <RegularOr {...props} />;
+  }
+});
+
+const InheritanceOr: React.FC<{iri: string, context: ObjectContext, inheritanceOrTree: InheritanceOrTree} & RowSlots> = memo((props) => {
+  const styles = useItemStyles();
+
+  const thisEndRow = <>
+    <span className={styles.or}>{" "}with specializations</span>
+  </>;
+
+  const endRow = props.endRow ? [thisEndRow, ...props.endRow] : [thisEndRow];
+
+  return <DataPsmClassItem
+    {...props}
+    iri={props.inheritanceOrTree.dataPsmObjectIri}
+    endRow={endRow}
+  />;
+});
+
+
+const RegularOr: React.FC<{iri: string, context: ObjectContext} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
   const store = useFederatedObservableStore();

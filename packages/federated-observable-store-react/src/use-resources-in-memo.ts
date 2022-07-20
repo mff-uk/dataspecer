@@ -3,6 +3,10 @@ import {useFederatedObservableStore} from "./store";
 import {Resource} from "@dataspecer/federated-observable-store/resource";
 import {useCallback, useEffect, useRef, useState} from "react";
 
+class IrrelevantExecution {
+
+}
+
 /**
  * Provides `getResource` for accessing resources from the store. The function result is memoized and automatically
  * re-ran either if the dependencies or resources change. The last value is preserved during the loading.
@@ -22,7 +26,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
  * @param deps Dependency array
  * @returns [memoized_result, is_loading]
  */
-export function useResourcesInMemo<ReturnValue>(fnc: (getResource: (iri: string) => Promise<CoreResource | null>) => Promise<ReturnValue>, deps: any[]): [ReturnValue|undefined, boolean] {
+export function useResourcesInMemo<ReturnValue>(fnc: (getResource: <ResourceType extends CoreResource>(iri: string) => Promise<ResourceType | null>) => Promise<ReturnValue>, deps: any[]): [ReturnValue|undefined, boolean] {
   const store = useFederatedObservableStore();
 
   // List of IRIs the function depends on
@@ -61,7 +65,7 @@ export function useResourcesInMemo<ReturnValue>(fnc: (getResource: (iri: string)
 
     let isRelevant = true;
 
-    const getResource = async (iri: string) => {
+    const getResource = async <ResourceType extends CoreResource>(iri: string) => {
       if (!cache.current.has(iri)) {
         ignoreUpdate.current = true;
         store.addSubscriber(iri, cacheUpdater);
@@ -73,9 +77,9 @@ export function useResourcesInMemo<ReturnValue>(fnc: (getResource: (iri: string)
       const resource = await store.readResource(iri);
 
       if (isRelevant) {
-        return resource;
+        return resource as ResourceType;
       } else {
-        throw new Error("function is irrelevant");
+        throw new IrrelevantExecution();
       }
     };
 
@@ -87,6 +91,10 @@ export function useResourcesInMemo<ReturnValue>(fnc: (getResource: (iri: string)
           store.removeSubscriber(iri, cacheUpdater);
           cache.current.delete(iri);
         });
+      }
+    }).catch(error => {
+      if (!(error instanceof IrrelevantExecution)) {
+        throw error;
       }
     });
 

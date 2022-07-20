@@ -17,8 +17,14 @@ import {MenuItem} from "@mui/material";
 import {Icons} from "../../../icons";
 import {DataPsmClassSubtree} from "../subtrees/class-subtree";
 import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replace-along-inheritance-dialog";
+import {InheritanceOrTree} from "../common/use-inheritance-or";
+import {ObjectContext} from "../data-psm-row";
 
-export const DataPsmClassItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
+export const DataPsmClassItem: React.FC<{
+  iri: string,
+  context?: ObjectContext,
+  inheritanceOrTree?: InheritanceOrTree
+} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
 
@@ -81,14 +87,14 @@ export const DataPsmClassItem: React.FC<{iri: string} & RowSlots> = memo((props)
   </>, [t, include]);
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
-  const menu = props.menu ? [...props.menu, thisMenu] : [thisMenu];
+  const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
   const hiddenMenu = props.hiddenMenu ? [...props.hiddenMenu, thisHiddenMenu] : [thisHiddenMenu];
 
   return <>
     <DataPsmBaseRow
       {...props}
       startRow={startRow}
-      subtree={<DataPsmClassSubtree iri={props.iri} isOpen={collapseSubtree.isOpen} />}
+      subtree={<DataPsmClassSubtree iri={props.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}

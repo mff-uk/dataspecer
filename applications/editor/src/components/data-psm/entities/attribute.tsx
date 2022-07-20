@@ -11,15 +11,20 @@ import {getCardinalityFromResource} from "../common/cardinality";
 import {DataPsmAttributeDetailDialog} from "../../detail/data-psm-attribute-detail-dialog";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import RemoveIcon from "@mui/icons-material/Remove";
+import {MenuItem} from "@mui/material";
+import {Icons} from "../../../icons";
+import {useDialog} from "../../../dialog";
 
 export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(props.iri);
   const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
   const readOnly = false;
 
-  const dialog = useToggle();
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
+
+  const DetailDialog = useDialog(DataPsmAttributeDetailDialog, ["iri"]);
+
 
   const thisStartRow = <>
     <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
@@ -40,14 +45,23 @@ export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((pr
     {pimAttribute && (" " + getCardinalityFromResource(pimAttribute))}
   </>;
 
+  const thisMenu = <>
+    {readOnly ?
+      <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
+      <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
+    }
+  </>;
+
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
+  const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
 
   return <>
     <DataPsmBaseRow
       {...props}
       icon={<RemoveIcon style={{verticalAlign: "middle"}} />}
       startRow={startRow}
+      menu={menu}
     />
-    <DataPsmAttributeDetailDialog iri={props.iri} isOpen={dialog.isOpen} close={dialog.close} />
+    <DetailDialog.Component iri={props.iri} />
   </>;
 });

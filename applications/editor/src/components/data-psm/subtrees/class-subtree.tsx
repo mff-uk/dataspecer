@@ -5,8 +5,10 @@ import {Collapse} from "@mui/material";
 import {Draggable, Droppable} from "react-beautiful-dnd";
 import {TransitionGroup} from "react-transition-group";
 import {DataPsmPropertyType} from "../data-psm-row";
+import {InheritanceOrTree} from "../common/use-inheritance-or";
+import {DataPsmSpecializationItem} from "../entities/inheritance-tree/specialization";
 
-export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean}> = memo(({iri, isOpen}) => {
+export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheritanceOrTree?: InheritanceOrTree}> = memo(({iri, isOpen, ...props}) => {
   const {resource} = useResource<DataPsmClass>(iri);
   const readOnly = false;
 
@@ -18,7 +20,9 @@ export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean}> = mem
             {resource?.dataPsmParts?.map((part, index) => <Collapse key={part}><Draggable index={index} draggableId={part}>
               {provided =>
                 <div ref={provided.innerRef} {...provided.draggableProps}>
-                  <DataPsmPropertyType iri={part} dragHandleProps={readOnly ? undefined : provided.dragHandleProps} parentDataPsmClassIri={iri} index={index} />
+                  {part !== props.inheritanceOrTree?.hidePropertyIri &&
+                    <DataPsmPropertyType iri={part} dragHandleProps={readOnly ? undefined : provided.dragHandleProps} parentDataPsmClassIri={iri} index={index} />
+                  }
                 </div>
               }
             </Draggable></Collapse>)}
@@ -27,5 +31,8 @@ export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean}> = mem
         </ul>
       }
     </Droppable>
+    {props.inheritanceOrTree && <ul>
+      {props.inheritanceOrTree.children.map(child => <DataPsmSpecializationItem iri={child.dataPsmObjectIri} inheritanceOrTree={child} />)}
+    </ul>}
   </Collapse>;
 });
