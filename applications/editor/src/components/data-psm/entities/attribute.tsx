@@ -3,7 +3,6 @@ import {useItemStyles} from "../PsmItemCommon";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
 import {PimAttribute} from "@dataspecer/core/pim/model";
-import {useToggle} from "../../../hooks/use-toggle";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {Datatype} from "../common/Datatype";
@@ -16,7 +15,7 @@ import {Icons} from "../../../icons";
 import {useDialog} from "../../../dialog";
 
 export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
-  const {resource: dataPsmAttribute, isLoading} = useResource<DataPsmAttribute>(props.iri);
+  const {resource: dataPsmAttribute} = useResource<DataPsmAttribute>(props.iri);
   const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
   const readOnly = false;
 

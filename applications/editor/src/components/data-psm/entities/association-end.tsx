@@ -4,8 +4,7 @@ import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
-import {DataPsmBaseRow, RowSlots} from "../base-row";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import {RowSlots} from "../base-row";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {usePimAssociationFromPimAssociationEnd} from "../use-pim-association-from-pim-association-end";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
@@ -27,12 +26,12 @@ const StrikeOut: React.FC<{
 export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
-  const store = useFederatedObservableStore();
+  //const store = useFederatedObservableStore();
 
   // Data PSM association end
 
   const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(props.iri);
-  const readOnly = false;
+  //const readOnly = false;
   const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize;
 
   // PIM Association and check if it is backward association

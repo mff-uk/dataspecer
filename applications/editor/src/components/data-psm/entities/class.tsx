@@ -84,7 +84,7 @@ export const DataPsmClassItem: React.FC<{
       }}>
       {t("Add import")}
     </MenuItem>
-  </>, [t, include]);
+  </>, [t, dataPsmClass?.iri, ReplaceAlongHierarchy, include]);
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
   const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];

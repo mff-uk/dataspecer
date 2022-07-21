@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useEffect} from "react";
+import React, {memo, useCallback} from "react";
 import {useItemStyles} from "../PsmItemCommon";
 import {useToggle} from "../../../hooks/use-toggle";
 import {useTranslation} from "react-i18next";
@@ -24,7 +24,7 @@ import {DataPsmClassItem} from "./class";
  * Switch between regular and inheritance OR
  */
 export const DataPsmOrItem: React.FC<{iri: string, context: ObjectContext} & RowSlots> = memo((props) => {
-  const [inheritanceOr, inheritanceOrLoading] = useInheritanceOr(props.iri);
+  const [inheritanceOr] = useInheritanceOr(props.iri);
 
   if (inheritanceOr === undefined) {
     return <DataPsmUnknownItem {...props} />

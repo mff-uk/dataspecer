@@ -1,7 +1,7 @@
 import {useToggle} from "../../hooks/use-toggle";
 import React from "react";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
-import {Box, Fade, IconButton, MenuItem, Typography} from "@mui/material";
+import {Box, Fade, IconButton, Typography} from "@mui/material";
 import {ActionsOther} from "./common/actions-other";
 import {useItemStyles} from "./PsmItemCommon";
 import {styled} from "@mui/material/styles";

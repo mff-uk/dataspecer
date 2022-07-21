@@ -138,7 +138,7 @@ export const DataPsmObjectType: React.FC<RowSlots & {
       }}>
       {t("Wrap with OR")}
     </MenuItem>
-  </>], [wrapWithOr]);
+  </>], [t, wrapWithOr]);
 
   if (!resource || props.iri === null) {
     return <DataPsmUnknownItem {...props}/>

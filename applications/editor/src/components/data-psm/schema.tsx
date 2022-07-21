@@ -1,9 +1,9 @@
 import {IconButton, Paper, Typography} from "@mui/material";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
 import {createStyles, makeStyles} from "@mui/styles";
-import {DataPsmAttribute, DataPsmClass, DataPsmOr, DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
 import {useTranslation} from "react-i18next";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
