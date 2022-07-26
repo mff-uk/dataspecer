@@ -173,6 +173,11 @@ test(testNamePrefix + "number of tables", async () => {
     expect(result.tables.length).toBe(3);
 });
 
+test(testNamePrefix + "multiple table @type", async () => {
+    const result = await commonArrange1(true);
+    expect(result["@type"]).toBe("TableGroup");
+});
+
 test(testNamePrefix + "id column", async () => {
     const result = await commonArrange1(true);
     expect(result.tables[0].tableSchema.columns[0]["name"]).toBe("ReferenceId");

@@ -14,6 +14,7 @@ export class SingleTableSchema extends CsvSchema {
 }
 
 export class MultipleTableSchema extends CsvSchema {
+    "@type": string = "TableGroup";
     "tables": Table[] = [];
 
     makeJsonLD(): string {
