@@ -53,6 +53,13 @@ async function commonArrange2(multipleTable) {
     return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
 }
 
+async function commonArrange3() {
+    const arranged = await arrangeSpecAndModel(getResource("datatypes_data_specifications.json"), getResource("datatypes_merged_store.json"));
+    const options = new CsvSchemaGeneratorOptions();
+    options.enableMultipleTableSchema = false;
+    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+}
+
 test(testNamePrefix + "@context", async () => {
     const result = await commonArrange1(false);
     expect(result["@context"][0]).toBe("http://www.w3.org/ns/csvw");
@@ -261,4 +268,19 @@ test(testNamePrefix + "or table", async () => {
 test(testNamePrefix + "dematerialization in tables", async () => {
     const result = await commonArrange2(true);
     expect(result.tables[0].tableSchema.columns[4]["titles"]).toBe("týká_se_místa_informace");
+});
+
+test(testNamePrefix + "datatype integer", async () => {
+    const result = await commonArrange3();
+    expect(result.tableSchema.columns[0]["datatype"]).toBe("integer");
+});
+
+test(testNamePrefix + "datatype boolean", async () => {
+    const result = await commonArrange3();
+    expect(result.tableSchema.columns[1]["datatype"]).toBe("boolean");
+});
+
+test(testNamePrefix + "datatype anyURI", async () => {
+    const result = await commonArrange3();
+    expect(result.tableSchema.columns[2]["datatype"]).toBe("anyURI");
 });
