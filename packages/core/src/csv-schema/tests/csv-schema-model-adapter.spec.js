@@ -53,6 +53,9 @@ async function commonArrange2(multipleTable) {
     return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
 }
 
+/**
+ * Arrange a tree with datatypes
+ */
 async function commonArrange3() {
     const arranged = await arrangeSpecAndModel(getResource("datatypes_data_specifications.json"), getResource("datatypes_merged_store.json"));
     const options = new CsvSchemaGeneratorOptions();
@@ -283,4 +286,9 @@ test(testNamePrefix + "datatype boolean", async () => {
 test(testNamePrefix + "datatype anyURI", async () => {
     const result = await commonArrange3();
     expect(result.tableSchema.columns[2]["datatype"]).toBe("anyURI");
+});
+
+test(testNamePrefix + "no lang for datatype", async () => {
+    const result = await commonArrange3();
+    expect(result.tableSchema.columns[0]["lang"]).toBe(undefined);
 });

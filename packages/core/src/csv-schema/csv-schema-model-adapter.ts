@@ -187,8 +187,8 @@ function makeSimpleColumn(
     }
     else {
         column.datatype = datatype;
-        column.lang = "cs";
     }
+    if (column.datatype === "string" || column.datatype === null) column.lang = "cs";
     return column;
 }
 
