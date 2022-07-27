@@ -183,6 +183,7 @@ function makeSimpleColumn(
     column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
     if (isCodelist) {
         column.valueUrl = "{+" + column.name + "}";
+        column.datatype = "anyURI";
     }
     else {
         column.datatype = datatype;

@@ -158,6 +158,11 @@ test(testNamePrefix + "codelist column no lang", async () => {
     expect(result.tableSchema.columns[3]["lang"]).toBe(undefined);
 });
 
+test(testNamePrefix + "codelist datatype", async () => {
+    const result = await commonArrange1(false);
+    expect(result.tableSchema.columns[3]["datatype"]).toBe("anyURI");
+});
+
 test(testNamePrefix + "virtual column", async () => {
     const result = await commonArrange1(false);
     expect(result.tableSchema.columns[8]["virtual"]).toBe(true);
