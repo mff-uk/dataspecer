@@ -1,4 +1,4 @@
-import React, {memo, useCallback} from "react";
+import React, {memo, useCallback, useContext} from "react";
 import {useItemStyles} from "../PsmItemCommon";
 import {useToggle} from "../../../hooks/use-toggle";
 import {useTranslation} from "react-i18next";
@@ -19,11 +19,22 @@ import {ObjectContext} from "../data-psm-row";
 import {InheritanceOrTree, useInheritanceOr} from "../common/use-inheritance-or";
 import {DataPsmUnknownItem} from "./unknown";
 import {DataPsmClassItem} from "./class";
+import {SettingsContext} from "../../settings/settings";
 
 /**
  * Switch between regular and inheritance OR
  */
 export const DataPsmOrItem: React.FC<{iri: string, context: ObjectContext} & RowSlots> = memo((props) => {
+  const {useInheritanceUiInsteadOfOr} = useContext(SettingsContext);
+
+  if (useInheritanceUiInsteadOfOr) {
+    return <PossibleInheritanceOr {...props} />;
+  } else {
+    return <RegularOr {...props} />;
+  }
+});
+
+const PossibleInheritanceOr: React.FC<{iri: string, context: ObjectContext} & RowSlots> = memo((props) => {
   const [inheritanceOr] = useInheritanceOr(props.iri);
 
   if (inheritanceOr === undefined) {
@@ -32,7 +43,6 @@ export const DataPsmOrItem: React.FC<{iri: string, context: ObjectContext} & Row
 
   if (inheritanceOr) {
     return <InheritanceOr {...props} inheritanceOrTree={inheritanceOr} />
-//    return <RegularOr {...props} />;
   } else {
     return <RegularOr {...props} />;
   }

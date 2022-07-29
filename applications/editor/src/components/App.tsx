@@ -17,6 +17,8 @@ import {Configuration} from "../configuration/configuration";
 import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {SettingsMenu} from "./settings/settings-menu";
+import {SettingsContext, useApplicationSettings} from "./settings/settings";
 
 // @ts-ignore default value
 export const ConfigurationContext = React.createContext<Configuration>(null);
@@ -114,39 +116,44 @@ const App: React.FC = () => {
         };
     }, [operationContext, i18n.languages]);
 
+    const applicationSettings = useApplicationSettings();
+
     return <>
         <SnackbarProvider maxSnack={5}>
-            <DialogAppProvider>
-                <CssBaseline />
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography variant="h6" sx={{fontWeight: "normal"}}>
-                            <strong>Dataspecer</strong> {t("title")}
-                        </Typography>
-                        {backlink && backlink.length > 0 &&
-                            <ThemeProvider theme={ButtonMenuTheme}>
-                                <Button
-                                  color={"primary"}
-                                  variant="contained"
-                                  startIcon={<ArrowBackIcon />}
-                                  sx={{mx: 3}}
-                                  onClick={() => window.location.href = backlink}
-                                >
-                                    {t("back to specification manager")}
-                                </Button>
-                            </ThemeProvider>
-                        }
-                        <Box display="flex" sx={{flexGrow: 1}} justifyContent="flex-end">
-                            <LanguageSelector />
-                        </Box>
-                    </Toolbar>
-                </AppBar>
-                <ConfigurationContext.Provider value={configuration}>
-                    <StoreContext.Provider value={configuration.store}>
-                        <AppContent />
-                    </StoreContext.Provider>
-                </ConfigurationContext.Provider>
-            </DialogAppProvider>
+            <SettingsContext.Provider value={applicationSettings}>
+                <DialogAppProvider>
+                    <CssBaseline />
+                    <AppBar position="static">
+                        <Toolbar>
+                            <Typography variant="h6" sx={{fontWeight: "normal"}}>
+                                <strong>Dataspecer</strong> {t("title")}
+                            </Typography>
+                            {backlink && backlink.length > 0 &&
+                                <ThemeProvider theme={ButtonMenuTheme}>
+                                    <Button
+                                      color={"primary"}
+                                      variant="contained"
+                                      startIcon={<ArrowBackIcon />}
+                                      sx={{mx: 3}}
+                                      onClick={() => window.location.href = backlink}
+                                    >
+                                        {t("back to specification manager")}
+                                    </Button>
+                                </ThemeProvider>
+                            }
+                            <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
+                                <SettingsMenu />
+                                <LanguageSelector />
+                            </Box>
+                        </Toolbar>
+                    </AppBar>
+                    <ConfigurationContext.Provider value={configuration}>
+                        <StoreContext.Provider value={configuration.store}>
+                            <AppContent />
+                        </StoreContext.Provider>
+                    </ConfigurationContext.Provider>
+                </DialogAppProvider>
+            </SettingsContext.Provider>
         </SnackbarProvider>
     </>;
 };
