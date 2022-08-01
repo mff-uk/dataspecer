@@ -17,6 +17,7 @@
 /packages/core/src/xml-schema/ @cermakmarek
 /packages/core/src/xml-transformations/ @cermakmarek
 /packages/core/src/csv-schema/ @JanJanda
+/packages/core/src/rdf-to-csv/ @JanJanda
 
 /packages/federated-observable-store/ @sstenchlak
 /packages/federated-observable-store-react/ @sstenchlak
