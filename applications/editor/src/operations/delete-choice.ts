@@ -1,16 +1,19 @@
-import {DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {DataPsmUnsetChoice} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
+/**
+ * Removes a choice from OR. Choice is identified by IRI because the choice
+ * array is a set of unique objects.
+ */
 export class DeleteChoice implements ComplexOperation {
   private OrIri: string;
-  private index: number;
+  private choiceIri: string;
   private store!: FederatedObservableStore;
 
-  constructor(OrIri: string, index: number) {
+  constructor(OrIri: string, choiceIri: string) {
     this.OrIri = OrIri;
-    this.index = index;
+    this.choiceIri = choiceIri;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -20,13 +23,9 @@ export class DeleteChoice implements ComplexOperation {
   async execute(): Promise<void> {
     const schema = this.store.getSchemaForResource(this.OrIri) as string;
 
-    const or = await this.store.readResource(this.OrIri) as DataPsmOr;
-
-    const choiceIriToRemove = or.dataPsmChoices[this.index];
-
     const dataPsmUnsetChoice = new DataPsmUnsetChoice();
     dataPsmUnsetChoice.dataPsmOr = this.OrIri;
-    dataPsmUnsetChoice.dataPsmChoice = choiceIriToRemove as string;
+    dataPsmUnsetChoice.dataPsmChoice = this.choiceIri;
     await this.store.applyOperation(schema, dataPsmUnsetChoice);
   }
 }

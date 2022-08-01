@@ -11,21 +11,9 @@ import {DataPsmOrItem} from "./entities/or";
 import {DataPsmReferenceItem} from "./entities/reference";
 import {DataPsmIncludeItem} from "./entities/include";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {DeleteAttribute} from "../../operations/delete-attribute";
-import {DataPsmDeleteButton} from "./class/DataPsmDeleteButton";
-import {DeleteAssociationClass} from "../../operations/delete-association-class";
-import {DeleteInclude} from "../../operations/delete-include";
 import {WrapWithOr} from "../../operations/wrap-with-or";
 import {MenuItem} from "@mui/material";
 import {useTranslation} from "react-i18next";
-
-/**
- * Represents a single row in the bullet list representation. Each row starts with an entity denoted by its IRI. The row
- * itself is in a context. For example, a root entity has a different context than entity that is a part of class
- */
-export const DataPsmRootRow: React.FC<{
-  iri: string,
-}> = (props) => null;
 
 /**
  * Context properties for entities as parts of a class.
@@ -62,63 +50,37 @@ export interface AssociationContext {
 
 export type ObjectContext = RootContext | ORContext | IncludeContext | AssociationContext;
 
-
-
-
-
-export const DataPsmPropertyType: React.FC<ClassPartContext & {
+/**
+ * Renders PSM property (attribute, association, or include).
+ */
+export const DataPsmPropertyType: React.FC<RowSlots & ClassPartContext & {
   iri: string | null,
 }> = (props) => {
-  const store = useFederatedObservableStore();
   const {resource} = useResource(props.iri);
 
-  // So far only classes have properties
-  const {resource: ownerClass} = useResource<DataPsmClass>(props.parentDataPsmClassIri);
-
-  // Delete property from class
-  // todo https://github.com/mff-uk/dataspecer/issues/247
-  const deleteAction = useCallback(() => {
-    if (!ownerClass || !resource) {
-      return
-    }
-
-    if (DataPsmAttribute.is(resource)) {
-      store.executeComplexOperation(new DeleteAttribute(resource, ownerClass))
-    }
-
-    if (DataPsmAssociationEnd.is(resource)) {
-      (async () => {
-        const pointed = await store.readResource(resource.dataPsmPart as string) as DataPsmClass;
-        await store.executeComplexOperation(new DeleteAssociationClass(resource, pointed!, ownerClass.iri!));
-      })();
-    }
-
-    if (DataPsmInclude.is(resource)) {
-      store.executeComplexOperation(new DeleteInclude(resource.iri!, ownerClass.iri!));
-    }
-  }, [resource, ownerClass, store]);
-
-  const menu = useMemo(() => [<DataPsmDeleteButton onClick={deleteAction} />], [deleteAction]);
-
-  // Type safety fix
+  // Typescript type safety fix
   const typedProps = props as typeof props & {iri: string};
 
   if (!resource || props.iri === null) {
-    return <DataPsmUnknownItem {...props}/>
+    return <DataPsmUnknownItem {...props} />
   } else if (DataPsmAttribute.is(resource)) {
-    return <DataPsmAttributeItem {...typedProps} menu={menu}/>;
+    return <DataPsmAttributeItem {...typedProps} />;
   } else if (DataPsmAssociationEnd.is(resource)) {
-    return <DataPsmAssociationEndItem {...typedProps} menu={menu} />;
+    return <DataPsmAssociationEndItem {...typedProps} />;
   } else if (DataPsmInclude.is(resource)) {
-    return <DataPsmIncludeItem {...typedProps} menu={menu} />;
+    return <DataPsmIncludeItem {...typedProps} />;
   } else {
     return <DataPsmUnknownItem {...typedProps}/>
   }
 };
 
-export const DataPsmObjectType: React.FC<RowSlots & {
-  iri: string | null,
-  context: ObjectContext,
+/**
+ * Renders objects such as class, class reference and OR
+ * @param props
+ * @constructor
+ */
+export const DataPsmObjectType: React.FC<RowSlots & ObjectContext & {
+  iri: string | null
 }> = (props) => {
   const typedProps = props as typeof props & {iri: string};
   const store = useFederatedObservableStore();
@@ -126,11 +88,13 @@ export const DataPsmObjectType: React.FC<RowSlots & {
 
   const {resource} = useResource(props.iri);
 
+  const canBeWrappedInOR = !DataPsmOr.is(resource) && props.contextType !== "or";
+
   const wrapWithOr = useCallback(() =>
       store.executeComplexOperation(new WrapWithOr(props.iri!))
     , [store, props.iri]);
 
-  const thisHiddenMenu = useMemo(() => [(close: () => void) => <>
+  const thisHiddenMenu = useMemo(() => canBeWrappedInOR ? [(close: () => void) => <>
     <MenuItem
       onClick={() => {
         close();
@@ -138,7 +102,7 @@ export const DataPsmObjectType: React.FC<RowSlots & {
       }}>
       {t("Wrap with OR")}
     </MenuItem>
-  </>], [t, wrapWithOr]);
+  </>] : [], [t, wrapWithOr, canBeWrappedInOR]);
 
   if (!resource || props.iri === null) {
     return <DataPsmUnknownItem {...props}/>

@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useMemo} from "react";
-import {useItemStyles} from "../PsmItemCommon";
+import {useItemStyles} from "../styles";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {useToggle} from "../../../hooks/use-toggle";

@@ -38,7 +38,9 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
    */
   const itemsDragged = useCallback(({draggableId, destination}: DropResult) => {
     if (destination) {
-      store.executeComplexOperation(new SetOrder(destination.droppableId, draggableId, destination.index)).then();
+      const parent = destination.droppableId.split(" ")[0];
+      const property = draggableId.split(" ")[0];
+      store.executeComplexOperation(new SetOrder(parent, property, destination.index)).then();
     }
   }, [store]);
 
@@ -85,7 +87,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul className={styles.ul}>
-              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmObjectType iri={root} key={root} context={rootContext} />)}
+              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmObjectType iri={root} key={root} {...rootContext} />)}
             </ul>
         </DragDropContext>
     </>}

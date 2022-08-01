@@ -8,6 +8,11 @@ import {DataPsmDeleteButton} from "../class/DataPsmDeleteButton";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {DeleteChoice} from "../../../operations/delete-choice";
 
+/**
+ * Renders OR choices as a subtree and adds delete operation for each choice.
+ *
+ * (This component only renders OR as is, not inheritance OR)
+ */
 export const DataPsmOrSubtree: React.FC<{iri: string, isOpen: boolean}> = memo(({iri, isOpen}) => {
   const {resource} = useResource<DataPsmOr>(iri);
 
@@ -18,17 +23,16 @@ export const DataPsmOrSubtree: React.FC<{iri: string, isOpen: boolean}> = memo((
 
   const store = useFederatedObservableStore();
 
-  const deleteChoice = useCallback((index: number) => {
-    store.executeComplexOperation(new DeleteChoice(iri, index))
-  }, [store, iri]);
+  const deleteChoice = useCallback((partIri: string) =>
+    store.executeComplexOperation(new DeleteChoice(iri, partIri)), [store, iri]);
 
   return <Collapse in={isOpen} unmountOnExit>
     <ul>
       {resource &&
       <TransitionGroup exit={false}>
-        {resource.dataPsmChoices.map((iri, index) => <Collapse key={iri}>
-          <DataPsmObjectType iri={iri} context={context} menu={[
-            <DataPsmDeleteButton onClick={() => deleteChoice(index)} />
+        {resource.dataPsmChoices.map(iri => <Collapse key={iri}>
+          <DataPsmObjectType iri={iri} {...context} menu={[
+            <DataPsmDeleteButton onClick={() => deleteChoice(iri)} />
           ]} />
         </Collapse>)}
       </TransitionGroup>

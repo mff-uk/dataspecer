@@ -23,7 +23,7 @@ export const DataPsmReferenceItem: React.FC<{iri: string} & RowSlots> = memo((pr
       {...props}
       iri={resource?.dataPsmClass ?? null}
       startRow={startRow}
-      context={context}
+      {...context}
     />
   </>;
 });

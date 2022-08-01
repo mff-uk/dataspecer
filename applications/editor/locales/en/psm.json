@@ -1,4 +1,5 @@
 {
+  "Add import": "Add import",
   "add to or dialog": {
     "title": "Add class to OR"
   },
@@ -16,8 +17,11 @@
     "no-ancestors": "No ancestors",
     "title": "Generalization"
   },
+  "includes content of": "includes content of",
+  "is dematerialized": "is dematerialized",
   "no description": "no description",
   "no label": "no label",
+  "OR": "OR",
   "refers to": "refers to",
   "replace": "replace",
   "replace along inheritance": {
@@ -33,5 +37,7 @@
     "no-descendants": "No descendants",
     "title": "Specialization"
   },
-  "technical label": "technical label"
+  "technical label": "technical label",
+  "Unwrap": "Unwrap",
+  "Wrap with OR": "Wrap with OR"
 }

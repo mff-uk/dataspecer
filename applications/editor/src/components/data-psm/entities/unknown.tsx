@@ -3,7 +3,7 @@ import {useMemo} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 
 /**
- * Renders item that is unknown.
+ * Renders item that is unknown, or is being loaded.
  * @param props
  */
 export const DataPsmUnknownItem: React.FC<{iri: string | null} & RowSlots> = (props) => {

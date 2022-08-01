@@ -9,17 +9,22 @@ import {DataPsmCreateClass, DataPsmSetChoice} from "@dataspecer/core/data-psm/op
 import {createPimClassIfMissing} from "./helper/pim";
 import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
 
+/**
+ * Adds new class to the OR and tries to create inheritance chain to PIM.
+ */
 export class CreateNewClassInOr implements ComplexOperation {
   private store!: FederatedObservableStore;
   private readonly dataPsmOrIri: string;
   private readonly pimClassIri: string;
   private readonly pimClassStore: CoreResourceReader;
   private context: TechnicalLabelOperationContext|null = null;
+  private pimSchema: string | null;
 
-  constructor(dataPsmOrIri: string, pimClassIri: string, pimClassStore: CoreResourceReader) {
+  constructor(dataPsmOrIri: string, pimClassIri: string, pimClassStore: CoreResourceReader, pimSchema: string|null = null) {
     this.dataPsmOrIri = dataPsmOrIri;
     this.pimClassIri = pimClassIri;
     this.pimClassStore = pimClassStore;
+    this.pimSchema = pimSchema;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -32,6 +37,9 @@ export class CreateNewClassInOr implements ComplexOperation {
 
   async execute(): Promise<void> {
     const dataPsmSchema = this.store.getSchemaForResource(this.dataPsmOrIri) as string;
+
+    // Find parent object to get the type
+
     const resources = await this.store.listResourcesOfType(ASSOCIATION_END);
     let parentAssociation: string = "";
     for (const resourceIri of resources) {
@@ -41,17 +49,21 @@ export class CreateNewClassInOr implements ComplexOperation {
       }
     }
 
-    const dataPsmAssociationEnd = await this.store.readResource(parentAssociation) as DataPsmAssociationEnd;
-    const pimAssociationEnd = await this.store.readResource(dataPsmAssociationEnd.dataPsmInterpretation as string) as PimAssociationEnd;
-    const typedPimClass = await this.store.readResource(pimAssociationEnd.pimPart as string) as PimClass;
-    const pimSchema = this.store.getSchemaForResource(typedPimClass.iri as string) as string;
-
     const desiredPimClass = await this.pimClassStore.readResource(this.pimClassIri) as PimClass;
 
-    await extendPimClassesAlongInheritance(
-        typedPimClass, desiredPimClass, pimSchema, this.store, this.pimClassStore);
+    let pimSchema: string | null = null;
+    if (parentAssociation) {
+      const dataPsmAssociationEnd = await this.store.readResource(parentAssociation) as DataPsmAssociationEnd;
+      const pimAssociationEnd = await this.store.readResource(dataPsmAssociationEnd.dataPsmInterpretation as string) as PimAssociationEnd;
+      const typedPimClass = await this.store.readResource(pimAssociationEnd.pimPart as string) as PimClass;
+      pimSchema = this.store.getSchemaForResource(typedPimClass.iri as string) as string;
 
-    const pimClass = await createPimClassIfMissing(desiredPimClass, pimSchema, this.store);
+
+      await extendPimClassesAlongInheritance(
+          typedPimClass, desiredPimClass, pimSchema, this.store, this.pimClassStore);
+    }
+
+    const pimClass = await createPimClassIfMissing(desiredPimClass, pimSchema ?? this.pimSchema as string, this.store);
 
     // Create data psm class
 

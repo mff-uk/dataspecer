@@ -3,7 +3,7 @@ import React from "react";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {Box, Fade, IconButton, Typography} from "@mui/material";
 import {ActionsOther} from "./common/actions-other";
-import {useItemStyles} from "./PsmItemCommon";
+import {useItemStyles} from "./styles";
 import {styled} from "@mui/material/styles";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {DataPsmItemTreeContext} from "./data-psm-item-tree-context";
@@ -21,6 +21,7 @@ const LightTooltip = styled<typeof Tooltip>(({ className, ...props }) => (
     padding: 0,
     marginLeft: 0,
   },
+  zIndex: 100,
 }));
 
 const Content = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<typeof Typography>>((props, ref) => {

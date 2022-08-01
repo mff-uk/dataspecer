@@ -17,8 +17,11 @@
     "no-ancestors": "Žádní předchůdci",
     "title": "Generalizace"
   },
+  "includes content of": "vkládá obsah",
+  "is dematerialized": "je dematerializována",
   "no description": "bez popisku",
   "no label": "bez titulku",
+  "OR": "OR",
   "refers to": "odkazuje na",
   "replace": "nahradit",
   "replace along inheritance": {
@@ -34,5 +37,7 @@
     "no-descendants": "Žádní potomci",
     "title": "Specializace"
   },
-  "technical label": "technický popisek"
+  "technical label": "technický popisek",
+  "Unwrap": "Vybalit z ORu",
+  "Wrap with OR": "Obalit ORem"
 }

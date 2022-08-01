@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../PsmItemCommon";
+import {useItemStyles} from "../styles";
 import {DataPsmInclude} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {RowSlots} from "../base-row";
@@ -31,7 +31,7 @@ export const DataPsmIncludeItem: React.FC<{iri: string} & RowSlots> = memo((prop
       iri={includedObject}
       startRow={startRow}
       icon={<ContentCopyTwoToneIcon style={{verticalAlign: "middle"}} />}
-      context={context}
+      {...context}
     />
   </>;
 });

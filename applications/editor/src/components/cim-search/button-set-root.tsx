@@ -16,103 +16,111 @@ import SearchIcon from '@mui/icons-material/Search';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
 import AutorenewIcon from '@mui/icons-material/Autorenew'; // ref
 import CodeIcon from '@mui/icons-material/Code';
+import {CreateRootOr} from "../../operations/create-root-or";
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);
 }
 
 const ButtonSetRoot: React.FC = () => {
-    const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
-    const store = useFederatedObservableStore();
-    const {isOpen, open, close} = useToggle();
-    const {t, i18n} = useTranslation("ui");
-    // t('new schema description format')
-    // t('new schema label format')
+  const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
+  const store = useFederatedObservableStore();
+  const {isOpen, open, close} = useToggle();
+  const {t, i18n} = useTranslation("ui");
+  // t('new schema description format')
+  // t('new schema label format')
 
   const buttonRef = useRef(null);
   const menuOpen = useToggle(false);
 
-    const setRootClass = useCallback(async (cls: PimClass) => {
-        const newSchemaLabel = Object.fromEntries(
-            languages.map(
-                lang => [
-                    lang,
-                    formatString(
-                        i18n.getFixedT([lang], "ui")('new schema label format'),
-                        {
-                            label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
-                            description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
-                        }
-                    )
-                ]
-            )
-        );
+  const setRootClass = useCallback(async (cls: PimClass) => {
+    const newSchemaLabel = Object.fromEntries(
+      languages.map(
+        lang => [
+          lang,
+          formatString(
+            i18n.getFixedT([lang], "ui")('new schema label format'),
+            {
+              label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
+              description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+            }
+          )
+        ]
+      )
+    );
 
-        const newSchemaDescription = Object.fromEntries(
-            languages.map(
-                lang => [
-                    lang,
-                    formatString(
-                        i18n.getFixedT([lang], "ui")('new schema description format'),
-                        {
-                            label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
-                            description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
-                        }
-                    )
-                ]
-            )
-        );
+    const newSchemaDescription = Object.fromEntries(
+      languages.map(
+        lang => [
+          lang,
+          formatString(
+            i18n.getFixedT([lang], "ui")('new schema description format'),
+            {
+              label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
+              description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+            }
+          )
+        ]
+      )
+    );
 
-        if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].pim) {
-            const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
-            op.setContext(operationContext);
-            store.executeComplexOperation(op).then();
-        }
-    }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
+    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].pim) {
+      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
+      op.setContext(operationContext);
+      store.executeComplexOperation(op).then();
+    }
+  }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
 
-    return <>
-      <ButtonGroup variant="contained" ref={buttonRef}>
-        <Button variant="contained" onClick={open}>
-            <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
-            {t("set root element button")}
-        </Button>
-        <Button size="small" onClick={menuOpen.open}>
-          <ArrowDropDownIcon />
-        </Button>
-      </ButtonGroup>
+  const setRootOr = useCallback(() => {
+    if (dataSpecificationIri && dataPsmSchemaIri) {
+      store.executeComplexOperation(new CreateRootOr(dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri));
+      menuOpen.close();
+    }
+  }, [dataSpecificationIri, dataPsmSchemaIri, store, dataSpecifications, menuOpen]);
 
-      <Menu anchorEl={buttonRef.current} open={menuOpen.isOpen} onClose={menuOpen.close}>
-        <MenuItem>
-          <ListItemIcon>
-            <SearchIcon fontSize="small" fontWeight="bold" />
-          </ListItemIcon>
-          <ListItemText><strong>Search for class (interpreted entity)</strong></ListItemText>
-        </MenuItem>
+  return <>
+    <ButtonGroup variant="contained" ref={buttonRef}>
+      <Button variant="contained" onClick={open}>
+          <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
+          {t("set root element button")}
+      </Button>
+      <Button size="small" onClick={menuOpen.open}>
+        <ArrowDropDownIcon />
+      </Button>
+    </ButtonGroup>
 
-        <MenuItem>
-          <ListItemIcon>
-            <CallSplitIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Use OR</ListItemText>
-        </MenuItem>
+    <Menu anchorEl={buttonRef.current} open={menuOpen.isOpen} onClose={menuOpen.close}>
+      <MenuItem onClick={open}>
+        <ListItemIcon>
+          <SearchIcon fontSize="small" fontWeight="bold" />
+        </ListItemIcon>
+        <ListItemText><strong>{t("set root.search for class")}</strong></ListItemText>
+      </MenuItem>
 
-        <MenuItem>
-          <ListItemIcon>
-            <AutorenewIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Use class reference to another schema</ListItemText>
-        </MenuItem>
+      <MenuItem onClick={setRootOr}>
+        <ListItemIcon>
+          <CallSplitIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{t("set root.use or")}</ListItemText>
+      </MenuItem>
 
-        <MenuItem disabled>
-          <ListItemIcon>
-            <CodeIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Use structured class (non-interpreted entity)</ListItemText>
-        </MenuItem>
-      </Menu>
+      <MenuItem disabled>
+        <ListItemIcon>
+          <AutorenewIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{t("set root.use class reference")}</ListItemText>
+      </MenuItem>
 
-      <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
-    </>;
+      <MenuItem disabled>
+        <ListItemIcon>
+          <CodeIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{t("set root.use structured class")}</ListItemText>
+      </MenuItem>
+    </Menu>
+
+    <SearchDialog isOpen={isOpen} close={close} selected={setRootClass}/>
+  </>;
 };
 
 export default ButtonSetRoot;

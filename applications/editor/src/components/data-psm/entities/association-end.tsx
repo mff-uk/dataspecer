@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../PsmItemCommon";
+import {useItemStyles} from "../styles";
 import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
@@ -105,11 +105,11 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
   return <>
     <DataPsmObjectType
       {...props}
+      {...context}
       iri={associationPointsToIri}
       startRow={startRow}
       endRow={endRow}
       icon={isCodelist ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
-      context={context}
       menu={menu}
     />
 

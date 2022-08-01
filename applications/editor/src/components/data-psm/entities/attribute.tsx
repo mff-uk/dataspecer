@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {useItemStyles} from "../PsmItemCommon";
+import {useItemStyles} from "../styles";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
 import {PimAttribute} from "@dataspecer/core/pim/model";
