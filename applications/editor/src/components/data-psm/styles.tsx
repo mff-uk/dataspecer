@@ -1,24 +1,5 @@
-import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Theme} from "@mui/material";
-
-/**
- * Component properties for both AssociationEnds and Attributes.
- */
-export interface DataPsmClassPartItemProperties {
-    /**
-     * Resource to render.
-     */
-    dataPsmResourceIri: string;
-
-    /**
-     * Owning class
-     */
-    parentDataPsmClassIri: string;
-
-    dragHandleProps?: DraggableProvidedDragHandleProps;
-    index?: number;
-}
 
 export const useItemStyles = makeStyles((theme: Theme) =>
     createStyles({

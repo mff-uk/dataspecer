@@ -1,7 +1,8 @@
 import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
 import {DataPsmWrapWithOr, DataPsmWrapWithOrResult,} from "../operation";
 import {DataPsmExecutorResultFactory, loadDataPsmSchema,} from "./data-psm-executor-utils";
-import {DataPsmAssociationEnd, DataPsmOr, DataPsmSchema} from "../model";
+import {DataPsmOr, DataPsmSchema} from "../model";
+import {replaceObjectInSchema} from "./replace-object-in-schema";
 
 export async function executeDataPsmWrapWithOr(
   reader: CoreResourceReader,
@@ -15,37 +16,17 @@ export async function executeDataPsmWrapWithOr(
 
   const iri = operation.dataPsmNewIri ?? createNewIdentifier("or");
 
-  let owner = await reader.readResource(operation.dataPsmOwner);
-  if (owner === null) {
-    return CoreExecutorResult.createError("Missing data-psm owner object.");
-  }
-
-  if (DataPsmAssociationEnd.is(owner)) {
-    if (owner.dataPsmPart !== operation.dataPsmChild) {
-      return CoreExecutorResult.createError("Owner (data-psm association end) does not own the child.");
-    }
-
-    owner.dataPsmPart = iri;
-  } else if (DataPsmSchema.is(owner)) {
-    // Make the instances same
-    owner = schema;
-    const ownerAsSchema = owner as DataPsmSchema;
-
-    if (ownerAsSchema.dataPsmRoots[0] !== operation.dataPsmChild) {
-      return CoreExecutorResult.createError("Owner (data-psm schema) does not own the child.");
-    }
-
-    ownerAsSchema.dataPsmRoots[0] = iri;
-  } else {
-    return CoreExecutorResult.createError("Owner has unsupported type.");
-  }
+  const changed = await replaceObjectInSchema(schema.iri, operation.dataPsmChild, iri, reader);
 
   const result = new DataPsmOr(iri);
   result.dataPsmChoices = [operation.dataPsmChild];
 
-  schema.dataPsmParts = [...schema.dataPsmParts, iri];
-
-  const changed = schema === owner ? [schema] : [schema, owner];
+  const changedSchema = changed.some(c => c.iri === schema.iri);
+  if (changedSchema) {
+    changed.map(c => c.iri === schema.iri ? {...c, dataPsmParts: (c as DataPsmSchema).dataPsmParts = [...(c as DataPsmSchema).dataPsmParts, iri]} : c);
+  } else {
+    changed.push({...schema, dataPsmParts: schema.dataPsmParts = [...schema.dataPsmParts, iri]} as DataPsmSchema);
+  }
 
   return CoreExecutorResult.createSuccess(
     [result],

@@ -1,7 +1,7 @@
 import React, {memo, useState} from "react";
 import {DataPsmAttribute, DataPsmResource} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
-import {useItemStyles} from "../PsmItemCommon";
+import {useItemStyles} from "../styles";
 import {Button, InputBase} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";

@@ -4,12 +4,10 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
 
 export class UnwrapOr implements ComplexOperation {
   private readonly or: string;
-  private readonly owner: string;
   private store!: FederatedObservableStore;
 
-  constructor(or: string, owner: string) {
+  constructor(or: string) {
     this.or = or;
-    this.owner = owner;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -21,7 +19,6 @@ export class UnwrapOr implements ComplexOperation {
 
     const dataPsmUnwrapOr = new DataPsmUnwrapOr();
     dataPsmUnwrapOr.dataPsmOr = this.or;
-    dataPsmUnwrapOr.dataPsmOwner = this.owner;
     await this.store.applyOperation(schema, dataPsmUnwrapOr);
   }
 }

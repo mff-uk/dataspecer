@@ -14,6 +14,12 @@
   "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
   "no title": "bez názvu",
+  "set root": {
+    "search for class": "Vyhledat třídu (interpretovanou)",
+    "use class reference": "Použít referenci do jiného schématu",
+    "use or": "Použít OR",
+    "use structured class": "Použít strukturovanou třídu (neinterpretovanou)"
+  },
   "set root element button": "Zvolit kořen",
   "title": "editor schémat",
   "version": "Verze"
