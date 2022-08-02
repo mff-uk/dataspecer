@@ -1,29 +1,19 @@
-import React, {memo} from "react";
+import React, {memo, useMemo} from "react";
 import {useItemStyles} from "../styles";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
 import {PimAttribute} from "@dataspecer/core/pim/model";
-import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {Datatype} from "../common/Datatype";
 import {getCardinalityFromResource} from "../common/cardinality";
-import {DataPsmAttributeDetailDialog} from "../../detail/data-psm-attribute-detail-dialog";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import RemoveIcon from "@mui/icons-material/Remove";
-import {MenuItem} from "@mui/material";
-import {Icons} from "../../../icons";
-import {useDialog} from "../../../dialog";
 
 export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {resource: dataPsmAttribute} = useResource<DataPsmAttribute>(props.iri);
   const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
-  const readOnly = false;
 
-  const {t} = useTranslation("psm");
   const styles = useItemStyles();
-
-  const DetailDialog = useDialog(DataPsmAttributeDetailDialog, ["iri"]);
-
 
   const thisStartRow = <>
     <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
@@ -44,23 +34,16 @@ export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((pr
     {pimAttribute && (" " + getCardinalityFromResource(pimAttribute))}
   </>;
 
-  const thisMenu = <>
-    {readOnly ?
-      <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
-      <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
-    }
-  </>;
-
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
-  const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
+
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
 
   return <>
     <DataPsmBaseRow
       {...props}
       icon={<RemoveIcon style={{verticalAlign: "middle"}} />}
       startRow={startRow}
-      menu={menu}
+      iris={iris}
     />
-    <DetailDialog.Component iri={props.iri} />
   </>;
 });

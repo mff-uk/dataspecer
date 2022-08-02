@@ -1,4 +1,4 @@
-import React, {memo, useState} from "react";
+import React, {memo, useMemo, useState} from "react";
 import {DataPsmClassReference} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {RowSlots} from "../base-row";
@@ -18,12 +18,15 @@ export const DataPsmReferenceItem: React.FC<{iri: string} & RowSlots> = memo((pr
 
   const [context] = useState({contextType: "root"} as RootContext);
 
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
+
   return <>
     <DataPsmObjectType
       {...props}
       iri={resource?.dataPsmClass ?? null}
       startRow={startRow}
       {...context}
+      iris={iris}
     />
   </>;
 });

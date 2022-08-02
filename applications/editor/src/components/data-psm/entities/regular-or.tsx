@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useContext} from "react";
+import React, {memo, useCallback, useContext, useMemo} from "react";
 import {ObjectContext} from "../data-psm-row";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {useTranslation} from "react-i18next";
@@ -85,6 +85,8 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
   const menu = props.menu ? [...props.menu, thisMenu] : [thisMenu];
   const hiddenMenu = props.hiddenMenu ? [...props.hiddenMenu, thisHiddenMenu] : [thisHiddenMenu];
 
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
+
   return <>
     <DataPsmBaseRow
       {...props}
@@ -94,6 +96,7 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}
+      iris={iris}
     />
 
     {props.contextType === "association" && <AddToOr.Component typePimClassIri={props.parentTypePimIri} onSelected={onAddClass}/>}

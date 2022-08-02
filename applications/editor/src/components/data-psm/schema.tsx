@@ -11,8 +11,8 @@ import {SetOrder} from "../../operations/set-order";
 import {Icons} from "../../icons";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {useDialog} from "../../dialog";
-import {DataPsmSchemaDetailDialog} from "../detail/data-psm-schema-detail-dialog";
 import {DataPsmObjectType, RootContext} from "./data-psm-row";
+import {EntityChainDetailDialog} from "../detail/entity-chain-detail-dialog";
 
 
 const useStyles = makeStyles(() =>
@@ -28,7 +28,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
   const readOnly = false;
   const store = useFederatedObservableStore();
 
-  const DetailDialog = useDialog(DataPsmSchemaDetailDialog, ["iri"]);
+  const DetailDialog = useDialog(EntityChainDetailDialog, ["iris"]);
   const openDetail = useCallback(() => DetailDialog.open({}), [DetailDialog]);
 
   const styles = useStyles();
@@ -75,7 +75,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
-        <DetailDialog.Component iri={dataPsmSchemaIri} />
+        <DetailDialog.Component iris={[dataPsmSchemaIri]} />
         <Typography variant="h5">
           <LanguageStringFallback from={dataPsmSchema.dataPsmHumanLabel} fallback={<i>{t("no label")}</i>}/>
           {readOnly ||

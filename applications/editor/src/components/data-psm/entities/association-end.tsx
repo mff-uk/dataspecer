@@ -94,6 +94,8 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
   const endRow = props.endRow ? [thisEndRow, ...props.endRow] : [thisEndRow];
   const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
 
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
+
   const typePimClassIri = pimAssociationEnd?.pimPart;
 
   const context = useMemo(() => ({
@@ -111,6 +113,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
       endRow={endRow}
       icon={isCodelist ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
       menu={menu}
+      iris={iris}
     />
 
     <ReplaceDialog.Component />

@@ -8,13 +8,11 @@ import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescrip
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {useDialog} from "../../../dialog";
-import {DataPsmClassDetailDialog} from "../../detail/data-psm-class-detail-dialog";
 import {AddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {CreateInclude} from "../../../operations/create-include";
 import {DataPsmClassAddSurroundingsButton} from "../class/DataPsmClassAddSurroundingsButton";
 import {MenuItem} from "@mui/material";
-import {Icons} from "../../../icons";
 import {DataPsmClassSubtree} from "../subtrees/class-subtree";
 import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import {InheritanceOrTree} from "../common/use-inheritance-or";
@@ -32,7 +30,6 @@ export const DataPsmClassItem: React.FC<{
   const readOnly = false;
   const cimClassIri = pimClass?.pimInterpretation;
 
-  const DetailDialog = useDialog(DataPsmClassDetailDialog, ["iri"]);
   const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
   const store = useFederatedObservableStore();
@@ -60,10 +57,6 @@ export const DataPsmClassItem: React.FC<{
 
   const thisMenu = <>
     {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
-    {readOnly ?
-      <MenuItem onClick={() => DetailDialog.open({})} title={t("button edit")}><Icons.Tree.Info/></MenuItem> :
-      <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
-    }
   </>;
 
   const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);
@@ -90,6 +83,8 @@ export const DataPsmClassItem: React.FC<{
   const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
   const hiddenMenu = props.hiddenMenu ? [...props.hiddenMenu, thisHiddenMenu] : [thisHiddenMenu];
 
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
+
   return <>
     <DataPsmBaseRow
       {...props}
@@ -98,9 +93,9 @@ export const DataPsmClassItem: React.FC<{
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}
+      iris={iris}
     />
 
-    <DetailDialog.Component iri={props.iri} />
     <AddSurroundings.Component dataPsmClassIri={props.iri} />
     <ReplaceAlongHierarchy.Component />
   </>;

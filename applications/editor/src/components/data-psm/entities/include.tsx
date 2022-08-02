@@ -25,6 +25,8 @@ export const DataPsmIncludeItem: React.FC<{iri: string} & RowSlots> = memo((prop
     parentDataPsmIncludeIri: props.iri,
   } as IncludeContext), [props.iri]);
 
+  const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
+
   return <>
     <DataPsmObjectType
       {...props}
@@ -32,6 +34,7 @@ export const DataPsmIncludeItem: React.FC<{iri: string} & RowSlots> = memo((prop
       startRow={startRow}
       icon={<ContentCopyTwoToneIcon style={{verticalAlign: "middle"}} />}
       {...context}
+      iris={iris}
     />
   </>;
 });

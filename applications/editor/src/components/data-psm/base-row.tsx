@@ -1,7 +1,7 @@
 import {useToggle} from "../../hooks/use-toggle";
 import React from "react";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
-import {Box, Fade, IconButton, Typography} from "@mui/material";
+import {Box, Fade, IconButton, MenuItem, Typography} from "@mui/material";
 import {ActionsOther} from "./common/actions-other";
 import {useItemStyles} from "./styles";
 import {styled} from "@mui/material/styles";
@@ -9,6 +9,10 @@ import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {DataPsmItemTreeContext} from "./data-psm-item-tree-context";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import {useDialog} from "../../dialog";
+import {EntityChainDetailDialog} from "../detail/entity-chain-detail-dialog";
+import {Icons} from "../../icons";
+import {useTranslation} from "react-i18next";
 
 const LightTooltip = styled<typeof Tooltip>(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }}   TransitionComponent={Fade}
@@ -93,6 +97,9 @@ export interface RowSlots {
 
   // Subtree content
   subtree?: React.ReactNode,
+
+  // IRIs that are on the row
+  iris?: string[];
 }
 
 /**
@@ -101,10 +108,17 @@ export interface RowSlots {
  */
 export const DataPsmBaseRow: React.FC<RowSlots> = (props) => {
   const styles = useItemStyles();
+  const {t} = useTranslation("psm");
+
+
+  const DetailDialog = useDialog(EntityChainDetailDialog, ["iris"]);
 
   return <li className={styles.li}>
     <ItemRow collapsible={props.collapseToggle} icon={props.icon} actions={<>
       {props.menu}
+
+      <MenuItem onClick={() => DetailDialog.open({})} title={t("button info")}><Icons.Tree.Edit/></MenuItem>
+
       {!!props.hiddenMenu?.length &&
           <ActionsOther>
             {close => props.hiddenMenu?.map(hm => hm(close))}
@@ -118,5 +132,7 @@ export const DataPsmBaseRow: React.FC<RowSlots> = (props) => {
     </ItemRow>
 
     <>{props.subtree}</>
+
+    <DetailDialog.Component iris={props.iris ?? []} />
   </li>
 };

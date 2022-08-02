@@ -30,7 +30,7 @@ export const DialogWrapper: React.FC<{
 
     const {hasUnsavedChanges, saveChanges, saveHandler} = useSaveHandlerProvider();
     return <SaveHandlerContext.Provider value={saveHandler}>
-        <DialogTitle close={close}>
+        <DialogTitle close={close} sx={{minHeight: "1.5cm"}}>
             {title}
         </DialogTitle>
         <DialogContent dividers>
