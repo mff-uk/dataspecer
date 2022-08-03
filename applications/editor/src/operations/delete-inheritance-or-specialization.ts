@@ -1,4 +1,4 @@
-import {DataPsmUnsetChoice} from "@dataspecer/core/data-psm/operation";
+import {DataPsmUnsetChoice, DataPsmUnwrapOr} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import {DataPsmClass, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
@@ -25,7 +25,7 @@ export class DeleteInheritanceOrSpecialization implements ComplexOperation {
     const schema = this.store.getSchemaForResource(this.ownerOrIri) as string;
 
     // choice IRI to included iri
-    const choiceCache: Record<string, string> = {};
+    const choiceCache: Record<string, string|null> = {};
 
     const or = await this.store.readResource(this.ownerOrIri) as DataPsmOr;
     for (const choiceIri of or.dataPsmChoices) {
@@ -34,15 +34,15 @@ export class DeleteInheritanceOrSpecialization implements ComplexOperation {
         throw new Error("Invalid OR structure");
       }
       const firstItemIri = choice.dataPsmParts[0];
-      if (!firstItemIri) {
-        throw new Error("Invalid OR structure");
-      }
-      const firstItem = await this.store.readResource(firstItemIri);
-      if (!firstItem || !DataPsmInclude.is(firstItem)) {
-        throw new Error("Invalid OR structure");
+      let includes: string | null = null
+      if (firstItemIri) {
+        const firstItem = await this.store.readResource(firstItemIri);
+        if (firstItem && DataPsmInclude.is(firstItem)) {
+          includes = firstItem.dataPsmIncludes as string;
+        }
       }
 
-      choiceCache[choiceIri as string] = firstItem.dataPsmIncludes as string;
+      choiceCache[choiceIri as string] = includes;
     }
 
     const choicesToDelete = [this.classIriToDelete];
@@ -63,6 +63,14 @@ export class DeleteInheritanceOrSpecialization implements ComplexOperation {
       dataPsmUnsetChoice.dataPsmOr = this.ownerOrIri;
       dataPsmUnsetChoice.dataPsmChoice = choiceToDelete;
       await this.store.applyOperation(schema, dataPsmUnsetChoice);
+    }
+
+    // Check if unwrap is ok
+
+    if (choicesToDelete.length + 1 === or.dataPsmChoices.length) {
+      const unwrap = new DataPsmUnwrapOr();
+      unwrap.dataPsmOr = or.iri;
+      await this.store.applyOperation(schema, unwrap);
     }
   }
 }

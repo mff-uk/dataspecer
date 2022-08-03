@@ -100,7 +100,7 @@ export const DataPsmClassItem: React.FC<{
     <DataPsmBaseRow
       {...props}
       startRow={startRow}
-      subtree={<DataPsmClassSubtree iri={props.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
+      subtree={<DataPsmClassSubtree {...props} iri={props.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}

@@ -1,10 +1,10 @@
-import React, {memo, useCallback, useId, useMemo} from "react";
+import React, {memo, useCallback, useId} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {Collapse} from "@mui/material";
 import {Draggable, Droppable} from "react-beautiful-dnd";
 import {TransitionGroup} from "react-transition-group";
-import {DataPsmPropertyType, ORContext} from "../data-psm-row";
+import {DataPsmPropertyType, ObjectContext, ORContext} from "../data-psm-row";
 import {InheritanceOrTree} from "../common/use-inheritance-or";
 import {DataPsmSpecializationItem} from "../entities/specialization";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
@@ -18,7 +18,7 @@ import {DeleteProperty} from "../../../operations/delete-property";
  *   1. can be removed by delete button
  *   2. can be moved by drag-and-drop
  */
-export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheritanceOrTree?: InheritanceOrTree}> = memo(({iri, isOpen, ...props}) => {
+export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheritanceOrTree?: InheritanceOrTree} & ObjectContext> = memo(({iri, isOpen, ...props}) => {
   const store = useFederatedObservableStore();
   const {resource} = useResource<DataPsmClass>(iri);
   const readOnly = false;
@@ -27,11 +27,6 @@ export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheri
     store.executeComplexOperation(new DeleteProperty(iri, partIri)), [iri, store]);
 
   const localDNDType = ` ${useId()}`;
-
-  const orContext = useMemo(() => ({
-    contextType: "or",
-    parentDataPsmOrIri: iri,
-  } as ORContext), [iri]);
 
   return <Collapse in={isOpen} unmountOnExit>
     <Droppable droppableId={iri + localDNDType} type={iri + localDNDType} isDropDisabled={readOnly}>
@@ -59,7 +54,7 @@ export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheri
       }
     </Droppable>
     {props.inheritanceOrTree && <ul>
-      {props.inheritanceOrTree.children.map(child => <DataPsmSpecializationItem iri={child.dataPsmObjectIri} inheritanceOrTree={child} {...orContext} />)}
+      {props.inheritanceOrTree.children.map(child => <DataPsmSpecializationItem contextType={"or"} parentDataPsmOrIri={(props as ORContext).parentDataPsmOrIri} iri={child.dataPsmObjectIri} inheritanceOrTree={child} />)}
     </ul>}
   </Collapse>;
 });

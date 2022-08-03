@@ -6,7 +6,7 @@ import {RowSlots} from "../base-row";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {DeleteInheritanceOrSpecialization} from "../../../operations/delete-inheritance-or-specialization";
 import {DataPsmDeleteButton} from "../class/DataPsmDeleteButton";
-import {ObjectContext} from "../data-psm-row";
+import {ObjectContext, ORContext} from "../data-psm-row";
 
 /**
  * Represents an object type PSM entity in OR under the inheritance view.
@@ -23,8 +23,8 @@ export const DataPsmSpecializationItem: React.FC<{iri: string, inheritanceOrTree
   const startRow = props.startRow ? [thisStartRow, ...props.startRow] : [thisStartRow];
 
   const deleteSpecialization = useCallback(() => {
-    store.executeComplexOperation(new DeleteInheritanceOrSpecialization(props.inheritanceOrTree.dataPsmObjectIri, props.iri))
-  }, [store, props.inheritanceOrTree.dataPsmObjectIri, props.iri]);
+    store.executeComplexOperation(new DeleteInheritanceOrSpecialization((props as ORContext).parentDataPsmOrIri, props.iri))
+  }, [store, props]);
 
   const thisMenu = <>
     <DataPsmDeleteButton onClick={deleteSpecialization} />
