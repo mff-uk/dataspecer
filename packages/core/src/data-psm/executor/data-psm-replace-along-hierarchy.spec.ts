@@ -12,7 +12,8 @@ describe("Replace class along its hierarchy.", () => {
       "http://schema": {
         iri: "http://schema",
         types: [PSM.SCHEMA],
-        dataPsmParts: ["http://class"],
+        dataPsmParts: ["http://class", "http://association_end/1", "http://class/1", "http://class/2"],
+        dataPsmRoots: [],
       } as DataPsmSchema,
       "http://class": {
         iri: "http://class",
