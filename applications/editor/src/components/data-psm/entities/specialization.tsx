@@ -6,11 +6,12 @@ import {RowSlots} from "../base-row";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {DeleteInheritanceOrSpecialization} from "../../../operations/delete-inheritance-or-specialization";
 import {DataPsmDeleteButton} from "../class/DataPsmDeleteButton";
+import {ObjectContext} from "../data-psm-row";
 
 /**
  * Represents an object type PSM entity in OR under the inheritance view.
  */
-export const DataPsmSpecializationItem: React.FC<{iri: string, inheritanceOrTree: InheritanceOrTree } & RowSlots> = memo((props) => {
+export const DataPsmSpecializationItem: React.FC<{iri: string, inheritanceOrTree: InheritanceOrTree } & RowSlots & ObjectContext> = memo((props) => {
   const styles = useItemStyles();
   const store = useFederatedObservableStore();
 

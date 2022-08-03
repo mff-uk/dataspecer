@@ -74,6 +74,15 @@ export class DefaultArtifactConfigurator {
       jsonSchema.configuration = configuration.generatorOptions[JSON_SCHEMA.Generator] ?? null;
       currentSchemaArtefacts.push(jsonSchema);
 
+      //const xsdCoreSchema = new DataSpecificationSchema();
+      //xsdCoreSchema.iri = "https://schemas.dataspecer.com/xsd/core/2022-07.xsd"; // Real URL as IRI
+      //xsdCoreSchema.outputPath = null;
+      //xsdCoreSchema.publicUrl = this.baseURL + xsdCoreSchema.outputPath;
+      //xsdCoreSchema.generator = XML_SCHEMA.Generator;
+      //xsdCoreSchema.psm = psmSchemaIri;
+      //xsdCoreSchema.configuration = configuration.generatorOptions[XML_SCHEMA.Generator] ?? null;
+      //currentSchemaArtefacts.push(xmlSchema);
+
       const xmlSchema = new DataSpecificationSchema();
       xmlSchema.iri = `${psmSchemaIri}#xmlschema`;
       xmlSchema.outputPath = `${dataSpecificationName}/${name}/schema.xsd`;

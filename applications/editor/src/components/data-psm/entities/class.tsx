@@ -17,14 +17,16 @@ import {DataPsmClassSubtree} from "../subtrees/class-subtree";
 import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import {InheritanceOrTree} from "../common/use-inheritance-or";
 import {ObjectContext} from "../data-psm-row";
+import {AddSpecializationDialog} from "../add-specialization/add-specialization-dialog";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
-  context?: ObjectContext,
   inheritanceOrTree?: InheritanceOrTree
-} & RowSlots> = memo((props) => {
+} & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
   const styles = useItemStyles();
+
+  console.log(props);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
   const readOnly = false;
@@ -60,6 +62,7 @@ export const DataPsmClassItem: React.FC<{
   </>;
 
   const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);
+  const AddSpecialization = useDialog(AddSpecializationDialog, ["wrappedOrIri"]);
 
   const thisHiddenMenu = useMemo(() => (close: () => void) => <>
     <MenuItem
@@ -73,11 +76,19 @@ export const DataPsmClassItem: React.FC<{
     <MenuItem
       onClick={() => {
         close();
+        dataPsmClass?.iri && AddSpecialization.open({dataPsmClassIri: dataPsmClass.iri});
+      }}
+      title={t("button add specialization")}>
+      {t("button add specialization")}
+    </MenuItem>
+    <MenuItem
+      onClick={() => {
+        close();
         include();
       }}>
       {t("Add import")}
     </MenuItem>
-  </>, [t, dataPsmClass?.iri, ReplaceAlongHierarchy, include]);
+  </>, [t, dataPsmClass?.iri, ReplaceAlongHierarchy, AddSpecialization, include]);
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
   const menu = props.menu ? [thisMenu, ...props.menu] : [thisMenu];
@@ -98,5 +109,6 @@ export const DataPsmClassItem: React.FC<{
 
     <AddSurroundings.Component dataPsmClassIri={props.iri} />
     <ReplaceAlongHierarchy.Component />
+    <AddSpecialization.Component wrappedOrIri={props.contextType === "or" ? props.parentDataPsmOrIri : undefined} />
   </>;
 });

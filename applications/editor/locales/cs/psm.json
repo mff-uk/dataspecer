@@ -1,10 +1,15 @@
 {
   "Add import": "Importovat obsah jiné třídy",
+  "add specialization": {
+    "help": "Umožňuje přidat dané třídě specializaci, která danou třídu rozšiřuje o další atributy a asociace. Vygenerovaná schémata pak obsahují jak základní třídu, tak i specializaci v ORu, tedy výsledná data mohou odpovídat základní třídě i specializaci.",
+    "title": "Přidat specializaci"
+  },
   "add to or dialog": {
     "title": "Přidat třídu do ORu"
   },
   "backwards association": "zpětná asociace",
   "button add": "přidat",
+  "button add specialization": "Přidat specializaci (přes OR)",
   "button delete": "odstranit",
   "button info": "detail",
   "button inline discard": "zahodit",
@@ -38,5 +43,6 @@
   },
   "technical label": "technický popisek",
   "Unwrap": "Vybalit z ORu",
+  "with specializations": "mající specializace",
   "Wrap with OR": "Obalit ORem"
 }

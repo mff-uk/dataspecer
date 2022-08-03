@@ -1,10 +1,15 @@
 {
   "Add import": "Add import",
+  "add specialization": {
+    "help": "This dialog allows to add a specialization to a given class which extends the class with additional attributes and associations. The generated schemas then contain both the base class and the specialization in OR, so the resulting data can correspond to both the base class and the specialization.",
+    "title": "Add specialization"
+  },
   "add to or dialog": {
     "title": "Add class to OR"
   },
   "backwards association": "backwards association",
   "button add": "add",
+  "button add specialization": "Add specialization (using OR)",
   "button delete": "delete",
   "button info": "detail",
   "button inline discard": "discard",
@@ -38,5 +43,6 @@
   },
   "technical label": "technical label",
   "Unwrap": "Unwrap",
+  "with specializations": "with specializations",
   "Wrap with OR": "Wrap with OR"
 }

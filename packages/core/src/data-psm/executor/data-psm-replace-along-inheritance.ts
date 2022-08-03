@@ -1,13 +1,16 @@
 import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
 import {DataPsmReplaceAlongInheritance} from "../operation";
-import {DataPsmExecutorResultFactory,} from "./data-psm-executor-utils";
-import {DataPsmAssociationEnd, DataPsmClass} from "../model";
+import {DataPsmExecutorResultFactory, loadDataPsmSchema,} from "./data-psm-executor-utils";
+import {DataPsmClass} from "../model";
+import {replaceObjectInSchema} from "./replace-object-in-schema";
 
 export async function executeDataPsmReplaceAlongInheritance(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
   operation: DataPsmReplaceAlongInheritance
 ): Promise<CoreExecutorResult> {
+  const schema = await loadDataPsmSchema(reader);
+
   const originalResource = await reader.readResource(
     operation.dataPsmOriginalClass
   );
@@ -48,29 +51,17 @@ export async function executeDataPsmReplaceAlongInheritance(
 
   // todo are all parts valid under the new replacingResource
 
-  // Owner association end
-  const resources = await reader.listResources();
-  let ownerAssociationEnd: DataPsmAssociationEnd | null = null;
-  for (const resourceIri of resources) {
-    const resource = await reader.readResource(resourceIri);
-    if (DataPsmAssociationEnd.is(resource) && resource.dataPsmPart === originalResource.iri) {
-      if (ownerAssociationEnd !== null) {
-        return CoreExecutorResult.createError(
-          "Multiple owner association ends found"
-        );
-      }
-      ownerAssociationEnd = resource;
-    }
-  }
-  if (ownerAssociationEnd === null) {
-    return CoreExecutorResult.createError(
-      "No owner association end found"
-    );
-  }
+  // No collisions with other entities
+  const changed = await replaceObjectInSchema(
+    schema.iri,
+    operation.dataPsmOriginalClass,
+    operation.dataPsmReplacingClass,
+    reader);
 
   return CoreExecutorResult.createSuccess(
     [],
     [
+      ...changed,
       {
         ...originalResource,
         dataPsmParts: [],
@@ -79,10 +70,6 @@ export async function executeDataPsmReplaceAlongInheritance(
         ...replacingResource,
         dataPsmParts: originalResource.dataPsmParts,
       } as DataPsmClass,
-      {
-        ...ownerAssociationEnd,
-        dataPsmPart: replacingResource.iri,
-      } as DataPsmAssociationEnd,
     ]
   );
 }
