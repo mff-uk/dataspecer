@@ -10,6 +10,8 @@ import {StreamDictionary} from "../io/stream/stream-dictionary";
 import {RDF_TO_CSV} from "./rdf-to-csv-vocabulary";
 import {SparqlQuery} from "../sparql-query/sparql-model";
 import {writeSparqlQuery} from "../sparql-query";
+import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
+import {buildQuery} from "./rdf-to-csv-query-builder";
 
 export class RdfToCsvGenerator implements ArtefactGenerator {
 
@@ -34,7 +36,9 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         artefact: DataSpecificationArtefact,
         specification: DataSpecification
     ): Promise<SparqlQuery> {
-        return new SparqlQuery();
+        const csvGenerator = new CsvSchemaGenerator();
+        const csvSchema = await csvGenerator.generateToObject(context, artefact, specification);
+        return buildQuery(csvSchema);
     }
 
     async generateForDocumentation(

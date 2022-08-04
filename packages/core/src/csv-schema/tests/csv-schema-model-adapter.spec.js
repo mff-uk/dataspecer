@@ -1,66 +1,29 @@
-import { getResource } from "./resources/resource-provider";
-import { ReadOnlyMemoryStore } from "../../core";
-import { coreResourcesToConceptualModel } from "../../conceptual-model";
-import { coreResourcesToStructuralModel } from "../../structure-model";
-import { transformStructureModel } from "../../structure-model/transformation";
-import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
-import { CsvSchemaGeneratorOptions } from "../csv-schema-generator-options";
+import { createCsvSchema } from "./test-helpers";
 
 const testNamePrefix = "CSV generator: ";
-
-async function arrangeSpecAndModel(specificationResource, storeResource) {
-    const dataSpecificationIri = Object.values(specificationResource)[0].iri;
-    const psmIri = specificationResource[dataSpecificationIri].psms[0];
-
-    const store = ReadOnlyMemoryStore.create(storeResource);
-    const dataSpecification = specificationResource[dataSpecificationIri];
-
-    const conceptualModel = await coreResourcesToConceptualModel(
-        store,
-        dataSpecification.pim
-    );
-
-    let structureModel = await coreResourcesToStructuralModel(
-        store,
-        psmIri
-    );
-
-    structureModel = transformStructureModel(
-        conceptualModel,
-        structureModel,
-        Object.values(specificationResource)
-    );
-    return { dataSpecification, structureModel };
-}
 
 /**
  * Arrange a basic tree
  */
 async function commonArrange1(multipleTable) {
-    const arranged = await arrangeSpecAndModel(getResource("basic_tree_data_specifications.json"), getResource("basic_tree_merged_store.json"));
-    const options = new CsvSchemaGeneratorOptions();
-    options.enableMultipleTableSchema = multipleTable;
-    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+    const schema = await createCsvSchema(multipleTable, "basic_tree_data_specifications.json", "basic_tree_merged_store.json");
+    return JSON.parse(schema.makeJsonLD());
 }
 
 /**
  * Arrange a tree with advanced features: dematerialization, include, or
  */
 async function commonArrange2(multipleTable) {
-    const arranged = await arrangeSpecAndModel(getResource("demat_include_or_data_specifications.json"), getResource("demat_include_or_merged_store.json"));
-    const options = new CsvSchemaGeneratorOptions();
-    options.enableMultipleTableSchema = multipleTable;
-    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+    const schema = await createCsvSchema(multipleTable, "demat_include_or_data_specifications.json", "demat_include_or_merged_store.json");
+    return JSON.parse(schema.makeJsonLD());
 }
 
 /**
  * Arrange a tree with datatypes
  */
 async function commonArrange3() {
-    const arranged = await arrangeSpecAndModel(getResource("datatypes_data_specifications.json"), getResource("datatypes_merged_store.json"));
-    const options = new CsvSchemaGeneratorOptions();
-    options.enableMultipleTableSchema = false;
-    return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
+    const schema = await createCsvSchema(false, "datatypes_data_specifications.json", "datatypes_merged_store.json");
+    return JSON.parse(schema.makeJsonLD());
 }
 
 test(testNamePrefix + "@context", async () => {
