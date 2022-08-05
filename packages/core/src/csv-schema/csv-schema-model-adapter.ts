@@ -6,7 +6,9 @@ import {
     TableSchema,
     Column,
     ForeignKey,
-    Reference
+    Reference,
+    AbsoluteIRI,
+    CompactIRI
 } from "./csv-schema-model";
 import {
     StructureModel,
@@ -70,7 +72,7 @@ function makeTablesRecursive (
 ) : void {
     const table = new Table();
     tables.push(table);
-    table.url = namePrefix + nameNumber.value++ + ".csv";
+    table.url = new AbsoluteIRI(namePrefix + nameNumber.value++ + ".csv");
     table.tableSchema = new TableSchema();
 
     const idColName = "ReferenceId";
@@ -107,8 +109,8 @@ function makeTablesRecursive (
     // adds rdf:type virtual column
     const virtualCol = new Column();
     virtualCol.virtual = true;
-    virtualCol.propertyUrl = "rdf:type";
-    virtualCol.valueUrl = currentClass.cimIri;
+    virtualCol.propertyUrl = new CompactIRI("rdf", "type");
+    virtualCol.valueUrl = new AbsoluteIRI(currentClass.cimIri);
     table.tableSchema.columns.push(virtualCol);
 }
 
@@ -122,16 +124,16 @@ function createSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = idPrefix + specification.artefacts[4].publicUrl;
-    schema.table.url = idPrefix + specification.artefacts[4].publicUrl + "/table.csv";
+    schema.table["@id"] = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl);
+    schema.table.url = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl + "/table.csv");
     schema.table.tableSchema = new TableSchema();
     fillTableSchemaRecursive(schema.table.tableSchema, model.roots[0].classes[0], "");
 
     // adds rdf:type virtual column
     const virtualCol = new Column();
     virtualCol.virtual = true;
-    virtualCol.propertyUrl = "rdf:type";
-    virtualCol.valueUrl = model.roots[0].classes[0].cimIri;
+    virtualCol.propertyUrl = new CompactIRI("rdf", "type");
+    virtualCol.valueUrl = new AbsoluteIRI(model.roots[0].classes[0].cimIri);
     schema.table.tableSchema.columns.push(virtualCol);
 
     return schema;
@@ -179,10 +181,10 @@ function makeSimpleColumn(
     column.titles = namePrefix + property.technicalLabel;
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
-    column.propertyUrl = property.cimIri;
+    column.propertyUrl = new AbsoluteIRI(property.cimIri);
     column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
     if (isCodelist) {
-        column.valueUrl = "{+" + column.name + "}";
+        column.valueUrl = new AbsoluteIRI("{+" + column.name + "}");
         column.datatype = "anyURI";
     }
     else {
