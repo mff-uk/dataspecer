@@ -11,7 +11,9 @@ import {
     SparqlNode,
     SparqlQNameNode,
     SparqlUriNode,
-    SparqlTriple
+    SparqlVariableNode,
+    SparqlTriple,
+    SparqlPattern
 } from "../sparql-query/sparql-model";
 import { assertFailed } from "../core";
 import { readFileSync } from "fs";
@@ -25,33 +27,43 @@ export function buildQuery(schema: CsvSchema) : SparqlSelectQuery {
 
 function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
     const query = new SparqlSelectQuery();
-
+    query.prefixes = {};
+    query.select = [];
+    query.where = new SparqlPattern();
+    query.where.elements = [];
+    const commonSubject = new SparqlVariableNode();
+    commonSubject.variableName = "cs";
+    const objectPrefix = "v";
+    let objectIndex = 1;
+    for (const column of schema.table.tableSchema.columns) {
+        const triple = new SparqlTriple();
+        triple.subject = commonSubject;
+        triple.predicate = columnToPredicate(column, query.prefixes);
+        const objectNode = new SparqlVariableNode();
+        objectNode.variableName = objectPrefix + objectIndex.toString();
+        query.select.push(objectNode.variableName);
+        triple.object = objectNode;
+        query.where.elements.push(triple);
+        objectIndex++;
+    }
     return query;
 }
 
-function processColumn(
+/**
+ * This function creates a SPARQL (predicate) node according to the column and adds necessary prefix to the query.
+ */
+export function columnToPredicate(
     column: Column,
-    subject: SparqlNode,
-    object: SparqlNode,
-    query: SparqlSelectQuery
-) : void {
-    const triple = new SparqlTriple();
-    triple.subject = subject;
-    triple.object = object;
-
-    if (column.propertyUrl) {
-        if (column.propertyUrl instanceof AbsoluteIRI) triple.predicate = nodeFromIri(column.propertyUrl.value, query.prefixes);
-        else if (column.propertyUrl instanceof CompactIRI) triple.predicate = nodeFromIri(resolveCompactIri(column.propertyUrl), query.prefixes);
-        else assertFailed("Ivalid IRI format!");
-    }
-    else if (column.name) {
+    queryPrefixes: Record<string, string>
+) : SparqlNode {
+    if (column.propertyUrl instanceof AbsoluteIRI) return nodeFromIri(column.propertyUrl.value, queryPrefixes);
+    if (column.propertyUrl instanceof CompactIRI) return nodeFromIri(resolveCompactIri(column.propertyUrl), queryPrefixes);
+    if (column.name) {
         const node = new SparqlUriNode();
         node.uri = "#" + column.name;
-        triple.predicate = node;
+        return node;
     }
-    else assertFailed("Missing property identifier in column!");
-
-    query.where.elements.push(triple);
+    assertFailed("Missing property identifier in column!");
 }
 
 /**
@@ -84,11 +96,11 @@ export function resolveCompactIri(compact: CompactIRI) : string {
  * This function splits full absolute IRI into a namespace and a local part.
  */
 export function splitIri(fullIri: string) : { namespace: string, local: string} {
-    let lastSlash = 0;
+    let lastBreak = 0;
     for (let i = 0; i < fullIri.length; i++) {
-        if (fullIri[i] === "/") lastSlash = i;
+        if (fullIri[i] === "/" || fullIri[i] === "#") lastBreak = i;
     }
-    return { namespace: fullIri.slice(0, lastSlash + 1), local: fullIri.slice(lastSlash + 1) }
+    return { namespace: fullIri.slice(0, lastBreak + 1), local: fullIri.slice(lastBreak + 1) }
 }
 
 /**
@@ -112,8 +124,8 @@ export function addPrefix(namespaceIri: string, queryPrefixes: Record<string, st
     const genericPrefix = "ns";
     let max = 0;
     for (const ns in queryPrefixes) {
-        if (ns.slice(0, 2) === genericPrefix) {
-            let nsNumber = parseInt(ns.slice(2));
+        if (ns.slice(0, genericPrefix.length) === genericPrefix) {
+            let nsNumber = parseInt(ns.slice(genericPrefix.length));
             if (nsNumber > max) max = nsNumber;
         }
     }
