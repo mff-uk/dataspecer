@@ -13,7 +13,8 @@ import {
     SparqlUriNode,
     SparqlVariableNode,
     SparqlTriple,
-    SparqlPattern
+    SparqlPattern,
+    SparqlOptionalPattern
 } from "../sparql-query/sparql-model";
 import { assertFailed } from "../core";
 import { readFileSync } from "fs";
@@ -33,17 +34,26 @@ function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
     query.where.elements = [];
     const commonSubject = new SparqlVariableNode();
     commonSubject.variableName = "cs";
-    const objectPrefix = "v";
     let objectIndex = 1;
+
     for (const column of schema.table.tableSchema.columns) {
         const triple = new SparqlTriple();
         triple.subject = commonSubject;
         triple.predicate = columnToPredicate(column, query.prefixes);
         const objectNode = new SparqlVariableNode();
-        objectNode.variableName = objectPrefix + objectIndex.toString();
-        query.select.push(objectNode.variableName);
+        objectNode.variableName = "v" + objectIndex.toString();
         triple.object = objectNode;
-        query.where.elements.push(triple);
+        query.select.push(objectNode.variableName);
+
+        if (column.required || column.virtual) query.where.elements.push(triple);
+        else {
+            const opt = new SparqlOptionalPattern();
+            opt.optionalPattern = new SparqlPattern();
+            opt.optionalPattern.elements = [];
+            opt.optionalPattern.elements.push(triple);
+            query.where.elements.push(opt);
+        }
+
         objectIndex++;
     }
     return query;
