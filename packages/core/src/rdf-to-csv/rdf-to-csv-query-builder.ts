@@ -41,9 +41,15 @@ function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
         triple.subject = commonSubject;
         triple.predicate = columnToPredicate(column, query.prefixes);
         const objectNode = new SparqlVariableNode();
-        objectNode.variableName = "v" + objectIndex.toString();
+        if (column.titles === null) {
+            objectNode.variableName = "v" + objectIndex.toString();
+            objectIndex++;
+        }
+        else {
+            objectNode.variableName = column.titles;
+            query.select.push("?" + objectNode.variableName);
+        }
         triple.object = objectNode;
-        query.select.push(objectNode.variableName);
 
         if (column.required || column.virtual) query.where.elements.push(triple);
         else {
@@ -53,14 +59,12 @@ function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
             opt.optionalPattern.elements.push(triple);
             query.where.elements.push(opt);
         }
-
-        objectIndex++;
     }
     return query;
 }
 
 /**
- * This function creates a SPARQL (predicate) node according to the column and adds necessary prefix to the query.
+ * Creates a SPARQL (predicate) node according to the column and adds necessary prefix to the query.
  */
 export function columnToPredicate(
     column: Column,
@@ -77,7 +81,7 @@ export function columnToPredicate(
 }
 
 /**
- * This function creates an RDF triple node from an IRI and adds a necessary prefix to query.
+ * Creates an RDF triple node from an IRI and adds a necessary prefix to query.
  */
 function nodeFromIri(iriString: string, queryPrefixes: Record<string, string>) : SparqlQNameNode {
     const separatedIri = splitIri(iriString);
@@ -88,12 +92,12 @@ function nodeFromIri(iriString: string, queryPrefixes: Record<string, string>) :
 }
 
 /**
- * This constant holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
+ * Holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
  */
 const csvwContext = JSON.parse(readFileSync(join(__dirname, "csvw-context.jsonld"), "utf8"));
 
 /**
- * This function uses CSVW context to resolve prefix and create a full IRI from a compact IRI.
+ * Uses CSVW context to resolve prefix and create a full IRI from a compact IRI.
  */
 export function resolveCompactIri(compact: CompactIRI) : string {
     let absolute = csvwContext["@context"][compact.prefix];
@@ -103,7 +107,7 @@ export function resolveCompactIri(compact: CompactIRI) : string {
 }
 
 /**
- * This function splits full absolute IRI into a namespace and a local part.
+ * Splits full absolute IRI into a namespace and a local part.
  */
 export function splitIri(fullIri: string) : { namespace: string, local: string} {
     let lastBreak = 0;
@@ -114,7 +118,7 @@ export function splitIri(fullIri: string) : { namespace: string, local: string} 
 }
 
 /**
- * This function creates a prefix from a namespace IRI, adds the namespace into a query and returns the prefix.
+ * Creates a prefix from a namespace IRI, adds the namespace into a query and returns the prefix.
  */
 export function addPrefix(namespaceIri: string, queryPrefixes: Record<string, string>) : string {
     // Check if the namespace is already present.
