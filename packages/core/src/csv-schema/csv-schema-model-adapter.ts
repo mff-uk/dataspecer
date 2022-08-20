@@ -7,6 +7,7 @@ import {
     Column,
     ForeignKey,
     Reference,
+    IRI,
     AbsoluteIRI,
     CompactIRI
 } from "./csv-schema-model";
@@ -37,8 +38,8 @@ export function structureModelToCsvSchema(
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    if (configuration.enableMultipleTableSchema) return createMultipleTableSchema(specification, model);
-    else return createSingleTableSchema(specification, model);
+    if (configuration.enableMultipleTableSchema) return makeMultipleTableSchema(specification, model);
+    else return makeSingleTableSchema(specification, model);
 }
 
 /**
@@ -46,7 +47,7 @@ export function structureModelToCsvSchema(
  * @param specification
  * @param model
  */
-function createMultipleTableSchema(
+function makeMultipleTableSchema(
     specification: DataSpecification,
     model: StructureModel
 ) : MultipleTableSchema {
@@ -108,12 +109,32 @@ function makeTablesRecursive(
     table.tableSchema.columns.push(makeTypeColumn(currentClass.cimIri));
 }
 
+function makeMultipleValueTable(
+    tableUrl: IRI,
+    property: StructureModelProperty,
+    referencedTable: IRI,
+    referencedColumn: string
+) : Table {
+    const table = new Table();
+    table.url = tableUrl;
+    table.tableSchema = new TableSchema();
+
+    const firstColumn = new Column();
+    firstColumn.name = "Reference";
+    firstColumn.titles = firstColumn.name;
+    firstColumn.datatype = "string";
+    firstColumn.required = true;
+    table.tableSchema.columns.push(firstColumn);
+
+    return table;
+}
+
 /**
  * Creates a schema that consists of a single table.
  * @param specification
  * @param model
  */
-function createSingleTableSchema(
+function makeSingleTableSchema(
     specification: DataSpecification,
     model: StructureModel
 ) : SingleTableSchema {
@@ -121,47 +142,48 @@ function createSingleTableSchema(
     schema.table["@id"] = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl);
     schema.table.url = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl + "/table.csv");
     schema.table.tableSchema = new TableSchema();
-    fillTableSchemaRecursive(schema.table.tableSchema, model.roots[0].classes[0], "");
+    fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
     return schema;
 }
 
 /**
- * Recursively adds columns to the table schema. It calls itself if it finds an association with some properties.
- * @param tableSchema The table schema to be filled
+ * Recursively creates columns of a denormalized table. It calls itself if it finds an association with some properties.
+ * @param columns The array for created columns
  * @param currentClass The parameter of recursion
  * @param prefix Prefix of created columns
+ * @param requiredSubtree Tells if the current class is in a required subtree
  */
-function fillTableSchemaRecursive(
-    tableSchema: TableSchema,
+function fillColumnsRecursive(
+    columns: Column[],
     currentClass: StructureModelClass,
-    prefix: string
+    prefix: string,
+    requiredSubtree: boolean
 ) : void {
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
+        const required = requiredSubtree && (property.cardinalityMin > 0);
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
-            if (associatedClass.properties.length === 0) tableSchema.columns.push(makeColumnFromProp(property, prefix, "string", associatedClass.isCodelist));
-            else fillTableSchemaRecursive(tableSchema, associatedClass, prefix + property.technicalLabel + "_");
+            if (associatedClass.properties.length === 0) columns.push(makeColumnFromProp(property, prefix, required));
+            else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + "_", required);
         }
-        else if (dataType.isAttribute()) tableSchema.columns.push(makeColumnFromProp(property, prefix, structureModelPrimitiveToCsvDefinition(dataType), false));
+        else if (dataType.isAttribute()) columns.push(makeColumnFromProp(property, prefix, required));
         else assertFailed("Unexpected datatype!");
     }
 }
 
 /**
  * Creates a simple column and fills its data from the property.
- * @param property Most of the column's data are taken from this property.
- * @param namePrefix Name of the column has this prefix.
- * @param datatype The column has this datatype.
- * @param isCodelist Does the column contain a code list?
+ * @param property Most of the column's data are taken from this property
+ * @param namePrefix Name of the column has this prefix
+ * @param required The "required" field of the column
  * @returns The new and prepared column
  */
 function makeColumnFromProp(
     property: StructureModelProperty,
     namePrefix: string,
-    datatype: string | null,
-    isCodelist: boolean
+    required: boolean
 ) : Column {
     const column = new Column();
     column.name = encodeURI(namePrefix + property.technicalLabel);
@@ -169,15 +191,24 @@ function makeColumnFromProp(
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = new AbsoluteIRI(property.cimIri);
-    column.required = property.cardinalityMin === 1 && property.cardinalityMax === 1;
-    if (isCodelist) {
-        column.valueUrl = new AbsoluteIRI("{+" + column.name + "}");
-        column.datatype = "anyURI";
+    column.required = required;
+    const dataType = property.dataTypes[0];
+
+    if (dataType.isAssociation()) {
+        if (dataType.dataType.isCodelist) {
+            column.valueUrl = new AbsoluteIRI("{+" + column.name + "}");
+            column.datatype = "anyURI";
+        }
+        else {
+            column.datatype = "string";
+        }
     }
-    else {
-        column.datatype = datatype;
+    else if (dataType.isAttribute()) {
+        column.datatype = structureModelPrimitiveToCsvDefinition(dataType);
+        if (column.datatype === "string") column.lang = "cs";
     }
-    if (column.datatype === "string" || column.datatype === null) column.lang = "cs";
+    else assertFailed("Unexpected datatype!");
+
     return column;
 }
 
