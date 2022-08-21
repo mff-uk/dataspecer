@@ -28,6 +28,20 @@ import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
 const idPrefix = "https://ofn.gov.cz/schema";
 
+class TableUrlGenerator {
+    private num = 0;
+    private readonly prefix: string;
+
+    constructor(prefix: string) {
+        this.prefix = "https://ofn.gov.cz/schema" + prefix;
+    }
+
+    getNext(): AbsoluteIRI {
+        this.num++;
+        return new AbsoluteIRI(this.prefix + this.num.toString() + ".csv");
+    }
+}
+
 /**
  * Creates CSV schema from StructureModel, DataSpecification and a configuration.
  */
