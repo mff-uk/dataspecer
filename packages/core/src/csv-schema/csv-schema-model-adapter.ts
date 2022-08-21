@@ -107,6 +107,35 @@ function makeTablesRecursive(
     table.tableSchema.columns.push(makeTypeColumn(currentClass.cimIri));
 }
 
+function makeRelationTable(
+    tableUrl: IRI,
+    leftTable: IRI,
+    leftColumn: string,
+    rightTable: IRI,
+    rightColumn: string
+) : Table {
+    const table = new Table();
+    table.url = tableUrl;
+    table.tableSchema = new TableSchema();
+
+    const firstColumn = makeReferenceColumn("LeftReference");
+    table.tableSchema.columns.push(firstColumn);
+
+    const secondColumn = makeReferenceColumn("RightReference");
+    table.tableSchema.columns.push(secondColumn);
+
+    table.tableSchema.primaryKey = [];
+    table.tableSchema.primaryKey.push(firstColumn.name, secondColumn.name);
+
+    const leftFkey = makeForeignKey(firstColumn.name, leftTable, leftColumn);
+    table.tableSchema.foreignKeys.push(leftFkey);
+
+    const rightFkey = makeForeignKey(secondColumn.name, rightTable, rightColumn);
+    table.tableSchema.foreignKeys.push(rightFkey);
+
+    return table;
+}
+
 function makeMultipleValueTable(
     tableUrl: IRI,
     property: StructureModelProperty,
@@ -117,24 +146,53 @@ function makeMultipleValueTable(
     table.url = tableUrl;
     table.tableSchema = new TableSchema();
 
-    const firstColumn = new Column();
-    firstColumn.name = "Reference";
-    firstColumn.titles = firstColumn.name;
-    firstColumn.datatype = "string";
-    firstColumn.required = true;
+    const firstColumn = makeReferenceColumn("Reference");
     table.tableSchema.columns.push(firstColumn);
 
     const secondColumn = makeColumnFromProp(property, "", true);
     table.tableSchema.columns.push(secondColumn);
 
-    const fkey = new ForeignKey();
-    fkey.columnReference = firstColumn.name;
-    fkey.reference = new Reference();
-    fkey.reference.resource = referencedTable;
-    fkey.reference.columnReference = referencedColumn;
+    table.tableSchema.primaryKey = [];
+    table.tableSchema.primaryKey.push(firstColumn.name, secondColumn.name);
+
+    const fkey = makeForeignKey(firstColumn.name, referencedTable, referencedColumn);
     table.tableSchema.foreignKeys.push(fkey);
 
     return table;
+}
+
+/**
+ * Creates a column for reference (foreign key).
+ * @param title The title of the column
+ */
+function makeReferenceColumn(
+    title: string
+) : Column {
+    const col = new Column();
+    col.titles = title;
+    col.name = encodeURI(col.titles);
+    col.datatype = "string";
+    col.required = true;
+    return col;
+}
+
+/**
+ * Creates a foreign key and fills its fields.
+ * @param localColumn The column name of the table with the key
+ * @param otherTable The IRI of the referenced table
+ * @param otherColumn The column in the referenced table
+ */
+function makeForeignKey(
+    localColumn: string,
+    otherTable: IRI,
+    otherColumn: string
+) : ForeignKey {
+    const fkey = new ForeignKey();
+    fkey.columnReference = localColumn;
+    fkey.reference = new Reference();
+    fkey.reference.resource = otherTable;
+    fkey.reference.columnReference = otherColumn;
+    return fkey;
 }
 
 /**
@@ -191,8 +249,8 @@ function makeColumnFromProp(
     required: boolean
 ) : Column {
     const column = new Column();
-    column.name = encodeURI(namePrefix + property.technicalLabel);
     column.titles = namePrefix + property.technicalLabel;
+    column.name = encodeURI(column.titles);
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = new AbsoluteIRI(property.cimIri);

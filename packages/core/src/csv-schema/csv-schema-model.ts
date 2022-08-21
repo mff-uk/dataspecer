@@ -33,6 +33,7 @@ export class TableSchema {
     "@type": string = "Schema";
     "columns": Column[] = [];
     "foreignKeys": ForeignKey[] = [];
+    "primaryKey": string | string[] | null = null;
 }
 
 export class Column {
@@ -40,9 +41,9 @@ export class Column {
     "name": string | null = null;
     "titles": string | null = null;
     "dc:title": { [i: string]: string } | { [i: string]: string }[] | null = null;
+    "dc:description": { [i: string]: string } | { [i: string]: string }[] | null = null;
     "propertyUrl": IRI | null = null;
     "valueUrl": IRI | null = null;
-    "dc:description": { [i: string]: string } | { [i: string]: string }[] | null = null;
     "datatype": string | null = null;
     "lang": string | null = null;
     "required": boolean = false;
