@@ -44,8 +44,6 @@ export function structureModelToCsvSchema(
 
 /**
  * Creates a schema that consists of multiple tables.
- * @param specification
- * @param model
  */
 function makeMultipleTableSchema(
     specification: DataSpecification,
@@ -126,13 +124,21 @@ function makeMultipleValueTable(
     firstColumn.required = true;
     table.tableSchema.columns.push(firstColumn);
 
+    const secondColumn = makeColumnFromProp(property, "", true);
+    table.tableSchema.columns.push(secondColumn);
+
+    const fkey = new ForeignKey();
+    fkey.columnReference = firstColumn.name;
+    fkey.reference = new Reference();
+    fkey.reference.resource = referencedTable;
+    fkey.reference.columnReference = referencedColumn;
+    table.tableSchema.foreignKeys.push(fkey);
+
     return table;
 }
 
 /**
  * Creates a schema that consists of a single table.
- * @param specification
- * @param model
  */
 function makeSingleTableSchema(
     specification: DataSpecification,
@@ -178,7 +184,6 @@ function fillColumnsRecursive(
  * @param property Most of the column's data are taken from this property
  * @param namePrefix Name of the column has this prefix
  * @param required The "required" field of the column
- * @returns The new and prepared column
  */
 function makeColumnFromProp(
     property: StructureModelProperty,
@@ -228,7 +233,6 @@ function makeTypeColumn(
 /**
  * Transforms our common language string to CSVW format.
  * @param langString Language string for transformation
- * @returns Different representation of the language string used in CSVW
  */
 function transformLanguageString(
     langString: LanguageString
