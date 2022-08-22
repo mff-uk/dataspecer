@@ -92,25 +92,27 @@ function makeTablesRecursive(
 
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
+        const multipleValues = property.cardinalityMax === null || property.cardinalityMax > 1;
+        const requiredValue = property.cardinalityMin > 0;
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) {
-                if (property.cardinalityMax <= 1) table.tableSchema.columns.push(makeColumnFromProp(property, property.cardinalityMin > 0));
-                else tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+                if (multipleValues) tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+                else table.tableSchema.columns.push(makeColumnFromProp(property, requiredValue));
             }
             else {
                 const propTableIri = makeTablesRecursive(tables, associatedClass, urlGenerator);
-                if (property.cardinalityMax <= 1) {
-                    const assocCol = makeColumnFromProp(property, property.cardinalityMin > 0);
+                if (multipleValues) tables.push(makeRelationTable(urlGenerator.getNext(), table.url, idColumn.name, propTableIri, idColumn.name));
+                else {
+                    const assocCol = makeColumnFromProp(property, requiredValue);
                     table.tableSchema.columns.push(assocCol);
                     table.tableSchema.foreignKeys.push(makeForeignKey(assocCol.name, propTableIri, idColumn.name));
                 }
-                else tables.push(makeRelationTable(urlGenerator.getNext(), table.url, idColumn.name, propTableIri, idColumn.name));
             }
         }
         else if (dataType.isAttribute()) {
-            if (property.cardinalityMax <= 1) table.tableSchema.columns.push(makeColumnFromProp(property, property.cardinalityMin > 0));
-            else tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+            if (multipleValues) tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+            else table.tableSchema.columns.push(makeColumnFromProp(property, requiredValue));
         }
         else assertFailed("Unexpected datatype!");
     }
