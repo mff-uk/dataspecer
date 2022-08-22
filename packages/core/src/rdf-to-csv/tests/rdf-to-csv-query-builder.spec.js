@@ -8,8 +8,8 @@ import {
 } from "../rdf-to-csv-query-builder";
 import {
     Column,
-    AbsoluteIRI,
-    CompactIRI
+    AbsoluteIri,
+    CompactIri
 } from "../../csv-schema/csv-schema-model";
 import { writeSparqlQuery } from "../../sparql-query";
 
@@ -34,13 +34,13 @@ async function commonArrange1(multipleTable) {
 }
 
 test(testNamePrefix + "resolve compact IRI", async () => {
-    const compact = new CompactIRI("rdf", "type");
+    const compact = new CompactIri("rdf", "type");
     const result = resolveCompactIri(compact);
     expect(result).toBe("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 });
 
 test(testNamePrefix + "resolve invalid compact IRI", async () => {
-    const compact = new CompactIRI("qwert", "type");
+    const compact = new CompactIri("qwert", "type");
     expect(() => resolveCompactIri(compact)).toThrow();
 });
 
@@ -107,7 +107,7 @@ test(testNamePrefix + "check if well-known prefix saved", async () => {
 
 test(testNamePrefix + "absolute propertyUrl column to predicate prefix", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIRI("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[0]).toBe("ns1");
@@ -115,7 +115,7 @@ test(testNamePrefix + "absolute propertyUrl column to predicate prefix", async (
 
 test(testNamePrefix + "absolute propertyUrl column to predicate local", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIRI("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[1]).toBe("alternativní-název-položky-číselníku");
@@ -123,7 +123,7 @@ test(testNamePrefix + "absolute propertyUrl column to predicate local", async ()
 
 test(testNamePrefix + "absolute propertyUrl column to predicate prefix saved", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIRI("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     columnToPredicate(column, prefixes);
     expect(prefixes["ns1"]).toBe("https://slovník.gov.cz/datový/číselníky/pojem/");
@@ -131,7 +131,7 @@ test(testNamePrefix + "absolute propertyUrl column to predicate prefix saved", a
 
 test(testNamePrefix + "compact propertyUrl column to predicate prefix", async () => {
     const column = new Column();
-    column.propertyUrl = new CompactIRI("rdf", "type");
+    column.propertyUrl = new CompactIri("rdf", "type");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[0]).toBe("rdf");
@@ -139,7 +139,7 @@ test(testNamePrefix + "compact propertyUrl column to predicate prefix", async ()
 
 test(testNamePrefix + "compact propertyUrl column to predicate local", async () => {
     const column = new Column();
-    column.propertyUrl = new CompactIRI("rdf", "type");
+    column.propertyUrl = new CompactIri("rdf", "type");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[1]).toBe("type");
@@ -147,7 +147,7 @@ test(testNamePrefix + "compact propertyUrl column to predicate local", async () 
 
 test(testNamePrefix + "compact propertyUrl column to predicate prefix saved", async () => {
     const column = new Column();
-    column.propertyUrl = new CompactIRI("rdf", "type");
+    column.propertyUrl = new CompactIri("rdf", "type");
     const prefixes = {};
     columnToPredicate(column, prefixes);
     expect(prefixes["rdf"]).toBe("http://www.w3.org/1999/02/22-rdf-syntax-ns#");

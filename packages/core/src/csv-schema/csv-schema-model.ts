@@ -1,5 +1,5 @@
 export abstract class CsvSchema {
-    "@context": [ AbsoluteIRI, { "@language": string } ] = [ new AbsoluteIRI("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
+    "@context": [ AbsoluteIri, { "@language": string } ] = [ new AbsoluteIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
 
     abstract makeJsonLD(): string;
 }
@@ -23,9 +23,9 @@ export class MultipleTableSchema extends CsvSchema {
 }
 
 export class Table {
-    "@id": IRI | null = null;
+    "@id": Iri | null = null;
     "@type": string = "Table";
-    "url": IRI | null = null;
+    "url": Iri | null = null;
     "tableSchema": TableSchema | null = null;
 }
 
@@ -42,8 +42,8 @@ export class Column {
     "titles": string | null = null;
     "dc:title": LanguageNode | LanguageNode[] | null = null;
     "dc:description": LanguageNode | LanguageNode[] | null = null;
-    "propertyUrl": IRI | null = null;
-    "valueUrl": IRI | null = null;
+    "propertyUrl": Iri | null = null;
+    "valueUrl": Iri | null = null;
     "datatype": string | null = null;
     "lang": string | null = null;
     "required": boolean = false;
@@ -66,15 +66,15 @@ export class ForeignKey {
 }
 
 export class Reference {
-    "resource": IRI;
+    "resource": Iri;
     "columnReference": string;
 }
 
-export abstract class IRI {
+export abstract class Iri {
     abstract write(): string;
 }
 
-export class AbsoluteIRI extends IRI {
+export class AbsoluteIri extends Iri {
     constructor(value: string) {
         super();
         this.value = value;
@@ -87,7 +87,7 @@ export class AbsoluteIRI extends IRI {
     }
 }
 
-export class CompactIRI extends IRI {
+export class CompactIri extends Iri {
     constructor(prefix: string, suffix: string) {
         super();
         this.prefix = prefix;
@@ -109,6 +109,6 @@ function replacer(
     if (value === null) return undefined;
     if (typeof value === "boolean" && !value) return undefined;
     if (Array.isArray(value) && value.length === 0) return undefined;
-    if (value instanceof IRI) return value.write();
+    if (value instanceof Iri) return value.write();
     return value;
 }

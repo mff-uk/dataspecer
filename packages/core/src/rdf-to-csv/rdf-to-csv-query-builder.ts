@@ -3,8 +3,8 @@ import {
     SingleTableSchema,
     MultipleTableSchema,
     Column,
-    AbsoluteIRI,
-    CompactIRI
+    AbsoluteIri,
+    CompactIri
 } from "../csv-schema/csv-schema-model";
 import {
     SparqlSelectQuery,
@@ -70,8 +70,8 @@ export function columnToPredicate(
     column: Column,
     queryPrefixes: Record<string, string>
 ) : SparqlNode {
-    if (column.propertyUrl instanceof AbsoluteIRI) return nodeFromIri(column.propertyUrl.value, queryPrefixes);
-    if (column.propertyUrl instanceof CompactIRI) return nodeFromIri(resolveCompactIri(column.propertyUrl), queryPrefixes);
+    if (column.propertyUrl instanceof AbsoluteIri) return nodeFromIri(column.propertyUrl.value, queryPrefixes);
+    if (column.propertyUrl instanceof CompactIri) return nodeFromIri(resolveCompactIri(column.propertyUrl), queryPrefixes);
     if (column.name) {
         const node = new SparqlUriNode();
         node.uri = "#" + column.name;
@@ -99,7 +99,7 @@ const csvwContext = JSON.parse(readFileSync(join(__dirname, "csvw-context.jsonld
 /**
  * Uses CSVW context to resolve prefix and create a full IRI from a compact IRI.
  */
-export function resolveCompactIri(compact: CompactIRI) : string {
+export function resolveCompactIri(compact: CompactIri) : string {
     let absolute = csvwContext["@context"][compact.prefix];
     if (absolute === undefined) assertFailed("Undefined prefix!");
     absolute += compact.suffix;

@@ -8,9 +8,9 @@ import {
     LanguageNode,
     ForeignKey,
     Reference,
-    IRI,
-    AbsoluteIRI,
-    CompactIRI
+    Iri,
+    AbsoluteIri,
+    CompactIri
 } from "./csv-schema-model";
 import {
     StructureModel,
@@ -37,9 +37,9 @@ class TableUrlGenerator {
         this.prefix = schemaPrefix + idPrefix;
     }
 
-    getNext(): AbsoluteIRI {
+    getNext(): AbsoluteIri {
         this.num++;
-        return new AbsoluteIRI(this.prefix + this.num.toString() + ".csv");
+        return new AbsoluteIri(this.prefix + this.num.toString() + ".csv");
     }
 }
 
@@ -74,13 +74,13 @@ function makeMultipleTableSchema(
  * @param tables Array to store created tables
  * @param currentClass Parameter of recursion
  * @param urlGenerator Generator for table URLs
- * @returns IRI of the created table
+ * @returns URL of the created table
  */
 function makeTablesRecursive(
     tables: Table[],
     currentClass: StructureModelClass,
     urlGenerator: TableUrlGenerator
-) : IRI {
+) : Iri {
     const table = new Table();
     tables.push(table);
     table.url = urlGenerator.getNext();
@@ -101,12 +101,12 @@ function makeTablesRecursive(
                 else table.tableSchema.columns.push(makeColumnFromProp(property, requiredValue));
             }
             else {
-                const propTableIri = makeTablesRecursive(tables, associatedClass, urlGenerator);
-                if (multipleValues) tables.push(makeRelationTable(urlGenerator.getNext(), table.url, idColumn.name, propTableIri, idColumn.name));
+                const propTableUrl = makeTablesRecursive(tables, associatedClass, urlGenerator);
+                if (multipleValues) tables.push(makeRelationTable(urlGenerator.getNext(), table.url, idColumn.name, propTableUrl, idColumn.name));
                 else {
                     const assocCol = makeColumnFromProp(property, requiredValue);
                     table.tableSchema.columns.push(assocCol);
-                    table.tableSchema.foreignKeys.push(makeForeignKey(assocCol.name, propTableIri, idColumn.name));
+                    table.tableSchema.foreignKeys.push(makeForeignKey(assocCol.name, propTableUrl, idColumn.name));
                 }
             }
         }
@@ -130,10 +130,10 @@ function makeTablesRecursive(
  * @param rightColumn Name of the referenced column in the second table
  */
 function makeRelationTable(
-    tableUrl: IRI,
-    leftTable: IRI,
+    tableUrl: Iri,
+    leftTable: Iri,
     leftColumn: string,
-    rightTable: IRI,
+    rightTable: Iri,
     rightColumn: string
 ) : Table {
     const table = new Table();
@@ -166,9 +166,9 @@ function makeRelationTable(
  * @param referencedColumn Name of the key column in the referenced table
  */
 function makeMultipleValueTable(
-    tableUrl: IRI,
+    tableUrl: Iri,
     property: StructureModelProperty,
-    referencedTable: IRI,
+    referencedTable: Iri,
     referencedColumn: string
 ) : Table {
     const table = new Table();
@@ -208,12 +208,12 @@ function makeReferenceColumn(
 /**
  * Creates a foreign key and fills its fields.
  * @param localColumn Column name of the table with the key
- * @param otherTable IRI of the referenced table
+ * @param otherTable URL of the referenced table
  * @param otherColumn Column name in the referenced table
  */
 function makeForeignKey(
     localColumn: string,
-    otherTable: IRI,
+    otherTable: Iri,
     otherColumn: string
 ) : ForeignKey {
     const fkey = new ForeignKey();
@@ -232,8 +232,8 @@ function makeSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIRI(schemaPrefix + specification.artefacts[4].publicUrl);
-    schema.table.url = new AbsoluteIRI(schemaPrefix + specification.artefacts[4].publicUrl + "/table.csv");
+    schema.table["@id"] = new AbsoluteIri(schemaPrefix + specification.artefacts[4].publicUrl);
+    schema.table.url = new AbsoluteIri(schemaPrefix + specification.artefacts[4].publicUrl + "/table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
@@ -282,13 +282,13 @@ function makeColumnFromProp(
     column.name = encodeURI(column.titles);
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
-    column.propertyUrl = new AbsoluteIRI(property.cimIri);
+    column.propertyUrl = new AbsoluteIri(property.cimIri);
     column.required = required;
     const dataType = property.dataTypes[0];
 
     if (dataType.isAssociation()) {
         if (dataType.dataType.isCodelist) {
-            column.valueUrl = new AbsoluteIRI("{+" + column.name + "}");
+            column.valueUrl = new AbsoluteIri("{+" + column.name + "}");
             column.datatype = "anyURI";
         }
         else {
@@ -313,8 +313,8 @@ function makeTypeColumn(
 ) : Column {
     const virtualCol = new Column();
     virtualCol.virtual = true;
-    virtualCol.propertyUrl = new CompactIRI("rdf", "type");
-    virtualCol.valueUrl = new AbsoluteIRI(valueUrl);
+    virtualCol.propertyUrl = new CompactIri("rdf", "type");
+    virtualCol.valueUrl = new AbsoluteIri(valueUrl);
     return virtualCol;
 }
 
