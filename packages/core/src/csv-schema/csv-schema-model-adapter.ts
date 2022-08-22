@@ -266,7 +266,7 @@ function fillColumnsRecursive(
 
 /**
  * Creates a simple column and fills its data from the property.
- * @param property Most of the column's data are taken from this property
+ * @param property Most of the data of the column are taken from this property
  * @param required The "required" field of the column
  * @param namePrefix Name of the column has this prefix
  */
