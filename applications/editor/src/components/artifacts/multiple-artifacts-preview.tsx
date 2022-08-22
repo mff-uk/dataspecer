@@ -11,6 +11,7 @@ import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
 
 SyntaxHighlighter.registerLanguage("json", json);
+SyntaxHighlighter.registerLanguage("jsonld", json);
 SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("xsd", xml);
 SyntaxHighlighter.registerLanguage("xslt", xml);

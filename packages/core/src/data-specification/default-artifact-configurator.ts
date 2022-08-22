@@ -10,6 +10,7 @@ import {PimSchema} from "../pim/model";
 import {DataPsmSchema} from "../data-psm/model";
 import {SPARQL} from "../sparql-query/sparql-vocabulary";
 import {DefaultArtifactConfiguratorConfiguration} from "./default-artifact-configurator-configuration";
+import {JSON_LD_GENERATOR} from "../json-ld/json-ld-generator";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -73,6 +74,15 @@ export class DefaultArtifactConfigurator {
       jsonSchema.psm = psmSchemaIri;
       jsonSchema.configuration = configuration.generatorOptions[JSON_SCHEMA.Generator] ?? null;
       currentSchemaArtefacts.push(jsonSchema);
+
+      const jsonLd = new DataSpecificationSchema();
+      jsonLd.iri = `${psmSchemaIri}#jsonLd`;
+      jsonLd.outputPath = `${dataSpecificationName}/${name}/context.jsonld`;
+      jsonLd.publicUrl = this.baseURL + jsonLd.outputPath;
+      jsonLd.generator = JSON_LD_GENERATOR;
+      jsonLd.psm = psmSchemaIri;
+      jsonLd.configuration = configuration.generatorOptions[JSON_LD_GENERATOR] ?? null;
+      currentSchemaArtefacts.push(jsonLd);
 
       //const xsdCoreSchema = new DataSpecificationSchema();
       //xsdCoreSchema.iri = "https://schemas.dataspecer.com/xsd/core/2022-07.xsd"; // Real URL as IRI

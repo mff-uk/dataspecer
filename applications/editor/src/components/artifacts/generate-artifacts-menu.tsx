@@ -15,6 +15,7 @@ import {dialog, useDialog} from "../../dialog";
 import {JSON_SCHEMA} from "@dataspecer/core/json-schema/json-schema-vocabulary";
 import {styled} from "@mui/material/styles";
 import {XML_SCHEMA} from "@dataspecer/core/xml-schema/xml-schema-vocabulary";
+import {JSON_LD_GENERATOR} from "@dataspecer/core/json-ld/json-ld-generator";
 import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/core/xml-transformations/xslt-vocabulary";
 import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
 import {getSingleArtifact} from "./get-single-artifact";
@@ -195,6 +196,13 @@ export const GenerateArtifactsMenu: React.FC<{
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: JSON_SCHEMA.Generator})}
                     setLive={v => (v ? add : del)(JSON_SCHEMA.Generator)}
                 />
+                <GeneratedArtifactItem
+                  title={"JSON-LD"}
+                  generator={JSON_LD_GENERATOR}
+                  live={artifactPreview.includes(JSON_LD_GENERATOR)}
+                  onPreview={() => ProvidedPreviewDialog.open({generatorId: JSON_LD_GENERATOR})}
+                  setLive={v => (v ? add : del)(JSON_LD_GENERATOR)}
+                />
                 <Divider />
                 <GeneratedArtifactItem
                     title={"XSD schema"}
@@ -249,4 +257,3 @@ export const GenerateArtifactsMenu: React.FC<{
         </>
     );
 };
-
