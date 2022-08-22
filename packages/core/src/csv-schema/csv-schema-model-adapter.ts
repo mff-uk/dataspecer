@@ -26,14 +26,14 @@ import {
 import { OFN } from "../well-known";
 import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
-const idPrefix = "https://ofn.gov.cz/schema";
+const schemaPrefix = "https://ofn.gov.cz/schema";
 
 class TableUrlGenerator {
     private num = 0;
     private readonly prefix: string;
 
-    constructor(prefix: string) {
-        this.prefix = "https://ofn.gov.cz/schema" + prefix;
+    constructor(idPrefix: string) {
+        this.prefix = schemaPrefix + idPrefix;
     }
 
     getNext(): AbsoluteIRI {
@@ -64,63 +64,68 @@ function makeMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(schema.tables, model.roots[0].classes[0], idPrefix + specification.artefacts[4].publicUrl + "/tables/", { value: 1 }, null);
+    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[4].publicUrl + "/tables/"));
     return schema;
 }
 
 /**
  * Every call of this function adds a table to tables.
  * @param tables Array to store created tables
- * @param currentClass The parameter of recursion
- * @param namePrefix Prefix for table identifier
- * @param nameNumber Number of the table in its identifier, it is in an object because it must be passed by reference
- * @param reference Reference for the foreign key
+ * @param currentClass Parameter of recursion
+ * @param urlGenerator Generator for table URLs
+ * @returns IRI of the created table
  */
 function makeTablesRecursive(
     tables: Table[],
     currentClass: StructureModelClass,
-    namePrefix: string,
-    nameNumber: { value: number },
-    reference: Reference | null
-) : void {
+    urlGenerator: TableUrlGenerator
+) : IRI {
     const table = new Table();
     tables.push(table);
-    table.url = new AbsoluteIRI(namePrefix + nameNumber.value++ + ".csv");
+    table.url = urlGenerator.getNext();
     table.tableSchema = new TableSchema();
 
-    const idColName = "ReferenceId";
-
-    if (reference !== null) {
-        const fkey = new ForeignKey();
-        fkey.columnReference = idColName;
-        fkey.reference = reference;
-        table.tableSchema.foreignKeys.push(fkey);
-    }
-
-    // adds a column for identifier
-    const idCol = new Column();
-    idCol.name = idColName;
-    idCol.datatype = "string";
-    table.tableSchema.columns.push(idCol);
+    const idColumn = makeReferenceColumn("ReferenceId");
+    table.tableSchema.columns.push(idColumn);
+    table.tableSchema.primaryKey = idColumn.name;
 
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
-            table.tableSchema.columns.push(makeColumnFromProp(property, "", "string", associatedClass.isCodelist));
-            if (associatedClass.properties.length !== 0) {
-                const reference = new Reference();
-                reference.resource = table.url;
-                reference.columnReference = encodeURI(property.technicalLabel);
-                makeTablesRecursive(tables, associatedClass, namePrefix, nameNumber, reference);
+            if (associatedClass.properties.length === 0) {
+                if (property.cardinalityMax <= 1) table.tableSchema.columns.push(makeColumnFromProp(property, property.cardinalityMin > 0));
+                else tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+            }
+            else {
+                const propTableIri = makeTablesRecursive(tables, associatedClass, urlGenerator);
+                if (property.cardinalityMax <= 1) {
+                    const assocCol = makeColumnFromProp(property, property.cardinalityMin > 0);
+                    table.tableSchema.columns.push(assocCol);
+                    table.tableSchema.foreignKeys.push(makeForeignKey(assocCol.name, propTableIri, idColumn.name));
+                }
+                else tables.push(makeRelationTable(urlGenerator.getNext(), table.url, idColumn.name, propTableIri, idColumn.name));
             }
         }
-        else if (dataType.isAttribute()) table.tableSchema.columns.push(makeColumnFromProp(property, "", structureModelPrimitiveToCsvDefinition(dataType), false));
+        else if (dataType.isAttribute()) {
+            if (property.cardinalityMax <= 1) table.tableSchema.columns.push(makeColumnFromProp(property, property.cardinalityMin > 0));
+            else tables.push(makeMultipleValueTable(urlGenerator.getNext(), property, table.url, idColumn.name));
+        }
         else assertFailed("Unexpected datatype!");
     }
+
     table.tableSchema.columns.push(makeTypeColumn(currentClass.cimIri));
+    return table.url;
 }
 
+/**
+ * Creates a table which holds a relationship between two other tables.
+ * @param tableUrl URL of the new table
+ * @param leftTable URL of the first table
+ * @param leftColumn Name of the referenced column in the first table
+ * @param rightTable URL of the second table
+ * @param rightColumn Name of the referenced column in the second table
+ */
 function makeRelationTable(
     tableUrl: IRI,
     leftTable: IRI,
@@ -150,6 +155,13 @@ function makeRelationTable(
     return table;
 }
 
+/**
+ * Creates a table which holds possibly multiple values of one property and links them.
+ * @param tableUrl URL of the new table
+ * @param property Property with multiple values
+ * @param referencedTable URL of the table to which the property belongs
+ * @param referencedColumn Name of the key column in the referenced table
+ */
 function makeMultipleValueTable(
     tableUrl: IRI,
     property: StructureModelProperty,
@@ -163,7 +175,7 @@ function makeMultipleValueTable(
     const firstColumn = makeReferenceColumn("Reference");
     table.tableSchema.columns.push(firstColumn);
 
-    const secondColumn = makeColumnFromProp(property, "", true);
+    const secondColumn = makeColumnFromProp(property, true);
     table.tableSchema.columns.push(secondColumn);
 
     table.tableSchema.primaryKey = [];
@@ -177,7 +189,7 @@ function makeMultipleValueTable(
 
 /**
  * Creates a column for reference (foreign key).
- * @param title The title of the column
+ * @param title Title of the column
  */
 function makeReferenceColumn(
     title: string
@@ -192,9 +204,9 @@ function makeReferenceColumn(
 
 /**
  * Creates a foreign key and fills its fields.
- * @param localColumn The column name of the table with the key
- * @param otherTable The IRI of the referenced table
- * @param otherColumn The column in the referenced table
+ * @param localColumn Column name of the table with the key
+ * @param otherTable IRI of the referenced table
+ * @param otherColumn Column name in the referenced table
  */
 function makeForeignKey(
     localColumn: string,
@@ -217,8 +229,8 @@ function makeSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl);
-    schema.table.url = new AbsoluteIRI(idPrefix + specification.artefacts[4].publicUrl + "/table.csv");
+    schema.table["@id"] = new AbsoluteIRI(schemaPrefix + specification.artefacts[4].publicUrl);
+    schema.table.url = new AbsoluteIRI(schemaPrefix + specification.artefacts[4].publicUrl + "/table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
@@ -227,10 +239,10 @@ function makeSingleTableSchema(
 
 /**
  * Recursively creates columns of a denormalized table. It calls itself if it finds an association with some properties.
- * @param columns The array for created columns
- * @param currentClass The parameter of recursion
+ * @param columns Array for created columns
+ * @param currentClass Parameter of recursion
  * @param prefix Prefix of created columns
- * @param requiredSubtree Tells if the current class is in a required subtree
+ * @param requiredSubtree Tells if the current class is in a required subtree, non-recursive calls should use true
  */
 function fillColumnsRecursive(
     columns: Column[],
@@ -243,10 +255,10 @@ function fillColumnsRecursive(
         const required = requiredSubtree && (property.cardinalityMin > 0);
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
-            if (associatedClass.properties.length === 0) columns.push(makeColumnFromProp(property, prefix, required));
+            if (associatedClass.properties.length === 0) columns.push(makeColumnFromProp(property, required, prefix));
             else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + "_", required);
         }
-        else if (dataType.isAttribute()) columns.push(makeColumnFromProp(property, prefix, required));
+        else if (dataType.isAttribute()) columns.push(makeColumnFromProp(property, required, prefix));
         else assertFailed("Unexpected datatype!");
     }
 }
@@ -254,13 +266,13 @@ function fillColumnsRecursive(
 /**
  * Creates a simple column and fills its data from the property.
  * @param property Most of the column's data are taken from this property
- * @param namePrefix Name of the column has this prefix
  * @param required The "required" field of the column
+ * @param namePrefix Name of the column has this prefix
  */
 function makeColumnFromProp(
     property: StructureModelProperty,
-    namePrefix: string,
-    required: boolean
+    required: boolean,
+    namePrefix: string = ""
 ) : Column {
     const column = new Column();
     column.titles = namePrefix + property.technicalLabel;
@@ -291,6 +303,7 @@ function makeColumnFromProp(
 
 /**
  * Creates a virtual column rdf:type with specified valueUrl.
+ * @param valueUrl The "valueUrl" field of the column
  */
 function makeTypeColumn(
     valueUrl: string
@@ -305,6 +318,7 @@ function makeTypeColumn(
 /**
  * Transforms our common language string to CSVW format.
  * @param langString Language string for transformation
+ * @returns Transformed language string in the correct form
  */
 function transformLanguageString(
     langString: LanguageString

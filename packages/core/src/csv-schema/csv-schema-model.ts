@@ -70,7 +70,7 @@ export class AbsoluteIRI extends IRI {
         this.value = value;
     }
 
-    "value": string;
+    readonly "value": string;
 
     write(): string {
         return this.value;
@@ -84,8 +84,8 @@ export class CompactIRI extends IRI {
         this.suffix = suffix;
     }
 
-    "prefix": string;
-    "suffix": string;
+    readonly "prefix": string;
+    readonly "suffix": string;
 
     write(): string {
         return this.prefix + ":" + this.suffix;
