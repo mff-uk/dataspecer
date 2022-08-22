@@ -40,14 +40,24 @@ export class Column {
     "@type": string = "Column";
     "name": string | null = null;
     "titles": string | null = null;
-    "dc:title": { [i: string]: string } | { [i: string]: string }[] | null = null;
-    "dc:description": { [i: string]: string } | { [i: string]: string }[] | null = null;
+    "dc:title": LanguageNode | LanguageNode[] | null = null;
+    "dc:description": LanguageNode | LanguageNode[] | null = null;
     "propertyUrl": IRI | null = null;
     "valueUrl": IRI | null = null;
     "datatype": string | null = null;
     "lang": string | null = null;
     "required": boolean = false;
     "virtual": boolean = false;
+}
+
+export class LanguageNode {
+    constructor(value: string, language: string) {
+        this["@value"] = value;
+        this["@language"] = language;
+    }
+
+    readonly "@value": string;
+    readonly "@language": string;
 }
 
 export class ForeignKey {

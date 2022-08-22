@@ -5,6 +5,7 @@ import {
     Table,
     TableSchema,
     Column,
+    LanguageNode,
     ForeignKey,
     Reference,
     IRI,
@@ -322,13 +323,13 @@ function makeTypeColumn(
  */
 function transformLanguageString(
     langString: LanguageString
-) : { [i: string]: string } | { [i: string]: string }[] | null {
+) : LanguageNode | LanguageNode[] | null {
     if (!langString) return null;
     const languages = Object.keys(langString);
     if (languages.length === 0) return null;
-    if (languages.length === 1) return { "@value": langString[languages[0]], "@language": languages[0] };
-    const result = [];
-    for (const language in langString) result.push({ "@value": langString[language], "@language": language });
+    if (languages.length === 1) return new LanguageNode(langString[languages[0]], languages[0]);
+    const result: LanguageNode[] = [];
+    for (const language of languages) result.push(new LanguageNode(langString[language], language));
     return result;
 }
 
