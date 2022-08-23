@@ -55,6 +55,7 @@ export class JsonLdGenerator implements ArtefactGenerator {
   }
 
   async generateForDocumentation() {
-    throw new Error("Not implemented");
+    // todo not implemented
+    return null;
   }
 }
