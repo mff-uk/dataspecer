@@ -1,3 +1,12 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+import { assertFailed } from "../core";
+
+/**
+ * Holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
+ */
+export const csvwContext = JSON.parse(readFileSync(join(__dirname, "csvw-context.jsonld"), "utf8"));
+
 export abstract class CsvSchema {
     "@context": [ AbsoluteIri, { "@language": string } ] = [ new AbsoluteIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
 
@@ -32,8 +41,8 @@ export class Table {
 export class TableSchema {
     "@type": string = "Schema";
     "columns": Column[] = [];
-    "foreignKeys": ForeignKey[] = [];
     "primaryKey": string | string[] | null = null;
+    "foreignKeys": ForeignKey[] = [];
 }
 
 export class Column {
@@ -72,6 +81,7 @@ export class Reference {
 
 export abstract class Iri {
     abstract write(): string;
+    abstract asAbsolute(): AbsoluteIri;
 }
 
 export class AbsoluteIri extends Iri {
@@ -84,6 +94,9 @@ export class AbsoluteIri extends Iri {
 
     write(): string {
         return this.value;
+    }
+    asAbsolute(): AbsoluteIri {
+        return new AbsoluteIri(this.value);
     }
 }
 
@@ -99,6 +112,12 @@ export class CompactIri extends Iri {
 
     write(): string {
         return this.prefix + ":" + this.suffix;
+    }
+    asAbsolute(): AbsoluteIri {
+        let absolute = csvwContext["@context"][this.prefix];
+        if (absolute === undefined || typeof absolute !== "string") assertFailed("Undefined prefix!");
+        absolute += this.suffix;
+        return new AbsoluteIri(absolute);
     }
 }
 

@@ -1,4 +1,5 @@
 import {
+    csvwContext,
     CsvSchema,
     SingleTableSchema,
     MultipleTableSchema,
@@ -17,8 +18,6 @@ import {
     SparqlOptionalPattern
 } from "../sparql-query/sparql-model";
 import { assertFailed } from "../core";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export function buildQuery(schema: CsvSchema) : SparqlSelectQuery {
     if (schema instanceof SingleTableSchema) return buildSingleTableQuery(schema);
@@ -70,9 +69,8 @@ export function columnToPredicate(
     column: Column,
     queryPrefixes: Record<string, string>
 ) : SparqlNode {
-    if (column.propertyUrl instanceof AbsoluteIri) return nodeFromIri(column.propertyUrl.value, queryPrefixes);
-    if (column.propertyUrl instanceof CompactIri) return nodeFromIri(resolveCompactIri(column.propertyUrl), queryPrefixes);
-    if (column.name) {
+    if (column.propertyUrl !== null) return nodeFromIri(column.propertyUrl.asAbsolute().value, queryPrefixes);
+    if (column.name !== null) {
         const node = new SparqlUriNode();
         node.uri = "#" + column.name;
         return node;
@@ -89,21 +87,6 @@ function nodeFromIri(iriString: string, queryPrefixes: Record<string, string>) :
     const node = new SparqlQNameNode();
     node.qname = [prefix, separatedIri.local];
     return node;
-}
-
-/**
- * Holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
- */
-const csvwContext = JSON.parse(readFileSync(join(__dirname, "csvw-context.jsonld"), "utf8"));
-
-/**
- * Uses CSVW context to resolve prefix and create a full IRI from a compact IRI.
- */
-export function resolveCompactIri(compact: CompactIri) : string {
-    let absolute = csvwContext["@context"][compact.prefix];
-    if (absolute === undefined) assertFailed("Undefined prefix!");
-    absolute += compact.suffix;
-    return absolute;
 }
 
 /**
