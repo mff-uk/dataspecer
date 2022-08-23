@@ -13,6 +13,8 @@ import { transformStructureModel } from "../structure-model/transformation";
 import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
 import { BIKESHED, BikeshedAdapterArtefactContext } from "../bikeshed";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
+import {structureModelAddIdAndTypeProperties} from "./json-id-transformations";
+import {JsonSchemaGeneratorOptions} from "./json-schema-generator-options";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -41,6 +43,8 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     }
     const schemaArtefact = artefact as DataSpecificationSchema;
     const conceptualModel = context.conceptualModels[specification.pim];
+    // Options for the JSON generator
+    const configuration = JsonSchemaGeneratorOptions.getFromConfiguration(schemaArtefact.configuration);
     assertNot(
       conceptualModel === undefined,
       `Missing conceptual model ${specification.pim}.`
@@ -55,11 +59,13 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       model,
       Object.values(context.specifications)
     );
+    model = structureModelAddIdAndTypeProperties(model, configuration);
     return Promise.resolve(
       structureModelToJsonSchema(context.specifications, specification, model)
     );
   }
 
+  // todo add structureModelAddIdAndTypeProperties
   async generateForDocumentation(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,

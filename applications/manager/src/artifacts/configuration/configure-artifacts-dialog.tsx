@@ -1,10 +1,12 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, Switch, Typography} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, Switch, TextField, Typography} from "@mui/material";
 import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
 import {DefaultArtifactConfiguratorConfiguration} from "@dataspecer/core/data-specification/default-artifact-configurator-configuration";
 import {CsvSchemaGeneratorOptions} from "@dataspecer/core/csv-schema/csv-schema-generator-options";
 import {XML_SCHEMA} from "@dataspecer/core/xml-schema/xml-schema-vocabulary";
 import {XmlSchemaAdapterOptions} from "@dataspecer/core/xml-schema/xml-schema-model-adapter";
+import {JSON_SCHEMA} from "@dataspecer/core/json-schema/json-schema-vocabulary";
+import {JsonSchemaGeneratorOptions} from "@dataspecer/core/json-schema/json-schema-generator-options";
 
 /**
  * Main component (Dialog) for the configuration of the artifacts.
@@ -35,6 +37,11 @@ export const ConfigureArtifactsDialog: FC<{
       XmlSchemaAdapterOptions.getFromConfiguration(rawXmlConfiguration ?? {}),
     [rawXmlConfiguration]);
 
+  const rawJsonConfiguration = localConfiguration.generatorOptions[JSON_SCHEMA.Generator];
+  const jsonConfiguration = useMemo(() =>
+      JsonSchemaGeneratorOptions.getFromConfiguration(rawJsonConfiguration ?? {}),
+    [rawJsonConfiguration]);
+
   return <Dialog
     open={isOpen}
     onClose={close}
@@ -45,13 +52,19 @@ export const ConfigureArtifactsDialog: FC<{
       Configure artifacts
     </DialogTitle>
     <DialogContent>
-      <Typography variant="subtitle1" component="h2">CSV schema</Typography>
+      <Typography variant="subtitle1" component="h2">JSON schema</Typography>
+      <JsonConfiguration
+        input={jsonConfiguration}
+        onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [JSON_SCHEMA.Generator]: u}})}
+      />
+
+      <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>CSV schema</Typography>
       <CsvConfiguration
         input={csvConfiguration}
         onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [CSV_SCHEMA.Generator]: u}})}
       />
 
-      <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>XSD schema</Typography>
+      <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>XSD schema</Typography>
       <XsdConfiguration
         input={xmlConfiguration}
         onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [XML_SCHEMA.Generator]: u}})}
@@ -65,6 +78,26 @@ export const ConfigureArtifactsDialog: FC<{
       }}>Save</Button>
     </DialogActions>
   </Dialog>;
+}
+
+const JsonConfiguration: FC<{
+  input: JsonSchemaGeneratorOptions,
+  onChange: (options: JsonSchemaGeneratorOptions) => void,
+}> = ({input, onChange}) => {
+  return <FormGroup>
+    <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>IRI property and type property names</Typography>
+    <Grid container>
+      <Grid item xs={6}>
+        <TextField label="IRI" variant="standard" value={input.interpretedClassIriPropertyName} onChange={e => onChange({...input, interpretedClassIriPropertyName: e.target.value.length ? e.target.value : null})} />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField label="Type" variant="standard" value={input.interpretedClassTypePropertyName} onChange={e => onChange({...input, interpretedClassTypePropertyName: e.target.value.length ? e.target.value : null})} />
+      </Grid>
+    </Grid>
+    <Typography variant="body2" sx={{my: 2}}>
+      Set technical label (key) for properties containing IRI and a type of the entity respectively, for classes that are interpreted. If kept empty, the property will not be generated.
+    </Typography>
+  </FormGroup>;
 }
 
 /**

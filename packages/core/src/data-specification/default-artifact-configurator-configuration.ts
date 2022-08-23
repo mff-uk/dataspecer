@@ -3,10 +3,13 @@ import {CSV_SCHEMA} from "../csv-schema/csv-schema-vocabulary";
 import {CsvSchemaGeneratorOptions} from "../csv-schema/csv-schema-generator-options";
 import {XML_SCHEMA} from "../xml-schema/xml-schema-vocabulary";
 import {XmlSchemaAdapterOptions} from "../xml-schema/xml-schema-model-adapter";
+import {JSON_SCHEMA} from "../json-schema/json-schema-vocabulary";
+import {JsonSchemaGeneratorOptions} from "../json-schema/json-schema-generator-options";
 
 type GeneratorOptions = {
   [CSV_SCHEMA.Generator]?: Partial<CsvSchemaGeneratorOptions>;
   [XML_SCHEMA.Generator]?: Partial<XmlSchemaAdapterOptions>;
+  [JSON_SCHEMA.Generator]?: Partial<JsonSchemaGeneratorOptions>;
 }
 
 export class DefaultArtifactConfiguratorConfiguration extends DataSpecificationArtefactBuilderConfiguration {
@@ -25,6 +28,7 @@ export class DefaultArtifactConfiguratorConfiguration extends DataSpecificationA
     const configuration = new DefaultArtifactConfiguratorConfiguration();
     configuration.generatorOptions[CSV_SCHEMA.Generator] = CsvSchemaGeneratorOptions.getFromConfiguration(from?.generatorOptions?.[CSV_SCHEMA.Generator] ?? {});
     configuration.generatorOptions[XML_SCHEMA.Generator] = XmlSchemaAdapterOptions.getFromConfiguration(from?.generatorOptions?.[XML_SCHEMA.Generator] ?? {});
+    configuration.generatorOptions[JSON_SCHEMA.Generator] = JsonSchemaGeneratorOptions.getFromConfiguration(from?.generatorOptions?.[JSON_SCHEMA.Generator] ?? {});
     return configuration;
   }
 }
