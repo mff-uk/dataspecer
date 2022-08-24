@@ -108,8 +108,9 @@ export class JsonLdAdapter {
     const context = {
       "@version": VERSION,
       "$rootcontainer$": "@graph",
-      "$type$": "@type",
-      "$id$": "@id",
+      // todo use keys from JSON configuration
+      "type": "@type",
+      "id": "@id",
     };
 
     return {
