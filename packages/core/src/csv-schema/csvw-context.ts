@@ -1,4 +1,7 @@
-{
+/**
+ * Holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
+ */
+export const csvwContext = {
   "@context": {
     "as": "https://www.w3.org/ns/activitystreams#",
     "cc": "http://creativecommons.org/ns#",
@@ -1556,4 +1559,4 @@
       }
     ]
   }
-}
+} as const;

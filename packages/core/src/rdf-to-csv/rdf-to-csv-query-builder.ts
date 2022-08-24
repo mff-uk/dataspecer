@@ -1,5 +1,4 @@
 import {
-    csvwContext,
     CsvSchema,
     SingleTableSchema,
     MultipleTableSchema,
@@ -17,6 +16,7 @@ import {
     SparqlPattern,
     SparqlOptionalPattern
 } from "../sparql-query/sparql-model";
+import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "../core";
 
 export function buildQuery(schema: CsvSchema) : SparqlSelectQuery {

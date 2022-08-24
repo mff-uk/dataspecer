@@ -1,11 +1,5 @@
-import { readFileSync } from "fs";
-import { join } from "path";
 import { assertFailed } from "../core";
-
-/**
- * Holds CSV on the Web JSON-LD metadata context from https://www.w3.org/ns/csvw.jsonld
- */
-export const csvwContext = JSON.parse(readFileSync(join(__dirname, "csvw-context.jsonld"), "utf8"));
+import { csvwContext } from "./csvw-context";
 
 export abstract class CsvSchema {
     "@context": [ AbsoluteIri, { "@language": string } ] = [ new AbsoluteIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
