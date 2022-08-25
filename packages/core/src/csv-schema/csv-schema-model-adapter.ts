@@ -66,7 +66,6 @@ function makeMultipleTableSchema(
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
     makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[4].publicUrl + "/tables/"));
-    removeDuplicateTables(schema.tables);
     return schema;
 }
 
@@ -120,49 +119,6 @@ function makeTablesRecursive(
 
     table.tableSchema.columns.push(makeTypeColumn(currentClass.cimIri));
     return table.url;
-}
-
-/**
- * Removes duplicate tables and changes references in foreign keys.
- * @param tables Array of tables to filter
- */
-function removeDuplicateTables(
-    tables: Table[]
-) : void {
-    let goAgain = true;
-    while (goAgain) {
-        goAgain = false;
-        for (let i = 0; i < tables.length; i++) {
-            for (let j = i + 1; j < tables.length; j++) {
-                if (tables[i] !== null && tables[j] !== null && JSON.stringify(tables[i].tableSchema) === JSON.stringify(tables[j].tableSchema)) {
-                    goAgain = true;
-                    replaceResource(tables, tables[j].url, tables[i].url);
-                    tables[j] = null;
-                }
-            }
-        }
-        tables = tables.filter(item => item !== null);
-    }
-}
-
-/**
- * Replaces table URL in foreign keys of the tables with another URL.
- * @param tables Tables to check and possibly modify
- * @param remove URL to find, remove and replace
- * @param insert URL to insert instead of the removed URL
- */
-function replaceResource(
-    tables: Table[],
-    remove: Iri,
-    insert: Iri
-) : void {
-    for (const table of tables) {
-        if (table !== null) {
-            for (const fkey of table.tableSchema.foreignKeys) {
-                if (fkey.reference.resource.asAbsolute().value === remove.asAbsolute().value) fkey.reference.resource = insert;
-            }
-        }
-    }
 }
 
 /**
