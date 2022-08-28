@@ -86,11 +86,6 @@ test(testNamePrefix + "column propertyUrl", async () => {
     expect(result.tableSchema.columns[0]["propertyUrl"]).toBe("https://slovník.gov.cz/datový/sportoviště/pojem/kapacita");
 });
 
-test(testNamePrefix + "column lang", async () => {
-    const result = await commonArrange1(false);
-    expect(result.tableSchema.columns[0]["lang"]).toBe("cs");
-});
-
 test(testNamePrefix + "encoded name", async () => {
     const result = await commonArrange1(false);
     expect(result.tableSchema.columns[1]["name"]).toBe("bezbari%C3%A9rovost_braillovo_p%C3%ADsmo");
@@ -146,11 +141,6 @@ test(testNamePrefix + "virtual column valueUrl", async () => {
     expect(result.tableSchema.columns[8]["valueUrl"]).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
 });
 
-test(testNamePrefix + "number of tables", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables.length).toBe(3);
-});
-
 test(testNamePrefix + "multiple table @type", async () => {
     const result = await commonArrange1(true);
     expect(result["@type"]).toBe("TableGroup");
@@ -158,7 +148,7 @@ test(testNamePrefix + "multiple table @type", async () => {
 
 test(testNamePrefix + "id column", async () => {
     const result = await commonArrange1(true);
-    expect(result.tables[0].tableSchema.columns[0]["name"]).toBe("ReferenceId");
+    expect(result.tables[0].tableSchema.columns[0]["name"]).toBe("RowId");
 });
 
 test(testNamePrefix + "numeric table url", async () => {
@@ -166,34 +156,9 @@ test(testNamePrefix + "numeric table url", async () => {
     expect(result.tables[1]["url"].slice(-5)).toBe("2.csv");
 });
 
-test(testNamePrefix + "association virtual column", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables[1].tableSchema.columns[5]["valueUrl"]).toBe("https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup");
-});
-
 test(testNamePrefix + "foreign key table", async () => {
     const result = await commonArrange1(true);
     expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/tables/1.csv");
-});
-
-test(testNamePrefix + "foreign key column", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["columnReference"]).toBe("bezbari%C3%A9rovost");
-});
-
-test(testNamePrefix + "first level number of columns", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables[0].tableSchema.columns.length).toBe(6);
-});
-
-test(testNamePrefix + "second level number of columns", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables[1].tableSchema.columns.length).toBe(6);
-});
-
-test(testNamePrefix + "third level number of columns", async () => {
-    const result = await commonArrange1(true);
-    expect(result.tables[2].tableSchema.columns.length).toBe(4);
 });
 
 test(testNamePrefix + "include", async () => {
@@ -209,31 +174,6 @@ test(testNamePrefix + "or", async () => {
 test(testNamePrefix + "dematerialization", async () => {
     const result = await commonArrange2(false);
     expect(result.tableSchema.columns[3]["titles"]).toBe("týká_se_místa_informace");
-});
-
-test(testNamePrefix + "advanced features multiple tables", async () => {
-    const result = await commonArrange2(true);
-    expect(result.tables.length).toBe(4);
-});
-
-test(testNamePrefix + "advanced features top columns", async () => {
-    const result = await commonArrange2(true);
-    expect(result.tables[0].tableSchema.columns.length).toBe(6);
-});
-
-test(testNamePrefix + "include table", async () => {
-    const result = await commonArrange2(true);
-    expect(result.tables[2].tableSchema.columns[1]["titles"]).toBe(result.tables[1].tableSchema.columns[1]["titles"]);
-});
-
-test(testNamePrefix + "or table", async () => {
-    const result = await commonArrange2(true);
-    expect(result.tables[3].tableSchema.columns[1]["titles"]).toBe("lokalizační_popis");
-});
-
-test(testNamePrefix + "dematerialization in tables", async () => {
-    const result = await commonArrange2(true);
-    expect(result.tables[0].tableSchema.columns[4]["titles"]).toBe("týká_se_místa_informace");
 });
 
 test(testNamePrefix + "datatype integer", async () => {
