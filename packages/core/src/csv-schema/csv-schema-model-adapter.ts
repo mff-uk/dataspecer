@@ -28,6 +28,7 @@ import { OFN } from "../well-known";
 import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
 const schemaPrefix = "https://ofn.gov.cz/schema";
+const referenceDatatype = "string";
 
 class TableUrlGenerator {
     private num = 0;
@@ -200,7 +201,7 @@ function makeReferenceColumn(
     const col = new Column();
     col.titles = title;
     col.name = encodeURI(col.titles);
-    col.datatype = "string";
+    col.datatype = referenceDatatype;
     col.required = true;
     return col;
 }
@@ -284,15 +285,15 @@ function makeColumnFromProp(
     column["dc:description"] = transformLanguageString(property.humanDescription);
     column.propertyUrl = new AbsoluteIri(property.cimIri);
     column.required = required;
-    const dataType = property.dataTypes[0];
 
+    const dataType = property.dataTypes[0];
     if (dataType.isAssociation()) {
         if (dataType.dataType.isCodelist) {
             column.valueUrl = new AbsoluteIri("{+" + column.name + "}");
             column.datatype = "anyURI";
         }
         else {
-            column.datatype = "string";
+            column.datatype = referenceDatatype;
         }
     }
     else if (dataType.isAttribute()) {

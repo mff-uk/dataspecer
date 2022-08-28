@@ -26,6 +26,14 @@ async function commonArrange3() {
     return JSON.parse(schema.makeJsonLD());
 }
 
+/**
+ * Arrange a tree with multiple cardinalities
+ */
+async function commonArrange4() {
+    const schema = await createCsvSchema(true, "cardinality_data_specifications.json", "cardinality_merged_store.json");
+    return JSON.parse(schema.makeJsonLD());
+}
+
 test(testNamePrefix + "@context", async () => {
     const result = await commonArrange1(false);
     expect(result["@context"][0]).toBe("http://www.w3.org/ns/csvw");
@@ -161,6 +169,26 @@ test(testNamePrefix + "foreign key table", async () => {
     expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/tables/1.csv");
 });
 
+test(testNamePrefix + "first level columns", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[0].tableSchema.columns.length).toBe(2);
+});
+
+test(testNamePrefix + "simple primary key", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[0].tableSchema.primaryKey).toBe("RowId");
+});
+
+test(testNamePrefix + "composed primary key one", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema.primaryKey[0]).toBe("Reference");
+});
+
+test(testNamePrefix + "composed primary key two", async () => {
+    const result = await commonArrange1(true);
+    expect(result.tables[1].tableSchema.primaryKey[1]).toBe("kapacita");
+});
+
 test(testNamePrefix + "include", async () => {
     const result = await commonArrange2(false);
     expect(result.tableSchema.columns[1]["titles"]).toBe("má_lokalizaci_název_městského_obvodu/městské_části");
@@ -194,4 +222,89 @@ test(testNamePrefix + "datatype anyURI", async () => {
 test(testNamePrefix + "no lang for datatype", async () => {
     const result = await commonArrange3();
     expect(result.tableSchema.columns[0]["lang"]).toBe(undefined);
+});
+
+test(testNamePrefix + "attribute cardinality 1..1 name", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.columns[1]["name"]).toBe("kapacita");
+});
+
+test(testNamePrefix + "attribute cardinality 1..1 required", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.columns[1]["required"]).toBe(true);
+});
+
+test(testNamePrefix + "attribute cardinality 0..* name", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[1].tableSchema.columns[1]["name"]).toBe("kou%C5%99en%C3%AD_povoleno");
+});
+
+test(testNamePrefix + "attribute cardinality 0..* required", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[1].tableSchema.columns[1]["required"]).toBe(true);
+});
+
+test(testNamePrefix + "attribute cardinality 0..* primary key", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[1].tableSchema.primaryKey.length).toBe(2);
+});
+
+test(testNamePrefix + "attribute cardinality 0..* foreign key", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[1].tableSchema.foreignKeys[0].reference.resource.slice(-5)).toBe("1.csv");
+});
+
+test(testNamePrefix + "empty association cardinality 0..1 name", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.columns[2].name).toBe("kontakt");
+});
+
+test(testNamePrefix + "empty association cardinality 0..1 required", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.columns[2].required).toBe(undefined);
+});
+
+test(testNamePrefix + "empty association cardinality 1..* name", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[2].tableSchema.columns[1].name).toBe("m%C3%A1_dostupn%C3%BD_jazyk");
+});
+
+test(testNamePrefix + "empty association cardinality 1..* foreign key", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[2].tableSchema.foreignKeys[0].reference.resource.slice(-5)).toBe("1.csv");
+});
+
+test(testNamePrefix + "full association cardinality 0..1 name", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.columns[3].name).toBe("otev%C3%ADrac%C3%AD_doba");
+});
+
+test(testNamePrefix + "full association cardinality 0..1 foreign key", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[0].tableSchema.foreignKeys[0].columnReference).toBe("otev%C3%ADrac%C3%AD_doba");
+});
+
+test(testNamePrefix + "full association cardinality 0..1 attribute", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[3].tableSchema.columns[1].name).toBe("po%C4%8Det_opakov%C3%A1n%C3%AD");
+});
+
+test(testNamePrefix + "full association cardinality 0..1 type", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[3].tableSchema.columns[2].valueUrl).toBe("https://slovník.gov.cz/generický/čas/pojem/časová-specifikace");
+});
+
+test(testNamePrefix + "full association cardinality 0..* attribute", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[4].tableSchema.columns[1].name).toBe("n%C3%A1zev");
+});
+
+test(testNamePrefix + "full association cardinality 0..* foreign keys one", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[5].tableSchema.foreignKeys[0].reference.resource.slice(-5)).toBe("1.csv");
+});
+
+test(testNamePrefix + "full association cardinality 0..* foreign keys two", async () => {
+    const result = await commonArrange4();
+    expect(result.tables[5].tableSchema.foreignKeys[1].reference.resource.slice(-5)).toBe("5.csv");
 });
