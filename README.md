@@ -15,8 +15,7 @@ For more information about individual packages, applications, and services, plea
 
 <!-- -->
 
-- [editor](./applications/editor) application
-- [manager](./applications/manager) application
+- [client](./applications/client) application (specification manager and schema editor)
 - [cli](./applications/cli) application
 
 <!-- -->
