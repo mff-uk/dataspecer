@@ -40,11 +40,25 @@ export const DataSpecificationNameCell: React.FC<{
 }> = ({dataSpecificationIri}) => {
     return (
         <DataSpecificationName iri={dataSpecificationIri}>
-            {(label, isLoading) => <Typography sx={{fontWeight: "bold"}}>
+            {(label, isLoading) => <Typography>
                 {isLoading ? <Skeleton /> : (label ?? dataSpecificationIri)}
             </Typography>}
         </DataSpecificationName>
     );
+};
+
+export const DataSpecificationDetailInfoCell: React.FC<{
+    dataSpecificationIri: string,
+}> = ({dataSpecificationIri}) => {
+    const {dataSpecifications} = useContext(DataSpecificationsContext);
+    const specification = dataSpecifications[dataSpecificationIri];
+
+    return <>
+        {specification.psms.length} structure{specification.psms.length !== 1 && "s"}
+        {specification.importsDataSpecifications.length > 0 && <>
+        , {specification.importsDataSpecifications.length} import{specification.importsDataSpecifications.length !== 1 && "s"}
+        </>}
+    </>;
 };
 
 export const DataSchemaNameCell: React.FC<{
