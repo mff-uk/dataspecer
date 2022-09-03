@@ -1,4 +1,4 @@
-import {StructureModel, StructureModelClass, StructureModelProperty} from "../structure-model/model";
+import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty} from "../structure-model/model";
 import {OFN} from "../well-known";
 import {QName} from "../xml/xml-conventions";
 import {DataSpecificationArtefact, DataSpecificationSchema} from "../data-specification/model";
@@ -13,7 +13,7 @@ const VERSION = 1.1;
 export class JsonLdAdapter {
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
-  private artefact: DataSpecificationArtefact;
+  protected artefact: DataSpecificationArtefact;
 
   constructor(model: StructureModel, context: ArtefactGeneratorContext, artefact: DataSpecificationArtefact) {
     this.model = model;
@@ -25,72 +25,88 @@ export class JsonLdAdapter {
     const result = this.getContext();
     const context = result["@context"];
 
-    const rootClass = this.model.roots[0].classes[0];
-    this.generateClassContext(rootClass, context);
+    if (this.model.roots.length > 1) {
+      console.warn("JSON-LD generator: Multiple schema roots not supported.");
+    }
+
+    const rootClasses = this.model.roots[0].classes;
+    // Iterate over all classes in root OR
+    for (const root of rootClasses) {
+      this.generateClassContext(root, context);
+    }
 
     // Clean the object of undefined values
-    return removeEmpty(result);
+    return this.optimize(result);
   }
 
-  /**
-   * Adds entry for a property to a given context
-   */
-  private generatePropertyContext(property: StructureModelProperty, context: object) {
-    const data = {};
+  protected generatePropertyContext(property: StructureModelProperty, context: object) {
+    const contextData = {};
 
-    const dataType = property.dataTypes[0];
+    const firstDataType = property.dataTypes[0];
 
-    if (dataType.isAttribute()) {
-      data["@id"] = property.cimIri;
+    if (firstDataType.isAttribute()) {
+      contextData["@id"] = property.cimIri;
 
-      if (dataType.dataType === OFN.text) {
-        data["@container"] = "@language";
+      if (firstDataType.dataType === OFN.text) {
+        contextData["@container"] = "@language";
       } else {
-        const qName = simpleTypeMapQName[dataType.dataType];
-        data["@type"] = qName ? `${qName[0]}:${qName[1]}` : dataType.dataType;
+        const qName = simpleTypeMapQName[firstDataType.dataType];
+        contextData["@type"] = qName ? `${qName[0]}:${qName[1]}` : (firstDataType.dataType ?? undefined);
       }
     }
 
-    if (dataType.isAssociation()) {
+    if (firstDataType.isAssociation()) {
       if (property.isReverse) {
-        data["@reverse"] = property.cimIri;
+        contextData["@reverse"] = property.cimIri;
       } else {
-        data["@id"] = property.cimIri;
+        contextData["@id"] = property.cimIri;
       }
 
-      if (!dataType.dataType.isCodelist) {
-        if (this.model.psmIri !== dataType.dataType.structureSchema) {
+      if (!firstDataType.dataType.isCodelist) {
+        if (this.model.psmIri !== firstDataType.dataType.structureSchema) {
           if (property.cardinalityMax !== 1) {
-            data["@container"] = "@set";
+            contextData["@container"] = "@set";
           }
-          const artefact = findArtefactForImport(this.context, dataType.dataType);
-          data["@context"] = pathRelative(this.artefact.publicUrl, artefact.publicUrl);
+          const artefact = findArtefactForImport(this.context, firstDataType.dataType);
+          contextData["@context"] = pathRelative(this.artefact.publicUrl, artefact.publicUrl);
         } else {
           if (property.cardinalityMax === 1) {
-            data["@type"] = "@id";
+            contextData["@type"] = "@id";
           } else {
-            data["@container"] = "@set";
+            contextData["@container"] = "@set";
           }
 
-          const localContext = {
-            "@version": VERSION,
+          // Deal with OR
+          if (property.dataTypes.length === 1) {
+            // Check if the class is empty
+            if (firstDataType.dataType.properties.length === 0) {
+              contextData["@type"] = "@id";
+            } else {
+              const localContext = {}
+              contextData["@context"] = localContext;
+              this.generateClassContext(firstDataType.dataType, localContext);
+            }
+          } else {
+            const localContext = [];
+            for (const dataType of property.dataTypes) {
+              const localContextForType = {};
+              this.generateClassContext((dataType as StructureModelComplexType).dataType, localContextForType);
+              localContext.push(localContextForType);
+            }
+            contextData["@context"] = localContext;
           }
-          data["@context"] = localContext;
-          this.generateClassContext(dataType.dataType, localContext);
         }
       }
     }
 
-    context[property.technicalLabel] = data;
+    context[property.technicalLabel] = contextData;
   }
 
   /**
-   * Adds entry for a class to a given context
+   * Adds entry for a class to a given context.
    */
-  private generateClassContext(cls: StructureModelClass, context: object) {
-    const innerContext = {
-      "@version": VERSION,
-    };
+  protected generateClassContext(cls: StructureModelClass, context: object) {
+    const innerContext = {};
 
     const data = {
       "@id": cls.cimIri,
@@ -101,15 +117,16 @@ export class JsonLdAdapter {
       this.generatePropertyContext(property, innerContext);
     }
 
-    context[cls.technicalLabel ?? "class"] = data;
+    // Classes are identified by its type keyword
+
+    context[cls.humanLabel["cs"] ?? "class"] = data;
   }
 
-  private getContext(): object {
+  protected getContext(): object {
     const context = {
       "@version": VERSION,
-      "$rootcontainer$": "@graph",
-      // todo use keys from JSON configuration
-      "type": "@type",
+      //"rootcontainer": "@graph", // todo add support for root containers
+      "typ": "@type", // todo set from configuration
       "id": "@id",
     };
 
@@ -117,16 +134,28 @@ export class JsonLdAdapter {
       "@context" : context,
     }
   }
-}
 
-const removeEmpty = (obj) => {
-  const newObj = {};
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] === Object(obj[key])) newObj[key] = removeEmpty(obj[key]);
-    else if (obj[key] !== undefined) newObj[key] = obj[key];
-  });
-  return newObj;
-};
+  /**
+   * Optimizes resulting context by removing unnecessary constructs such as
+   * undefined or object with only @id keyword
+   */
+  protected optimize(obj: object): object {
+    const newObj = {};
+    Object.keys(obj).forEach((key) => {
+      if (Array.isArray(obj[key])) {
+        newObj[key] = obj[key].map(v => this.optimize(v));
+      } else if (obj[key] === Object(obj[key])) {
+        newObj[key] = this.optimize(obj[key]);
+        if (Object.keys(newObj[key]).length === 1 && newObj[key]["@id"]) {
+          newObj[key] = newObj[key]["@id"];
+        }
+      } else if (obj[key] !== undefined) {
+        newObj[key] = obj[key];
+      }
+    });
+    return newObj;
+  }
+}
 
 function findArtefactForImport(
   context: ArtefactGeneratorContext,
