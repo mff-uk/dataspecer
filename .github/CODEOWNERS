@@ -1,10 +1,7 @@
 * @sstenchlak
 
-# editor application
-/applications/editor/ @sstenchlak
-
-# manager application
-/applications/manager/ @sstenchlak
+# client application
+/applications/client/ @sstenchlak
 
 # packages
 /packages/backend-utils/ @sstenchlak

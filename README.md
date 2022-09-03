@@ -24,14 +24,6 @@ For more information about individual packages, applications, and services, plea
 
 ## Build instructions
 
-This codebase is managed by [Lerna](https://github.com/lerna/lerna).
-
-Please see the individual packages for their build instructions. To be able to work on the project, you need to bootstrap packages and build all dependencies.
+This codebase is managed by [Lerna](https://github.com/lerna/lerna). Please see the individual packages for their build instructions.
 
 You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the applications.
-
-- Clone the whole repository. `git clone ...`
-- Run `npm install` to install Lerna.
-- Run `npx lerna bootstrap` to install and link all packages.
-- *Optionally* run `npx lerna run test` to run test, to be sure nothing is broken. 
-- Run `npx lerna run build` to build everything.
