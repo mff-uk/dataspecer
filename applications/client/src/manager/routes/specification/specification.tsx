@@ -49,7 +49,7 @@ export const Specification: React.FC = () => {
             navigate(getEditorLink(dataSpecificationIri, createdPsmSchemaIri));
             setRedirecting(false);
         }
-    }, [backendConnector, dataSpecificationIri]);
+    }, [navigate, backendConnector, dataSpecificationIri]);
 
     const [zipLoading, setZipLoading] = React.useState<false|"stores-loading"|"generating">(false);
     const [generateDialogOpen, setGenerateDialogOpen] = React.useState<boolean>(false);
