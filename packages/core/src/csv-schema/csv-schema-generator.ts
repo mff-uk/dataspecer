@@ -13,7 +13,7 @@ import {assertFailed, assertNot} from "../core";
 import {transformStructureModel} from "../structure-model/transformation";
 import {CsvSchema} from "./csv-schema-model";
 import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
-import {CsvSchemaGeneratorOptions} from "./csv-schema-generator-options";
+import {CsvConfiguration, CsvConfigurator, DefaultCsvConfiguration} from "./csv-configuration";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 
@@ -43,7 +43,10 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         }
         const schemaArtefact = artefact as DataSpecificationSchema;
         const conceptualModel = context.conceptualModels[specification.pim];
-        const configuration = CsvSchemaGeneratorOptions.getFromConfiguration(schemaArtefact.configuration);
+        const configuration = CsvConfigurator.merge(
+            DefaultCsvConfiguration,
+            CsvConfigurator.getFromObject(schemaArtefact.configuration)
+        ) as CsvConfiguration;
         assertNot(
             conceptualModel === undefined,
             `Missing conceptual model ${specification.pim}.`);

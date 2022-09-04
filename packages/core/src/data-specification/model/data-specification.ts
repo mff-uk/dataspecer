@@ -1,5 +1,4 @@
 import { DataSpecificationArtefact } from "./data-specification-artefact";
-import {DataSpecificationArtefactBuilderConfiguration} from "./data-specification-artefact-builder-configuration";
 
 export class DataSpecification {
   iri: string | null = null;
@@ -22,5 +21,5 @@ export class DataSpecification {
    * Specifies properties for artifacts builders that can extend {@link artefacts} field by adding other artefacts on
    * the fly. This allows user to dynamically add schemas without the need to manually specify the artifacts.
    */
-  artefactConfiguration: DataSpecificationArtefactBuilderConfiguration[] = [];
+  artefactConfiguration: object = {};
 }

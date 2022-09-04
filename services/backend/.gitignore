@@ -6,3 +6,4 @@ database/stores/*
 node_modules
 .env.local
 !.env
+*.config.js

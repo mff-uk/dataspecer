@@ -1,10 +1,9 @@
-import { BikeshedGenerator } from "../bikeshed";
-import { JsonSchemaGenerator } from "../json-schema/json-schema-generator";
-import { XmlSchemaGenerator } from "../xml-schema";
-import { XsltLoweringGenerator } from "../xml-transformations";
-import { XsltLiftingGenerator } from "../xml-transformations";
-import { CsvSchemaGenerator } from "../csv-schema/csv-schema-generator";
-import { PlantUmlGenerator } from "../plant-uml";
+import {BikeshedGenerator} from "../bikeshed";
+import {JsonSchemaGenerator} from "../json-schema/json-schema-generator";
+import {XmlSchemaGenerator} from "../xml-schema";
+import {XsltLiftingGenerator, XsltLoweringGenerator} from "../xml-transformations";
+import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
+import {PlantUmlGenerator} from "../plant-uml";
 import {SparqlGenerator} from "../sparql-query";
 import {JsonLdGenerator} from "../json-ld/json-ld-generator";
 

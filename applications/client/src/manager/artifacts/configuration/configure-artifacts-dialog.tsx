@@ -1,46 +1,29 @@
-import React, {FC, useEffect, useMemo, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, Switch, TextField, Typography} from "@mui/material";
-import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
-import {DefaultArtifactConfiguratorConfiguration} from "@dataspecer/core/data-specification/default-artifact-configurator-configuration";
-import {CsvSchemaGeneratorOptions} from "@dataspecer/core/csv-schema/csv-schema-generator-options";
-import {XML_SCHEMA} from "@dataspecer/core/xml-schema/xml-schema-vocabulary";
-import {XmlSchemaAdapterOptions} from "@dataspecer/core/xml-schema/xml-schema-model-adapter";
-import {JSON_SCHEMA} from "@dataspecer/core/json-schema/json-schema-vocabulary";
-import {JsonSchemaGeneratorOptions} from "@dataspecer/core/json-schema/json-schema-generator-options";
+import React, {FC, useContext, useEffect, useState} from "react";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Switch, Typography} from "@mui/material";
+import {clone} from "lodash";
+import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
+import {JsonConfiguration, JsonConfigurator} from "@dataspecer/core/json/json-configuration";
+import {CsvConfiguration, CsvConfigurator} from "@dataspecer/core/csv-schema/csv-configuration";
+import {XmlConfiguration, XmlConfigurator} from "@dataspecer/core/xml/xml-configuration";
+import CloseIcon from '@mui/icons-material/Close';
+import {DefaultConfigurationContext} from "../../../application";
 
 /**
- * Main component (Dialog) for the configuration of the artifacts.
+ * Dialog that edits configuration.
  */
 export const ConfigureArtifactsDialog: FC<{
   isOpen: boolean,
   close: () => void,
-  onChange: (configuration: DefaultArtifactConfiguratorConfiguration) => void,
-  configuration: DefaultArtifactConfiguratorConfiguration,
+  onChange: (configuration: object) => void,
+  configuration: object,
 }> = ({isOpen, close, onChange, configuration}) => {
-
-  // Local configuration changes with dialog being opened.
-
-  const [localConfiguration, setLocalConfiguration] = useState(() => DefaultArtifactConfiguratorConfiguration.create(configuration));
+  const defaultConfiguration = useContext(DefaultConfigurationContext);
+  const [localConfiguration, setLocalConfiguration] = useState(() => clone(configuration));
   useEffect(() => {
     if (isOpen) {
-      setLocalConfiguration(DefaultArtifactConfiguratorConfiguration.create(configuration))
+      setLocalConfiguration(clone(configuration))
     }
   }, [isOpen, configuration]);
-
-  const rawCsvConfiguration = localConfiguration.generatorOptions[CSV_SCHEMA.Generator];
-  const csvConfiguration = useMemo(() =>
-    CsvSchemaGeneratorOptions.getFromConfiguration(rawCsvConfiguration ?? {}),
-    [rawCsvConfiguration]);
-
-  const rawXmlConfiguration = localConfiguration.generatorOptions[XML_SCHEMA.Generator];
-  const xmlConfiguration = useMemo(() =>
-      XmlSchemaAdapterOptions.getFromConfiguration(rawXmlConfiguration ?? {}),
-    [rawXmlConfiguration]);
-
-  const rawJsonConfiguration = localConfiguration.generatorOptions[JSON_SCHEMA.Generator];
-  const jsonConfiguration = useMemo(() =>
-      JsonSchemaGeneratorOptions.getFromConfiguration(rawJsonConfiguration ?? {}),
-    [rawJsonConfiguration]);
 
   return <Dialog
     open={isOpen}
@@ -53,21 +36,24 @@ export const ConfigureArtifactsDialog: FC<{
     </DialogTitle>
     <DialogContent>
       <Typography variant="subtitle1" component="h2">JSON schema</Typography>
-      <JsonConfiguration
-        input={jsonConfiguration}
-        onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [JSON_SCHEMA.Generator]: u}})}
+      <Json
+        input={JsonConfigurator.getFromObject(localConfiguration)}
+        onChange={u => setLocalConfiguration(JsonConfigurator.setToObject(localConfiguration, u))}
+        defaultObject={JsonConfigurator.getFromObject(defaultConfiguration) as JsonConfiguration}
       />
 
       <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>CSV schema</Typography>
-      <CsvConfiguration
-        input={csvConfiguration}
-        onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [CSV_SCHEMA.Generator]: u}})}
+      <Csv
+        input={CsvConfigurator.getFromObject(localConfiguration)}
+        onChange={u => setLocalConfiguration(CsvConfigurator.setToObject(localConfiguration, u))}
+        defaultObject={CsvConfigurator.getFromObject(defaultConfiguration) as CsvConfiguration}
       />
 
       <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>XSD schema</Typography>
-      <XsdConfiguration
-        input={xmlConfiguration}
-        onChange={u => setLocalConfiguration({...localConfiguration, generatorOptions: {...localConfiguration.generatorOptions, [XML_SCHEMA.Generator]: u}})}
+      <Xml
+        input={XmlConfigurator.getFromObject(localConfiguration)}
+        onChange={u => setLocalConfiguration(XmlConfigurator.setToObject(localConfiguration, u))}
+        defaultObject={XmlConfigurator.getFromObject(defaultConfiguration) as XmlConfiguration}
       />
     </DialogContent>
     <DialogActions>
@@ -80,23 +66,49 @@ export const ConfigureArtifactsDialog: FC<{
   </Dialog>;
 }
 
-const JsonConfiguration: FC<{
-  input: JsonSchemaGeneratorOptions,
-  onChange: (options: JsonSchemaGeneratorOptions) => void,
-}> = ({input, onChange}) => {
+const Json: FC<{
+  input: DeepPartial<JsonConfiguration>,
+  defaultObject?: JsonConfiguration,
+  onChange: (options: DeepPartial<JsonConfiguration>) => void,
+}> = ({input, onChange, defaultObject}) => {
   return <FormGroup>
     <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>IRI property and type property names</Typography>
     <Grid container>
       <Grid item xs={6}>
-        <TextField label="IRI" variant="standard" value={input.interpretedClassIriPropertyName} onChange={e => onChange({...input, interpretedClassIriPropertyName: e.target.value.length ? e.target.value : null})} />
+        <TextFieldWithDefault
+            label="IRI"
+            current={input ?? {}}
+            itemKey="jsonIdKeyAlias"
+            onChange={onChange}
+            default={defaultObject}
+        />
       </Grid>
       <Grid item xs={6}>
-        <TextField label="Type" variant="standard" value={input.interpretedClassTypePropertyName} onChange={e => onChange({...input, interpretedClassTypePropertyName: e.target.value.length ? e.target.value : null})} />
+        <TextFieldWithDefault
+            label="Type"
+            current={input ?? {}}
+            itemKey="jsonTypeKeyAlias"
+            onChange={onChange}
+            default={defaultObject}
+        />
       </Grid>
     </Grid>
     <Typography variant="body2" sx={{my: 2}}>
       Set technical label (key) for properties containing IRI and a type of the entity respectively, for classes that are interpreted. If kept empty, the property will not be generated.
     </Typography>
+    <Grid container>
+      <Grid item xs={6}>
+        <TextFieldWithDefault
+            label="Language key for types"
+            current={input ?? {}}
+            itemKey="jsonTypeKeyMappingTypeLabel"
+            onChange={onChange}
+            default={defaultObject}
+        />
+      </Grid>
+      <Grid item xs={6}>
+      </Grid>
+    </Grid>
   </FormGroup>;
 }
 
@@ -106,44 +118,46 @@ const JsonConfiguration: FC<{
  * The component expects full configuration object.
  * @constructor
  */
-const CsvConfiguration: FC<{
-  input: CsvSchemaGeneratorOptions,
-  onChange: (options: CsvSchemaGeneratorOptions) => void,
-}> = ({input, onChange}) => {
+const Csv: FC<{
+  input: DeepPartial<CsvConfiguration>,
+  defaultObject?: CsvConfiguration
+  onChange: (options: DeepPartial<CsvConfiguration>) => void,
+}> = ({input, onChange, defaultObject}) => {
   return <FormGroup>
-    <FormControlLabel
-      control={<Switch
-        checked={input.enableMultipleTableSchema}
-        onChange={e => onChange({...input, enableMultipleTableSchema: e.target.checked})}
-      />}
-      label="Enable multiple table schema for CSV"
+    <SwitchWithDefault
+        label="Enable multiple table schema for CSV"
+        current={input ?? {}}
+        itemKey="enableMultipleTableSchema"
+        onChange={onChange}
+        default={defaultObject}
     />
   </FormGroup>
 }
 
-const XsdConfiguration: FC<{
-  input: XmlSchemaAdapterOptions,
-  onChange: (options: XmlSchemaAdapterOptions) => void,
-}> = ({input, onChange}) => {
+const Xml: FC<{
+  input: DeepPartial<XmlConfiguration>,
+  defaultObject?: XmlConfiguration
+  onChange: (options: DeepPartial<XmlConfiguration>) => void,
+}> = ({input, onChange, defaultObject}) => {
   return <FormGroup>
     <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Root class</Typography>
     <Grid container>
       <Grid item xs={6}>
-        <FormControlLabel
-          control={<Switch
-            checked={input.rootClass.extractGroup}
-            onChange={e => onChange({...input, rootClass: {...input.rootClass, extractGroup: e.target.checked}})}
-          />}
-          label="Extract group"
+        <SwitchWithDefault
+            label="Extract group"
+            current={input.rootClass ?? {}}
+            itemKey="extractGroup"
+            onChange={rootClass => onChange({...input, rootClass})}
+            default={defaultObject?.rootClass}
         />
       </Grid>
       <Grid item xs={6}>
-        <FormControlLabel
-          control={<Switch
-            checked={input.rootClass.extractType}
-            onChange={e => onChange({...input, rootClass: {...input.rootClass, extractType: e.target.checked}})}
-          />}
-          label="Extract type"
+        <SwitchWithDefault
+            label="Extract type"
+            current={input.rootClass ?? {}}
+            itemKey="extractType"
+            onChange={rootClass => onChange({...input, rootClass})}
+            default={defaultObject?.rootClass}
         />
       </Grid>
     </Grid>
@@ -151,23 +165,103 @@ const XsdConfiguration: FC<{
     <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Other classes</Typography>
     <Grid container>
       <Grid item xs={6}>
-        <FormControlLabel
-          control={<Switch
-            checked={input.otherClasses.extractGroup}
-            onChange={e => onChange({...input, otherClasses: {...input.otherClasses, extractGroup: e.target.checked}})}
-          />}
-          label="Extract group"
+        <SwitchWithDefault
+            label="Extract group"
+            current={input.otherClasses ?? {}}
+            itemKey="extractGroup"
+            onChange={otherClasses => onChange({...input, otherClasses})}
+            default={defaultObject?.otherClasses}
         />
       </Grid>
       <Grid item xs={6}>
-        <FormControlLabel
-          control={<Switch
-            checked={input.otherClasses.extractType}
-            onChange={e => onChange({...input, otherClasses: {...input.otherClasses, extractType: e.target.checked}})}
-          />}
-          label="Extract type"
+        <SwitchWithDefault
+            label="Extract type"
+            current={input.otherClasses ?? {}}
+            itemKey="extractType"
+            onChange={otherClasses => onChange({...input, otherClasses})}
+            default={defaultObject?.otherClasses}
         />
       </Grid>
     </Grid>
   </FormGroup>;
+}
+
+const TextFieldWithDefault: FC<{
+  default?: Record<string, any>,
+  current: Record<string, any>,
+  itemKey: string,
+  onChange: (value: Record<string, any>) => void,
+  label: string,
+}> = (props) => {
+  const isDefault = props.default && !props.current.hasOwnProperty(props.itemKey);
+  const defaultValue = props.default && props.default.hasOwnProperty(props.itemKey) ? props.default[props.itemKey] : null;
+  const updateWithValue = (value: string) => {
+    props.onChange({...props.current, [props.itemKey]: value ?? null});
+  }
+  const toggleDefault = () => {
+    if (props.default) {
+      if (isDefault) {
+        updateWithValue(defaultValue);
+      } else {
+        const result = {...props.current};
+        delete result[props.itemKey];
+        props.onChange(result);
+      }
+    }
+  }
+
+  return <FormControl sx={{ m: 1 }} variant="standard" disabled={isDefault}>
+    <InputLabel htmlFor="standard-adornment-password">{props.label}</InputLabel>
+    <Input
+        id="standard-adornment-password"
+        value={(isDefault ? defaultValue : props.current[props.itemKey] as string) ?? ""}
+        onChange={e => updateWithValue(e.target.value)}
+        endAdornment={props.default && <InputAdornment position="end">
+            <IconButton>
+              <CloseIcon onClick={toggleDefault} />
+            </IconButton>
+          </InputAdornment>}
+        startAdornment={isDefault && <InputAdornment position="start">Default used: </InputAdornment>}
+    />
+    {props.default && !isDefault && <FormHelperText>(default: {props.default[props.itemKey]})</FormHelperText>}
+  </FormControl>;
+}
+
+const SwitchWithDefault: FC<{
+  default?: Record<string, any>,
+  current: Record<string, any>,
+  itemKey: string,
+  onChange: (value: Record<string, any>) => void,
+  label: string,
+}> = (props) => {
+  const handleChange = (event: SelectChangeEvent<number>) => {
+    const val = event.target.value;
+    if (val === -1) {
+      const result = {...props.current};
+      delete result[props.itemKey];
+      props.onChange(result);
+    } else {
+      props.onChange({...props.current, [props.itemKey]: val === 1});
+    }
+  };
+
+  return <FormControlLabel
+      control={props.default ?
+        <Select
+            variant="standard"
+            sx={{mx: 2}}
+            value={props.current.hasOwnProperty(props.itemKey) ? (props.current[props.itemKey] ? 1 : 0) : -1}
+            onChange={handleChange}
+        >
+          <MenuItem value={-1}>Default ({props.default[props.itemKey] ? "Yes" : "No"})</MenuItem>
+          <MenuItem value={1}>Yes</MenuItem>
+          <MenuItem value={0}>No</MenuItem>
+        </Select> :
+        <Switch
+          checked={props.current[props.itemKey] as boolean}
+          onChange={e => props.onChange({...props.current, [props.itemKey]: e.target.checked})}
+          />
+      }
+      label={props.label}
+  />
 }

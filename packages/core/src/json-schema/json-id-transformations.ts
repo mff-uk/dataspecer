@@ -1,6 +1,6 @@
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty} from "../structure-model/model";
 import {clone} from "../core";
-import {JsonSchemaGeneratorOptions} from "./json-schema-generator-options";
+import {JsonConfiguration} from "../json/json-configuration";
 
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
@@ -9,23 +9,23 @@ import {JsonSchemaGeneratorOptions} from "./json-schema-generator-options";
  */
 export function structureModelAddIdAndTypeProperties(
   structure: StructureModel,
-  configuration: JsonSchemaGeneratorOptions,
+  configuration: JsonConfiguration,
 ): StructureModel {
   const result = clone(structure) as StructureModel;
   const classes = result.getClasses();
   for (const structureClass of classes) {
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
-      if (configuration.interpretedClassTypePropertyName !== null) {
+      if (configuration.jsonTypeKeyAlias !== null) {
         structureClass.properties.unshift(
           getShadowIdProperty(structureClass.specification,
-            configuration.interpretedClassTypePropertyName)
+            configuration.jsonTypeKeyAlias)
         );
       }
-      if (configuration.interpretedClassIriPropertyName !== null) {
+      if (configuration.jsonIdKeyAlias !== null) {
         structureClass.properties.unshift(
           getShadowIdProperty(structureClass.specification,
-            configuration.interpretedClassIriPropertyName)
+            configuration.jsonIdKeyAlias)
         );
       }
     }

@@ -1,48 +1,19 @@
-import {
-  StructureModelClass,
-  StructureModelPrimitiveType,
-  StructureModelProperty,
-  StructureModelType,
-  StructureModelComplexType,
-  StructureModelSchemaRoot,
-} from "../structure-model/model";
+import {StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot, StructureModelType,} from "../structure-model/model";
 
-import {
-  XmlStructureModel as StructureModel
-} from "../xml-structure-model/model/xml-structure-model";
+import {XmlStructureModel as StructureModel} from "../xml-structure-model/model/xml-structure-model";
 
-import {
-  XmlSchema,
-  XmlSchemaComplexContent,
-  XmlSchemaComplexContentElement,
-  XmlSchemaComplexContentItem,
-  XmlSchemaComplexGroup,
-  XmlSchemaComplexType,
-  XmlSchemaComplexItem,
-  XmlSchemaElement,
-  XmlSchemaSimpleType,
-  XmlSchemaType,
-  xmlSchemaTypeIsComplex,
-  XmlSchemaImportDeclaration,
-  XmlSchemaGroupDefinition,
-  XmlSchemaAnnotation,
-  XmlSchemaComplexSequence,
-  XmlSchemaComplexExtension,
-} from "./xml-schema-model";
+import {XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContent, XmlSchemaComplexContentElement, XmlSchemaComplexContentItem, XmlSchemaComplexExtension, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex,} from "./xml-schema-model";
 
-import {
-  DataSpecification,
-  DataSpecificationArtefact,
-  DataSpecificationSchema,
-} from "../data-specification/model";
+import {DataSpecification, DataSpecificationArtefact, DataSpecificationSchema,} from "../data-specification/model";
 
-import { XSD, XSD_PREFIX } from "../well-known";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
+import {XSD, XSD_PREFIX} from "../well-known";
+import {XML_SCHEMA} from "./xml-schema-vocabulary";
 
-import { iriElementName, langStringName, QName, simpleTypeMapQName } from "../xml/xml-conventions";
-import { pathRelative } from "../core/utilities/path-relative";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
-import { ArtefactGeneratorContext } from "../generator";
+import {iriElementName, langStringName, QName, simpleTypeMapQName} from "../xml/xml-conventions";
+import {pathRelative} from "../core/utilities/path-relative";
+import {structureModelAddXmlProperties} from "../xml-structure-model/add-xml-properties";
+import {ArtefactGeneratorContext} from "../generator";
+import {DefaultXmlConfiguration, ExtractOptions, XmlConfiguration, XmlConfigurator} from "../xml/xml-configuration";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
@@ -53,46 +24,11 @@ export function structureModelToXmlSchema(
   artifact: DataSpecificationSchema,
   model: StructureModel
 ): XmlSchema {
-  const options = XmlSchemaAdapterOptions.getFromConfiguration(artifact.configuration);
+  const options = XmlConfigurator.merge(DefaultXmlConfiguration, XmlConfigurator.getFromObject(artifact.configuration)) as XmlConfiguration;
   const adapter = new XmlSchemaAdapter(
     context, specification, artifact, model, options
   );
   return adapter.fromRoots(model.roots);
-}
-
-/**
- * Options controlling the extraction of types and groups, i.e. whether to
- * define and use them via a name, or to use them inline when needed.
- */
-class ExtractOptions {
-  extractType: boolean;
-  extractGroup: boolean;
-}
-
-/**
- * Stores additional options of the generation, loaded from the generator's configuration.
- */
-export class XmlSchemaAdapterOptions {
-  rootClass: ExtractOptions;
-  otherClasses: ExtractOptions;
-
-  constructor() {
-    this.rootClass = new ExtractOptions();
-    this.otherClasses = new ExtractOptions();
-  }
-
-  static getFromConfiguration(configuration: Partial<XmlSchemaAdapterOptions>): XmlSchemaAdapterOptions {
-    const options = new XmlSchemaAdapterOptions();
-    if (configuration?.rootClass) {
-      options.rootClass.extractType = !!configuration?.rootClass?.extractType ?? false;
-      options.rootClass.extractGroup = !!configuration?.rootClass?.extractGroup ?? true;
-    }
-    if (configuration?.otherClasses) {
-      options.otherClasses.extractType = !!configuration?.otherClasses?.extractType ?? false;
-      options.otherClasses.extractGroup = !!configuration?.otherClasses?.extractGroup ?? false;
-    }
-    return options;
-  }
 }
 
 /**
@@ -127,7 +63,7 @@ class XmlSchemaAdapter {
   private specifications: { [iri: string]: DataSpecification };
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
-  private options: XmlSchemaAdapterOptions;
+  private options: XmlConfiguration;
 
   /**
    * Creates a new instance of the adapter, for a particular structure model.
@@ -142,7 +78,7 @@ class XmlSchemaAdapter {
     specification: DataSpecification,
     artifact: DataSpecificationSchema,
     model: StructureModel,
-    options: XmlSchemaAdapterOptions
+    options: XmlConfiguration
   ) {
     this.context = context;
     this.specifications = context.specifications;

@@ -21,7 +21,7 @@ import {
     LanguageString
 } from "../core";
 import { OFN } from "../well-known";
-import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
+import {CsvConfiguration} from "./csv-configuration";
 
 const idPrefix = "https://ofn.gov.cz/schema";
 
@@ -31,7 +31,7 @@ const idPrefix = "https://ofn.gov.cz/schema";
 export function structureModelToCsvSchema(
     specification: DataSpecification,
     model: StructureModel,
-    configuration: CsvSchemaGeneratorOptions
+    configuration: CsvConfiguration
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 

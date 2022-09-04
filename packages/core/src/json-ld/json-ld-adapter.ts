@@ -6,6 +6,7 @@ import {assertNot} from "../core";
 import {ArtefactGeneratorContext} from "../generator";
 import {pathRelative} from "../core/utilities/path-relative";
 import {JSON_LD_GENERATOR} from "./json-ld-generator";
+import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../json/json-configuration";
 
 // JSON-LD version
 const VERSION = 1.1;
@@ -14,11 +15,16 @@ export class JsonLdAdapter {
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
+  protected configuration: JsonConfiguration;
 
   constructor(model: StructureModel, context: ArtefactGeneratorContext, artefact: DataSpecificationArtefact) {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
+    this.configuration = JsonConfigurator.merge(
+        DefaultJsonConfiguration,
+        JsonConfigurator.getFromObject(artefact.configuration)
+    ) as JsonConfiguration;
   }
 
   public generate = async () => {
@@ -119,16 +125,28 @@ export class JsonLdAdapter {
 
     // Classes are identified by its type keyword
 
-    context[cls.humanLabel["cs"] ?? "class"] = data;
+    //if (this.configuration.jsonTypeKeyMappingType === "json_type_key_mapping_type_label") {
+    let label = cls.humanLabel[this.configuration.jsonTypeKeyMappingTypeLabel];
+    if (!label) {
+      console.warn(`JSON-LD Generator: There is no ${this.configuration.jsonTypeKeyMappingTypeLabel} label fof given entity.`, cls);
+      label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
+    }
+    context[label] = data;
+    //}
   }
 
   protected getContext(): object {
     const context = {
       "@version": VERSION,
       //"rootcontainer": "@graph", // todo add support for root containers
-      "typ": "@type", // todo set from configuration
-      "id": "@id",
     };
+
+    if (this.configuration.jsonIdKeyAlias) {
+      context[this.configuration.jsonIdKeyAlias] = "@id";
+    }
+    if (this.configuration.jsonTypeKeyAlias) {
+      context[this.configuration.jsonTypeKeyAlias] = "@type";
+    }
 
     return {
       "@context" : context,

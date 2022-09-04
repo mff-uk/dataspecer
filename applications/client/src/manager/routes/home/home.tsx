@@ -2,13 +2,14 @@ import React, {useCallback, useContext, useMemo, useState} from "react";
 import {Link} from "react-router-dom";
 import {Box, Button, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography} from "@mui/material";
 import {CreateSpecification} from "./create-specification";
-import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationsContext} from "../../app";
 import {DataSpecificationDetailInfoCell, DataSpecificationNameCell} from "../../name-cells";
 import {SpecificationTags} from "../../components/specification-tags";
 import {FilterByTag, FilterContext} from "./filter-by-tag";
 import {alpha} from "@mui/material/styles";
 import {GenerateDialog} from "../../artifacts/generate-dialog";
 import {useToggle} from "../../use-toggle";
+import {BackendConnectorContext} from "../../../application";
 
 export const Home: React.FC = () => {
     const {

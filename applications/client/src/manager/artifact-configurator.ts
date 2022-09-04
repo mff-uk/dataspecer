@@ -22,6 +22,8 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
+    const configuration = dataSpecification.artefactConfiguration;
+
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
     // PlantUML source
@@ -30,6 +32,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     plantUml.outputPath = `${dataSpecificationName}/conceptual-model.plantuml`;
     plantUml.publicUrl = this.baseURL + plantUml.outputPath;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
+    plantUml.configuration = configuration;
     artifacts.push(plantUml);
 
     // PlantUml image
@@ -38,6 +41,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.png`;
     plantUmlImage.publicUrl = this.baseURL + plantUmlImage.outputPath;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
+    plantUmlImage.configuration = configuration;
     artifacts.push(plantUmlImage);
 
 
@@ -48,6 +52,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     bikeshed.publicUrl = this.baseURL + bikeshed.outputPath;
     bikeshed.generator = BIKESHED.Generator;
     bikeshed.artefacts = currentSchemaArtefacts;
+    bikeshed.configuration = configuration;
     artifacts.push(bikeshed);
 
     // Bikeshed HTML
@@ -57,6 +62,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     bikeshedHtml.publicUrl = this.baseURL + bikeshedHtml.outputPath;
     bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
     bikeshedHtml.artefacts = currentSchemaArtefacts;
+    bikeshedHtml.configuration = configuration;
     artifacts.push(bikeshedHtml);
 
     return artifacts;

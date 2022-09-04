@@ -5,7 +5,7 @@ import {ReuseDataSpecifications} from "./reuse-data-specifications";
 import AddIcon from "@mui/icons-material/Add";
 import {saveAs} from "file-saver";
 import LoadingButton from '@mui/lab/LoadingButton';
-import {BackendConnectorContext, ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
+import {ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
 import {useConstructedStoresFromDescriptors} from "../../utils/use-stores-by-descriptors";
 import {DataStructureRow} from "./data-structure-row";
 import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
@@ -25,6 +25,7 @@ import {CopyIri} from "./copy-iri";
 import {GeneratingDialog} from "./generating-dialog";
 import {GenerateReport} from "../../artifacts/generate-report";
 import {ConfigureArtifacts} from "../../artifacts/configuration/configure-artifacts";
+import {BackendConnectorContext} from "../../../application";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();

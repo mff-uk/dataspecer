@@ -1,15 +1,12 @@
-import {DataSpecification} from "./model";
-import {DataSpecificationSchema} from "./model";
+import {DataSpecification, DataSpecificationArtefact, DataSpecificationSchema} from "./model";
 import {JSON_SCHEMA} from "../json-schema/json-schema-vocabulary";
 import {XML_SCHEMA} from "../xml-schema/xml-schema-vocabulary";
 import {XSLT_LIFTING, XSLT_LOWERING} from "../xml-transformations/xslt-vocabulary";
 import {CSV_SCHEMA} from "../csv-schema/csv-schema-vocabulary";
 import {CoreResourceReader} from "../core";
-import {DataSpecificationArtefact} from "./model";
 import {PimSchema} from "../pim/model";
 import {DataPsmSchema} from "../data-psm/model";
 import {SPARQL} from "../sparql-query/sparql-vocabulary";
-import {DefaultArtifactConfiguratorConfiguration} from "./default-artifact-configurator-configuration";
 import {JSON_LD_GENERATOR} from "../json-ld/json-ld-generator";
 
 /**
@@ -54,9 +51,7 @@ export class DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
-    // Todo: Artefact can be generated only from the artefact configuration, which should be provided as a parameter.
-    const configuration = DefaultArtifactConfiguratorConfiguration.create(
-      dataSpecification.artefactConfiguration[0] ?? {});
+    const configuration = dataSpecification.artefactConfiguration;
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
@@ -72,7 +67,7 @@ export class DefaultArtifactConfigurator {
       jsonSchema.publicUrl = this.baseURL + jsonSchema.outputPath;
       jsonSchema.generator = JSON_SCHEMA.Generator;
       jsonSchema.psm = psmSchemaIri;
-      jsonSchema.configuration = configuration.generatorOptions[JSON_SCHEMA.Generator] ?? null;
+      jsonSchema.configuration = configuration;
       currentSchemaArtefacts.push(jsonSchema);
 
       const jsonLd = new DataSpecificationSchema();
@@ -81,7 +76,7 @@ export class DefaultArtifactConfigurator {
       jsonLd.publicUrl = this.baseURL + jsonLd.outputPath;
       jsonLd.generator = JSON_LD_GENERATOR;
       jsonLd.psm = psmSchemaIri;
-      jsonLd.configuration = configuration.generatorOptions[JSON_LD_GENERATOR] ?? null;
+      jsonLd.configuration = configuration;
       currentSchemaArtefacts.push(jsonLd);
 
       //const xsdCoreSchema = new DataSpecificationSchema();
@@ -90,7 +85,7 @@ export class DefaultArtifactConfigurator {
       //xsdCoreSchema.publicUrl = this.baseURL + xsdCoreSchema.outputPath;
       //xsdCoreSchema.generator = XML_SCHEMA.Generator;
       //xsdCoreSchema.psm = psmSchemaIri;
-      //xsdCoreSchema.configuration = configuration.generatorOptions[XML_SCHEMA.Generator] ?? null;
+      //xsdCoreSchema.configuration = configuration;
       //currentSchemaArtefacts.push(xmlSchema);
 
       const xmlSchema = new DataSpecificationSchema();
@@ -99,7 +94,7 @@ export class DefaultArtifactConfigurator {
       xmlSchema.publicUrl = this.baseURL + xmlSchema.outputPath;
       xmlSchema.generator = XML_SCHEMA.Generator;
       xmlSchema.psm = psmSchemaIri;
-      xmlSchema.configuration = configuration.generatorOptions[XML_SCHEMA.Generator] ?? null;
+      xmlSchema.configuration = configuration;
       currentSchemaArtefacts.push(xmlSchema);
 
       const xsltLifting = new DataSpecificationSchema();
@@ -108,7 +103,7 @@ export class DefaultArtifactConfigurator {
       xsltLifting.publicUrl = this.baseURL + xsltLifting.outputPath;
       xsltLifting.generator = XSLT_LIFTING.Generator;
       xsltLifting.psm = psmSchemaIri;
-      xsltLifting.configuration = configuration.generatorOptions[XSLT_LIFTING.Generator] ?? null;
+      xsltLifting.configuration = configuration;
       currentSchemaArtefacts.push(xsltLifting);
 
       const xsltLowering = new DataSpecificationSchema();
@@ -117,7 +112,7 @@ export class DefaultArtifactConfigurator {
       xsltLowering.publicUrl = this.baseURL + xsltLowering.outputPath;
       xsltLowering.generator = XSLT_LOWERING.Generator;
       xsltLowering.psm = psmSchemaIri;
-      xsltLowering.configuration = configuration.generatorOptions[XSLT_LOWERING.Generator] ?? null;
+      xsltLowering.configuration = configuration;
       currentSchemaArtefacts.push(xsltLowering);
 
       const csvSchema = new DataSpecificationSchema();
@@ -126,7 +121,7 @@ export class DefaultArtifactConfigurator {
       csvSchema.publicUrl = this.baseURL + csvSchema.outputPath;
       csvSchema.generator = CSV_SCHEMA.Generator;
       csvSchema.psm = psmSchemaIri;
-      csvSchema.configuration = configuration.generatorOptions[CSV_SCHEMA.Generator] ?? null;
+      csvSchema.configuration = configuration;
       currentSchemaArtefacts.push(csvSchema);
 
       const sparqlSchema = new DataSpecificationSchema();
@@ -135,7 +130,7 @@ export class DefaultArtifactConfigurator {
       sparqlSchema.publicUrl = this.baseURL + sparqlSchema.outputPath;
       sparqlSchema.generator = SPARQL.Generator;
       sparqlSchema.psm = psmSchemaIri;
-      sparqlSchema.configuration = configuration.generatorOptions[SPARQL.Generator] ?? null;
+      sparqlSchema.configuration = configuration;
       currentSchemaArtefacts.push(sparqlSchema);
     }
 

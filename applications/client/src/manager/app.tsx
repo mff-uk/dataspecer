@@ -1,7 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {AppBar, Container, Divider, Toolbar, Typography} from "@mui/material";
 import {Link} from "react-router-dom";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
 import {StoreContext, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./utils/use-stores-by-descriptors";
@@ -9,8 +8,8 @@ import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
 import {useLocalStorage} from "./utils/use-local-storage";
-import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {SnackbarProvider} from 'notistack';
+import {BackendConnectorContext} from "../application";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -18,8 +17,6 @@ export const DataSpecificationsContext = React.createContext({
     rootDataSpecificationIris: [] as string[],
     setRootDataSpecificationIris: (rootDataSpecificationIris: string[]) => {},
 });
-
-export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
 
 export const ConstructedStoreCacheContext = React.createContext<Map<StoreDescriptor, CoreResourceReader>>(new Map());
 
@@ -34,8 +31,7 @@ function App(props: {children: React.ReactNode}) {
      */
     const [rootDataSpecificationIris, setRootDataSpecificationIris] = useState<string[]>([]);
 
-
-    const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
+    const backendConnector = useContext(BackendConnectorContext);
     useEffect(() => {
         backendConnector.readDataSpecifications().then(spec => {
             setDataSpecifications(Object.fromEntries(spec.map(s => [s.iri, s])));
@@ -82,35 +78,33 @@ function App(props: {children: React.ReactNode}) {
 
     return (
             <DataSpecificationsContext.Provider value={dataSpecificationContext}>
-                <BackendConnectorContext.Provider value={backendConnector}>
-                    <StoreContext.Provider value={store}>
-                        <ConstructedStoreCacheContext.Provider value={constructedStoreCache}>
-                            <AvailableTags.Provider value={tags}>
-                                <FilterContext.Provider value={filter}>
-                                    <SnackbarProvider maxSnack={3}>
-                                        <AppBar position="static">
-                                            <Toolbar>
-                                                <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
-                                                    <strong>Dataspecer</strong> specification manager
-                                                </Typography>
-                                            </Toolbar>
-                                        </AppBar>
-                                        <Container>
-                                            {props.children}
-                                            <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                            Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
-                                            {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
-                                                <>
-                                                    {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
-                                                </>
-                                            }
-                                        </Container>
-                                    </SnackbarProvider>
-                                </FilterContext.Provider>
-                            </AvailableTags.Provider>
-                        </ConstructedStoreCacheContext.Provider>
-                    </StoreContext.Provider>
-                </BackendConnectorContext.Provider>
+                <StoreContext.Provider value={store}>
+                    <ConstructedStoreCacheContext.Provider value={constructedStoreCache}>
+                        <AvailableTags.Provider value={tags}>
+                            <FilterContext.Provider value={filter}>
+                                <SnackbarProvider maxSnack={3}>
+                                    <AppBar position="static">
+                                        <Toolbar>
+                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                                <strong>Dataspecer</strong> specification manager
+                                            </Typography>
+                                        </Toolbar>
+                                    </AppBar>
+                                    <Container>
+                                        {props.children}
+                                        <Divider style={{margin: "1rem 0 1rem 0"}} />
+                                        Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
+                                        {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                                            <>
+                                                {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                            </>
+                                        }
+                                    </Container>
+                                </SnackbarProvider>
+                            </FilterContext.Provider>
+                        </AvailableTags.Provider>
+                    </ConstructedStoreCacheContext.Provider>
+                </StoreContext.Provider>
             </DataSpecificationsContext.Provider>
     );
 }

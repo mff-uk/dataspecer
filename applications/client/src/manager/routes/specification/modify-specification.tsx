@@ -2,12 +2,13 @@ import React, {useCallback, useContext, useMemo} from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {Fab} from "@mui/material";
 import {useToggle} from "../../use-toggle";
-import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationsContext} from "../../app";
 import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
 import {PimSchema} from "@dataspecer/core/pim/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
+import {BackendConnectorContext} from "../../../application";
 
 export const ModifySpecification: React.FC<{ iri: string }> = ({iri}) => {
     const dialog = useToggle();

@@ -1,11 +1,12 @@
 import {Box, Button, TableCell, TableRow, Typography} from "@mui/material";
 import React, {useCallback, useContext} from "react";
-import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationsContext} from "../../app";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {DataSchemaNameCell} from "../../name-cells";
 import {getEditorLink} from "../../shared/get-schema-generator-link";
 import {Link} from "react-router-dom";
+import {BackendConnectorContext} from "../../../application";
 
 export interface DataStructureRowProps {
     specificationIri: string;

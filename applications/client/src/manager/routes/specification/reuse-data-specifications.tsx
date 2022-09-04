@@ -2,8 +2,9 @@ import React, {useCallback, useContext, useEffect, useState} from "react";
 import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon, Skeleton} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import PowerIcon from '@mui/icons-material/Power';
-import {BackendConnectorContext, DataSpecificationsContext} from "../../app";
+import {DataSpecificationsContext} from "../../app";
 import {DataSpecificationName} from "../../name-cells";
+import {BackendConnectorContext} from "../../../application";
 
 export const ReuseDataSpecifications: React.FC<{
     dataSpecificationIri: string,

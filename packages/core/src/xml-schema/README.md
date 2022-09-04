@@ -22,7 +22,7 @@ An attribute is mapped to an `XmlSchemaSimpleType` in `datatypePropertyToType`. 
 
 An association is mapped to an `XmlSchemaComplexType` in `classPropertyToType` and `classPropertyToComplexDefinition`. This calls `classToComplexType` again, but if there are multiple classes in the range of a property, the produced types are defined as extensions of a single type, used as the primary type of the property's element. If the property is dematerialized, only its type's content (such as `<xs:sequence>`) is used in the place of its element.
 
-Settings may be given to the adapter in form of `XmlSchemaAdapterOptions`. This class configures whether named groups and types may be extracted from classes, specifiable separately for the root class and for other classes. This affects the corresponding XML Schema's structure, matching a specific design pattern.
+Settings may be given to the adapter in form of `XmlOptions`. This class configures whether named groups and types may be extracted from classes, specifiable separately for the root class and for other classes. This affects the corresponding XML Schema's structure, matching a specific design pattern.
 
 It is necessary to set `rootClass.extractGroup` to `true` if the schema is to be reused.
 

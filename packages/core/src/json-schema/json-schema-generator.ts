@@ -13,8 +13,8 @@ import { transformStructureModel } from "../structure-model/transformation";
 import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
 import { BIKESHED, BikeshedAdapterArtefactContext } from "../bikeshed";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
-import {structureModelAddIdAndTypeProperties} from "./json-id-transformations";
-import {JsonSchemaGeneratorOptions} from "./json-schema-generator-options";
+import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
+import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../json/json-configuration";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -44,7 +44,10 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     const schemaArtefact = artefact as DataSpecificationSchema;
     const conceptualModel = context.conceptualModels[specification.pim];
     // Options for the JSON generator
-    const configuration = JsonSchemaGeneratorOptions.getFromConfiguration(schemaArtefact.configuration);
+    const configuration = JsonConfigurator.merge(
+        DefaultJsonConfiguration,
+        JsonConfigurator.getFromObject(schemaArtefact.configuration)
+    ) as JsonConfiguration;
     assertNot(
       conceptualModel === undefined,
       `Missing conceptual model ${specification.pim}.`

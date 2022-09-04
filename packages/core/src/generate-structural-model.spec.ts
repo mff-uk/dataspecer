@@ -512,7 +512,7 @@ const dataSpecifications = {
         }
       ]
     },
-    "artefactConfiguration": [],
+    "artefactConfiguration": {},
     "tags": [
       "Štěpán Stenchlák"
     ]

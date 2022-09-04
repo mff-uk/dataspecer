@@ -4,7 +4,7 @@ import { coreResourcesToConceptualModel } from "../../conceptual-model";
 import { coreResourcesToStructuralModel } from "../../structure-model";
 import { transformStructureModel } from "../../structure-model/transformation";
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
-import { CsvSchemaGeneratorOptions } from "../csv-schema-generator-options";
+import { CsvSchemaGeneratorOptions } from "../csv-configuration";
 
 const testNamePrefix = "CSV generator: ";
 
