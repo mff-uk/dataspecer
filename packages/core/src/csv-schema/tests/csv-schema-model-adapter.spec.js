@@ -4,7 +4,7 @@ import { coreResourcesToConceptualModel } from "../../conceptual-model";
 import { coreResourcesToStructuralModel } from "../../structure-model";
 import { transformStructureModel } from "../../structure-model/transformation";
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
-import { CsvSchemaGeneratorOptions } from "../csv-configuration";
+import {CsvSchemaGeneratorOptions, DefaultCsvConfiguration} from "../csv-configuration";
 
 const testNamePrefix = "CSV generator: ";
 
@@ -38,7 +38,7 @@ async function arrangeSpecAndModel(specificationResource, storeResource) {
  */
 async function commonArrange1(multipleTable) {
     const arranged = await arrangeSpecAndModel(getResource("basic_tree_data_specifications.json"), getResource("basic_tree_merged_store.json"));
-    const options = new CsvSchemaGeneratorOptions();
+    const options = {...DefaultCsvConfiguration};
     options.enableMultipleTableSchema = multipleTable;
     return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
 }
@@ -48,7 +48,7 @@ async function commonArrange1(multipleTable) {
  */
 async function commonArrange2(multipleTable) {
     const arranged = await arrangeSpecAndModel(getResource("demat_include_or_data_specifications.json"), getResource("demat_include_or_merged_store.json"));
-    const options = new CsvSchemaGeneratorOptions();
+    const options = {...DefaultCsvConfiguration};
     options.enableMultipleTableSchema = multipleTable;
     return JSON.parse(structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options).makeJsonLD());
 }

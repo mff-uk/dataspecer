@@ -15,8 +15,8 @@ export interface ConfigurationWithCsv {
 export class CsvConfigurator {
     static KEY = "csv" as const;
 
-    static getFromObject(configurationObject: object): DeepPartial<CsvConfiguration> {
-        return configurationObject[CsvConfigurator.KEY] ?? {};
+    static getFromObject(configurationObject: object | null): DeepPartial<CsvConfiguration> {
+        return configurationObject?.[CsvConfigurator.KEY] ?? {};
     }
 
     static setToObject(configurationObject: object, options: DeepPartial<CsvConfiguration>): ConfigurationWithCsv {

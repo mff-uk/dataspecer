@@ -35,8 +35,8 @@ export interface ConfigurationWithXml {
 export class XmlConfigurator {
     static KEY = "xml" as const;
 
-    static getFromObject(configurationObject: object): DeepPartial<XmlConfiguration> {
-        return configurationObject[XmlConfigurator.KEY] ?? {};
+    static getFromObject(configurationObject: object | null): DeepPartial<XmlConfiguration> {
+        return configurationObject?.[XmlConfigurator.KEY] ?? {};
     }
 
     static setToObject(configurationObject: object, options: DeepPartial<XmlConfiguration>): ConfigurationWithXml {

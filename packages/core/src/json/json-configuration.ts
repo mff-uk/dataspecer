@@ -35,8 +35,8 @@ export interface ConfigurationWithJson {
 export class JsonConfigurator {
     static KEY = "json" as const;
 
-    static getFromObject(configurationObject: object): DeepPartial<JsonConfiguration> {
-        return configurationObject[JsonConfigurator.KEY] ?? {};
+    static getFromObject(configurationObject: object | null): DeepPartial<JsonConfiguration> {
+        return configurationObject?.[JsonConfigurator.KEY] ?? {};
     }
 
     static setToObject(configurationObject: object, options: DeepPartial<JsonConfiguration>): ConfigurationWithJson {
