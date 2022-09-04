@@ -7,7 +7,7 @@
 
 ## Project structure
 - [project structure](2022-04-20-project-structure.md)
-- [schema editor structure](../applications/editor/documentation/2022-04-21-project-structure.md)
+- [schema editor structure](../applications/manager/documentation/2022-04-21-project-structure-editor.md)
 - [schema manager structure](../applications/manager/documentation/2022-04-21-project-structure.md)
 - [backend service structure](../services/backend/documentation/2022-04-21-project-structure.md)
 
@@ -28,8 +28,8 @@ See the [project structure](#project-structure) if you are interested in that.
 - [Dataspecer cli - command line interface](../applications/cli/README.md)
 - [schema editor](../applications/editor/README.md) \
   Functionality worth mentioning: 
-  - [configuration](../applications/editor/src/configuration/README.md)
-  - [complex operations](../applications/editor/src/operations/README.md)
+  - [configuration](../applications/manager/src/editor/configuration/README.md)
+  - [complex operations](../applications/manager/src/editor/operations/README.md)
 - [schema manager](../applications/editor/README.md)
 
 ### Services
@@ -74,5 +74,3 @@ See the [project structure](#project-structure) if you are interested in that.
 
 #### Data specification
 - @dataspecer/core/data-specification - project housing multiple schemas
-
-
