@@ -37,7 +37,7 @@ export const DataPsmClassItem: React.FC<{
       props.iri && store.executeComplexOperation(new CreateInclude(prompt("Insert data-psm class iri") as string, props.iri))
     , [store, props.iri]);
 
-  const collapseSubtree = useToggle(true);
+  const collapseSubtree = useToggle(props.contextType !== "reference");
 
   const thisStartRow = <>
     {dataPsmClass &&

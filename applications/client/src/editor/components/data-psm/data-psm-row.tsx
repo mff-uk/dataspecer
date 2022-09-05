@@ -32,6 +32,10 @@ export interface RootContext {
   contextType: "root";
 }
 
+export interface ReferenceContext {
+  contextType: "reference";
+}
+
 export interface ORContext {
   contextType: "or";
   parentDataPsmOrIri: string;
@@ -48,7 +52,7 @@ export interface AssociationContext {
   parentTypePimIri: string;
 }
 
-export type ObjectContext = RootContext | ORContext | IncludeContext | AssociationContext;
+export type ObjectContext = RootContext | ORContext | IncludeContext | AssociationContext | ReferenceContext;
 
 /**
  * Renders PSM property (attribute, association, or include).

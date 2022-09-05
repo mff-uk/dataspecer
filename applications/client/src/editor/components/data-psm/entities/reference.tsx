@@ -3,7 +3,7 @@ import {DataPsmClassReference} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {RowSlots} from "../base-row";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmObjectType, RootContext} from "../data-psm-row";
+import {DataPsmObjectType, ReferenceContext} from "../data-psm-row";
 
 export const DataPsmReferenceItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
@@ -16,7 +16,7 @@ export const DataPsmReferenceItem: React.FC<{iri: string} & RowSlots> = memo((pr
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
 
-  const [context] = useState({contextType: "root"} as RootContext);
+  const [context] = useState({contextType: "reference"} as ReferenceContext);
 
   const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
 
