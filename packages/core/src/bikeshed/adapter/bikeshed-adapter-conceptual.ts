@@ -242,7 +242,7 @@ function findClass(
   const models = Object.values(context.generatorContext.conceptualModels);
   for (const model of models) {
     const classModel = model.classes[iri];
-    if (classModel === null) {
+    if (classModel === undefined) {
       continue;
     }
     return classModel;
