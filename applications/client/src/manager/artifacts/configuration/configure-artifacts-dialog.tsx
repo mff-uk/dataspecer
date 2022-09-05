@@ -1,5 +1,5 @@
 import React, {FC, useContext, useEffect, useState} from "react";
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, Input, InputAdornment, InputBase, InputLabel, InputProps, MenuItem, Paper, Select, SelectChangeEvent, SelectProps, Switch, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography} from "@mui/material";
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, Input, InputAdornment, InputBase, InputLabel, InputProps, MenuItem, Paper, Select, SelectChangeEvent, Switch, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography} from "@mui/material";
 import {clone} from "lodash";
 import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/core/json/json-configuration";
@@ -220,7 +220,6 @@ const Bikeshed: FC<{
   defaultObject?: BikeshedConfiguration
   onChange: (options: DeepPartial<BikeshedConfiguration>) => void,
 }> = ({input, onChange, defaultObject}) => {
-  const [a, sa] = useState<[string, string][]>([]);
   return <FormGroup>
     <TextFieldWithDefault
         label="Editors"
