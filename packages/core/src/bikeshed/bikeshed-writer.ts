@@ -34,7 +34,7 @@ function sanitizeMultiline(string: string | null): string | null {
   if (string === null) {
     return null;
   }
-  return string.replace("\n", "\n    ");
+  return string.replaceAll("\n", "\n\t");
 }
 
 async function writeContent(

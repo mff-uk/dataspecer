@@ -1,5 +1,5 @@
 import React, {FC, useContext, useEffect, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Switch, Typography} from "@mui/material";
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, Input, InputAdornment, InputBase, InputLabel, InputProps, MenuItem, Paper, Select, SelectChangeEvent, SelectProps, Switch, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography} from "@mui/material";
 import {clone} from "lodash";
 import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/core/json/json-configuration";
@@ -7,6 +7,7 @@ import {CsvConfiguration, CsvConfigurator} from "@dataspecer/core/csv-schema/csv
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/core/xml/xml-configuration";
 import CloseIcon from '@mui/icons-material/Close';
 import {DefaultConfigurationContext} from "../../../application";
+import {BikeshedConfiguration, BikeshedConfigurator} from "@dataspecer/core/bikeshed/bikeshed-configuration";
 
 /**
  * Dialog that edits configuration.
@@ -25,6 +26,8 @@ export const ConfigureArtifactsDialog: FC<{
     }
   }, [isOpen, configuration]);
 
+  const [currentTab, setCurrentTab] = useState(0);
+
   return <Dialog
     open={isOpen}
     onClose={close}
@@ -35,26 +38,46 @@ export const ConfigureArtifactsDialog: FC<{
       Configure artifacts
     </DialogTitle>
     <DialogContent>
-      <Typography variant="subtitle1" component="h2">JSON schema</Typography>
-      <Json
-        input={JsonConfigurator.getFromObject(localConfiguration)}
-        onChange={u => setLocalConfiguration(JsonConfigurator.setToObject(localConfiguration, u))}
-        defaultObject={JsonConfigurator.getFromObject(defaultConfiguration) as JsonConfiguration}
-      />
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={currentTab} onChange={(e, i) => setCurrentTab(i)}>
+          <Tab label="Schemas" />
+          <Tab label="Documentation" />
+        </Tabs>
+      </Box>
+      {currentTab === 0 &&
+        <div>
+          <Typography variant="subtitle1" component="h2">JSON schema</Typography>
+          <Json
+              input={JsonConfigurator.getFromObject(localConfiguration)}
+              onChange={u => setLocalConfiguration(JsonConfigurator.setToObject(localConfiguration, u))}
+              defaultObject={JsonConfigurator.getFromObject(defaultConfiguration) as JsonConfiguration}
+          />
 
-      <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>CSV schema</Typography>
-      <Csv
-        input={CsvConfigurator.getFromObject(localConfiguration)}
-        onChange={u => setLocalConfiguration(CsvConfigurator.setToObject(localConfiguration, u))}
-        defaultObject={CsvConfigurator.getFromObject(defaultConfiguration) as CsvConfiguration}
-      />
+          <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>CSV schema</Typography>
+          <Csv
+              input={CsvConfigurator.getFromObject(localConfiguration)}
+              onChange={u => setLocalConfiguration(CsvConfigurator.setToObject(localConfiguration, u))}
+              defaultObject={CsvConfigurator.getFromObject(defaultConfiguration) as CsvConfiguration}
+          />
 
-      <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>XSD schema</Typography>
-      <Xml
-        input={XmlConfigurator.getFromObject(localConfiguration)}
-        onChange={u => setLocalConfiguration(XmlConfigurator.setToObject(localConfiguration, u))}
-        defaultObject={XmlConfigurator.getFromObject(defaultConfiguration) as XmlConfiguration}
-      />
+          <Typography variant="subtitle1" component="h2" sx={{mt: 4}}>XSD schema</Typography>
+          <Xml
+              input={XmlConfigurator.getFromObject(localConfiguration)}
+              onChange={u => setLocalConfiguration(XmlConfigurator.setToObject(localConfiguration, u))}
+              defaultObject={XmlConfigurator.getFromObject(defaultConfiguration) as XmlConfiguration}
+          />
+        </div>
+      }
+      {currentTab === 1 &&
+        <div>
+          <Bikeshed
+              input={BikeshedConfigurator.getFromObject(localConfiguration)}
+              onChange={u => setLocalConfiguration(BikeshedConfigurator.setToObject(localConfiguration, u))}
+              defaultObject={BikeshedConfigurator.getFromObject(defaultConfiguration) as BikeshedConfiguration}
+          />
+        </div>
+      }
+
     </DialogContent>
     <DialogActions>
       <Button onClick={close}>Discard</Button>
@@ -186,12 +209,59 @@ const Xml: FC<{
   </FormGroup>;
 }
 
+/**
+ * Part of the dialog where CSV is being configured.
+ *
+ * The component expects full configuration object.
+ * @constructor
+ */
+const Bikeshed: FC<{
+  input: DeepPartial<BikeshedConfiguration>,
+  defaultObject?: BikeshedConfiguration
+  onChange: (options: DeepPartial<BikeshedConfiguration>) => void,
+}> = ({input, onChange, defaultObject}) => {
+  const [a, sa] = useState<[string, string][]>([]);
+  return <FormGroup>
+    <TextFieldWithDefault
+        label="Editors"
+        current={input ?? {}}
+        itemKey="editor"
+        onChange={onChange}
+        default={defaultObject}
+        inputProps={{fullWidth: true, multiline: true}}
+    />
+    <TextFieldWithDefault
+        label="Abstract"
+        current={input ?? {}}
+        itemKey="abstract"
+        onChange={onChange}
+        default={defaultObject}
+        inputProps={{fullWidth: true, multiline: true}}
+    />
+    <Typography variant="subtitle1" component="h2" sx={{mt: 4, mb: 2}}>Additional metadata</Typography>
+    <TableRecord
+        value={input.otherMetadata ? Object.entries(input.otherMetadata) as [string, string][] : undefined}
+        setValue={otherMetadata => {
+          if (otherMetadata) {
+            onChange({...input, otherMetadata: Object.fromEntries(otherMetadata)})
+          } else {
+            const result = {...input};
+            delete result["otherMetadata"];
+            onChange(result);
+          }
+        }}
+        defaultValue={Object.entries(defaultObject?.otherMetadata ?? {})}
+    />
+  </FormGroup>
+}
+
 const TextFieldWithDefault: FC<{
   default?: Record<string, any>,
   current: Record<string, any>,
   itemKey: string,
   onChange: (value: Record<string, any>) => void,
   label: string,
+  inputProps?: InputProps,
 }> = (props) => {
   const isDefault = props.default && !props.current.hasOwnProperty(props.itemKey);
   const defaultValue = props.default && props.default.hasOwnProperty(props.itemKey) ? props.default[props.itemKey] : null;
@@ -222,6 +292,7 @@ const TextFieldWithDefault: FC<{
             </IconButton>
           </InputAdornment>}
         startAdornment={isDefault && <InputAdornment position="start">Default used: </InputAdornment>}
+        {...props.inputProps}
     />
     {props.default && !isDefault && <FormHelperText>(default: {props.default[props.itemKey]})</FormHelperText>}
   </FormControl>;
@@ -264,4 +335,52 @@ const SwitchWithDefault: FC<{
       }
       label={props.label}
   />
+}
+
+const TableRecord: FC<{
+  defaultValue: [string, string][],
+  value: [string, string][] | undefined,
+  setValue: (value: [string, string][] | undefined) => void
+}> = ({defaultValue, value, setValue}) => {
+  const isDefault = value === undefined;
+  const modifiedValue = value === undefined ? defaultValue : [...value, ["", ""]];
+  const update = (index: number, newValue: [string, string]) => {
+    const before = modifiedValue.slice(0, index);
+    const after = modifiedValue.slice(index + 1);
+    const result = ([...before, newValue, ...after] as [string, string][]).filter(q => !q.every(v => v === ""));
+    setValue(result);
+  }
+  const defaultChange = (shallBeDefault: boolean) => {
+    if (shallBeDefault) {
+      setValue(undefined);
+    } else {
+      setValue(defaultValue);
+    }
+  }
+  return <>
+    <FormControlLabel control={<Checkbox checked={isDefault} onChange={e => defaultChange(e.target.checked)} />} label="Use default value" />
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell align="left" width="30%">Key</TableCell>
+            <TableCell align="left">Value</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {modifiedValue.map(([key, value], i) => (
+              <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell>
+                  <InputBase disabled={isDefault} value={key} sx={isDefault ? undefined : {background: "#00000010", px: 1}} fullWidth onChange={e => update(i, [e.target.value, value])}  />
+                </TableCell>
+                <TableCell>
+                  <InputBase disabled={isDefault} value={value} sx={isDefault ? undefined : {background: "#00000010", px: 1}} fullWidth multiline onChange={e => update(i, [key, e.target.value])} />
+                </TableCell>
+              </TableRow>
+          ))}
+          {modifiedValue.length === 0 && <TableCell colSpan={2}><Typography>No rows...</Typography></TableCell>}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </>
 }

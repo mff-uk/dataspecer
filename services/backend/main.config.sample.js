@@ -47,5 +47,24 @@ module.exports = {
         csv: {
             //enableMultipleTableSchema: false,
         },
+
+        bikeshed: {
+            /**
+             * Markdown content of abstract
+             */
+            //abstract: "This document was generated automatically by [Dataspecer](https://dataspecer.com/).",
+
+            /**
+             * Markdown content for editors
+             */
+            //editor: "Dataspecer editor, https://dataspecer.com/",
+
+            /**
+             * Bikeshed metadata
+             */
+            //otherMetadata: {
+            //    Logo: "https://ofn.gov.cz/static/images/logo.png"
+            //},
+        },
     }
 }
