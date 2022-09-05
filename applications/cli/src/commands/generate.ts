@@ -11,6 +11,7 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-nodejs";
 import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
 import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
 import {FileStreamDictionary} from "../shared/file-stream-dictionary";
+import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
 
 type GenerateArguments = {
     dataSpecificationIri: string;
@@ -60,8 +61,17 @@ export async function generate(argv: GenerateArguments) {
 
     const store = ReadOnlyFederatedStore.createLazy(stores);
 
+    console.log("loading servers default configuration\r");
+
+    const configuration = await backendConnector.readDefaultConfiguration();
+
     const dataSpecificationsArr = Object.values(dataSpecifications);
-    const artifactConfigurator = new DefaultArtifactConfigurator(dataSpecificationsArr, store);
+    const artifactConfigurator = new DefaultArtifactConfigurator(
+        dataSpecificationsArr,
+        store,
+        configuration,
+        createDefaultConfigurators(),
+    );
     dataSpecifications[dataSpecificationIri].artefacts = await artifactConfigurator.generateFor(dataSpecificationIri);
 
     const generator = new Generator(
