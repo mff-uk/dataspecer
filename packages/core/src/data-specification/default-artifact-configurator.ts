@@ -8,6 +8,8 @@ import {PimSchema} from "../pim/model";
 import {DataPsmSchema} from "../data-psm/model";
 import {SPARQL} from "../sparql-query/sparql-vocabulary";
 import {JSON_LD_GENERATOR} from "../json-ld/json-ld-generator";
+import {Configurator} from "../configuration/configurator";
+import {mergeConfigurations} from "../configuration/utils";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -18,6 +20,8 @@ import {JSON_LD_GENERATOR} from "../json-ld/json-ld-generator";
 export class DefaultArtifactConfigurator {
   protected readonly dataSpecifications: DataSpecification[];
   protected readonly store: CoreResourceReader;
+  protected configurationObject: object;
+  protected configurators: Configurator[];
 
   /**
    * Root URL for the generated artifacts.
@@ -31,9 +35,13 @@ export class DefaultArtifactConfigurator {
   constructor(
     dataSpecifications: DataSpecification[],
     store: CoreResourceReader,
+    configurationObject: object,
+    configurators: Configurator[],
   ) {
     this.dataSpecifications = dataSpecifications;
     this.store = store;
+    this.configurationObject = configurationObject;
+    this.configurators = configurators;
   }
 
   /**
@@ -51,7 +59,8 @@ export class DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
-    const configuration = dataSpecification.artefactConfiguration;
+    const localConfiguration = dataSpecification.artefactConfiguration;
+    const configuration = mergeConfigurations(this.configurators, this.configurationObject, localConfiguration);
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 

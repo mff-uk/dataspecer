@@ -4,6 +4,7 @@ import {PlantUmlGenerator} from "@dataspecer/core/plant-uml";
 import {PlantUmlImageGenerator} from "./artifacts/plant-uml-image-generator";
 import {BIKESHED} from "@dataspecer/core/bikeshed";
 import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
+import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {
   public async generateFor(
@@ -22,7 +23,8 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
-    const configuration = dataSpecification.artefactConfiguration;
+    const localConfiguration = dataSpecification.artefactConfiguration;
+    const configuration = mergeConfigurations(this.configurators, this.configurationObject, localConfiguration);
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 

@@ -11,6 +11,7 @@ import {saveAs} from "file-saver";
 import {ConstructedStoreCacheContext, DataSpecificationsContext} from "../app";
 import {GenerateReport} from "./generate-report";
 import LoadingButton from "@mui/lab/LoadingButton";
+import {DefaultConfigurationContext} from "../../application";
 
 /**
  * Dialog that orchestrates the whole process of generation of the artifacts.
@@ -25,6 +26,7 @@ export const GenerateDialog: FC<{
 
     const {dataSpecifications} = useContext(DataSpecificationsContext);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
+    const defaultConfiguration = useContext(DefaultConfigurationContext);
 
     const [zipLoading, setZipLoading] = React.useState<false|"stores-loading"|"generating">(false);
     const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
@@ -87,7 +89,7 @@ export const GenerateDialog: FC<{
 
         setZipLoading("generating");
 
-        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications);
+        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, defaultConfiguration);
         await generator.prepare(Object.keys(gatheredDataSpecifications), setGenerateState);
         const data = await generator.build();
         saveAs(data, "artifacts.zip");

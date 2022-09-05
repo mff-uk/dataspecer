@@ -7,6 +7,7 @@ import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 import {DataSpecifications} from "../data-specifications";
 import {ArtifactConfigurator} from "../artifact-configurator";
 import {GenerateReport} from "./generate-report";
+import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -27,10 +28,12 @@ export class DefaultArtifactBuilder {
     private dataSpecificationIris: string[] = [];
     private reportCallback: ((report: GenerateReport) => void) | undefined;
     private artifactReport: GenerateReport = [];
+    private configuration: object;
 
-    public constructor(store: CoreResourceReader, dataSpecifications: DataSpecifications) {
+    public constructor(store: CoreResourceReader, dataSpecifications: DataSpecifications, configuration: object) {
         this.store = store;
         this.dataSpecifications = dataSpecifications;
+        this.configuration = configuration;
     }
 
     public async prepare(
@@ -42,7 +45,11 @@ export class DefaultArtifactBuilder {
 
         // Generate artifacts
         const artifactConfigurator = new ArtifactConfigurator(
-          Object.values(this.dataSpecifications), this.store);
+            Object.values(this.dataSpecifications),
+            this.store,
+            this.configuration,
+            createDefaultConfigurators(),
+        );
 
         for (const dataSpecificationIri of dataSpecificationIris) {
             this.dataSpecifications[dataSpecificationIri].artefacts =

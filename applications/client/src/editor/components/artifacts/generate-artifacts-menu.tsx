@@ -26,6 +26,7 @@ import PrintTwoToneIcon from '@mui/icons-material/PrintTwoTone';
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {SPARQL} from "@dataspecer/core/sparql-query/sparql-vocabulary";
+import {DefaultConfigurationContext} from "../../../application";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -48,6 +49,7 @@ const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: 
  * @param save Whether the artifact should be saved. If false, it will be copied to the clipboard.
  */
 const useSaveOrCopy = (generator: string, save: boolean) => {
+    const defaultConfiguration = useContext(DefaultConfigurationContext);
     const configuration = useContext(ConfigurationContext);
     const {t} = useTranslation("artifacts");
     const {enqueueSnackbar} = useSnackbar();
@@ -63,6 +65,7 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
                     artefact.generator === generator &&
                     DataSpecificationSchema.is(artefact) &&
                     artefact.psm === configuration.dataPsmSchemaIri,
+                defaultConfiguration
             );
         } catch (error) {
             console.error(error);
@@ -82,7 +85,7 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
                 }
             }
         }
-    }, [configuration.dataPsmSchemaIri, configuration.store, configuration.dataSpecificationIri, configuration.dataSpecifications, generator, enqueueSnackbar, t, save]);
+    }, [configuration.dataPsmSchemaIri, configuration.store, configuration.dataSpecificationIri, configuration.dataSpecifications, defaultConfiguration, generator, enqueueSnackbar, t, save]);
 }
 
 const ArtifactItem: React.FC<{

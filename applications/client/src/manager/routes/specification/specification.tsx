@@ -25,11 +25,12 @@ import {CopyIri} from "./copy-iri";
 import {GeneratingDialog} from "./generating-dialog";
 import {GenerateReport} from "../../artifacts/generate-report";
 import {ConfigureArtifacts} from "../../artifacts/configuration/configure-artifacts";
-import {BackendConnectorContext} from "../../../application";
+import {BackendConnectorContext, DefaultConfigurationContext} from "../../../application";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
     const dataSpecificationIri = searchParams.get("dataSpecificationIri");
+    const defaultConfiguration = useContext(DefaultConfigurationContext);
 
     const {dataSpecifications} = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
@@ -114,7 +115,7 @@ export const Specification: React.FC = () => {
 
         setZipLoading("generating");
 
-        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications);
+        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, defaultConfiguration);
         await generator.prepare(Object.keys(gatheredDataSpecifications), setGenerateState);
         const data = await generator.build();
         saveAs(data, "artifact.zip");

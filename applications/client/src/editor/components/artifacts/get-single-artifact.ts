@@ -3,6 +3,7 @@ import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/gener
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
+import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact
@@ -12,6 +13,7 @@ import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/d
  * @param dataSpecifications
  * @param artifactSelector Function that returns true for the artifact
  * definition that should be generated.
+ * @param configuration
  * @return [artifact content, filename]
  */
 export async function getSingleArtifact(
@@ -19,11 +21,12 @@ export async function getSingleArtifact(
   forDataSpecificationIri: string,
   dataSpecifications: { [key: string]: DataSpecification },
   artifactSelector: (artifact: DataSpecificationArtefact) => boolean,
+  configuration: object,
 ): Promise<[string, string]> {
   // Generate artifacts definitions
 
   // todo: list of artifacts is generated in place by DefaultArtifactConfigurator
-  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store);
+  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store, configuration, createDefaultConfigurators());
   const dataSpecificationsWithArtifacts: typeof dataSpecifications = {};
   for (const dataSpecification of Object.values(dataSpecifications)) {
     dataSpecificationsWithArtifacts[dataSpecification.iri as string] = {
