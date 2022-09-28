@@ -1,7 +1,5 @@
 import {Box, CircularProgress, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemText, TextField, Typography} from "@mui/material";
 import React, {memo, useContext, useEffect, useMemo, useState} from "react";
-import {BehaviorSubject} from "rxjs";
-import {debounceTime} from "rxjs/operators";
 import {useTranslation} from "react-i18next";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
@@ -17,15 +15,24 @@ import {translateFrom} from "../helper/LanguageStringComponents";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
+const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[]) => {
+    useEffect(() => {
+        const handler = setTimeout(effect, delay);
+        return () => clearTimeout(handler);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, debounceDeps);
+}
+
 export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass) => void}>
     = dialog({maxWidth: "md", fullWidth: true}, memo(({close, selected}) => {
 
     const {cim} = React.useContext(ConfigurationContext);
     const [findResults, updateFindResults] = useState<PimClass[] | null>(null);
-    const [subject, setSubject] = useState<BehaviorSubject<string> | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const {t, i18n} = useTranslation("search-dialog");
+
+    const [searchText, setSearchText] = useState("");
 
     const DetailDialog = useDialog(PimClassDetailDialog);
 
@@ -42,39 +49,21 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
         store.addStore(wrappedStore);
         return () => store.removeStore(wrappedStore);
     }, [findResults, store]);
-;
-    useEffect(() => {
-        const subject = new BehaviorSubject('');
-        setSubject(subject);
-        subject.subscribe(() => setError(false));
-        subject.pipe(
-            debounceTime(100)
-        ).subscribe(term => {
-            if (term) {
-                setLoading(true);
-                cim.cimAdapter.search(term).then(result => {
-                    updateFindResults(result);
-                    setLoading(false);
-                }).catch(error => {
-                    console.info("Error during search.", error);
-                    setError(true);
-                    setLoading(false);
-                });
-            } else {
-                updateFindResults(null);
-            }
-        });
 
-        // When the component unmounts, this will clean up the
-        // subscription
-        return () => subject.unsubscribe();
-    }, [cim.cimAdapter]);
-
-    const onChange = (e: any) => {
-        if (subject) {
-            return subject.next(e.target.value);
+    useDebounceEffect(() => {
+        setError(false);
+        if (searchText) {
+            setLoading(true);
+            cim.cimAdapter.search(searchText).then(result => {
+                updateFindResults(result);
+            }).catch(error => {
+                console.info("Error during search.", error);
+                setError(true);
+            }).finally(() => setLoading(false));
+        } else {
+            updateFindResults(null);
         }
-    };
+    }, 100, [searchText, cim.cimAdapter]);
 
     return <>
         <DialogTitle>
@@ -84,8 +73,16 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
         </DialogTitle>
         <DialogContent>
             <Box display={"flex"}>
-                <TextField id="standard-basic" placeholder={t("placeholder")} fullWidth autoFocus onChange={onChange}
-                           error={isError} variant={"standard"} autoComplete="off" />
+                <TextField
+                    placeholder={t("placeholder")}
+                    fullWidth
+                    autoFocus
+                    onChange={e => setSearchText(e.target.value)}
+                    error={isError}
+                    variant={"standard"}
+                    autoComplete="off"
+                    value={searchText}
+                />
                 <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={loading ? "indeterminate" : "determinate"}/>
             </Box>
             <List dense component="nav"
