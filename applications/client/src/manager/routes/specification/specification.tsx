@@ -26,6 +26,8 @@ import {GeneratingDialog} from "./generating-dialog";
 import {GenerateReport} from "../../artifacts/generate-report";
 import {ConfigureArtifacts} from "../../artifacts/configuration/configure-artifacts";
 import {BackendConnectorContext, DefaultConfigurationContext} from "../../../application";
+import {useDialog} from "../../../editor/dialog";
+import {DeleteDataSchemaForm} from "../../components/delete-data-schema-form";
 
 export const Specification: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -122,9 +124,12 @@ export const Specification: React.FC = () => {
         setZipLoading(false);
     };
 
+    const DeleteForm = useDialog(DeleteDataSchemaForm, ["dataSpecificationIri"]);
+
     if (!dataSpecificationIri) {
         return null;
     }
+
 
     return <>
         <Box height="30px"/>
@@ -168,6 +173,7 @@ export const Specification: React.FC = () => {
                             key={psm}
                             dataStructureIri={psm}
                             specificationIri={dataSpecificationIri as string}
+                            onDelete={() => DeleteForm.open({dataStructureIri: psm})}
                         />
                     )}
                 </TableBody>
@@ -224,5 +230,6 @@ export const Specification: React.FC = () => {
         </Box>
 
         <RedirectDialog isOpen={redirecting} />
+        <DeleteForm.Component dataSpecificationIri={dataSpecificationIri as string} />
     </>;
 }

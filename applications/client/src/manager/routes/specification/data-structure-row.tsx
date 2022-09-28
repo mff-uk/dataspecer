@@ -1,42 +1,21 @@
 import {Box, Button, TableCell, TableRow, Typography} from "@mui/material";
-import React, {useCallback, useContext} from "react";
-import {DataSpecificationsContext} from "../../app";
+import React from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {DataSchemaNameCell} from "../../name-cells";
 import {getEditorLink} from "../../shared/get-schema-generator-link";
 import {Link} from "react-router-dom";
-import {BackendConnectorContext} from "../../../application";
 
 export interface DataStructureRowProps {
     specificationIri: string;
     dataStructureIri: string;
+    onDelete: () => void;
 }
 
 export const DataStructureRow: React.FC<DataStructureRowProps>
-    = ({specificationIri, dataStructureIri}) => {
+    = ({specificationIri, dataStructureIri, onDelete}) => {
 
     const {resource} = useResource<DataPsmSchema>(dataStructureIri);
-
-    const backendConnector = useContext(BackendConnectorContext);
-    const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
-
-    /**
-     * Deletes this data structure and updates the data specification.
-     */
-    const deleteDataPsm = useCallback(async () => {
-        await backendConnector.deleteDataStructure(specificationIri, dataStructureIri);
-        setDataSpecifications({
-            ...dataSpecifications,
-            [specificationIri]: {
-                ...dataSpecifications[specificationIri],
-                psms: dataSpecifications[specificationIri].psms.filter(psm => psm !== dataStructureIri),
-                psmStores: Object.fromEntries(
-                    Object.entries(dataSpecifications[specificationIri].psmStores).filter(([psmIri, storeInfo]) => psmIri !== dataStructureIri)
-                ),
-            }
-        });
-    }, [backendConnector, dataSpecifications, dataStructureIri, setDataSpecifications, specificationIri]);
 
     return <TableRow>
         <TableCell component="th" scope="row" sx={{width: "25%"}}>
@@ -64,7 +43,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps>
                 <Button
                     variant="outlined"
                     color={"error"}
-                    onClick={deleteDataPsm}>Delete</Button>
+                    onClick={onDelete}>Delete</Button>
             </Box>
         </TableCell>
     </TableRow>;

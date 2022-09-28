@@ -40,7 +40,7 @@ export const DataSpecificationNameCell: React.FC<{
 }> = ({dataSpecificationIri}) => {
     return (
         <DataSpecificationName iri={dataSpecificationIri}>
-            {(label, isLoading) => <Typography>
+            {(label, isLoading) => <Typography fontWeight="bold">
                 {isLoading ? <Skeleton /> : (label ?? dataSpecificationIri)}
             </Typography>}
         </DataSpecificationName>

@@ -1,7 +1,21 @@
 {
   "back to specification manager": "back to specification manager",
+  "cancel": "Cancel",
   "close": "close",
   "codelist": "codelist",
+  "delete": "Delete",
+  "deleteDataSchema": {
+    "additionalText": "This operation is irreversible. All other specifications whose schemas refer to a deleted schema will be invalid, but will not be deleted.",
+    "text": "You are about to delete the following schema:",
+    "title": "Delete data schema"
+  },
+  "deleteDataSpecification": {
+    "additionalText": "This operation is irreversible. All other specifications that refer to deleted will be invalid, but will not be deleted.\n",
+    "text_one": "You are about to remove the following specification:",
+    "text_other": "You are about to remove {{count}} of the following specifications:",
+    "title_one": "Delete specification",
+    "title_other": "Delete {{count}} specifications"
+  },
   "error": "error",
   "footer report bug": "Report a bug on <1>GitHub</1>",
   "iri_copy": {

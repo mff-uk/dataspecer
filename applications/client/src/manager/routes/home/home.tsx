@@ -9,24 +9,16 @@ import {FilterByTag, FilterContext} from "./filter-by-tag";
 import {alpha} from "@mui/material/styles";
 import {GenerateDialog} from "../../artifacts/generate-dialog";
 import {useToggle} from "../../use-toggle";
-import {BackendConnectorContext} from "../../../application";
+import {useDialog} from "../../../editor/dialog";
+import {DeleteDataSpecificationForm} from "../../components/delete-data-specification-form";
 
 export const Home: React.FC = () => {
     const {
         dataSpecifications,
-        setDataSpecifications,
         rootDataSpecificationIris,
-        setRootDataSpecificationIris
     } = useContext(DataSpecificationsContext);
-    const backendConnector = useContext(BackendConnectorContext);
 
-    const deleteSpecification = useCallback(async (id: string) => {
-        await backendConnector.deleteDataSpecification(id);
-        const newDataSpecifications = {...dataSpecifications};
-        delete newDataSpecifications[id];
-        setDataSpecifications(newDataSpecifications);
-        setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => iri !== id));
-    }, [backendConnector, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+    const DeleteForm = useDialog(DeleteDataSpecificationForm);
 
     const [filter] = useContext(FilterContext);
     const specificationsToShow = useMemo(() =>
@@ -54,7 +46,7 @@ export const Home: React.FC = () => {
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
             <Typography variant="h4" component="div" gutterBottom>
-                List of data specifications
+                Data specifications
             </Typography>
             <CreateSpecification />
         </Box>
@@ -81,12 +73,12 @@ export const Home: React.FC = () => {
                     </Typography>
                 ) : (
                     <Typography
-                        sx={{ flex: '1' }}
+                        sx={{ flex: '1', fontWeight: "normal" }}
                         variant="h6"
                         id="tableTitle"
                         component="div"
                     >
-                        Data specifications
+                        Available data specifications
                     </Typography>
                 )}
                 {selected.length > 0 ? <Box sx={{display: "flex", gap: 2}}>
@@ -106,8 +98,9 @@ export const Home: React.FC = () => {
                                     onChange={() => selected.length > 0 ? setSelected([]) : setSelected([...specificationsToShow])}
                                 />
                             </TableCell>
-                            <TableCell sx={{width: "80%"}}>Name</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Tags</TableCell>
+                            <TableCell sx={{width: 0}}>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -130,13 +123,18 @@ export const Home: React.FC = () => {
                                 w">
                                     <div>
                                         <Box sx={{display: "flex", flexDirection: 'row'}}>
+                                            <strong>
                                             <DataSpecificationNameCell dataSpecificationIri={dataSpecificationIri as string} />
-                                            <SpecificationTags iri={dataSpecificationIri} />
+
+                                            </strong>
+                                            <Typography sx={theme => ({color: theme.palette.text.disabled, ml: 2})}>
+                                                <DataSpecificationDetailInfoCell dataSpecificationIri={dataSpecificationIri as string} />
+                                            </Typography>
                                         </Box>
-                                        <Typography sx={theme => ({color: theme.palette.text.disabled})}>
-                                            <DataSpecificationDetailInfoCell dataSpecificationIri={dataSpecificationIri as string} />
-                                        </Typography>
                                     </div>
+                                </TableCell>
+                                <TableCell>
+                                    <SpecificationTags iri={dataSpecificationIri} />
                                 </TableCell>
                                 <TableCell align="right">
                                     <Box sx={{
@@ -147,8 +145,10 @@ export const Home: React.FC = () => {
                                             <Button color={"primary"} component={Link}
                                                     to={`specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`}>Detail</Button>
                                         }
-                                        <Button color={"error"}
-                                                onClick={() => dataSpecificationIri && deleteSpecification(dataSpecificationIri)}>Delete</Button>
+                                        <Button color={"error"} onClick={e => {
+                                            e.stopPropagation();
+                                            DeleteForm.open({dataSpecificationIris: [dataSpecificationIri]});
+                                        }}>Delete</Button>
                                     </Box>
                                 </TableCell>
                             </TableRow>
@@ -159,5 +159,6 @@ export const Home: React.FC = () => {
         </Paper>
 
         <GenerateDialog isOpen={generateDialogOpen.isOpen} close={generateDialogOpen.close} dataSpecifications={selected} />
+        <DeleteForm.Component />
     </>;
 }
