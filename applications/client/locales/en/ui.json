@@ -17,7 +17,6 @@
     "title_other": "Delete {{count}} specifications"
   },
   "error": "error",
-  "footer report bug": "Report a bug on <1>GitHub</1>",
   "iri_copy": {
     "fail": "Failed to copy IRI to the clipboard",
     "success": "Copied IRI to the clipboard",
@@ -28,6 +27,8 @@
   "new schema label format": "{label}",
   "no schema text": "Start by clicking on <1>set root element</1> button to set class as a root of the schema.",
   "no title": "no title",
+  "report a bug": "report a bug",
+  "request a feature": "request a feature",
   "set root": {
     "search for class": "Search for class (interpreted)",
     "use class reference": "Use class reference to another schema",

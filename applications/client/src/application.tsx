@@ -8,7 +8,7 @@ import EditorPage from "./editor/components/App";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
-import { createDefaultConfigurators } from "@dataspecer/core/configuration/configurator-factory";
+import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
 
 export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
 // @ts-ignore
@@ -32,6 +32,13 @@ const useDefaultConfiguration = (backendConnector: BackendConnector) => {
 export const Application = () => {
     const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
     const defaultConfiguration = useDefaultConfiguration(backendConnector);
+
+    useEffect(() => {
+        document.body.style.backgroundColor = theme.palette.mode === 'light'
+            ? theme.palette.grey[100]
+            : theme.palette.grey[900];
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [theme]);
 
     return (
         //<StrictMode> // https://github.com/atlassian/react-beautiful-dnd/issues/2350
@@ -103,5 +110,6 @@ const theme = createTheme({
             "dark": "#388e3c",
             "contrastText": "rgba(0, 0, 0, 0.87)"
         },
+
     }
 });

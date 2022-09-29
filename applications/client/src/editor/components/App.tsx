@@ -20,6 +20,7 @@ import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {SettingsMenu} from "./settings/settings-menu";
 import {SettingsContext, useApplicationSettings} from "./settings/settings";
 import {Link} from "react-router-dom";
+import {Help} from "../../components/help";
 
 // @ts-ignore default value
 export const ConfigurationContext = React.createContext<Configuration>(null);
@@ -71,12 +72,9 @@ const AppContent: React.FC = () => {
                 </Typography>
             }
             <Divider style={{margin: "1rem 0 1rem 0"}} />
-            <Trans i18nKey="footer report bug" t={t}>
-                Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
-            </Trans>
             {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
                 <>
-                    {" | "}{t("version")}: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                    {t("version")}: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
                 </>
             }
         </Container>
@@ -130,7 +128,7 @@ const App: React.FC = () => {
             <SettingsContext.Provider value={applicationSettings}>
                 <DialogAppProvider>
                     <CssBaseline />
-                    <AppBar position="static">
+                    <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
                         <Toolbar>
                             <Typography variant="h6" sx={{fontWeight: "normal"}}>
                                 <strong>Dataspecer</strong> {t("title")}
@@ -148,6 +146,7 @@ const App: React.FC = () => {
                                 </Button>
                             </ThemeProvider>
                             <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
+                                <Help />
                                 <SettingsMenu />
                                 <LanguageSelector />
                             </Box>

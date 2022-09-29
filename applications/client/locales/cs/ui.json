@@ -21,7 +21,6 @@
     "title_other": "Odstranit {{count}} specifikací"
   },
   "error": "chyba",
-  "footer report bug": "Nahlásit chybu na <1>GitHubu</1>",
   "iri_copy": {
     "fail": "Nepodařilo se zkopírovat IRI do schránky",
     "success": "IRI zkopírováno do schránky",
@@ -32,6 +31,8 @@
   "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
   "no title": "bez názvu",
+  "report a bug": "nahlásit chybu",
+  "request a feature": "navrhnout úpravu",
   "set root": {
     "search for class": "Vyhledat třídu (interpretovanou)",
     "use class reference": "Použít referenci do jiného schématu",

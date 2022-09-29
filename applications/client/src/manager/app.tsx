@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {AppBar, Container, Divider, Toolbar, Typography} from "@mui/material";
+import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
 import {Link} from "react-router-dom";
 import {StoreContext, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
@@ -10,6 +10,7 @@ import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
 import {useLocalStorage} from "./utils/use-local-storage";
 import {SnackbarProvider} from 'notistack';
 import {BackendConnectorContext} from "../application";
+import {Help} from "../components/help";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -83,20 +84,22 @@ function App(props: {children: React.ReactNode}) {
                         <AvailableTags.Provider value={tags}>
                             <FilterContext.Provider value={filter}>
                                 <SnackbarProvider maxSnack={3}>
-                                    <AppBar position="static">
+                                    <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
                                         <Toolbar>
                                             <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
                                                 <strong>Dataspecer</strong> specification manager
                                             </Typography>
+                                            <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
+                                                <Help />
+                                            </Box>
                                         </Toolbar>
                                     </AppBar>
                                     <Container>
                                         {props.children}
                                         <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                        Report a bug on <a href="https://github.com/mff-uk/dataspecer/issues">GitHub</a>.
                                         {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
                                             <>
-                                                {" | "}Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                                Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
                                             </>
                                         }
                                     </Container>
