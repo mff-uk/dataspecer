@@ -11,6 +11,7 @@ import { structureModelToSparql } from "./sparql-model-adapter";
 import { assertFailed, assertNot } from "../core";
 import { defaultStructureTransformations, structureModelDematerialize, transformStructureModel } from "../structure-model/transformation";
 import { SPARQL } from "./sparql-vocabulary";
+import {isRecursive} from "../structure-model/helper/is-recursive";
 
 export class SparqlGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -60,6 +61,9 @@ export class SparqlGenerator implements ArtefactGenerator {
         null,
         transformations
       );
+    }
+    if (isRecursive(model)) {
+      throw new Error("SPARQL generator does not support recursive structures.");
     }
     return Promise.resolve(
       structureModelToSparql(context.specifications, specification, model)

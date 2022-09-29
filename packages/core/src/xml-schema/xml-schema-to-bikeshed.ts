@@ -43,7 +43,7 @@ export async function createBikeshedSchemaXml(
   );
 
   for (const entity of structureModel.getClasses()) {
-    if (entity.structureSchema !== context.structureModel.psmIri) {
+    if (entity.structureSchema !== context.structureModel.psmIri || entity.isReferenced) {
       // Class is not from this structure model.
       continue;
     }
@@ -328,7 +328,7 @@ function propertyTypeAssociation(
   type: StructureModelComplexType
 ): string {
   const target = type.dataType;
-  if (context.structureModel.psmIri === target.structureSchema) {
+  if (context.structureModel.psmIri === target.structureSchema && !target.isReferenced) {
     const label = classLabel(context, target);
     const href = classAnchor(context, target);
     return `[${label}](#${href})`;

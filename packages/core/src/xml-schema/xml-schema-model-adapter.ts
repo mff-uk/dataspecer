@@ -166,7 +166,7 @@ class XmlSchemaAdapter {
   classIsImported(
     classData: StructureModelClass
   ): boolean {
-    return this.model.psmIri !== classData.structureSchema;
+    return this.model.psmIri !== classData.structureSchema || classData.isReferenced;
   }
 
   /**

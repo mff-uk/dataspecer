@@ -140,7 +140,8 @@ class StructureModelAdapter {
       this.classes,
       classReferenceData.dataPsmSpecification
     );
-    return await adapter.loadClass(part);
+    const model = await adapter.loadClass(part);
+    return {...model, isReferenced: true};
   }
 
   private async loadComplexType(

@@ -83,7 +83,7 @@ function structureModelClassToJsonSchemaDefinition(
   context: Context,
   modelClass: StructureModelClass
 ): JsonSchemaDefinition {
-  if (context.model.psmIri !== modelClass.structureSchema) {
+  if (context.model.psmIri !== modelClass.structureSchema || modelClass.isReferenced) {
     const artefact = findArtefactForImport(context, modelClass);
     if (artefact !== null) {
       const url = artefact.publicUrl;

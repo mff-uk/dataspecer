@@ -42,7 +42,7 @@ export async function createBikeshedSchemaJson(
   );
 
   for (const entity of structureModel.getClasses()) {
-    if (entity.structureSchema !== context.structureModel.psmIri) {
+    if ((entity.structureSchema !== context.structureModel.psmIri) || entity.isReferenced) {
       // Class is not from this structure model.
       continue;
     }
@@ -330,7 +330,7 @@ function propertyTypeAssociation(
   if (target === null) {
     throw new Error("Specification re-use is not supported.");
   }
-  if (context.structureModel.psmIri === target.structureSchema) {
+  if (context.structureModel.psmIri === target.structureSchema && !target.isReferenced) {
     const label = classLabel(context, target);
     const href = classAnchor(context, target);
     return `[${label}](#${href})`;

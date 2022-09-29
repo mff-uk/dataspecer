@@ -14,6 +14,7 @@ import {transformStructureModel} from "../structure-model/transformation";
 import {CsvSchema} from "./csv-schema-model";
 import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
 import {CsvConfiguration, CsvConfigurator, DefaultCsvConfiguration} from "./csv-configuration";
+import {isRecursive} from "../structure-model/helper/is-recursive";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 
@@ -56,6 +57,9 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
             `Missing structure model ${schemaArtefact.psm}.`);
         model = transformStructureModel(
             conceptualModel, model, Object.values(context.specifications));
+        if (isRecursive(model)) {
+            throw new Error("CSV schema generator does not support recursive structures.");
+        }
         return structureModelToCsvSchema(specification, model, configuration);
     }
 
