@@ -9,7 +9,12 @@ See the [documentation index](./documentation/README.md).
 For more information about individual packages, applications, and services, please see the given directory. Each contains a README.md file with build instructions and additional documentation.
 
 - [@dataspecer/backend-utils](./packages/backend-utils) package
+
+
 - [@dataspecer/core](./packages/core) package
+- [@dataspecer/sgov-adapter](./packages/sgov-adapter) package
+
+
 - [@dataspecer/federated-observable-store](./packages/federated-observable-store) package
 - [@dataspecer/federated-observable-store-react](./packages/federated-observable-store-react) package
 

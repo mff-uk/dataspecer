@@ -1,9 +1,9 @@
 import { SgovAdapter } from "./sgov-adapter";
-import { httpFetch } from "../io/fetch/fetch-nodejs";
-import { PimClass } from "../pim/model";
-import { CimAdapter, IriProvider, PrefixIriProvider } from "../cim";
-import { FetchOptions } from "../io/fetch/fetch-api";
-import { CoreResourceReader } from "../core";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
+import { PimClass } from "@dataspecer/core/pim/model";
+import { CimAdapter, IriProvider, PrefixIriProvider } from "@dataspecer/core/cim";
+import { FetchOptions } from "@dataspecer/core/io/fetch/fetch-api";
+import { CoreResourceReader } from "@dataspecer/core/core";
 
 let iriProvider: IriProvider;
 let adapter: CimAdapter;

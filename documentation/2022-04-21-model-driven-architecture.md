@@ -16,7 +16,7 @@ Theoretically, if there is no database with the ontology required, CIM is not ne
 
 ### Implementation
 
-See the interface for [@dataspecer/core/cim](../packages/core/src/cim) or implementation for [SGOV](../packages/core/src/sgov).
+See the interface for [@dataspecer/core/cim](../packages/core/src/cim) or implementation for [SGOV](../packages/sgov-adapter/src).
 
 ## PIM: Platform independent model
 
@@ -100,5 +100,3 @@ pp. 96–103. Springer (2009). https://doi.org/10.1007/978-3-642-12082-4_13
 [3] Klímek, J., Malý, J., Nečaský, M., Holubová, I.: eXolutio: Methodology for Design
 and Evolution of XML Schemas Using Conceptual Modeling. Informatica 26(3),
 453–472 (2015), https://content.iospress.com/articles/informatica/inf1065
-
-

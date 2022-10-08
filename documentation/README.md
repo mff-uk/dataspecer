@@ -56,7 +56,7 @@ See the [project structure](#project-structure) if you are interested in that.
 - [@dataspecer/core/conceptual-model](../packages/core/src/conceptual-model/README.md) - simplification of PIM layer
 - [@dataspecer/core/data-psm](../packages/core/src/data-psm/README.md) - third level of model driven architecture
 - [@dataspecer/core/pim](../packages/core/src/pim/README.md) - second level of model driven architecture
-- [@dataspecer/core/sgov](../packages/core/src/sgov/README.md) - CIM adapter for SGOV ontology
+- [@dataspecer/core/sgov](../packages/sgov-adapter/README.md) - CIM adapter for SGOV ontology
 - [@dataspecer/core/structure-model](../packages/core/src/structure-model/README.md) - simplification of Data PSM layer
 
 #### Core and helper packages

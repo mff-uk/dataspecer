@@ -1,5 +1,5 @@
 import {PrefixIriProvider} from "@dataspecer/core/cim";
-import {SgovAdapter} from "@dataspecer/core/sgov";
+import {SgovAdapter} from "@dataspecer/sgov-adapter";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 
 export const getSlovnikGovCzAdapter = () => {

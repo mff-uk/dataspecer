@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "prebuild": "node ./build/prebuild.js && node ./build/compile-sparql.js",
+    "prebuild": "node ./build/prebuild.js",
     "build:watch": "tsc -w",
     "prebuild:watch": "npm run prebuild",
     "lint": "eslint ./src",

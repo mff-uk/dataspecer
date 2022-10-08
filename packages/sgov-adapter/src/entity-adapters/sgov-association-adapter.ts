@@ -1,8 +1,8 @@
-import { RdfSource, RdfSourceWrap } from "../../core/adapter/rdf";
-import { PimAssociation, PimAssociationEnd } from "../../pim/model";
+import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
+import { PimAssociation, PimAssociationEnd } from "@dataspecer/core/pim/model";
 import { loadSgovEntityToResource } from "./sgov-entity-adapter";
 import { POJEM, RDFS } from "../sgov-vocabulary";
-import { IriProvider } from "../../cim";
+import { IriProvider } from "@dataspecer/core/cim";
 import { loadSgovCardinalities } from "./sgov-resource-cardinality-adapter";
 
 export async function isSgovAssociation(

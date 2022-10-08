@@ -1,8 +1,8 @@
-import { RdfSourceWrap } from "../../core/adapter/rdf";
-import { PimClass } from "../../pim/model";
+import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
+import { PimClass } from "@dataspecer/core/pim/model";
 import { POJEM, RDFS } from "../sgov-vocabulary";
 import { loadSgovEntityToResource } from "./sgov-entity-adapter";
-import { IriProvider } from "../../cim";
+import { IriProvider } from "@dataspecer/core/cim";
 
 export async function isSgovClass(entity: RdfSourceWrap): Promise<boolean> {
   return (await entity.types()).includes(POJEM.typObjektu);

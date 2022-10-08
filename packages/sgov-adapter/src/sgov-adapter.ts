@@ -8,16 +8,16 @@ import getSurroundingsParent from "./queries/get-surroundings-parent.sparql";
 import getSurroundingsComplexAttributes from "./queries/get-surroundings-complex-attributes.sparql";
 import getHierarchy from "./queries/get-hierarchy.sparql";
 import getGroup from "./queries/get-group.sparql";
-import { CimAdapter, IriProvider } from "../cim";
-import { SparqlQueryRdfSource } from "../io/rdf/sparql/sparql-query-rdf-source";
-import { HttpFetch } from "../io/fetch/fetch-api";
-import { RdfSource, RdfSourceWrap } from "../core/adapter/rdf";
+import { CimAdapter, IriProvider } from "@dataspecer/core/cim";
+import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
+import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import {
   isSgovClass,
   loadSgovClass,
 } from "./entity-adapters/sgov-class-adapter";
-import { CoreResource, ReadOnlyMemoryStore } from "../core";
-import { FederatedSource } from "../io/rdf/federated/federated-rdf-source";
+import { CoreResource, ReadOnlyMemoryStore } from "@dataspecer/core/core";
+import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
 import { RDFS, SKOS } from "./sgov-vocabulary";
 import {
   isSgovAssociation,
@@ -27,7 +27,7 @@ import {
   isSgovAttribute,
   loadSgovAttribute,
 } from "./entity-adapters/sgov-attribute-adapter";
-import { PimClass } from "../pim/model";
+import { PimClass } from "@dataspecer/core/pim/model";
 
 const getSurroundings = [
   getSurroundingsAttributes,

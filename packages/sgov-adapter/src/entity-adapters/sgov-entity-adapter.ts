@@ -1,8 +1,8 @@
-import { RdfObject, RdfSourceWrap } from "../../core/adapter/rdf";
-import { PimResource } from "../../pim/model";
-import { LanguageString } from "../../core";
+import { RdfObject, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
+import { PimResource } from "@dataspecer/core/pim/model";
+import { LanguageString } from "@dataspecer/core/core";
 import { SKOS } from "../sgov-vocabulary";
-import { IriProvider } from "../../cim";
+import { IriProvider } from "@dataspecer/core/cim";
 
 export async function loadSgovEntityToResource(
   entity: RdfSourceWrap,

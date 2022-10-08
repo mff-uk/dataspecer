@@ -1,8 +1,8 @@
-import { RdfSourceWrap } from "../../core/adapter/rdf";
-import { PimAttribute } from "../../pim/model";
+import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
+import { PimAttribute } from "@dataspecer/core/pim/model";
 import { loadSgovEntityToResource } from "./sgov-entity-adapter";
 import { POJEM, RDFS } from "../sgov-vocabulary";
-import { IriProvider } from "../../cim";
+import { IriProvider } from "@dataspecer/core/cim";
 import { loadSgovCardinalities } from "./sgov-resource-cardinality-adapter";
 
 export async function isSgovAttribute(entity: RdfSourceWrap): Promise<boolean> {
