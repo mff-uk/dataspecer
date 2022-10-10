@@ -74,7 +74,7 @@ function App(props: {children: React.ReactNode}) {
     const tags = useMemo(() =>
         [...new Set(Object.values(dataSpecifications)
             .filter(ds => rootDataSpecificationIris.includes(ds.iri as string))
-            .reduce((previousValue, currentValue) => [...previousValue, ...currentValue.tags], [] as string[]))]
+            .reduce((previousValue, currentValue) => [...previousValue, ...currentValue.tags], [] as string[]))] as string[]
     , [dataSpecifications, rootDataSpecificationIris]);
 
     return (

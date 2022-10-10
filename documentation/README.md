@@ -38,18 +38,6 @@ See the [project structure](#project-structure) if you are interested in that.
 
 ### Packages
 
-#### Generators
-
-- @dataspecer/core/generator - Generator interface
-- [@dataspecer/core/bikeshed](../packages/core/src/bikeshed/README.md) - Bikeshed source generator
-- @dataspecer/core/csv-schema - CSV schema generator
-- @dataspecer/core/json-schema - JSON schema generator
-- @dataspecer/core/plant-uml - Plant UML source (diagrams)
-- [@dataspecer/core/xml](../packages/core/src/xml/README.md) - Common utils for XML
-- [@dataspecer/core/xml-schema](../packages/core/src/xml-schema/README.md) - XML schema generator
-- [@dataspecer/core/xml-transformations](../packages/core/src/xml-transformations/README.md) - XML lifting to RDF and lowering back to XML
-- [@dataspecer/core/sparql-query](../packages/core/src/sparql-query/README.md) - Generator of SPARQL CONSTRUCT queries
-
 #### Model driven architecture layers
 
 - [@dataspecer/core/cim](../packages/core/src/cim/README.md) - first level of model driven architecture

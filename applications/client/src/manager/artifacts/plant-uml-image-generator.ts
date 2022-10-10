@@ -2,7 +2,7 @@ import pako from "pako";
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import { PlantUmlGenerator, PlantUmlGeneratorObject } from "@dataspecer/core/plant-uml";
+import { PlantUmlGenerator, PlantUmlGeneratorObject } from "@dataspecer/plant-uml";
 
 /**
  * Generates PlantUml images from the given data specification.

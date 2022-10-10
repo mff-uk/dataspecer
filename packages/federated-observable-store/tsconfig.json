@@ -3,6 +3,7 @@
     "outDir": "./lib/",
     "sourceMap": true,
     "declaration": true,
+    "moduleResolution": "Node16",
     "downlevelIteration": true,
     "lib": [
       "ES2020", "dom"

@@ -12,11 +12,11 @@ import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
 import {dialog, useDialog} from "../../dialog";
-import {JSON_SCHEMA} from "@dataspecer/core/json-schema/json-schema-vocabulary";
+import {JSON_SCHEMA} from "@dataspecer/json/json-schema";
 import {styled} from "@mui/material/styles";
-import {XML_SCHEMA} from "@dataspecer/core/xml-schema/xml-schema-vocabulary";
-import {JSON_LD_GENERATOR} from "@dataspecer/core/json-ld/json-ld-generator";
-import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/core/xml-transformations/xslt-vocabulary";
+import {XML_SCHEMA} from "@dataspecer/xml/xml-schema";
+import {JSON_LD_GENERATOR} from "@dataspecer/json/json-ld";
+import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/xml/xml-transformations";
 import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
 import {getSingleArtifact} from "./get-single-artifact";
 import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
@@ -25,7 +25,7 @@ import {SingleArtifactPreview} from "./multiple-artifacts-preview";
 import PrintTwoToneIcon from '@mui/icons-material/PrintTwoTone';
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {SPARQL} from "@dataspecer/core/sparql-query/sparql-vocabulary";
+import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {

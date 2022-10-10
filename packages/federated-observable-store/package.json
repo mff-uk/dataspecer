@@ -2,8 +2,17 @@
   "name": "@dataspecer/federated-observable-store",
   "version": "0.0.0",
   "scripts": {
-    "build": "node copy-package-json.js && tsc",
+    "build": "tsc",
+    "prebuild": "rimraf lib",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+  },
+  "exports": {
+    "./complex-operation": "./lib/complex-operation.js",
+    "./federated-core-resource-writer": "./lib/federated-core-resource-writer.js",
+    "./federated-observable-store": "./lib/federated-observable-store.js",
+    "./immediate-core-resource-reader": "./lib/immediate-core-resource-reader.js",
+    "./read-only-memory-store-with-dummy-pim-schema": "./lib/read-only-memory-store-with-dummy-pim-schema.js",
+    "./resource": "./lib/resource.js"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
@@ -13,10 +22,8 @@
     "babel": "^6.23.0",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
-    "typescript": "^4.5.5"
-  },
-  "publishConfig": {
-    "directory": "lib"
+    "rimraf": "^3.0.2",
+    "typescript": "^4.8.4"
   },
   "dependencies": {
     "@dataspecer/core": "^0.0.0",

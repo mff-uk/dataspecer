@@ -14,9 +14,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { generateBikeshedRoute } from "./routes/bikeshed";
 import {DataSpecificationModel} from "./models/data-specification-model";
-import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 import configuration from "./configuration";
+import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 
 // Create models
 
@@ -35,7 +36,7 @@ export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecifi
     return {
         ...dataSpecification,
         pimStores: convertLocalStoresToHttpStores(dataSpecification.pimStores, storeApiUrl),
-        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => [entry[0], convertLocalStoresToHttpStores(entry[1], storeApiUrl)])),
+        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => [entry[0], convertLocalStoresToHttpStores(entry[1] as StoreDescriptor[], storeApiUrl)])),
     }
 }
 

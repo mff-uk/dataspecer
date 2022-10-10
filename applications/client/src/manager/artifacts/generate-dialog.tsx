@@ -4,7 +4,7 @@ import {DataSpecifications} from "../data-specifications";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {DefaultArtifactBuilder} from "./default-artifact-builder";
 import {saveAs} from "file-saver";

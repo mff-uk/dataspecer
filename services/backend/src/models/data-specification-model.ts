@@ -4,10 +4,10 @@ import {LocalStoreModel} from "./local-store-model";
 import {v4 as uuidv4} from "uuid";
 import {PimCreateSchema} from "@dataspecer/core/pim/operation";
 import {LocalStoreDescriptor} from "./local-store-descriptor";
-import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
-import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
+import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
 import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
-import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces/update-data-specification";
+import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 
 const prismaDataSpecificationConfig = {
   include: {

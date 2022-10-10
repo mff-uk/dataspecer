@@ -1,13 +1,12 @@
 import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
-import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
+import {Generator} from "@dataspecer/core/generator";
 import {ZipStreamDictionary} from "./zip-stream-dictionary";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {PlantUmlImageGenerator} from "./plant-uml-image-generator";
-import {BikeshedHtmlGenerator} from "./bikeshed-html-generator";
 import {DataSpecifications} from "../data-specifications";
 import {ArtifactConfigurator} from "../artifact-configurator";
 import {GenerateReport} from "./generate-report";
-import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
+import {getArtefactGenerators} from "../../artefact-generators";
+import {getDefaultConfigurators} from "../../configurators";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -48,7 +47,7 @@ export class DefaultArtifactBuilder {
             Object.values(this.dataSpecifications),
             this.store,
             this.configuration,
-            createDefaultConfigurators(),
+            getDefaultConfigurators(),
         );
 
         for (const dataSpecificationIri of dataSpecificationIris) {
@@ -98,11 +97,7 @@ export class DefaultArtifactBuilder {
         const generator = new Generator(
             Object.values(this.dataSpecifications),
             this.store,
-            [
-                ...createDefaultArtefactGenerators(),
-                new PlantUmlImageGenerator(),
-                new BikeshedHtmlGenerator(),
-            ]
+            getArtefactGenerators()
         );
 
         for (const dataSpecificationIri of this.dataSpecificationIris) {

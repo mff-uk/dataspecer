@@ -1,9 +1,10 @@
 import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
-import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
+import {Generator} from "@dataspecer/core/generator";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import {CoreResourceReader} from "@dataspecer/core/core";
-import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
-import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
+import {getArtefactGenerators} from "../../../artefact-generators";
+import {getDefaultConfigurators} from "../../../configurators";
+import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact
@@ -26,7 +27,7 @@ export async function getSingleArtifact(
   // Generate artifacts definitions
 
   // todo: list of artifacts is generated in place by DefaultArtifactConfigurator
-  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store, configuration, createDefaultConfigurators());
+  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store, configuration, getDefaultConfigurators());
   const dataSpecificationsWithArtifacts: typeof dataSpecifications = {};
   for (const dataSpecification of Object.values(dataSpecifications)) {
     dataSpecificationsWithArtifacts[dataSpecification.iri as string] = {
@@ -47,7 +48,7 @@ export async function getSingleArtifact(
   const generator = new Generator(
       Object.values(dataSpecificationsWithArtifacts),
       store,
-      createDefaultArtefactGenerators());
+      getArtefactGenerators());
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);
   const stream = dict.readPath(path as string);

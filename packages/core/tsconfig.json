@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "outDir": "./lib/",
     "allowJs": true,
     "sourceMap": true,

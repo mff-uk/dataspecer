@@ -15,7 +15,7 @@ import {DataSpecifications} from "../../data-specifications";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
 import {RedirectDialog} from "./redirect-dialog";
 import {ModifySpecification} from "./modify-specification";

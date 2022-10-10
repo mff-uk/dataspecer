@@ -5,10 +5,10 @@ import ManagerPage from "./manager/app";
 import {Home} from "./manager/routes/home/home";
 import {Specification} from "./manager/routes/specification/specification";
 import EditorPage from "./editor/components/App";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
+import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
-import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
+import {getDefaultConfigurators} from "./configurators";
 
 export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
 // @ts-ignore
@@ -16,12 +16,12 @@ export const DefaultConfigurationContext = createContext<object>(null);
 
 
 const useDefaultConfiguration = (backendConnector: BackendConnector) => {
-    const [context, setContext] = useState<object>(() => getDefaultConfiguration(createDefaultConfigurators()));
+    const [context, setContext] = useState<object>(() => getDefaultConfiguration(getDefaultConfigurators()));
     useEffect(() => {
         backendConnector.readDefaultConfiguration().then(configuration =>
             setContext(mergeConfigurations(
-                createDefaultConfigurators(),
-                getDefaultConfiguration(createDefaultConfigurators()),
+                getDefaultConfigurators(),
+                getDefaultConfiguration(getDefaultConfigurators()),
                 configuration
             ))
         );

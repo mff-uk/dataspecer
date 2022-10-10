@@ -3,7 +3,7 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
 import {useEffect, useState} from "react";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {EagerHttpSynchronizedStore} from "@dataspecer/backend-utils/stores/eager-http-synchronized-store";
+import {EagerHttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 /**
  * Takes an array of store descriptors and registers them properly in the

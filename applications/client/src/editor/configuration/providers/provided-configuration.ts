@@ -1,16 +1,16 @@
 import {Configuration} from "../configuration";
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
-import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
+import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useEffect, useMemo, useState} from "react";
 import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
+import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {OperationContext} from "../../operations/context/operation-context";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 

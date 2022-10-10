@@ -7,7 +7,7 @@ import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-descript
 import {Resource} from "@dataspecer/federated-observable-store/resource";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
-import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces/update-data-specification";
+import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 import {BackendConnectorContext} from "../../../application";
 
 export const CreateSpecification: React.FC = () => {

@@ -1,17 +1,18 @@
-import chalk from "chalk";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors/backend-connector";
+const chalk = require("chalk");
+import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces/data-specification-with-metadata";
-import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces/data-specification-with-stores";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores/http-synchronized-store";
+import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces";
+import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
+import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {ReadOnlyFederatedStore} from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-nodejs";
-import {DefaultArtifactConfigurator} from "@dataspecer/core/data-specification/default-artifact-configurator";
-import {createDefaultArtefactGenerators, Generator} from "@dataspecer/core/generator";
+import {Generator} from "@dataspecer/core/generator";
 import {FileStreamDictionary} from "../shared/file-stream-dictionary";
-import {createDefaultConfigurators} from "@dataspecer/core/configuration/configurator-factory";
+import {getDefaultConfigurators} from "../factories/configurators";
+import {getArtefactGenerators} from "../factories/artefact-generators";
+import {DefaultArtifactConfigurator} from "../shared/default-artifact-configurator";
 
 type GenerateArguments = {
     dataSpecificationIri: string;
@@ -70,14 +71,14 @@ export async function generate(argv: GenerateArguments) {
         dataSpecificationsArr,
         store,
         configuration,
-        createDefaultConfigurators(),
+        getDefaultConfigurators(),
     );
     dataSpecifications[dataSpecificationIri].artefacts = await artifactConfigurator.generateFor(dataSpecificationIri);
 
     const generator = new Generator(
         dataSpecificationsArr,
         store,
-        createDefaultArtefactGenerators(),
+        getArtefactGenerators(),
     );
 
     console.log(`generating artifacts`);

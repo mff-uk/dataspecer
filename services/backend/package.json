@@ -1,12 +1,25 @@
 {
   "name": "backend",
-  "version": "0.0.0",
   "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "build": "prisma generate && tsc",
-    "build-pack": "prisma generate && webpack",
-    "update-database": "prisma migrate deploy",
-    "start": "node dist/main.js"
+    "build": "tsc",
+    "build-pack": "webpack --mode=production",
+    "prebuild": "prisma generate",
+    "prebuild-pack": "prisma generate",
+    "start": "node dist/main.js",
+    "update-database": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@dataspecer/backend-utils": "^0.0.0",
+    "@dataspecer/core": "^0.0.0",
+    "@prisma/client": "^4.0.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "rimraf": "^3.0.2",
+    "temp": "^0.9.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",
@@ -20,16 +33,5 @@
     "typescript": "^4.4.4",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.9.2"
-  },
-  "dependencies": {
-    "@dataspecer/backend-utils": "^0.0.0",
-    "@dataspecer/core": "^0.0.0",
-    "@prisma/client": "^4.0.0",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "rimraf": "^3.0.2",
-    "temp": "^0.9.4",
-    "uuid": "^8.3.2"
   }
 }
