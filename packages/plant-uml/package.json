@@ -7,18 +7,6 @@
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "main": "lib/index.js",
-  "exports": {
-    ".": {
-      "import": "./lib/index.js",
-      "require": "./lib/index.js",
-      "types": "./lib/index.d.ts"
-    },
-    "./gen": {
-      "import": "./lib/plant-uml-generator.js",
-      "require": "./lib/plant-uml-generator.js",
-      "types": "./lib/plant-uml-generator.d.ts"
-    }
-  },
   "dependencies": {
     "@dataspecer/core": "*"
   },
