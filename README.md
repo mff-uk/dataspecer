@@ -4,7 +4,7 @@ A tool for effortless management of data specifications based on a domain ontolo
 
 ## Documentation
 
-See the [documentation index](./documentation/README.md).
+See the [general documentation index](./documentation/README.md).
 
 For more information about individual packages, applications, and services, please see the given directory. Each contains a README.md file with build instructions and additional documentation.
 
