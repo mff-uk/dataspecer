@@ -21,6 +21,7 @@ import { assertNot } from "../../core";
 import { StructureModel } from "../../structure-model/model";
 import { BIKESHED } from "../bikeshed-vocabulary";
 import {BikeshedConfiguration} from "../bikeshed-configuration";
+import {filterByStructural} from "../../conceptual-model/transformation/filter-by-structural";
 
 export async function specificationToBikeshed(
   context: BikeshedAdapterContext & BikeshedConfiguration,
@@ -28,11 +29,14 @@ export async function specificationToBikeshed(
   specification: DataSpecification
 ): Promise<Bikeshed> {
   const generatorContext = context.generatorContext;
-  const conceptualModel = generatorContext.conceptualModels[specification.pim];
+  let conceptualModel = generatorContext.conceptualModels[specification.pim];
   assertNot(
     conceptualModel === undefined,
     `Missing conceptual model ${specification.pim}.`
   );
+
+  const structureModels = specification.psms.map(psm => generatorContext.structureModels[psm]);
+  conceptualModel = filterByStructural(conceptualModel, structureModels);
 
   const result = new Bikeshed();
   result.metadata = createBikeshedMetadata(context, conceptualModel);

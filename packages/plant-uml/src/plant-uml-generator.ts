@@ -6,6 +6,7 @@ import {
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { PlantUml } from "./plant-uml";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
+import { filterByStructural } from "@dataspecer/core/conceptual-model/transformation/filter-by-structural";
 
 export interface PlantUmlGeneratorObject {
   // The generated plantuml code
@@ -35,7 +36,10 @@ export class PlantUmlGenerator implements ArtefactGenerator {
   ): Promise<PlantUmlGeneratorObject | null> {
     const pimSchemaIri = specification.pim;
     const stream = new MemoryOutputStream();
-    const plantUml = new PlantUml(context.conceptualModels[pimSchemaIri]);
+    let conceptualModel = context.conceptualModels[pimSchemaIri];
+    const structureModels = specification.psms.map(psm => context.structureModels[psm]);
+    conceptualModel = filterByStructural(conceptualModel, structureModels);
+    const plantUml = new PlantUml(conceptualModel);
     await plantUml.write(stream);
     await stream.close();
     return {
@@ -51,7 +55,10 @@ export class PlantUmlGenerator implements ArtefactGenerator {
   ): Promise<void> {
     const pimSchemaIri = specification.pim;
     const stream = output.writePath(artefact.outputPath);
-    const plantUml = new PlantUml(context.conceptualModels[pimSchemaIri]);
+    let conceptualModel = context.conceptualModels[pimSchemaIri];
+    const structureModels = specification.psms.map(psm => context.structureModels[psm]);
+    conceptualModel = filterByStructural(conceptualModel, structureModels);
+    const plantUml = new PlantUml(conceptualModel);
     await plantUml.write(stream);
     await stream.close();
   }
