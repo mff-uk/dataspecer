@@ -3,8 +3,7 @@ import {
     SingleTableSchema,
     MultipleTableSchema,
     Column,
-    AbsoluteIri,
-    CompactIri
+    Table
 } from "../csv-schema/csv-schema-model";
 import {
     SparqlSelectQuery,
@@ -14,18 +13,29 @@ import {
     SparqlVariableNode,
     SparqlTriple,
     SparqlPattern,
-    SparqlOptionalPattern
+    SparqlOptionalPattern,
+    SparqlConstructQuery
 } from "../sparql-query/sparql-model";
 import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "../core";
 
-export function buildQuery(schema: CsvSchema) : SparqlSelectQuery {
-    if (schema instanceof SingleTableSchema) return buildSingleTableQuery(schema);
-    // if (schema instanceof MultipleTableSchema) return "something";
-    assertFailed("Invalid CSV schema!");
+export function buildMultipleTableQueries(schema: MultipleTableSchema, mainQuery: SparqlConstructQuery) : SparqlSelectQuery[] {
+    const queries: SparqlSelectQuery[]= [];
+    for (const table of schema.tables) {
+        const selectQuery = new SparqlSelectQuery();
+        selectQuery.prefixes = mainQuery.prefixes;
+        selectQuery.where = mainQuery.where;
+        selectQuery.select = createSelectForTable(table, mainQuery.prefixes, mainQuery.where);
+        queries.push(selectQuery);
+    }
+    return queries;
 }
 
-function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
+function createSelectForTable(table: Table, prefixes: Record<string, string>, where: SparqlPattern) : string[] {
+
+}
+
+export function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
     const query = new SparqlSelectQuery();
     query.prefixes = {};
     query.select = [];

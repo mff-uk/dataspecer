@@ -8,10 +8,22 @@ import {
 } from "../data-specification/model";
 import {StreamDictionary} from "../io/stream/stream-dictionary";
 import {RDF_TO_CSV} from "./rdf-to-csv-vocabulary";
-import {SparqlQuery} from "../sparql-query/sparql-model";
+import {
+    SparqlQuery,
+    SparqlConstructQuery
+} from "../sparql-query/sparql-model";
+import {SparqlGenerator} from "../sparql-query";
 import {writeSparqlQuery} from "../sparql-query";
 import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
-import {buildQuery} from "./rdf-to-csv-query-builder";
+import {
+    buildSingleTableQuery,
+    buildMultipleTableQueries
+} from "./rdf-to-csv-query-builder";
+import {
+    MultipleTableSchema,
+    SingleTableSchema
+} from "../csv-schema/csv-schema-model";
+import {assertFailed} from "../core";
 
 export class RdfToCsvGenerator implements ArtefactGenerator {
 
@@ -38,7 +50,14 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
     ): Promise<SparqlQuery> {
         const csvGenerator = new CsvSchemaGenerator();
         const csvSchema = await csvGenerator.generateToObject(context, artefact, specification);
-        return buildQuery(csvSchema);
+        if (csvSchema instanceof SingleTableSchema) return buildSingleTableQuery(csvSchema);
+        else if (csvSchema instanceof MultipleTableSchema) {
+            const sparqlGenerator = new SparqlGenerator();
+            const sparqlQuery = await sparqlGenerator.generateToObject(context, artefact, specification);
+            if (sparqlQuery instanceof SparqlConstructQuery) return buildMultipleTableQueries(csvSchema, sparqlQuery);
+            else assertFailed("Invalid Sparql query!");
+        }
+        else assertFailed("Invalid CSV schema!");
     }
 
     async generateForDocumentation(
