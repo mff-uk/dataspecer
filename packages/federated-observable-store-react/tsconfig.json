@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./lib/",
+    "declarationMap": true,
     "sourceMap": true,
     "declaration": true,
     "moduleResolution": "Node16",
