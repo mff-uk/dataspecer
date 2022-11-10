@@ -1,6 +1,5 @@
-import React, {useCallback, useContext} from "react";
-import AddIcon from "@mui/icons-material/Add";
-import {Fab} from "@mui/material";
+import React, {useCallback, useContext, useRef} from "react";
+import {Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import {DataSpecificationsContext} from "../../app";
 import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
@@ -9,10 +8,18 @@ import {useFederatedObservableStore} from "@dataspecer/federated-observable-stor
 import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
 import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 import {BackendConnectorContext} from "../../../application";
+import AccountTreeTwoToneIcon from "@mui/icons-material/AccountTreeTwoTone";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import SearchIcon from "@mui/icons-material/Search";
+import PublicIcon from '@mui/icons-material/Public';
+import {useDialog} from "../../../editor/dialog";
+import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 
+/**
+ * Button for creating a new data specification.
+ */
 export const CreateSpecification: React.FC = () => {
-    const dialog = useToggle();
-
+    const Dialog = useDialog(SpecificationEditDialog, ["mode", "onSubmit"]);
     const {
         dataSpecifications,
         setDataSpecifications,
@@ -21,8 +28,8 @@ export const CreateSpecification: React.FC = () => {
     } = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
     const store = useFederatedObservableStore();
-    const create = useCallback(async ({label, tags}: Partial<SpecificationEditDialogEditableProperties>) => {
-        const options: UpdateDataSpecification = {};
+    const create = useCallback(async ({label, tags, ...rest}: Partial<SpecificationEditDialogEditableProperties>) => {
+        const options: UpdateDataSpecification = {...rest};
         if (tags) {
             options.tags = tags;
         }
@@ -51,19 +58,45 @@ export const CreateSpecification: React.FC = () => {
             const op = new SetPimLabelAndDescription(pim, label, {});
             await store.executeComplexOperation(op);
         }
-        dialog.close();
-    }, [backendConnector, store, dialog, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+        Dialog.close();
+    }, [backendConnector, store, Dialog, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+
+    const buttonRef = useRef(null);
+    const menuOpen = useToggle(false);
+
 
     return <>
-        <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
-            <AddIcon sx={{mr: 1}}/>
+        <ButtonGroup variant="contained" ref={buttonRef}>
+            <Button variant="contained" onClick={() => Dialog.open({properties: {type: DataSpecification.TYPE_DOCUMENTATION}})}>
+                <AccountTreeTwoToneIcon style={{marginRight: ".25em"}}/>
             Create new
-        </Fab>
-        <SpecificationEditDialog
-            isOpen={dialog.isOpen}
-            close={dialog.close}
-            mode="create"
-            onSubmit={create}
-        />
+            </Button>
+            <Button size="small" onClick={menuOpen.open}>
+                <ArrowDropDownIcon />
+            </Button>
+        </ButtonGroup>
+
+        <Menu anchorEl={buttonRef.current} open={menuOpen.isOpen} onClose={menuOpen.close}>
+            <MenuItem onClick={() => {
+                menuOpen.close();
+                Dialog.open({properties: {type: DataSpecification.TYPE_DOCUMENTATION}});
+            }}>
+                <ListItemIcon>
+                    <SearchIcon fontSize="small" fontWeight="bold" />
+                </ListItemIcon>
+                <ListItemText><strong>Create standard specification</strong></ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => {
+                menuOpen.close();
+                Dialog.open({properties: {type: DataSpecification.TYPE_EXTERNAL}})
+            }}>
+                <ListItemIcon>
+                    <PublicIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Create external specification</ListItemText>
+            </MenuItem>
+        </Menu>
+
+        <Dialog.Component mode={"create"} onSubmit={create} />
     </>
 }

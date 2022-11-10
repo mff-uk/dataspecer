@@ -27,6 +27,9 @@ import { executeDataPsmUnwrapOr } from "./data-psm-unwrap-or-executor";
 import { executeDataPsmWrapWithOr } from "./data-psm-wrap-with-or-executor";
 import {executeDataPsmSetChoice} from "./data-psm-set-choice-executor";
 import {executeDataPsmUnsetChoice} from "./data-psm-unset-choice-executor";
+import {executeDataPsmCreateExternalRoot} from "./data-psm-create-external-root-executor";
+import {executeDataPsmDeleteExternalRoot} from "./data-psm-delete-external-root-executor";
+import {executeDataPsmSetExternalRootTypes} from "./data-psm-set-external-root-types-executor";
 
 export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -48,6 +51,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmCreateClassReference.is,
     executeDataPsmCreateClassReference,
     Operations.DataPsmCreateClassReference.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.DataPsmCreateExternalRoot.is,
+      executeDataPsmCreateExternalRoot,
+      Operations.DataPsmCreateExternalRoot.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmCreateInclude.is,
@@ -83,6 +91,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteClassReference.is,
     executeDataPsmDeleteClassReference,
     Operations.DataPsmDeleteClassReference.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.DataPsmDeleteExternalRoot.is,
+      executeDataPsmDeleteExternalRoot,
+      Operations.DataPsmDeleteExternalRoot.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmDeleteInclude.is,
@@ -148,6 +161,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetDematerialized.is,
     executeDataPsmSetDematerialize,
     Operations.DataPsmSetDematerialized.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.DataPsmSetExternalRootTypes.is,
+      executeDataPsmSetExternalRootTypes,
+      Operations.DataPsmSetExternalRootTypes.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmUnsetChoice.is,

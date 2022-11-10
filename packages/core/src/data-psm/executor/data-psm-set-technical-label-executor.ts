@@ -8,6 +8,7 @@ import { DataPsmSetTechnicalLabel } from "../operation";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
+  DataPsmExternalRoot,
   DataPsmClass,
   DataPsmSchema,
 } from "../model";
@@ -44,6 +45,7 @@ function hasTechnicalLabel(resource: CoreResource) {
     DataPsmAssociationEnd.is(resource) ||
     DataPsmAttribute.is(resource) ||
     DataPsmClass.is(resource) ||
-    DataPsmSchema.is(resource)
+    DataPsmSchema.is(resource) ||
+    DataPsmExternalRoot.is(resource)
   );
 }

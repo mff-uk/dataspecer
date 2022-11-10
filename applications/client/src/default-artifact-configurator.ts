@@ -60,20 +60,24 @@ export class DefaultArtifactConfigurator {
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
     // Generate schemas
+    if (dataSpecification.type === DataSpecification.TYPE_EXTERNAL) {
+      // @ts-ignore
+      return configuration.artifacts ?? [];
+    } else if (dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION) {
+      const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
+      for (const psmSchemaIri of dataSpecification.psms) {
+        const name = await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
-    const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
-    for (const psmSchemaIri of dataSpecification.psms) {
-      const name = await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+        currentSchemaArtefacts.push(...getSchemaArtifacts(
+            psmSchemaIri,
+            this.baseURL,
+            `${dataSpecificationName}/${name}`,
+            configuration
+        ));
+      }
 
-      currentSchemaArtefacts.push(...getSchemaArtifacts(
-          psmSchemaIri,
-          this.baseURL,
-          `${dataSpecificationName}/${name}`,
-          configuration
-      ));
+      return currentSchemaArtefacts;
     }
-
-    return currentSchemaArtefacts;
   }
 
   protected nameFromIri(iri: string): string {

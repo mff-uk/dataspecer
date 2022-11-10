@@ -30,6 +30,7 @@ export const DeleteDataSpecificationForm: FC<{
         }
         setDataSpecifications(newDataSpecifications);
         setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => !dataSpecificationIris.includes(iri)));
+        close();
     }, [backendConnector, dataSpecificationIris, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     return <>

@@ -1,12 +1,14 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, ListItemText, MenuItem, Select, TextField} from "@mui/material";
+import {Box, Button, Checkbox, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, ListItemText, MenuItem, Select, TextField} from "@mui/material";
 import {LanguageString} from "@dataspecer/core/core";
 import {AvailableTags} from "../routes/home/filter-by-tag";
 import {isEqual} from "lodash";
+import {dialog} from "../../editor/dialog";
 
 export interface SpecificationEditDialogEditableProperties {
     label: LanguageString,
     tags: string[],
+    type: string,
 }
 
 /**
@@ -18,9 +20,9 @@ export const SpecificationEditDialog: React.FC<{
 
     mode: "create" | "modify",
 
-    properties?: SpecificationEditDialogEditableProperties,
+    properties?: Partial<SpecificationEditDialogEditableProperties>,
     onSubmit: (properties: Partial<SpecificationEditDialogEditableProperties>) => Promise<void>,
-}> = ({isOpen, close, mode, properties, onSubmit}) => {
+}> = dialog({maxWidth: "xs", fullWidth: true}, ({isOpen, close, mode, properties, onSubmit}) => {
     const [label, setLabel] = useState("");
     const [tags, setTags] = useState<string[]>([]);
 
@@ -43,8 +45,13 @@ export const SpecificationEditDialog: React.FC<{
             change.tags = tags;
         }
 
+        if (properties?.type) {
+            change.type = properties.type;
+        }
+
         await onSubmit(change);
-    }, [label, onSubmit, properties, tags]);
+        close();
+    }, [label, onSubmit, properties?.label, properties?.tags, properties.type, tags]);
 
     const existingTags = React.useContext(AvailableTags);
 
@@ -55,7 +62,7 @@ export const SpecificationEditDialog: React.FC<{
 
     const availableTags = useMemo(() => [...existingTags, ...customTags], [existingTags, customTags]);
 
-    return <Dialog open={isOpen} onClose={close} maxWidth={"xs"} fullWidth>
+    return <>
         <DialogTitle>
             {mode === "create" && "Create new data specification"}
             {mode === "modify" && "Modify data specification"}
@@ -125,5 +132,5 @@ export const SpecificationEditDialog: React.FC<{
                 {mode === "modify" && "Modify"}
             </Button>
         </DialogActions>
-    </Dialog>;
-}
+    </>;
+});

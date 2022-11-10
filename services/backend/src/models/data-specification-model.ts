@@ -56,6 +56,7 @@ export class DataSpecificationModel {
       ],
       psmStores: Object.fromEntries(dataSpecification.dataStructures.map(dataStructure => [dataStructure.psmSchema, [this.storeModel.getById(dataStructure.storeId)]])),
       tags: JSON.parse(dataSpecification.tags) as string[],
+      type: dataSpecification.type as DataSpecification["type"],
     }
   }
 
@@ -158,6 +159,9 @@ export class DataSpecificationModel {
         artifactsConfiguration: dataSpecification.artefactConfiguration ? {
           set: JSON.stringify(dataSpecification.artefactConfiguration)
         } : undefined,
+        type: dataSpecification.type ? {
+            set: String(dataSpecification.type)
+        } : undefined
       },
       ...prismaDataSpecificationConfig
     });

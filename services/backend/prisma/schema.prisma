@@ -32,6 +32,9 @@ model DataSpecification {
   // User defined data specification object
   // JSON serialized object
   artifactsConfiguration String @default("[]")
+
+  // Type of data specification.
+  type String @default("http://dataspecer.com/vocabularies/data-specification/documentation")
 }
 
 // Data structure represents single Data PSM schema with its entities. It

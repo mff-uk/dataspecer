@@ -1,7 +1,7 @@
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import {useAsyncMemo} from "../../../hooks/use-async-memo";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmExternalRoot, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import React, {useCallback} from "react";
@@ -22,6 +22,8 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
     // This method isn't ideal, does not refresh when
     const [availableReferences] = useAsyncMemo(async () => {
+        console.warn("root");
+
         const foundExistingDataPsms: string[] = [];
 
         if (pimClass?.pimInterpretation) {
@@ -30,14 +32,26 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
             for (const schemaIri of schemas) {
                 const schema = await store.readResource(schemaIri) as DataPsmSchema;
+            console.warn(schema);
                 if (schema === null) continue;
                 for (const rootIri of schema.dataPsmRoots) {
-                    const root = await store.readResource(rootIri) as DataPsmClass;
-                    if (root === null || root.dataPsmInterpretation === null) continue;
-                    const pim = await store.readResource(root.dataPsmInterpretation) as PimClass;
-                    if (pim === null) continue;
-                    if (pim.pimInterpretation === pimClass.pimInterpretation) {
-                        foundExistingDataPsms.push(schemaIri);
+                    const root = await store.readResource(rootIri);
+                    console.warn(root);
+
+                    if (DataPsmClass.is(root)) {
+                        if (root.dataPsmInterpretation === null) continue;
+                        const pim = await store.readResource(root.dataPsmInterpretation) as PimClass;
+                        if (pim === null) continue;
+                        if (pim.pimInterpretation === pimClass.pimInterpretation) {
+                            foundExistingDataPsms.push(schemaIri);
+                        }
+                    } else if (DataPsmExternalRoot.is(root)) {
+                        if (root.dataPsmTypes.length === 0) continue;
+                        const pim = await store.readResource(root.dataPsmTypes[0]) as PimClass;
+                        if (pim === null) continue;
+                        if (pim.pimInterpretation === pimClass.pimInterpretation) {
+                            foundExistingDataPsms.push(schemaIri);
+                        }
                     }
                 }
             }

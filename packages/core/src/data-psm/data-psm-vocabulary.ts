@@ -25,6 +25,8 @@ export const CLASS = PSM + "Class";
 
 export const SCHEMA = PSM + "Schema";
 
+export const EXTERNAL_ROOT = PSM + "ExternalRoot";
+
 export const INCLUDE = PSM + "Include";
 
 export const OR = PSM + "Or";
@@ -53,6 +55,10 @@ export const CREATE_CLASS = PSM + "CreateClass";
 
 export const CREATE_CLASS_RESULT = PSM + "CreateClassResult";
 
+export const CREATE_EXTERNAL_ROOT = PSM + "CreateExternalRoot";
+
+export const CREATE_EXTERNAL_ROOT_RESULT = PSM + "CreateExternalRootResult";
+
 export const CREATE_CLASS_REFERENCE = PSM + "CreateClassReference";
 
 export const CREATE_INCLUDE = PSM + "CreateInclude";
@@ -75,6 +81,8 @@ export const DELETE_ATTRIBUTE = PSM + "DeleteAttribute";
 
 export const DELETE_CLASS = PSM + "DeleteClass";
 
+export const DELETE_EXTERNAL_ROOT = PSM + "DeleteExternalRoot";
+
 export const DELETE_CLASS_REFERENCE = PSM + "DeleteClassReference";
 
 export const DELETE_INCLUDE = PSM + "DeleteInclude";
@@ -86,6 +94,8 @@ export const REPLACE_ALONG_INHERITANCE = PSM + "ReplaceAlongInheritance";
 export const SET_CHOICE = PSM + "SetChoice";
 
 export const SET_DATATYPE = PSM + "SetDataType";
+
+export const SET_EXTERNAL_ROOT_TYPES = PSM + "SetExternalRootTypes";
 
 export const SET_HUMAN_DESCRIPTION = PSM + "SetHumanDescription";
 

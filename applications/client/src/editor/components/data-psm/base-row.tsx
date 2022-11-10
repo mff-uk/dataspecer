@@ -65,6 +65,8 @@ const ItemRow: React.FC<{
           <IconButton size={"small"} onClick={collapsible.open}><ExpandLessIcon/></IconButton>
       )}
 
+      {(!collapsible && props.icon) && <span style={{width: ".75rem", display: "inline-block"}} />}
+
       {children}
     </Content>
   </LightTooltip>;

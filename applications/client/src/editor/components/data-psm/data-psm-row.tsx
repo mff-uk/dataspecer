@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {DataPsmAttributeItem} from "./entities/attribute";
 import {DataPsmUnknownItem} from "./entities/unknown";
@@ -14,6 +14,7 @@ import {useFederatedObservableStore} from "@dataspecer/federated-observable-stor
 import {WrapWithOr} from "../../operations/wrap-with-or";
 import {MenuItem} from "@mui/material";
 import {useTranslation} from "react-i18next";
+import {DataPsmExternalRootItem} from "./entities/external-root";
 
 /**
  * Context properties for entities as parts of a class.
@@ -116,6 +117,8 @@ export const DataPsmObjectType: React.FC<RowSlots & ObjectContext & {
     return <DataPsmOrItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
   } else if ( DataPsmClassReference.is(resource)) {
     return <DataPsmReferenceItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
+  } else if ( DataPsmExternalRoot.is(resource)) {
+    return <DataPsmExternalRootItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
   } else {
     return <DataPsmUnknownItem {...typedProps}/>
   }
