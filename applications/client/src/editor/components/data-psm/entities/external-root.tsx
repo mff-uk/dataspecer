@@ -2,7 +2,6 @@ import React, {memo, useMemo} from "react";
 import {useItemStyles} from "../styles";
 import {DataPsmExternalRoot} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
-import {useTranslation} from "react-i18next";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {ObjectContext} from "../data-psm-row";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
@@ -11,7 +10,6 @@ import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents"
 export const DataPsmExternalRootItem: React.FC<{
   iri: string
 } & RowSlots & ObjectContext> = memo((props) => {
-  const {t} = useTranslation("psm");
   const styles = useItemStyles();
 
   const {resource: dataPsmExternalRoot} = useResource<DataPsmExternalRoot>(props.iri);

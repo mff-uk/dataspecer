@@ -104,8 +104,8 @@ const SchemaRow: FC<{
         });
     }, [EditExternalArtifacts, backendConnector, dataSpecifications, setDataSpecifications, specification?.artefactConfiguration, specificationIri]);
 
-    const allArtefacts: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts ?? [];
-    const artefacts = useMemo(() => allArtefacts.filter(artefact => artefact.psm === dataPsmSchemaIri), [allArtefacts, dataPsmSchemaIri]);
+    const artefactConfiguration: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts;
+    const artefacts = useMemo(() => artefactConfiguration.filter(artefact => artefact.psm === dataPsmSchemaIri), [artefactConfiguration, dataPsmSchemaIri]);
 
     return <Paper sx={{mt: 3}}>
         <CardContent sx={{display: "flex"}}>
@@ -208,7 +208,7 @@ export const ExternalSpecification: React.FC<{
     const stores = useMemo(() => [
         ...Object.values(specification?.psmStores ?? []).flat(1),
         ...specification?.pimStores
-    ], [specification?.psmStores]);
+    ], [specification?.pimStores, specification?.psmStores]);
     useConstructedStoresFromDescriptors(stores, store);
 
     /**

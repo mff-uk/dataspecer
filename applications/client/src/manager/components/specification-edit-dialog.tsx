@@ -51,7 +51,7 @@ export const SpecificationEditDialog: React.FC<{
 
         await onSubmit(change);
         close();
-    }, [label, onSubmit, properties?.label, properties?.tags, properties.type, tags]);
+    }, [close, label, onSubmit, properties?.label, properties?.tags, properties.type, tags]);
 
     const existingTags = React.useContext(AvailableTags);
 
