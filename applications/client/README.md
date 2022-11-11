@@ -14,6 +14,12 @@ See the [project structure](documentation/2022-04-21-project-structure.md), indi
 
 ---
 
+## Building Docker image
+
+1. Optionally create `./env.local` file that overrides `./.env`.
+2. Run `docker build -f client-application.dockerfile -t dataspecer/client .` from the root of this monorepository.
+3. Start the application by running `docker run -p 80:80 dataspecer/client`.
+
 ## Build instructions
 
 1. Clone the whole mono repository. `git clone ...`
