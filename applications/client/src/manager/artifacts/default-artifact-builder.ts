@@ -56,7 +56,7 @@ export class DefaultArtifactBuilder {
         }
 
         this.artifactReport = dataSpecificationIris
-          .flatMap(dataSpecificationIri => this.dataSpecifications[dataSpecificationIri].artefacts.map(artifact => ({
+          .flatMap(dataSpecificationIri => this.dataSpecifications[dataSpecificationIri].artefacts.filter(a => a.outputPath).map(artifact => ({
               artifact: artifact,
               state: "pending",
               error: null,

@@ -11,7 +11,12 @@ export const DefaultXmlConfiguration = {
     otherClasses: {
         extractType: false,
         extractGroup: false,
-    } as ExtractOptions
+    } as ExtractOptions,
+
+    /**
+     * If set, the common xml schema will be referenced instead of bundled.
+     */
+    commonXmlSchemaExternalLocation: null as string | null,
 };
 
 /**
@@ -51,6 +56,9 @@ export class XmlConfigurator {
             }
             if (option.otherClasses) {
                 result.otherClasses = {...result.otherClasses, ...option.otherClasses};
+            }
+            if (option.commonXmlSchemaExternalLocation !== undefined) {
+                result.commonXmlSchemaExternalLocation = option.commonXmlSchemaExternalLocation;
             }
         }
 

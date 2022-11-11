@@ -28,7 +28,7 @@ import { commonXmlNamespace, commonXmlPrefix, commonXmlSchema, langStringName } 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 
 /**
- * Writes the full XML Schema to output. 
+ * Writes the full XML Schema to output.
  */
 export async function writeXmlSchema(
   model: XmlSchema,
@@ -45,7 +45,7 @@ export async function writeXmlSchema(
 
 /**
  * Writes the beginning of the schema, including the XML declaration,
- * schema definition and options, and declares used namespaces. 
+ * schema definition and options, and declares used namespaces.
  */
 async function writeSchemaBegin(
   model: XmlSchema,
@@ -71,7 +71,7 @@ async function writeSchemaBegin(
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
-  
+
   if (commonXmlNamespace != null) {
     await writer.writeAndRegisterNamespaceDeclaration(
       commonXmlPrefix,
@@ -80,7 +80,7 @@ async function writeSchemaBegin(
   }
 
   const registered: Record<string, string> = {};
-  
+
   for (const importDeclaration of model.imports) {
     const namespace = await importDeclaration.namespace;
     const prefix = await importDeclaration.prefix;
@@ -96,13 +96,13 @@ async function writeSchemaBegin(
         registered[prefix] = namespace;
       } else if (registered[prefix] !== namespace) {
         throw new Error(
-          `Imported namespace prefix "${prefix}:" is used for two ` + 
+          `Imported namespace prefix "${prefix}:" is used for two ` +
           `different namespaces, "${registered[prefix]}" and "${namespace}".`
         );
       }
     }
   }
-  
+
   await writer.writeAndRegisterNamespaceDeclaration(
     "sawsdl",
     "http://www.w3.org/ns/sawsdl"
@@ -136,7 +136,7 @@ async function writeImportsAndDefinitions(
       );
     });
   }
-  
+
   if (commonXmlNamespace != null) {
     await writer.writeElementFull("xs", "import")(async writer => {
       await writer.writeLocalAttributeValue(
@@ -145,7 +145,7 @@ async function writeImportsAndDefinitions(
       );
       await writer.writeLocalAttributeValue(
         "schemaLocation",
-        commonXmlSchema
+        model.commonXmlSchemaLocation
       );
     });
   }
@@ -163,7 +163,7 @@ async function writeImportsAndDefinitions(
       );
     });
   }
-  
+
   if (model.defineLangString) {
     await writer.writeElementFull("xs", "complexType")(async writer => {
       await writer.writeLocalAttributeValue(
@@ -190,7 +190,7 @@ async function writeImportsAndDefinitions(
 }
 
 /**
- * Writes the list of types in the schema. 
+ * Writes the list of types in the schema.
  */
 async function writeTypes(model: XmlSchema, writer: XmlWriter): Promise<void> {
   for (const type of model.types) {
@@ -205,7 +205,7 @@ async function writeTypes(model: XmlSchema, writer: XmlWriter): Promise<void> {
 }
 
 /**
- * Writes the list of groups in the schema. 
+ * Writes the list of groups in the schema.
  */
 async function writeGroups(model: XmlSchema, writer: XmlWriter): Promise<void> {
   for (const group of model.groups) {
@@ -239,7 +239,7 @@ async function writeGroup(
 }
 
 /**
- * Writes out the list of elements in the schema. 
+ * Writes out the list of elements in the schema.
  */
 async function writeElements(
   model: XmlSchema,

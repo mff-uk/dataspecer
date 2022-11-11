@@ -38,6 +38,11 @@ export class XmlSchema {
    * The array of root elements.
    */
   elements: XmlSchemaElement[];
+
+  /**
+   * Location of XML file containing shared things for XML.
+   */
+  commonXmlSchemaLocation: string;
 }
 
 /**
@@ -48,7 +53,7 @@ export class XmlSchemaImportDeclaration {
    * The namespace prefix used by the schema.
    */
   prefix: Promise<string | null>;
-  
+
   /**
    * The namespace IRI used by the schema.
    */
@@ -289,7 +294,7 @@ export class XmlSchemaComplexContent {
    * The minimum cardinality of the item.
    */
   cardinalityMin: number;
-  
+
   /**
    * The maximum cardinality of the item.
    */

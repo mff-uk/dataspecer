@@ -10,6 +10,7 @@
     "./conventions": "./lib/conventions.js",
     "./configuration": "./lib/configuration.js",
     "./xml-schema": "./lib/xml-schema/index.js",
+    "./xml-common-schema": "./lib/xml-common-schema/index.js",
     "./xml-transformations": "./lib/xml-transformations/index.js"
   },
   "dependencies": {

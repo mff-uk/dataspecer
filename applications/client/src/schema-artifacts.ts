@@ -6,6 +6,8 @@ import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
 import { XSLT_LIFTING, XSLT_LOWERING } from "@dataspecer/xml/xml-transformations";
 import { SPARQL } from "@dataspecer/sparql-query";
 import { CSV_SCHEMA } from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
+import { XmlConfigurator } from "@dataspecer/xml/configuration";
+import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
 
 /**
  * This is the place to register your own artefacts if you need to.
@@ -36,14 +38,15 @@ export function getSchemaArtifacts(
     jsonLd.configuration = configuration;
     artifacts.push(jsonLd);
 
-    // const xsdCoreSchema = new DataSpecificationSchema();
-    // xsdCoreSchema.iri = "https://schemas.dataspecer.com/xsd/core/2022-07.xsd"; // Real URL as IRI
-    // xsdCoreSchema.outputPath = null;
-    // xsdCoreSchema.publicUrl = baseUrl + xsdCoreSchema.outputPath;
-    // xsdCoreSchema.generator = XML_SCHEMA.Generator;
-    // xsdCoreSchema.psm = psmSchemaIri;
-    // xsdCoreSchema.configuration = configuration;
-    // artifacts.push(xsdCoreSchema);
+    const xmlSchemaLocation = XmlConfigurator.getFromObject(configuration).commonXmlSchemaExternalLocation;
+    const xsdCoreSchema = new DataSpecificationSchema();
+    xsdCoreSchema.iri = "https://schemas.dataspecer.com/xsd/core/2022-07.xsd"; // Real URL as IRI
+    xsdCoreSchema.outputPath = xmlSchemaLocation ? null : `${basePath}/2022-07.xsd`;
+    xsdCoreSchema.publicUrl = xmlSchemaLocation ?? (baseUrl + xsdCoreSchema.outputPath);
+    xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;
+    xsdCoreSchema.psm = psmSchemaIri;
+    xsdCoreSchema.configuration = configuration;
+    artifacts.push(xsdCoreSchema);
 
     const xmlSchema = new DataSpecificationSchema();
     xmlSchema.iri = `${psmSchemaIri}#xmlschema`;

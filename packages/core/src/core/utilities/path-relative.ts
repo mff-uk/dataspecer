@@ -15,9 +15,12 @@ export function pathRelative(from: string, to: string): string {
         // samePartsLength > 0
 
         const up = Math.max(fromParts.length - samePartsLength - 1, 0); // for filename
-        const path = "../".repeat(up) + toParts.slice(samePartsLength).join("/");
+        if (toParts.slice(samePartsLength).length) {
+            return (up ? "../".repeat(up) : "./") + toParts.slice(samePartsLength).join("/");
+        } else {
+            return "../".repeat(up) + ".";
+        }
 
-        return path.length > 0 ? path : ".";
     }
 
     // fallback

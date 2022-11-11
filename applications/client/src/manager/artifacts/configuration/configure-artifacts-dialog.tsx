@@ -206,6 +206,18 @@ const Xml: FC<{
         />
       </Grid>
     </Grid>
+
+    <Typography variant="subtitle2" component="h3" sx={{mt: 3}}>Common XML Schema</Typography>
+    <TextFieldWithDefault
+      label="Common XML Schema external URL"
+      current={input ?? {}}
+      itemKey="commonXmlSchemaExternalLocation"
+      onChange={onChange}
+      default={defaultObject}
+    />
+    <Typography variant="body2" sx={{my: 0}}>
+      Leave empty if you wish to bundle the schema with other artifacts.
+    </Typography>
   </FormGroup>;
 }
 
@@ -283,7 +295,7 @@ const TextFieldWithDefault: FC<{
     <InputLabel htmlFor="standard-adornment-password">{props.label}</InputLabel>
     <Input
         id="standard-adornment-password"
-        value={(isDefault ? defaultValue : props.current[props.itemKey] as string) ?? ""}
+        value={(isDefault ? (!defaultValue ? "-" : defaultValue) : props.current[props.itemKey] as string) ?? ""}
         onChange={e => updateWithValue(e.target.value)}
         endAdornment={props.default && <InputAdornment position="end">
             <IconButton>
@@ -293,7 +305,7 @@ const TextFieldWithDefault: FC<{
         startAdornment={isDefault && <InputAdornment position="start">Default used: </InputAdornment>}
         {...props.inputProps}
     />
-    {props.default && !isDefault && <FormHelperText>(default: {props.default[props.itemKey]})</FormHelperText>}
+    {props.default && !isDefault && <FormHelperText>(default: {!props.default[props.itemKey] ? "-" : props.default[props.itemKey]})</FormHelperText>}
   </FormControl>;
 }
 

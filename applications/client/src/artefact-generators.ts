@@ -6,6 +6,7 @@ import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {JsonLdGenerator} from "@dataspecer/json/json-ld";
 import {JsonSchemaGenerator} from "@dataspecer/json/json-schema";
 import {XmlSchemaGenerator} from "@dataspecer/xml/xml-schema";
+import {XmlCommonSchemaGenerator} from "@dataspecer/xml/xml-common-schema";
 import {XsltLiftingGenerator, XsltLoweringGenerator} from "@dataspecer/xml/xml-transformations";
 import {CsvSchemaGenerator} from "@dataspecer/core/csv-schema/csv-schema-generator";
 
@@ -20,6 +21,7 @@ export function getArtefactGenerators() {
         new JsonLdGenerator(),
         new JsonSchemaGenerator(),
         new XmlSchemaGenerator(),
+        new XmlCommonSchemaGenerator(),
         new XsltLoweringGenerator(),
         new XsltLiftingGenerator(),
         new CsvSchemaGenerator(),

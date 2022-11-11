@@ -14,6 +14,7 @@ import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
 import {structureModelAddXmlProperties} from "../xml-structure-model/add-xml-properties";
 import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {DefaultXmlConfiguration, ExtractOptions, XmlConfiguration, XmlConfigurator} from "../configuration";
+import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
@@ -25,8 +26,15 @@ export function structureModelToXmlSchema(
   model: StructureModel
 ): XmlSchema {
   const options = XmlConfigurator.merge(DefaultXmlConfiguration, XmlConfigurator.getFromObject(artifact.configuration)) as XmlConfiguration;
+  // Find common XML artifact
+  const commonXmlArtefact = specification.artefacts.find(a => a.generator === XML_COMMON_SCHEMA_GENERATOR);
+  if (!commonXmlArtefact) {
+    throw new Error("XML generator requires common xml schema artifact");
+  }
+  const commonXmlSchemaLocation = pathRelative(artifact.publicUrl, commonXmlArtefact.publicUrl);
+
   const adapter = new XmlSchemaAdapter(
-    context, specification, artifact, model, options
+    context, specification, artifact, model, options, commonXmlSchemaLocation
   );
   return adapter.fromRoots(model.roots);
 }
@@ -64,6 +72,7 @@ class XmlSchemaAdapter {
   private artifact: DataSpecificationSchema;
   private model: StructureModel;
   private options: XmlConfiguration;
+  private commonXmlSchemaLocation: string;
 
   /**
    * Creates a new instance of the adapter, for a particular structure model.
@@ -78,15 +87,17 @@ class XmlSchemaAdapter {
     specification: DataSpecification,
     artifact: DataSpecificationSchema,
     model: StructureModel,
-    options: XmlConfiguration
+    options: XmlConfiguration,
+    commonXmlSchemaLocation: string,
   ) {
     this.context = context;
     this.specifications = context.specifications;
     this.artifact = artifact;
     this.model = model;
     this.options = options;
+    this.commonXmlSchemaLocation = commonXmlSchemaLocation;
   }
-  
+
   private imports: { [specification: string]: XmlSchemaImportDeclaration };
   private groups: Record<string, XmlSchemaGroupDefinition>;
   private types: Record<string, XmlSchemaType>;
@@ -112,6 +123,7 @@ class XmlSchemaAdapter {
       imports: Object.values(this.imports),
       groups: Object.values(this.groups),
       types: Object.values(this.types),
+      commonXmlSchemaLocation: this.commonXmlSchemaLocation,
     };
   }
 
@@ -585,7 +597,7 @@ class XmlSchemaAdapter {
         this.types[classData.technicalLabel] = complexType;
       }
     }
-    
+
     return [root, rootName, rootClass === null];
   }
 
