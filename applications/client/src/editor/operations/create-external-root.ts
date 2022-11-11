@@ -1,5 +1,5 @@
 import {PimClass} from "@dataspecer/core/pim/model";
-import {DataPsmCreateClass, DataPsmCreateExternalRoot, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@dataspecer/core/data-psm/operation";
+import {DataPsmCreateExternalRoot, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {createPimClassIfMissing} from "./helper/pim";
 import {LanguageString} from "@dataspecer/core/core";

@@ -31,7 +31,7 @@ export const DeleteDataSpecificationForm: FC<{
         setDataSpecifications(newDataSpecifications);
         setRootDataSpecificationIris(rootDataSpecificationIris.filter(iri => !dataSpecificationIris.includes(iri)));
         close();
-    }, [backendConnector, dataSpecificationIris, dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+    }, [dataSpecifications, setDataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris, close, dataSpecificationIris, backendConnector]);
 
     return <>
         <DialogTitle>
