@@ -29,13 +29,18 @@ import { CsvSchemaGeneratorOptions } from "./csv-schema-generator-options";
 
 const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";
+export const specArtefactIndex = 4;
+export const idColumnTitle = "RowId";
+export const refColumnTitle = "Reference";
+export const leftRefColTitle = "LeftReference";
+export const rightRefColTitle = "RightReference";
 
-class TableUrlGenerator {
+export class TableUrlGenerator {
     private num = 0;
     private readonly prefix: string;
 
     constructor(idPrefix: string) {
-        this.prefix = schemaPrefix + idPrefix;
+        this.prefix = schemaPrefix + idPrefix + "/tables/";
     }
 
     getNext(): AbsoluteIri {
@@ -66,7 +71,7 @@ function makeMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[4].publicUrl + "/tables/"));
+    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl));
     return schema;
 }
 
@@ -87,7 +92,7 @@ function makeTablesRecursive(
     table.url = urlGenerator.getNext();
     table.tableSchema = new TableSchema();
 
-    const idColumn = makeReferenceColumn("RowId");
+    const idColumn = makeReferenceColumn(idColumnTitle);
     table.tableSchema.columns.push(idColumn);
     table.tableSchema.primaryKey = idColumn.name;
 
@@ -141,10 +146,10 @@ function makeRelationTable(
     table.url = tableUrl;
     table.tableSchema = new TableSchema();
 
-    const firstColumn = makeReferenceColumn("LeftReference");
+    const firstColumn = makeReferenceColumn(leftRefColTitle);
     table.tableSchema.columns.push(firstColumn);
 
-    const secondColumn = makeReferenceColumn("RightReference");
+    const secondColumn = makeReferenceColumn(rightRefColTitle);
     table.tableSchema.columns.push(secondColumn);
 
     table.tableSchema.primaryKey = [];
@@ -176,7 +181,7 @@ function makeMultipleValueTable(
     table.url = tableUrl;
     table.tableSchema = new TableSchema();
 
-    const firstColumn = makeReferenceColumn("Reference");
+    const firstColumn = makeReferenceColumn(refColumnTitle);
     table.tableSchema.columns.push(firstColumn);
 
     const secondColumn = makeColumnFromProp(property, true);
@@ -233,8 +238,8 @@ function makeSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIri(schemaPrefix + specification.artefacts[4].publicUrl);
-    schema.table.url = new AbsoluteIri(schemaPrefix + specification.artefacts[4].publicUrl + "/table.csv");
+    schema.table["@id"] = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl);
+    schema.table.url = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl + "/table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));

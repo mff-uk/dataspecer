@@ -1,10 +1,15 @@
 import {
-    CsvSchema,
     SingleTableSchema,
-    MultipleTableSchema,
-    Column,
-    Table
+    Column
 } from "../csv-schema/csv-schema-model";
+import {
+    specArtefactIndex,
+    idColumnTitle,
+    refColumnTitle,
+    leftRefColTitle,
+    rightRefColTitle,
+    TableUrlGenerator
+} from "../csv-schema/csv-schema-model-adapter";
 import {
     SparqlSelectQuery,
     SparqlNode,
@@ -14,28 +19,159 @@ import {
     SparqlTriple,
     SparqlPattern,
     SparqlOptionalPattern,
-    SparqlConstructQuery
+    SparqlElement
 } from "../sparql-query/sparql-model";
+import { RDF_TYPE_URI } from "../sparql-query/sparql-model-adapter";
 import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "../core";
+import {DataSpecification} from "../data-specification/model";
+import {StructureModel, StructureModelClass} from "../structure-model/model";
 
-export function buildMultipleTableQueries(schema: MultipleTableSchema, mainQuery: SparqlConstructQuery) : SparqlSelectQuery[] {
-    const queries: SparqlSelectQuery[]= [];
-    for (const table of schema.tables) {
-        const selectQuery = new SparqlSelectQuery();
-        selectQuery.prefixes = mainQuery.prefixes;
-        selectQuery.where = mainQuery.where;
-        selectQuery.select = createSelectForTable(table, mainQuery.prefixes, mainQuery.where);
-        queries.push(selectQuery);
+class VariableGenerator {
+    private num = 0;
+
+    getNext(): SparqlVariableNode {
+        this.num++;
+        const varNode = new SparqlVariableNode();
+        varNode.variableName = "v" + this.num.toString();
+        return varNode;
+    }
+}
+
+export function buildMultipleTableQueries(
+    specification: DataSpecification,
+    model: StructureModel
+) : SparqlSelectQuery[] {
+    const prefixes: Record<string, string> = {};
+    const where = new SparqlPattern();
+    const selects: string[][] = [];
+    const varGen = new VariableGenerator();
+    const urlGen = new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl);
+    buildQueriesRecursive(prefixes, where, selects, model.roots[0].classes[0], varGen, urlGen);
+
+    const queries: SparqlSelectQuery[] = [];
+    for (const select of selects) {
+        const query = new SparqlSelectQuery();
+        query.prefixes = prefixes;
+        query.select = select;
+        query.where = where;
+        queries.push(query);
     }
     return queries;
 }
 
-function createSelectForTable(table: Table, prefixes: Record<string, string>, where: SparqlPattern) : string[] {
+function buildQueriesRecursive(
+    prefixes: Record<string, string>,
+    where: SparqlPattern,
+    selects: string[][],
+    currentClass: StructureModelClass,
+    varGen: VariableGenerator,
+    urlGen: TableUrlGenerator
+) : SparqlVariableNode {
+    const currentSelect: string[] = [];
+    selects.push(currentSelect);
+    const tableUrlCom = makeTableUrlComment(urlGen);
+    const subject = varGen.getNext();
+    currentSelect.push(makeAs(subject.variableName, idColumnTitle));
 
+    const typeTriple = new SparqlTriple();
+    typeTriple.subject = subject;
+    const typePredicate = new SparqlUriNode();
+    typePredicate.uri = RDF_TYPE_URI;
+    typeTriple.predicate = typePredicate;
+    typeTriple.object = nodeFromIri(currentClass.cimIri, prefixes);
+    where.elements.push(typeTriple);
+
+    for (const property of currentClass.properties) {
+        const dataType = property.dataTypes[0];
+        const multipleValues = property.cardinalityMax === null || property.cardinalityMax > 1;
+        const requiredValue = property.cardinalityMin > 0;
+        if (dataType.isAssociation()) {
+            const associatedClass = dataType.dataType;
+            if (associatedClass.properties.length === 0) {
+                if (multipleValues) {
+                    const object = varGen.getNext();
+                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
+                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                    const multipleValTable: string[] = [];
+                    multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
+                    selects.push(multipleValTable);
+                }
+                else {
+                    const object = varGen.getNext();
+                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
+                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                    currentSelect.push(makeAs(object.variableName, property.technicalLabel));
+                }
+            }
+            else {
+                const propSubject = buildQueriesRecursive(prefixes, where, selects, associatedClass, varGen, urlGen); //todo: required subtree?
+                if (multipleValues) {
+                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
+                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
+                    const relationTable: string[] = [];
+                    relationTable.push(makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen));
+                    selects.push(relationTable);
+                }
+                else {
+                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
+                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
+                    currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
+                }
+            }
+        }
+        else if (dataType.isAttribute()) {
+            if (multipleValues) {
+                const object = varGen.getNext();
+                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                const multipleValTable: string[] = [];
+                multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
+                selects.push(multipleValTable);
+            }
+            else {
+                const object = varGen.getNext();
+                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                currentSelect.push(makeAs(object.variableName, property.technicalLabel));
+            }
+        }
+        else assertFailed("Unexpected datatype!");
+    }
+
+    currentSelect.push(tableUrlCom);
+    return subject;
 }
 
-export function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQuery {
+function makeTableUrlComment(
+    urlGen: TableUrlGenerator
+) : string {
+    return "# Table: " + urlGen.getNext().write();
+}
+
+function propertyToElement(
+    prefixes: Record<string, string>,
+    subject: SparqlNode,
+    predIri: string,
+    object: SparqlNode,
+    required: boolean
+) : SparqlElement {
+    const triple = new SparqlTriple();
+    triple.subject = subject;
+    triple.predicate = nodeFromIri(predIri, prefixes);
+    triple.object = object;
+    if (required) return triple;
+    else return wrapInOptional(triple);
+}
+
+function makeAs(
+    varName: string,
+    alias: string
+) : string {
+    return "(?" + varName + " AS ?" + alias + ")";
+}
+
+export function buildSingleTableQuery(
+    schema: SingleTableSchema
+) : SparqlSelectQuery {
     const query = new SparqlSelectQuery();
     query.prefixes = {};
     query.select = [];
@@ -61,15 +197,19 @@ export function buildSingleTableQuery(schema: SingleTableSchema) : SparqlSelectQ
         triple.object = objectNode;
 
         if (column.required || column.virtual) query.where.elements.push(triple);
-        else {
-            const opt = new SparqlOptionalPattern();
-            opt.optionalPattern = new SparqlPattern();
-            opt.optionalPattern.elements = [];
-            opt.optionalPattern.elements.push(triple);
-            query.where.elements.push(opt);
-        }
+        else query.where.elements.push(wrapInOptional(triple));
     }
     return query;
+}
+
+function wrapInOptional(
+    element: SparqlElement
+) : SparqlOptionalPattern {
+    const opt = new SparqlOptionalPattern();
+    opt.optionalPattern = new SparqlPattern();
+    opt.optionalPattern.elements = [];
+    opt.optionalPattern.elements.push(element);
+    return opt;
 }
 
 /**
@@ -91,7 +231,10 @@ export function columnToPredicate(
 /**
  * Creates an RDF triple node from an IRI and adds a necessary prefix to query.
  */
-function nodeFromIri(iriString: string, queryPrefixes: Record<string, string>) : SparqlQNameNode {
+function nodeFromIri(
+    iriString: string,
+    queryPrefixes: Record<string, string>
+) : SparqlQNameNode {
     const separatedIri = splitIri(iriString);
     const prefix = addPrefix(separatedIri.namespace, queryPrefixes);
     const node = new SparqlQNameNode();
@@ -102,7 +245,9 @@ function nodeFromIri(iriString: string, queryPrefixes: Record<string, string>) :
 /**
  * Splits full absolute IRI into a namespace and a local part.
  */
-export function splitIri(fullIri: string) : { namespace: string, local: string} {
+export function splitIri(
+    fullIri: string
+) : { namespace: string, local: string} {
     let lastBreak = 0;
     for (let i = 0; i < fullIri.length; i++) {
         if (fullIri[i] === "/" || fullIri[i] === "#") lastBreak = i;
@@ -113,7 +258,10 @@ export function splitIri(fullIri: string) : { namespace: string, local: string} 
 /**
  * Creates a prefix from a namespace IRI, adds the namespace into a query and returns the prefix.
  */
-export function addPrefix(namespaceIri: string, queryPrefixes: Record<string, string>) : string {
+export function addPrefix(
+    namespaceIri: string,
+    queryPrefixes: Record<string, string>
+) : string {
     // Check if the namespace is already present.
     for (const ns in queryPrefixes) {
         if (queryPrefixes[ns] === namespaceIri) return ns;
