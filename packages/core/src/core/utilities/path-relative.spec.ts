@@ -8,8 +8,7 @@ describe("pathRelative() util function", () => {
         expect(pathRelative("/a/b/c", "/a/x/y")).toBe("../x/y");
 
         // from c file to this directory
-        expect(pathRelative("/a/b/c", "/a/b")).toBe(".");
-        expect(pathRelative("/a/b/c", "/a/b/")).toBe(".");
+        expect(pathRelative("/a/b/c", "/a/b/")).toBe("./");
 
         expect(pathRelative("/a/b/c", "/a/")).toBe("../");
     });
