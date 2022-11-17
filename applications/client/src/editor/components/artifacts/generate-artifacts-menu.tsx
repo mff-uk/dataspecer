@@ -17,7 +17,7 @@ import {styled} from "@mui/material/styles";
 import {XML_SCHEMA} from "@dataspecer/xml/xml-schema";
 import {JSON_LD_GENERATOR} from "@dataspecer/json/json-ld";
 import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/xml/xml-transformations";
-import {CSV_SCHEMA} from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
+import {CSV_SCHEMA} from "@dataspecer/csv/csv-schema";
 import {getSingleArtifact} from "./get-single-artifact";
 import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import mime from "mime/lite";

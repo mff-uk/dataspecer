@@ -3,7 +3,7 @@ import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle
 import {clone} from "lodash";
 import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
-import {CsvConfiguration, CsvConfigurator} from "@dataspecer/core/csv-schema/csv-configuration";
+import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
 import CloseIcon from '@mui/icons-material/Close';
 import {DefaultConfigurationContext} from "../../../application";

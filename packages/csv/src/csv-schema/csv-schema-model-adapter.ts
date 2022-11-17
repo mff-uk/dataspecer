@@ -17,15 +17,15 @@ import {
     StructureModelPrimitiveType,
     StructureModelProperty,
     StructureModelClass
-} from "../structure-model/model";
-import { DataSpecification } from "../data-specification/model";
+} from "@dataspecer/core/structure-model/model";
+import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import {
     assert,
     assertFailed,
     LanguageString
-} from "../core";
-import { OFN } from "../well-known";
-import {CsvConfiguration} from "./csv-configuration";
+} from "@dataspecer/core/core";
+import { OFN } from "@dataspecer/core/well-known";
+import {CsvConfiguration} from "../configuration";
 
 const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";

@@ -20,12 +20,12 @@ import {
     SparqlPattern,
     SparqlOptionalPattern,
     SparqlElement
-} from "../sparql-query/sparql-model";
-import { RDF_TYPE_URI } from "../sparql-query/sparql-model-adapter";
+} from "@dataspecer/sparql-query";
+import { RDF_TYPE_URI } from "@dataspecer/sparql-query";
 import { csvwContext } from "../csv-schema/csvw-context";
-import { assertFailed } from "../core";
-import {DataSpecification} from "../data-specification/model";
-import {StructureModel, StructureModelClass} from "../structure-model/model";
+import { assertFailed } from "@dataspecer/core/core";
+import {DataSpecification} from "@dataspecer/core/data-specification/model";
+import {StructureModel, StructureModelClass} from "@dataspecer/core/structure-model/model";
 
 class VariableGenerator {
     private num = 0;

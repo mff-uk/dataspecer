@@ -1,6 +1,4 @@
-// @see {@link ../configuration/README.md}
-
-import {DeepPartial} from "../core/utilities/deep-partial";
+import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 
 export const DefaultCsvConfiguration =  {
     enableMultipleTableSchema: false,

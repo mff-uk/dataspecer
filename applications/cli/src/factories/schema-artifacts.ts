@@ -5,7 +5,7 @@ import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
 import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
 import { XSLT_LIFTING, XSLT_LOWERING } from "@dataspecer/xml/xml-transformations";
 import { SPARQL } from "@dataspecer/sparql-query";
-import { CSV_SCHEMA } from "@dataspecer/core/csv-schema/csv-schema-vocabulary";
+import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
 

@@ -1,8 +1,8 @@
 import { getResource } from "./resources/resource-provider";
-import { ReadOnlyMemoryStore } from "../../core";
-import { coreResourcesToConceptualModel } from "../../conceptual-model";
-import { coreResourcesToStructuralModel } from "../../structure-model";
-import { transformStructureModel } from "../../structure-model/transformation";
+import { ReadOnlyMemoryStore } from "@dataspecer/core/core";
+import { coreResourcesToConceptualModel } from "@dataspecer/core/conceptual-model";
+import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
+import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
 import { DefaultCsvConfiguration } from "../csv-configuration";
 

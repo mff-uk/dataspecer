@@ -1,4 +1,4 @@
-import { assertFailed } from "../core";
+import { assertFailed } from "@dataspecer/core/core";
 import { csvwContext } from "./csvw-context";
 
 export abstract class CsvSchema {

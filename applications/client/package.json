@@ -5,6 +5,7 @@
   "dependencies": {
     "@dataspecer/backend-utils": "*",
     "@dataspecer/core": "*",
+    "@dataspecer/csv": "*",
     "@dataspecer/federated-observable-store": "*",
     "@dataspecer/federated-observable-store-react": "*",
     "@dataspecer/json": "*",

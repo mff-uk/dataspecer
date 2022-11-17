@@ -1,29 +1,33 @@
 import {
     ArtefactGenerator,
     ArtefactGeneratorContext
-} from "../generator";
+} from "@dataspecer/core/generator";
 import {
     DataSpecification,
-    DataSpecificationArtefact,
-    DataSpecificationSchema
-} from "../data-specification/model";
-import {StreamDictionary} from "../io/stream/stream-dictionary";
-import {CSV_SCHEMA} from "./csv-schema-vocabulary";
-import {assertFailed, assertNot} from "../core";
-import {transformStructureModel} from "../structure-model/transformation";
-import {CsvSchema} from "./csv-schema-model";
-import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
+    DataSpecificationArtefact, DataSpecificationSchema
+} from "@dataspecer/core/data-specification/model";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import {RDF_TO_CSV} from "./rdf-to-csv-vocabulary";
+import {SparqlSelectQuery} from "@dataspecer/sparql-query";
+import {writeSparqlQuery} from "@dataspecer/sparql-query";
+import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
+import {
+    buildSingleTableQuery,
+    buildMultipleTableQueries
+} from "./rdf-to-csv-query-builder";
+import {SingleTableSchema} from "../csv-schema/csv-schema-model";
+import {assertFailed, assertNot} from "@dataspecer/core/core";
+import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
 import {
     CsvConfiguration,
     CsvConfigurator,
     DefaultCsvConfiguration
-} from "./csv-configuration";
-import {isRecursive} from "../structure-model/helper/is-recursive";
+} from "../configuration";
 
-export class CsvSchemaGenerator implements ArtefactGenerator {
+export class RdfToCsvGenerator implements ArtefactGenerator {
 
     identifier(): string {
-        return CSV_SCHEMA.Generator;
+        return RDF_TO_CSV.Generator;
     }
 
     async generateToStream(
@@ -32,9 +36,17 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         specification: DataSpecification,
         output: StreamDictionary
     ): Promise<void> {
-        const schema = await this.generateToObject(context, artefact, specification);
+        const result = await this.generateToObject(context, artefact, specification);
         const stream = output.writePath(artefact.outputPath);
-        await stream.write(schema.makeJsonLD());
+        if (Array.isArray(result)) {
+            for (const query of result) {
+                await writeSparqlQuery(query, stream);
+                await stream.write("\n");
+            }
+        }
+        else {
+            await writeSparqlQuery(result, stream);
+        }
         await stream.close();
     }
 
@@ -42,7 +54,7 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         context: ArtefactGeneratorContext,
         artefact: DataSpecificationArtefact,
         specification: DataSpecification
-    ): Promise<CsvSchema> {
+    ): Promise<SparqlSelectQuery | SparqlSelectQuery[]> {
         if (!DataSpecificationSchema.is(artefact)) {
             assertFailed("Invalid artefact type.")
         }
@@ -61,10 +73,16 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
             `Missing structure model ${schemaArtefact.psm}.`);
         model = transformStructureModel(
             conceptualModel, model, Object.values(context.specifications));
-        if (isRecursive(model)) {
-            throw new Error("CSV schema generator does not support recursive structures.");
+
+        if (configuration.enableMultipleTableSchema) {
+            return buildMultipleTableQueries(specification, model);
         }
-        return structureModelToCsvSchema(specification, model, configuration);
+        else {
+            const csvGenerator = new CsvSchemaGenerator();
+            const csvSchema = await csvGenerator.generateToObject(context, artefact, specification);
+            if (csvSchema instanceof SingleTableSchema) return buildSingleTableQuery(csvSchema);
+            else assertFailed("Wrong CSV schema was generated!");
+        }
     }
 
     async generateForDocumentation(
