@@ -1,0 +1,41 @@
+{
+  "back to specification manager": "back to specification manager",
+  "cancel": "Cancel",
+  "close": "close",
+  "codelist": "codelist",
+  "delete": "Delete",
+  "deleteDataSchema": {
+    "additionalText": "This operation is irreversible. All other specifications whose schemas refer to a deleted schema will be invalid, but will not be deleted.",
+    "text": "You are about to delete the following schema:",
+    "title": "Delete data schema"
+  },
+  "deleteDataSpecification": {
+    "additionalText": "This operation is irreversible. All other specifications that refer to deleted will be invalid, but will not be deleted.\n",
+    "text_one": "You are about to remove the following specification:",
+    "text_other": "You are about to remove {{count}} of the following specifications:",
+    "title_one": "Delete specification",
+    "title_other": "Delete {{count}} specifications"
+  },
+  "error": "error",
+  "iri_copy": {
+    "fail": "Failed to copy IRI to the clipboard",
+    "success": "Copied IRI to the clipboard",
+    "text": "copy"
+  },
+  "more": "more",
+  "new schema description format": "Data structure for {label}. {description}",
+  "new schema label format": "{label}",
+  "no schema text": "Start by clicking on <1>set root element</1> button to set class as a root of the schema.",
+  "no title": "no title",
+  "report a bug": "report a bug",
+  "request a feature": "request a feature",
+  "set root": {
+    "search for class": "Search for class (interpreted)",
+    "use class reference": "Use class reference to another schema",
+    "use or": "Use OR",
+    "use structured class": "Use structured class (non-interpreted)"
+  },
+  "set root element button": "Set root element",
+  "title": "schema editor",
+  "version": "Version"
+}

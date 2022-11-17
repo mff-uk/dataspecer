@@ -1,5 +1,4 @@
 import { DataSpecificationArtefact } from "./data-specification-artefact";
-import {DataSpecificationArtefactBuilderConfiguration} from "./data-specification-artefact-builder-configuration";
 
 export class DataSpecification {
   iri: string | null = null;
@@ -7,6 +6,14 @@ export class DataSpecification {
   pim: string | null = null;
 
   psms: string[] = [];
+
+  /**
+   * Specifications may be of different types to better support different use
+   * cases. Currently, only the default and external type is supported.
+   */
+  type: string = DataSpecification.TYPE_DOCUMENTATION;
+  static TYPE_DOCUMENTATION = "http://dataspecer.com/vocabularies/data-specification/documentation" as const;
+  static TYPE_EXTERNAL = "http://dataspecer.com/vocabularies/data-specification/external" as const;
 
   /**
    * IRIs of other data specifications.
@@ -22,5 +29,5 @@ export class DataSpecification {
    * Specifies properties for artifacts builders that can extend {@link artefacts} field by adding other artefacts on
    * the fly. This allows user to dynamically add schemas without the need to manually specify the artifacts.
    */
-  artefactConfiguration: DataSpecificationArtefactBuilderConfiguration[] = [];
+  artefactConfiguration: object = {};
 }

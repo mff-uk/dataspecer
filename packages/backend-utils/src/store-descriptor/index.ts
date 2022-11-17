@@ -7,3 +7,5 @@ export interface StoreDescriptor {
    */
   type: string;
 }
+
+export * from "./http-store-descriptor";

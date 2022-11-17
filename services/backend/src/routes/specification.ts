@@ -1,6 +1,6 @@
 import express from "express";
 import {dataSpecificationModel, replaceStoreDescriptorsInDataSpecification} from "../main";
-import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces/update-data-specification";
+import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 import {asyncHandler} from "../utils/async-handler";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {

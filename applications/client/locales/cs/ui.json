@@ -1,0 +1,45 @@
+{
+  "back to specification manager": "zpět do manažeru specifikací",
+  "cancel": "Zrušit",
+  "close": "zavřít",
+  "codelist": "číselník",
+  "delete": "Odstranit",
+  "deleteDataSchema": {
+    "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, jejichž schémata odkazují na smazané schéma, budou nevalidní, ale nebudou odstraněny.",
+    "text": "Chystáte se odstranit následující schéma:",
+    "title": "Odstranit schéma"
+  },
+  "deleteDataSpecification": {
+    "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, které odkazují na smazanou, budou nevalidní, ale nebudou odstraněny.",
+    "text_one": "Chystáte se odstranit následující specifikaci:",
+    "text_few": "Chystáte se odstranit {{count}} následující specifikace:",
+    "text_many": "Chystáte se odstranit {{count}} následujících specifikací:",
+    "text_other": "Chystáte se odstranit {{count}} následujících specifikací:",
+    "title_one": "Odstranit specifikaci",
+    "title_few": "Odstranit {{count}} specifikace",
+    "title_many": "Odstranit {{count}} specifikací",
+    "title_other": "Odstranit {{count}} specifikací"
+  },
+  "error": "chyba",
+  "iri_copy": {
+    "fail": "Nepodařilo se zkopírovat IRI do schránky",
+    "success": "IRI zkopírováno do schránky",
+    "text": "zkopírovat"
+  },
+  "more": "více",
+  "new schema description format": "Datová struktura pro {label}. {description}",
+  "new schema label format": "{label}",
+  "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
+  "no title": "bez názvu",
+  "report a bug": "nahlásit chybu",
+  "request a feature": "navrhnout úpravu",
+  "set root": {
+    "search for class": "Vyhledat třídu (interpretovanou)",
+    "use class reference": "Použít referenci do jiného schématu",
+    "use or": "Použít OR",
+    "use structured class": "Použít strukturovanou třídu (neinterpretovanou)"
+  },
+  "set root element button": "Zvolit kořen",
+  "title": "editor schémat",
+  "version": "Verze"
+}

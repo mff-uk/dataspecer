@@ -1,6 +1,4 @@
-import { createCsvSchema } from "../../csv-schema/tests/test-helpers";
 import {
-    buildQuery,
     columnToPredicate,
     splitIri,
     addPrefix
@@ -10,27 +8,8 @@ import {
     AbsoluteIri,
     CompactIri
 } from "../../csv-schema/csv-schema-model";
-import { writeSparqlQuery } from "../../sparql-query";
 
 const testNamePrefix = "RDF to CSV: ";
-
-class MockOutputStream {
-    content = "";
-
-    async write(chunk) {
-        this.content += chunk;
-    }
-
-    async close() {}
-}
-
-/**
- * Arrange a basic schema
- */
-async function commonArrange1(multipleTable) {
-    const schema = await createCsvSchema(multipleTable, "basic_tree_data_specifications.json", "basic_tree_merged_store.json");
-    return buildQuery(schema);
-}
 
 test(testNamePrefix + "split IRI namespace slash", async () => {
     const split = splitIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
@@ -153,11 +132,4 @@ test(testNamePrefix + "column to predicate missing identifier", async () => {
     const column = new Column();
     const prefixes = {};
     expect(() => columnToPredicate(column, prefixes)).toThrow();
-});
-
-test.skip(testNamePrefix + "show simple query", async () => {
-    const query = await commonArrange1(false);
-    const stream = new MockOutputStream();
-    await writeSparqlQuery(query, stream);
-    console.log(stream.content);
 });

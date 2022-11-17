@@ -16,6 +16,11 @@ export class BackendConnector {
     this.httpFetch = httpFetch;
   }
 
+  public async readDefaultConfiguration(): Promise<object> {
+    const data = await this.httpFetch(this.backendUrl + "/default-configuration");
+    return await data.json() as object;
+  }
+
   public async readDataSpecifications() {
     const data = await this.httpFetch(this.backendUrl + "/data-specification");
     return await data.json() as (DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)[];

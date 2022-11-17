@@ -9,8 +9,6 @@ export class DataPsmUnwrapOr extends CoreOperation {
 
   dataPsmOr: string | null = null;
 
-  dataPsmOwner: string | null = null;
-
   constructor() {
     super();
     this.types.push(DataPsmUnwrapOr.TYPE);

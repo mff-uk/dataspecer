@@ -2,6 +2,7 @@ import {ReadOnlyMemoryStore,} from "./core";
 import {coreResourcesToStructuralModel} from "./structure-model";
 import {coreResourcesToConceptualModel} from "./conceptual-model";
 import {transformStructureModel} from "./structure-model/transformation";
+import {DataSpecification} from "./data-specification/model";
 
 // todo Content of resources/merged_store.json from ZIP file
 const resources = {
@@ -391,6 +392,7 @@ const dataSpecifications = {
     "psms": [
       "https://ofn.gov.cz/schema/1648759043832-c5fb-717c-b1cb"
     ],
+    "type": DataSpecification.TYPE_DOCUMENTATION,
     "importsDataSpecifications": [],
     "artefacts": [
       {
@@ -512,7 +514,7 @@ const dataSpecifications = {
         }
       ]
     },
-    "artefactConfiguration": [],
+    "artefactConfiguration": {},
     "tags": [
       "Štěpán Stenchlák"
     ]

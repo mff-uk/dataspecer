@@ -6,18 +6,23 @@
     "build": "webpack --mode=production"
   },
   "devDependencies": {
-    "dotenv-webpack": "^7.1.0",
-    "ts-loader": "^9.2.8",
-    "typescript": "^4.6.3",
-    "webpack": "^5.70.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-shebang-plugin": "^1.1.7"
+    "dotenv-webpack": "^8.0.1",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.8.4",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-shebang-plugin": "^1.1.8"
   },
   "dependencies": {
-    "@dataspecer/backend-utils": "^0.0.0",
-    "@dataspecer/core": "^0.0.0",
-    "@types/yargs": "^17.0.10",
-    "chalk": "^5.0.1",
-    "yargs": "^17.4.0"
+    "@dataspecer/backend-utils": "*",
+    "@dataspecer/core": "*",
+    "@dataspecer/json": "*",
+    "@dataspecer/plant-uml": "*",
+    "@dataspecer/sgov-adapter": "*",
+    "@dataspecer/sparql-query": "*",
+    "@dataspecer/xml": "*",
+    "@types/yargs": "^17.0.13",
+    "chalk": "^5.1.0",
+    "yargs": "^17.6.0"
   }
 }

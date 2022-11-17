@@ -17,8 +17,12 @@ import {
 } from "./rdf-to-csv-query-builder";
 import {SingleTableSchema} from "../csv-schema/csv-schema-model";
 import {assertFailed, assertNot} from "../core";
-import {CsvSchemaGeneratorOptions} from "../csv-schema/csv-schema-generator-options";
 import {transformStructureModel} from "../structure-model/transformation";
+import {
+    CsvConfiguration,
+    CsvConfigurator,
+    DefaultCsvConfiguration
+} from "../csv-schema/csv-configuration";
 
 export class RdfToCsvGenerator implements ArtefactGenerator {
 
@@ -56,7 +60,10 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         }
         const schemaArtefact = artefact as DataSpecificationSchema;
         const conceptualModel = context.conceptualModels[specification.pim];
-        const configuration = CsvSchemaGeneratorOptions.getFromConfiguration(schemaArtefact.configuration);
+        const configuration = CsvConfigurator.merge(
+            DefaultCsvConfiguration,
+            CsvConfigurator.getFromObject(schemaArtefact.configuration)
+        ) as CsvConfiguration;
         assertNot(
             conceptualModel === undefined,
             `Missing conceptual model ${specification.pim}.`);

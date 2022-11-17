@@ -60,6 +60,8 @@ export class StructureModelClass {
    */
   isCodelist = false;
 
+  isReferenced = false;
+
   /**
    * If class represents codelist this property holds URLs of the datasets
    * with the codelists.

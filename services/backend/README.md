@@ -9,7 +9,7 @@ See the [project structure](documentation/2022-04-21-project-structure.md) or lo
 ## Installation instructions
 
 1. Clone the whole mono repository. `git clone ...`
-2. Optionally create `./env.local` file that overrides `./.env` or use environmental variables during the build.
+2. Create copy of `./main.config.sample.js` as `./main.config.js` and modify the configuration.
 3. Run `npm install` from the root of the repository to install Lerna.
 4. Run `lerna bootstrap` to install and link all packages.
 5. Run `lerna run build` to build `@dataspecer/core` and other packages. All generated files are in the `./buid` directory.
@@ -32,8 +32,7 @@ You can use `npm run build-pack` to create a single bundle file. To make things 
 - `./database/` - your database directory
 - `./dist/backend-bundle.js` - this is the file that you need to execute
 - `./prisma/schema.prisma`
-- `.env`
 
 ```shell
-zip -r backend.zip ./node_modules/.prisma/ ./dist/backend-bundle.js ./prisma/schema.prisma .env
+zip -r backend.zip ./node_modules/.prisma/ ./dist/backend-bundle.js ./prisma/schema.prisma
 ```

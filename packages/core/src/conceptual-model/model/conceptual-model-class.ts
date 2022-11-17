@@ -17,4 +17,17 @@ export class ConceptualModelClass {
   extends: ConceptualModelClass[] = [];
 
   properties: ConceptualModelProperty[] = [];
+
+  static getAllExtends(cls: ConceptualModelClass): ConceptualModelClass[] {
+    const result = new Set<ConceptualModelClass>();
+    const queue = [...cls.extends];
+    while (queue.length > 0) {
+      const current = queue.pop()!;
+      if (!result.has(current)) {
+        result.add(current);
+        queue.push(...current.extends);
+      }
+    }
+    return [...result];
+  }
 }

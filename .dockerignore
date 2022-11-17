@@ -1,0 +1,10 @@
+.github
+.idea
+.vscode
+**/documentation
+**/node_modules
+**/dist
+.dockerignore
+.editorconfig
+.gitattributes
+.gitignore

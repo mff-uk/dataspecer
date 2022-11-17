@@ -1,24 +1,14 @@
-import {
-  DataSpecification,
-  DataSpecificationArtefact,
-  DataSpecificationDocumentation,
-} from "../data-specification/model";
-import { StreamDictionary } from "../io/stream/stream-dictionary";
-import { writeBikeshed } from "./bikeshed-writer";
-import { ArtefactGenerator, ArtefactGeneratorContext } from "../generator";
-import { Bikeshed } from "./bikeshed-model";
-import { assertFailed, LanguageString } from "../core";
-import { specificationToBikeshed } from "./adapter/bikeshed-adapter";
-import {
-  ConceptualModelClass,
-  ConceptualModelProperty,
-} from "../conceptual-model";
-import {
-  StructureModel,
-  StructureModelClass,
-  StructureModelProperty,
-} from "../structure-model/model";
-import { BIKESHED } from "./bikeshed-vocabulary";
+import {DataSpecification, DataSpecificationArtefact, DataSpecificationDocumentation,} from "../data-specification/model";
+import {StreamDictionary} from "../io/stream/stream-dictionary";
+import {writeBikeshed} from "./bikeshed-writer";
+import {ArtefactGenerator, ArtefactGeneratorContext} from "../generator";
+import {Bikeshed} from "./bikeshed-model";
+import {assertFailed, LanguageString} from "../core";
+import {specificationToBikeshed} from "./adapter/bikeshed-adapter";
+import {ConceptualModelClass, ConceptualModelProperty,} from "../conceptual-model";
+import {StructureModel, StructureModelClass, StructureModelProperty,} from "../structure-model/model";
+import {BIKESHED} from "./bikeshed-vocabulary";
+import {BikeshedConfiguration, BikeshedConfigurator, DefaultBikeshedConfiguration} from "./bikeshed-configuration";
 
 export class BikeshedGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -43,6 +33,10 @@ export class BikeshedGenerator implements ArtefactGenerator {
     specification: DataSpecification
   ): Promise<Bikeshed> {
     if (DataSpecificationDocumentation.is(artefact)) {
+      const configuration = BikeshedConfigurator.merge(
+          DefaultBikeshedConfiguration,
+          BikeshedConfigurator.getFromObject(artefact.configuration)
+      ) as BikeshedConfiguration;
       return await specificationToBikeshed(
         {
           generatorContext: context,
@@ -53,6 +47,7 @@ export class BikeshedGenerator implements ArtefactGenerator {
           conceptualPropertyAnchor: conceptualPropertyAnchor,
           structuralClassAnchor: createStructuralClassAnchor(context),
           structuralPropertyAnchor: createStructuralPropertyAnchor(context),
+          ...configuration
         },
         artefact,
         specification

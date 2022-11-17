@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node16",
+    "outDir": "./lib/",
+    "sourceMap": true,
+    "target": "ESNext",
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

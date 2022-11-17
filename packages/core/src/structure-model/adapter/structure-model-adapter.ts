@@ -1,5 +1,5 @@
 import {CoreResourceReader} from "../../core";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
 import {PimAssociationEnd, PimAttribute} from "../../pim/model";
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
 
@@ -59,6 +59,8 @@ class StructureModelAdapter {
       }
     } else if (DataPsmClass.is(entity)) {
       root.classes.push(await this.loadClass(entity));
+    } else if (DataPsmExternalRoot.is(entity)) {
+      root.classes.push(await this.loadExternalRoot(entity));
     } else {
       throw new Error(`Unsupported PSM root entity '${iri}'.`);
     }
@@ -129,18 +131,23 @@ class StructureModelAdapter {
     const part = await this.reader.readResource(
       classReferenceData.dataPsmClass
     );
-    if (!DataPsmClass.is(part)) {
-      throw new Error(
-        `Invalid class reference '${classReferenceData.iri}' target.`
-      );
-    }
     // We are going to load another schema.
     const adapter = new StructureModelAdapter(
       this.reader,
       this.classes,
       classReferenceData.dataPsmSpecification
     );
-    return await adapter.loadClass(part);
+    if (DataPsmClass.is(part)) {
+      const model = await adapter.loadClass(part);
+      return {...model, isReferenced: true};
+    } else if (DataPsmExternalRoot.is(part)) {
+      const model = await adapter.loadExternalRoot(part);
+      return {...model, isReferenced: true};
+    } else {
+      throw new Error(
+        `Invalid class reference '${classReferenceData.iri}' target.`
+      );
+    }
   }
 
   private async loadComplexType(
@@ -239,6 +246,23 @@ class StructureModelAdapter {
     const type = new StructureModelPrimitiveType();
     type.dataType = attributeData.dataPsmDatatype;
     model.dataTypes.push(type);
+
+    return model;
+  }
+
+  /**
+   * Returns StructureModelClass representing an external root. This class has
+   * no members, because it is not modelled in the PSM, but for many generators
+   * it is useful to ignore the concept of external root and treat it as a
+   * regular class.
+   */
+  private async loadExternalRoot(root: DataPsmExternalRoot): Promise<StructureModelClass> {
+    const model = new StructureModelClass();
+
+    model.psmIri = root.iri;
+    model.pimIri = root.dataPsmTypes[0]; // todo ignore or for now
+    model.technicalLabel = root.dataPsmTechnicalLabel;
+    model.structureSchema = this.psmSchemaIri;
 
     return model;
   }

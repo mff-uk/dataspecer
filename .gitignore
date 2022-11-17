@@ -5,6 +5,7 @@
 !.gitignore
 !.gitkeep
 !.npmrc
+!.dockerignore
 
 # Directories
 lib/

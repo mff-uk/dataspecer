@@ -20,18 +20,23 @@ import {
 import { assertNot } from "../../core";
 import { StructureModel } from "../../structure-model/model";
 import { BIKESHED } from "../bikeshed-vocabulary";
+import {BikeshedConfiguration} from "../bikeshed-configuration";
+import {filterByStructural} from "../../conceptual-model/transformation/filter-by-structural";
 
 export async function specificationToBikeshed(
-  context: BikeshedAdapterContext,
+  context: BikeshedAdapterContext & BikeshedConfiguration,
   artefact: DataSpecificationDocumentation,
   specification: DataSpecification
 ): Promise<Bikeshed> {
   const generatorContext = context.generatorContext;
-  const conceptualModel = generatorContext.conceptualModels[specification.pim];
+  let conceptualModel = generatorContext.conceptualModels[specification.pim];
   assertNot(
     conceptualModel === undefined,
     `Missing conceptual model ${specification.pim}.`
   );
+
+  const structureModels = specification.psms.map(psm => generatorContext.structureModels[psm]);
+  conceptualModel = filterByStructural(conceptualModel, structureModels);
 
   const result = new Bikeshed();
   result.metadata = createBikeshedMetadata(context, conceptualModel);
@@ -62,7 +67,7 @@ export async function specificationToBikeshed(
 }
 
 function createBikeshedMetadata(
-  context: BikeshedAdapterContext,
+  context: BikeshedAdapterContext & BikeshedConfiguration,
   conceptualModel: ConceptualModel
 ): Record<string, string> {
   const label: string =
@@ -71,13 +76,11 @@ function createBikeshedMetadata(
     [BikeshedMetadataKeys.title]: label,
     [BikeshedMetadataKeys.shortname]: label,
     [BikeshedMetadataKeys.status]: "LS",
-    [BikeshedMetadataKeys.editor]: "Model-Driven Generator",
+    [BikeshedMetadataKeys.editor]: context.editor,
     [BikeshedMetadataKeys.boilerplate]: "conformance no, copyright no",
-    [BikeshedMetadataKeys.abstract]:
-      `Tento dokument je otevřenou formální normou ve smyslu <a href="https://www.zakonyprolidi.cz/cs/1999-106#p3-9">§ 3 odst. 9 zákona č. 106/1999 Sb., o svobodném přístupu k informacím</a>, pro zveřejňování číselníků.` +
-      `Norma popisuje konceptuální model číselníků a stanovuje podobu jejich reprezentace ve strojově čítelné podobě ve formátech JSON-LD [[json-ld11]], a tedy i JSON [[ECMA-404]], a CSV [[rfc4180]] v denormalizované i normalizované podobě.` +
-      `Jednotlivé způsoby reprezentace číselníků také demonstruje na příkladech.`,
+    [BikeshedMetadataKeys.abstract]: context.abstract,
     [BikeshedMetadataKeys.markup]: "markdown yes",
+    ...context.otherMetadata,
   };
 }
 
@@ -87,7 +90,7 @@ function createBikeshedMetadata(
  * they represent a given structure model (PSM).
  */
 async function createBikeshedStructureSection(
-  context: BikeshedAdapterContext,
+  context: BikeshedAdapterContext & BikeshedConfiguration,
   artefact: DataSpecificationDocumentation,
   specification: DataSpecification,
   conceptualModel: ConceptualModel,

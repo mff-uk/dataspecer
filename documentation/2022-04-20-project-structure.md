@@ -38,7 +38,7 @@ Finally, there is a **[CLI](../applications/cli)** for generating artifacts from
 ## Components architecture
 
 Components diagrams are located in appropriate directories
-- [Schema editor component diagram](../applications/editor/documentation/2022-04-21-project-structure.md)
+- [Schema editor component diagram](../applications/manager/documentation/2022-04-21-project-structure-editor.md)
 - [Schema manager component diagram](../applications/manager/documentation/2022-04-21-project-structure.md)
 - [Backend service component diagram](../services/backend/documentation/2022-04-21-project-structure.md)
 - _component diagram for the cli is missing because it is still in the early development phase_
