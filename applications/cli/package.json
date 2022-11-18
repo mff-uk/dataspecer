@@ -14,6 +14,7 @@
     "webpack-shebang-plugin": "^1.1.8"
   },
   "dependencies": {
+    "@dataspecer/bikeshed": "*",
     "@dataspecer/backend-utils": "*",
     "@dataspecer/core": "*",
     "@dataspecer/csv": "*",

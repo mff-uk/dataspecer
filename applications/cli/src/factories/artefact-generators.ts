@@ -1,4 +1,4 @@
-import {BikeshedGenerator} from "@dataspecer/core/bikeshed";
+import {BikeshedGenerator} from "@dataspecer/bikeshed";
 import {SparqlGenerator} from "@dataspecer/sparql-query";
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {JsonLdGenerator} from "@dataspecer/json/json-ld";

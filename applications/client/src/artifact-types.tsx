@@ -1,4 +1,4 @@
-import { BIKESHED } from "@dataspecer/core/bikeshed/bikeshed-vocabulary";
+import { BIKESHED } from "@dataspecer/bikeshed";
 import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
 import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
 import { JSON_SCHEMA } from "@dataspecer/json/json-schema";

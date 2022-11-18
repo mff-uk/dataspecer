@@ -5,7 +5,7 @@ import {
   BikeshedContentSection,
   BikeshedContentText,
 } from "./bikeshed-model";
-import { OutputStream } from "../io/stream/output-stream";
+import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
 
 class Context {
   level = 1;

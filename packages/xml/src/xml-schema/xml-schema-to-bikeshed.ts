@@ -5,7 +5,7 @@ import {
   BikeshedContentSection,
   BikeshedContentText,
   BikeshedAdapterArtefactContext,
-} from "@dataspecer/core/bikeshed";
+} from "@dataspecer/bikeshed";
 import {
   StructureModelClass,
   StructureModelComplexType,

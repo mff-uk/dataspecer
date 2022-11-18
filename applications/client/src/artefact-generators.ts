@@ -1,6 +1,6 @@
 import {PlantUmlImageGenerator} from "./manager/artifacts/plant-uml-image-generator";
 import {BikeshedHtmlGenerator} from "./manager/artifacts/bikeshed-html-generator";
-import {BikeshedGenerator} from "@dataspecer/core/bikeshed";
+import {BikeshedGenerator} from "@dataspecer/bikeshed";
 import {SparqlGenerator} from "@dataspecer/sparql-query";
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {JsonLdGenerator} from "@dataspecer/json/json-ld";

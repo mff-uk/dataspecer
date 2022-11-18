@@ -1,7 +1,7 @@
 import {DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {PlantUmlImageGenerator} from "./artifacts/plant-uml-image-generator";
-import {BIKESHED} from "@dataspecer/core/bikeshed";
+import {BIKESHED} from "@dataspecer/bikeshed";
 import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";

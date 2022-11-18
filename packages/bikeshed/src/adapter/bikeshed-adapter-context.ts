@@ -1,20 +1,20 @@
-import { ArtefactGeneratorContext } from "../../generator";
-import { LanguageString } from "../../core";
+import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
+import { LanguageString } from "@dataspecer/core/core";
 import {
   ConceptualModel,
   ConceptualModelClass,
   ConceptualModelProperty,
-} from "../../conceptual-model";
+} from "@dataspecer/core/conceptual-model";
 import {
   StructureModel,
   StructureModelClass,
   StructureModelProperty,
-} from "../../structure-model/model";
+} from "@dataspecer/core/structure-model/model";
 import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
-} from "../../data-specification/model";
+} from "@dataspecer/core/data-specification/model";
 
 /**
  * Context given to adapters.

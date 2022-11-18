@@ -9,19 +9,19 @@ import {
   BikeshedAdapterArtefactContext,
   BikeshedAdapterContext,
 } from "./bikeshed-adapter-context";
-import { ConceptualModel } from "../../conceptual-model";
+import { ConceptualModel } from "@dataspecer/core/conceptual-model";
 import { conceptualModelToBikeshedContent } from "./bikeshed-adapter-conceptual";
 import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
   DataSpecificationSchema,
-} from "../../data-specification/model";
-import { assertNot } from "../../core";
-import { StructureModel } from "../../structure-model/model";
+} from "@dataspecer/core/data-specification/model";
+import { assertNot } from "@dataspecer/core/core";
+import { StructureModel } from "@dataspecer/core/structure-model/model";
 import { BIKESHED } from "../bikeshed-vocabulary";
 import {BikeshedConfiguration} from "../bikeshed-configuration";
-import {filterByStructural} from "../../conceptual-model/transformation/filter-by-structural";
+import {filterByStructural} from "@dataspecer/core/conceptual-model/transformation/filter-by-structural";
 
 export async function specificationToBikeshed(
   context: BikeshedAdapterContext & BikeshedConfiguration,

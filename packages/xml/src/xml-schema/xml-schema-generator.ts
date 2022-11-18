@@ -10,7 +10,7 @@ import { writeXmlSchema } from "./xml-schema-writer";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import { defaultStructureTransformations, structureModelDematerialize,structureModelFlattenInheritance, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/core/bikeshed";
+import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"

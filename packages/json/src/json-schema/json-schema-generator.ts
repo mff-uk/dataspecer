@@ -11,7 +11,7 @@ import { structureModelToJsonSchema } from "./json-schema-model-adapter";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/core/bikeshed";
+import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
 import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";

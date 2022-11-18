@@ -4,3 +4,4 @@ export * from "./bikeshed-writer";
 export * from "./bikeshed-generator";
 export * from "./bikeshed-model";
 export * from "./bikeshed-vocabulary";
+export * from "./bikeshed-configuration";

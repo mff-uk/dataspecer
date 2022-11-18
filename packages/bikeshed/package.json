@@ -1,20 +1,13 @@
 {
-  "name": "@dataspecer/xml",
+  "name": "@dataspecer/bikeshed",
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
     "prebuild": "rimraf lib",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
-  "exports": {
-    "./conventions": "./lib/conventions.js",
-    "./configuration": "./lib/configuration.js",
-    "./xml-schema": "./lib/xml-schema/index.js",
-    "./xml-common-schema": "./lib/xml-common-schema/index.js",
-    "./xml-transformations": "./lib/xml-transformations/index.js"
-  },
+  "main": "lib/index.js",
   "dependencies": {
-    "@dataspecer/bikeshed": "*",
     "@dataspecer/core": "*"
   },
   "devDependencies": {

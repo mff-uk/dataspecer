@@ -3,7 +3,7 @@ import {
   ConceptualModel,
   ConceptualModelClass,
   ConceptualModelProperty,
-} from "../../conceptual-model";
+} from "@dataspecer/core/conceptual-model";
 import {
   BikeshedContent,
   BikeshedContentList,
@@ -14,8 +14,8 @@ import {
 import {
   DataSpecification,
   DataSpecificationDocumentation,
-} from "../../data-specification/model";
-import {pathRelative} from "../../core/utilities/path-relative";
+} from "@dataspecer/core/data-specification/model";
+import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
 
 export async function conceptualModelToBikeshedContent(
   context: BikeshedAdapterContext,

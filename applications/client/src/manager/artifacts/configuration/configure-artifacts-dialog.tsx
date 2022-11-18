@@ -7,7 +7,7 @@ import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
 import CloseIcon from '@mui/icons-material/Close';
 import {DefaultConfigurationContext} from "../../../application";
-import {BikeshedConfiguration, BikeshedConfigurator} from "@dataspecer/core/bikeshed/bikeshed-configuration";
+import {BikeshedConfiguration, BikeshedConfigurator} from "@dataspecer/bikeshed";
 
 /**
  * Dialog that edits configuration.

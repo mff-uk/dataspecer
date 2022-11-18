@@ -1,5 +1,5 @@
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
-import {Bikeshed, BIKESHED, writeBikeshed} from "@dataspecer/core/bikeshed";
+import {Bikeshed, BIKESHED, writeBikeshed} from "@dataspecer/bikeshed";
 import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {MemoryOutputStream} from "@dataspecer/core/io/stream/memory-output-stream";
