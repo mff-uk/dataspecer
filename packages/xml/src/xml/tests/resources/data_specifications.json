@@ -21,6 +21,16 @@
                 "type": "schema"
             },
             {
+                "iri": "https://schemas.dataspecer.com/xsd/core/2022-07.xsd",
+                "name": null,
+                "outputPath": null,
+                "publicUrl": "https://schemas.dataspecer.com/xsd/core/2022-07.xsd",
+                "generator": "http://example.com/generator/xml-common-schema",
+                "configuration": {},
+                "psm": "https://ofn.gov.cz/schema/1652966221355-ad33-c076-9819",
+                "type": "schema"
+            },
+            {
                 "iri": "https://ofn.gov.cz/schema/1652966221355-ad33-c076-9819#xmlschema",
                 "name": null,
                 "outputPath": "testmc/tourist-destination/schema.xsd",
