@@ -4,7 +4,7 @@ import { coreResourcesToConceptualModel } from "@dataspecer/core/conceptual-mode
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
 import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
-import { DefaultCsvConfiguration } from "../csv-configuration";
+import { DefaultCsvConfiguration } from "../../configuration";
 
 async function arrangeSpecAndModel(specificationResource, storeResource) {
     const dataSpecificationIri = Object.values(specificationResource)[0].iri;
