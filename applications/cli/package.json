@@ -16,6 +16,7 @@
   "dependencies": {
     "@dataspecer/backend-utils": "*",
     "@dataspecer/core": "*",
+    "@dataspecer/csv": "*",
     "@dataspecer/json": "*",
     "@dataspecer/plant-uml": "*",
     "@dataspecer/sgov-adapter": "*",

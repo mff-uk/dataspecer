@@ -1,6 +1,6 @@
 import { Configurator } from "@dataspecer/core/configuration/configurator";
 import { JsonConfigurator } from "@dataspecer/json/configuration";
-import { CsvConfigurator } from "@dataspecer/core/csv-schema/csv-configuration";
+import { CsvConfigurator } from "@dataspecer/csv/configuration";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { BikeshedConfigurator } from "@dataspecer/core/bikeshed/bikeshed-configuration";
 

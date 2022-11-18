@@ -8,7 +8,7 @@ import {JsonSchemaGenerator} from "@dataspecer/json/json-schema";
 import {XmlSchemaGenerator} from "@dataspecer/xml/xml-schema";
 import {XmlCommonSchemaGenerator} from "@dataspecer/xml/xml-common-schema";
 import {XsltLiftingGenerator, XsltLoweringGenerator} from "@dataspecer/xml/xml-transformations";
-import {CsvSchemaGenerator} from "@dataspecer/core/csv-schema/csv-schema-generator";
+import {CsvSchemaGenerator} from "@dataspecer/csv/csv-schema";
 
 /**
  * Returns all artefact generators that will be used in the application.
