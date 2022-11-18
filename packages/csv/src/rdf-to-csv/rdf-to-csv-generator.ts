@@ -37,17 +37,20 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         output: StreamDictionary
     ): Promise<void> {
         const result = await this.generateToObject(context, artefact, specification);
-        const stream = output.writePath(artefact.outputPath);
         if (Array.isArray(result)) {
+            let counter = 1;
             for (const query of result) {
+                const stream = output.writePath(artefact.outputPath + `query_${counter}.sparql`);
                 await writeSparqlQuery(query, stream);
-                await stream.write("\n");
+                await stream.close();
+                counter++;
             }
         }
         else {
+            const stream = output.writePath(artefact.outputPath + "query.sparql");
             await writeSparqlQuery(result, stream);
+            await stream.close();
         }
-        await stream.close();
     }
 
     async generateToObject(

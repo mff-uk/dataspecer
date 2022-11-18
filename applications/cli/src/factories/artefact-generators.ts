@@ -7,6 +7,7 @@ import {XmlSchemaGenerator} from "@dataspecer/xml/xml-schema";
 import {XmlCommonSchemaGenerator} from "@dataspecer/xml/xml-common-schema";
 import {XsltLiftingGenerator, XsltLoweringGenerator} from "@dataspecer/xml/xml-transformations";
 import {CsvSchemaGenerator} from "@dataspecer/csv/csv-schema";
+import {RdfToCsvGenerator} from "@dataspecer/csv/rdf-to-csv";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -23,6 +24,7 @@ export function getArtefactGenerators() {
         new XsltLoweringGenerator(),
         new XsltLiftingGenerator(),
         new CsvSchemaGenerator(),
+        new RdfToCsvGenerator(),
         new PlantUmlGenerator(),
         new SparqlGenerator(),
     ];

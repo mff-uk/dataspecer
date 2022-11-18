@@ -8,6 +8,7 @@ import { SPARQL } from "@dataspecer/sparql-query";
 import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
+import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 
 /**
  * This is the place to register your own artefacts if you need to.
@@ -83,6 +84,15 @@ export function getSchemaArtifacts(
     csvSchema.psm = psmSchemaIri;
     csvSchema.configuration = configuration;
     artifacts.push(csvSchema);
+
+    const rdfToCsv = new DataSpecificationSchema();
+    rdfToCsv.iri = `${psmSchemaIri}#rdfToCsv`;
+    rdfToCsv.outputPath = `${basePath}/rdf-to-csv/`;
+    rdfToCsv.publicUrl = baseUrl + rdfToCsv.outputPath;
+    rdfToCsv.generator = RDF_TO_CSV.Generator;
+    rdfToCsv.psm = psmSchemaIri;
+    rdfToCsv.configuration = configuration;
+    artifacts.push(rdfToCsv);
 
     const sparqlSchema = new DataSpecificationSchema();
     sparqlSchema.iri = `${psmSchemaIri}#sparqlschema`;
