@@ -9,6 +9,7 @@ import {coy} from "react-syntax-highlighter/dist/esm/styles/prism";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
+import {useAsyncMemo} from "../../hooks/use-async-memo";
 
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("jsonld", json);
@@ -25,24 +26,42 @@ export const SingleArtifactPreview: React.FC<{
 }> = ({generatorIdentifier}) => {
     const {t} = useTranslation("artifacts");
 
-    const [result] = useSingleGeneratedFileArtifact(generatorIdentifier);
-    if (!result) {
+    const [memoryStreamDictionary] = useSingleGeneratedFileArtifact(generatorIdentifier);
+
+    const [files] = useAsyncMemo(async () => {
+        if (!memoryStreamDictionary) {
+            return [];
+        }
+        const files = await memoryStreamDictionary.list();
+        const result: {filename: string, content: string, extension: string}[] = [];
+        for (const file of files) {
+            let content = await memoryStreamDictionary.readPath(file).read();
+            const filename = file.split("/").pop()!;
+
+            const extension = filename.split(".").pop() as string;
+            if (extension === "json") {
+                content = JSON.stringify(JSON.parse(content), null, 2);
+            }
+
+            result.push({filename, content, extension});
+        }
+        return result;
+    }, [memoryStreamDictionary]);
+
+    if (!memoryStreamDictionary) {
         return <Alert severity="error"><strong>{t("error")}</strong></Alert>;
     }
-    let [data, filename] = result;
-    const extension = filename.split(".").pop() as string;
-    if (extension === "json") {
-        data = JSON.stringify(JSON.parse(data), null, 2);
-    }
 
-    return <Box sx={{whiteSpace: "pre"}}>
-        <Typography variant="h5" sx={{mb: 2}}>{filename}</Typography>
-        {["sparql"].includes(extension) ?
-          <PrismSyntaxHighlighter language={extension} style={coy}>{data}</PrismSyntaxHighlighter>
-        :
-          <SyntaxHighlighter language={extension} style={githubGist}>{data}</SyntaxHighlighter>
-        }
-    </Box>
+    return <>
+        {files?.map(file => <Box sx={{whiteSpace: "pre"}}>
+            <Typography variant="h5" sx={{mb: 2}}>{file.filename}</Typography>
+            {["sparql"].includes(file.extension) ?
+            <PrismSyntaxHighlighter language={file.extension} style={coy}>{file.content}</PrismSyntaxHighlighter>
+            :
+            <SyntaxHighlighter language={file.extension} style={githubGist}>{file.content}</SyntaxHighlighter>
+            }
+        </Box>)}
+    </>;
 }
 
 /**

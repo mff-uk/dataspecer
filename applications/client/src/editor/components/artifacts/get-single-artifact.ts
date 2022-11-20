@@ -23,7 +23,7 @@ export async function getSingleArtifact(
   dataSpecifications: { [key: string]: DataSpecification },
   artifactSelector: (artifact: DataSpecificationArtefact) => boolean,
   configuration: object,
-): Promise<[string, string]> {
+): Promise<MemoryStreamDictionary> {
   // Generate artifacts definitions
 
   // todo: list of artifacts is generated in place by DefaultArtifactConfigurator
@@ -41,7 +41,6 @@ export async function getSingleArtifact(
   const artefact = dataSpecificationsWithArtifacts[forDataSpecificationIri]
     ?.artefacts
     ?.find(artifactSelector);
-  const path = artefact?.outputPath;
 
   // Generate the artifact and return it
 
@@ -51,6 +50,5 @@ export async function getSingleArtifact(
       getArtefactGenerators());
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);
-  const stream = dict.readPath(path as string);
-  return [await stream.read() as string, path?.split("/").pop() as string];
+  return dict;
 }

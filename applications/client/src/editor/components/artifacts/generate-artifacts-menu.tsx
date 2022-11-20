@@ -27,6 +27,8 @@ import {useResource} from "@dataspecer/federated-observable-store-react/use-reso
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
+import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
+import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -54,10 +56,9 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
     const {t} = useTranslation("artifacts");
     const {enqueueSnackbar} = useSnackbar();
     return useCallback(async () => {
-        let artifact: string | undefined = undefined;
-        let filename: string | undefined = undefined;
+        let memoryStreamDictionary: MemoryStreamDictionary | undefined = undefined;
         try {
-            [artifact, filename] = await getSingleArtifact(
+            memoryStreamDictionary = await getSingleArtifact(
                 configuration.store,
                 configuration.dataSpecificationIri as string,
                 configuration.dataSpecifications,
@@ -71,19 +72,26 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
             console.error(error);
             enqueueSnackbar(<><strong>{t("error")}</strong>: {(error as Error).message}</>, {variant: "error"});
         }
-        if (artifact !== undefined && configuration.dataPsmSchemaIri && filename !== undefined) {
-            if (save) {
-                const data = new Blob([artifact], {
-                    type: mime.getType(filename.split(".").pop() as string) ?? undefined
-                });
-                FileSaver.saveAs(data, filename, {autoBom: false});
-            } else {
-                if (copy(artifact)) {
-                    enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
+        if (memoryStreamDictionary !== undefined && configuration.dataPsmSchemaIri) {
+            const files = await memoryStreamDictionary.list();
+
+            if (files.length === 1) {
+                const filename = files[0].split("/").pop()!;
+                const artifact = await memoryStreamDictionary.readPath(files[0]).read();
+                if (save) {
+                    const data = new Blob([artifact], {
+                        type: mime.getType(filename.split(".").pop() as string) ?? undefined
+                    });
+                    FileSaver.saveAs(data, filename, {autoBom: false});
                 } else {
-                    enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
+                    if (copy(artifact)) {
+                        enqueueSnackbar(t("snackbar copied to clipboard.ok"), {variant: "success"});
+                    } else {
+                        enqueueSnackbar(t("snackbar copied to clipboard.failed"), {variant: "error"});
+                    }
                 }
             }
+
         }
     }, [configuration.dataPsmSchemaIri, configuration.store, configuration.dataSpecificationIri, configuration.dataSpecifications, defaultConfiguration, generator, enqueueSnackbar, t, save]);
 }
@@ -235,6 +243,13 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(CSV_SCHEMA.Generator)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: CSV_SCHEMA.Generator})}
                     setLive={v => (v ? add : del)(CSV_SCHEMA.Generator)}
+                />
+                <GeneratedArtifactItem
+                    title={"RDF-to-CSV"}
+                    generator={RDF_TO_CSV.Generator}
+                    live={artifactPreview.includes(RDF_TO_CSV.Generator)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: RDF_TO_CSV.Generator})}
+                    setLive={v => (v ? add : del)(RDF_TO_CSV.Generator)}
                 />
                 <Divider />
                 <GeneratedArtifactItem
