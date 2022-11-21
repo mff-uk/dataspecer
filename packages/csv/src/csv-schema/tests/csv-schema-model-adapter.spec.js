@@ -39,19 +39,9 @@ test(testNamePrefix + "@context", async () => {
     expect(result["@context"][0]).toBe("http://www.w3.org/ns/csvw");
 });
 
-test(testNamePrefix + "@id", async () => {
-    const result = await commonArrange1(false);
-    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json");
-});
-
 test(testNamePrefix + "@type", async () => {
     const result = await commonArrange1(false);
     expect(result["@type"]).toBe("Table");
-});
-
-test(testNamePrefix + "url", async () => {
-    const result = await commonArrange1(false);
-    expect(result["url"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/table.csv");
 });
 
 test(testNamePrefix + "tableSchema @type", async () => {
@@ -166,7 +156,7 @@ test(testNamePrefix + "numeric table url", async () => {
 
 test(testNamePrefix + "foreign key table", async () => {
     const result = await commonArrange1(true);
-    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/tables/1.csv");
+    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toMatch(/\/tables\/1\.csv$/);
 });
 
 test(testNamePrefix + "first level columns", async () => {

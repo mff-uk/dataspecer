@@ -29,7 +29,7 @@ import { CsvConfiguration } from "../configuration";
 
 const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";
-export const specArtefactIndex = 4;
+export const specArtefactIndex = 6;
 export const idColumnTitle = "RowId";
 export const refColumnTitle = "Reference";
 export const leftRefColTitle = "LeftReference";
