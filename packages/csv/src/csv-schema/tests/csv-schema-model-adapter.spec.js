@@ -39,9 +39,19 @@ test(testNamePrefix + "@context", async () => {
     expect(result["@context"][0]).toBe("http://www.w3.org/ns/csvw");
 });
 
+test(testNamePrefix + "@id", async () => {
+    const result = await commonArrange1(false);
+    expect(result["@id"]).toMatch(/^https:\/\/ofn\.gov\.cz\/schema\/unittests\//);
+});
+
 test(testNamePrefix + "@type", async () => {
     const result = await commonArrange1(false);
     expect(result["@type"]).toBe("Table");
+});
+
+test(testNamePrefix + "url", async () => {
+    const result = await commonArrange1(false);
+    expect(result["url"]).toMatch(/\/table\.csv$/);
 });
 
 test(testNamePrefix + "tableSchema @type", async () => {
