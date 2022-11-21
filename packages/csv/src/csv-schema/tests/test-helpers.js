@@ -6,7 +6,7 @@ import { transformStructureModel } from "@dataspecer/core/structure-model/transf
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
 import { DefaultCsvConfiguration } from "../../configuration";
 
-async function arrangeSpecAndModel(specificationResource, storeResource) {
+export async function arrangeSpecAndModel(specificationResource, storeResource) {
     const dataSpecificationIri = Object.values(specificationResource)[0].iri;
     const psmIri = specificationResource[dataSpecificationIri].psms[0];
 

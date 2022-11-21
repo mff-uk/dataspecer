@@ -25,7 +25,7 @@ import {
     LanguageString
 } from "@dataspecer/core/core";
 import { OFN } from "@dataspecer/core/well-known";
-import {CsvConfiguration} from "../configuration";
+import { CsvConfiguration } from "../configuration";
 
 const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";

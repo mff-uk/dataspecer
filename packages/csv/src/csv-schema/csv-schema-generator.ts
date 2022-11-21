@@ -7,18 +7,21 @@ import {
     DataSpecificationArtefact,
     DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {CSV_SCHEMA} from "./csv-schema-vocabulary";
-import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
-import {CsvSchema} from "./csv-schema-model";
-import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { CSV_SCHEMA } from "./csv-schema-vocabulary";
+import {
+    assertFailed,
+    assertNot
+} from "@dataspecer/core/core";
+import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import { CsvSchema } from "./csv-schema-model";
+import { structureModelToCsvSchema } from "./csv-schema-model-adapter";
 import {
     CsvConfiguration,
     CsvConfigurator,
     DefaultCsvConfiguration
 } from "../configuration";
-import {isRecursive} from "@dataspecer/core/structure-model/helper/is-recursive";
+import { isRecursive } from "@dataspecer/core/structure-model/helper/is-recursive";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 

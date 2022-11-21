@@ -24,8 +24,11 @@ import {
 import { RDF_TYPE_URI } from "@dataspecer/sparql-query";
 import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "@dataspecer/core/core";
-import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {StructureModel, StructureModelClass} from "@dataspecer/core/structure-model/model";
+import { DataSpecification } from "@dataspecer/core/data-specification/model";
+import {
+    StructureModel,
+    StructureModelClass
+} from "@dataspecer/core/structure-model/model";
 
 class VariableGenerator {
     private num = 0;
@@ -44,6 +47,7 @@ export function buildMultipleTableQueries(
 ) : SparqlSelectQuery[] {
     const prefixes: Record<string, string> = {};
     const where = new SparqlPattern();
+    where.elements = [];
     const selects: string[][] = [];
     const varGen = new VariableGenerator();
     const urlGen = new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl);

@@ -4,20 +4,24 @@ import {
 } from "@dataspecer/core/generator";
 import {
     DataSpecification,
-    DataSpecificationArtefact, DataSpecificationSchema
+    DataSpecificationArtefact,
+    DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {RDF_TO_CSV} from "./rdf-to-csv-vocabulary";
-import {SparqlSelectQuery} from "@dataspecer/sparql-query";
-import {writeSparqlQuery} from "@dataspecer/sparql-query";
-import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { RDF_TO_CSV } from "./rdf-to-csv-vocabulary";
+import { SparqlSelectQuery } from "@dataspecer/sparql-query";
+import { writeSparqlQuery } from "@dataspecer/sparql-query";
+import { CsvSchemaGenerator } from "../csv-schema";
 import {
     buildSingleTableQuery,
     buildMultipleTableQueries
 } from "./rdf-to-csv-query-builder";
-import {SingleTableSchema} from "../csv-schema/csv-schema-model";
-import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import { SingleTableSchema } from "../csv-schema/csv-schema-model";
+import {
+    assertFailed,
+    assertNot
+} from "@dataspecer/core/core";
+import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import {
     CsvConfiguration,
     CsvConfigurator,

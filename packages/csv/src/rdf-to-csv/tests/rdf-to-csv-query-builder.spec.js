@@ -1,15 +1,27 @@
 import {
     columnToPredicate,
     splitIri,
-    addPrefix
+    addPrefix,
+    buildMultipleTableQueries
 } from "../rdf-to-csv-query-builder";
 import {
     Column,
     AbsoluteIri,
     CompactIri
 } from "../../csv-schema/csv-schema-model";
+import { getResource } from "../../csv-schema/tests/resources/resource-provider";
+import { arrangeSpecAndModel } from "../../csv-schema/tests/test-helpers";
 
 const testNamePrefix = "RDF to CSV: ";
+
+async function createRdfToCsvQueries(specification, store) {
+    const arranged = await arrangeSpecAndModel(getResource(specification), getResource(store));
+    return buildMultipleTableQueries(arranged.dataSpecification, arranged.structureModel);
+}
+
+async function commonArrange1() {
+    return await createRdfToCsvQueries("basic_tree_data_specifications.json", "basic_tree_merged_store.json");
+}
 
 test(testNamePrefix + "split IRI namespace slash", async () => {
     const split = splitIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
@@ -132,4 +144,9 @@ test(testNamePrefix + "column to predicate missing identifier", async () => {
     const column = new Column();
     const prefixes = {};
     expect(() => columnToPredicate(column, prefixes)).toThrow();
+});
+
+test(testNamePrefix + "table url comment", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].select.pop()).toMatch(/^# Table:/);
 });

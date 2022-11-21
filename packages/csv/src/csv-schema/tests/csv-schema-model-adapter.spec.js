@@ -1,6 +1,6 @@
 import { createCsvSchema } from "./test-helpers";
 
-const testNamePrefix = "CSV generator: ";
+const testNamePrefix = "CSV schema: ";
 
 /**
  * Arrange a basic tree
