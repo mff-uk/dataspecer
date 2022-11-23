@@ -93,50 +93,25 @@ function buildQueriesRecursive(
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) {
-                if (multipleValues) {
-                    const object = varGen.getNext();
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                    const multipleValTable: string[] = [];
-                    multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
-                    selects.push(multipleValTable);
-                }
-                else {
-                    const object = varGen.getNext();
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                    currentSelect.push(makeAs(object.variableName, property.technicalLabel));
-                }
+                const object = varGen.getNext();
+                if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
+                else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
+                else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
             }
             else {
                 const propSubject = buildQueriesRecursive(prefixes, where, selects, associatedClass, varGen, urlGen); //todo: required subtree?
-                if (multipleValues) {
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
-                    const relationTable: string[] = [];
-                    relationTable.push(makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen));
-                    selects.push(relationTable);
-                }
-                else {
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
-                    currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
-                }
+                if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
+                else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
+                if (multipleValues) selects.push([ makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen) ]);
+                else currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
             }
         }
         else if (dataType.isAttribute()) {
-            if (multipleValues) {
-                const object = varGen.getNext();
-                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                const multipleValTable: string[] = [];
-                multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
-                selects.push(multipleValTable);
-            }
-            else {
-                const object = varGen.getNext();
-                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                currentSelect.push(makeAs(object.variableName, property.technicalLabel));
-            }
+            const object = varGen.getNext();
+            where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+            if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
+            else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
         }
         else assertFailed("Unexpected datatype!");
     }
