@@ -77,14 +77,7 @@ function buildQueriesRecursive(
     const tableUrlCom = makeTableUrlComment(urlGen);
     const subject = varGen.getNext();
     currentSelect.push(makeAs(subject.variableName, idColumnTitle));
-
-    const typeTriple = new SparqlTriple();
-    typeTriple.subject = subject;
-    const typePredicate = new SparqlUriNode();
-    typePredicate.uri = RDF_TYPE_URI;
-    typeTriple.predicate = typePredicate;
-    typeTriple.object = nodeFromIri(currentClass.cimIri, prefixes);
-    wherePattern.elements.push(typeTriple);
+    wherePattern.elements.push(makeTypeTriple(prefixes, subject, currentClass.cimIri));
 
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
@@ -94,23 +87,19 @@ function buildQueriesRecursive(
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) {
                 const object = varGen.getNext();
-                if (property.isReverse) wherePattern.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                else wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue, property.isReverse));
                 if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
                 else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
             }
             else {
                 let targetPattern = wherePattern;
                 if (!requiredValue) {
-                    const opt = new SparqlOptionalPattern();
-                    opt.optionalPattern = new SparqlPattern();
-                    opt.optionalPattern.elements = [];
+                    const opt = prepareOptional();
                     targetPattern = opt.optionalPattern;
                     wherePattern.elements.push(opt);
                 }
                 const propSubject = buildQueriesRecursive(prefixes, targetPattern, selects, associatedClass, varGen, urlGen);
-                if (property.isReverse) targetPattern.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, true));
-                else targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true));
+                targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true, property.isReverse));
                 if (multipleValues) selects.push([ makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen) ]);
                 else currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
             }
@@ -128,6 +117,20 @@ function buildQueriesRecursive(
     return subject;
 }
 
+function makeTypeTriple(
+    prefixes: Record<string, string>,
+    subject: SparqlNode,
+    typeIri: string
+) : SparqlTriple {
+    const typeTriple = new SparqlTriple();
+    typeTriple.subject = subject;
+    const typePredicate = new SparqlUriNode();
+    typePredicate.uri = RDF_TYPE_URI;
+    typeTriple.predicate = typePredicate;
+    typeTriple.object = nodeFromIri(typeIri, prefixes);
+    return typeTriple;
+}
+
 function makeTableUrlComment(
     urlGen: TableUrlGenerator
 ) : string {
@@ -139,12 +142,19 @@ function propertyToElement(
     subject: SparqlNode,
     predIri: string,
     object: SparqlNode,
-    required: boolean
+    required: boolean,
+    reverse: boolean = false
 ) : SparqlElement {
     const triple = new SparqlTriple();
-    triple.subject = subject;
+    if (reverse) {
+        triple.subject = object;
+        triple.object = subject;
+    }
+    else {
+        triple.subject = subject;
+        triple.object = object;
+    }
     triple.predicate = nodeFromIri(predIri, prefixes);
-    triple.object = object;
     if (required) return triple;
     else return wrapInOptional(triple);
 }
@@ -189,12 +199,18 @@ export function buildSingleTableQuery(
     return query;
 }
 
+function prepareOptional() : SparqlOptionalPattern {
+    const opt = new SparqlOptionalPattern();
+    opt.optionalPattern = new SparqlPattern();
+    opt.optionalPattern.elements = [];
+    return opt;
+}
+
 function wrapInOptional(
     element: SparqlElement
 ) : SparqlOptionalPattern {
-    const opt = new SparqlOptionalPattern();
-    opt.optionalPattern = new SparqlPattern();
-    opt.optionalPattern.elements = [ element ];
+    const opt = prepareOptional();
+    opt.optionalPattern.elements.push(element);
     return opt;
 }
 
