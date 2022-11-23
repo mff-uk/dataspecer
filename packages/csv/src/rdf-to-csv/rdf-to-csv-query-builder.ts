@@ -66,7 +66,7 @@ export function buildMultipleTableQueries(
 
 function buildQueriesRecursive(
     prefixes: Record<string, string>,
-    where: SparqlPattern,
+    wherePattern: SparqlPattern,
     selects: string[][],
     currentClass: StructureModelClass,
     varGen: VariableGenerator,
@@ -84,7 +84,7 @@ function buildQueriesRecursive(
     typePredicate.uri = RDF_TYPE_URI;
     typeTriple.predicate = typePredicate;
     typeTriple.object = nodeFromIri(currentClass.cimIri, prefixes);
-    where.elements.push(typeTriple);
+    wherePattern.elements.push(typeTriple);
 
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
@@ -94,22 +94,30 @@ function buildQueriesRecursive(
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) {
                 const object = varGen.getNext();
-                if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+                if (property.isReverse) wherePattern.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
+                else wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
                 if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
                 else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
             }
             else {
-                const propSubject = buildQueriesRecursive(prefixes, where, selects, associatedClass, varGen, urlGen); //todo: required subtree?
-                if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
-                else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
+                let targetPattern = wherePattern;
+                if (!requiredValue) {
+                    const opt = new SparqlOptionalPattern();
+                    opt.optionalPattern = new SparqlPattern();
+                    opt.optionalPattern.elements = [];
+                    targetPattern = opt.optionalPattern;
+                    wherePattern.elements.push(opt);
+                }
+                const propSubject = buildQueriesRecursive(prefixes, targetPattern, selects, associatedClass, varGen, urlGen);
+                if (property.isReverse) targetPattern.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, true));
+                else targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true));
                 if (multipleValues) selects.push([ makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen) ]);
                 else currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
             }
         }
         else if (dataType.isAttribute()) {
             const object = varGen.getNext();
-            where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+            wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
             if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
             else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
         }
@@ -186,8 +194,7 @@ function wrapInOptional(
 ) : SparqlOptionalPattern {
     const opt = new SparqlOptionalPattern();
     opt.optionalPattern = new SparqlPattern();
-    opt.optionalPattern.elements = [];
-    opt.optionalPattern.elements.push(element);
+    opt.optionalPattern.elements = [ element ];
     return opt;
 }
 
