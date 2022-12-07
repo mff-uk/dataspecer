@@ -140,7 +140,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     const currentSurroundings = surroundings[currentCimClassIri];
 
-    const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => PimAttribute.is(resource));
+    const attributes = useFilterForResource<PimAttribute>(currentSurroundings, async resource => PimAttribute.is(resource) && (await currentSurroundings?.readResource(resource.pimOwnerClass) as PimClass)?.pimInterpretation === currentCimClassIri);
     const forwardAssociations = useFilterForResource<PimAssociation>(currentSurroundings, async resource =>
         PimAssociation.is(resource) && (await currentSurroundings?.readResource((await currentSurroundings?.readResource(resource.pimEnd[0]) as PimAssociationEnd)?.pimPart as string) as PimClass)?.pimInterpretation === currentCimClassIri
     );

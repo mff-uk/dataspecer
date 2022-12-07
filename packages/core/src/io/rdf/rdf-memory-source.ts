@@ -7,8 +7,6 @@ import { RdfSource, RdfQuad, RdfObject, RdfTermType, RdfNode } from "./rdf-api";
 export class RdfMemorySource implements RdfSource {
   protected quads: RdfQuad[] = [];
 
-  protected constructor() {}
-
   async property(iri: string, predicate: string): Promise<RdfObject[]> {
     const result = [];
     this.quads

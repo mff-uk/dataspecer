@@ -15,6 +15,8 @@ import {translateFrom} from "../helper/LanguageStringComponents";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
 
+const MAX_RESULTS = 30;
+
 const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[]) => {
     useEffect(() => {
         const handler = setTimeout(effect, delay);
@@ -55,7 +57,7 @@ export const SearchDialog: React.FC<DialogParameters & {selected: (cls: PimClass
         if (searchText) {
             setLoading(true);
             cim.cimAdapter.search(searchText).then(result => {
-                updateFindResults(result);
+                updateFindResults(result.filter((_, i) => i < MAX_RESULTS));
             }).catch(error => {
                 console.info("Error during search.", error);
                 setError(true);
