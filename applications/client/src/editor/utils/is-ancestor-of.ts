@@ -18,11 +18,14 @@ export async function isPimAncestorOf(
     const currentIri = toVisit[index];
     const current = await reader.readResource(currentIri) as PimClass;
 
-    if (current.pimExtends.includes(ancestor)) {
-      return true;
+    if (current) {
+      if (current.pimExtends.includes(ancestor)) {
+        return true;
+      }
+
+      current.pimExtends.forEach(extended => toVisit.includes(extended) || toVisit.push(extended));
     }
 
-    current.pimExtends.forEach(extended => toVisit.includes(extended) || toVisit.push(extended));
     index++;
   }
   return false;
