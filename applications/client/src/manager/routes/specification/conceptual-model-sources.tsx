@@ -52,7 +52,7 @@ const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = 
         const newSpecification = await backendConnector.updateDataSpecification(dataSpecificationIri, {cimAdapters});
         setDataSpecifications({...dataSpecifications, [newSpecification.iri]: newSpecification});
         enqueueSnackbar("Sources configuration saved", {variant: "success"});
-    }, [backendConnector, dataSpecifications, dataSpecificationIri, radio, setDataSpecifications, urls])
+    }, [radio, urls, backendConnector, dataSpecificationIri, setDataSpecifications, dataSpecifications, enqueueSnackbar])
 
     return <>
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
