@@ -29,6 +29,7 @@ import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {ReadOnlyFederatedStore} from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
+import {ConceptualModelSources} from "./conceptual-model-sources";
 
 export const DocumentationSpecification: React.FC<{
     dataSpecificationIri: string;
@@ -229,6 +230,8 @@ export const DocumentationSpecification: React.FC<{
             {dataSpecificationIri && <ConfigureArtifacts dataSpecificationIri={dataSpecificationIri} />}
             <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading !== false}>Generate .ZIP file</LoadingButton>
         </Box>
+
+        <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />
 
         <RedirectDialog isOpen={redirecting} />
         <DeleteForm.Component dataSpecificationIri={dataSpecificationIri as string} />

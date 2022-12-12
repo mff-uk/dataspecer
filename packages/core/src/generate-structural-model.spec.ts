@@ -515,6 +515,7 @@ const dataSpecifications = {
       ]
     },
     "artefactConfiguration": {},
+    "cimAdapters": [],
     "tags": [
       "Štěpán Stenchlák"
     ]

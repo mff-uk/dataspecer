@@ -30,4 +30,9 @@ export class DataSpecification {
    * the fly. This allows user to dynamically add schemas without the need to manually specify the artifacts.
    */
   artefactConfiguration: object = {};
+
+  /**
+   * Configuration for CIM adapters.
+   */
+  cimAdapters: any[] = [];
 }

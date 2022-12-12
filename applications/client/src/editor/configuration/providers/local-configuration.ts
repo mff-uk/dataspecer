@@ -7,7 +7,7 @@ import {DataSpecification} from "@dataspecer/core/data-specification/model";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useMemo} from "react";
-import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
+import {getAdapter} from "../adapters/get-adapter";
 import {Configuration} from "../configuration";
 import {OperationContext} from "../../operations/context/operation-context";
 
@@ -21,7 +21,7 @@ export const useLocalConfiguration = (
     enabled: boolean,
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
-    const cim = useMemo(() => enabled ? getSlovnikGovCzAdapter() : null, [enabled]);
+    const cim = useMemo(() => enabled ? getAdapter([]) : null, [enabled]);
     const operationContext = useMemo(() => new OperationContext(), []);
 
     const [dataSpecification] = useAsyncMemo(async () => {
@@ -53,7 +53,7 @@ export const useLocalConfiguration = (
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
             dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
-            cim: cim as ReturnType<typeof getSlovnikGovCzAdapter>,
+            cim: cim as ReturnType<typeof getAdapter>,
             operationContext,
         };
     } else {
