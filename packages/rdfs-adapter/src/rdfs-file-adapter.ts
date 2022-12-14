@@ -247,6 +247,21 @@ export class RdfsFileAdapter implements CimAdapter {
                 ...this.options.propertyRangeIncludes
             ])).map(r => r.value);
 
+            // Properties that belong to the owl:Thing may not be connected to it directly
+            if (processedCimIri === OWL.Thing) {
+                // Add all properties that have no domain or range
+                const properties = await source.reverseProperty(RDF.type, RDF.property);
+
+                for (const prop of properties) {
+                    const domains = await rdfSourceReverseProperty(source, prop.value, [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
+                    const range = await rdfSourceReverseProperty(source, prop.value, [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
+
+                    if ((domains.length === 0 || range.length === 0) && !propertyIris.includes(prop.value)) {
+                        propertyIris.push(prop.value);
+                    }
+                }
+            }
+
             for (const propertyIri of propertyIris) {
                 const entity = RdfSourceWrap.forIri(propertyIri, source);
                 if (propertiesProcessed.has(propertyIri)) {
