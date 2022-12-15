@@ -1,35 +1,68 @@
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
-import { ConceptualModel, ConceptualModelClass } from "@dataspecer/core/conceptual-model";
+import {ConceptualModel, ConceptualModelClass, ConceptualModelProperty} from "@dataspecer/core/conceptual-model";
+
+const OFN_TYPE_PREFIX = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
+export const KNOWN_DATA_TYPES = {
+  [OFN_TYPE_PREFIX + "boolean"]: "boolean",
+  [OFN_TYPE_PREFIX + "datum"]: "date",
+  [OFN_TYPE_PREFIX + "čas"]: "time",
+  [OFN_TYPE_PREFIX + "datum-a-čas"]: "dateTime",
+  [OFN_TYPE_PREFIX + "celé-číslo"]: "integer",
+  [OFN_TYPE_PREFIX + "desetinné-číslo"]: "decimal",
+  [OFN_TYPE_PREFIX + "url"]: "url",
+  [OFN_TYPE_PREFIX + "řetězec"]: "string",
+  [OFN_TYPE_PREFIX + "text"]: "text",
+};
 
 export class PlantUml {
   private conceptualModel: ConceptualModel;
+  public preferredLanguage = "cs";
 
   public constructor(conceptualModel: ConceptualModel) {
     this.conceptualModel = conceptualModel;
   }
 
-  private getClassName(cls: ConceptualModelClass): string {
-    const name = cls.humanLabel?.["cs"] ?? "";
-    if (name.includes(" ")) {
-      return `"${name}"`;
-    } else {
-      return name;
+  /**
+   * Returns class identifier for PlantUML that is also a name
+   */
+  private getEntityPlantUMLIdentifier(cls: ConceptualModelClass | ConceptualModelProperty): string {
+    let name = cls.humanLabel?.[this.preferredLanguage];
+    if (name === undefined) {
+      const langs = Object.keys(cls.humanLabel);
+      if (langs.length > 0) {
+        name = cls.humanLabel[langs[0]];
+      }
     }
+    if (name === undefined) {
+      name = cls.pimIri;
+    }
+
+    // If name contains spaces or special characters, enclose in double quotes
+    if (name.match(/^[a-zA-Z0-9_]+$/)) {
+      return name;
+    } else {
+      return `"${name}"`;
+    }
+  }
+
+  private getDataTypeInPlantUML(dataType: string): string {
+    return KNOWN_DATA_TYPES[dataType] ?? dataType;
   }
 
   public async write(outputStream: OutputStream) {
     await outputStream.write("@startuml\n");
 
     for (const cls of Object.values(this.conceptualModel.classes)) {
-      await outputStream.write(`class ${this.getClassName(cls)} {\n`);
+      const identifier = this.getEntityPlantUMLIdentifier(cls);
+      await outputStream.write((identifier.startsWith("\"[A]") ? `abstract ` : ``) + `class ${identifier} {\n`);
       for (const prop of cls.properties) {
         if (prop.dataTypes.length === 0) {
-          await outputStream.write(`  ${prop.humanLabel?.["cs"]}\n`);
+          await outputStream.write(`  ${this.getEntityPlantUMLIdentifier(prop)}\n`);
         } else if (prop.dataTypes.length === 1) {
           const dataType = prop.dataTypes[0];
           if (dataType.isAttribute()) {
             await outputStream.write(
-              `  ${prop.humanLabel?.["cs"]}: ${dataType.dataType}\n`
+              `  ${this.getEntityPlantUMLIdentifier(prop)}: ${this.getDataTypeInPlantUML(dataType.dataType)}\n`
             );
           }
         } else {
@@ -48,7 +81,7 @@ export class PlantUml {
     for (const cls of Object.values(this.conceptualModel.classes)) {
       for (const ext of cls.extends) {
         await outputStream.write(
-          `${this.getClassName(ext)} <|-- ${this.getClassName(cls)}\n`
+          `${this.getEntityPlantUMLIdentifier(ext)} <|-- ${this.getEntityPlantUMLIdentifier(cls)}\n`
         );
       }
     }
@@ -82,7 +115,7 @@ export class PlantUml {
             existingAssociation.cardinality[0].max = prop.cardinalityMax;
           } else {
             associations.push({
-              label: prop.humanLabel?.["cs"] ?? "",
+              label: this.getEntityPlantUMLIdentifier(prop),
               ends: [cls.pimIri as string, target.pimIri as string],
               cardinality: [
                 { min: null, max: null },
@@ -108,10 +141,10 @@ export class PlantUml {
         }
       });
 
-      const source = this.getClassName(
+      const source = this.getEntityPlantUMLIdentifier(
         this.conceptualModel.classes[association.ends[0]]
       );
-      const target = this.getClassName(
+      const target = this.getEntityPlantUMLIdentifier(
         this.conceptualModel.classes[association.ends[1]]
       );
 
