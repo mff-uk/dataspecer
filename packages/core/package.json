@@ -16,7 +16,8 @@
     "jsonld": "^8.1.0",
     "minipass-fetch": "^2.1.2",
     "n3": "^1.13.0",
-    "rdflib": "^2.2.20"
+    "rdflib": "^2.2.20",
+    "rdfxml-streaming-parser": "^2.2.1"
   },
   "devDependencies": {
     "@types/jest": "^29.1.2",

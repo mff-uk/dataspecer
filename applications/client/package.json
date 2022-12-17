@@ -11,6 +11,7 @@
     "@dataspecer/federated-observable-store-react": "*",
     "@dataspecer/json": "*",
     "@dataspecer/plant-uml": "*",
+    "@dataspecer/rdfs-adapter": "*",
     "@dataspecer/sgov-adapter": "*",
     "@dataspecer/sparql-query": "*",
     "@dataspecer/xml": "*",

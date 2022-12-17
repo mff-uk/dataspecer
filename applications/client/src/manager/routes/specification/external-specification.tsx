@@ -14,7 +14,7 @@ import {DeleteDataSchemaForm} from "../../components/delete-data-schema-form";
 import {SearchDialog} from "../../../editor/components/cim-search/search-dialog";
 import {ConfigurationContext} from "../../../editor/components/App";
 import {Configuration} from "../../../editor/configuration/configuration";
-import {getSlovnikGovCzAdapter} from "../../../editor/configuration/adapters/slovnik-gov-cz-adapter";
+import {getAdapter} from "../../../editor/configuration/adapters/get-adapter";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmExternalRoot, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {CreateExternalRoot} from "../../../editor/operations/create-external-root";
@@ -229,9 +229,10 @@ export const ExternalSpecification: React.FC<{
     const DeleteForm = useDialog(DeleteDataSchemaForm, ["dataSpecificationIri"]);
     const Search = useDialog(SearchDialog);
 
+
     const configuration = useMemo(() => ({
-        cim: getSlovnikGovCzAdapter()
-    } as unknown as Configuration), []);
+        cim: getAdapter(specification?.cimAdapters ?? [])
+    } as unknown as Configuration), [specification?.cimAdapters]);
 
     if (!dataSpecificationIri) {
         return null;

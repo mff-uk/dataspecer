@@ -1,5 +1,5 @@
 import React from "react";
-import {Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} from "@mui/material";
+import {Box, Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} from "@mui/material";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
@@ -43,14 +43,14 @@ export const AssociationItem: React.FC<{
             />
         </ListItemIcon>
         <ListItemText secondary={
-            <>
-            {isCodelist && <CodelistSpan><ListRoundedIcon fontSize={"small"} sx={{verticalAlign: "top", mr: ".0rem"}} /> {t("codelist")} </CodelistSpan>}
+            <Box style={{display: "flex", gap: "1em"}}>
+            {isCodelist && <CodelistSpan style={{flexShrink: 0}}><ListRoundedIcon fontSize={"small"} sx={{verticalAlign: "top", mr: ".0rem"}} /> {t("codelist")} </CodelistSpan>}
                 <LanguageStringUndefineable from={association.pimHumanDescription}>
                     {text =>
                         text !== undefined ? <Typography variant="body2" color="textSecondary" component={"span"} noWrap title={text}>{text}</Typography> : <></>
                     }
                 </LanguageStringUndefineable>
-            </>}>
+            </Box>}>
             <strong><LanguageStringFallback from={association.pimHumanLabel} fallback={<i>{t("no title")}</i>}/></strong>
             <SlovnikGovCzGlossary cimResourceIri={association.pimInterpretation as string}/>
             {props.orientation ?

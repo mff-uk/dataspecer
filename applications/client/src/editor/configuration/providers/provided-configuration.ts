@@ -9,10 +9,12 @@ import {isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {useEffect, useMemo, useState} from "react";
-import {getSlovnikGovCzAdapter} from "../adapters/slovnik-gov-cz-adapter";
+import {getAdapter} from "../adapters/get-adapter";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {OperationContext} from "../../operations/context/operation-context";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
+
+const DEFAULT_CIM_ADAPTERS_CONFIGURATION = [];
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -28,12 +30,14 @@ export const useProvidedConfiguration = (
     dataPsmSchemaIri: string|null,
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
-    const cim = useMemo(() => enabled ? getSlovnikGovCzAdapter() : null, [enabled]);
     const operationContext = useMemo(() => new OperationContext(), []);
 
     const specifications = useLoadedDataSpecification(dataSpecificationIri);
     const descriptors = useStoreDescriptorsFromSpecifications(specifications ?? null, dataSpecificationIri, dataPsmSchemaIri);
     useConstructedStoresFromDescriptors(descriptors ?? [], store);
+
+    const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.cimAdapters ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
+    const cim = useMemo(() => enabled ? getAdapter(cimAdaptersConfiguration) : null, [enabled, cimAdaptersConfiguration]);
 
     if (enabled) {
         return {
@@ -41,7 +45,7 @@ export const useProvidedConfiguration = (
             dataSpecifications: specifications ?? {},
             dataSpecificationIri,
             dataPsmSchemaIri,
-            cim: cim as ReturnType<typeof getSlovnikGovCzAdapter>,
+            cim: cim as ReturnType<typeof getAdapter>,
             operationContext,
         }
     } else {
@@ -129,7 +133,7 @@ export const useConstructedStoresFromDescriptors = (
 ) => {
     // Stores that are already created and handled by this hook.
     const [constructedStoreCache] = useState(new Map<StoreDescriptor, CoreResourceReader>());
-    
+
     useEffect(() => {
         if (federatedObservableStore) {
             const listener = () => {
