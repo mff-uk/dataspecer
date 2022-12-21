@@ -58,23 +58,3 @@ The challenge should be clear: **There are many data interchanges in different f
 ## Dataspecer
 
 The goal of Dataspecer is to ease the task of creating, managing, and updating data specifications, making it easy for non-programmers to maintain the whole process. Further, it can generate technical documentation which describes the given schemas for programmers that will use the generated schemas. It can also create data transformations that may be handy if it is required to convert data from one schema to another, for example, between JSON and XML.
-
-### Future plans
-
-Dataspecer is still a demo software, meaning that only the core functionality is implemented, whether the advanced features are still highly unstable. Therefore, using the tool in a production environment can be an obstacle. Below is a table of main features we would like to implement into the Dataspecer in the future.
-
-The table below shows our goals. ✅ is done or almost done, ⚒ is that the feature is being worked on, and ❌ is that the feature is only planned.
-
-| Goal                                                                                                                 | State                                                                                   |
-|----------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| Designing a basic schema, using inheritance and schema reuse                                                         | ✅                                                                                       |
-| Schema generators                                                                                                    | ✅&nbsp;JSON <br> ✅ XML <br> ⚒ CSV <br> ❌ RDF                                            |
-| Data transformations                                                                                                 | ✅ XML <br /> ❌&nbsp;*the&nbsp;rest*                                                     |
-| Schemas with OR and including subschemas <br /> _Allowing choice on schema levels, such as `person or animal`._      | ⚒                                                                                       |
-| Generating documentation                                                                                             | ✅                                                                                       |
-| Ontology format <br /> _In which format the domain ontology is supported._                                           | ✅ SGOV <br /> ❌&nbsp;RDF&nbsp;Schema <br /> ❌ OWL <br /> ❌ Schema.org <br /> ❌ Wikidata |
-| Generating examples <br /> _Sample data that shows by example how the schema should be used._                        | ❌                                                                                       |
-| Generating sample applications working with the data                                                                 | ❌                                                                                       |
-| Support for SOLID                                                                                                    | ❌                                                                                       |
-| Change propagation <br /> _Automatically modify schemas from changes introduced in the domain ontology._             | ❌                                                                                       |
-| Deriving schemas <br /> _Derive one schema from another, but try to propagate changes if the source schema changes._ | ❌                                                                                       |
