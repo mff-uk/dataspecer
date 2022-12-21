@@ -21,11 +21,13 @@ async function rdfSourceProperty(source: RdfSource, iri: string, properties: str
     return result;
 }
 
-async function rdfSourceReverseProperty(source: RdfSource, iri: string, properties: string[]): Promise<RdfNode[]> {
+async function rdfSourceReverseProperty(source: RdfSource, iris: string[], properties: string[]): Promise<RdfNode[]> {
     const result = [] as RdfNode[];
-    for (const property of properties) {
-        const objects = await source.reverseProperty(property, iri);
-        objects.forEach(object => result.find(o => o.value === object.value) || result.push(object));
+    for (const iri of iris) {
+        for (const property of properties) {
+            const objects = await source.reverseProperty(property, iri);
+            objects.forEach(object => result.find(o => o.value === object.value) || result.push(object));
+        }
     }
     return result;
 }
@@ -53,6 +55,7 @@ export class RdfsFileAdapter implements CimAdapter {
         propertyDomainIncludes: [SCHEMAORG.domainIncludes],
         propertyRange: [RDFS.range],
         propertyRangeIncludes: [SCHEMAORG.rangeIncludes],
+        property: [RDF.property, OWL.DatatypeProperty, OWL.ObjectProperty],
     }
 
     constructor(url: string[], httpFetch: HttpFetch) {
@@ -170,7 +173,7 @@ export class RdfsFileAdapter implements CimAdapter {
             ]);
 
             // Add anonymous classes for domains
-            const propertiesHavingAsDomain = await rdfSourceReverseProperty(source, cimIri, [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
+            const propertiesHavingAsDomain = await rdfSourceReverseProperty(source, [cimIri], [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
             const propertyIrisWithAnonymousDomainClass = [] as string[];
             for (const prop of propertiesHavingAsDomain) {
                 const domain = await rdfSourceProperty(source, prop.value, [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
@@ -181,7 +184,7 @@ export class RdfsFileAdapter implements CimAdapter {
             resource.pimExtends.push(...propertyIrisWithAnonymousDomainClass.map(iri => this.iriProvider.cimToPim(UNION_DOMAIN_PREFIX + iri)));
 
             // Add anonymous classes for ranges
-            const propertiesHavingAsRange = await rdfSourceReverseProperty(source, cimIri, [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
+            const propertiesHavingAsRange = await rdfSourceReverseProperty(source, [cimIri], [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
             const propertyIrisWithAnonymousRangeClass = [] as string[];
             for (const prop of propertiesHavingAsRange) {
                 const range = await rdfSourceProperty(source, prop.value, [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
@@ -240,7 +243,7 @@ export class RdfsFileAdapter implements CimAdapter {
 
             // Properties
 
-            const propertyIris = (await rdfSourceReverseProperty(source, processedCimIri, [
+            const propertyIris = (await rdfSourceReverseProperty(source, [processedCimIri], [
                 ...this.options.propertyDomain,
                 ...this.options.propertyDomainIncludes,
                 ...this.options.propertyRange,
@@ -250,13 +253,14 @@ export class RdfsFileAdapter implements CimAdapter {
             // Properties that belong to the owl:Thing may not be connected to it directly
             if (processedCimIri === OWL.Thing) {
                 // Add all properties that have no domain or range
-                const properties = await source.reverseProperty(RDF.type, RDF.property);
+                const properties = await rdfSourceReverseProperty(source, this.options.property, [RDF.type]);
 
                 for (const prop of properties) {
-                    const domains = await rdfSourceReverseProperty(source, prop.value, [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
-                    const range = await rdfSourceReverseProperty(source, prop.value, [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
+                    const domains = await rdfSourceReverseProperty(source, [prop.value], [...this.options.propertyDomain, ...this.options.propertyDomainIncludes]);
+                    const range = await rdfSourceReverseProperty(source, [prop.value], [...this.options.propertyRange, ...this.options.propertyRangeIncludes]);
+                    const type = await source.property(prop.value, RDF.type);
 
-                    if ((domains.length === 0 || range.length === 0) && !propertyIris.includes(prop.value)) {
+                    if ((domains.length === 0 || (range.length === 0 && !type.some(v => v.value === OWL.DatatypeProperty))) && !propertyIris.includes(prop.value)) {
                         propertyIris.push(prop.value);
                     }
                 }
@@ -397,6 +401,10 @@ export class RdfsFileAdapter implements CimAdapter {
         // CIM IRI of the range class or IRI of the datatype
         let rangeClassIri: string | null;
         let isAttribute = false;
+
+        const type = await entity.property(RDF.type);
+        isAttribute ||= type.some(v => v.value === OWL.DatatypeProperty);
+
         if (rangeNodes.length === 0) {
             rangeClassIri = OWL.Thing;
         } else if (rangeNodes.length === 1) {

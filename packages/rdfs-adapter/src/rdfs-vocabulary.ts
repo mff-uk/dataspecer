@@ -57,6 +57,8 @@ export const OWL = {
   minQualifiedCardinality:
     "http://www.w3.org/2002/07/owl#minQualifiedCardinality",
   Thing: "http://www.w3.org/2002/07/owl#Thing",
+  ObjectProperty: "http://www.w3.org/2002/07/owl#ObjectProperty",
+  DatatypeProperty: "http://www.w3.org/2002/07/owl#DatatypeProperty",
 };
 
 
