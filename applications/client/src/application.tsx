@@ -9,6 +9,7 @@ import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getDefaultConfigurators} from "./configurators";
+import {Generate} from "./manager/routes/specification/generate/generate";
 
 export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
 // @ts-ignore
@@ -63,6 +64,7 @@ const MainRouter = () => {
     const Page = () => useRoutes([
         {path: "/", element: <ManagerPage><Home/></ManagerPage>},
         {path: "/specification", element: <ManagerPage><Specification/></ManagerPage>},
+        {path: "/specification/generate", element: <ManagerPage><Generate/></ManagerPage>},
         {path: "/editor", element: <EditorPage/>}
     ]);
 
