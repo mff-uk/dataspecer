@@ -303,7 +303,7 @@ function makeColumnFromProp(
     }
     else if (dataType.isAttribute()) {
         column.datatype = structureModelPrimitiveToCsvDefinition(dataType);
-        if (column.datatype === "string") column.lang = "cs";
+        if (dataType.dataType === OFN.text) column.lang = "cs";
     }
     else assertFailed("Unexpected datatype!");
 
