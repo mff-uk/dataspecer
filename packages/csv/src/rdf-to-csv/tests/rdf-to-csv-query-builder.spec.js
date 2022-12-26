@@ -6,7 +6,7 @@ import {
 } from "../rdf-to-csv-query-builder";
 import {
     Column,
-    AbsoluteIri,
+    SimpleIri,
     CompactIri
 } from "../../csv-schema/csv-schema-model";
 import { getResource } from "../../csv-schema/tests/resources/resource-provider";
@@ -86,7 +86,7 @@ test(testNamePrefix + "check if well-known prefix saved", async () => {
 
 test(testNamePrefix + "absolute propertyUrl column to predicate prefix", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[0]).toBe("ns1");
@@ -94,7 +94,7 @@ test(testNamePrefix + "absolute propertyUrl column to predicate prefix", async (
 
 test(testNamePrefix + "absolute propertyUrl column to predicate local", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     const result = columnToPredicate(column, prefixes);
     expect(result.qname[1]).toBe("alternativní-název-položky-číselníku");
@@ -102,7 +102,7 @@ test(testNamePrefix + "absolute propertyUrl column to predicate local", async ()
 
 test(testNamePrefix + "absolute propertyUrl column to predicate prefix saved", async () => {
     const column = new Column();
-    column.propertyUrl = new AbsoluteIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
+    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
     const prefixes = {};
     columnToPredicate(column, prefixes);
     expect(prefixes["ns1"]).toBe("https://slovník.gov.cz/datový/číselníky/pojem/");

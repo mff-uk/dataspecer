@@ -9,7 +9,7 @@ import {
     ForeignKey,
     Reference,
     Iri,
-    AbsoluteIri,
+    SimpleIri,
     CompactIri
 } from "./csv-schema-model";
 import {
@@ -36,9 +36,9 @@ export const rightRefColTitle = "RightReference";
 export class TableUrlGenerator {
     private num = 0;
 
-    getNext(): AbsoluteIri {
+    getNext(): SimpleIri {
         this.num++;
-        return new AbsoluteIri("table-" + this.num.toString() + ".csv");
+        return new SimpleIri("table-" + this.num.toString() + ".csv");
     }
 }
 
@@ -64,7 +64,7 @@ function makeMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    schema["@id"] = new AbsoluteIri(model.psmIri + "/csv-metadata.json");
+    schema["@id"] = new SimpleIri(model.psmIri + "/csv-metadata.json");
     makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator());
     return schema;
 }
@@ -232,8 +232,8 @@ function makeSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIri(model.psmIri + "/table.csv-metadata.json");
-    schema.table.url = new AbsoluteIri("table.csv");
+    schema.table["@id"] = new SimpleIri(model.psmIri + "/table.csv-metadata.json");
+    schema.table.url = new SimpleIri("table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
@@ -282,13 +282,13 @@ function makeColumnFromProp(
     column.name = encodeURI(column.titles);
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
-    column.propertyUrl = new AbsoluteIri(property.cimIri);
+    column.propertyUrl = new SimpleIri(property.cimIri);
     column.required = required;
 
     const dataType = property.dataTypes[0];
     if (dataType.isAssociation()) {
         if (dataType.dataType.isCodelist) {
-            column.valueUrl = new AbsoluteIri("{+" + column.name + "}");
+            column.valueUrl = new SimpleIri("{+" + column.name + "}");
             column.datatype = "anyURI";
         }
         else {
@@ -314,7 +314,7 @@ function makeTypeColumn(
     const virtualCol = new Column();
     virtualCol.virtual = true;
     virtualCol.propertyUrl = new CompactIri("rdf", "type");
-    virtualCol.valueUrl = new AbsoluteIri(valueUrl);
+    virtualCol.valueUrl = new SimpleIri(valueUrl);
     return virtualCol;
 }
 
