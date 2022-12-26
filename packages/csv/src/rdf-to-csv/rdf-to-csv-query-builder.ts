@@ -3,7 +3,6 @@ import {
     Column
 } from "../csv-schema/csv-schema-model";
 import {
-    specArtefactIndex,
     idColumnTitle,
     refColumnTitle,
     leftRefColTitle,
@@ -50,7 +49,7 @@ export function buildMultipleTableQueries(
     where.elements = [];
     const selects: string[][] = [];
     const varGen = new VariableGenerator();
-    const urlGen = new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl);
+    const urlGen = new TableUrlGenerator();
     buildQueriesRecursive(prefixes, where, selects, model.roots[0].classes[0], varGen, urlGen);
 
     const queries: SparqlSelectQuery[] = [];

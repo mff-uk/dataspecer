@@ -27,9 +27,7 @@ import {
 import { OFN } from "@dataspecer/core/well-known";
 import { CsvConfiguration } from "../configuration";
 
-const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";
-export const specArtefactIndex = 6;
 export const idColumnTitle = "RowId";
 export const refColumnTitle = "Reference";
 export const leftRefColTitle = "LeftReference";
@@ -37,15 +35,10 @@ export const rightRefColTitle = "RightReference";
 
 export class TableUrlGenerator {
     private num = 0;
-    private readonly prefix: string;
-
-    constructor(idPrefix: string) {
-        this.prefix = schemaPrefix + idPrefix + "/tables/";
-    }
 
     getNext(): AbsoluteIri {
         this.num++;
-        return new AbsoluteIri(this.prefix + this.num.toString() + ".csv");
+        return new AbsoluteIri("table-" + this.num.toString() + ".csv");
     }
 }
 
@@ -71,7 +64,7 @@ function makeMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl));
+    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator());
     return schema;
 }
 
@@ -238,8 +231,8 @@ function makeSingleTableSchema(
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl);
-    schema.table.url = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl + "/table.csv");
+    schema.table["@id"] = new AbsoluteIri(model.psmIri + "/table.csv-metadata.json");
+    schema.table.url = new AbsoluteIri("table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
