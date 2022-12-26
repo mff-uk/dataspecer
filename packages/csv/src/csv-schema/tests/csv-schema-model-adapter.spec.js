@@ -149,6 +149,11 @@ test(testNamePrefix + "virtual column valueUrl", async () => {
     expect(result.tableSchema.columns[8]["valueUrl"]).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
 });
 
+test(testNamePrefix + "multiple table @id", async () => {
+    const result = await commonArrange1(true);
+    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533/csv-metadata.json");
+});
+
 test(testNamePrefix + "multiple table @type", async () => {
     const result = await commonArrange1(true);
     expect(result["@type"]).toBe("TableGroup");

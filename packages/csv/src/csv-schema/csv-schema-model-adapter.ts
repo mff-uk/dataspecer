@@ -64,6 +64,7 @@ function makeMultipleTableSchema(
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
+    schema["@id"] = new AbsoluteIri(model.psmIri + "/csv-metadata.json");
     makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator());
     return schema;
 }

@@ -17,6 +17,7 @@ export class SingleTableSchema extends CsvSchema {
 }
 
 export class MultipleTableSchema extends CsvSchema {
+    "@id": Iri | null = null;
     "@type": string = "TableGroup";
     "tables": Table[] = [];
 
