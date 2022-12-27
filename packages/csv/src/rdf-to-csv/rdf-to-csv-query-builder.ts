@@ -1,5 +1,4 @@
 import {
-    SingleTableSchema,
     Column
 } from "../csv-schema/csv-schema-model";
 import {
@@ -7,6 +6,7 @@ import {
     refColumnTitle,
     leftRefColTitle,
     rightRefColTitle,
+    nameSeparator,
     TableUrlGenerator
 } from "../csv-schema/csv-schema-model-adapter";
 import {
@@ -23,7 +23,6 @@ import {
 import { RDF_TYPE_URI } from "@dataspecer/sparql-query";
 import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "@dataspecer/core/core";
-import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import {
     StructureModel,
     StructureModelClass
@@ -41,7 +40,6 @@ class VariableGenerator {
 }
 
 export function buildMultipleTableQueries(
-    specification: DataSpecification,
     model: StructureModel
 ) : SparqlSelectQuery[] {
     const prefixes: Record<string, string> = {};
@@ -166,36 +164,60 @@ function makeAs(
 }
 
 export function buildSingleTableQuery(
-    schema: SingleTableSchema
+    model: StructureModel
 ) : SparqlSelectQuery {
     const query = new SparqlSelectQuery();
     query.prefixes = {};
     query.select = [];
     query.where = new SparqlPattern();
     query.where.elements = [];
-    const commonSubject = new SparqlVariableNode();
-    commonSubject.variableName = "cs";
-    let objectIndex = 1;
-
-    for (const column of schema.table.tableSchema.columns) {
-        const triple = new SparqlTriple();
-        triple.subject = commonSubject;
-        triple.predicate = columnToPredicate(column, query.prefixes);
-        const objectNode = new SparqlVariableNode();
-        if (column.titles === null) {
-            objectNode.variableName = "v" + objectIndex.toString();
-            objectIndex++;
-        }
-        else {
-            objectNode.variableName = column.titles;
-            query.select.push("?" + objectNode.variableName);
-        }
-        triple.object = objectNode;
-
-        if (column.required || column.virtual) query.where.elements.push(triple);
-        else query.where.elements.push(wrapInOptional(triple));
-    }
+    const varGen = new VariableGenerator();
+    buildSingleQueryRecursive(query.prefixes, query.select, query.where, model.roots[0].classes[0], varGen, "");
     return query;
+}
+
+function buildSingleQueryRecursive(
+    prefixes: Record<string, string>,
+    select: string[],
+    where: SparqlPattern,
+    currentClass: StructureModelClass,
+    varGen: VariableGenerator,
+    namePrefix: string
+) : SparqlVariableNode {
+    const subject = varGen.getNext();
+    where.elements.push(makeTypeTriple(prefixes, subject, currentClass.cimIri));
+
+    for (const property of currentClass.properties) {
+        const dataType = property.dataTypes[0];
+        const requiredValue = property.cardinalityMin > 0;
+        if (dataType.isAssociation()) {
+            const associatedClass = dataType.dataType;
+            if (associatedClass.properties.length === 0) {
+                const object = varGen.getNext();
+                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue, property.isReverse));
+                select.push(makeAs(object.variableName, namePrefix + property.technicalLabel));
+            }
+            else {
+                let targetPattern = where;
+                if (!requiredValue) {
+                    const opt = prepareOptional();
+                    targetPattern = opt.optionalPattern;
+                    where.elements.push(opt);
+                }
+                const propSubject = buildSingleQueryRecursive(prefixes, select, targetPattern, associatedClass, varGen, namePrefix + property.technicalLabel + nameSeparator);
+                targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true, property.isReverse));
+                select.push(makeAs(propSubject.variableName, namePrefix + property.technicalLabel));
+            }
+        }
+        else if (dataType.isAttribute()) {
+            const object = varGen.getNext();
+            where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+            select.push(makeAs(object.variableName, namePrefix + property.technicalLabel));
+        }
+        else assertFailed("Unexpected datatype!");
+    }
+
+    return subject;
 }
 
 function prepareOptional() : SparqlOptionalPattern {
@@ -211,22 +233,6 @@ function wrapInOptional(
     const opt = prepareOptional();
     opt.optionalPattern.elements.push(element);
     return opt;
-}
-
-/**
- * Creates a SPARQL (predicate) node according to the column and adds necessary prefix to the query.
- */
-export function columnToPredicate(
-    column: Column,
-    queryPrefixes: Record<string, string>
-) : SparqlNode {
-    if (column.propertyUrl !== null) return nodeFromIri(column.propertyUrl.asAbsolute().value, queryPrefixes);
-    if (column.name !== null) {
-        const node = new SparqlUriNode();
-        node.uri = "#" + column.name;
-        return node;
-    }
-    assertFailed("Missing property identifier in column!");
 }
 
 /**

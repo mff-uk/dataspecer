@@ -81,15 +81,8 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         model = transformStructureModel(
             conceptualModel, model, Object.values(context.specifications));
 
-        if (configuration.enableMultipleTableSchema) {
-            return buildMultipleTableQueries(specification, model);
-        }
-        else {
-            const csvGenerator = new CsvSchemaGenerator();
-            const csvSchema = await csvGenerator.generateToObject(context, artefact, specification);
-            if (csvSchema instanceof SingleTableSchema) return buildSingleTableQuery(csvSchema);
-            else assertFailed("Wrong CSV schema was generated!");
-        }
+        if (configuration.enableMultipleTableSchema) return buildMultipleTableQueries(model);
+        else return buildSingleTableQuery(model);
     }
 
     async generateForDocumentation(

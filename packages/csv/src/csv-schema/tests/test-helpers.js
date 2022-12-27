@@ -35,5 +35,5 @@ export async function createCsvSchema(multipleTable, specification, store) {
     const arranged = await arrangeSpecAndModel(getResource(specification), getResource(store));
     const options = {...DefaultCsvConfiguration};
     options.enableMultipleTableSchema = multipleTable;
-    return structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options);
+    return structureModelToCsvSchema(arranged.structureModel, options);
 }

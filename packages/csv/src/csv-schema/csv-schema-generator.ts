@@ -67,7 +67,7 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         if (isRecursive(model)) {
             throw new Error("CSV schema generator does not support recursive structures.");
         }
-        return structureModelToCsvSchema(specification, model, configuration);
+        return structureModelToCsvSchema(model, configuration);
     }
 
     async generateForDocumentation(

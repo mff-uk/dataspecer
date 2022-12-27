@@ -1,14 +1,8 @@
 import {
-    columnToPredicate,
     splitIri,
     addPrefix,
     buildMultipleTableQueries
 } from "../rdf-to-csv-query-builder";
-import {
-    Column,
-    SimpleIri,
-    CompactIri
-} from "../../csv-schema/csv-schema-model";
 import { getResource } from "../../csv-schema/tests/resources/resource-provider";
 import { arrangeSpecAndModel } from "../../csv-schema/tests/test-helpers";
 
@@ -16,7 +10,7 @@ const testNamePrefix = "RDF to CSV: ";
 
 async function createRdfToCsvQueries(specification, store) {
     const arranged = await arrangeSpecAndModel(getResource(specification), getResource(store));
-    return buildMultipleTableQueries(arranged.dataSpecification, arranged.structureModel);
+    return buildMultipleTableQueries(arranged.structureModel);
 }
 
 async function commonArrange1() {
@@ -82,68 +76,6 @@ test(testNamePrefix + "check if well-known prefix saved", async () => {
     const prefixes = {};
     addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", prefixes);
     expect(prefixes["rdf"]).toBe("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-});
-
-test(testNamePrefix + "absolute propertyUrl column to predicate prefix", async () => {
-    const column = new Column();
-    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
-    const prefixes = {};
-    const result = columnToPredicate(column, prefixes);
-    expect(result.qname[0]).toBe("ns1");
-});
-
-test(testNamePrefix + "absolute propertyUrl column to predicate local", async () => {
-    const column = new Column();
-    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
-    const prefixes = {};
-    const result = columnToPredicate(column, prefixes);
-    expect(result.qname[1]).toBe("alternativní-název-položky-číselníku");
-});
-
-test(testNamePrefix + "absolute propertyUrl column to predicate prefix saved", async () => {
-    const column = new Column();
-    column.propertyUrl = new SimpleIri("https://slovník.gov.cz/datový/číselníky/pojem/alternativní-název-položky-číselníku");
-    const prefixes = {};
-    columnToPredicate(column, prefixes);
-    expect(prefixes["ns1"]).toBe("https://slovník.gov.cz/datový/číselníky/pojem/");
-});
-
-test(testNamePrefix + "compact propertyUrl column to predicate prefix", async () => {
-    const column = new Column();
-    column.propertyUrl = new CompactIri("rdf", "type");
-    const prefixes = {};
-    const result = columnToPredicate(column, prefixes);
-    expect(result.qname[0]).toBe("rdf");
-});
-
-test(testNamePrefix + "compact propertyUrl column to predicate local", async () => {
-    const column = new Column();
-    column.propertyUrl = new CompactIri("rdf", "type");
-    const prefixes = {};
-    const result = columnToPredicate(column, prefixes);
-    expect(result.qname[1]).toBe("type");
-});
-
-test(testNamePrefix + "compact propertyUrl column to predicate prefix saved", async () => {
-    const column = new Column();
-    column.propertyUrl = new CompactIri("rdf", "type");
-    const prefixes = {};
-    columnToPredicate(column, prefixes);
-    expect(prefixes["rdf"]).toBe("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-});
-
-test(testNamePrefix + "name column to predicate", async () => {
-    const column = new Column();
-    column.name = "destination";
-    const prefixes = {};
-    const result = columnToPredicate(column, prefixes);
-    expect(result.uri).toBe("#destination");
-});
-
-test(testNamePrefix + "column to predicate missing identifier", async () => {
-    const column = new Column();
-    const prefixes = {};
-    expect(() => columnToPredicate(column, prefixes)).toThrow();
 });
 
 test(testNamePrefix + "table url comment", async () => {

@@ -18,7 +18,6 @@ import {
     StructureModelProperty,
     StructureModelClass
 } from "@dataspecer/core/structure-model/model";
-import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import {
     assert,
     assertFailed,
@@ -32,6 +31,7 @@ export const idColumnTitle = "RowId";
 export const refColumnTitle = "Reference";
 export const leftRefColTitle = "LeftReference";
 export const rightRefColTitle = "RightReference";
+export const nameSeparator = "_";
 
 export class TableUrlGenerator {
     private num = 0;
@@ -43,24 +43,22 @@ export class TableUrlGenerator {
 }
 
 /**
- * Creates CSV schema from StructureModel, DataSpecification and a configuration.
+ * Creates CSV schema from StructureModel and a configuration.
  */
 export function structureModelToCsvSchema(
-    specification: DataSpecification,
     model: StructureModel,
     configuration: CsvConfiguration
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    if (configuration.enableMultipleTableSchema) return makeMultipleTableSchema(specification, model);
-    else return makeSingleTableSchema(specification, model);
+    if (configuration.enableMultipleTableSchema) return makeMultipleTableSchema(model);
+    else return makeSingleTableSchema(model);
 }
 
 /**
  * Creates a schema that consists of multiple tables.
  */
 function makeMultipleTableSchema(
-    specification: DataSpecification,
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
@@ -228,7 +226,6 @@ function makeForeignKey(
  * Creates a schema that consists of a single table.
  */
 function makeSingleTableSchema(
-    specification: DataSpecification,
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
@@ -259,7 +256,7 @@ function fillColumnsRecursive(
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) columns.push(makeColumnFromProp(property, required, prefix));
-            else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + "_", required);
+            else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + nameSeparator, required);
         }
         else if (dataType.isAttribute()) columns.push(makeColumnFromProp(property, required, prefix));
         else assertFailed("Unexpected datatype!");
