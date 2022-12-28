@@ -206,7 +206,6 @@ function buildSingleQueryRecursive(
                 }
                 const propSubject = buildSingleQueryRecursive(prefixes, select, targetPattern, associatedClass, varGen, namePrefix + property.technicalLabel + nameSeparator);
                 targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true, property.isReverse));
-                select.push(makeAs(propSubject.variableName, namePrefix + property.technicalLabel));
             }
         }
         else if (dataType.isAttribute()) {
