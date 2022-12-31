@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useId, useMemo, useState} from "react";
 import {Box, Button, Checkbox, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, ListItemText, MenuItem, Select, TextField} from "@mui/material";
 import {LanguageString} from "@dataspecer/core/core";
 import {AvailableTags} from "../routes/home/filter-by-tag";
@@ -55,12 +55,12 @@ export const SpecificationEditDialog: React.FC<{
 
     const existingTags = React.useContext(AvailableTags);
 
-    const tagRef = useRef(null);
-
     const [customTags, setCustomTags] = useState<string[]>([]);
     const [customTagField, setCustomTagField] = useState<string>("");
 
     const availableTags = useMemo(() => [...existingTags, ...customTags], [existingTags, customTags]);
+
+    const tagsId = useId();
 
     return <>
         <DialogTitle>
@@ -85,9 +85,10 @@ export const SpecificationEditDialog: React.FC<{
                 }}
             />
             <FormControl variant="standard" sx={{mt: 2, width: "100%" }}>
-                <InputLabel ref={tagRef}>Tags</InputLabel>
+                <InputLabel id={tagsId}>Tags</InputLabel>
                 <Select
-                    label={tagRef.current}
+                    label={"Tags"}
+                    labelId={tagsId}
                     multiple
                     value={tags}
                     fullWidth
