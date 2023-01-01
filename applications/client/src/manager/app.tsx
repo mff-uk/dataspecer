@@ -6,7 +6,7 @@ import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./utils/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@dataspecer/core/core";
-import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
+import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag-select";
 import {useLocalStorage} from "./utils/use-local-storage";
 import {SnackbarProvider} from 'notistack';
 import {BackendConnectorContext} from "../application";
@@ -70,7 +70,7 @@ function App(props: {children: React.ReactNode}) {
 
     // Basic filtering
 
-    const filter = useLocalStorage<string>("filter-by-tag", "_");
+    const filter = useLocalStorage<string>("filter-by-tag", null);
     const tags = useMemo(() =>
         [...new Set(Object.values(dataSpecifications)
             .filter(ds => rootDataSpecificationIris.includes(ds.iri as string))

@@ -1,8 +1,24 @@
 {
+  "actions": "Akce",
+  "available data specifications": "Dostupné datové specifikace",
   "back to specification manager": "zpět do manažeru specifikací",
   "cancel": "Zrušit",
   "close": "zavřít",
   "codelist": "číselník",
+  "configure artifacts": "Konfigurovat artefakty",
+  "create specification": "Vytvořit specifikaci",
+  "create specification dialog": {
+    "button open create": "Vytvořit specifikaci",
+    "external specification": {
+      "button create": "Externí specifikace",
+      "button create description": "Specifikace odkazující na již existující specifikaci, která nebyla vytvořena v Dataspeceru. Takové specifikace je pak možné použít pro import z lokálních specifikací."
+    },
+    "standard specification": {
+      "button create": "Standardní specifikace",
+      "button create description": "Specifikace obsahující lokální schémata, které lze upravovat a vytvářet."
+    }
+  },
+  "data specifications": "Datové specifikace",
   "delete": "Odstranit",
   "deleteDataSchema": {
     "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, jejichž schémata odkazují na smazané schéma, budou nevalidní, ale nebudou odstraněny.",
@@ -20,19 +36,24 @@
     "title_many": "Odstranit {{count}} specifikací",
     "title_other": "Odstranit {{count}} specifikací"
   },
+  "detail": "Detail",
   "error": "chyba",
+  "generate artifacts": "Generovat artefakty",
+  "generate zip file": "Generovat do .ZIP souboru",
   "iri_copy": {
     "fail": "Nepodařilo se zkopírovat IRI do schránky",
     "success": "IRI zkopírováno do schránky",
     "text": "zkopírovat"
   },
   "more": "více",
+  "name": "Jméno",
   "new schema description format": "Datová struktura pro {label}. {description}",
   "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
   "no title": "bez názvu",
   "report a bug": "nahlásit chybu",
   "request a feature": "navrhnout úpravu",
+  "reused data specifications": "Přepoužité datové specifikace",
   "set root": {
     "search for class": "Vyhledat třídu (interpretovanou)",
     "use class reference": "Použít referenci do jiného schématu",
@@ -40,6 +61,7 @@
     "use structured class": "Použít strukturovanou třídu (neinterpretovanou)"
   },
   "set root element button": "Zvolit kořen",
+  "tags": "Tagy",
   "title": "editor schémat",
   "version": "Verze"
 }

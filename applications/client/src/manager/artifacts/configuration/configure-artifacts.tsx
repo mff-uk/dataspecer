@@ -4,6 +4,7 @@ import {ConfigureArtifactsDialog} from "./configure-artifacts-dialog";
 import {Button} from "@mui/material";
 import {useToggle} from "../../use-toggle";
 import {BackendConnectorContext} from "../../../application";
+import {useTranslation} from "react-i18next";
 
 /**
  * Renders button and adds logic for updating the configuration.
@@ -12,6 +13,7 @@ import {BackendConnectorContext} from "../../../application";
 export const ConfigureArtifacts: FC<{
   dataSpecificationIri: string,
 }> = ({dataSpecificationIri}) => {
+  const {t} = useTranslation("ui");
   const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
   const backendConnector = useContext(BackendConnectorContext);
   const specification = dataSpecifications[dataSpecificationIri];
@@ -28,7 +30,7 @@ export const ConfigureArtifacts: FC<{
   return <>
     <Button
       onClick={configureArtifactsDialogOpen.open}>
-      Configure artifacts
+      {t("configure artifacts")}
     </Button>
 
     <ConfigureArtifactsDialog

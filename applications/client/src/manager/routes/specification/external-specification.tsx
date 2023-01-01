@@ -104,8 +104,10 @@ const SchemaRow: FC<{
         });
     }, [EditExternalArtifacts, backendConnector, dataSpecifications, setDataSpecifications, specification?.artefactConfiguration, specificationIri]);
 
-    const artefactConfiguration: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts;
-    const artefacts = useMemo(() => artefactConfiguration.filter(artefact => artefact.psm === dataPsmSchemaIri), [artefactConfiguration, dataPsmSchemaIri]);
+    const artefacts = useMemo(() => {
+        const artefactConfiguration: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts ?? [];
+        return artefactConfiguration.filter(artefact => artefact.psm === dataPsmSchemaIri)
+    }, [dataPsmSchemaIri, specification?.artefactConfiguration]);
 
     return <Paper sx={{mt: 3}}>
         <CardContent sx={{display: "flex"}}>

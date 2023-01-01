@@ -1,18 +1,30 @@
-import React, {useCallback, useContext, useMemo, useState} from "react";
-import {Link} from "react-router-dom";
+import React, {memo, useCallback, useContext, useMemo, useState} from "react";
+import {Link, useNavigate } from "react-router-dom";
 import {Box, Button, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography} from "@mui/material";
-import {CreateSpecification} from "./create-specification";
+import {CreateSpecificationButton} from "./create-specification-button";
 import {DataSpecificationsContext} from "../../app";
 import {DataSpecificationDetailInfoCell, DataSpecificationNameCell} from "../../name-cells";
 import {SpecificationTags} from "../../components/specification-tags";
-import {FilterByTag, FilterContext} from "./filter-by-tag";
+import {FilterByTagSelect, FilterContext} from "./filter-by-tag-select";
 import {alpha} from "@mui/material/styles";
 import {GenerateDialog} from "../../artifacts/generate-dialog";
 import {useToggle} from "../../use-toggle";
 import {useDialog} from "../../../editor/dialog";
 import {DeleteDataSpecificationForm} from "../../components/delete-data-specification-form";
+import {useTranslation} from "react-i18next";
 
-export const Home: React.FC = () => {
+function getSpecificationUrl(dataSpecificationIri: string) {
+    return `specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`;
+}
+
+/**
+ * List of data specifications page component.
+ */
+export const Home: React.FC = memo(() => {
+    const {t} = useTranslation("ui");
+    const navigate = useNavigate();
+    const redirect = useCallback((dataSpecificationIri: string) => navigate(getSpecificationUrl(dataSpecificationIri)), [navigate]);
+
     const {
         dataSpecifications,
         rootDataSpecificationIris,
@@ -23,7 +35,7 @@ export const Home: React.FC = () => {
     const [filter] = useContext(FilterContext);
     const specificationsToShow = useMemo(() =>
         rootDataSpecificationIris.filter(iri =>
-            filter === "_" ||
+            filter === null ||
             (
                 dataSpecifications[iri] &&
                 dataSpecifications[iri].tags.includes(filter)
@@ -46,9 +58,11 @@ export const Home: React.FC = () => {
         <Box height="30px"/>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
             <Typography variant="h4" component="div" gutterBottom>
-                Data specifications
+                {t("data specifications")}
             </Typography>
-            <CreateSpecification />
+            <div>
+                <CreateSpecificationButton onSpecificationCreated={redirect} />
+            </div>
         </Box>
 
         <Paper sx={{mt: 3}}>
@@ -78,13 +92,13 @@ export const Home: React.FC = () => {
                         id="tableTitle"
                         component="div"
                     >
-                        Available data specifications
+                        {t("available data specifications")}
                     </Typography>
                 )}
                 {selected.length > 0 ? <Box sx={{display: "flex", gap: 2}}>
                     <Button onClick={generateDialogOpen.open}>Generate to .ZIP</Button>
                     <Button color="error">Delete</Button>
-                </Box> : <FilterByTag />}
+                </Box> : <FilterByTagSelect />}
             </Toolbar>
             <TableContainer>
                 <Table>
@@ -98,9 +112,9 @@ export const Home: React.FC = () => {
                                     onChange={() => selected.length > 0 ? setSelected([]) : setSelected([...specificationsToShow])}
                                 />
                             </TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Tags</TableCell>
-                            <TableCell sx={{width: 0}}>Actions</TableCell>
+                            <TableCell>{t("name")}</TableCell>
+                            <TableCell>{t("tags")}</TableCell>
+                            <TableCell sx={{width: 0}}>{t("actions")}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -123,10 +137,7 @@ export const Home: React.FC = () => {
                                 w">
                                     <div>
                                         <Box sx={{display: "flex", flexDirection: 'row'}}>
-                                            <strong>
                                             <DataSpecificationNameCell dataSpecificationIri={dataSpecificationIri as string} />
-
-                                            </strong>
                                             <Typography sx={theme => ({color: theme.palette.text.disabled, ml: 2})}>
                                                 <DataSpecificationDetailInfoCell dataSpecificationIri={dataSpecificationIri as string} />
                                             </Typography>
@@ -143,12 +154,12 @@ export const Home: React.FC = () => {
                                     }}>
                                         {dataSpecificationIri &&
                                             <Button color={"primary"} component={Link}
-                                                    to={`specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`}>Detail</Button>
+                                                    to={getSpecificationUrl(dataSpecificationIri)}>{t("detail")}</Button>
                                         }
                                         <Button color={"error"} onClick={e => {
                                             e.stopPropagation();
                                             DeleteForm.open({dataSpecificationIris: [dataSpecificationIri]});
-                                        }}>Delete</Button>
+                                        }}>{t("delete")}</Button>
                                     </Box>
                                 </TableCell>
                             </TableRow>
@@ -161,4 +172,4 @@ export const Home: React.FC = () => {
         <GenerateDialog isOpen={generateDialogOpen.isOpen} close={generateDialogOpen.close} dataSpecifications={selected} />
         <DeleteForm.Component />
     </>;
-}
+});
