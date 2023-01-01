@@ -18,6 +18,7 @@ import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper
 import {SetCardinality} from "../../../operations/set-cardinality";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SetDematerialize} from "../../../operations/set-dematerialize";
+import { SetPimDatatype } from "../../../operations/set-pim-datatype";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -70,7 +71,15 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useSaveHandler(
         resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
-        useCallback(async () => resource && await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype))), [resource, store, datatype]),
+        useCallback(async () => {
+            if (resource) {
+                await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
+                // Todo: let user choose where to set the datatype
+                if (pimResource) {
+                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
+                }
+            }
+        }, [resource, store, datatype, pimResource]),
     );
 
     useSaveHandler(
