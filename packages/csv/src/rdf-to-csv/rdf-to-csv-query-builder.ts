@@ -1,7 +1,4 @@
 import {
-    Column
-} from "../csv-schema/csv-schema-model";
-import {
     idColumnTitle,
     refColumnTitle,
     leftRefColTitle,
@@ -28,6 +25,9 @@ import {
     StructureModelClass
 } from "@dataspecer/core/structure-model/model";
 
+/**
+ * This class systematically generates variable names for SPARQL queries.
+ */
 class VariableGenerator {
     private num = 0;
 
@@ -39,6 +39,10 @@ class VariableGenerator {
     }
 }
 
+/**
+ * Creates SPARQL queries for multiple table CSV schema.
+ * @param model Structure model of the CSV schema and the SPARQL queries
+ */
 export function buildMultipleTableQueries(
     model: StructureModel
 ) : SparqlSelectQuery[] {
@@ -61,6 +65,16 @@ export function buildMultipleTableQueries(
     return queries;
 }
 
+/**
+ * Recursively iterates over properties of the classes in the provided structure model and creates data for multiple SPARQL queries.
+ * @param prefixes Common prefixes of the created queries
+ * @param wherePattern Common where pattern in queries
+ * @param selects Each select is specific for its corresponding query
+ * @param currentClass Parameter of recursion and container of properties
+ * @param varGen Generator for query variables
+ * @param urlGen Generator for table URLs
+ * @returns Variable representing the created subtree
+ */
 function buildQueriesRecursive(
     prefixes: Record<string, string>,
     wherePattern: SparqlPattern,
@@ -114,6 +128,13 @@ function buildQueriesRecursive(
     return subject;
 }
 
+/**
+ * Creates rdf:type triple.
+ * @param prefixes Necessary prefix may be created and added here.
+ * @param subject Subject of the triple
+ * @param typeIri Object of the triple
+ * @returns Created rdf:type triple
+ */
 function makeTypeTriple(
     prefixes: Record<string, string>,
     subject: SparqlNode,
@@ -128,12 +149,25 @@ function makeTypeTriple(
     return typeTriple;
 }
 
+/**
+ * Table URL is added to query as a comment to simplify orientation.
+ */
 function makeTableUrlComment(
     urlGen: TableUrlGenerator
 ) : string {
     return "# Table: " + urlGen.getNext().write();
 }
 
+/**
+ * Creates SPARQL query element from property fields.
+ * @param prefixes Prefixes of the new nodes are stored here.
+ * @param subject Subject of the created triple
+ * @param predIri IRI of the predicate
+ * @param object Object of the created triple
+ * @param required The triple is wrapped in optional pattern if this is false.
+ * @param reverse Backwards associations have subject and object swapped.
+ * @returns Created SPARQL element
+ */
 function propertyToElement(
     prefixes: Record<string, string>,
     subject: SparqlNode,
@@ -156,6 +190,11 @@ function propertyToElement(
     else return wrapInOptional(triple);
 }
 
+/**
+ * Creates AS pattern for select part of SPARQL query.
+ * @param varName Original variable name
+ * @param alias New name of for the variable
+ */
 function makeAs(
     varName: string,
     alias: string
@@ -163,6 +202,10 @@ function makeAs(
     return "(?" + varName + " AS ?" + alias + ")";
 }
 
+/**
+ * Creates SPARQL query for single table CSV schema.
+ * @param model Structure model of the CSV schema and the SPARQL query
+ */
 export function buildSingleTableQuery(
     model: StructureModel
 ) : SparqlSelectQuery {
@@ -176,6 +219,16 @@ export function buildSingleTableQuery(
     return query;
 }
 
+/**
+ * Recursively iterates over properties of the classes in the provided structure model and creates data for SPARQL query.
+ * @param prefixes Prefixes of the created query
+ * @param select Select of the created query
+ * @param where Where of the created query
+ * @param currentClass Parameter of recursion and container of properties
+ * @param varGen Generator for query variables
+ * @param namePrefix Recursively created prefix of the names of the properties
+ * @returns Variable representing the created subtree
+ */
 function buildSingleQueryRecursive(
     prefixes: Record<string, string>,
     select: string[],
@@ -219,6 +272,9 @@ function buildSingleQueryRecursive(
     return subject;
 }
 
+/**
+ * Initializes fields of the SPARQL optional pattern.
+ */
 function prepareOptional() : SparqlOptionalPattern {
     const opt = new SparqlOptionalPattern();
     opt.optionalPattern = new SparqlPattern();
@@ -226,6 +282,9 @@ function prepareOptional() : SparqlOptionalPattern {
     return opt;
 }
 
+/**
+ * Puts SPARQL element inside a new optional pattern.
+ */
 function wrapInOptional(
     element: SparqlElement
 ) : SparqlOptionalPattern {

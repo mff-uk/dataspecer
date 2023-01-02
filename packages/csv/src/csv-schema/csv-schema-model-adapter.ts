@@ -33,6 +33,9 @@ export const leftRefColTitle = "LeftReference";
 export const rightRefColTitle = "RightReference";
 export const nameSeparator = "_";
 
+/**
+ * This class is used to systematically generate URLs for tables wherever they are needed.
+ */
 export class TableUrlGenerator {
     private num = 0;
 
