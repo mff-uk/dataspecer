@@ -51,6 +51,8 @@
   "open data structure": "Open data structure",
   "report a bug": "report a bug",
   "request a feature": "request a feature",
+  "return back button": "Go back to {{toolName}}",
+  "return back button unnamed tool": "Go back",
   "reused data specifications": "Reused data specifications",
   "set root": {
     "search for class": "Search for class (interpreted)",

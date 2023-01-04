@@ -11,6 +11,7 @@ import {useLocalStorage} from "./utils/use-local-storage";
 import {SnackbarProvider} from 'notistack';
 import {BackendConnectorContext} from "../application";
 import {Help} from "../components/help";
+import {ReturnBackButton} from "../components/return-back/return-back-button";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -89,6 +90,7 @@ function App(props: {children: React.ReactNode}) {
                                             <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
                                                 <strong>Dataspecer</strong> specification manager
                                             </Typography>
+                                            <ReturnBackButton />
                                             <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
                                                 <Help />
                                             </Box>

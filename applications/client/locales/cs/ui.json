@@ -55,6 +55,8 @@
   "open data structure": "Otevřít datovou strukturu",
   "report a bug": "nahlásit chybu",
   "request a feature": "navrhnout úpravu",
+  "return back button": "Jít zpět na {{toolName}}",
+  "return back button unnamed tool": "Jít zpět",
   "reused data specifications": "Přepoužité datové specifikace",
   "set root": {
     "search for class": "Vyhledat třídu (interpretovanou)",
