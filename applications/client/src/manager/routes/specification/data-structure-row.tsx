@@ -5,6 +5,7 @@ import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {DataSchemaNameCell, selectLanguage} from "../../name-cells";
 import {getEditorLink} from "../../shared/get-schema-generator-link";
 import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 export interface DataStructureRowProps {
     specificationIri: string;
@@ -51,6 +52,7 @@ export const DataStructureRow: React.FC<DataStructureRowProps>
 
 export const DataStructureBox: React.FC<DataStructureRowProps>
     = ({specificationIri, dataStructureIri, onDelete}) => {
+    const {t} = useTranslation("ui");
 
     const {resource} = useResource<DataPsmSchema>(dataStructureIri);
 
@@ -64,17 +66,17 @@ export const DataStructureBox: React.FC<DataStructureRowProps>
                 {selectLanguage(resource?.dataPsmHumanLabel ?? {}, ["en"]) ?? dataStructureIri}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                specification
+                {t("data structure")}
             </Typography>
             <Typography variant="body2">{resource?.dataPsmParts.length ?? "-"} items</Typography>
         </CardContent>
         <CardActions>
             <div style={{flexGrow: 1}} />
             <Button color="error" onClick={onDelete} sx={{mr: 1}}>
-                Delete
+                {t("delete")}
             </Button>
             <Button component={Link} to={getEditorLink(specificationIri, dataStructureIri)} variant={"outlined"}>
-                Open specification
+                {t("open data structure")}
             </Button>
         </CardActions>
     </Card>;

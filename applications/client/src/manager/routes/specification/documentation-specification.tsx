@@ -178,7 +178,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                 <Grid item xs={4}>
                     <Button variant="outlined" color={"inherit"} sx={{height: "4.75cm", display: "flex", alignItems: "center", justifyContent: "center"}} onClick={createDataStructure} fullWidth>
                         <AddIcon fontSize={"large"} color={"inherit"} />
-                        <Typography>{t("create specification")}</Typography>
+                        <Typography>{t("create data structure")}</Typography>
                     </Button>
                 </Grid>
 

@@ -6,7 +6,7 @@
   "close": "zavřít",
   "codelist": "číselník",
   "configure artifacts": "Konfigurovat artefakty",
-  "create specification": "Vytvořit specifikaci",
+  "create data structure": "Vytvořit datovou strukturu",
   "create specification dialog": {
     "button open create": "Vytvořit specifikaci",
     "external specification": {
@@ -19,6 +19,7 @@
     }
   },
   "data specifications": "Datové specifikace",
+  "data structure": "datová struktura",
   "delete": "Odstranit",
   "deleteDataSchema": {
     "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, jejichž schémata odkazují na smazané schéma, budou nevalidní, ale nebudou odstraněny.",
@@ -51,6 +52,7 @@
   "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
   "no title": "bez názvu",
+  "open data structure": "Otevřít datovou strukturu",
   "report a bug": "nahlásit chybu",
   "request a feature": "navrhnout úpravu",
   "reused data specifications": "Přepoužité datové specifikace",
