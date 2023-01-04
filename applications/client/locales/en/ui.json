@@ -20,6 +20,7 @@
   },
   "data specifications": "Data specifications",
   "data structure": "data structure",
+  "data structure edit title": "Data structure editor",
   "delete": "Delete",
   "deleteDataSchema": {
     "additionalText": "This operation is irreversible. All other specifications whose schemas refer to a deleted schema will be invalid, but will not be deleted.",

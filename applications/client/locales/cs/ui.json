@@ -20,6 +20,7 @@
   },
   "data specifications": "Datové specifikace",
   "data structure": "datová struktura",
+  "data structure edit title": "Editor datové struktury",
   "delete": "Odstranit",
   "deleteDataSchema": {
     "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, jejichž schémata odkazují na smazané schéma, budou nevalidní, ale nebudou odstraněny.",

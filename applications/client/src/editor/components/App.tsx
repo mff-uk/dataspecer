@@ -48,7 +48,7 @@ const AppContent: React.FC = () => {
         <Container>
             <Box height="30px"/>
             <Box display="flex" flexDirection="row" justifyContent="space-between">
-                <Typography variant="h4" paragraph>slovník.gov.cz</Typography>
+                <Typography variant="h4" paragraph>{t("data structure edit title")}</Typography>
                 <div>
                     <div style={{display: "flex", gap: "1rem"}}>
                         <GenerateArtifactsMenu artifactPreview={artifactPreview} setArtifactPreview={setArtifactPreview} />
