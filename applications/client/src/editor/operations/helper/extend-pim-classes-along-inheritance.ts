@@ -31,6 +31,9 @@ export async function extendPimClassesAlongInheritance(
             path.add(currentClass.iri as string);
             for (const ext of currentClass.pimExtends) {
                 const extClass = await sourcePimModel.readResource(ext) as PimClass;
+                if (!extClass) {
+                    continue;
+                }
                 if (path.has(extClass.iri as string)) {
                     continue
                 }
