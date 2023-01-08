@@ -78,7 +78,62 @@ test(testNamePrefix + "check if well-known prefix saved", async () => {
     expect(prefixes["rdf"]).toBe("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 });
 
+test(testNamePrefix + "short select length", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].select.length).toBe(2);
+});
+
 test(testNamePrefix + "table url comment", async () => {
     const queries = await commonArrange1();
     expect(queries[0].select.pop()).toMatch(/^# Table:/);
+});
+
+test(testNamePrefix + "rdf:type object", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].where.elements[0].object.qname[1]).toBe("turistický-cíl");
+});
+
+test(testNamePrefix + "longer select length", async () => {
+    const queries = await commonArrange1();
+    expect(queries[1].select.length).toBe(3);
+});
+
+test(testNamePrefix + "as pattern", async () => {
+    const queries = await commonArrange1();
+    expect(queries[1].select[1]).toBe("(?v2 AS ?kapacita)");
+});
+
+test(testNamePrefix + "number of queries", async () => {
+    const queries = await commonArrange1();
+    expect(queries.length).toBe(13);
+});
+
+test(testNamePrefix + "same where patterns", async () => {
+    const queries = await commonArrange1();
+    expect(queries[3].where).toBe(queries[10].where);
+});
+
+test(testNamePrefix + "same prefixes", async () => {
+    const queries = await commonArrange1();
+    expect(queries[1].prefixes).toBe(queries[5].prefixes);
+});
+
+test(testNamePrefix + "prefix", async () => {
+    const queries = await commonArrange1();
+    expect(queries[1].prefixes["ns2"]).toBe("https://slovník.gov.cz/datový/sportoviště/pojem/");
+});
+
+test(testNamePrefix + "table bonding triple subject", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].where.elements[2].optionalPattern.elements[5].subject.variableName).toBe("v1");
+});
+
+test(testNamePrefix + "table bonding triple predicate", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].where.elements[2].optionalPattern.elements[5].predicate.qname[1]).toBe("bezbariérovost");
+});
+
+test(testNamePrefix + "table bonding triple object", async () => {
+    const queries = await commonArrange1();
+    expect(queries[0].where.elements[2].optionalPattern.elements[5].object.variableName).toBe("v3");
 });
