@@ -44,6 +44,7 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {ReadOnlyFederatedStore} from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
 import {ConceptualModelSources} from "./conceptual-model-sources";
 import {useTranslation} from "react-i18next";
+import {GarbageCollection} from "./garbage-collection";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -235,6 +236,12 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         </Box>
 
         <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />
+
+        <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
+            Advanced
+        </Typography>
+
+        <GarbageCollection dataSpecificationIri={dataSpecificationIri} />
 
         <RedirectDialog isOpen={redirecting} />
         <DeleteForm.Component dataSpecificationIri={dataSpecificationIri as string} />

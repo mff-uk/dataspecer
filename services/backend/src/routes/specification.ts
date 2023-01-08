@@ -1,7 +1,9 @@
 import express from "express";
-import {dataSpecificationModel, replaceStoreDescriptorsInDataSpecification} from "../main";
+import {dataSpecificationModel, replaceStoreDescriptorsInDataSpecification, storeModel} from "../main";
 import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 import {asyncHandler} from "../utils/async-handler";
+import {LocalStoreDescriptor} from "../models/local-store-descriptor";
+import {dataPsmGarbageCollection, pimGarbageCollection} from "@dataspecer/core/garbage-collection";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
     if (request.query.dataSpecificationIri) {
@@ -38,4 +40,36 @@ export const modifySpecification = asyncHandler(async (request: express.Request,
 
     const modifiedDataSpecification = await dataSpecificationModel.modifyDataSpecification(dataSpecificationIri, dataToUpdate);
     response.send(replaceStoreDescriptorsInDataSpecification(modifiedDataSpecification));
+});
+
+export const garbageCollection = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const dataSpecificationIri = String(request.body.dataSpecificationIri);
+    const dataSpecification = await dataSpecificationModel.getDataSpecification(dataSpecificationIri);
+    if (!dataSpecification) {
+        response.status(404);
+        return;
+    }
+
+    const pimStore = await LocalStoreDescriptor.construct(dataSpecification.pimStores[0] as LocalStoreDescriptor, storeModel);
+    const psmStores = await Promise.all(Object.values(dataSpecification.psmStores).map(async (stores) => {
+        return await LocalStoreDescriptor.construct(stores[0] as LocalStoreDescriptor, storeModel);
+    }));
+
+    await pimStore.loadStore();
+    await Promise.all(psmStores.map(store => store.loadStore()));
+
+    let deletedEntities = 0;
+    for (const psmStore of psmStores) {
+        const result = await dataPsmGarbageCollection(psmStore);
+        deletedEntities += result.deletedEntities;
+    }
+    const result = await pimGarbageCollection(pimStore, psmStores);
+    deletedEntities += result.removedEntities;
+
+    await pimStore.saveStore();
+    await Promise.all(psmStores.map(store => store.saveStore()));
+
+    response.send({
+        deletedEntities,
+    });
 });
