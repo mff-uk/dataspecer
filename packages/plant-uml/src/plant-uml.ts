@@ -51,6 +51,8 @@ export class PlantUml {
 
   public async write(outputStream: OutputStream) {
     await outputStream.write("@startuml\n");
+    await outputStream.write("set namespaceSeparator none\n");
+    await outputStream.write("skinparam dpi 200\n");
 
     for (const cls of Object.values(this.conceptualModel.classes)) {
       const identifier = this.getEntityPlantUMLIdentifier(cls);
