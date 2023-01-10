@@ -1,7 +1,8 @@
 import {
     splitIri,
     addPrefix,
-    buildMultipleTableQueries
+    buildMultipleTableQueries,
+    buildSingleTableQuery
 } from "../rdf-to-csv-query-builder";
 import { getResource } from "../../csv-schema/tests/resources/resource-provider";
 import { arrangeSpecAndModel } from "../../csv-schema/tests/test-helpers";
@@ -13,8 +14,17 @@ async function createRdfToCsvQueries(specification, store) {
     return buildMultipleTableQueries(arranged.structureModel);
 }
 
+async function createRdfToCsvQuery(specification, store) {
+    const arranged = await arrangeSpecAndModel(getResource(specification), getResource(store));
+    return buildSingleTableQuery(arranged.structureModel);
+}
+
 async function commonArrange1() {
     return await createRdfToCsvQueries("basic_tree_data_specifications.json", "basic_tree_merged_store.json");
+}
+
+async function commonArrange2() {
+    return await createRdfToCsvQuery("basic_tree_data_specifications.json", "basic_tree_merged_store.json");
 }
 
 test(testNamePrefix + "split IRI namespace slash", async () => {
@@ -136,4 +146,48 @@ test(testNamePrefix + "table bonding triple predicate", async () => {
 test(testNamePrefix + "table bonding triple object", async () => {
     const queries = await commonArrange1();
     expect(queries[0].where.elements[2].optionalPattern.elements[5].object.variableName).toBe("v3");
+});
+
+test(testNamePrefix + "single and multiple prefixes equivalence", async () => {
+    const queries = await commonArrange1();
+    const query = await commonArrange2();
+    expect(queries[4].prefixes).toEqual(query.prefixes);
+});
+
+test(testNamePrefix + "single and multiple select difference", async () => {
+    const queries = await commonArrange1();
+    const query = await commonArrange2();
+    expect(queries[5].select).not.toEqual(query.select);
+});
+
+test(testNamePrefix + "single and multiple where equivalence", async () => {
+    const queries = await commonArrange1();
+    const query = await commonArrange2();
+    expect(queries[6].where).toEqual(query.where);
+});
+
+test(testNamePrefix + "single select length", async () => {
+    const query = await commonArrange2();
+    expect(query.select.length).toBe(8);
+});
+
+test(testNamePrefix + "single select as pattern", async () => {
+    const query = await commonArrange2();
+    expect(query.select[2]).toBe("(?v5 AS ?bezbariérovost_datum_mapování)");
+});
+
+test(testNamePrefix + "dematerialization and backwards association subject", async () => {
+    const query = await createRdfToCsvQuery("demat_include_or_data_specifications.json", "demat_include_or_merged_store.json");
+    expect(query.where.elements[4].optionalPattern.elements[0].subject.variableName).toBe("v8");
+});
+
+test(testNamePrefix + "dematerialization and backwards association object", async () => {
+    const query = await createRdfToCsvQuery("demat_include_or_data_specifications.json", "demat_include_or_merged_store.json");
+    expect(query.where.elements[4].optionalPattern.elements[0].object.variableName).toBe("v1");
+});
+
+test(testNamePrefix + "single and multiple backwards association equivalence", async () => {
+    const queries = await createRdfToCsvQueries("demat_include_or_data_specifications.json", "demat_include_or_merged_store.json");
+    const query = await createRdfToCsvQuery("demat_include_or_data_specifications.json", "demat_include_or_merged_store.json");
+    expect(queries[8].where).toEqual(query.where);
 });
