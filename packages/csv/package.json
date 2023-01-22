@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/sparql-query": "*"
+    "@dataspecer/sparql-query": "*",
+    "@dataspecer/bikeshed": "*"
   },
   "devDependencies": {
     "@types/jest": "^29.2.5",
