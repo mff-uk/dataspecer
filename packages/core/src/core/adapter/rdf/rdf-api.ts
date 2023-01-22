@@ -46,7 +46,7 @@ export class RdfObject extends RdfNode {
     return !this.isNode(object);
   }
 
-  static isNode(object: RdfObject): boolean {
+  static isNode(object: RdfObject): object is RdfObject {
     return (
       object.termType === RdfTermType.NamedNode ||
       object.termType === RdfTermType.BlankNode
@@ -62,9 +62,9 @@ export class RdfObject extends RdfNode {
  * This interface should be implemented by sources of RDF data.
  */
 export interface RdfSource {
-  property(iri: string, predicate: string): Promise<RdfObject[]>;
+  property(iri: string, predicate: string): Promise<RdfObject[]> | RdfObject[];
 
-  reverseProperty(predicate: string, iri: string): Promise<RdfNode[]>;
+  reverseProperty(predicate: string, iri: string): Promise<RdfNode[]> | RdfNode[];
 }
 
 /**

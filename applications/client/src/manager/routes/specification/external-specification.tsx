@@ -14,7 +14,7 @@ import {DeleteDataSchemaForm} from "../../components/delete-data-schema-form";
 import {SearchDialog} from "../../../editor/components/cim-search/search-dialog";
 import {ConfigurationContext} from "../../../editor/components/App";
 import {Configuration} from "../../../editor/configuration/configuration";
-import {getSlovnikGovCzAdapter} from "../../../editor/configuration/adapters/slovnik-gov-cz-adapter";
+import {getAdapter} from "../../../editor/configuration/adapters/get-adapter";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmExternalRoot, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {CreateExternalRoot} from "../../../editor/operations/create-external-root";
@@ -104,8 +104,10 @@ const SchemaRow: FC<{
         });
     }, [EditExternalArtifacts, backendConnector, dataSpecifications, setDataSpecifications, specification?.artefactConfiguration, specificationIri]);
 
-    const artefactConfiguration: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts;
-    const artefacts = useMemo(() => artefactConfiguration.filter(artefact => artefact.psm === dataPsmSchemaIri), [artefactConfiguration, dataPsmSchemaIri]);
+    const artefacts = useMemo(() => {
+        const artefactConfiguration: DataSpecificationSchema[] = (specification?.artefactConfiguration as any)?.artifacts ?? [];
+        return artefactConfiguration.filter(artefact => artefact.psm === dataPsmSchemaIri)
+    }, [dataPsmSchemaIri, specification?.artefactConfiguration]);
 
     return <Paper sx={{mt: 3}}>
         <CardContent sx={{display: "flex"}}>
@@ -229,9 +231,10 @@ export const ExternalSpecification: React.FC<{
     const DeleteForm = useDialog(DeleteDataSchemaForm, ["dataSpecificationIri"]);
     const Search = useDialog(SearchDialog);
 
+
     const configuration = useMemo(() => ({
-        cim: getSlovnikGovCzAdapter()
-    } as unknown as Configuration), []);
+        cim: getAdapter(specification?.cimAdapters ?? [])
+    } as unknown as Configuration), [specification?.cimAdapters]);
 
     if (!dataSpecificationIri) {
         return null;

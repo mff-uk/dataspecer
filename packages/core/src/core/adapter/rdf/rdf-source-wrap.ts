@@ -1,4 +1,5 @@
 import { RdfNode, RdfObject, RdfSource } from "./rdf-api";
+import {RdfMemorySource} from "../../../io/rdf/rdf-memory-source";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -14,7 +15,7 @@ const RDF_NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 export class RdfSourceWrap {
   readonly iri: string;
 
-  private readonly source: RdfSource;
+  protected readonly source: RdfSource;
 
   protected constructor(iri: string, source: RdfSource) {
     this.iri = iri;
@@ -144,6 +145,150 @@ export class RdfSourceWrap {
 
   async languageString(predicate: string): Promise<Record<string, string>> {
     const literals = await this.literals(predicate);
+    if (literals.length === 0) {
+      return null;
+    }
+    const result = {};
+    for (const title of literals) {
+      result[title.language ?? ""] = String(title.value);
+    }
+    return result;
+  }
+}
+
+export class RdfMemorySourceWrap {
+  readonly iri: string;
+
+  protected readonly source: RdfMemorySource;
+
+  protected constructor(iri: string, source: RdfMemorySource) {
+    this.iri = iri;
+    this.source = source;
+  }
+
+  static forIri(resource: string, source: RdfMemorySource): RdfMemorySourceWrap {
+    return new RdfMemorySourceWrap(resource, source);
+  }
+
+  property(predicate: string): RdfObject[] {
+    return this.source.property(this.iri, predicate);
+  }
+
+  reverseProperty(predicate: string): RdfNode[] {
+    return this.source.reverseProperty(predicate, this.iri);
+  }
+
+  /**
+   * Resolve lists with rdf:first, rdf:rest
+   */
+  propertyExtended(predicate: string): RdfObject[] {
+    const values = this.property(predicate);
+    const result = [];
+    for (const value of values) {
+      if (RdfObject.isNotNode(value)) {
+        // As the value is not a node it can not represent a list.
+        result.push(value);
+        continue;
+      }
+      const hasFirst = this.source.property(value.value, HAS_FIRST);
+      if (hasFirst.length === 0) {
+        // It is an entity.
+        result.push(value);
+      } else {
+        // It is a list.
+        this.loadList(result, value);
+      }
+    }
+    return result;
+  }
+
+  protected loadList(
+      collector: RdfObject[],
+      node: RdfObject
+  ) {
+    const hasFirst = this.source.property(node.value, HAS_FIRST);
+    if (hasFirst.length !== 1) {
+      throw new Error(
+          `Invalid number (${hasFirst.length}) rdf:head for ${node.value}`
+      );
+    }
+    const first = hasFirst[0];
+    if (RdfObject.isNode(first)) {
+      collector.push(first);
+    }
+    const hasRest = this.source.property(node.value, HAS_REST);
+    if (hasRest.length !== 1) {
+      throw new Error(`Invalid number rdf:rest for ${node.value}`);
+    }
+    const rest = hasRest[0];
+    if (RdfObject.isNode(rest)) {
+      if (rest.value === RDF_NIL) {
+        return;
+      }
+      this.loadList(collector, rest);
+    }
+  }
+
+  literal(predicate: string): RdfObject | null {
+    const values = this.property(predicate);
+    if (values.length == 0) {
+      return null;
+    }
+    for (const value of values) {
+      if (RdfObject.isLiteral(value)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  literals(predicate: string): RdfObject[] {
+    const properties = this.property(predicate);
+    return properties.filter(RdfObject.isLiteral);
+  }
+
+  reverseNode(predicate: string): string | null {
+    const values = this.reverseProperty(predicate);
+    for (const value of values) {
+      return value.value;
+    }
+    return null;
+  }
+
+  reverseNodes(predicate: string): string[] {
+    return (this.reverseProperty(predicate))
+        .filter(RdfObject.isNode)
+        .map((value) => value.value);
+  }
+
+  node(predicate: string): string | null {
+    const values = this.property(predicate);
+    for (const value of values) {
+      if (RdfObject.isNode(value)) {
+        return value.value;
+      }
+    }
+    return null;
+  }
+
+  nodes(predicate: string): string[] {
+    return (this.property(predicate))
+        .filter(RdfObject.isNode)
+        .map((value) => value.value);
+  }
+
+  nodesExtended(predicate: string): string[] {
+    return (this.propertyExtended(predicate))
+        .filter(RdfObject.isNode)
+        .map((value) => value.value);
+  }
+
+  types(): string[] {
+    return this.nodes(TYPE);
+  }
+
+  languageString(predicate: string): Record<string, string> {
+    const literals = this.literals(predicate);
     if (literals.length === 0) {
       return null;
     }

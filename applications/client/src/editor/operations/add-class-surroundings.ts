@@ -98,6 +98,7 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAttribute.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(attribute) ?? null;
+        dataPsmCreateAttribute.dataPsmDatatype = (await this.store.readResource(pimAttributeIri) as PimAttribute).pimDatatype;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAttribute);
     }
 
@@ -165,6 +166,7 @@ export class AddClassSurroundings implements ComplexOperation {
         pimCreateAttribute.pimOwnerClass = ownerClassIri;
         pimCreateAttribute.pimCardinalityMin = resource.pimCardinalityMin;
         pimCreateAttribute.pimCardinalityMax = resource.pimCardinalityMax;
+        pimCreateAttribute.pimDatatype = resource.pimDatatype;
         const pimCreateAttributeResult = await this.store.applyOperation(pimSchema, pimCreateAttribute);
         return pimCreateAttributeResult.created[0];
     }

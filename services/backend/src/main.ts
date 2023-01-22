@@ -3,7 +3,7 @@ import express from "express";
 import { PrismaClient } from '@prisma/client';
 import {
     addSpecification,
-    deleteSpecification,
+    deleteSpecification, garbageCollection,
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
@@ -52,6 +52,7 @@ application.get(basename + '/data-specification', listSpecifications);
 application.post(basename + '/data-specification', addSpecification);
 application.delete(basename + '/data-specification', deleteSpecification);
 application.put(basename + '/data-specification', modifySpecification);
+application.post(basename + '/data-specification/garbage-collection', garbageCollection);
 
 application.post(basename + '/data-specification/data-psm', createDataPsm);
 application.delete(basename + '/data-specification/data-psm', deleteDataPsm);

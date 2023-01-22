@@ -6,11 +6,12 @@ import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./utils/use-stores-by-descriptors";
 import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@dataspecer/core/core";
-import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag";
+import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag-select";
 import {useLocalStorage} from "./utils/use-local-storage";
 import {SnackbarProvider} from 'notistack';
 import {BackendConnectorContext} from "../application";
 import {Help} from "../components/help";
+import {ReturnBackButton} from "../components/return-back/return-back-button";
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as DataSpecifications,
@@ -70,7 +71,7 @@ function App(props: {children: React.ReactNode}) {
 
     // Basic filtering
 
-    const filter = useLocalStorage<string>("filter-by-tag", "_");
+    const filter = useLocalStorage<string>("filter-by-tag", null);
     const tags = useMemo(() =>
         [...new Set(Object.values(dataSpecifications)
             .filter(ds => rootDataSpecificationIris.includes(ds.iri as string))
@@ -89,6 +90,7 @@ function App(props: {children: React.ReactNode}) {
                                             <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
                                                 <strong>Dataspecer</strong> specification manager
                                             </Typography>
+                                            <ReturnBackButton />
                                             <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
                                                 <Help />
                                             </Box>

@@ -1,10 +1,11 @@
-import {Box, Button, TableCell, TableRow, Typography} from "@mui/material";
+import {Box, Button, Card, CardActions, CardContent, TableCell, TableRow, Typography} from "@mui/material";
 import React from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {DataSchemaNameCell} from "../../name-cells";
+import {DataSchemaNameCell, selectLanguage} from "../../name-cells";
 import {getEditorLink} from "../../shared/get-schema-generator-link";
 import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 export interface DataStructureRowProps {
     specificationIri: string;
@@ -47,4 +48,36 @@ export const DataStructureRow: React.FC<DataStructureRowProps>
             </Box>
         </TableCell>
     </TableRow>;
+};
+
+export const DataStructureBox: React.FC<DataStructureRowProps>
+    = ({specificationIri, dataStructureIri, onDelete}) => {
+    const {t} = useTranslation("ui");
+
+    const {resource} = useResource<DataPsmSchema>(dataStructureIri);
+
+    return <Card variant="outlined" sx={{height: "4.75cm"}}>
+        <CardContent>
+            <Typography variant="h5" component="div" sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+            }}>
+                {selectLanguage(resource?.dataPsmHumanLabel ?? {}, ["en"]) ?? dataStructureIri}
+            </Typography>
+            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                {t("data structure")}
+            </Typography>
+            <Typography variant="body2">{resource?.dataPsmParts.length ?? "-"} items</Typography>
+        </CardContent>
+        <CardActions>
+            <div style={{flexGrow: 1}} />
+            <Button color="error" onClick={onDelete} sx={{mr: 1}}>
+                {t("delete")}
+            </Button>
+            <Button component={Link} to={getEditorLink(specificationIri, dataStructureIri)} variant={"outlined"}>
+                {t("open data structure")}
+            </Button>
+        </CardActions>
+    </Card>;
 };

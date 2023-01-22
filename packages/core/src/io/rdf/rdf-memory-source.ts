@@ -7,25 +7,18 @@ import { RdfSource, RdfQuad, RdfObject, RdfTermType, RdfNode } from "./rdf-api";
 export class RdfMemorySource implements RdfSource {
   protected quads: RdfQuad[] = [];
 
-  protected constructor() {}
-
-  async property(iri: string, predicate: string): Promise<RdfObject[]> {
-    const result = [];
-    this.quads
-      .filter((quad) => quad.subject.value === iri)
-      .filter((quad) => quad.predicate.value === predicate)
-      .forEach((quad) => result.push(quad.object));
-    return result;
+  property(iri: string, predicate: string): RdfObject[] {
+    return this.quads
+      .filter((quad) => quad.subject.value === iri && quad.predicate.value === predicate)
+      .map((quad) => quad.object);
   }
 
-  async reverseProperty(predicate: string, iri: string): Promise<RdfObject[]> {
-    const result = [];
-    this.quads
+  reverseProperty(predicate: string, iri: string): RdfObject[] {
+    return this.quads
       .filter((quad) => quad.object.value === iri)
       .filter((quad) => RdfObject.isNode(quad.object))
       .filter((quad) => quad.predicate.value === predicate)
-      .forEach((quad) => result.push(quad.subject));
-    return result;
+      .map((quad) => quad.subject as RdfObject);
   }
 
   /**

@@ -41,12 +41,14 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
         disabled={disabled}
 
         freeSolo
+        // @ts-ignore
         value={valueIsKnown ? value : undefined}
         disableClearable
 
         onChange={(event, newValue) => {
             // noinspection SuspiciousTypeOfGuard
             if (typeof newValue !== "string") {
+                // @ts-ignore
                 onChange(newValue);
             }
         }}

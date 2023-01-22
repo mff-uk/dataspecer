@@ -196,27 +196,27 @@ const TitleItemSchema: FC<{iri: string}> = ({iri}) => {
 }
 
 
-const TabItem: FC<{iri: string}> = ({iri}) => {
+const TabItem = ({iri}: {iri: string}) => {
     const {resource} = useResource(iri);
     const {t} = useTranslation("detail");
 
     if (!resource) {
-        return t('tab unknown');
+        return <>{t('tab unknown')}</>;
     } else if (DataPsmClass.is(resource)) {
-        return t('tab class');
+        return <>{t('tab class')}</>;
     } else if (DataPsmAttribute.is(resource)) {
-        return t('tab attribute');
+        return <>{t('tab attribute')}</>;
     } else if (DataPsmAssociationEnd.is(resource)) {
-        return t('tab association');
+        return <>{t('tab association')}</>;
     } else if (DataPsmClassReference.is(resource)) {
-        return t('tab reference');
+        return <>{t('tab reference')}</>;
     } else if (DataPsmInclude.is(resource)) {
-        return t('tab include');
+        return <>{t('tab include')}</>;
     } else if (DataPsmOr.is(resource)) {
-        return t('tab or');
+        return <>{t('tab or')}</>;
     } else if (DataPsmSchema.is(resource)) {
-        return t('tab schema');
+        return <>{t('tab schema')}</>;
     } else {
-        return t('tab unknown');
+        return <>{t('tab unknown')}</>;
     }
 }

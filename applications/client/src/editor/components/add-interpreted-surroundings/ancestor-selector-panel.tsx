@@ -35,6 +35,10 @@ const BFS = async (modelReader: CoreResourceReader, rootIri: string): Promise<Pi
         visited.add(processed);
 
         const resource = await modelReader.readResource(processed) as PimClass;
+        if (!resource) {
+            // The given resource does not exist. This is not an error. It just means that some CIM adapters are missing.
+            continue;
+        }
         sorted.push(resource);
         queue.push(...(resource.pimExtends ?? []));
     }

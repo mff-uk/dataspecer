@@ -33,6 +33,24 @@ export class BackendConnector {
     return await data.json() as (DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)|null;
   }
 
+  public async doGarbageCollection(dataSpecificationIri: string): Promise<object | false> {
+    const data = await fetch(this.backendUrl + "/data-specification/garbage-collection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri: dataSpecificationIri,
+      }),
+    });
+
+    if (data.status !== 200) {
+      throw new Error("Garbage collection failed");
+    }
+
+    return await data.json() as object;
+  }
+
   public async createDataSpecification(set: UpdateDataSpecification = {}): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
     const data = await fetch(this.backendUrl + "/data-specification", {
       method: "POST",

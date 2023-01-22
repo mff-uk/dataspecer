@@ -1,7 +1,7 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useId, useMemo, useState} from "react";
 import {Box, Button, Checkbox, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, ListItemText, MenuItem, Select, TextField} from "@mui/material";
 import {LanguageString} from "@dataspecer/core/core";
-import {AvailableTags} from "../routes/home/filter-by-tag";
+import {AvailableTags} from "../routes/home/filter-by-tag-select";
 import {isEqual} from "lodash";
 import {dialog} from "../../editor/dialog";
 
@@ -41,7 +41,7 @@ export const SpecificationEditDialog: React.FC<{
             };
         }
 
-        if (!isEqual(new Set(properties?.tags ?? []), new Set(tags))) {
+        if (!isEqual(mode === "create" ? [] : new Set(properties?.tags ?? []), new Set(tags))) {
             change.tags = tags;
         }
 
@@ -51,16 +51,16 @@ export const SpecificationEditDialog: React.FC<{
 
         await onSubmit(change);
         close();
-    }, [close, label, onSubmit, properties?.label, properties?.tags, properties.type, tags]);
+    }, [close, label, mode, onSubmit, properties?.label, properties?.tags, properties.type, tags]);
 
     const existingTags = React.useContext(AvailableTags);
-
-    const tagRef = useRef(null);
 
     const [customTags, setCustomTags] = useState<string[]>([]);
     const [customTagField, setCustomTagField] = useState<string>("");
 
     const availableTags = useMemo(() => [...existingTags, ...customTags], [existingTags, customTags]);
+
+    const tagsId = useId();
 
     return <>
         <DialogTitle>
@@ -73,7 +73,7 @@ export const SpecificationEditDialog: React.FC<{
                 margin="dense"
                 id="name"
                 fullWidth
-                variant="standard"
+                variant="filled"
                 value={label}
                 label="Label"
                 onChange={e => setLabel(e.target.value)}
@@ -84,10 +84,11 @@ export const SpecificationEditDialog: React.FC<{
                     }
                 }}
             />
-            <FormControl variant="standard" sx={{mt: 2, width: "100%" }}>
-                <InputLabel ref={tagRef}>Tags</InputLabel>
+            <FormControl variant="filled" sx={{mt: 2, width: "100%" }}>
+                <InputLabel id={tagsId}>Tags</InputLabel>
                 <Select
-                    label={tagRef.current}
+                    label={"Tags"}
+                    labelId={tagsId}
                     multiple
                     value={tags}
                     fullWidth
@@ -105,7 +106,6 @@ export const SpecificationEditDialog: React.FC<{
             <Box sx={{display: "flex", flexDirection: "row", gap: 1, mt: 1}}>
                 <TextField
                     label="New tag"
-                    color="info"
                     size="small"
                     fullWidth
                     value={customTagField}

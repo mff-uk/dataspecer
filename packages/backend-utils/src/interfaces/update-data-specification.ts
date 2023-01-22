@@ -6,5 +6,5 @@ import {DataSpecificationWithMetadata} from "./data-specification-with-metadata"
  */
 export type UpdateDataSpecification =  Partial<Pick<
     DataSpecification & DataSpecificationWithMetadata,
-    "importsDataSpecifications" | "tags" | "artefactConfiguration" | "type"
+    "importsDataSpecifications" | "tags" | "artefactConfiguration" | "type" | "cimAdapters"
     >>;

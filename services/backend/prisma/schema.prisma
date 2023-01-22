@@ -33,6 +33,8 @@ model DataSpecification {
   // JSON serialized object
   artifactsConfiguration String @default("[]")
 
+  cimAdapters String @default("[]")
+
   // Type of data specification.
   type String @default("http://dataspecer.com/vocabularies/data-specification/documentation")
 }

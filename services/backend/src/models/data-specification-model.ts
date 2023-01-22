@@ -57,6 +57,7 @@ export class DataSpecificationModel {
       psmStores: Object.fromEntries(dataSpecification.dataStructures.map(dataStructure => [dataStructure.psmSchema, [this.storeModel.getById(dataStructure.storeId)]])),
       tags: JSON.parse(dataSpecification.tags) as string[],
       type: dataSpecification.type as DataSpecification["type"],
+      cimAdapters: JSON.parse(dataSpecification.cimAdapters) as DataSpecification["cimAdapters"],
     }
   }
 
@@ -161,7 +162,10 @@ export class DataSpecificationModel {
         } : undefined,
         type: dataSpecification.type ? {
             set: String(dataSpecification.type)
-        } : undefined
+        } : undefined,
+        cimAdapters: dataSpecification.cimAdapters ? {
+            set: JSON.stringify(dataSpecification.cimAdapters)
+        } : undefined,
       },
       ...prismaDataSpecificationConfig
     });

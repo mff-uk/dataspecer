@@ -298,8 +298,8 @@ const TextFieldWithDefault: FC<{
         value={(isDefault ? (!defaultValue ? "-" : defaultValue) : props.current[props.itemKey] as string) ?? ""}
         onChange={e => updateWithValue(e.target.value)}
         endAdornment={props.default && <InputAdornment position="end">
-            <IconButton>
-              <CloseIcon onClick={toggleDefault} />
+            <IconButton onClick={toggleDefault}>
+              <CloseIcon />
             </IconButton>
           </InputAdornment>}
         startAdornment={isDefault && <InputAdornment position="start">Default used: </InputAdornment>}

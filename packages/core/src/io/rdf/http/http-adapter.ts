@@ -2,6 +2,7 @@ import { HttpFetch } from "../../fetch/fetch-api";
 import { RdfQuad } from "../../../core/adapter/rdf";
 import { parseRdfQuadsWithJsonLd } from "../jsonld/jsonld-adapter";
 import { parseRdfQuadsWithN3 } from "../n3/n3-adapter";
+import {parseRdfXml} from "../xml/rdfxml-adapter";
 
 enum MimeType {
   JsonLd = "application/ld+json",
@@ -9,11 +10,13 @@ enum MimeType {
   Turtle = "text/turtle",
   TriG = "application/trig",
   NTriples = "application/n-triples",
+  RdfXML = "application/rdf+xml",
 }
 
 export async function fetchRdfQuads(
   httpFetch: HttpFetch,
-  url: string
+  url: string,
+  asMimeType?: string,
 ): Promise<RdfQuad[]> {
   const options = {
     headers: {
@@ -22,7 +25,7 @@ export async function fetchRdfQuads(
   };
   const response = await httpFetch(url, options);
   const contentType = getContentType(response);
-  switch (contentType) {
+  switch (asMimeType ?? contentType) {
     case MimeType.JsonLd:
       return await parseRdfQuadsWithJsonLd(await response.text());
     case MimeType.NQuads:
@@ -30,6 +33,8 @@ export async function fetchRdfQuads(
     case MimeType.TriG:
     case MimeType.NTriples:
       return await parseRdfQuadsWithN3(await response.text());
+    case MimeType.RdfXML:
+      return await parseRdfXml(await response.text());
     default:
       throw new Error(`Unsupported format '${contentType}'`);
   }
@@ -42,6 +47,7 @@ function supportedTypes() {
     MimeType.Turtle,
     MimeType.TriG,
     MimeType.NTriples,
+    MimeType.RdfXML,
   ];
 }
 
