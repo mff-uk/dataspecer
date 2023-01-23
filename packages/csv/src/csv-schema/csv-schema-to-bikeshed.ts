@@ -159,7 +159,7 @@ function createPropertySection(
     const list = new BikeshedContentList();
     result.content.push(list);
     list.items.push(
-        new BikeshedContentListItem("Sloupec", [property.technicalLabel])
+        new BikeshedContentListItem("Položka", [property.technicalLabel])
     );
     list.items.push(new BikeshedContentListItem("Jméno", [label]));
     const description = context.selectString(

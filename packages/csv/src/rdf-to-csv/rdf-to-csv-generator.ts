@@ -92,6 +92,6 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         documentationIdentifier: string,
         callerContext: unknown
     ): Promise<unknown | null> {
-        return null; //Todo: What is this good for?
+        return null; // unnecessary, implemented in CSV schema
     }
 }
