@@ -56,7 +56,7 @@ const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = 
 
     return <>
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
-            Conceptual model sources
+            Vocabulary sources
         </Typography>
 
         <Card  sx={{mt: 3}}>
