@@ -26,6 +26,7 @@ import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
 import { commonXmlNamespace, commonXmlPrefix, commonXmlSchema, langStringName } from "../conventions";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
+const xsVerNamespace = "http://www.w3.org/2007/XMLSchema-versioning";
 
 /**
  * Writes the full XML Schema to output.
@@ -55,7 +56,8 @@ async function writeSchemaBegin(
   writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
   await writer.writeNamespaceDeclaration("xs", xsNamespace);
-  await writer.writeLocalAttributeValue("version", "1.1");
+  await writer.writeAndRegisterNamespaceDeclaration("vc", xsVerNamespace);
+  await writer.writeAttributeValue("vc", "minVersion", "1.1");
   if (model.targetNamespace != null) {
     await writer.writeLocalAttributeValue("elementFormDefault", "qualified");
     await writer.writeLocalAttributeValue(
