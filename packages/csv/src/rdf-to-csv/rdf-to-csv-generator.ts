@@ -4,20 +4,24 @@ import {
 } from "@dataspecer/core/generator";
 import {
     DataSpecification,
-    DataSpecificationArtefact, DataSpecificationSchema
+    DataSpecificationArtefact,
+    DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {RDF_TO_CSV} from "./rdf-to-csv-vocabulary";
-import {SparqlSelectQuery} from "@dataspecer/sparql-query";
-import {writeSparqlQuery} from "@dataspecer/sparql-query";
-import {CsvSchemaGenerator} from "../csv-schema/csv-schema-generator";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { RDF_TO_CSV } from "./rdf-to-csv-vocabulary";
+import { SparqlSelectQuery } from "@dataspecer/sparql-query";
+import { writeSparqlQuery } from "@dataspecer/sparql-query";
+import { CsvSchemaGenerator } from "../csv-schema";
 import {
     buildSingleTableQuery,
     buildMultipleTableQueries
 } from "./rdf-to-csv-query-builder";
-import {SingleTableSchema} from "../csv-schema/csv-schema-model";
-import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import { SingleTableSchema } from "../csv-schema/csv-schema-model";
+import {
+    assertFailed,
+    assertNot
+} from "@dataspecer/core/core";
+import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import {
     CsvConfiguration,
     CsvConfigurator,
@@ -77,15 +81,8 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         model = transformStructureModel(
             conceptualModel, model, Object.values(context.specifications));
 
-        if (configuration.enableMultipleTableSchema) {
-            return buildMultipleTableQueries(specification, model);
-        }
-        else {
-            const csvGenerator = new CsvSchemaGenerator();
-            const csvSchema = await csvGenerator.generateToObject(context, artefact, specification);
-            if (csvSchema instanceof SingleTableSchema) return buildSingleTableQuery(csvSchema);
-            else assertFailed("Wrong CSV schema was generated!");
-        }
+        if (configuration.enableMultipleTableSchema) return buildMultipleTableQueries(model);
+        else return buildSingleTableQuery(model);
     }
 
     async generateForDocumentation(
@@ -95,6 +92,6 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         documentationIdentifier: string,
         callerContext: unknown
     ): Promise<unknown | null> {
-        return null; //Todo: What is this good for?
+        return null; // unnecessary, implemented in CSV schema
     }
 }

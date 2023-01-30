@@ -2,7 +2,7 @@ import { assertFailed } from "@dataspecer/core/core";
 import { csvwContext } from "./csvw-context";
 
 export abstract class CsvSchema {
-    "@context": [ AbsoluteIri, { "@language": string } ] = [ new AbsoluteIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
+    "@context": [ SimpleIri, { "@language": string } ] = [ new SimpleIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];
 
     abstract makeJsonLD(): string;
 }
@@ -17,6 +17,7 @@ export class SingleTableSchema extends CsvSchema {
 }
 
 export class MultipleTableSchema extends CsvSchema {
+    "@id": Iri | null = null;
     "@type": string = "TableGroup";
     "tables": Table[] = [];
 
@@ -75,10 +76,10 @@ export class Reference {
 
 export abstract class Iri {
     abstract write(): string;
-    abstract asAbsolute(): AbsoluteIri;
+    abstract asAbsolute(): SimpleIri;
 }
 
-export class AbsoluteIri extends Iri {
+export class SimpleIri extends Iri {
     constructor(value: string) {
         super();
         this.value = value;
@@ -89,8 +90,8 @@ export class AbsoluteIri extends Iri {
     write(): string {
         return this.value;
     }
-    asAbsolute(): AbsoluteIri {
-        return new AbsoluteIri(this.value);
+    asAbsolute(): SimpleIri {
+        return new SimpleIri(this.value);
     }
 }
 
@@ -107,11 +108,11 @@ export class CompactIri extends Iri {
     write(): string {
         return this.prefix + ":" + this.suffix;
     }
-    asAbsolute(): AbsoluteIri {
+    asAbsolute(): SimpleIri {
         let absolute = csvwContext["@context"][this.prefix];
         if (absolute === undefined || typeof absolute !== "string") assertFailed("Undefined prefix!");
         absolute += this.suffix;
-        return new AbsoluteIri(absolute);
+        return new SimpleIri(absolute);
     }
 }
 

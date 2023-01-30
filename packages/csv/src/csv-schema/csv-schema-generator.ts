@@ -7,18 +7,26 @@ import {
     DataSpecificationArtefact,
     DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {CSV_SCHEMA} from "./csv-schema-vocabulary";
-import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
-import {CsvSchema} from "./csv-schema-model";
-import {structureModelToCsvSchema} from "./csv-schema-model-adapter";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { CSV_SCHEMA } from "./csv-schema-vocabulary";
+import {
+    assertFailed,
+    assertNot
+} from "@dataspecer/core/core";
+import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import { CsvSchema } from "./csv-schema-model";
+import { structureModelToCsvSchema } from "./csv-schema-model-adapter";
 import {
     CsvConfiguration,
     CsvConfigurator,
     DefaultCsvConfiguration
 } from "../configuration";
-import {isRecursive} from "@dataspecer/core/structure-model/helper/is-recursive";
+import { isRecursive } from "@dataspecer/core/structure-model/helper/is-recursive";
+import {
+    BIKESHED,
+    BikeshedAdapterArtefactContext
+} from "@dataspecer/bikeshed";
+import { createBikeshedSchemaCsv } from "./csv-schema-to-bikeshed";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 
@@ -64,7 +72,7 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         if (isRecursive(model)) {
             throw new Error("CSV schema generator does not support recursive structures.");
         }
-        return structureModelToCsvSchema(specification, model, configuration);
+        return structureModelToCsvSchema(model, configuration);
     }
 
     async generateForDocumentation(
@@ -74,6 +82,17 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         documentationIdentifier: string,
         callerContext: unknown
     ): Promise<unknown | null> {
-        return null; //Todo: What is this good for?
+        if (documentationIdentifier === BIKESHED.Generator) {
+            const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
+            return createBikeshedSchemaCsv({
+                ...bikeshedContext,
+                structureModel: transformStructureModel(
+                    bikeshedContext.conceptualModel,
+                    bikeshedContext.structureModel,
+                    Object.values(context.specifications)
+                ),
+            });
+        }
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 import { createCsvSchema } from "./test-helpers";
 
-const testNamePrefix = "CSV generator: ";
+const testNamePrefix = "CSV schema: ";
 
 /**
  * Arrange a basic tree
@@ -41,7 +41,7 @@ test(testNamePrefix + "@context", async () => {
 
 test(testNamePrefix + "@id", async () => {
     const result = await commonArrange1(false);
-    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json");
+    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533/table.csv-metadata.json");
 });
 
 test(testNamePrefix + "@type", async () => {
@@ -51,7 +51,7 @@ test(testNamePrefix + "@type", async () => {
 
 test(testNamePrefix + "url", async () => {
     const result = await commonArrange1(false);
-    expect(result["url"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/table.csv");
+    expect(result["url"]).toBe("table.csv");
 });
 
 test(testNamePrefix + "tableSchema @type", async () => {
@@ -149,6 +149,11 @@ test(testNamePrefix + "virtual column valueUrl", async () => {
     expect(result.tableSchema.columns[8]["valueUrl"]).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
 });
 
+test(testNamePrefix + "multiple table @id", async () => {
+    const result = await commonArrange1(true);
+    expect(result["@id"]).toBe("https://ofn.gov.cz/schema/1655285011931-2bda-c788-8533/csv-metadata.json");
+});
+
 test(testNamePrefix + "multiple table @type", async () => {
     const result = await commonArrange1(true);
     expect(result["@type"]).toBe("TableGroup");
@@ -166,7 +171,7 @@ test(testNamePrefix + "numeric table url", async () => {
 
 test(testNamePrefix + "foreign key table", async () => {
     const result = await commonArrange1(true);
-    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("https://ofn.gov.cz/schema/unittests/tourist-destination/schema.csv-metadata.json/tables/1.csv");
+    expect(result.tables[1].tableSchema["foreignKeys"][0]["reference"]["resource"]).toBe("table-1.csv");
 });
 
 test(testNamePrefix + "first level columns", async () => {

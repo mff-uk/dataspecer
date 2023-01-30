@@ -1,13 +1,9 @@
 import {
-    SingleTableSchema,
-    Column
-} from "../csv-schema/csv-schema-model";
-import {
-    specArtefactIndex,
     idColumnTitle,
     refColumnTitle,
     leftRefColTitle,
     rightRefColTitle,
+    nameSeparator,
     TableUrlGenerator
 } from "../csv-schema/csv-schema-model-adapter";
 import {
@@ -24,9 +20,14 @@ import {
 import { RDF_TYPE_URI } from "@dataspecer/sparql-query";
 import { csvwContext } from "../csv-schema/csvw-context";
 import { assertFailed } from "@dataspecer/core/core";
-import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {StructureModel, StructureModelClass} from "@dataspecer/core/structure-model/model";
+import {
+    StructureModel,
+    StructureModelClass
+} from "@dataspecer/core/structure-model/model";
 
+/**
+ * This class systematically generates variable names for SPARQL queries.
+ */
 class VariableGenerator {
     private num = 0;
 
@@ -38,15 +39,19 @@ class VariableGenerator {
     }
 }
 
+/**
+ * Creates SPARQL queries for multiple table CSV schema.
+ * @param model Structure model of the CSV schema and the SPARQL queries
+ */
 export function buildMultipleTableQueries(
-    specification: DataSpecification,
     model: StructureModel
 ) : SparqlSelectQuery[] {
     const prefixes: Record<string, string> = {};
     const where = new SparqlPattern();
+    where.elements = [];
     const selects: string[][] = [];
     const varGen = new VariableGenerator();
-    const urlGen = new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl);
+    const urlGen = new TableUrlGenerator();
     buildQueriesRecursive(prefixes, where, selects, model.roots[0].classes[0], varGen, urlGen);
 
     const queries: SparqlSelectQuery[] = [];
@@ -60,9 +65,19 @@ export function buildMultipleTableQueries(
     return queries;
 }
 
+/**
+ * Recursively iterates over properties of the classes in the provided structure model and creates data for multiple SPARQL queries.
+ * @param prefixes Common prefixes of the created queries
+ * @param wherePattern Common where pattern in queries
+ * @param selects Each select is specific for its corresponding query
+ * @param currentClass Parameter of recursion and container of properties
+ * @param varGen Generator for query variables
+ * @param urlGen Generator for table URLs
+ * @returns Variable representing the created subtree
+ */
 function buildQueriesRecursive(
     prefixes: Record<string, string>,
-    where: SparqlPattern,
+    wherePattern: SparqlPattern,
     selects: string[][],
     currentClass: StructureModelClass,
     varGen: VariableGenerator,
@@ -73,14 +88,7 @@ function buildQueriesRecursive(
     const tableUrlCom = makeTableUrlComment(urlGen);
     const subject = varGen.getNext();
     currentSelect.push(makeAs(subject.variableName, idColumnTitle));
-
-    const typeTriple = new SparqlTriple();
-    typeTriple.subject = subject;
-    const typePredicate = new SparqlUriNode();
-    typePredicate.uri = RDF_TYPE_URI;
-    typeTriple.predicate = typePredicate;
-    typeTriple.object = nodeFromIri(currentClass.cimIri, prefixes);
-    where.elements.push(typeTriple);
+    wherePattern.elements.push(makeTypeTriple(prefixes, subject, currentClass.cimIri));
 
     for (const property of currentClass.properties) {
         const dataType = property.dataTypes[0];
@@ -89,50 +97,29 @@ function buildQueriesRecursive(
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) {
-                if (multipleValues) {
-                    const object = varGen.getNext();
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                    const multipleValTable: string[] = [];
-                    multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
-                    selects.push(multipleValTable);
-                }
-                else {
-                    const object = varGen.getNext();
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, object, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                    currentSelect.push(makeAs(object.variableName, property.technicalLabel));
-                }
+                const object = varGen.getNext();
+                wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue, property.isReverse));
+                if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
+                else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
             }
             else {
-                const propSubject = buildQueriesRecursive(prefixes, where, selects, associatedClass, varGen, urlGen); //todo: required subtree?
-                if (multipleValues) {
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
-                    const relationTable: string[] = [];
-                    relationTable.push(makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen));
-                    selects.push(relationTable);
+                let targetPattern = wherePattern;
+                if (!requiredValue) {
+                    const opt = prepareOptional();
+                    targetPattern = opt.optionalPattern;
+                    wherePattern.elements.push(opt);
                 }
-                else {
-                    if (property.isReverse) where.elements.push(propertyToElement(prefixes, propSubject, property.cimIri, subject, requiredValue));
-                    else where.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, requiredValue));
-                    currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
-                }
+                const propSubject = buildQueriesRecursive(prefixes, targetPattern, selects, associatedClass, varGen, urlGen);
+                targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true, property.isReverse));
+                if (multipleValues) selects.push([ makeAs(subject.variableName, leftRefColTitle), makeAs(propSubject.variableName, rightRefColTitle), makeTableUrlComment(urlGen) ]);
+                else currentSelect.push(makeAs(propSubject.variableName, property.technicalLabel));
             }
         }
         else if (dataType.isAttribute()) {
-            if (multipleValues) {
-                const object = varGen.getNext();
-                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                const multipleValTable: string[] = [];
-                multipleValTable.push(makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen));
-                selects.push(multipleValTable);
-            }
-            else {
-                const object = varGen.getNext();
-                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
-                currentSelect.push(makeAs(object.variableName, property.technicalLabel));
-            }
+            const object = varGen.getNext();
+            wherePattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+            if (multipleValues) selects.push([ makeAs(subject.variableName, refColumnTitle), makeAs(object.variableName, property.technicalLabel), makeTableUrlComment(urlGen) ]);
+            else currentSelect.push(makeAs(object.variableName, property.technicalLabel));
         }
         else assertFailed("Unexpected datatype!");
     }
@@ -141,27 +128,73 @@ function buildQueriesRecursive(
     return subject;
 }
 
+/**
+ * Creates rdf:type triple.
+ * @param prefixes Necessary prefix may be created and added here.
+ * @param subject Subject of the triple
+ * @param typeIri Object of the triple
+ * @returns Created rdf:type triple
+ */
+function makeTypeTriple(
+    prefixes: Record<string, string>,
+    subject: SparqlNode,
+    typeIri: string
+) : SparqlTriple {
+    const typeTriple = new SparqlTriple();
+    typeTriple.subject = subject;
+    const typePredicate = new SparqlUriNode();
+    typePredicate.uri = RDF_TYPE_URI;
+    typeTriple.predicate = typePredicate;
+    typeTriple.object = nodeFromIri(typeIri, prefixes);
+    return typeTriple;
+}
+
+/**
+ * Table URL is added to query as a comment to simplify orientation.
+ */
 function makeTableUrlComment(
     urlGen: TableUrlGenerator
 ) : string {
     return "# Table: " + urlGen.getNext().write();
 }
 
+/**
+ * Creates SPARQL query element from property fields.
+ * @param prefixes Prefixes of the new nodes are stored here.
+ * @param subject Subject of the created triple
+ * @param predIri IRI of the predicate
+ * @param object Object of the created triple
+ * @param required The triple is wrapped in optional pattern if this is false.
+ * @param reverse Backwards associations have subject and object swapped.
+ * @returns Created SPARQL element
+ */
 function propertyToElement(
     prefixes: Record<string, string>,
     subject: SparqlNode,
     predIri: string,
     object: SparqlNode,
-    required: boolean
+    required: boolean,
+    reverse: boolean = false
 ) : SparqlElement {
     const triple = new SparqlTriple();
-    triple.subject = subject;
+    if (reverse) {
+        triple.subject = object;
+        triple.object = subject;
+    }
+    else {
+        triple.subject = subject;
+        triple.object = object;
+    }
     triple.predicate = nodeFromIri(predIri, prefixes);
-    triple.object = object;
     if (required) return triple;
     else return wrapInOptional(triple);
 }
 
+/**
+ * Creates AS pattern for select part of SPARQL query.
+ * @param varName Original variable name
+ * @param alias New name of for the variable
+ */
 function makeAs(
     varName: string,
     alias: string
@@ -169,63 +202,95 @@ function makeAs(
     return "(?" + varName + " AS ?" + alias + ")";
 }
 
+/**
+ * Creates SPARQL query for single table CSV schema.
+ * @param model Structure model of the CSV schema and the SPARQL query
+ */
 export function buildSingleTableQuery(
-    schema: SingleTableSchema
+    model: StructureModel
 ) : SparqlSelectQuery {
     const query = new SparqlSelectQuery();
     query.prefixes = {};
     query.select = [];
     query.where = new SparqlPattern();
     query.where.elements = [];
-    const commonSubject = new SparqlVariableNode();
-    commonSubject.variableName = "cs";
-    let objectIndex = 1;
-
-    for (const column of schema.table.tableSchema.columns) {
-        const triple = new SparqlTriple();
-        triple.subject = commonSubject;
-        triple.predicate = columnToPredicate(column, query.prefixes);
-        const objectNode = new SparqlVariableNode();
-        if (column.titles === null) {
-            objectNode.variableName = "v" + objectIndex.toString();
-            objectIndex++;
-        }
-        else {
-            objectNode.variableName = column.titles;
-            query.select.push("?" + objectNode.variableName);
-        }
-        triple.object = objectNode;
-
-        if (column.required || column.virtual) query.where.elements.push(triple);
-        else query.where.elements.push(wrapInOptional(triple));
-    }
+    const varGen = new VariableGenerator();
+    buildSingleQueryRecursive(query.prefixes, query.select, query.where, model.roots[0].classes[0], varGen, "");
     return query;
 }
 
-function wrapInOptional(
-    element: SparqlElement
-) : SparqlOptionalPattern {
+/**
+ * Recursively iterates over properties of the classes in the provided structure model and creates data for SPARQL query.
+ * @param prefixes Prefixes of the created query
+ * @param select Select of the created query
+ * @param where Where of the created query
+ * @param currentClass Parameter of recursion and container of properties
+ * @param varGen Generator for query variables
+ * @param namePrefix Recursively created prefix of the names of the properties
+ * @returns Variable representing the created subtree
+ */
+function buildSingleQueryRecursive(
+    prefixes: Record<string, string>,
+    select: string[],
+    where: SparqlPattern,
+    currentClass: StructureModelClass,
+    varGen: VariableGenerator,
+    namePrefix: string
+) : SparqlVariableNode {
+    const subject = varGen.getNext();
+    where.elements.push(makeTypeTriple(prefixes, subject, currentClass.cimIri));
+
+    for (const property of currentClass.properties) {
+        const dataType = property.dataTypes[0];
+        const requiredValue = property.cardinalityMin > 0;
+        if (dataType.isAssociation()) {
+            const associatedClass = dataType.dataType;
+            if (associatedClass.properties.length === 0) {
+                const object = varGen.getNext();
+                where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue, property.isReverse));
+                select.push(makeAs(object.variableName, namePrefix + property.technicalLabel));
+            }
+            else {
+                let targetPattern = where;
+                if (!requiredValue) {
+                    const opt = prepareOptional();
+                    targetPattern = opt.optionalPattern;
+                    where.elements.push(opt);
+                }
+                const propSubject = buildSingleQueryRecursive(prefixes, select, targetPattern, associatedClass, varGen, namePrefix + property.technicalLabel + nameSeparator);
+                targetPattern.elements.push(propertyToElement(prefixes, subject, property.cimIri, propSubject, true, property.isReverse));
+            }
+        }
+        else if (dataType.isAttribute()) {
+            const object = varGen.getNext();
+            where.elements.push(propertyToElement(prefixes, subject, property.cimIri, object, requiredValue));
+            select.push(makeAs(object.variableName, namePrefix + property.technicalLabel));
+        }
+        else assertFailed("Unexpected datatype!");
+    }
+
+    return subject;
+}
+
+/**
+ * Initializes fields of the SPARQL optional pattern.
+ */
+function prepareOptional() : SparqlOptionalPattern {
     const opt = new SparqlOptionalPattern();
     opt.optionalPattern = new SparqlPattern();
     opt.optionalPattern.elements = [];
-    opt.optionalPattern.elements.push(element);
     return opt;
 }
 
 /**
- * Creates a SPARQL (predicate) node according to the column and adds necessary prefix to the query.
+ * Puts SPARQL element inside a new optional pattern.
  */
-export function columnToPredicate(
-    column: Column,
-    queryPrefixes: Record<string, string>
-) : SparqlNode {
-    if (column.propertyUrl !== null) return nodeFromIri(column.propertyUrl.asAbsolute().value, queryPrefixes);
-    if (column.name !== null) {
-        const node = new SparqlUriNode();
-        node.uri = "#" + column.name;
-        return node;
-    }
-    assertFailed("Missing property identifier in column!");
+function wrapInOptional(
+    element: SparqlElement
+) : SparqlOptionalPattern {
+    const opt = prepareOptional();
+    opt.optionalPattern.elements.push(element);
+    return opt;
 }
 
 /**

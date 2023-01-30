@@ -9,7 +9,7 @@ import {
     ForeignKey,
     Reference,
     Iri,
-    AbsoluteIri,
+    SimpleIri,
     CompactIri
 } from "./csv-schema-model";
 import {
@@ -18,60 +18,55 @@ import {
     StructureModelProperty,
     StructureModelClass
 } from "@dataspecer/core/structure-model/model";
-import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import {
     assert,
     assertFailed,
     LanguageString
 } from "@dataspecer/core/core";
 import { OFN } from "@dataspecer/core/well-known";
-import {CsvConfiguration} from "../configuration";
+import { CsvConfiguration } from "../configuration";
 
-const schemaPrefix = "https://ofn.gov.cz/schema";
 const referenceDatatype = "string";
-export const specArtefactIndex = 4;
 export const idColumnTitle = "RowId";
 export const refColumnTitle = "Reference";
 export const leftRefColTitle = "LeftReference";
 export const rightRefColTitle = "RightReference";
+export const nameSeparator = "_";
 
+/**
+ * This class is used to systematically generate URLs for tables wherever they are needed.
+ */
 export class TableUrlGenerator {
     private num = 0;
-    private readonly prefix: string;
 
-    constructor(idPrefix: string) {
-        this.prefix = schemaPrefix + idPrefix + "/tables/";
-    }
-
-    getNext(): AbsoluteIri {
+    getNext(): SimpleIri {
         this.num++;
-        return new AbsoluteIri(this.prefix + this.num.toString() + ".csv");
+        return new SimpleIri("table-" + this.num.toString() + ".csv");
     }
 }
 
 /**
- * Creates CSV schema from StructureModel, DataSpecification and a configuration.
+ * Creates CSV schema from StructureModel and a configuration.
  */
 export function structureModelToCsvSchema(
-    specification: DataSpecification,
     model: StructureModel,
     configuration: CsvConfiguration
 ) : CsvSchema {
     assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-    if (configuration.enableMultipleTableSchema) return makeMultipleTableSchema(specification, model);
-    else return makeSingleTableSchema(specification, model);
+    if (configuration.enableMultipleTableSchema) return makeMultipleTableSchema(model);
+    else return makeSingleTableSchema(model);
 }
 
 /**
  * Creates a schema that consists of multiple tables.
  */
 function makeMultipleTableSchema(
-    specification: DataSpecification,
     model: StructureModel
 ) : MultipleTableSchema {
     const schema = new MultipleTableSchema();
-    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator(specification.artefacts[specArtefactIndex].publicUrl));
+    schema["@id"] = new SimpleIri(model.psmIri + "/csv-metadata.json");
+    makeTablesRecursive(schema.tables, model.roots[0].classes[0], new TableUrlGenerator());
     return schema;
 }
 
@@ -234,12 +229,11 @@ function makeForeignKey(
  * Creates a schema that consists of a single table.
  */
 function makeSingleTableSchema(
-    specification: DataSpecification,
     model: StructureModel
 ) : SingleTableSchema {
     const schema = new SingleTableSchema();
-    schema.table["@id"] = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl);
-    schema.table.url = new AbsoluteIri(schemaPrefix + specification.artefacts[specArtefactIndex].publicUrl + "/table.csv");
+    schema.table["@id"] = new SimpleIri(model.psmIri + "/table.csv-metadata.json");
+    schema.table.url = new SimpleIri("table.csv");
     schema.table.tableSchema = new TableSchema();
     fillColumnsRecursive(schema.table.tableSchema.columns, model.roots[0].classes[0], "", true);
     schema.table.tableSchema.columns.push(makeTypeColumn(model.roots[0].classes[0].cimIri));
@@ -265,7 +259,7 @@ function fillColumnsRecursive(
         if (dataType.isAssociation()) {
             const associatedClass = dataType.dataType;
             if (associatedClass.properties.length === 0) columns.push(makeColumnFromProp(property, required, prefix));
-            else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + "_", required);
+            else fillColumnsRecursive(columns, associatedClass, prefix + property.technicalLabel + nameSeparator, required);
         }
         else if (dataType.isAttribute()) columns.push(makeColumnFromProp(property, required, prefix));
         else assertFailed("Unexpected datatype!");
@@ -288,13 +282,13 @@ function makeColumnFromProp(
     column.name = encodeURI(column.titles);
     column["dc:title"] = transformLanguageString(property.humanLabel);
     column["dc:description"] = transformLanguageString(property.humanDescription);
-    column.propertyUrl = new AbsoluteIri(property.cimIri);
+    column.propertyUrl = new SimpleIri(property.cimIri);
     column.required = required;
 
     const dataType = property.dataTypes[0];
     if (dataType.isAssociation()) {
         if (dataType.dataType.isCodelist) {
-            column.valueUrl = new AbsoluteIri("{+" + column.name + "}");
+            column.valueUrl = new SimpleIri("{+" + column.name + "}");
             column.datatype = "anyURI";
         }
         else {
@@ -303,7 +297,7 @@ function makeColumnFromProp(
     }
     else if (dataType.isAttribute()) {
         column.datatype = structureModelPrimitiveToCsvDefinition(dataType);
-        if (column.datatype === "string") column.lang = "cs";
+        if (dataType.dataType === OFN.text) column.lang = "cs";
     }
     else assertFailed("Unexpected datatype!");
 
@@ -320,7 +314,7 @@ function makeTypeColumn(
     const virtualCol = new Column();
     virtualCol.virtual = true;
     virtualCol.propertyUrl = new CompactIri("rdf", "type");
-    virtualCol.valueUrl = new AbsoluteIri(valueUrl);
+    virtualCol.valueUrl = new SimpleIri(valueUrl);
     return virtualCol;
 }
 

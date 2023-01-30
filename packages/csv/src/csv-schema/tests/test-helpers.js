@@ -6,7 +6,7 @@ import { transformStructureModel } from "@dataspecer/core/structure-model/transf
 import { structureModelToCsvSchema } from "../csv-schema-model-adapter";
 import { DefaultCsvConfiguration } from "../../configuration";
 
-async function arrangeSpecAndModel(specificationResource, storeResource) {
+export async function arrangeSpecAndModel(specificationResource, storeResource) {
     const dataSpecificationIri = Object.values(specificationResource)[0].iri;
     const psmIri = specificationResource[dataSpecificationIri].psms[0];
 
@@ -35,5 +35,5 @@ export async function createCsvSchema(multipleTable, specification, store) {
     const arranged = await arrangeSpecAndModel(getResource(specification), getResource(store));
     const options = {...DefaultCsvConfiguration};
     options.enableMultipleTableSchema = multipleTable;
-    return structureModelToCsvSchema(arranged.dataSpecification, arranged.structureModel, options);
+    return structureModelToCsvSchema(arranged.structureModel, options);
 }
