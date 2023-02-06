@@ -25,7 +25,7 @@ export class PlantUml {
   /**
    * Returns class identifier for PlantUML that is also a name
    */
-  private getEntityPlantUMLIdentifier(cls: ConceptualModelClass | ConceptualModelProperty): string {
+  private getEntityPlantUMLIdentifier(cls: ConceptualModelClass | ConceptualModelProperty, escape: boolean = true): string {
     let name = cls.humanLabel?.[this.preferredLanguage];
     if (name === undefined) {
       const langs = Object.keys(cls.humanLabel);
@@ -38,7 +38,7 @@ export class PlantUml {
     }
 
     // If name contains spaces or special characters, enclose in double quotes
-    if (name.match(/^[a-zA-Z0-9_]+$/)) {
+    if (name.match(/^[a-zA-Z0-9_]+$/) || !escape) {
       return name;
     } else {
       return `"${name}"`;
@@ -59,7 +59,7 @@ export class PlantUml {
       await outputStream.write((identifier.startsWith("\"[A]") ? `abstract ` : ``) + `class ${identifier} {\n`);
       for (const prop of cls.properties) {
         if (prop.dataTypes.length === 0) {
-          await outputStream.write(`  ${this.getEntityPlantUMLIdentifier(prop)}\n`);
+          await outputStream.write(`  ${this.getEntityPlantUMLIdentifier(prop, false)}\n`);
         } else if (prop.dataTypes.length === 1) {
           const dataType = prop.dataTypes[0];
           if (dataType.isAttribute()) {
@@ -131,17 +131,7 @@ export class PlantUml {
 
     // Write associations
     for (const association of associations) {
-      const cardinality = association.cardinality.map((card) => {
-        if (card.min === null && card.max === null) {
-          return "*";
-        } else if (card.min === null) {
-          return `0..${card.max}`;
-        } else if (card.max === null) {
-          return `${card.min}..*`;
-        } else {
-          return `${card.min}..${card.max}`;
-        }
-      });
+      const cardinality = association.cardinality.map((card) => this.getCardinalityForAssociation(card)).map(text => text ? ` "${text}"` : "");
 
       const source = this.getEntityPlantUMLIdentifier(
         this.conceptualModel.classes[association.ends[0]]
@@ -151,8 +141,16 @@ export class PlantUml {
       );
 
       await outputStream.write(
-        `${source} "${cardinality[0]}" -- "${cardinality[1]}" ${target} :  ${association.label}\n`
+        `${source}${cardinality[0]} --${cardinality[1]} ${target} :  ${association.label}\n`
       );
+    }
+  }
+
+  private getCardinalityForAssociation(card: {min: number | null, max: number | null}) {
+    if ((card.min ?? 0) !== 0  || card.max !== null) {
+      return `${card.min ?? 0}..${card.max ?? "*"}`;
+    } else {
+      return null;
     }
   }
 }
