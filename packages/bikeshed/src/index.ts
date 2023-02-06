@@ -5,3 +5,6 @@ export * from "./bikeshed-generator";
 export * from "./bikeshed-model";
 export * from "./bikeshed-vocabulary";
 export * from "./bikeshed-configuration";
+export {shouldBeIncluded} from "./adapter/bikeshed-adapter-structural";
+export {createBikeshedStructureSection} from "./adapter/bikeshed-adapter-structural";
+export {createBikeshedMetadata} from "./adapter/bikeshed-adapter-metadata";

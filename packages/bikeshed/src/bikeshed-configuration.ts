@@ -17,6 +17,11 @@ export const DefaultBikeshedConfiguration =  {
      * Bikeshed metadata
      */
     otherMetadata: {Logo: "https://ofn.gov.cz/static/images/logo.png"} as Record<string, string>,
+
+    /**
+     * Language of the document
+     */
+    language: "cs" as "en" | "cs",
 }
 
 export type BikeshedConfiguration = typeof DefaultBikeshedConfiguration;

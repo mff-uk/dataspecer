@@ -24,14 +24,14 @@ export async function conceptualModelToBikeshedContent(
   conceptualModel: ConceptualModel
 ): Promise<BikeshedContent> {
   const result = new BikeshedContentSection(
-    "Konceptuální model",
-    "konceptuální-model"
+      context.i18n.t("conceptual-model:title"),
+      context.i18n.t("conceptual-model:anchor")
   );
   result.content.push(
-    new BikeshedContentText("V této sekci je definován konceptuální model.")
+    new BikeshedContentText(context.i18n.t("conceptual-model:text"))
   );
 
-  result.content.push(mockInsertDiagram(specification, artefact));
+  result.content.push(mockInsertDiagram(context, specification, artefact));
 
   for (const entity of Object.values(conceptualModel.classes)) {
     result.content.push(createEntitySection(context, entity));
@@ -40,6 +40,7 @@ export async function conceptualModelToBikeshedContent(
 }
 
 function mockInsertDiagram(
+  context: BikeshedAdapterContext,
   specification: DataSpecification,
   artefact: DataSpecificationDocumentation
 ): BikeshedContent {
@@ -51,8 +52,7 @@ function mockInsertDiagram(
   for (const artefact of specification.artefacts) {
     if (artefact.generator === generatorIdentifier) {
       return new BikeshedContentText(
-        "\n<br/>" +
-          `<img src="${pathRelative(baseUrl, artefact.publicUrl)}">`
+          `\n<figure><img src="${pathRelative(baseUrl, artefact.publicUrl)}"><figcaption>${context.i18n.t("conceptual-model:diagram-caption")}</figcaption></figure>`
       );
     }
   }
@@ -72,16 +72,16 @@ function createEntitySection(
   result.content.push(properties);
   const description = context.selectOptionalString(entity.humanDescription);
   if (description !== null) {
-    properties.items.push(new BikeshedContentListItem("Popis", [description]));
+    properties.items.push(new BikeshedContentListItem(context.i18n.t("shared:description"), [description]));
   }
   if (entity.isCodelist) {
     properties.items.push(
-      new BikeshedContentListItem("Číselník", ["Typ reprezentuje číselník."])
+      new BikeshedContentListItem(context.i18n.t("shared:codelist.title"), [context.i18n.t("shared:codelist.description")])
     );
   }
   if (entity.cimIri !== null) {
     properties.items.push(
-      new BikeshedContentListItem("Význam", [classSemantics(context, entity)])
+      new BikeshedContentListItem(context.i18n.t("conceptual-model:semantics.title"), [classSemantics(context, entity)])
     );
   }
 
@@ -117,10 +117,7 @@ function classSemantics(
   model: ConceptualModelClass
 ): string {
   const label = classLabel(context, model);
-  return (
-    `Typ ${label} je definována v sémantickém slovníku pojmů jako ` +
-    `[${label}](${model.cimIri}).`
-  );
+  return context.i18n.t("conceptual-model:semantics.description.class", {name: label, link: `[${label}](${model.cimIri})`});
 }
 
 function isAttribute(property: ConceptualModelProperty): boolean {
@@ -142,7 +139,7 @@ function createPropertySection(
   if (isAttribute(property)) {
     heading = label;
   } else {
-    heading = "Vztah: " + label;
+    heading = `${context.i18n.t("shared:association")}: ${label}`;
   }
 
   const result = new BikeshedContentSection(
@@ -152,26 +149,26 @@ function createPropertySection(
 
   const list = new BikeshedContentList();
   result.content.push(list);
-  list.items.push(new BikeshedContentListItem("Jméno", [label]));
+  list.items.push(new BikeshedContentListItem(context.i18n.t("shared:name"), [label]));
   const description = context.selectOptionalString(property.humanDescription);
   if (description !== null) {
-    list.items.push(new BikeshedContentListItem("Popis", [description]));
+    list.items.push(new BikeshedContentListItem(context.i18n.t("shared:description"), [description]));
   }
   list.items.push(
-    new BikeshedContentListItem("Povinnost", [
-      isOptional(property) ? "Nepovinná" : "Povinná",
+    new BikeshedContentListItem(context.i18n.t("shared:mandatory.title"), [
+      isOptional(property) ? context.i18n.t("shared:mandatory.optional") : context.i18n.t("shared:mandatory.mandatory"),
     ])
   );
   list.items.push(
-    new BikeshedContentListItem("Kardinalita", [propertyCardinality(property)])
+    new BikeshedContentListItem(context.i18n.t("shared:cardinality"), [propertyCardinality(property)])
   );
   const types = propertyTypes(context, property);
   if (types.length > 0) {
-    list.items.push(new BikeshedContentListItem("Typ", types));
+    list.items.push(new BikeshedContentListItem(context.i18n.t("shared:type"), types));
   }
   if (property.cimIri !== null) {
     list.items.push(
-      new BikeshedContentListItem("Význam", [
+      new BikeshedContentListItem(context.i18n.t("conceptual-model:semantics.title"), [
         propertySemantics(context, property),
       ])
     );
@@ -255,8 +252,5 @@ function propertySemantics(
   model: ConceptualModelProperty
 ): string {
   const label = propertyLabel(context, model);
-  return (
-    `Vlastnost ${label} je definována v sémantickém slovníku pojmů jako ` +
-    `[${label}](${model.cimIri}).`
-  );
+  return context.i18n.t("conceptual-model:semantics.description.property", {name: label, link: `[${label}](${model.cimIri})`});
 }

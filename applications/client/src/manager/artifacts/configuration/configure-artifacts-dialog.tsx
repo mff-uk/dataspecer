@@ -221,6 +221,8 @@ const Xml: FC<{
   </FormGroup>;
 }
 
+const BIKESHED_LANGUAGES = ["cs", "en"];
+
 /**
  * Part of the dialog where CSV is being configured.
  *
@@ -233,6 +235,15 @@ const Bikeshed: FC<{
   onChange: (options: DeepPartial<BikeshedConfiguration>) => void,
 }> = ({input, onChange, defaultObject}) => {
   return <FormGroup>
+    <SelectWithDefault
+        label={"Language"}
+        default={defaultObject}
+        current={input ?? {}}
+        itemKey={"language"}
+        onChange={onChange}
+        options={BIKESHED_LANGUAGES}
+    />
+    <Box mt={2} />
     <TextFieldWithDefault
         label="Editors"
         current={input ?? {}}
@@ -241,6 +252,7 @@ const Bikeshed: FC<{
         default={defaultObject}
         inputProps={{fullWidth: true, multiline: true}}
     />
+    <Box mt={2} />
     <TextFieldWithDefault
         label="Abstract"
         current={input ?? {}}
@@ -346,6 +358,39 @@ const SwitchWithDefault: FC<{
       }
       label={props.label}
   />
+}
+
+const SelectWithDefault: FC<{
+  default?: Record<string, any>,
+  current: Record<string, any>,
+  itemKey: string,
+  onChange: (value: Record<string, any>) => void,
+  label: string,
+  options: string[],
+}> = (props) => {
+  const handleChange = (event: SelectChangeEvent<number>) => {
+    const val = event.target.value;
+    if (val === -1) {
+      const result = {...props.current};
+      delete result[props.itemKey];
+      props.onChange(result);
+    } else {
+      props.onChange({...props.current, [props.itemKey]: val});
+    }
+  };
+
+  return <FormControlLabel
+      control={<Select
+        variant="standard"
+        sx={{mx: 2}}
+        value={props.current.hasOwnProperty(props.itemKey) ? props.current[props.itemKey] : -1}
+        onChange={handleChange}
+      >
+        {props.default && <MenuItem value={-1}>Default ({props.default[props.itemKey]})</MenuItem>}
+        {props.options.map(o => <MenuItem value={o} key={0}>{o}</MenuItem>)}
+      </Select>}
+      label={props.label}
+  />;
 }
 
 const TableRecord: FC<{

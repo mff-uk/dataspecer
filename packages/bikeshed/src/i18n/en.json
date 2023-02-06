@@ -1,0 +1,38 @@
+{
+  "conceptual-model": {
+    "title": "Conceptual model",
+    "anchor": "conceptual-model",
+    "text": "In this section, the conceptual model is defined.",
+    "diagram-caption": "Diagram of the conceptual model.",
+    "semantics": {
+      "title": "Semantics",
+      "description": {
+        "class": "The type {{name}} is defined in the semantic vocabulary of concepts as {{link}}.",
+        "property": "The property {{name}} is defined in the semantic vocabulary of concepts as {{link}}."
+      }
+    }
+  },
+  "shared": {
+    "description": "Description",
+    "codelist": {
+      "title": "Code list",
+      "description": "The type represents a code list."
+    },
+    "interpretation": "Interpretation",
+    "without-interpretation": "Without interpretation",
+    "x-schema": "{{x}} schema",
+    "key": "Key",
+    "cardinality": "Cardinality",
+    "mandatory": {
+      "title": "Mandatory",
+      "mandatory": "Mandatory",
+      "optional": "Optional"
+    },
+    "name": "Name",
+    "association": "Association",
+    "type": "Type"
+  },
+  "structural-model": {
+    "text": "This section defines the structural model for {{link}}."
+  }
+}

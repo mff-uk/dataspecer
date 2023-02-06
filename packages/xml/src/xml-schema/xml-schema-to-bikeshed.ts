@@ -37,9 +37,9 @@ export async function createBikeshedSchemaXml(
     context.artefact.publicUrl
   );
   result.content.push(
-    new BikeshedContentText(
-      `Tato sekce je dokumentací pro [XML schéma](${linkToSchema}).`
-    )
+      new BikeshedContentText(context.i18n.t("structural-model:text", {
+        link: `[${context.i18n.t("shared:x-schema", {x: "XML"})}](${linkToSchema})`
+      }))
   );
 
   for (const entity of structureModel.getClasses()) {
@@ -67,21 +67,18 @@ function createEntitySection(
   if (description !== null) {
     properties.items.push(
       new BikeshedContentListItem(
-        context.selectString({
-          cs: "Popis",
-          en: "Description",
-        }),
+        context.i18n.t("shared:description"),
         [description]
       )
     );
   }
   if (entity.isCodelist) {
     properties.items.push(
-      new BikeshedContentListItem("Číselník", ["Typ reprezentuje číselník."])
+      new BikeshedContentListItem(context.i18n.t("shared:codelist.title"), [context.i18n.t("shared:codelist.description")])
     );
   }
   properties.items.push(
-    new BikeshedContentListItem("Interpretace", [
+    new BikeshedContentListItem(context.i18n.t("shared:interpretation"), [
       classInterpretation(context, entity),
     ])
   );
@@ -118,7 +115,7 @@ function classInterpretation(
   entity: StructureModelClass
 ): string {
   if (entity.pimIri === null) {
-    return "Bez interpretace.";
+    return context.i18n.t("shared:without-interpretation");
   }
   const conceptualClass = context.conceptualModel.classes[entity.pimIri];
   assertNot(
@@ -149,7 +146,7 @@ function createPropertySection(
   if (isAttribute(property)) {
     heading = label;
   } else {
-    heading = "Vztah: " + label;
+    heading = `${context.i18n.t("shared:association")}: ${label}`;
   }
 
   const result = new BikeshedContentSection(
@@ -160,29 +157,29 @@ function createPropertySection(
   const list = new BikeshedContentList();
   result.content.push(list);
   list.items.push(
-    new BikeshedContentListItem("Element", [property.technicalLabel])
+    new BikeshedContentListItem(context.i18n.t("shared:key"), [property.technicalLabel])
   );
-  list.items.push(new BikeshedContentListItem("Jméno", [label]));
+  list.items.push(new BikeshedContentListItem(context.i18n.t("shared:name"), [label]));
   const description = context.selectString(
     context.structureModel.humanDescription
   );
   if (description !== null) {
-    list.items.push(new BikeshedContentListItem("Popis", [description]));
+    list.items.push(new BikeshedContentListItem(context.i18n.t("shared:description"), [description]));
   }
   list.items.push(
-    new BikeshedContentListItem("Povinnost", [
-      isOptional(property) ? "Nepovinná" : "Povinná",
+    new BikeshedContentListItem(context.i18n.t("shared:mandatory.title"), [
+      isOptional(property) ? context.i18n.t("shared:mandatory.optional") : context.i18n.t("shared:mandatory.mandatory"),
     ])
   );
   list.items.push(
-    new BikeshedContentListItem("Kardinalita", [propertyCardinality(property)])
+      new BikeshedContentListItem(context.i18n.t("shared:cardinality"), [propertyCardinality(property)])
   );
   list.items.push(
-    new BikeshedContentListItem("Typ", propertyTypes(context, property))
+      new BikeshedContentListItem(context.i18n.t("shared:type"), propertyTypes(context, property))
   );
   if (entity.psmIri !== null) {
     list.items.push(
-      new BikeshedContentListItem("Interpretace", [
+      new BikeshedContentListItem(context.i18n.t("shared:interpretation"), [
         propertyInterpretation(context, entity, property),
       ])
     );
@@ -236,7 +233,7 @@ function propertyInterpretation(
   property: StructureModelProperty
 ): string {
   if (entity.pimIri === null || property.pimIri === null) {
-    return "Bez interpretace.";
+    return context.i18n.t("shared:without-interpretation");
   } else if (property.pathToOrigin.length > 0) {
     // TODO Dematerialized property
     return "";

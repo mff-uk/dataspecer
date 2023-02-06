@@ -15,12 +15,15 @@ import {
   DataSpecificationArtefact,
   DataSpecificationDocumentation,
 } from "@dataspecer/core/data-specification/model";
+import { i18n } from "i18next";
 
 /**
  * Context given to adapters.
  */
 export class BikeshedAdapterContext {
   readonly generatorContext: ArtefactGeneratorContext;
+
+  readonly i18n: i18n;
 
   /**
    * In case of missing string a default value is returned.
