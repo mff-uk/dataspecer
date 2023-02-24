@@ -204,6 +204,8 @@ function structureModelPrimitiveToJsonDefinition(
     case OFN.string:
       result = new JsonSchemaString(null);
       result.title = context.stringSelector(OFN_LABELS[OFN.string]);
+      result.pattern = primitive.regex;
+      result.examples = primitive.example;
       break;
     case XSD.decimal:
     case OFN.decimal:

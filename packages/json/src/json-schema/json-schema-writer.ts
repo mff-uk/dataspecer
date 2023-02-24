@@ -116,6 +116,14 @@ async function writeJsonSchemaString(
 ): Promise<void> {
   await writer.value("type", "string");
   await writer.valueIfNotNull("format", schema.format);
+  await writer.valueIfNotNull("pattern", schema.pattern);
+  if (schema.examples && schema.examples.length > 0) {
+    const array = writer.array("examples");
+    for (const example of schema.examples) {
+      await array.value(example);
+    }
+    await array.closeArray();
+  }
 }
 
 async function writeJsonSchemaAnyOf(

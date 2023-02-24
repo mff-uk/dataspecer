@@ -94,6 +94,10 @@ export class JsonSchemaString extends JsonSchemaDefinition {
 
   format: string | null = null;
 
+  pattern: string | null = null;
+
+  examples: string[] = [];
+
   constructor(format: string | null) {
     super(JsonSchemaString.TYPE);
     this.format = format;
