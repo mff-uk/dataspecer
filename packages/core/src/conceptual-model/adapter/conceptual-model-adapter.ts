@@ -142,6 +142,8 @@ class ConceptualModelAdapter {
     if (attributeData.pimDatatype !== null) {
       const type = new ConceptualModelPrimitiveType();
       type.dataType = attributeData.pimDatatype;
+      type.regex = attributeData.pimRegex;
+      type.example = attributeData.pimExample;
       model.dataTypes.push(type);
     }
 

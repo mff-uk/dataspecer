@@ -14,6 +14,8 @@ import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor"
 import { executePimSetExtends } from "./pim-set-extends-executor";
 import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor";
 import { executePimSetCardinality } from "./pim-set-cardinality-executor";
+import { executePimSetExample } from "./pim-set-example-executor";
+import { executePimSetRegex } from "./pim-set-regex-executor";
 
 export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -67,6 +69,11 @@ export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.PimSetDatatype.TYPE
   ),
   CoreOperationExecutor.create(
+    Operations.PimSetExample.is,
+    executePimSetExample,
+    Operations.PimSetExample.TYPE
+  ),
+  CoreOperationExecutor.create(
     Operations.PimSetExtends.is,
     executePimSetExtends,
     Operations.PimSetExtends.TYPE
@@ -85,5 +92,10 @@ export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.PimSetTechnicalLabel.is,
     executePimSetTechnicalLabel,
     Operations.PimSetTechnicalLabel.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.PimSetRegex.is,
+    executePimSetRegex,
+    Operations.PimSetRegex.TYPE
   ),
 ];

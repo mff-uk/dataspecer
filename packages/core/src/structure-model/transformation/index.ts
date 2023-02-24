@@ -4,3 +4,5 @@ export * from "./default-transformation";
 export * from "./instantiate-properties";
 export * from "./propagate-cardinality";
 export * from "./propagate-label";
+export * from "./propagate-regex";
+export * from "./propagate-example";

@@ -9,6 +9,13 @@ export interface StructureModelType {
 export class StructureModelPrimitiveType implements StructureModelType {
   dataType: string | null = null;
 
+  regex: string | null = null;
+
+  /**
+   * Set of examples of values of this property.
+   */
+  example: unknown[] | null = null;
+
   isAttribute(): this is StructureModelPrimitiveType {
     return true;
   }

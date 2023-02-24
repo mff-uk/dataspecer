@@ -9,6 +9,8 @@ import { addDataSpecification } from "./add-data-specification";
 import {propagateCimIri} from "./propagate-cim-iri";
 import {StructureModel} from "../model";
 import {propagateReverse} from "./propagate-reverse";
+import { propagateRegex } from "./propagate-regex";
+import { propagateExample } from "./propagate-example";
 
 type ConceptualTransformation = (
   conceptualModel: ConceptualModel,
@@ -29,6 +31,8 @@ export const defaultConceptualTransformations: ConceptualTransformation[] = [
   propagateLabel,
   propagateCimIri,
   propagateReverse,
+  propagateRegex,
+  propagateExample,
 ];
 
 /**
