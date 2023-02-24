@@ -19,6 +19,10 @@ import {SetCardinality} from "../../../operations/set-cardinality";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SetDematerialize} from "../../../operations/set-dematerialize";
 import { SetPimDatatype } from "../../../operations/set-pim-datatype";
+import { RegexField } from "../../helper/regex-field";
+import { StringExamplesField } from "../../helper/string-examples-field";
+import { SetAttributeRegex } from "../../../operations/set-attribute-regex";
+import { SetAttributeExample } from "../../../operations/set-attribute-example";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -34,6 +38,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const pimReadOnly = false;
 
     const [technicalLabel, setTechnicalLabel] = useState<string>("");
+    const [regex, setRegex] = useState<string>("");
+    const [examples, setExamples] = useState<string[]|null>([]);
     const [datatype, setDatatype] = useState<DatatypeSelectorValueType>("");
     const [codelistUrl, setCodelistUrl] = useState<string[] | false>(false);
     const [codelistUrlAddString, setCodelistUrlAddString] = useState<string>("");
@@ -61,6 +67,13 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             setCodelistUrl((pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false);
         }
     }, [pimResource, isClass]);
+
+    useEffect(() => {
+        if (isAttribute) {
+            setRegex((pimResource as PimAttribute)?.pimRegex ?? "");
+            setExamples((pimResource as PimAttribute)?.pimExample ?? null);
+        }
+    }, [pimResource, isAttribute]);
 
     const {t} = useTranslation("detail");
 
@@ -109,6 +122,28 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     );
 
     // endregion association end dematerialization
+
+    // region regex and examples
+
+    const isStringDatatype = isAttribute && getIriFromDatatypeSelectorValue(datatype) === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec";
+
+    const normalizedRegex = regex === "" ? null : regex;
+    useSaveHandler(
+        isStringDatatype && normalizedRegex !== (pimResource as PimAttribute)?.pimRegex,
+        useCallback(async () => {
+            await store.executeComplexOperation(new SetAttributeRegex(pimResource.iri as string, normalizedRegex));
+        }, [normalizedRegex])
+    );
+
+    const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
+    useSaveHandler(
+        isStringDatatype && !isEqual(normalizedExamples, (pimResource as PimAttribute)?.pimExample),
+        useCallback(async () => {
+            await store.executeComplexOperation(new SetAttributeExample(pimResource.iri as string, normalizedExamples));
+        }, [normalizedExamples])
+    );
+
+    // endregion regex and examples
 
     const [cardinality, setCardinality] = useState<Cardinality | null>(null);
 
@@ -235,7 +270,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             </Box>
         }
 
-        {isAttribute &&
+        {isAttribute && <>
             <Box sx={{mb: 3}}>
                 <Typography variant="subtitle1" component="h2">
                     {t('title data type')}
@@ -243,7 +278,12 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
                 <DatatypeSelector disabled={readOnly} value={datatype} onChange={setDatatype} options={knownDatatypes}/>
             </Box>
-        }
+            {/* <Collapse in={!!datatype} appear={false}> */}
+            {isStringDatatype &&
+                <RegexField disabled={readOnly} value={regex} onChange={setRegex}  />
+            }
+            {/* </Collapse> */}
+        </>}
 
         {(isAttribute || isAssociationEnd) &&
             <Box sx={{mb: 3}}>
@@ -277,6 +317,10 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     label={t('dematerialization.checkbox') as string}
                 />
           </Box>
+        }
+
+        {isStringDatatype &&
+            <StringExamplesField value={examples} onChange={setExamples} disabled={pimReadOnly} regex={regex} />
         }
     </>
 });
