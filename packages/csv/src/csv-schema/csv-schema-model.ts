@@ -38,6 +38,7 @@ export class TableSchema {
     "columns": Column[] = [];
     "primaryKey": string | string[] | null = null;
     "foreignKeys": ForeignKey[] = [];
+    "aboutUrl": string | null = null;
 }
 
 export class Column {
@@ -52,6 +53,7 @@ export class Column {
     "lang": string | null = null;
     "required": boolean = false;
     "virtual": boolean = false;
+    "suppressOutput": boolean = false;
 }
 
 export class LanguageNode {

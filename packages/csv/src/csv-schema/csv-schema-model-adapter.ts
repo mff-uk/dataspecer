@@ -118,6 +118,7 @@ function makeTablesRecursive(
         else assertFailed("Unexpected datatype!");
     }
 
+    table.tableSchema.aboutUrl = "{#" + idColumn.name + "}";
     table.tableSchema.columns.push(makeTypeColumn(currentClass.cimIri));
     return table.url;
 }
@@ -188,6 +189,8 @@ function makeMultipleValueTable(
     const fkey = makeForeignKey(firstColumn.name, referencedTable, referencedColumn);
     table.tableSchema.foreignKeys.push(fkey);
 
+    table.tableSchema.aboutUrl = "{#" + firstColumn.name + "}";
+
     return table;
 }
 
@@ -203,6 +206,7 @@ function makeReferenceColumn(
     col.name = encodeURI(col.titles);
     col.datatype = referenceDatatype;
     col.required = true;
+    col.suppressOutput = true;
     return col;
 }
 
