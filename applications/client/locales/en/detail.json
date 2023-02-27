@@ -21,6 +21,8 @@
   "is codelist": "is codelist",
   "label max": "max",
   "label min": "min",
+  "label regex": "Regular expression",
+  "label string examples": "String examples",
   "label technical label": "Technical label",
   "no codelist url": "No codelist URL set",
   "no description": "no description",

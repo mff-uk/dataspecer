@@ -21,6 +21,8 @@
   "is codelist": "je číselníkem",
   "label max": "max",
   "label min": "min",
+  "label regex": "Regulární výraz",
+  "label string examples": "Příklady řetězců",
   "label technical label": "Technický popisek",
   "no codelist url": "Neobsahuje žádná URL číselníku",
   "no description": "bez popisku",
