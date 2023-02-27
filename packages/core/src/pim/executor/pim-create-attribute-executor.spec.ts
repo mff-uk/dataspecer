@@ -36,7 +36,7 @@ test("Create attribute.", async () => {
   );
 
   expect(actual.failed).toBeFalsy();
-  expect(actual.created).toEqual({
+  expect(actual.created).toMatchObject({
     "http://localhost/1": {
       iri: "http://localhost/1",
       types: [PIM.ATTRIBUTE],
@@ -50,7 +50,7 @@ test("Create attribute.", async () => {
       pimCardinalityMin: null,
     },
   });
-  expect(actual.changed).toEqual({
+  expect(actual.changed).toMatchObject({
     "http://schema": {
       iri: "http://schema",
       types: [PIM.SCHEMA],

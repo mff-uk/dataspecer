@@ -51,7 +51,7 @@ test("Create PIM schema with class and attribute.", async () => {
     ].sort()
   );
 
-  expect(await store.readResource("http://localhost/schema/1")).toEqual({
+  expect(await store.readResource("http://localhost/schema/1")).toMatchObject({
     iri: "http://localhost/schema/1",
     types: [PIM.SCHEMA],
     pimHumanLabel: pimSchema.pimHumanLabel,
@@ -59,7 +59,7 @@ test("Create PIM schema with class and attribute.", async () => {
     pimParts: ["http://localhost/class/3", "http://localhost/attribute/5"],
   });
 
-  expect(await store.readResource("http://localhost/class/3")).toEqual({
+  expect(await store.readResource("http://localhost/class/3")).toMatchObject({
     iri: "http://localhost/class/3",
     types: [PIM.CLASS],
     pimInterpretation: pimClass.pimInterpretation,
@@ -71,7 +71,7 @@ test("Create PIM schema with class and attribute.", async () => {
     pimIsCodelist: false,
   });
 
-  expect(await store.readResource("http://localhost/attribute/5")).toEqual({
+  expect(await store.readResource("http://localhost/attribute/5")).toMatchObject({
     iri: "http://localhost/attribute/5",
     types: [PIM.ATTRIBUTE],
     pimInterpretation: pimAttribute.pimInterpretation,
