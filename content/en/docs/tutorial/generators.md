@@ -304,3 +304,15 @@ WHERE {
   }
 }
 ```
+
+## CSV schema
+
+The generator creates a description of a data structure according to the [CSV on the Web](https://www.w3.org/TR/2016/NOTE-tabular-data-primer-20160225/) standards and recommendations. The result is a tabular schema with metadata about the table in the JSON-LD format. There is always only one file. The file describes tables, and the tables contain individual columns. The columns generally correspond to the attributes and associations.
+
+There is one CSV option in the configuration. The option enables or disables the multiple table schema. It basically switches between a single table schema and a multiple table schema.
+
+{{% tutorial-image "images/tutorial/csv-specific/csv-configuration.png" %}}
+
+A single table schema contains only one table. The columns may have special compound names. If a data structure has nested attributes or associations, the names create an illusion of depth in a flat table. The names represent the path from the root to the final attribute or association.
+
+A multiple table schema may contain multiple tables, but it may also contain only one table. It depends on the corresponding data structure. The tables logically separate a nested data structure into different tables. The tables are linked together with foreign keys. Names of columns are simple.
