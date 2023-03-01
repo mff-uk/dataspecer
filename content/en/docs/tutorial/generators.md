@@ -309,13 +309,13 @@ WHERE {
 
 The generator creates a description of a data structure according to the [CSV on the Web](https://www.w3.org/TR/2016/NOTE-tabular-data-primer-20160225/) standards and recommendations. The result is a tabular schema with metadata about the table in the JSON-LD format. There is always only one file. The file describes tables, and the tables contain individual columns. The columns generally correspond to the attributes and associations.
 
-There is one CSV option in the configuration. The option enables or disables the multiple table schema. It basically switches between a single table schema and a multiple table schema.
+There is one CSV option in the configuration. The option enables or disables the multiple table schema. It basically switches between the single table schema and the multiple table schema.
 
 {{% tutorial-image "images/tutorial/csv-specific/csv-configuration.png" %}}
 
-A single table schema contains only one table. The columns may have special compound names. If a data structure has nested attributes or associations, the names create an illusion of depth in a flat table. The names represent the path from the root to the final attribute or association.
+The single table schema contains only one table. The columns may have special compound names. If a data structure has nested attributes or associations, the names create an illusion of depth in a flat table. The names represent the path from the root to the final attribute or association.
 
-A multiple table schema may contain multiple tables, but it may also contain only one table. It depends on the corresponding data structure. The tables logically separate a nested data structure into different tables. The tables are linked together with foreign keys. Names of columns are simple.
+The multiple table schema may contain multiple tables, but it may also contain only one table. It depends on the corresponding data structure. The tables logically separate a nested data structure into different tables. The tables are linked together with foreign keys. Names of columns are simple.
 
 ### CSV Examples
 
@@ -391,7 +391,7 @@ There is a single table schema of the data structure.
 }
 ```
 
-There is multiple table schema of the data structure.
+There is a multiple table schema of the data structure.
 
 ```json
 {
@@ -548,5 +548,76 @@ There is multiple table schema of the data structure.
       }
     }
   ]
+}
+```
+
+## RDF to CSV Queries
+
+This generator creates [SPARQL queries](https://www.w3.org/TR/2013/REC-sparql11-query-20130321/) with a `SELECT` part. Each query corresponds to a data structure and a table because it has a purpose of transforming an RDF dataset into the CSV format. The `WHERE` part corresponds to a particular data structure, and the `SELECT` part corresponds to a particular table. The `PREFIX` part only enhances readability. The queries share the configuration with the CSV schema. There are different queries for the single table schema and the multiple table schema. The option in the configuration can be used to switch between them. There is one query for each table. Each query is in an individual file.
+
+### RDF to CSV Examples
+
+We reuse the small data structure from the CSV examples.
+There is a single table query.
+
+```sparql
+PREFIX ns1: <https://slovník.gov.cz/datový/turistické-cíle/pojem/>
+PREFIX ns2: <https://slovník.gov.cz/generický/kontakty/pojem/>
+SELECT (?v3 AS ?kontakt_e-mail) (?v4 AS ?kontakt_url)
+WHERE {
+  ?v1 a ns1:turistický-cíl .
+  ?v2 a ns2:kontakt .
+  ?v2 ns2:má-e-mailovou-adresu ?v3 .
+  OPTIONAL {
+    ?v2 ns2:má-url ?v4 .
+  }
+  ?v1 ns1:kontakt ?v2 .
+}
+```
+
+There are multiple table queries.
+
+```sparql
+PREFIX ns1: <https://slovník.gov.cz/datový/turistické-cíle/pojem/>
+PREFIX ns2: <https://slovník.gov.cz/generický/kontakty/pojem/>
+SELECT (?v1 AS ?RowId) (?v2 AS ?kontakt) # Table: table-1.csv
+WHERE {
+  ?v1 a ns1:turistický-cíl .
+  ?v2 a ns2:kontakt .
+  ?v2 ns2:má-e-mailovou-adresu ?v3 .
+  OPTIONAL {
+    ?v2 ns2:má-url ?v4 .
+  }
+  ?v1 ns1:kontakt ?v2 .
+}
+```
+
+```sparql
+PREFIX ns1: <https://slovník.gov.cz/datový/turistické-cíle/pojem/>
+PREFIX ns2: <https://slovník.gov.cz/generický/kontakty/pojem/>
+SELECT (?v2 AS ?RowId) (?v4 AS ?url) # Table: table-2.csv
+WHERE {
+  ?v1 a ns1:turistický-cíl .
+  ?v2 a ns2:kontakt .
+  ?v2 ns2:má-e-mailovou-adresu ?v3 .
+  OPTIONAL {
+    ?v2 ns2:má-url ?v4 .
+  }
+  ?v1 ns1:kontakt ?v2 .
+}
+```
+
+```sparql
+PREFIX ns1: <https://slovník.gov.cz/datový/turistické-cíle/pojem/>
+PREFIX ns2: <https://slovník.gov.cz/generický/kontakty/pojem/>
+SELECT (?v2 AS ?Reference) (?v3 AS ?e-mail) # Table: table-3.csv
+WHERE {
+  ?v1 a ns1:turistický-cíl .
+  ?v2 a ns2:kontakt .
+  ?v2 ns2:má-e-mailovou-adresu ?v3 .
+  OPTIONAL {
+    ?v2 ns2:má-url ?v4 .
+  }
+  ?v1 ns1:kontakt ?v2 .
 }
 ```
