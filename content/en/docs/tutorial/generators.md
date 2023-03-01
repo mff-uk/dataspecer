@@ -305,7 +305,7 @@ WHERE {
 }
 ```
 
-## CSV schema
+## CSV Schema
 
 The generator creates a description of a data structure according to the [CSV on the Web](https://www.w3.org/TR/2016/NOTE-tabular-data-primer-20160225/) standards and recommendations. The result is a tabular schema with metadata about the table in the JSON-LD format. There is always only one file. The file describes tables, and the tables contain individual columns. The columns generally correspond to the attributes and associations.
 
@@ -316,3 +316,237 @@ There is one CSV option in the configuration. The option enables or disables the
 A single table schema contains only one table. The columns may have special compound names. If a data structure has nested attributes or associations, the names create an illusion of depth in a flat table. The names represent the path from the root to the final attribute or association.
 
 A multiple table schema may contain multiple tables, but it may also contain only one table. It depends on the corresponding data structure. The tables logically separate a nested data structure into different tables. The tables are linked together with foreign keys. Names of columns are simple.
+
+### CSV Examples
+
+There is a small data structure as an example.
+
+{{% tutorial-image "images/tutorial/csv-specific/csv-example.png" %}}
+
+There is a single table schema of the data structure.
+
+```json
+{
+  "@context": [
+    "http://www.w3.org/ns/csvw",
+    {
+      "@language": "cs"
+    }
+  ],
+  "@id": "https://ofn.gov.cz/schema/1677509987003-7c8b-43b7-a68b/table.csv-metadata.json",
+  "@type": "Table",
+  "url": "table.csv",
+  "tableSchema": {
+    "@type": "Schema",
+    "columns": [
+      {
+        "@type": "Column",
+        "name": "kontakt_e-mail",
+        "titles": "kontakt_e-mail",
+        "dc:title": [
+          {
+            "@value": "má E-mailovou adresu",
+            "@language": "cs"
+          },
+          {
+            "@value": "e-mail",
+            "@language": "en"
+          }
+        ],
+        "dc:description": {
+          "@value": "Kontaktní e-mailová adresa.",
+          "@language": "cs"
+        },
+        "propertyUrl": "https://slovník.gov.cz/generický/kontakty/pojem/má-e-mailovou-adresu",
+        "required": true
+      },
+      {
+        "@type": "Column",
+        "name": "kontakt_url",
+        "titles": "kontakt_url",
+        "dc:title": [
+          {
+            "@value": "má URL",
+            "@language": "cs"
+          },
+          {
+            "@value": "URL",
+            "@language": "en"
+          }
+        ],
+        "dc:description": {
+          "@value": "Webová kontaktní adresa: webová stránka či WebID.",
+          "@language": "cs"
+        },
+        "propertyUrl": "https://slovník.gov.cz/generický/kontakty/pojem/má-url"
+      },
+      {
+        "@type": "Column",
+        "propertyUrl": "rdf:type",
+        "valueUrl": "https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl",
+        "virtual": true
+      }
+    ]
+  }
+}
+```
+
+There is multiple table schema of the data structure.
+
+```json
+{
+  "@context": [
+    "http://www.w3.org/ns/csvw",
+    {
+      "@language": "cs"
+    }
+  ],
+  "@id": "https://ofn.gov.cz/schema/1677509987003-7c8b-43b7-a68b/csv-metadata.json",
+  "@type": "TableGroup",
+  "tables": [
+    {
+      "@type": "Table",
+      "url": "table-1.csv",
+      "tableSchema": {
+        "@type": "Schema",
+        "columns": [
+          {
+            "@type": "Column",
+            "name": "RowId",
+            "titles": "RowId",
+            "datatype": "string",
+            "required": true,
+            "suppressOutput": true
+          },
+          {
+            "@type": "Column",
+            "name": "kontakt",
+            "titles": "kontakt",
+            "dc:title": {
+              "@value": "kontakt",
+              "@language": "cs"
+            },
+            "propertyUrl": "https://slovník.gov.cz/datový/turistické-cíle/pojem/kontakt",
+            "datatype": "string",
+            "required": true
+          },
+          {
+            "@type": "Column",
+            "propertyUrl": "rdf:type",
+            "valueUrl": "https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl",
+            "virtual": true
+          }
+        ],
+        "primaryKey": "RowId",
+        "foreignKeys": [
+          {
+            "columnReference": "kontakt",
+            "reference": {
+              "resource": "table-2.csv",
+              "columnReference": "RowId"
+            }
+          }
+        ],
+        "aboutUrl": "{#RowId}"
+      }
+    },
+    {
+      "@type": "Table",
+      "url": "table-2.csv",
+      "tableSchema": {
+        "@type": "Schema",
+        "columns": [
+          {
+            "@type": "Column",
+            "name": "RowId",
+            "titles": "RowId",
+            "datatype": "string",
+            "required": true,
+            "suppressOutput": true
+          },
+          {
+            "@type": "Column",
+            "name": "url",
+            "titles": "url",
+            "dc:title": [
+              {
+                "@value": "má URL",
+                "@language": "cs"
+              },
+              {
+                "@value": "URL",
+                "@language": "en"
+              }
+            ],
+            "dc:description": {
+              "@value": "Webová kontaktní adresa: webová stránka či WebID.",
+              "@language": "cs"
+            },
+            "propertyUrl": "https://slovník.gov.cz/generický/kontakty/pojem/má-url"
+          },
+          {
+            "@type": "Column",
+            "propertyUrl": "rdf:type",
+            "valueUrl": "https://slovník.gov.cz/generický/kontakty/pojem/kontakt",
+            "virtual": true
+          }
+        ],
+        "primaryKey": "RowId",
+        "aboutUrl": "{#RowId}"
+      }
+    },
+    {
+      "@type": "Table",
+      "url": "table-3.csv",
+      "tableSchema": {
+        "@type": "Schema",
+        "columns": [
+          {
+            "@type": "Column",
+            "name": "Reference",
+            "titles": "Reference",
+            "datatype": "string",
+            "required": true,
+            "suppressOutput": true
+          },
+          {
+            "@type": "Column",
+            "name": "e-mail",
+            "titles": "e-mail",
+            "dc:title": [
+              {
+                "@value": "má E-mailovou adresu",
+                "@language": "cs"
+              },
+              {
+                "@value": "e-mail",
+                "@language": "en"
+              }
+            ],
+            "dc:description": {
+              "@value": "Kontaktní e-mailová adresa.",
+              "@language": "cs"
+            },
+            "propertyUrl": "https://slovník.gov.cz/generický/kontakty/pojem/má-e-mailovou-adresu",
+            "required": true
+          }
+        ],
+        "primaryKey": [
+          "Reference",
+          "e-mail"
+        ],
+        "foreignKeys": [
+          {
+            "columnReference": "Reference",
+            "reference": {
+              "resource": "table-2.csv",
+              "columnReference": "RowId"
+            }
+          }
+        ],
+        "aboutUrl": "{#Reference}"
+      }
+    }
+  ]
+}
+```
