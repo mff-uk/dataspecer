@@ -132,7 +132,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         isStringDatatype && normalizedRegex !== (pimResource as PimAttribute)?.pimRegex,
         useCallback(async () => {
             await store.executeComplexOperation(new SetAttributeRegex(pimResource.iri as string, normalizedRegex));
-        }, [normalizedRegex])
+        }, [normalizedRegex, pimResource.iri, store])
     );
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
@@ -140,7 +140,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         isStringDatatype && !isEqual(normalizedExamples, (pimResource as PimAttribute)?.pimExample),
         useCallback(async () => {
             await store.executeComplexOperation(new SetAttributeExample(pimResource.iri as string, normalizedExamples));
-        }, [normalizedExamples])
+        }, [normalizedExamples, pimResource.iri, store])
     );
 
     // endregion regex and examples
