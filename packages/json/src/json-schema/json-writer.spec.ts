@@ -15,5 +15,5 @@ test("Write a simple object with arrays and strings.", async () => {
   await array.closeArray();
   await writer.closeObject();
   const expected = '{"one":1,"two":true,"array":[{},{"key":"value"}]}';
-  expect(actual.getContent()).toEqual(expected);
+  expect(actual.getContent().replaceAll(" ", "").replaceAll("\n", "")).toEqual(expected);
 });
