@@ -125,7 +125,10 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     // region regex and examples
 
-    const isStringDatatype = isAttribute && getIriFromDatatypeSelectorValue(datatype) === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec";
+    const isStringDatatype = isAttribute && [
+        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec",
+        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url"
+    ].includes(getIriFromDatatypeSelectorValue(datatype));
 
     const normalizedRegex = regex === "" ? null : regex;
     useSaveHandler(

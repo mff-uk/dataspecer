@@ -237,6 +237,8 @@ function structureModelPrimitiveToJsonDefinition(
     case OFN.url:
       result = new JsonSchemaString(JsonSchemaStringFormats.iri);
       result.title = context.stringSelector(OFN_LABELS[OFN.url]);
+      result.pattern = primitive.regex;
+      result.examples = primitive.example;
       break;
     case OFN.text:
       result = languageString();
