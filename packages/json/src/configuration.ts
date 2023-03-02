@@ -18,7 +18,7 @@ export const DefaultJsonConfiguration =  {
     /**
      * Value of @base json-ld property in context.
      */
-    jsonLdBaseUrl: "http://example.com/turisticke-cile/" as string | null,
+    jsonLdBaseUrl: null as string | null,
 
     /**
      * How to treat root objects cardinality.
@@ -26,23 +26,23 @@ export const DefaultJsonConfiguration =  {
      * - "array" - root object is an array of objects
      * - "object-with-array" - root object is an object with a single property which is an array of objects. The name of the property is defined by {jsonRootCardinalityObjectKey}
      */
-    jsonRootCardinality: "object-with-array" as "single" | "array" | "object-with-array",
+    jsonRootCardinality: "single" as "single" | "array" | "object-with-array",
 
     /**
      * Name of the property in root object which contains array of objects.
      * This is used only if {jsonRootCardinality === "object-with-array"}
      */
-    jsonRootCardinalityObjectKey: "položky" as string,
+    jsonRootCardinalityObjectKey: "items" as string,
 
     /**
      * How types of JSON objects are reresented.
      */
-    jsonDefaultTypeKeyMapping: "technical-label" as "human-label" | "technical-label",
+    jsonDefaultTypeKeyMapping: "human-label" as "human-label" | "technical-label",
 
     /**
      * Language used for label if {jsonDefaultTypeKeyMapping === "human-label"}
      */
-    jsonDefaultTypeKeyMappingHumanLabelLang: "en" as string,
+    jsonDefaultTypeKeyMappingHumanLabelLang: "cs" as string,
 }
 
 export type JsonConfiguration = typeof DefaultJsonConfiguration;
