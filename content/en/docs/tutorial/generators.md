@@ -558,6 +558,7 @@ This generator creates [SPARQL queries](https://www.w3.org/TR/2013/REC-sparql11-
 ### RDF to CSV Examples
 
 We reuse the small data structure from the CSV examples.
+
 There is a single table query.
 
 ```sparql
