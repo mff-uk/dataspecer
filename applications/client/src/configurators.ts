@@ -3,6 +3,7 @@ import { JsonConfigurator } from "@dataspecer/json/configuration";
 import { CsvConfigurator } from "@dataspecer/csv/configuration";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { BikeshedConfigurator } from "@dataspecer/bikeshed";
+import { ClientConfigurator } from "./configuration";
 
 /**
  * Returns all configurators for generator families that will be used in the
@@ -15,5 +16,6 @@ export function getDefaultConfigurators(): Configurator[] {
         CsvConfigurator,
         XmlConfigurator,
         BikeshedConfigurator,
+        ClientConfigurator,
     ]
 }

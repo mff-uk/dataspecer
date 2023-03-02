@@ -10,6 +10,7 @@ import {useMemo} from "react";
 import {getAdapter} from "../adapters/get-adapter";
 import {Configuration} from "../configuration";
 import {OperationContext} from "../../operations/context/operation-context";
+import { DefaultClientConfiguration } from "../../../configuration";
 
 /**
  * Creates a configuration, that is purely local and does not require any
@@ -22,7 +23,15 @@ export const useLocalConfiguration = (
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
     const cim = useMemo(() => enabled ? getAdapter([]) : null, [enabled]);
-    const operationContext = useMemo(() => new OperationContext(), []);
+    const operationContext = useMemo(() => {
+        const context = new OperationContext();
+        context.labelRules = {
+            languages: [DefaultClientConfiguration.technicalLabelLanguages],
+            namingConvention: DefaultClientConfiguration.technicalLabelCasingConvention,
+            specialCharacters: DefaultClientConfiguration.technicalLabelSpecialCharacters,
+        };
+        return context;
+    }, []);
 
     const [dataSpecification] = useAsyncMemo(async () => {
         if (enabled && store) {

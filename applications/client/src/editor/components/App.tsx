@@ -112,15 +112,6 @@ const App: React.FC = () => {
 
     useEffect(() => {(window as any).store = configuration.store}, [configuration.store]);
 
-    const operationContext = configuration.operationContext;
-    useEffect(() => {
-        operationContext.labelRules = {
-            languages: i18n.languages as string[],
-            namingConvention: "snake_case",
-            specialCharacters: "allow",
-        };
-    }, [operationContext, i18n.languages]);
-
     const applicationSettings = useApplicationSettings();
 
     return <>

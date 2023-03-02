@@ -13,6 +13,7 @@ import {getAdapter} from "../adapters/get-adapter";
 import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {OperationContext} from "../../operations/context/operation-context";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
+import { ClientConfigurator, DefaultClientConfiguration } from "../../../configuration";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = [];
 
@@ -30,11 +31,26 @@ export const useProvidedConfiguration = (
     dataPsmSchemaIri: string|null,
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
-    const operationContext = useMemo(() => new OperationContext(), []);
 
     const specifications = useLoadedDataSpecification(dataSpecificationIri);
     const descriptors = useStoreDescriptorsFromSpecifications(specifications ?? null, dataSpecificationIri, dataPsmSchemaIri);
     useConstructedStoresFromDescriptors(descriptors ?? [], store);
+
+    const specification = specifications?.[dataSpecificationIri ?? ""] ?? null;
+    const operationContext = useMemo(() => {
+        const configuration = ClientConfigurator.merge(
+            DefaultClientConfiguration,
+            ClientConfigurator.getFromObject(specification?.artefactConfiguration)
+        )
+
+        const context = new OperationContext();
+        context.labelRules = {
+            languages: [configuration.technicalLabelLanguages],
+            namingConvention: configuration.technicalLabelCasingConvention,
+            specialCharacters: configuration.technicalLabelSpecialCharacters,
+        };
+        return context;
+    }, [specification]);
 
     const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.cimAdapters ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
     const cim = useMemo(() => enabled ? getAdapter(cimAdaptersConfiguration) : null, [enabled, cimAdaptersConfiguration]);

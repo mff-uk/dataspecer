@@ -3,6 +3,8 @@ import { removeDiacritics } from "../../utils/remove-diacritics";
 import { selectLanguage } from "../../utils/select-language";
 import {TechnicalLabelOperationContext} from "./technical-label-operation-context";
 
+export const CASINGS = ["camelCase", "PascalCase", "kebab-case", "snake_case"] as const;
+
 /**
  * Operation context provides helper functionality for {@link ComplexOperation}
  * that depends on user preferences or language. Example may be label
@@ -11,7 +13,7 @@ import {TechnicalLabelOperationContext} from "./technical-label-operation-contex
 export class OperationContext implements TechnicalLabelOperationContext {
     public labelRules: {
         languages: string[],
-        namingConvention: "camelCase" | "PascalCase" | "kebab-case" | "snake_case",
+        namingConvention: typeof CASINGS[number],
         specialCharacters: "allow" | "remove-diacritics" | "remove-all",
     } | null = null;
 
@@ -42,7 +44,7 @@ export class OperationContext implements TechnicalLabelOperationContext {
             case "snake_case": text = lowercaseWords.join("_"); break
             case "kebab-case": text = lowercaseWords.join("-"); break
             case "camelCase": text = lowercaseWords.map((w, index) => index > 0 ? w[0].toUpperCase() + w.substring(1) : w).join(""); break
-            case "PascalCase": text = lowercaseWords.map(w => w[0].toUpperCase()).join(""); break
+            case "PascalCase": text = lowercaseWords.map(w => w[0].toUpperCase() + w.substring(1)).join(""); break
         }
 
         return text;

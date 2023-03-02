@@ -45,6 +45,7 @@ import {ReadOnlyFederatedStore} from "@dataspecer/core/core/store/federated-stor
 import {ConceptualModelSources} from "./conceptual-model-sources";
 import {useTranslation} from "react-i18next";
 import {GarbageCollection} from "./garbage-collection";
+import { ConfigureButton } from "../../artifacts/configuration/configure-button";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -158,6 +159,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                 </Typography>}
             </DataSpecificationName>
             <div style={{display: "flex", gap: "1rem"}}>
+                <ConfigureButton dataSpecificationIri={dataSpecificationIri} />
                 <CopyIri iri={dataSpecificationIri} />
                 <ModifySpecification iri={dataSpecificationIri} />
             </div>
