@@ -8,6 +8,7 @@ import {
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
 import { DataSpecification } from "@dataspecer/core/data-specification/model";
+import { DefaultJsonConfiguration } from "../configuration";
 
 test.skip("Convert to json-schema.", async () => {
   const resources = {};
@@ -22,6 +23,7 @@ test.skip("Convert to json-schema.", async () => {
     { root: specification },
     specification,
     model,
+    DefaultJsonConfiguration,
     defaultStringSelector
   );
 

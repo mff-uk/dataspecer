@@ -4,6 +4,7 @@ import {
   JsonSchemaArray,
   JsonSchemaBoolean,
   JsonSchemaConst,
+  JsonSchemaCustomType,
   JsonSchemaDefinition,
   JsonSchemaEnum,
   JsonSchemaNull,
@@ -15,7 +16,7 @@ import {
 } from "./json-schema-model";
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
 import { StringJsonWriter } from "./string-json-writer";
-import { JsonObjectWriter } from "./json-writer";
+import { JsonArrayWriter, JsonObjectWriter } from "./json-writer";
 import { assertNot } from "@dataspecer/core/core";
 
 export async function writeJsonSchema(
@@ -57,6 +58,8 @@ async function writeJsonDefinition(
     return writeJsonSchemaConst(writer, schema);
   } else if (JsonSchemaEnum.is(schema)) {
     return writeJsonSchemaEnum(writer, schema);
+  } else if (JsonSchemaCustomType.is(schema)) {
+    return writeJsonSchemaCustomType(writer, schema);
   }
 }
 
@@ -175,4 +178,44 @@ async function writeJsonSchemaRef(
   schema: JsonSchemaRef
 ): Promise<void> {
   await writer.value("$ref", schema.url);
+}
+
+async function writeJsonSchemaCustomType(
+  writer: JsonObjectWriter,
+  schema: JsonSchemaCustomType
+): Promise<void> {
+  await objectToJsonWriter(schema.data as Record<string, unknown>, writer);
+}
+
+async function objectToJsonWriter(o: Record<string, unknown>, writer: JsonObjectWriter) {
+  for (const [key, value] of Object.entries(o)) {
+    // value is array
+    if (Array.isArray(value)) {
+      const array = writer.array(key);
+      await arrayToJsonWriter(value, array);
+      await array.closeArray();
+    } else if (typeof value === "object") {
+      const object = writer.object(key);
+      await objectToJsonWriter(value as Record<string, unknown>, object);
+      await object.closeObject();
+    } else {
+      await writer.value(key, value as string);
+    }
+  }
+}
+
+async function arrayToJsonWriter(a: unknown[], writer: JsonArrayWriter) {
+  for (const item of a) {
+    if (Array.isArray(item)) {
+      const array = writer.array();
+      await arrayToJsonWriter(item, array);
+      await array.closeArray();
+    } else if (typeof item === "object") {
+      const object = writer.object();
+      await objectToJsonWriter(item as Record<string, unknown>, object);
+      await object.closeObject();
+    } else {
+      await writer.value(item as string);
+    }
+  }
 }

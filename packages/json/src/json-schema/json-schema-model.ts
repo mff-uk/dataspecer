@@ -180,6 +180,21 @@ export class JsonSchemaRef extends JsonSchemaDefinition {
   }
 }
 
+export class JsonSchemaCustomType extends JsonSchemaDefinition {
+  private static TYPE = "json-schema-custom-type";
+
+  data: object;
+
+  constructor(data: object) {
+    super(JsonSchemaCustomType.TYPE);
+    this.data = data;
+  }
+
+  static is(resource: JsonSchemaDefinition): resource is JsonSchemaCustomType {
+    return resource.type.includes(JsonSchemaCustomType.TYPE);
+  }
+}
+
 // https://json-schema.org/understanding-json-schema/reference/string.html
 export const JsonSchemaStringFormats = {
   dateTime: "date-time",

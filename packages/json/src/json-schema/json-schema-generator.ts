@@ -64,7 +64,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     );
     model = structureModelAddIdAndTypeProperties(model, configuration);
     return Promise.resolve(
-      structureModelToJsonSchema(context.specifications, specification, model)
+      structureModelToJsonSchema(context.specifications, specification, model, configuration)
     );
   }
 

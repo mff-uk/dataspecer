@@ -12,6 +12,28 @@ type QName = [prefix: string | null, localName: string];
 // JSON-LD version
 const VERSION = 1.1;
 
+/**
+ * Returns string that is used for the @type key in the JSON-LD context and JSON schema.
+ */
+export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string {
+  const fallback = cls.cimIri ?? cls.pimIri ?? cls.psmIri;
+
+  if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
+    let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
+    if (!label) {
+      console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label fof given entity.`, cls);
+      label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
+    }
+    return label ?? fallback;
+  }
+
+  if (configuration.jsonDefaultTypeKeyMapping === "technical-label") {
+    return cls.technicalLabel ?? fallback;
+  }
+
+  return fallback;
+}
+
 export class JsonLdAdapter {
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
@@ -125,15 +147,7 @@ export class JsonLdAdapter {
     }
 
     // Classes are identified by its type keyword
-
-    //if (this.configuration.jsonTypeKeyMappingType === "json_type_key_mapping_type_label") {
-    let label = cls.humanLabel[this.configuration.jsonTypeKeyMappingTypeLabel];
-    if (!label) {
-      console.warn(`JSON-LD Generator: There is no ${this.configuration.jsonTypeKeyMappingTypeLabel} label fof given entity.`, cls);
-      label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
-    }
-    context[label] = data;
-    //}
+    context[getClassTypeKey(cls, this.configuration)] = data;
   }
 
   protected getContext(): object {
@@ -147,6 +161,12 @@ export class JsonLdAdapter {
     }
     if (this.configuration.jsonTypeKeyAlias) {
       context[this.configuration.jsonTypeKeyAlias] = "@type";
+    }
+    if (this.configuration.jsonLdBaseUrl) {
+      context["@base"] = this.configuration.jsonLdBaseUrl;
+    }
+    if (this.configuration.jsonRootCardinality === "object-with-array") {
+      context[this.configuration.jsonRootCardinalityObjectKey] = "@graph";
     }
 
     return {

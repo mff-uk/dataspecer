@@ -3,6 +3,7 @@ import {
   JsonSchemaAnyOf,
   JsonSchemaArray,
   JsonSchemaBoolean,
+  JsonSchemaCustomType,
   JsonSchemaDefinition,
   JsonSchemaNull,
   JsonSchemaNumber,
@@ -21,6 +22,7 @@ import {
 import {
   StructureModel,
   StructureModelClass,
+  StructureModelCustomType,
   StructureModelPrimitiveType,
   StructureModelProperty,
 } from "@dataspecer/core/structure-model/model";
@@ -31,6 +33,7 @@ import {
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
+import { JsonConfiguration } from "../configuration";
 
 interface Context {
   /**
@@ -62,6 +65,7 @@ export function structureModelToJsonSchema(
   specifications: { [iri: string]: DataSpecification },
   specification: DataSpecification,
   model: StructureModel,
+  configuration: JsonConfiguration,
   stringSelector: StringSelector = defaultStringSelector
 ): JsonSchema {
   const result = new JsonSchema();
@@ -76,6 +80,23 @@ export function structureModelToJsonSchema(
     contex,
     model.roots[0].classes[0]
   );
+
+  // Wrap the single root object with array or object with array
+
+  if (configuration.jsonRootCardinality === "array") {
+    const array = new JsonSchemaArray();
+    array.items = result.root;
+    result.root = array;
+  } else if (configuration.jsonRootCardinality === "object-with-array") {
+    const array = new JsonSchemaArray();
+    array.items = result.root;
+
+    const object = new JsonSchemaObject();
+    object.properties[configuration.jsonRootCardinalityObjectKey] = array;
+    object.required.push(configuration.jsonRootCardinalityObjectKey);
+    result.root = object;
+  }
+
   return result;
 }
 
@@ -159,6 +180,10 @@ function structureModelPropertyToJsonDefinition(
     } else if (dataType.isAttribute()) {
       dataTypes.push(
         structureModelPrimitiveToJsonDefinition(context, dataType)
+      );
+    } else if (dataType.isCustomType()) {
+      dataTypes.push(
+        structureModelCustomTypeToJsonDefinition(context, dataType)
       );
     } else {
       assertFailed("Invalid data-type instance.");
@@ -250,6 +275,13 @@ function structureModelPrimitiveToJsonDefinition(
       break;
   }
   return result;
+}
+
+function structureModelCustomTypeToJsonDefinition(
+  context: Context,
+  customType: StructureModelCustomType
+): JsonSchemaDefinition {
+  return new JsonSchemaCustomType(customType.data);
 }
 
 function languageString(): JsonSchemaObject {

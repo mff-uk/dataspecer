@@ -1,6 +1,7 @@
-import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty} from "@dataspecer/core/structure-model/model";
+import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelCustomType, StructureModelProperty} from "@dataspecer/core/structure-model/model";
 import {clone} from "@dataspecer/core/core";
 import {JsonConfiguration} from "../configuration";
+import { getClassTypeKey } from "../json-ld/json-ld-adapter";
 
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
@@ -17,31 +18,46 @@ export function structureModelAddIdAndTypeProperties(
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
       if (configuration.jsonTypeKeyAlias !== null) {
-        structureClass.properties.unshift(
-          getShadowIdProperty(structureClass.specification,
-            configuration.jsonTypeKeyAlias)
-        );
+        const typeKeyValue = getClassTypeKey(structureClass, configuration);
+
+        const datatype = new StructureModelCustomType();
+        datatype.data = {
+          oneOf: [
+            {
+              const: typeKeyValue
+            },
+            {
+              type: "array",
+              contains: {
+                const: typeKeyValue
+              },
+              items: {
+                type: "string"
+              }
+            }
+          ]
+        };
+
+        const id = new StructureModelProperty();
+        id.technicalLabel = configuration.jsonTypeKeyAlias;
+        id.cardinalityMax = 1;
+        id.dataTypes = [datatype];
+
+        structureClass.properties.unshift(id);
       }
       if (configuration.jsonIdKeyAlias !== null) {
-        structureClass.properties.unshift(
-          getShadowIdProperty(structureClass.specification,
-            configuration.jsonIdKeyAlias)
-        );
+        const idDatatype = new StructureModelComplexType();
+        idDatatype.dataType = new StructureModelClass();
+        idDatatype.dataType.specification = structureClass.specification;
+
+        const id = new StructureModelProperty();
+        id.technicalLabel = configuration.jsonIdKeyAlias;
+        id.cardinalityMax = 1;
+        id.dataTypes = [idDatatype];
+
+        structureClass.properties.unshift(id);
       }
     }
   }
   return result;
-}
-
-function getShadowIdProperty(specification: string, technicalLabel: string) {
-  const idDatatype = new StructureModelComplexType();
-  idDatatype.dataType = new StructureModelClass();
-  idDatatype.dataType.specification = specification;
-
-  const id = new StructureModelProperty();
-  id.technicalLabel = technicalLabel;
-  id.cardinalityMax = 1;
-  id.dataTypes = [idDatatype]
-
-  return id;
 }
