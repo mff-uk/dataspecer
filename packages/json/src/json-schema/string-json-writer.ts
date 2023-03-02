@@ -6,16 +6,18 @@ class StringJsonWriterContext {
 
   private readonly shouldWriteComma: boolean[] = [];
 
+  private depth: number = 1; // Because we start with an object.
+
   private buffer = "";
 
   constructor(stream: OutputStream, content: string) {
     this.stream = stream;
-    this.buffer = content;
+    this.buffer = content + "\n";
   }
 
   writeSeparator() {
     if (this.shouldWriteComma.pop()) {
-      this.buffer += ",";
+      this.buffer += ",\n";
       this.shouldWriteComma.push(true);
     } else {
       // If it was false, we do not write but set it to true instead.
@@ -23,12 +25,18 @@ class StringJsonWriterContext {
     }
   }
 
+  writeIndent() {
+    this.buffer += " ".repeat(this.depth * 2);
+  }
+
   openComplex() {
     this.shouldWriteComma.push(false);
+    this.depth++;
   }
 
   closeComplex() {
     this.shouldWriteComma.pop();
+    this.depth--;
   }
 
   async flush(): Promise<void> {
@@ -60,27 +68,32 @@ class StringJsonObjectWriter implements JsonObjectWriter {
 
   value(key: string, value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
-    this.context.append(`"${key}":` + valueToString(value));
+    this.context.writeIndent();
+    this.context.append(`"${key}": ` + valueToString(value));
     return this.context.flush();
   }
 
   object(key: string): JsonObjectWriter {
     this.context.writeSeparator();
-    this.context.append(`"${key}":{`);
+    this.context.writeIndent();
+    this.context.append(`"${key}": {\n`);
     this.context.openComplex();
     return new StringJsonObjectWriter(this.context);
   }
 
   array(key: string): JsonArrayWriter {
     this.context.writeSeparator();
-    this.context.append(`"${key}":[`);
+    this.context.writeIndent();
+    this.context.append(`"${key}": [\n`);
     this.context.openComplex();
     return new StringJsonArrayWriter(this.context);
   }
 
   closeObject(): Promise<void> {
-    this.context.append("}");
+    this.context.append("\n");
     this.context.closeComplex();
+    this.context.writeIndent();
+    this.context.append("}");
     return this.context.flush();
   }
 }
@@ -105,27 +118,32 @@ class StringJsonArrayWriter {
 
   value(value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
+    this.context.writeIndent();
     this.context.append("" + valueToString(value));
     return this.context.flush();
   }
 
   object(): JsonObjectWriter {
     this.context.writeSeparator();
-    this.context.append("{");
+    this.context.writeIndent();
+    this.context.append("{\n");
     this.context.openComplex();
     return new StringJsonObjectWriter(this.context);
   }
 
   array(): JsonArrayWriter {
     this.context.writeSeparator();
-    this.context.append("[");
+    this.context.writeIndent();
+    this.context.append("[\n");
     this.context.openComplex();
     return new StringJsonArrayWriter(this.context);
   }
 
   closeArray(): Promise<void> {
-    this.context.append("]");
+    this.context.append("\n");
     this.context.closeComplex();
+    this.context.writeIndent();
+    this.context.append("]");
     return this.context.flush();
   }
 }

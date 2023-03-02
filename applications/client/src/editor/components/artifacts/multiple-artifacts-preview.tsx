@@ -39,9 +39,6 @@ export const SingleArtifactPreview: React.FC<{
             const filename = file.split("/").pop()!;
 
             const extension = filename.split(".").pop() as string;
-            if (extension === "json") {
-                content = JSON.stringify(JSON.parse(content), null, 2);
-            }
 
             result.push({filename, content, extension});
         }
