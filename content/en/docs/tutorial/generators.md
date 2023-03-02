@@ -553,7 +553,7 @@ There is a multiple table schema of the data structure.
 
 ## RDF to CSV Queries
 
-This generator creates [SPARQL queries](https://www.w3.org/TR/2013/REC-sparql11-query-20130321/) with a `SELECT` part. Each query corresponds to a data structure and a table because it has a purpose of transforming an RDF dataset into the CSV format. The `WHERE` part corresponds to a particular data structure, and the `SELECT` part corresponds to a particular table. The `PREFIX` part only enhances readability. The queries share the configuration with the CSV schema. There are different queries for the single table schema and the multiple table schema. The option in the configuration can be used to switch between them. There is one query for each table. Each query is in an individual file.
+This generator creates [SPARQL queries](https://www.w3.org/TR/2013/REC-sparql11-query-20130321/) with a `SELECT` part. Each query corresponds to a data structure and a table because it has a purpose of transforming an RDF dataset into the CSV format. The `WHERE` part corresponds to a particular data structure, and the `SELECT` part corresponds to a particular table. The `PREFIXES` part only enhances readability. The queries share the configuration with the CSV schema. There are different queries for the single table schema and the multiple table schema. The option in the configuration can be used to switch between them. There is one query for each table. Each query is in an individual file.
 
 ### RDF to CSV Examples
 
