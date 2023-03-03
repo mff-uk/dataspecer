@@ -11,10 +11,6 @@ export const DefaultClientConfiguration =  {
 
 export type ClientConfiguration = typeof DefaultClientConfiguration;
 
-export interface ConfigurationWithJson {
-    [ClientConfigurator.KEY]?: DeepPartial<ClientConfiguration>;
-}
-
 export class ClientConfigurator {
     static KEY = "client" as const;
 
@@ -38,4 +34,8 @@ export class ClientConfigurator {
     static getDefault() {
         return DefaultClientConfiguration;
     }
+}
+
+export interface ConfigurationWithJson {
+    [ClientConfigurator.KEY]?: DeepPartial<ClientConfiguration>;
 }

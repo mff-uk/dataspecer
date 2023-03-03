@@ -86,7 +86,7 @@ const AppContent: React.FC = () => {
  * required.
  */
 const App: React.FC = () => {
-    const { t, i18n } = useTranslation('ui');
+    const { t } = useTranslation('ui');
 
     /**
      * Decode URL that configures which structure shall be edited
