@@ -153,6 +153,11 @@ export class JsonLdAdapter {
   protected getContext(): object {
     const context = {
       "@version": VERSION,
+
+      // For datatypes using xsd prefix
+      // todo add only if needed
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+
       //"rootcontainer": "@graph", // todo add support for root containers
     };
 
