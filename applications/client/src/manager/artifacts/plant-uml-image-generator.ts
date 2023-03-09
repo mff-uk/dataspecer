@@ -65,7 +65,7 @@ export class PlantUmlImageGenerator implements ArtefactGenerator {
     const base64String = encode64(deflate);
 
     try {
-      const result = await fetch(`https://www.plantuml.com/plantuml/png/${base64String}`);
+      const result = await fetch(`https://www.plantuml.com/plantuml/svg/${base64String}`);
 
       if (result.status !== 200) {
         console.warn(`Unable to generate PlantUML image: ${result.status}.`);

@@ -40,7 +40,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     // PlantUml image
     const plantUmlImage = new DataSpecificationDocumentation();
     plantUmlImage.iri = `${dataSpecificationIri}#plantUmlImage`;
-    plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.png`;
+    plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.svg`;
     plantUmlImage.publicUrl = this.baseURL + plantUmlImage.outputPath;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
     plantUmlImage.configuration = configuration;
