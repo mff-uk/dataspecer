@@ -34,6 +34,7 @@ import {
 } from "@dataspecer/core/data-specification/model";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
 import { JsonConfiguration } from "../configuration";
+import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 
 interface Context {
   /**
@@ -55,6 +56,8 @@ interface Context {
    * Current structural model we are generating for.
    */
   model: StructureModel;
+
+  artefact: DataSpecificationArtefact;
 }
 
 /**
@@ -66,6 +69,7 @@ export function structureModelToJsonSchema(
   specification: DataSpecification,
   model: StructureModel,
   configuration: JsonConfiguration,
+  artefact: DataSpecificationArtefact,
   stringSelector: StringSelector = defaultStringSelector
 ): JsonSchema {
   const result = new JsonSchema();
@@ -75,6 +79,7 @@ export function structureModelToJsonSchema(
     specifications: specifications,
     stringSelector: stringSelector,
     model: model,
+    artefact: artefact,
   };
   result.root = structureModelClassToJsonSchemaDefinition(
     contex,
@@ -107,7 +112,7 @@ function structureModelClassToJsonSchemaDefinition(
   if (context.model.psmIri !== modelClass.structureSchema || modelClass.isReferenced) {
     const artefact = findArtefactForImport(context, modelClass);
     if (artefact !== null) {
-      const url = artefact.publicUrl;
+      const url = pathRelative(context.artefact.publicUrl, artefact.publicUrl);
       const reference = new JsonSchemaRef();
       reference.url = url;
       return reference;
