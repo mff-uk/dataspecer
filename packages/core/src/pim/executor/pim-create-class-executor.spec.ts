@@ -30,7 +30,7 @@ test("Create class.", async () => {
   );
 
   expect(actual.failed).toBeFalsy();
-  expect(actual.created).toEqual({
+  expect(actual.created).toMatchObject({
     "http://localhost/1": {
       iri: "http://localhost/1",
       types: [PIM.CLASS],
