@@ -3,6 +3,7 @@ import express from "express";
 import { PrismaClient } from '@prisma/client';
 import {
     addSpecification,
+    cloneSpecification,
     deleteSpecification, garbageCollection,
     listSpecifications,
     modifySpecification
@@ -50,6 +51,7 @@ application.use(bodyParser.urlencoded({ extended: true, limit: configuration.pay
 
 application.get(basename + '/data-specification', listSpecifications);
 application.post(basename + '/data-specification', addSpecification);
+application.post(basename + '/data-specification/clone', cloneSpecification);
 application.delete(basename + '/data-specification', deleteSpecification);
 application.put(basename + '/data-specification', modifySpecification);
 application.post(basename + '/data-specification/garbage-collection', garbageCollection);

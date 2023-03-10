@@ -7,7 +7,7 @@ import {pimExecutors} from "@dataspecer/core/pim/executor";
 export class LocalStore implements CoreResourceReader, CoreResourceWriter {
   protected storeDescriptor: LocalStoreDescriptor;
   protected localStoreModel: LocalStoreModel;
-  protected memoryStore: Omit<MemoryStore, "operations" | "resources"> & {
+  public memoryStore: Omit<MemoryStore, "operations" | "resources"> & {
     operations: CoreOperation[];
     resources: { [iri: string]: CoreResource };
   };

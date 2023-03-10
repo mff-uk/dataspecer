@@ -28,6 +28,14 @@ export const addSpecification = asyncHandler(async (request: express.Request, re
     response.send(replaceStoreDescriptorsInDataSpecification(modifiedDataSpecification));
 });
 
+export const cloneSpecification = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const dataSpecificationIri = String(request.body.dataSpecificationIri);
+    const dataToSet = request.body.set as UpdateDataSpecification;
+
+    const specification = await dataSpecificationModel.clone(dataSpecificationIri, dataToSet);
+    response.send(replaceStoreDescriptorsInDataSpecification(specification));
+});
+
 export const deleteSpecification = asyncHandler(async (request: express.Request, response: express.Response) => {
     const dataSpecificationIri = String(request.body.dataSpecificationIri);
     await dataSpecificationModel.deleteDataSpecification(dataSpecificationIri);

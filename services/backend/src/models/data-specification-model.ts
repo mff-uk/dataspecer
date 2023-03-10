@@ -8,6 +8,7 @@ import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interface
 import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
 import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
 import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
+import { copyStore } from "../utils/copy-store";
 
 const prismaDataSpecificationConfig = {
   include: {
@@ -224,5 +225,50 @@ export class DataSpecificationModel {
       },
     })
     await this.storeModel.remove(this.storeModel.getById(result.storeId));
+  }
+
+  public async clone(originalIri: string, dataSpecification: UpdateDataSpecification): Promise<DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores> {
+    const original = await this.getDataSpecification(originalIri);
+    if (!original) {
+      throw new Error("Data specification not found");
+    }
+    let clone = await this.createDataSpecification();
+
+    // Create empty map
+    const map = new Map<string, string>();
+
+    // Clone PIM store
+    const originalPimStore = await LocalStoreDescriptor.construct(original.pimStores[0] as LocalStoreDescriptor, this.storeModel);
+    const clonePimStore = await LocalStoreDescriptor.construct(clone.pimStores[0] as LocalStoreDescriptor, this.storeModel);
+    map.set(original.pim!, clone.pim!);
+    await originalPimStore.loadStore();
+    copyStore(originalPimStore, clonePimStore, map);
+    await clonePimStore.saveStore();
+
+    // Clone PSM stores
+    for (const psm of original.psms) {
+      const originalPsmStore = await LocalStoreDescriptor.construct(original.psmStores[psm][0] as LocalStoreDescriptor, this.storeModel);
+
+      clone = (await this.createDataStructure(clone.iri!)).dataSpecification;
+      const newPsm = clone.psms[clone.psms.length - 1];
+      map.set(psm, newPsm);
+
+      const clonePsmStore = await LocalStoreDescriptor.construct(clone.psmStores[newPsm][0] as LocalStoreDescriptor, this.storeModel);
+      await originalPsmStore.loadStore();
+      copyStore(originalPsmStore, clonePsmStore, map);
+      await clonePsmStore.saveStore();
+    }
+
+    // Clone the rest
+    clone = await this.modifyDataSpecification(clone.iri!, {
+      artefactConfiguration: original.artefactConfiguration,
+      cimAdapters: original.cimAdapters,
+      importsDataSpecifications: original.importsDataSpecifications,
+      tags: original.tags,
+      type: original.type,
+      ...dataSpecification,
+    });
+
+    return clone;
   }
 }

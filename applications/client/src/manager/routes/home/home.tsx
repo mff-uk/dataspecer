@@ -1,6 +1,6 @@
-import React, {memo, useCallback, useContext, useMemo, useState} from "react";
+import React, {memo, useCallback, useContext, useMemo, useRef, useState} from "react";
 import {Link, useNavigate } from "react-router-dom";
-import {Box, Button, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography} from "@mui/material";
+import {Box, Button, Checkbox, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography} from "@mui/material";
 import {CreateSpecificationButton} from "./create-specification-button";
 import {DataSpecificationsContext} from "../../app";
 import {DataSpecificationDetailInfoCell, DataSpecificationNameCell} from "../../name-cells";
@@ -12,9 +12,35 @@ import {useToggle} from "../../use-toggle";
 import {useDialog} from "../../../editor/dialog";
 import {DeleteDataSpecificationForm} from "../../components/delete-data-specification-form";
 import {useTranslation} from "react-i18next";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { SpecificationMoreMenu } from "../../components/specification-more-menu";
 
 function getSpecificationUrl(dataSpecificationIri: string) {
     return `specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`;
+}
+
+const MoreButton = (props: { dataSpecificationIri: string }) => {
+    const element = useRef<HTMLButtonElement>(null);
+    const toggle = useToggle();
+
+    return <>
+        <IconButton
+            ref={element}
+            onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggle.open();
+            }}
+        >
+            <MoreVertIcon />
+        </IconButton>
+        <SpecificationMoreMenu
+            anchorEl={element.current}
+            open={toggle.isOpen}
+            onClose={toggle.close}
+            specificationIri={props.dataSpecificationIri}
+        />
+    </>;
 }
 
 /**
@@ -44,8 +70,8 @@ export const Home: React.FC = memo(() => {
     , [rootDataSpecificationIris, dataSpecifications, filter]);
 
     const [selected, setSelected] = useState<string[]>([]);
-    const handleSelect = useCallback((event: React.MouseEvent<unknown>, iri: string) => {
-       if (selected.includes(iri)) {
+    const handleSelect = useCallback((value: boolean, iri: string) => {
+       if (!value) {
            setSelected(selected.filter(i => i !== iri));
        } else {
            setSelected([...selected, iri]);
@@ -123,12 +149,12 @@ export const Home: React.FC = memo(() => {
                                 key={dataSpecificationIri}
                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                 hover
-                                onClick={(event) => handleSelect(event, dataSpecificationIri)}
                                 role="checkbox"
                                 selected={selected.includes(dataSpecificationIri)}
-                            >
+                                >
                                 <TableCell padding="checkbox">
                                     <Checkbox
+                                        onChange={(event) => handleSelect(event.target.checked, dataSpecificationIri)}
                                         color="primary"
                                         checked={selected.includes(dataSpecificationIri)}
                                     />
@@ -160,6 +186,7 @@ export const Home: React.FC = memo(() => {
                                             e.stopPropagation();
                                             DeleteForm.open({dataSpecificationIris: [dataSpecificationIri]});
                                         }}>{t("delete")}</Button>
+                                        <MoreButton dataSpecificationIri={dataSpecificationIri} />
                                     </Box>
                                 </TableCell>
                             </TableRow>

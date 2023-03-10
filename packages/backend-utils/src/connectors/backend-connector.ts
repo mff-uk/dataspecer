@@ -62,6 +62,20 @@ export class BackendConnector {
     return await data.json();
   }
 
+  public async cloneDataSpecification(dataSpecificationIri: string, set: UpdateDataSpecification = {}): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
+    const data = await fetch(this.backendUrl + "/data-specification/clone", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecificationIri: dataSpecificationIri,
+        set,
+      }),
+    });
+    return await data.json();
+  }
+
   public async updateDataSpecification(dataSpecificationIri: string, update: UpdateDataSpecification): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
     const data = await fetch(this.backendUrl + "/data-specification", {
       method: "PUT",
