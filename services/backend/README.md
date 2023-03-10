@@ -11,9 +11,9 @@ See the [project structure](documentation/2022-04-21-project-structure.md) or lo
 1. Clone the whole mono repository. `git clone ...`
 2. Create copy of `./main.config.sample.js` as `./main.config.js` and modify the configuration.
 3. Run `npm install` from the root of the repository to install Lerna.
-4. Run `lerna bootstrap` to install and link all packages.
-5. Run `lerna run build` to build `@dataspecer/core` and other packages. All generated files are in the `./buid` directory.
-6. Run `npm run update-database` to create empty database or update the current one if the schema changes.
+4. Run `npx lerna bootstrap` to install and link all packages.
+5. Run `npx lerna run build` to build `@dataspecer/core` and other packages. All generated files are in the `./build` directory.
+6. Run `npx lerna run update-database` to create empty database or update the current one if the schema changes.
 7. Start the server by `npm run start` from this directory. To keep the server running permanently, use `tmux`, for example.
 
 This project uses [Prisma](https://www.prisma.io/) and SQLite database. After updating the package, you need to migrate the database file if the [schema](prisma/schema.prisma) changes.
