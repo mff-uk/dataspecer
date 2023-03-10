@@ -49,12 +49,17 @@ export function structureModelAddIdAndTypeProperties(
         const idDatatype = new StructureModelComplexType();
         idDatatype.dataType = new StructureModelClass();
         idDatatype.dataType.specification = structureClass.specification;
+        if (structureClass.regex) {
+          idDatatype.dataType.regex = structureClass.regex;
+        }
+        if (structureClass.example && structureClass.example.length > 0) {
+          idDatatype.dataType.example = structureClass.example as string[];
+        }
 
         const id = new StructureModelProperty();
         id.technicalLabel = configuration.jsonIdKeyAlias;
         id.cardinalityMax = 1;
         id.dataTypes = [idDatatype];
-
         structureClass.properties.unshift(id);
       }
     }

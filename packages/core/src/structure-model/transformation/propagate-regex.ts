@@ -18,6 +18,7 @@ export function propagateRegex(
     if (conceptualClass === null || conceptualClass === undefined) {
       continue;
     }
+    classData.regex = classData.regex ?? conceptualClass.regex ?? null;
     classData.properties.forEach(property => {
       const conceptualProperty = propertyMap[property.pimIri];
       assert(!!conceptualProperty, `propagateRegex: Conceptual property ${property.pimIri} should exists.`);

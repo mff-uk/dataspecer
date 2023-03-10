@@ -16,6 +16,10 @@ export class PimClass extends PimResource {
 
   pimCodelistUrl: string[] = [];
 
+  pimRegex: string | null = null;
+
+  pimExample: string[] | null = null;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(PimClass.TYPE);

@@ -2,9 +2,8 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-  CoreResource,
 } from "../../core";
-import { PimAttribute } from "../model";
+import { PimAttribute, PimClass } from "../model";
 import { PimSetRegex } from "../operation";
 import { PimExecutorResultFactory } from "./pim-executor-utils";
 
@@ -13,9 +12,9 @@ export async function executePimSetRegex(
   createNewIdentifier: CreateNewIdentifier,
   operation: PimSetRegex
 ): Promise<CoreExecutorResult> {
-  const resource = await reader.readResource(operation.pimAttribute);
-  if (!PimAttribute.is(resource)) {
-    return PimExecutorResultFactory.invalidType(resource, "pim:attribute");
+  const resource = await reader.readResource(operation.pimResource);
+  if (!PimAttribute.is(resource) && !PimClass.is(resource)) {
+    return PimExecutorResultFactory.invalidType(resource, "pim:attribute | pim:class");
   }
 
   return CoreExecutorResult.createSuccess(
@@ -24,7 +23,7 @@ export async function executePimSetRegex(
       {
         ...resource,
         pimRegex: operation.pimRegex,
-      } as CoreResource,
+      } as PimAttribute | PimClass,
     ]
   );
 }

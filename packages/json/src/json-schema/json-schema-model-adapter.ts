@@ -122,7 +122,7 @@ function structureModelClassToJsonSchemaDefinition(
     return structureModelClassCodelist();
   }
   if (modelClass.properties.length === 0) {
-    return structureModelClassEmpty();
+    return structureModelClassEmpty(modelClass);
   }
   const result = new JsonSchemaObject();
   result.title = context.stringSelector(modelClass.humanLabel);
@@ -167,8 +167,15 @@ function structureModelClassCodelist(): JsonSchemaDefinition {
   return new JsonSchemaString(JsonSchemaStringFormats.iri);
 }
 
-function structureModelClassEmpty(): JsonSchemaDefinition {
-  return new JsonSchemaString(JsonSchemaStringFormats.iri);
+function structureModelClassEmpty(modelClass: StructureModelClass): JsonSchemaDefinition {
+  const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
+  if (modelClass.regex) {
+    str.pattern = modelClass.regex;
+  }
+  if (modelClass.example && modelClass.example.length > 0) {
+    str.examples = modelClass.example as string[];
+  }
+  return str;
 }
 
 function structureModelPropertyToJsonDefinition(

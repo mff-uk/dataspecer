@@ -21,8 +21,8 @@ import {SetDematerialize} from "../../../operations/set-dematerialize";
 import { SetPimDatatype } from "../../../operations/set-pim-datatype";
 import { RegexField } from "../../helper/regex-field";
 import { StringExamplesField } from "../../helper/string-examples-field";
-import { SetAttributeRegex } from "../../../operations/set-attribute-regex";
-import { SetAttributeExample } from "../../../operations/set-attribute-example";
+import { SetRegex } from "../../../operations/set-regex";
+import { SetExample } from "../../../operations/set-example";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -69,11 +69,11 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     }, [pimResource, isClass]);
 
     useEffect(() => {
-        if (isAttribute) {
+        if (isAttribute || isClass) {
             setRegex((pimResource as PimAttribute)?.pimRegex ?? "");
             setExamples((pimResource as PimAttribute)?.pimExample ?? null);
         }
-    }, [pimResource, isAttribute]);
+    }, [pimResource, isAttribute, isClass]);
 
     const {t} = useTranslation("detail");
 
@@ -132,17 +132,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const normalizedRegex = regex === "" ? null : regex;
     useSaveHandler(
-        isStringDatatype && normalizedRegex !== (pimResource as PimAttribute)?.pimRegex,
+        (isStringDatatype || isClass) && normalizedRegex !== (pimResource as PimAttribute | PimClass)?.pimRegex,
         useCallback(async () => {
-            await store.executeComplexOperation(new SetAttributeRegex(pimResource.iri as string, normalizedRegex));
+            await store.executeComplexOperation(new SetRegex(pimResource.iri as string, normalizedRegex));
         }, [normalizedRegex, pimResource.iri, store])
     );
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
     useSaveHandler(
-        isStringDatatype && !isEqual(normalizedExamples, (pimResource as PimAttribute)?.pimExample),
+        (isStringDatatype || isClass) && !isEqual(normalizedExamples, (pimResource as PimAttribute | PimClass)?.pimExample),
         useCallback(async () => {
-            await store.executeComplexOperation(new SetAttributeExample(pimResource.iri as string, normalizedExamples));
+            await store.executeComplexOperation(new SetExample(pimResource.iri as string, normalizedExamples));
         }, [normalizedExamples, pimResource.iri, store])
     );
 
@@ -281,12 +281,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
                 <DatatypeSelector disabled={readOnly} value={datatype} onChange={setDatatype} options={knownDatatypes}/>
             </Box>
-            {/* <Collapse in={!!datatype} appear={false}> */}
-            {isStringDatatype &&
-                <RegexField disabled={readOnly} value={regex} onChange={setRegex}  />
-            }
-            {/* </Collapse> */}
         </>}
+
+        {isClass && <Typography variant="h6">
+            {t('title iri parameters')}
+        </Typography>}
+
+        {/* <Collapse in={!!datatype} appear={false}> */}
+        {(isStringDatatype || isClass) &&
+            <RegexField disabled={readOnly} value={regex} onChange={setRegex} />
+        }
+        {/* </Collapse> */}
 
         {(isAttribute || isAssociationEnd) &&
             <Box sx={{mb: 3}}>
@@ -322,7 +327,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
           </Box>
         }
 
-        {isStringDatatype &&
+        {(isStringDatatype || isClass) &&
             <StringExamplesField value={examples} onChange={setExamples} disabled={pimReadOnly} regex={regex} />
         }
     </>

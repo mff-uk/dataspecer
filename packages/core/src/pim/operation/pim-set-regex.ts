@@ -4,7 +4,7 @@ import * as PIM from "../pim-vocabulary";
 export class PimSetRegex extends CoreOperation {
   static readonly TYPE = PIM.SET_REGEX;
 
-  pimAttribute: string | null = null;
+  pimResource: string | null = null;
 
   pimRegex: string | null = null;
 

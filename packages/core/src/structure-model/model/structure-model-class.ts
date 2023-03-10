@@ -67,4 +67,8 @@ export class StructureModelClass {
    * with the codelists.
    */
   codelistUrl: string[] = [];
+
+  regex: string | null = null;
+
+  example: unknown[] | null = null;
 }

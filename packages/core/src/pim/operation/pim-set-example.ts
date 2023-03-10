@@ -4,7 +4,7 @@ import * as PIM from "../pim-vocabulary";
 export class PimSetExample extends CoreOperation {
   static readonly TYPE = PIM.SET_EXAMPLE;
 
-  pimAttribute: string | null = null;
+  pimResource: string | null = null;
 
   /**
    * New examples set.

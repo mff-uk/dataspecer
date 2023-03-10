@@ -160,6 +160,8 @@ class ConceptualModelAdapter {
     model.isCodelist = classData.pimIsCodelist;
     model.codelistUrl = classData.pimCodelistUrl;
     model.extends = classData.pimExtends.map((iri) => this.getClass(iri));
+    model.regex = classData.pimRegex ?? null;
+    model.example = classData.pimExample ?? null;
   }
 }
 

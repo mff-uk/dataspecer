@@ -18,6 +18,10 @@ export class ConceptualModelClass {
 
   properties: ConceptualModelProperty[] = [];
 
+  regex: string | null = null;
+
+  example: unknown[] | null = null;
+
   static getAllExtends(cls: ConceptualModelClass): ConceptualModelClass[] {
     const result = new Set<ConceptualModelClass>();
     const queue = [...cls.extends];

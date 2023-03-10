@@ -2,9 +2,8 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-  CoreResource,
 } from "../../core";
-import { PimAttribute } from "../model";
+import { PimAttribute, PimClass } from "../model";
 import { PimSetExample } from "../operation";
 import { PimExecutorResultFactory } from "./pim-executor-utils";
 
@@ -13,8 +12,8 @@ export async function executePimSetExample(
   createNewIdentifier: CreateNewIdentifier,
   operation: PimSetExample
 ): Promise<CoreExecutorResult> {
-  const resource = await reader.readResource(operation.pimAttribute);
-  if (!PimAttribute.is(resource)) {
+  const resource = await reader.readResource(operation.pimResource);
+  if (!PimAttribute.is(resource) && !PimClass.is(resource)) {
     return PimExecutorResultFactory.invalidType(resource, "pim:attribute");
   }
 
@@ -24,7 +23,7 @@ export async function executePimSetExample(
       {
         ...resource,
         pimExample: operation.pimExample,
-      } as CoreResource,
+      } as PimAttribute | PimClass,
     ]
   );
 }
