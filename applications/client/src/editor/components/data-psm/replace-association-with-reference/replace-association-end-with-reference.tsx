@@ -22,8 +22,6 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
     // This method isn't ideal, does not refresh when
     const [availableReferences] = useAsyncMemo(async () => {
-        console.warn("root");
-
         const foundExistingDataPsms: string[] = [];
 
         if (pimClass?.pimInterpretation) {
@@ -32,11 +30,9 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
 
             for (const schemaIri of schemas) {
                 const schema = await store.readResource(schemaIri) as DataPsmSchema;
-            console.warn(schema);
                 if (schema === null) continue;
                 for (const rootIri of schema.dataPsmRoots) {
                     const root = await store.readResource(rootIri);
-                    console.warn(root);
 
                     if (DataPsmClass.is(root)) {
                         if (root.dataPsmInterpretation === null) continue;

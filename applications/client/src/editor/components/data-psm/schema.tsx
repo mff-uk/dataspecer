@@ -48,31 +48,6 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   const [rootContext] = useState({contextType: "root"} as RootContext);
 
-  // const xx = useResourcesInMemo(async getResource => {
-  //   console.log("spoustim funkci");
-  //   if (dataPsmSchema?.iri) {
-  //     const schema = await getResource(dataPsmSchema?.iri) as DataPsmSchema;
-  //     const or = await getResource(schema.dataPsmRoots[0]) as DataPsmOr;
-  //     const cls = await getResource(or.dataPsmChoices[0]) as DataPsmClass;
-  //     return cls.dataPsmTechnicalLabel;
-  //   }
-  // }, [dataPsmSchema?.iri]);
-  //
-  // useEffect(() => console.info("new value", xx[0], xx[1]), xx);
-
-  // const [labels, isLoading] = useResourcesInMemo(async (getResource) => {
-  //   console.log("exec");
-  //   const resource = await getResource("https://ofn.gov.cz/class/1658023614340-ccda-7f88-bc0b") as DataPsmClass;
-  //   const labels = [] as string[];
-  //   for (const part of resource.dataPsmParts) {
-  //     const partResource = await getResource(part) as DataPsmAttribute;
-  //     labels.push(partResource?.dataPsmTechnicalLabel ?? "");
-  //   }
-  //   return labels;
-  // }, []);
-  //
-  // useEffect(() => console.info("new value", labels), [labels]);
-
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
         <DetailDialog.Component iris={[dataPsmSchemaIri]} />
