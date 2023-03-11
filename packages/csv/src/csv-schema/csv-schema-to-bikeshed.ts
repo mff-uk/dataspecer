@@ -156,7 +156,7 @@ function createPropertySection(
     const list = new BikeshedContentList();
     result.content.push(list);
     list.items.push(
-        new BikeshedContentListItem(context.i18n.t("shared:key"), [property.technicalLabel])
+        new BikeshedContentListItem(context.i18n.t("shared:key"), ["`" + property.technicalLabel + "`"])
     );
     list.items.push(new BikeshedContentListItem(context.i18n.t("shared:name"), [label]));
     const description = context.selectString(
