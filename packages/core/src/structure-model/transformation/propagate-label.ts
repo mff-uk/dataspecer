@@ -17,15 +17,24 @@ export function propagateLabel(
     if (conceptualClass === null || conceptualClass === undefined) {
       continue;
     }
-    classData.humanLabel = classData.humanLabel ?? conceptualClass.humanLabel;
-    classData.humanDescription =
-      classData.humanDescription ?? conceptualClass.humanDescription;
+    classData.humanLabel = {
+      ...conceptualClass.humanLabel,
+      ...classData.humanLabel,
+    };
+    classData.humanDescription = {
+      ...conceptualClass.humanDescription,
+      ...classData.humanDescription,
+    };
     classData.properties.forEach((property) => {
       const conceptualProperty = propertyMap[property.pimIri];
-      property.humanLabel =
-        property.humanLabel ?? conceptualProperty?.humanLabel;
-      property.humanDescription =
-        property.humanDescription ?? conceptualProperty?.humanDescription;
+      property.humanLabel = {
+        ...conceptualProperty?.humanLabel,
+        ...property.humanLabel,
+      };
+      property.humanDescription = {
+        ...conceptualProperty?.humanDescription,
+        ...property.humanDescription,
+      };
     });
   }
   return result;
