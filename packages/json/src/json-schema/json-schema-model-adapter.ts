@@ -81,10 +81,18 @@ export function structureModelToJsonSchema(
     model: model,
     artefact: artefact,
   };
-  result.root = structureModelClassToJsonSchemaDefinition(
-    contex,
-    model.roots[0].classes[0]
-  );
+  if (model.roots[0].classes.length != 1) {
+    const anyOf = new JsonSchemaAnyOf();
+    anyOf.types = model.roots[0].classes.map((c) =>
+      structureModelClassToJsonSchemaDefinition(contex, c)
+    );
+    result.root = anyOf;
+  } else {
+    result.root = structureModelClassToJsonSchemaDefinition(
+      contex,
+      model.roots[0].classes[0]
+    );
+  }
 
   // Wrap the single root object with array or object with array
 
