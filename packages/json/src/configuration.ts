@@ -10,10 +10,20 @@ export const DefaultJsonConfiguration =  {
     jsonIdKeyAlias: "id" as string | null,
 
     /**
+     * Whether the property @id is required.
+     */
+    jsonIdRequired: true,
+
+    /**
      * Key of property representing the type of the entity.
      * If set to null, the property won't be used.
      */
     jsonTypeKeyAlias: "type" as string | null,
+
+    /**
+     * Whether the property @type is required.
+     */
+    jsonTypeRequired: true,
 
     /**
      * Value of @base json-ld property in context.

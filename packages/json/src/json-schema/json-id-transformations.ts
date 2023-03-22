@@ -41,6 +41,9 @@ export function structureModelAddIdAndTypeProperties(
         const id = new StructureModelProperty();
         id.technicalLabel = configuration.jsonTypeKeyAlias;
         id.cardinalityMax = 1;
+        if (configuration.jsonTypeRequired) {
+          id.cardinalityMin = 1;
+        }
         id.dataTypes = [datatype];
 
         structureClass.properties.unshift(id);
@@ -59,6 +62,9 @@ export function structureModelAddIdAndTypeProperties(
         const id = new StructureModelProperty();
         id.technicalLabel = configuration.jsonIdKeyAlias;
         id.cardinalityMax = 1;
+        if (configuration.jsonIdRequired) {
+          id.cardinalityMin = 1;
+        }
         id.dataTypes = [idDatatype];
         structureClass.properties.unshift(id);
       }

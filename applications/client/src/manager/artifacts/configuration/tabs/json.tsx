@@ -2,7 +2,7 @@ import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import { JsonConfiguration } from "@dataspecer/json/configuration";
 import { FormGroup, Typography, Grid, Collapse } from "@mui/material";
 import { FC } from "react";
-import { SelectWithDefault, TextFieldWithDefault } from "../ui-components/index";
+import { SelectWithDefault, SwitchWithDefault, TextFieldWithDefault } from "../ui-components/index";
 
 export const Json: FC<{
     input: DeepPartial<JsonConfiguration>,
@@ -34,6 +34,28 @@ export const Json: FC<{
       <Typography variant="body2" sx={{mt: 1}}>
         Set technical label (key) for properties containing IRI and a type of the entity respectively, for classes that are interpreted. If kept empty, the property will not be generated.
       </Typography>
+
+      <Typography variant="subtitle2" component="h3" sx={{mt: 3}}>Necessity of IRI and type properties</Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <SwitchWithDefault
+              label="Require IRI"
+              current={input ?? {}}
+              itemKey="jsonIdRequired"
+              onChange={onChange}
+              default={defaultObject}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <SwitchWithDefault
+              label="Require Type"
+              current={input ?? {}}
+              itemKey="jsonTypeRequired"
+              onChange={onChange}
+              default={defaultObject}
+          />
+        </Grid>
+      </Grid>
 
 
       <Typography variant="h6" sx={{mt: 6}}>JSON-LD @base IRI</Typography>
