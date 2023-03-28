@@ -51,7 +51,10 @@ export const SwitchWithDefault: FC<{
     itemKey: string,
     onChange: (value: Record<string, any>) => void,
     label: string,
+    undefinedIs?: boolean,
   }> = (props) => {
+    const undefinedIs = props.undefinedIs ?? false;
+
     const handleChange = (event: SelectChangeEvent<number>) => {
       const val = event.target.value;
       if (val === -1) {
@@ -68,10 +71,10 @@ export const SwitchWithDefault: FC<{
           <Select
               variant="standard"
               sx={{mx: 2}}
-              value={props.current.hasOwnProperty(props.itemKey) ? (props.current[props.itemKey] ? 1 : 0) : -1}
+              value={props.current.hasOwnProperty(props.itemKey) ? (props.current[props.itemKey] ?? undefinedIs ? 1 : 0) : -1}
               onChange={handleChange}
           >
-            <MenuItem value={-1}>Default ({props.default[props.itemKey] ? "Yes" : "No"})</MenuItem>
+            <MenuItem value={-1}>Default ({props.default[props.itemKey] ?? undefinedIs ? "Yes" : "No"})</MenuItem>
             <MenuItem value={1}>Yes</MenuItem>
             <MenuItem value={0}>No</MenuItem>
           </Select> :

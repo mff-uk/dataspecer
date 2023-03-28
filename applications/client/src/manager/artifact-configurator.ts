@@ -5,6 +5,7 @@ import {BIKESHED} from "@dataspecer/bikeshed";
 import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
+import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {
   public async generateFor(
@@ -28,44 +29,54 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
+    const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
+
     // PlantUML source
     const plantUml = new DataSpecificationDocumentation();
     plantUml.iri = `${dataSpecificationIri}#plantUml`;
     plantUml.outputPath = `${dataSpecificationName}/conceptual-model.plantuml`;
-    plantUml.publicUrl = this.baseURL + plantUml.outputPath;
+    plantUml.publicUrl = `${this.baseURL}/conceptual-model.plantuml`;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
     plantUml.configuration = configuration;
-    artifacts.push(plantUml);
+    if (dataSpecificationConfiguration.useGenerators?.["plantUML"] !== false) {
+      artifacts.push(plantUml);
+    }
 
     // PlantUml image
     const plantUmlImage = new DataSpecificationDocumentation();
     plantUmlImage.iri = `${dataSpecificationIri}#plantUmlImage`;
     plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.svg`;
-    plantUmlImage.publicUrl = this.baseURL + plantUmlImage.outputPath;
+    plantUmlImage.publicUrl = `${this.baseURL}/conceptual-model.svg`;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
     plantUmlImage.configuration = configuration;
-    artifacts.push(plantUmlImage);
+    if (dataSpecificationConfiguration.useGenerators?.["plantUML"] !== false) {
+      artifacts.push(plantUmlImage);
+    }
 
 
     // Bikeshed source
     const bikeshed = new DataSpecificationDocumentation();
     bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
     bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
-    bikeshed.publicUrl = this.baseURL + bikeshed.outputPath;
+    bikeshed.publicUrl = `${this.baseURL}/documentation.bs`;
     bikeshed.generator = BIKESHED.Generator;
     bikeshed.artefacts = currentSchemaArtefacts;
     bikeshed.configuration = configuration;
-    artifacts.push(bikeshed);
+    if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
+      artifacts.push(bikeshed);
+    }
 
     // Bikeshed HTML
     const bikeshedHtml = new DataSpecificationDocumentation();
     bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
     bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
-    bikeshedHtml.publicUrl = this.baseURL + bikeshedHtml.outputPath;
+    bikeshedHtml.publicUrl = `${this.baseURL}/documentation.html`;
     bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
     bikeshedHtml.artefacts = currentSchemaArtefacts;
     bikeshedHtml.configuration = configuration;
-    artifacts.push(bikeshedHtml);
+    if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
+      artifacts.push(bikeshedHtml);
+    }
 
     return artifacts;
   }

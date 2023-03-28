@@ -5,6 +5,7 @@ import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {Configurator} from "@dataspecer/core/configuration/configurator";
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getSchemaArtifacts} from "./schema-artifacts";
+import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -59,6 +60,12 @@ export class DefaultArtifactConfigurator {
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
+    const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
+    this.baseURL = dataSpecificationConfiguration.publicBaseUrl ?? `/${dataSpecificationName}`;
+    if (this.baseURL.endsWith("/")) {
+      this.baseURL = this.baseURL.slice(0, -1);
+    }
+
     // Generate schemas
     if (dataSpecification.type === DataSpecification.TYPE_EXTERNAL) {
       // @ts-ignore
@@ -70,7 +77,7 @@ export class DefaultArtifactConfigurator {
 
         currentSchemaArtefacts.push(...getSchemaArtifacts(
             psmSchemaIri,
-            this.baseURL,
+            `${this.baseURL}/${name}`,
             `${dataSpecificationName}/${name}`,
             configuration
         ));

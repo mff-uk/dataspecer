@@ -59,6 +59,7 @@ export const Home: React.FC = memo(() => {
     const DeleteForm = useDialog(DeleteDataSpecificationForm);
 
     const [filter] = useContext(FilterContext);
+    console.log("filter", filter);
     const specificationsToShow = useMemo(() =>
         rootDataSpecificationIris.filter(iri =>
             filter === null ||
