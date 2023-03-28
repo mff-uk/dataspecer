@@ -34,5 +34,14 @@
   },
   "structural-model": {
     "text": "V této sekci je definován strukturní model pro {{link}}."
+  },
+  "artifacts": {
+    "title": "Seznam artefaktů",
+    "anchor": "seznam-artefaktu",
+    "info": "Tato sekce obsahuje odkaz na všechny soubory, které jsou součástí této dokumentace.",
+    "table": {
+      "artifact": "Artefakt",
+      "link": "Odkaz"
+    }
   }
 }

@@ -34,5 +34,14 @@
   },
   "structural-model": {
     "text": "This section defines the structural model for {{link}}."
+  },
+  "artifacts": {
+    "title": "List of artifacts",
+    "anchor": "artifacts",
+    "info": "This section contains links to all files that are part of this documentation.",
+    "table": {
+      "artifact": "Artifact",
+      "link": "Link"
+    }
   }
 }

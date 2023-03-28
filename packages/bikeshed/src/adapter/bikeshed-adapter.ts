@@ -7,6 +7,7 @@ import {BikeshedConfiguration} from "../bikeshed-configuration";
 import {filterByStructural} from "@dataspecer/core/conceptual-model/transformation/filter-by-structural";
 import {createBikeshedStructureSection} from "./bikeshed-adapter-structural";
 import {createBikeshedMetadata} from "./bikeshed-adapter-metadata";
+import { artifactsToBikeshedContent } from "./bikeshed-apater-artifact-list";
 
 /**
  * Main function that takes the specification and generates the Bikeshed documentation object.
@@ -30,6 +31,9 @@ export async function specificationToBikeshed(
 
   // First part: Create metadata
   result.metadata = createBikeshedMetadata(context, conceptualModel);
+
+  // List of documents
+  result.content.push(await artifactsToBikeshedContent(context, specification, artefact));
 
   // Second part: Create conceptual model content
   result.content.push(
