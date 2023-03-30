@@ -28,7 +28,7 @@ export async function createBikeshedSchemaJson(
   context: BikeshedAdapterArtefactContext
 ): Promise<BikeshedContent> {
   const structureModel = context.structureModel;
-  const label = context.selectString(structureModel.humanLabel) + " JSON";
+  const label = context.i18n.t("shared:x-structure", {x: "JSON"});
   const result = new BikeshedContentSection(label, null);
 
   const linkToSchema = pathRelative(

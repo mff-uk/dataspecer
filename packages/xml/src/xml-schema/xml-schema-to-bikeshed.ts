@@ -29,7 +29,7 @@ export async function createBikeshedSchemaXml(
   context: BikeshedAdapterArtefactContext
 ): Promise<BikeshedContent> {
   const structureModel = context.structureModel;
-  const label = context.selectString(structureModel.humanLabel) + " XML";
+  const label = context.i18n.t("shared:x-structure", {x: "XML"});
   const result = new BikeshedContentSection(label, null);
 
   const linkToSchema = pathRelative(

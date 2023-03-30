@@ -21,6 +21,7 @@
     "interpretation": "Interpretation",
     "without-interpretation": "Without interpretation",
     "x-schema": "{{x}} schema",
+    "x-structure": "{{x}} structure",
     "key": "Key",
     "cardinality": "Cardinality",
     "mandatory": {

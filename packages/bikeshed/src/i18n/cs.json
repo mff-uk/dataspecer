@@ -21,6 +21,7 @@
     "interpretation": "Interpretace",
     "without-interpretation": "Bez interpretace",
     "x-schema": "{{x}} schéma",
+    "x-structure": "{{x}} struktura",
     "key": "Klíč",
     "cardinality": "Kardinalita",
     "mandatory": {

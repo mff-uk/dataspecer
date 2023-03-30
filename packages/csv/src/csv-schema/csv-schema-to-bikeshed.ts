@@ -28,7 +28,7 @@ export async function createBikeshedSchemaCsv(
     context: BikeshedAdapterArtefactContext
 ): Promise<BikeshedContent> {
     const structureModel = context.structureModel;
-    const label = context.selectString(structureModel.humanLabel) + " CSV";
+    const label = context.i18n.t("shared:x-structure", {x: "CSV"});
     const result = new BikeshedContentSection(label, null);
 
     const linkToSchema = pathRelative(
