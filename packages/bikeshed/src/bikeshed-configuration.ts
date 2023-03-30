@@ -22,6 +22,11 @@ export const DefaultBikeshedConfiguration =  {
      * Language of the document
      */
     language: "cs" as "en" | "cs",
+
+    /**
+     * Whether the documentation of the structural model shall use technical labels, or human-readable labels.
+     */
+    useTechnicalLabelsInStructuralModels: true as boolean,
 }
 
 export type BikeshedConfiguration = typeof DefaultBikeshedConfiguration;

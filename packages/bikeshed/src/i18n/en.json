@@ -13,6 +13,8 @@
     }
   },
   "shared": {
+    "attribute-technicalLabel": "Property `{{technicalLabel}}`",
+    "association-technicalLabel": "Property `{{technicalLabel}}`",
     "description": "Description",
     "codelist": {
       "title": "Code list",

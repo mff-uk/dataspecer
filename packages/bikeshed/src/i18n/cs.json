@@ -13,6 +13,8 @@
     }
   },
   "shared": {
+    "attribute-technicalLabel": "Vlastnost `{{technicalLabel}}`",
+    "association-technicalLabel": "Vlastnost `{{technicalLabel}}`",
     "description": "Popis",
     "codelist": {
       "title": "Číselník",

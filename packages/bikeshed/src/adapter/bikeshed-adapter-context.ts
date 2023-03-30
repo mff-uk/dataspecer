@@ -16,6 +16,7 @@ import {
   DataSpecificationDocumentation,
 } from "@dataspecer/core/data-specification/model";
 import { i18n } from "i18next";
+import {BikeshedConfiguration} from "../bikeshed-configuration";
 
 /**
  * Context given to adapters.
@@ -84,4 +85,9 @@ export class BikeshedAdapterArtefactContext extends BikeshedAdapterContext {
    * Non-transformed structural model for given artefact.
    */
   readonly structureModel: StructureModel;
+
+  /**
+   * Configuration of the bikeshed generator.
+   */
+  readonly bikeshedConfiguration: BikeshedConfiguration;
 }

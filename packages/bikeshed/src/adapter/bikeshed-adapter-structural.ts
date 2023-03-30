@@ -53,6 +53,7 @@ export async function createBikeshedStructureSection(
             artefact: artefactToInclude,
             conceptualModel: conceptualModel,
             structureModel: structureModel,
+            bikeshedConfiguration: context,
         };
 
         const contentToInclude = await generator.generateForDocumentation(

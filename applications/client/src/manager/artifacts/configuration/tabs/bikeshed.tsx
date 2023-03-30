@@ -1,8 +1,8 @@
 import { BikeshedConfiguration } from "@dataspecer/bikeshed";
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
-import { FormGroup, Box, Typography } from "@mui/material";
+import {FormGroup, Box, Typography, Grid} from "@mui/material";
 import { FC } from "react";
-import { SelectWithDefault, TextFieldWithDefault, TableRecord } from "../ui-components/index";
+import {SelectWithDefault, TextFieldWithDefault, TableRecord, SwitchWithDefault} from "../ui-components/index";
 
 const BIKESHED_LANGUAGES = {"cs": "cs", "en": "en"};
 
@@ -44,7 +44,8 @@ export const Bikeshed: FC<{
         default={defaultObject}
         inputProps={{fullWidth: true, multiline: true}}
     />
-    <Typography variant="subtitle1" component="h2" sx={{mt: 4, mb: 2}}>Additional metadata</Typography>
+
+    <Typography variant="h6" sx={{mt: 6}}>Additional metadata</Typography>
     <TableRecord
         value={input.otherMetadata ? Object.entries(input.otherMetadata) as [string, string][] : undefined}
         setValue={otherMetadata => {
@@ -58,5 +59,18 @@ export const Bikeshed: FC<{
         }}
         defaultValue={Object.entries(defaultObject?.otherMetadata ?? {})}
     />
+
+    <Typography variant="h6" sx={{mt: 6}}>Other settings</Typography>
+    <Grid container rowGap={1}>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+            current={input ?? {}}
+            itemKey="useTechnicalLabelsInStructuralModels"
+            onChange={onChange}
+            default={defaultObject}
+            label={"Use technical labels in structural model description"}
+        />
+      </Grid>
+    </Grid>
   </FormGroup>
 }

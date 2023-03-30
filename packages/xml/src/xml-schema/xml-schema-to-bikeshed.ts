@@ -144,9 +144,17 @@ function createPropertySection(
   const label = propertyLabel(context, property);
   let heading;
   if (isAttribute(property)) {
-    heading = label;
+    if (context.bikeshedConfiguration.useTechnicalLabelsInStructuralModels) {
+      heading = context.i18n.t("shared:attribute-technicalLabel", {technicalLabel: property.technicalLabel});
+    } else {
+      heading = label;
+    }
   } else {
-    heading = `${context.i18n.t("shared:association")}: ${label}`;
+    if (context.bikeshedConfiguration.useTechnicalLabelsInStructuralModels) {
+      heading = context.i18n.t("shared:association-technicalLabel", {technicalLabel: property.technicalLabel});
+    } else {
+      heading = `${context.i18n.t("shared:association")}: ${label}`;
+    }
   }
 
   const result = new BikeshedContentSection(
