@@ -44,10 +44,15 @@ export class JsonLdGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
-    model = transformStructureModel(
-      conceptualModel,
-      model,
-      Object.values(context.specifications)
+    // model = transformStructureModel(
+    //   conceptualModel,
+    //   model,
+    //   Object.values(context.specifications)
+    // );
+
+    model = Object.values(context.conceptualModels).reduce(
+        (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
+        model
     );
 
     const adapter = new JsonLdAdapter(model, context, artefact);

@@ -58,6 +58,8 @@ interface Context {
   model: StructureModel;
 
   artefact: DataSpecificationArtefact;
+
+  configuration: JsonConfiguration;
 }
 
 /**
@@ -80,6 +82,7 @@ export function structureModelToJsonSchema(
     stringSelector: stringSelector,
     model: model,
     artefact: artefact,
+    configuration,
   };
   if (model.roots[0].classes.length != 1) {
     const anyOf = new JsonSchemaAnyOf();
@@ -117,7 +120,8 @@ function structureModelClassToJsonSchemaDefinition(
   context: Context,
   modelClass: StructureModelClass
 ): JsonSchemaDefinition {
-  if (context.model.psmIri !== modelClass.structureSchema || modelClass.isReferenced) {
+  // todo: check if there is no self-reference
+  if ((context.model.psmIri !== modelClass.structureSchema || modelClass.isReferenced) && !context.configuration.dereferenceSchema) {
     const artefact = findArtefactForImport(context, modelClass);
     if (artefact !== null) {
       const url = pathRelative(context.artefact.publicUrl, artefact.publicUrl);

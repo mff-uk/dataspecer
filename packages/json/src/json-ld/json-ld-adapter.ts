@@ -92,7 +92,7 @@ export class JsonLdAdapter {
       }
 
       if (!firstDataType.dataType.isCodelist) {
-        if (this.model.psmIri !== firstDataType.dataType.structureSchema || firstDataType.dataType.isReferenced) {
+        if ((this.model.psmIri !== firstDataType.dataType.structureSchema || firstDataType.dataType.isReferenced) && !this.configuration.dereferenceContext) {
           if (property.cardinalityMax !== 1) {
             contextData["@container"] = "@set";
           }

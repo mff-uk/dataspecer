@@ -132,5 +132,31 @@ export const Json: FC<{
       <Typography variant="body2" sx={{mt: 1}}>
         Specifies what will be used for the individual types for the @type property in JSON-LD.
       </Typography>
+
+
+      <Typography variant="h6" sx={{mt: 6}}>References</Typography>
+      <Grid container rowGap={1}>
+        <Grid item xs={12}>
+          <SwitchWithDefault
+            current={input ?? {}}
+            itemKey="dereferenceSchema"
+            onChange={onChange}
+            default={defaultObject}
+            label={"Dereference JSON Schemas"}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <SwitchWithDefault
+              current={input ?? {}}
+              itemKey="dereferenceContext"
+              onChange={onChange}
+              default={defaultObject}
+              label={"Dereference JSON-LD Contexts"}
+          />
+        </Grid>
+      </Grid>
+      <Typography variant="body2" sx={{mt: 1}}>
+        Resolves all <code>$ref</code>/<code>@context</code> references in the generated files.
+      </Typography>
     </FormGroup>;
   };
