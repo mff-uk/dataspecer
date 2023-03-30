@@ -4,7 +4,7 @@ import {
   BikeshedContentListItem,
   BikeshedContentSection,
   BikeshedContentText,
-  BikeshedAdapterArtefactContext,
+  BikeshedAdapterArtefactContext, BIKESHED,
 } from "@dataspecer/bikeshed";
 import {
   StructureModelClass,
@@ -354,7 +354,10 @@ function externalAssociation(
     // TODO This is naive approach, there can be multiple specifications.
     // We need to look for specification of given type, then find the
     // documentation that includes it and then use that artefact.
-    if (DataSpecificationDocumentation.is(artefactInSpecification)) {
+    if (
+        DataSpecificationDocumentation.is(artefactInSpecification) &&
+        artefactInSpecification.generator === BIKESHED.Generator + "/html-output" // HTML generator
+    ) {
       artefact = artefactInSpecification;
       break;
     }
@@ -367,7 +370,10 @@ function externalAssociation(
     return label;
   } else {
     const url =
-      artefact.publicUrl +
+      pathRelative(
+        context.ownerArtefact.publicUrl,
+        artefact.publicUrl
+      ) +
       "#" +
       context.structuralClassAnchor("xml", structureModel, structureClass);
     return `[${label}](${url})`;

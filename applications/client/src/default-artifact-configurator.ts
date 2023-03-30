@@ -61,7 +61,8 @@ export class DefaultArtifactConfigurator {
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
     const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
-    this.baseURL = dataSpecificationConfiguration.publicBaseUrl ?? `/${dataSpecificationName}`;
+    const baseFromConfig = dataSpecificationConfiguration.publicBaseUrl ? dataSpecificationConfiguration.publicBaseUrl : null;
+    this.baseURL = baseFromConfig ?? `/${dataSpecificationName}`;
     if (this.baseURL.endsWith("/")) {
       this.baseURL = this.baseURL.slice(0, -1);
     }
