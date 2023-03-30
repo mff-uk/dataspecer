@@ -83,12 +83,6 @@ function createEntitySection(
   );
 
   entity.properties
-    .filter((item) => isAttribute(item))
-    .map((item) => createPropertySection(context, entity, item))
-    .forEach((item) => result.content.push(item));
-
-  entity.properties
-    .filter((item) => !isAttribute(item))
     .map((item) => createPropertySection(context, entity, item))
     .forEach((item) => result.content.push(item));
 
