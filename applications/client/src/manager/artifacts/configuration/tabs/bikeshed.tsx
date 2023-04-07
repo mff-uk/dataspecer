@@ -2,7 +2,7 @@ import { BikeshedConfiguration } from "@dataspecer/bikeshed";
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import {FormGroup, Box, Typography, Grid} from "@mui/material";
 import { FC } from "react";
-import {SelectWithDefault, TextFieldWithDefault, TableRecord, SwitchWithDefault} from "../ui-components/index";
+import {SelectWithDefault, TextFieldWithDefault, TableRecordWithDefault, SwitchWithDefault} from "../ui-components/index";
 
 const BIKESHED_LANGUAGES = {"cs": "cs", "en": "en"};
 
@@ -46,9 +46,9 @@ export const Bikeshed: FC<{
     />
 
     <Typography variant="h6" sx={{mt: 6}}>Additional metadata</Typography>
-    <TableRecord
+    <TableRecordWithDefault
         value={input.otherMetadata ? Object.entries(input.otherMetadata) as [string, string][] : undefined}
-        setValue={otherMetadata => {
+        onValueChange={otherMetadata => {
           if (otherMetadata) {
             onChange({...input, otherMetadata: Object.fromEntries(otherMetadata)})
           } else {
@@ -57,7 +57,7 @@ export const Bikeshed: FC<{
             onChange(result);
           }
         }}
-        defaultValue={Object.entries(defaultObject?.otherMetadata ?? {})}
+        defaultValue={defaultObject ? Object.entries(defaultObject?.otherMetadata ?? {}) : undefined}
     />
 
     <Typography variant="h6" sx={{mt: 6}}>Other settings</Typography>

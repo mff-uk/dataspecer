@@ -36,7 +36,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="json"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>
@@ -46,7 +46,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="xml"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>
@@ -56,7 +56,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="csv"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>
@@ -66,7 +66,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="sparql"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>
@@ -76,7 +76,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="bikeshed"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>
@@ -86,7 +86,7 @@ export const DataSpecification: FC<{
           current={input.useGenerators ?? {}}
           itemKey="plantUML"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject?.useGenerators ?? {}}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={true}
         />
       </Grid>

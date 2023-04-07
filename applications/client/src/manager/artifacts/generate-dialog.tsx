@@ -1,9 +1,9 @@
-import React, {FC, useContext} from "react";
+import React, {FC, useContext, useEffect, useState} from "react";
 import {Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {DataSpecifications} from "../data-specifications";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
-import {isEqual} from "lodash";
+import {clone, isEqual} from "lodash";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {DefaultArtifactBuilder} from "./default-artifact-builder";
@@ -12,6 +12,7 @@ import {ConstructedStoreCacheContext, DataSpecificationsContext} from "../app";
 import {GenerateReport} from "./generate-report";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {DefaultConfigurationContext} from "../../application";
+import {ConfigureArtifactsConfiguration} from "./configuration/configure-artifacts-configuration";
 
 /**
  * Dialog that orchestrates the whole process of generation of the artifacts.
@@ -27,6 +28,13 @@ export const GenerateDialog: FC<{
     const {dataSpecifications} = useContext(DataSpecificationsContext);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
     const defaultConfiguration = useContext(DefaultConfigurationContext);
+
+    const [localConfiguration, setLocalConfiguration] = useState(() => clone(defaultConfiguration));
+    useEffect(() => {
+        if (props.isOpen) {
+            setLocalConfiguration(clone(defaultConfiguration))
+        }
+    }, [props.isOpen, defaultConfiguration]);
 
     const [zipLoading, setZipLoading] = React.useState<false|"stores-loading"|"generating">(false);
     const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
@@ -89,7 +97,7 @@ export const GenerateDialog: FC<{
 
         setZipLoading("generating");
 
-        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, defaultConfiguration);
+        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, localConfiguration);
         await generator.prepare(Object.keys(gatheredDataSpecifications), setGenerateState);
         const data = await generator.build();
         saveAs(data, "artifacts.zip");
@@ -109,7 +117,9 @@ export const GenerateDialog: FC<{
 
         <DialogContent>
             <Alert severity="info" sx={{mb: 3}}>Individual data specifications may overwrite these configurations if explicitly set. By default, nothing is overwritten.</Alert>
-            {/* todo configuration */}
+            <div style={{opacity: !!zipLoading ? .25 : 1, pointerEvents: !!zipLoading ? "none" : undefined}}>
+                <ConfigureArtifactsConfiguration defaultConfiguration={undefined} configuration={localConfiguration} onConfigurationChange={setLocalConfiguration} />
+            </div>
         </DialogContent>
 
         <DialogActions>

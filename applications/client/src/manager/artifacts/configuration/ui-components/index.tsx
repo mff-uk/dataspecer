@@ -79,7 +79,7 @@ export const SwitchWithDefault: FC<{
             <MenuItem value={0}>No</MenuItem>
           </Select> :
           <Switch
-            checked={props.current[props.itemKey] as boolean}
+            checked={props.current[props.itemKey] as boolean ?? undefinedIs}
             onChange={e => props.onChange({...props.current, [props.itemKey]: e.target.checked})}
             />
         }
@@ -119,28 +119,32 @@ export const SelectWithDefault = <Keys extends string,>(props: {
   </FormControl>;
 }
 
-export const TableRecord: FC<{
-    defaultValue: [string, string][],
-    value: [string, string][] | undefined,
-    setValue: (value: [string, string][] | undefined) => void
-  }> = ({defaultValue, value, setValue}) => {
+/**
+ * Component for showing a table of key-value pairs to edit. It supports default values. If the default is undefined,
+ * the "default" option is not shown.
+ */
+export const TableRecordWithDefault = ({defaultValue, value, onValueChange}: {
+  defaultValue?: [string, string][],
+  value: [string, string][] | undefined,
+  onValueChange: (value: [string, string][] | undefined) => void
+}) => {
     const isDefault = value === undefined;
-    const modifiedValue = value === undefined ? defaultValue : [...value, ["", ""]];
+    const modifiedValue = value === undefined ? (defaultValue ?? []) : [...value, ["", ""]];
     const update = (index: number, newValue: [string, string]) => {
       const before = modifiedValue.slice(0, index);
       const after = modifiedValue.slice(index + 1);
       const result = ([...before, newValue, ...after] as [string, string][]).filter(q => !q.every(v => v === ""));
-      setValue(result);
+      onValueChange(result);
     }
     const defaultChange = (shallBeDefault: boolean) => {
       if (shallBeDefault) {
-        setValue(undefined);
+        onValueChange(undefined);
       } else {
-        setValue(defaultValue);
+        onValueChange(defaultValue);
       }
     }
     return <>
-      <FormControlLabel control={<Checkbox checked={isDefault} onChange={e => defaultChange(e.target.checked)} />} label="Use default value" />
+      {defaultValue && <FormControlLabel control={<Checkbox checked={isDefault} onChange={e => defaultChange(e.target.checked)} />} label="Use default value" />}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

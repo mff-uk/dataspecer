@@ -12,6 +12,9 @@ import {getDefaultConfigurators} from "./configurators";
 import {Generate} from "./manager/routes/specification/generate/generate";
 
 export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
+/**
+ * Contains merged default configuration from the source code and the configuration from the backend.
+ */
 // @ts-ignore
 export const DefaultConfigurationContext = createContext<object>(null);
 
