@@ -1,7 +1,7 @@
 import React, {memo, useState} from "react";
 import {DataPsmAttribute, DataPsmResource} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
-import {useItemStyles} from "../styles";
+import {sxStyles} from "../styles";
 import {Button, InputBase} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,7 +22,6 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
   const store = useFederatedObservableStore();
 
   const {t} = useTranslation("psm");
-  const styles = useItemStyles();
 
   const [label, setLabel] = useState(dataPsmResource.dataPsmTechnicalLabel ?? "");
   const [datatype, setDatatype] = useState(resourceType === "attribute" ? (dataPsmAttribute.dataPsmDatatype ?? "") : "");
@@ -58,12 +57,12 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
     });
   }
 
-  const className = resourceType === "attribute" ? styles.attributeInlineEditForm : styles.associationInlineEditForm;
+  const sx = resourceType === "attribute" ? sxStyles.attributeInlineEditForm : sxStyles.associationInlineEditForm;
 
   return <span onBlur={blur}>
     <InputBase
         placeholder={t("technical label")}
-        className={className}
+        sx={sx}
         autoFocus
         onFocus={e => e.target.select()}
         value={label}
@@ -74,7 +73,7 @@ export const InlineEdit: React.FC<{close: () => void, dataPsmResource: DataPsmRe
       {":"}
       <InputBase
           placeholder={t("datatype")}
-          className={className}
+          sx={sx}
           onFocus={e => e.target.select()}
           value={datatype}
           onChange={event => setDatatype(event.target.value)}

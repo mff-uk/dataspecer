@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {DataPsmExternalRoot} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
@@ -10,8 +10,6 @@ import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents"
 export const DataPsmExternalRootItem: React.FC<{
   iri: string
 } & RowSlots & ObjectContext> = memo((props) => {
-  const styles = useItemStyles();
-
   const {resource: dataPsmExternalRoot} = useResource<DataPsmExternalRoot>(props.iri);
   const {resource: pimClass} = useResource<PimClass>(dataPsmExternalRoot?.dataPsmTypes[0]);
 
@@ -23,7 +21,7 @@ export const DataPsmExternalRootItem: React.FC<{
             {label =>
                 <LanguageStringUndefineable from={pimClass?.pimHumanDescription}>
                   {description =>
-                      <span className={styles.class} title={description}>{label}</span>
+                      <Span sx={sxStyles.class} title={description}>{label}</Span>
                   }
                 </LanguageStringUndefineable>
             }

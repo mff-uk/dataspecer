@@ -3,7 +3,6 @@ import React from "react";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {Box, Fade, IconButton, MenuItem, Typography} from "@mui/material";
 import {ActionsOther} from "./common/actions-other";
-import {useItemStyles} from "./styles";
 import {styled} from "@mui/material/styles";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {DataPsmItemTreeContext} from "./data-psm-item-tree-context";
@@ -109,13 +108,12 @@ export interface RowSlots {
  * todo: remove ItemRow
  */
 export const DataPsmBaseRow: React.FC<RowSlots> = (props) => {
-  const styles = useItemStyles();
   const {t} = useTranslation("psm");
 
 
   const DetailDialog = useDialog(EntityChainDetailDialog, ["iris"]);
 
-  return <li className={styles.li}>
+  return <li style={{listStyleType: "none"}}>
     <ItemRow collapsible={props.collapseToggle} icon={props.icon} actions={<>
       {props.menu}
 

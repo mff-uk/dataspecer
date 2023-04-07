@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useMemo} from "react";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {useToggle} from "../../../hooks/use-toggle";
@@ -24,7 +24,6 @@ export const DataPsmClassItem: React.FC<{
   inheritanceOrTree?: InheritanceOrTree
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
-  const styles = useItemStyles();
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
   const readOnly = false;
@@ -44,12 +43,12 @@ export const DataPsmClassItem: React.FC<{
         <>
             <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
               {(label, description) =>
-                <span className={styles.class} title={description}>{label}</span>
+                <Span sx={sxStyles.class} title={description}>{label}</Span>
               }
             </DataPsmGetLabelAndDescription>
 
           {typeof dataPsmClass.dataPsmTechnicalLabel === "string" && dataPsmClass.dataPsmTechnicalLabel.length > 0 &&
-              <> (<span className={styles.technicalLabel}>{dataPsmClass.dataPsmTechnicalLabel}</span>)</>
+              <> (<Span sx={sxStyles.technicalLabel}>{dataPsmClass.dataPsmTechnicalLabel}</Span>)</>
           }
         </>
     }

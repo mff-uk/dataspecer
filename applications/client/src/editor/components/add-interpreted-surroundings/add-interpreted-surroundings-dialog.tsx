@@ -2,7 +2,6 @@ import {Button, Checkbox, DialogActions, Grid, IconButton, ListItem, ListItemIco
 import React, {useCallback, useEffect, useState} from "react";
 import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {LoadingDialog} from "../helper/LoadingDialog";
-import {createStyles, makeStyles} from "@mui/styles";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {CoreResource, CoreResourceReader, ReadOnlyFederatedStore} from "@dataspecer/core/core";
@@ -21,14 +20,6 @@ import {AssociationItem} from "./association-item";
 import {translateFrom} from "../helper/LanguageStringComponents";
 import {useFederatedObservableStore, StoreContext} from "@dataspecer/federated-observable-store-react/store";
 import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        ancestorPane: {
-            borderRight: "1px solid " + theme.palette.divider
-        },
-    }),
-);
 
 const useFilterForResource = <Resource extends CoreResource>(modelReader: CoreResourceReader | undefined, filter: (resource: CoreResource) => Promise<boolean>) => {
     const [resources] = useAsyncMemo<Resource[]>(async () => {
@@ -64,7 +55,6 @@ export interface AddInterpretedSurroundingDialogProperties {
 }
 
 export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri}) => {
-    const styles = useStyles();
     const {t, i18n} = useTranslation("interpretedSurrounding");
 
     const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
@@ -157,7 +147,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
         <DialogContent dividers>
             <Grid container spacing={3}>
-                <Grid item xs={3} className={styles.ancestorPane}>
+                <Grid item xs={3} sx={{borderRight: theme => "1px solid " + theme.palette.divider}}>
                     <AncestorSelectorPanel forCimClassIri={cimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} hierarchyStore={hierarchyStore} setHierarchyStore={setHierarchyStore} />
                 </Grid>
                 <Grid item xs={9}>

@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
 import {PimAttribute} from "@dataspecer/core/pim/model";
@@ -13,22 +13,20 @@ export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((pr
   const {resource: dataPsmAttribute} = useResource<DataPsmAttribute>(props.iri);
   const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
 
-  const styles = useItemStyles();
-
   const thisStartRow = <>
     <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
       {(label, description) =>
-        <span title={description} className={styles.attribute}>{label}</span>
+        <Span title={description} sx={sxStyles.attribute}>{label}</Span>
       }
     </DataPsmGetLabelAndDescription>
 
     {!!(dataPsmAttribute?.dataPsmTechnicalLabel && dataPsmAttribute.dataPsmTechnicalLabel.length) &&
-      <> (<span className={styles.technicalLabel}>{dataPsmAttribute.dataPsmTechnicalLabel}</span>)</>
+      <> (<Span sx={sxStyles.technicalLabel}>{dataPsmAttribute.dataPsmTechnicalLabel}</Span>)</>
     }
 
     {dataPsmAttribute?.dataPsmDatatype && dataPsmAttribute.dataPsmDatatype.length && <>
       {' : '}
-      <Datatype iri={dataPsmAttribute.dataPsmDatatype} className={styles.type} />
+      <Datatype iri={dataPsmAttribute.dataPsmDatatype} sx={sxStyles.type} />
     </>}
 
     {pimAttribute && (" " + getCardinalityFromResource(pimAttribute))}

@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
@@ -25,7 +25,6 @@ const StrikeOut: React.FC<{
 
 export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
-  const styles = useItemStyles();
   //const store = useFederatedObservableStore();
 
   // Data PSM association end
@@ -60,7 +59,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
       {hasHumanLabelOnAssociationEnd ?
         <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
           {(label, description) =>
-            <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
+            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>
           }
         </DataPsmGetLabelAndDescription>
         :
@@ -69,7 +68,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
             <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                <span title={description} className={isCodelist ? styles.attribute : styles.association}>{label}</span>
+                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>
               </>}
             </LanguageStringUndefineable>
           }
@@ -84,7 +83,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
     {" "}
 
     {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
-        <>(<span className={styles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</span>)</>
+        <>(<Span sx={sxStyles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</Span>)</>
     }
 
     {pimAssociationEnd && (" " + getCardinalityFromResource(pimAssociationEnd))}

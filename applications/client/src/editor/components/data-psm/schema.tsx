@@ -2,7 +2,6 @@ import {IconButton, Paper, Typography} from "@mui/material";
 import React, {useCallback, useState} from "react";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {LanguageStringFallback} from "../helper/LanguageStringComponents";
-import {createStyles, makeStyles} from "@mui/styles";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import Skeleton from '@mui/material/Skeleton';
 import {useTranslation} from "react-i18next";
@@ -14,15 +13,6 @@ import {useDialog} from "../../dialog";
 import {DataPsmObjectType, RootContext} from "./data-psm-row";
 import {EntityChainDetailDialog} from "../detail/entity-chain-detail-dialog";
 
-
-const useStyles = makeStyles(() =>
-    createStyles({
-      ul: {
-        paddingLeft: 0
-      }
-    }),
-);
-
 export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsmSchemaIri}) => {
   const {resource: dataPsmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
   const readOnly = false;
@@ -30,8 +20,6 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   const DetailDialog = useDialog(EntityChainDetailDialog, ["iris"]);
   const openDetail = useCallback(() => DetailDialog.open({}), [DetailDialog]);
-
-  const styles = useStyles();
 
   /**
    * When moving items anywhere inside the panel of the current dataPsm schema.
@@ -61,7 +49,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         </Typography>
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
-            <ul className={styles.ul}>
+            <ul style={{paddingLeft: 0}}>
               {dataPsmSchema.dataPsmRoots.map(root => <DataPsmObjectType iri={root} key={root} {...rootContext} />)}
             </ul>
         </DragDropContext>

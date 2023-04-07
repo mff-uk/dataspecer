@@ -2,7 +2,7 @@ import React, {memo, useCallback, useContext, useMemo} from "react";
 import {ObjectContext} from "../data-psm-row";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {useTranslation} from "react-i18next";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {useToggle} from "../../../hooks/use-toggle";
 import {UnwrapOr} from "../../../operations/unwrap-or";
@@ -25,7 +25,6 @@ import {ConfigurationContext} from "../../App";
  */
 export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
-  const styles = useItemStyles();
   const store = useFederatedObservableStore();
   const {dataSpecifications, dataSpecificationIri} = useContext(ConfigurationContext);
   const dataSpecification = dataSpecifications[dataSpecificationIri as string];
@@ -61,7 +60,7 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
   }, [SearchToOr, props.iri, store, dataSpecification.pim]);
 
   const thisStartRow = <>
-    <span className={styles.or}>{t("OR")}</span>
+    <Span sx={sxStyles.or}>{t("OR")}</Span>
   </>;
 
   const thisMenu = <>

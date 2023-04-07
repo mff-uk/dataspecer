@@ -1,4 +1,4 @@
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {DataPsmClassItem} from "./class";
 import React, {memo, useCallback} from "react";
 import {InheritanceOrTree} from "../common/use-inheritance-or";
@@ -12,11 +12,10 @@ import {ObjectContext, ORContext} from "../data-psm-row";
  * Represents an object type PSM entity in OR under the inheritance view.
  */
 export const DataPsmSpecializationItem: React.FC<{iri: string, inheritanceOrTree: InheritanceOrTree } & RowSlots & ObjectContext> = memo((props) => {
-  const styles = useItemStyles();
   const store = useFederatedObservableStore();
 
   const thisStartRow = <>
-    <span className={styles.or}>specialization</span>
+    <Span sx={sxStyles.or}>specialization</Span>
     {" "}
   </>;
 

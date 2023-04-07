@@ -1,36 +1,33 @@
 import React from "react";
-import {createStyles, makeStyles} from "@mui/styles";
 import {ConfigurationContext} from "../App";
 import {useAsyncMemo} from "../../hooks/use-async-memo";
-import {alpha, Theme} from "@mui/material";
+import {alpha} from "@mui/material";
+import {styled} from "@mui/system";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            color: theme.palette.primary.main,
-            marginLeft: ".5rem",
-            background: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-            padding: ".2rem .5rem",
-            borderRadius: theme.shape.borderRadius
-        },
-    }),
+const SlovnikBadge = styled('span')(
+    ({ theme }) => ({
+        color: theme.palette.primary.main,
+        marginLeft: ".5rem",
+        background: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+        padding: ".2rem .5rem",
+        borderRadius: theme.shape.borderRadius
+    })
 );
 
 export const SlovnikGovCzGlossary: React.FC<{cimResourceIri: string}> = ({cimResourceIri}) => {
     const {cim} = React.useContext(ConfigurationContext);
     const [groups] = useAsyncMemo(() => cim.cimAdapter.getResourceGroup(cimResourceIri), [cimResourceIri, cim.cimAdapter]);
-    const styles = useStyles();
 
     if (groups) {
         return <>{groups.map(group => {
             const chunks = group.substr("https://slovník.gov.cz/".length).split("/");
             switch (chunks[0]) {
                 case "legislativní":
-                    return <span className={styles.root} key={group}>{chunks[0]} <strong>{chunks[2]}/{chunks[3]} Sb.</strong></span>;
+                    return <SlovnikBadge key={group}>{chunks[0]} <strong>{chunks[2]}/{chunks[3]} Sb.</strong></SlovnikBadge>;
                 case "agendový":
-                    return <span className={styles.root} key={group}>{chunks[0]} <strong>{chunks[1]}</strong></span>;
+                    return <SlovnikBadge key={group}>{chunks[0]} <strong>{chunks[1]}</strong></SlovnikBadge>;
                 default:
-                    return <span className={styles.root} key={group}>{chunks[0]}</span>;
+                    return <SlovnikBadge key={group}>{chunks[0]}</SlovnikBadge>;
             }
         })}</>;
     } else {

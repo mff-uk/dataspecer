@@ -1,5 +1,5 @@
 import React, {memo, useMemo} from "react";
-import {useItemStyles} from "../styles";
+import {Span, sxStyles} from "../styles";
 import {DataPsmInclude} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {RowSlots} from "../base-row";
@@ -9,13 +9,11 @@ import ContentCopyTwoToneIcon from "@mui/icons-material/ContentCopyTwoTone";
 
 export const DataPsmIncludeItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {t} = useTranslation("psm");
-  const styles = useItemStyles();
-
   const {resource: include} = useResource<DataPsmInclude>(props.iri);
   const includedObject = include?.dataPsmIncludes ?? null;
 
   const thisStartRow = <>
-    <strong className={styles.include}>{t("includes content of")}{" "}</strong>
+    <Span sx={sxStyles.include}>{t("includes content of")}{" "}</Span>
   </>;
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
