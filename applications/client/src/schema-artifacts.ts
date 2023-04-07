@@ -56,7 +56,7 @@ export function getSchemaArtifacts(
     xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;
     xsdCoreSchema.psm = psmSchemaIri;
     xsdCoreSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
+    if (dataSpecificationConfiguration.useGenerators?.["xml"] !== false) {
         artifacts.push(xsdCoreSchema);
     }
 
