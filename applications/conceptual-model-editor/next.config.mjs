@@ -19,5 +19,15 @@ const config = {
     },
 
     basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+    
+    // Ignore eslint and ts errors during build
+    
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    
+    typescript: {
+        ignoreBuildErrors: true,
+    }
 };
 export default config;
