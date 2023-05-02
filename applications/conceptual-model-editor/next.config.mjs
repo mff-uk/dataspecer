@@ -6,13 +6,18 @@
 
 /** @type {import("next").NextConfig} */
 const config = {
-  reactStrictMode: true,
+    reactStrictMode: true,
 
-  experimental: { appDir: true },
+    experimental: { appDir: true },
 
-  // Export to static HTML files for hosting without a Node.js server
-  output: 'export',
+    // Export to static HTML files for hosting without a Node.js server
+    output: "export",
 
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+    webpack: (config) => {
+        config.experiments.topLevelAwait = true;
+        return config;
+    },
+
+    basePath: process.env.NEXT_PUBLIC_BASE_PATH,
 };
 export default config;
