@@ -1,4 +1,4 @@
-import { Cim } from "../model/cim-defs";
+import { type Cim } from "../model/cim-defs";
 import { getRandomName, getRandomPosition } from "../utils/random-gen";
 
 export type Position = {

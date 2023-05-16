@@ -8,7 +8,7 @@ export class Association {
     constructor(name: string, ...clses: CimClass[]) {
         this.name = name;
         this.assocEnds = clses;
-        this.id = "assoc" + Date.now() + name;
+        this.id = `assoc${Date.now()}${name}`;
     }
 }
 
@@ -59,7 +59,7 @@ export class Cim {
     constructor(classes: CimClass[], associations: Association[]) {
         this.classes = classes;
         this.associations = associations;
-        this.id = "cim" + Date.now();
+        this.id = `cim${Date.now()}`;
     }
 
     addClass(...classes: CimClass[]) {
@@ -110,15 +110,22 @@ export function getSampleCimOf(nodes: number, links: number): Cim {
     const associations: Association[] = [];
 
     for (let i = 0; i < nodes; i++) {
-        const newClass = new CimClass(getRandomName(), [], [], cim.id);
+        const newClass = new CimClass(
+            getRandomName(5),
+            [...Array(getRandomNumberInRange(1, 4)).keys()].map(
+                (_) => ({ name: getRandomName(6), value: "" } as Attribute)
+            ),
+            [],
+            cim.id
+        );
         classes.push(newClass);
     }
 
     for (let l = 0; l < links; l++) {
         const assoc = new Association(
             getRandomName(),
-            classes[getRandomNumberInRange(0, nodes)]!,
-            classes[getRandomNumberInRange(0, nodes)]!
+            classes[getRandomNumberInRange(0, nodes - 1)]!,
+            classes[getRandomNumberInRange(0, nodes - 1)]!
         );
         associations.push(assoc);
     }

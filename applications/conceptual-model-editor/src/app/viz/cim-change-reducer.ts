@@ -1,19 +1,27 @@
-import { CimClass, Association, Cim } from "./model/cim-defs";
-import { CimLayout, Position } from "./layout/cim-layout";
-import { ViewLayout } from "./layout/view-layout";
+// NOT USED, TODO: remove if not needed
+
+import type { CimClass, Association, Cim, Attribute } from "./model/cim-defs";
+import type { CimLayout, Position } from "./layout/cim-layout";
+import type { ViewLayout } from "./layout/view-layout";
 
 export enum CimActionKind {
     ADD_ATTRIBUTE,
     REMOVE_ATTRIBUTE,
+    FOCUS,
     REMOVE_FOCUS,
     ELEMENT_MOVE,
     SYNC_DONE,
+    ADD_CLASS_TO_VIEW,
+    REMOVE_CLASS_FROM_VIEW,
 }
+
+export type CimActionPayload = Attribute | Position | ViewLayout;
 
 export interface CimAction {
     type: CimActionKind;
     clsId?: string;
-    payload?: any;
+    cls?: CimClass;
+    payload?: CimActionPayload;
 }
 
 export interface CimState {
@@ -27,64 +35,6 @@ export interface CimState {
 
 export type CimDispatch = React.Dispatch<CimAction>;
 
-export const cimChangeReducer: (state: CimState, action: CimAction) => CimState = (state, action) => {
-    const { type, clsId, payload } = action;
-    switch (type) {
-        case CimActionKind.ADD_ATTRIBUTE:
-            const oldClassesAdd = state.cim.classes;
-            const moddedCls = oldClassesAdd.find((c) => c.id === clsId)!;
-
-            moddedCls.addAttribute(payload);
-            const newCimClasses = [...oldClassesAdd.filter((c) => c.id !== clsId), moddedCls];
-            const newCim = state.cim;
-            newCim.classes = newCimClasses;
-            const newState: CimState = {
-                ...state,
-                cim: newCim,
-                classes: newCimClasses,
-                highlightedElement: moddedCls,
-                needsSync: true,
-            };
-            return newState;
-        case CimActionKind.REMOVE_ATTRIBUTE:
-            const oldClassesRem = state.classes;
-            const clsToRemoveAttribute = oldClassesRem.find((c) => c.id === clsId)!;
-
-            clsToRemoveAttribute.removeAttribute(payload.name);
-
-            const newCimClassesRem = [...oldClassesRem.filter((c) => c.id !== clsId), clsToRemoveAttribute];
-            const newCimRem = state.cim;
-            newCimRem.classes = newCimClassesRem;
-
-            return {
-                ...state,
-                cim: newCimRem,
-                classes: newCimClassesRem,
-                highlightedElement: clsToRemoveAttribute,
-                needsSync: true,
-            };
-
-        case CimActionKind.REMOVE_FOCUS:
-            return { ...state, highlightedElement: undefined } as CimState;
-
-        case CimActionKind.ELEMENT_MOVE:
-            const pos = payload.position as Position;
-            const newLayout = state.cimLayout;
-            newLayout.setPosition(clsId!, pos);
-            // console.log(pos);
-            return { ...state, cimLayout: newLayout };
-
-        case CimActionKind.SYNC_DONE:
-            return {
-                ...state,
-                needsSync: false,
-            };
-
-        default:
-            return { ...state, highlightedElement: undefined } as CimState;
-    }
-};
-
 export interface CimState2 {
     cims: Cim[];
     viewLayout: ViewLayout;
@@ -93,8 +43,8 @@ export interface CimState2 {
 }
 
 export const cimChangeReducer2: (state: CimState2, action: CimAction) => CimState2 = (state, action) => {
-    const { type, clsId, payload } = action;
-    const cim = state.cims.filter((c) => c.classes.find((cls) => cls.id === clsId)).at(0)!; // should be exactly one
+    const { type, clsId, cls, payload } = action;
+    const cim = state.cims.filter((c) => c.classes.find((cls) => cls.id === clsId)).at(0); // should be exactly one
     if (!cim) {
         console.log(action);
         console.log(state.cims);
@@ -102,46 +52,51 @@ export const cimChangeReducer2: (state: CimState2, action: CimAction) => CimStat
 
     switch (type) {
         case CimActionKind.ADD_ATTRIBUTE:
-            const oldClassesAdd = cim.classes;
-            const moddedCls = oldClassesAdd.find((c) => c.id === clsId)!;
+            cls?.addAttribute(payload as Attribute);
 
-            moddedCls.addAttribute(payload);
-            const newCimClasses = [...oldClassesAdd.filter((c) => c.id !== clsId), moddedCls];
-            const newCim = cim;
-            newCim.classes = newCimClasses;
-            const newState: CimState2 = {
-                ...state,
-                cims: [...state.cims.filter((c) => c.id !== cim.id), newCim],
-                highlightedElement: moddedCls,
-                needsSync: true,
-            };
-            return newState;
+            return { ...state, needsSync: true, highlightedElement: cls };
         case CimActionKind.REMOVE_ATTRIBUTE:
-            const oldClassesRem = cim.classes;
-            const clsToRemoveAttribute = oldClassesRem.find((c) => c.id === clsId)!;
-
-            clsToRemoveAttribute.removeAttribute(payload.name);
-
-            const newCimClassesRem = [...oldClassesRem.filter((c) => c.id !== clsId), clsToRemoveAttribute];
-            const newCimRem = cim;
-            newCimRem.classes = newCimClassesRem;
+            cls?.removeAttribute((payload as Attribute).name);
 
             return {
                 ...state,
-                cims: [...state.cims.filter((c) => c.id !== cim.id), newCimRem],
-                highlightedElement: clsToRemoveAttribute,
+                highlightedElement: cls,
                 needsSync: true,
-            } as CimState2;
+            };
+        case CimActionKind.FOCUS:
+            return { ...state, highlightedElement: cls };
 
         case CimActionKind.REMOVE_FOCUS:
-            return { ...state, highlightedElement: undefined } as CimState2;
+            return { ...state, highlightedElement: undefined };
+
+        case CimActionKind.ADD_CLASS_TO_VIEW:
+            if (cls) {
+                (payload as ViewLayout).addClassToView(cls);
+            } else {
+                throw new Error(
+                    "CimAction.ADD_CLASS_TO_VIEW should only be called with cimClass in cls and viewLayout as payload"
+                );
+            }
+
+            return { ...state, needsSync: true };
+
+        case CimActionKind.REMOVE_CLASS_FROM_VIEW:
+            if (cls) {
+                const successfullyRemoved = (payload as ViewLayout).removeClassFromView(cls);
+                return successfullyRemoved ? { ...state, needsSync: true } : state;
+            } else {
+                throw new Error(
+                    "CimAction.REMOVE_CLASS_FROM_VIEW should only be called with cimClass in cls and viewLayout as payload"
+                );
+            }
 
         case CimActionKind.ELEMENT_MOVE:
-            const pos = payload.position as Position;
+            const pos = action.payload as Position;
             const newLayout = state.viewLayout;
-            if (!newLayout) throw new Error("CimLayout for " + cim.id + " should be defined");
-            newLayout.setPosition(clsId!, pos);
-            return { ...state, viewLayout: newLayout } as CimState2;
+            if (!newLayout) throw new Error(`CimLayout for ${cim ? cim.id : ""} should be defined`);
+            if (cls) newLayout.setPositionWithRef(cls, pos); // set by class reference
+
+            return { ...state, viewLayout: newLayout };
 
         case CimActionKind.SYNC_DONE:
             return {
@@ -150,6 +105,6 @@ export const cimChangeReducer2: (state: CimState2, action: CimAction) => CimStat
             };
 
         default:
-            return { ...state, highlightedElement: undefined } as CimState2;
+            return { ...state, highlightedElement: undefined };
     }
 };

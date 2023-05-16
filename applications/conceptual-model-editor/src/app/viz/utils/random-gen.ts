@@ -1,12 +1,12 @@
 import { randomBytes } from "crypto";
-import { Position } from "../layout/cim-layout";
+import type { Position } from "../layout/cim-layout";
 
-export const getRandomPosition = (xMax: number = 1500, yMax: number = 600) => {
+export const getRandomPosition = (xMax = 1500, yMax = 600) => {
     return { x: getRandomNumberInRange(0, xMax), y: getRandomNumberInRange(0, yMax) } as Position;
 };
 
-export const getRandomName = () => {
-    return randomBytes(12).toString("hex");
+export const getRandomName = (length = 12) => {
+    return randomBytes(length).toString("hex");
 };
 
 export const getRandomNumberInRange = (min: number, max: number) => {

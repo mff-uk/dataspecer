@@ -1,32 +1,33 @@
 "use client";
 import React, { useState } from "react";
 
-import { classA, classB, classC, CimClass } from "./class";
+import { classA, classB, classC, type CimClass } from "./class";
 
 const CimClassJsx: React.FC<{ thisCls: number; classes: CimClass[]; changeClasses: changeClassesSetter }> = ({
     thisCls,
     classes,
     changeClasses,
 }) => {
-    const cls = classes.at(thisCls)!;
+    const cls = classes.at(thisCls);
+    if (!cls) return <div className="border border-red-500">Class with number: {thisCls} not found</div>;
     const originalClasses = classes;
 
     const handleMouseEnter = (what: string) => {
-        originalClasses.find((c, i) => c.name === what)!.setHighlited(true);
+        originalClasses.find((c) => c.name === what)?.setHighlited(true);
         changeClasses([...originalClasses]);
     };
 
     const handleMouseLeave = (what: string) => {
-        originalClasses.find((c, i) => c.name === what)!.setHighlited(false);
+        originalClasses.find((c) => c.name === what)?.setHighlited(false);
         changeClasses([...originalClasses]);
     };
 
     const highlitedStyle = "m-20 border-2 border-slate-500 bg-slate-50 text-slate-700";
-    const unHighlitedStyle = "m-20 border-2 border-black bg-slate-200 text-black";
+    const normalStyle = "m-20 border-2 border-black bg-slate-200 text-black";
 
     return (
         <>
-            <div className={cls.highlighted ? highlitedStyle : unHighlitedStyle} key={cls.name}>
+            <div className={cls.highlighted ? highlitedStyle : normalStyle} key={cls.name}>
                 <h4>{cls.name}</h4>
                 <h6>Attributes</h6>
                 {cls.attributes.map((attr) => (
@@ -57,8 +58,8 @@ const Page = () => {
         <>
             <h1>Classes with highlited assiciations</h1>
             <div className="container">
-                {classes.map((cls, i) => (
-                    <CimClassJsx thisCls={i} classes={classes} changeClasses={setClasses} />
+                {classes.map((_, i) => (
+                    <CimClassJsx thisCls={i} classes={classes} changeClasses={setClasses} key={i} />
                 ))}
             </div>
         </>

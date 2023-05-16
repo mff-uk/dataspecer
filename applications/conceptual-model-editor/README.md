@@ -5,9 +5,11 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 Apart from the explicit use of several npm `@dataspecer/*` libraries currently linked via Lerna, this project is not dependent on the rest of the codebase.
 
 This project uses:
-- Next.js 13 with [static HTML export enabled](https://nextjs.org/docs/advanced-features/static-html-export) and experimental app directory
-- React.js 18
-- Tailwind.css
+
+-   Next.js 13 with [static HTML export enabled](https://nextjs.org/docs/advanced-features/static-html-export) and experimental app directory
+-   React.js 18
+-   Tailwind.css
+-   JointJS
 
 # Build instructions
 
