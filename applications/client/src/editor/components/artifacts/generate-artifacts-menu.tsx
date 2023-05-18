@@ -29,6 +29,7 @@ import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
 import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import {ShaclGenerator} from "@dataspecer/shacl";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -258,6 +259,13 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(SPARQL.Generator)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: SPARQL.Generator})}
                     setLive={v => (v ? add : del)(SPARQL.Generator)}
+                />
+                <GeneratedArtifactItem
+                    title={"SHACL"}
+                    generator={ShaclGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(ShaclGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: ShaclGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(ShaclGenerator.IDENTIFIER)}
                 />
 
                 <MenuNote>

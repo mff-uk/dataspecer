@@ -72,6 +72,16 @@ export const DataSpecification: FC<{
       </Grid>
       <Grid item xs={12}>
         <SwitchWithDefault
+            label="SHACL shapes"
+            current={input.useGenerators ?? {}}
+            itemKey="shacl"
+            onChange={(value) => onChange({ ...input, useGenerators: value })}
+            default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+            undefinedIs={true}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
           label="Bikeshed documentation"
           current={input.useGenerators ?? {}}
           itemKey="bikeshed"

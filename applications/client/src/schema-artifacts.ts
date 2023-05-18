@@ -126,5 +126,16 @@ export function getSchemaArtifacts(
         artifacts.push(sparqlSchema);
     }
 
+    const shacl = new DataSpecificationSchema();
+    shacl.iri = `${psmSchemaIri}#shacl`;
+    shacl.outputPath = `${basePath}/shacl-shapes.ttl`;
+    shacl.publicUrl = `${baseUrl}/shacl-shapes.ttl`;
+    shacl.generator = "https://schemas.dataspecer.com/generator/shacl";
+    shacl.psm = psmSchemaIri;
+    shacl.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+        artifacts.push(shacl);
+    }
+
     return artifacts;
 }
