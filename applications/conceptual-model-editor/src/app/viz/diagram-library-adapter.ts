@@ -1,8 +1,5 @@
-import { CimState2 } from "./cim-change-reducer";
-import { Position } from "./layout/cim-layout";
-import { ViewLayout } from "./layout/view-layout";
-import { CimClass } from "./model/cim-defs";
-import { CimStateContextType } from "./utils/hooks/use-cim-context";
+import { type Position, type ViewLayout2 } from "./layout/view-layout";
+import { type Cim, CimClass } from "./model/cim-defs";
 
 export interface PaperOptions {
     height?: number;
@@ -46,8 +43,10 @@ export abstract class DiaLibAdapterBuilder {
 
 export interface DiaLibAdapter {
     setCimClassClickListener(handler: (cls: CimClass) => any): void;
-    syncDiaToState(cimContext: CimStateContextType, viewLayoutContext: ViewLayout): void;
+    // syncDiaToState(cimContext: CimStateContextType, viewLayoutContext: ViewLayout): void;
     setOnCimClassPositionChangeHandler(handler: (cls: CimClass, position: Position) => any): void;
     setOnBlankPaperClickHandler(handler: () => any): void;
-    drawLines(cimContext: CimStateContextType, viewLayout: ViewLayout): void;
+    // drawLines(cimContext: CimStateContextType, viewLayout: ViewLayout): void;
+    bobo(): void;
+    sync(cims: Cim[], viewLayout: ViewLayout2, colorOfCim: (cimId: string) => string | undefined): void;
 }

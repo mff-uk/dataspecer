@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { type CimClass } from "./model/cim-defs";
-import { useCimContext } from "./utils/hooks/use-cim-context";
-import { useViewLayoutContext } from "./utils/hooks/use-view-layout-context";
+import { useCimContext2 } from "./utils/hooks/use-cim-context2";
+import { useViewLayoutContext2 } from "./utils/hooks/use-view-layout-context2";
 
 const PresentCimClassRow: React.FC<{ cls: CimClass; removeFromViewHandler: () => void }> = ({
     cls,
@@ -37,47 +37,33 @@ const AvailableCimClassRow: React.FC<{ cls: CimClass; addToViewHandler: () => vo
 };
 
 export const AvailableCimClasses: React.FC = () => {
-    const { cimContext } = useCimContext();
-    const { viewLayoutContext, addClassToView, removeClassFromView } = useViewLayoutContext();
-
-    const [availClassesState, setAvailClassesState] = useState({ vl: viewLayoutContext, c: cimContext });
-
-    const addClassToViewHandler = (cls: CimClass) => {
-        console.log(`should add class ${cls.name} to view layout`);
-        addClassToView(cls);
-        setAvailClassesState({ vl: viewLayoutContext, c: cimContext });
-    };
-
-    const removeClassToViewHandler = (cls: CimClass) => {
-        console.log("remove button clicked");
-        removeClassFromView(cls);
-        setAvailClassesState({ vl: viewLayoutContext, c: cimContext });
-    };
+    const { cims } = useCimContext2();
+    const { viewLayout, addClassToView, removeFromView, colorOfCim } = useViewLayoutContext2();
 
     return (
         <div className="mx-1">
             <h1 className="mb-2 text-xl">Classes in view</h1>
             <div className="flex flex-col">
-                {[...availClassesState.vl.elementPositionMapWithClassRef.keys()].map((c) => (
+                {[...viewLayout.elementPositionMapWithClassRef.keys()].map((c) => (
                     <PresentCimClassRow
                         cls={c}
                         key={`present-class-${c.id}`}
-                        removeFromViewHandler={() => removeClassToViewHandler(c)}
+                        removeFromViewHandler={() => removeFromView(c)}
                     />
                 ))}
             </div>
             <h2 className="mb-2 text-lg">Available Classes</h2>
             <div className="flex flex-col">
-                {availClassesState.c.cims
+                {cims
                     .map((c) => c.classes)
                     .flat()
-                    .filter((cls) => !availClassesState.vl.elementPositionMapWithClassRef.has(cls))
+                    .filter((cls) => !viewLayout.elementPositionMapWithClassRef.has(cls))
                     .map((c) => (
                         <AvailableCimClassRow
                             cls={c}
                             key={`avail-class-${c.id}`}
-                            bgcolor={viewLayoutContext.colorOfCim(c.cimId)}
-                            addToViewHandler={() => addClassToViewHandler(c)}
+                            bgcolor={colorOfCim(c.cimId)}
+                            addToViewHandler={() => addClassToView(c)}
                         />
                     ))}
             </div>

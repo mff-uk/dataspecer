@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import type { Attribute, CimClass } from "../model/cim-defs";
-import { getRandomName } from "../utils/random-gen";
+import { getRandomName } from "../../utils/random-gen";
 
 const NewAttributeInputRow: React.FC<{
     cls: CimClass;

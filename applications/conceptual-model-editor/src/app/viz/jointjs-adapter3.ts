@@ -1,21 +1,20 @@
 import * as joint from "jointjs/dist/joint";
 import type { PaperOptions } from "./diagram-library-adapter";
-import type { Association, CimClass } from "./model/cim-defs";
+import type { Association, Cim, CimClass } from "./model/cim-defs";
 import { type DiaLibAdapter, DiaLibAdapterBuilder } from "./diagram-library-adapter";
-import type { CimStateContextType } from "./utils/hooks/use-cim-context";
-import type { Position } from "./layout/cim-layout";
-import { type ViewLayout, ViewStyle } from "./layout/view-layout";
+import { type Position, type ViewLayout2, ViewStyle } from "./layout/view-layout";
 
-export class JointJsAdapterBuilder2 extends DiaLibAdapterBuilder {
+export class JointJsAdapterBuilder3 extends DiaLibAdapterBuilder {
     build(): DiaLibAdapter {
-        return new JointJsAdapter2(this.paperOpts, this.mountingPoint);
+        return new JointJsAdapter3(this.paperOpts, this.mountingPoint);
     }
 }
 
-export class JointJsAdapter2 implements DiaLibAdapter {
+export class JointJsAdapter3 implements DiaLibAdapter {
     graph: joint.dia.Graph;
     paper: joint.dia.Paper;
     cimElementsToCellsMap: Map<CimClass | Association, CimHeaderedRectangleClass>;
+    currentViewStyle: ViewStyle;
 
     constructor(paperOptions?: PaperOptions, mount?: Element | Text) {
         this.graph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
@@ -30,6 +29,7 @@ export class JointJsAdapter2 implements DiaLibAdapter {
             cellViewNamespace: joint.shapes,
         });
         this.cimElementsToCellsMap = new Map();
+        this.currentViewStyle = ViewStyle.UML;
     }
 
     updateCell(cellId: string, cimCls: CimClass) {
@@ -59,13 +59,13 @@ export class JointJsAdapter2 implements DiaLibAdapter {
             // @ts-ignore dunno why
             const cell = elemView.model as joint.dia.Element;
             // TODO: odkomentuj
-            // if (CimHeaderedRectangleClass.is(cell)) {
-            //     const element = cell as CimHeaderedRectangleClass;
-            //     const cimCls = element.parentCimClass;
-            //     console.log(`class ${cimCls.name} clicked`);
-            //     handler(cimCls);
-            //     this.updateCell(cell.id, cimCls);
-            // }
+            if (CimHeaderedRectangleClass.is(cell)) {
+                const element = cell as CimHeaderedRectangleClass;
+                const cimCls = element.parentCimClass;
+                console.log(`class ${cimCls.name} clicked`);
+                handler(cimCls);
+                // this.updateCell(cell.id, cimCls);
+            }
         });
     }
 
@@ -76,44 +76,9 @@ export class JointJsAdapter2 implements DiaLibAdapter {
         });
     }
 
-    syncDiaToState(cimContext: CimStateContextType, viewLayout: ViewLayout): void {
-        this.graph.clear();
-        this.cimElementsToCellsMap.clear();
-
-        viewLayout.elementPositionMapWithClassRef.forEach((pos, cls) => {
-            if (viewLayout.viewStyle === ViewStyle.UML) {
-                const cimJointElem = CimHeaderedRectangleClass.fromCimClass(
-                    cls,
-                    pos,
-                    viewLayout.colorOfCim(cls.cimId) ?? "magenta"
-                );
-                this.graph.addCell(cimJointElem);
-                this.cimElementsToCellsMap.set(cls, cimJointElem); // ugly FIXME:
-            }
-
-            if (viewLayout.viewStyle === ViewStyle.ONTOGRAPHER) {
-                const cimJointElem = CimCircleClass.fromCimClass(
-                    cls,
-                    pos,
-                    viewLayout.colorOfCim(cls.cimId) ?? "magenta"
-                );
-                this.graph.addCell(cimJointElem);
-
-                const attribsAsCircles = cimJointElem.generateAttributesAsCircles();
-                attribsAsCircles.forEach((attr) => {
-                    this.graph.addCell(attr);
-                    this.graph.addCell(new joint.shapes.standard.Link().target(attr).source(cimJointElem));
-                });
-
-                this.cimElementsToCellsMap.set(cls, cimJointElem); // ugly FIXME:
-            }
-        });
-
-        this.drawLines(cimContext, viewLayout);
-    }
-
-    drawLines(cimContext: CimStateContextType, viewLayout: ViewLayout): void {
-        cimContext.cims.forEach((cim) => {
+    drawLines(cims: Cim[], viewLayout: ViewLayout2): void {
+        console.log("drawinig lines");
+        cims.forEach((cim) => {
             cim.associations.forEach((assoc) => {
                 const [sourceCimClass, targetCimClass] = assoc.assocEnds;
                 if (!sourceCimClass || !targetCimClass) return;
@@ -129,7 +94,42 @@ export class JointJsAdapter2 implements DiaLibAdapter {
             });
         });
     }
+
+    bobo(): void {
+        console.log("bobo");
+    }
+
+    sync(cims: Cim[], viewLayout: ViewLayout2, colorOfCim: (cimId: string) => string | undefined): void {
+        this.graph.clear();
+        this.cimElementsToCellsMap.clear();
+
+        viewLayout.elementPositionMapWithClassRef.forEach((pos, cls) => {
+            if (viewLayout.viewStyle === ViewStyle.UML) {
+                const cimJointElem = CimHeaderedRectangleClass.fromCimClass(
+                    cls,
+                    pos,
+                    colorOfCim(cls.cimId) ?? "magenta"
+                );
+                this.graph.addCell(cimJointElem);
+                this.cimElementsToCellsMap.set(cls, cimJointElem); // ugly FIXME:
+            }
+            if (viewLayout.viewStyle === ViewStyle.ONTOGRAPHER) {
+                const cimJointElem = CimCircleClass.fromCimClass(cls, pos, colorOfCim(cls.cimId) ?? "magenta");
+                this.graph.addCell(cimJointElem);
+                const attribsAsCircles = cimJointElem.generateAttributesAsCircles();
+                attribsAsCircles.forEach((attr) => {
+                    this.graph.addCell(attr);
+                    this.graph.addCell(new joint.shapes.standard.Link().target(attr).source(cimJointElem));
+                });
+                this.cimElementsToCellsMap.set(cls, cimJointElem); // ugly FIXME:
+            }
+        });
+
+        this.drawLines(cims, viewLayout);
+    }
 }
+
+// -------------------------------------------
 
 type CimHeaderedRectangleClassProps = {
     parentCls: CimClass;

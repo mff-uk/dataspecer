@@ -1,11 +1,15 @@
 import type { Cim, CimClass } from "../model/cim-defs";
-import { getRandomName, getRandomPosition } from "../utils/random-gen";
-import type { Position } from "./cim-layout";
+import { getRandomName, getRandomPosition } from "../../utils/random-gen";
 
 export enum ViewStyle {
     UML = "UML",
     ONTOGRAPHER = "ONTOGRAPHER", // FIXME: what's the proper name?
 }
+
+export type Position = {
+    x: number;
+    y: number;
+};
 
 export type ViewLayoutProps = {
     id: string; // id of view layout,
@@ -15,54 +19,14 @@ export type ViewLayoutProps = {
     viewStyle: ViewStyle;
 };
 
-export class ViewLayout {
+export type ViewLayout2 = {
     id: string;
     elementPositionMapWithClassRef: Map<CimClass, Position>; // [elementId, position]
     paperSize: Position;
     cimColorMap: Record<string, string>;
     viewStyle: ViewStyle;
-
-    constructor({
-        id,
-        elementPositionMapWithClassRef = new Map<CimClass, Position>(),
-        paperSize = { x: 1500, y: 600 },
-        cimColorMap = {} as Record<string, string>,
-        viewStyle = ViewStyle.UML,
-    }: ViewLayoutProps) {
-        this.id = id;
-        this.elementPositionMapWithClassRef = elementPositionMapWithClassRef;
-        this.paperSize = paperSize;
-        this.cimColorMap = cimColorMap;
-        this.viewStyle = viewStyle;
-    }
-
-    setPositionWithRef(cls: CimClass, position: Position) {
-        this.elementPositionMapWithClassRef.set(cls, position);
-    }
-
-    colorOfCim(cimId: string) {
-        const color = this.cimColorMap[cimId];
-        if (!color) {
-            const newColor = "lightyellow";
-            console.log("Color of cim[" + cimId + "] not defined, gonna make it " + newColor);
-            this.cimColorMap[cimId] = newColor;
-        }
-        return this.cimColorMap[cimId];
-    }
-
-    addClassToView(cls: CimClass) {
-        this.elementPositionMapWithClassRef.set(cls, getRandomPosition(this.paperSize.x, this.paperSize.y));
-        // this.elementsInView.push(cls);
-    }
-
-    removeClassFromView(cls: CimClass) {
-        return this.elementPositionMapWithClassRef.delete(cls);
-    }
-
-    toggleViewStyle(): void {
-        this.viewStyle = this.viewStyle === ViewStyle.UML ? ViewStyle.ONTOGRAPHER : ViewStyle.UML;
-    }
-}
+    highlitedElement?: CimClass;
+};
 
 export const getRandomViewLayoutFor = (paperSize: Position, ...cims: Cim[]) => {
     const elementPosMap = new Map<CimClass, Position>();
@@ -82,11 +46,11 @@ export const getRandomViewLayoutFor = (paperSize: Position, ...cims: Cim[]) => {
         colorMap[c.id] = colors[i] ?? "lightgray";
     });
 
-    return new ViewLayout({
+    return {
         id: getRandomName(),
         elementPositionMapWithClassRef: elementPosMap,
         paperSize: paperSize,
         cimColorMap: colorMap,
         viewStyle: ViewStyle.UML,
-    });
+    } as ViewLayout2;
 };

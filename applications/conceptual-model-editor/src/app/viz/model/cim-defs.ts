@@ -1,4 +1,4 @@
-import { getRandomName, getRandomNumberInRange } from "../utils/random-gen";
+import { getRandomName, getRandomNumberInRange } from "../../utils/random-gen";
 
 export class Association {
     name: string;

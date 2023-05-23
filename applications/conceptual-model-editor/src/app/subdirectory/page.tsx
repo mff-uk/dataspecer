@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 import Link from "next/link";
 import Header from "../components/header";
-import { getRandomName, getRandomNumberInRange } from "../viz/utils/random-gen";
+import { getRandomName, getRandomNumberInRange } from "../utils/random-gen";
 
 type CimSpecification = {
     name: string;
