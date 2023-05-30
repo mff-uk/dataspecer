@@ -9,6 +9,7 @@ import { PimClass } from "@dataspecer/core/pim/model";
 import Header from "../components/header";
 import { JointJsAdapter4 } from "./jointjs-adapters";
 import { ViewLayoutContext, getRandomViewLayoutFor, useViewLayoutContext } from "./view-layout";
+import { RdfsFileAdapter } from "../../../../../packages/rdfs-adapter/lib";
 
 class MyIriProvider implements IriProvider {
     cimToPim(cimId: string): string {
@@ -25,40 +26,52 @@ const getSgovAdapter = () => {
     return sgovAdapter;
 };
 
-const HighlightedClassComponent = (props: { highlightedClass: PimClass | null }) => {
-    const { loadNeighbors } = useCimAdapterContext();
-    const { addClassToView } = useViewLayoutContext();
-
-    const highlightedClass = props.highlightedClass;
-
-    return (
-        <>
-            {highlightedClass && (
-                <div>
-                    <div>{highlightedClass.iri}</div>
-                    <button
-                        className="rounded border border-amber-600 bg-amber-200 hover:bg-amber-100"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            loadNeighbors(highlightedClass);
-                        }}
-                    >
-                        Load neighbors of:
-                    </button>
-                    <button
-                        className="rounded border border-amber-600 bg-amber-200 hover:bg-amber-100"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            addClassToView(highlightedClass);
-                        }}
-                    >
-                        Add to view
-                    </button>
-                </div>
-            )}
-        </>
+const getSomeRDFsFileAdapter = () => {
+    const rdfsAdapter = new RdfsFileAdapter(
+        [
+            "https://mff-uk.github.io/demo-vocabularies/original/adms.ttl",
+            "https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl",
+        ],
+        httpFetch
     );
+    rdfsAdapter.setIriProvider(new MyIriProvider());
+    return rdfsAdapter;
 };
+
+// const HighlightedClassComponent = (props: { highlightedClass: PimClass | null }) => {
+//     const { loadNeighbors } = useCimAdapterContext();
+//     const { addClassToView } = useViewLayoutContext();
+
+//     const highlightedClass = props.highlightedClass;
+
+//     return (
+//         <>
+//             {highlightedClass && (
+//                 <div>
+//                     <div>{highlightedClass.iri}</div>
+//                     <button
+//                         className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+//                         onClick={(e) => {
+//                             e.preventDefault();
+//                             loadNeighbors(highlightedClass);
+//                         }}
+//                     >
+//                         Load neighbors of:
+//                     </button>
+//                     <button
+//                         className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+//                         onClick={(e) => {
+//                             e.preventDefault();
+//                             addClassToView(highlightedClass);
+//                         }}
+//                     >
+//                         Add to view
+//                     </button>
+//                 </div>
+//             )}
+//         </>
+//     );
+// };
 
 const SearchClassesComponent = () => {
     const { searchClasses } = useCimAdapterContext();
@@ -73,7 +86,7 @@ const SearchClassesComponent = () => {
                 onChange={(e) => setSearchedTerm(e.target.value)}
             />
             <button
-                className="rounded border border-amber-600 bg-amber-200 hover:bg-amber-100"
+                className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
                 onClick={(e) => {
                     e.preventDefault();
                     searchClasses(searchedTerm);
@@ -86,35 +99,84 @@ const SearchClassesComponent = () => {
     );
 };
 
-const PimClassComponent = (props: { pimCls: PimClass; highlightedClassSetter: (cls: PimClass) => void }) => {
+// const PimClassComponent = (props: { pimCls: PimClass; highlightedClassSetter: (cls: PimClass) => void }) => {
+//     const cls = props.pimCls;
+//     return (
+//         <div
+//             className="my-1 border border-indigo-200 hover:bg-indigo-50"
+//             onClick={() => props.highlightedClassSetter(cls)}
+//         >
+//             <h1>{cls.iri}</h1>
+//             <div>...</div>
+//         </div>
+//     );
+// };
+
+const PimClassComponent2 = (props: { pimCls: PimClass; fromCim: CimAdapter }) => {
+    const { loadNeighbors } = useCimAdapterContext();
+    const { addClassToView2 } = useViewLayoutContext();
+
     const cls = props.pimCls;
+    const fromCim = props.fromCim;
     return (
-        <div
-            className="my-1 border border-indigo-200 hover:bg-indigo-50"
-            onClick={() => props.highlightedClassSetter(cls)}
-        >
-            <h1>{cls.iri}</h1>
-            <div>...</div>
+        <div className="my-1 flex flex-row justify-between border border-indigo-200 hover:bg-indigo-50">
+            <div>
+                <h1>{cls.iri}</h1>
+                <div>...</div>
+            </div>
+            <div className="flex flex-col">
+                <button
+                    className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        loadNeighbors(cls);
+                    }}
+                >
+                    Load my neighbors
+                </button>
+                <button
+                    className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        addClassToView2(cls, fromCim);
+                    }}
+                >
+                    Add me to view
+                </button>
+            </div>
         </div>
     );
 };
 
 const ListOfAvailableClasses = () => {
-    const { cim, classes } = useCimAdapterContext();
-    const [loadNeighborsCls, setLoadNeighborsCls] = useState(null as unknown as PimClass);
+    const { cims, classes2 } = useCimAdapterContext();
+    // const [highlightedCls, setHighlightedCls] = useState(null as unknown as PimClass);
 
-    if (!cim) return <>No cim present</>;
+    if (cims.length == 0) return <>No cim present</>;
 
     return (
         <div>
             <SearchClassesComponent />
-            <HighlightedClassComponent highlightedClass={loadNeighborsCls} />
-            <h1>Classes</h1>
+            {/* <HighlightedClassComponent highlightedClass={highlightedCls} /> */}
+            {/* <h1>Classes</h1>
             <div>
                 {classes.map((pc) => (
-                    <PimClassComponent pimCls={pc} highlightedClassSetter={setLoadNeighborsCls} key={pc.iri} />
+                    <PimClassComponent pimCls={pc} highlightedClassSetter={setHighlightedCls} key={pc.iri} />
                 ))}
-            </div>
+            </div> */}
+
+            <h1>Classes</h1>
+            {[...classes2.keys()].map((cimAdapter, index) => (
+                <div key={`cimAdapter${index}`}>
+                    <h3>fromCim: CimAdapter{index}</h3>
+                    <div>
+                        {classes2.get(cimAdapter)?.map((cls) => (
+                            // <PimClassComponent pimCls={cls} highlightedClassSetter={setHighlightedCls} key={cls.iri} />
+                            <PimClassComponent2 pimCls={cls} fromCim={cimAdapter} key={cls.iri} />
+                        ))}
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };
@@ -143,7 +205,7 @@ const Visualisation = () => {
     return (
         <>
             <button
-                className="rounded border border-amber-600 bg-amber-200 hover:bg-amber-100"
+                className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
                 onClick={() => adapter?.sync(classes, viewLayout)}
             >
                 sync viz
@@ -154,16 +216,17 @@ const Visualisation = () => {
 };
 
 export default function Page() {
-    const [cim, setCim] = useState(getSgovAdapter() as CimAdapter);
+    const [cims, setCims] = useState<CimAdapter[]>([getSgovAdapter(), getSomeRDFsFileAdapter()]);
     const [classes, setClasses] = useState([] as PimClass[]);
-    const [viewLayout, setViewLayout] = useState(getRandomViewLayoutFor({ x: 1000, y: 500 }, [cim]));
+    const [classes2, setClasses2] = useState(new Map<CimAdapter, PimClass[]>());
+    const [viewLayout, setViewLayout] = useState(getRandomViewLayoutFor({ x: 1000, y: 500 }, cims));
 
     return (
         <>
             <Header page="Cim Adapter from @dataspecer/core" />
             <div className="mx-auto max-w-screen-lg">
                 <Suspense fallback={<>Loading</>}>
-                    <CimAdapterContext.Provider value={{ cim, setCim, classes, setClasses }}>
+                    <CimAdapterContext.Provider value={{ cims, setCims, classes, setClasses, classes2, setClasses2 }}>
                         <ViewLayoutContext.Provider value={{ viewLayout, setViewLayout }}>
                             <ListOfAvailableClasses />
                             <Visualisation />

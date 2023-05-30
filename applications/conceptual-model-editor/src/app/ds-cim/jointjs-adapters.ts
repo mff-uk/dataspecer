@@ -1,7 +1,7 @@
-import { PimClass } from "@dataspecer/core/pim/model";
-import * as joint from "jointjs/dist/joint";
-import { type Position } from "./view-layout";
 import React, { useContext } from "react";
+import * as joint from "jointjs/dist/joint";
+import { PimClass } from "@dataspecer/core/pim/model";
+import { type Position } from "./view-layout";
 import { useCimAdapterContext } from "./hooks/use-cim-adapter-context";
 import { ViewLayout, useViewLayoutContext } from "./view-layout";
 
@@ -39,7 +39,8 @@ export class JointJsAdapter4 {
         this.graph.clear();
 
         viewLayout.elementPositionMap.forEach((position, pimClass) => {
-            this.graph.addCell(pimClassToJointJsHeaderedClass(pimClass, position, "magenta"));
+            const cellColor = viewLayout.elementColorMap.get(pimClass) ?? "Ivory"; // FIXME:
+            this.graph.addCell(pimClassToJointJsHeaderedClass(pimClass, position, cellColor));
         });
     }
 }
