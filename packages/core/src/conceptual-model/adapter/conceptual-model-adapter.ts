@@ -13,6 +13,7 @@ import {
   PimClass,
   PimSchema,
 } from "../../pim/model";
+import {OFN} from "../../well-known";
 
 class ConceptualModelAdapter {
   private readonly reader: CoreResourceReader;
@@ -139,13 +140,13 @@ class ConceptualModelAdapter {
     model.cardinalityMin = attributeData.pimCardinalityMin;
     model.cardinalityMax = attributeData.pimCardinalityMax;
 
-    if (attributeData.pimDatatype !== null) {
+    //if (attributeData.pimDatatype !== null) {
       const type = new ConceptualModelPrimitiveType();
-      type.dataType = attributeData.pimDatatype;
+      type.dataType = attributeData.pimDatatype ?? OFN.string; // If no datatype is known for PIM attribute, use string
       type.regex = attributeData.pimRegex;
       type.example = attributeData.pimExample;
       model.dataTypes.push(type);
-    }
+    //}
 
     const owner = this.getClass(attributeData.pimOwnerClass);
     owner.properties.push(model);
