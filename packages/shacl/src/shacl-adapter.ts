@@ -88,6 +88,7 @@ const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-sche
 
 export class ShaclAdapter {
   
+  
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
@@ -107,8 +108,9 @@ export class ShaclAdapter {
   }
 
   public generate = async () => {
-    var result = this.getContext();
-
+    var result = "";
+    this.getContext();
+    
     if (this.model.roots.length > 1) {
       console.warn("SHACL generator: Multiple schema roots not supported yet.");
     }
@@ -119,6 +121,7 @@ export class ShaclAdapter {
       this.shapes.push(this.generateClassConstraints(root, result));
     }
     result = result + this.generatePrefixesString();
+    result = result + this.getDataStructureContext();
     for(const part of this.shapes){
       result = result + part;
     }
@@ -177,6 +180,7 @@ export class ShaclAdapter {
 
     if (root.technicalLabel != null) {
       const split = root.technicalLabel.split(" ",5);
+      this.debugString = this.debugString + `\n${split}`;
       for(const piece of split){
         capitalizedTechnicalLabel = capitalizedTechnicalLabel + piece.charAt(0).toUpperCase() +
         piece.slice(1);
@@ -184,15 +188,17 @@ export class ShaclAdapter {
     } else {
       for (const languageTag in root.humanLabel) {
         const language = root.humanLabel[languageTag];
+        this.debugString = this.debugString + `\n${languageTag}`;
         const split = language.split(" ",5);
+        this.debugString = this.debugString + `\n${split}`;
         for(const piece of split){
           capitalizedTechnicalLabel = capitalizedTechnicalLabel + piece.charAt(0).toUpperCase() +
           piece.slice(1);
         }
-        break; 
+       
       }
     }
-
+    this.debugString = this.debugString + `\n${capitalizedTechnicalLabel}`;
     return capitalizedTechnicalLabel + "Shape";
   }
 
@@ -249,11 +255,17 @@ export class ShaclAdapter {
             const dtcasted = <StructureModelPrimitiveType> dt;
             if(dtcasted.dataType != null){
               const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
-              const datatypeString = datatypeFromMap != undefined ? `${datatypeFromMap[0]}:${datatypeFromMap[1]}` : (dtcasted.dataType ?? undefined);
+              var datatypeString = "";
+              if(datatypeFromMap != undefined){
+                datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
+              } else{
+                const datatypeInContext = this.prefixify(dtcasted.dataType);
+                datatypeString = `${ datatypeInContext[0] }:${ datatypeInContext[1]}`;
+              }
               propDesc = propDesc.concat(`\n\t\tsh:datatype ${ datatypeString } ;`);
               // Setting pattern restrictions if they exist
               if(dtcasted.regex != null){
-                propDesc = propDesc.concat(`\n\t\tsh:pattern ${ dtcasted.dataType } ;`);
+                propDesc = propDesc.concat(`\n\t\tsh:pattern ${ dtcasted.regex } ;`);
               }
             }
             
@@ -274,9 +286,9 @@ export class ShaclAdapter {
         propDesc = propDesc.concat(`\n\t]`);
         // Check if the property is the last one in the properties list
         if (i === root.properties.length - 1) {
-          propDesc.concat(" .");
+          propDesc = propDesc.concat(" .");
         } else {
-          propDesc.concat(" ;");
+          propDesc = propDesc.concat(" ;");
         }
       }
     }
@@ -288,11 +300,20 @@ export class ShaclAdapter {
     this.knownPrefixes.push(SHACL_PREFIX_DEF);
     this.knownPrefixes.push(RDFS_PREFIX_DEF);
 
-    this.model.humanLabel
-    // TODO Add prefixes used in the graph ... will be done during the processing
-    // TODO Add info about the whole structure...name, comment, description,...
-
     return "";
+  }
+
+  getDataStructureContext() : string {
+    var structureContext = "";
+
+    structureContext = structureContext + `\n${ this.model.specification }`;
+    structureContext = structureContext + `\n${ this.model.psmIri }`;
+    structureContext = structureContext + `\n${ this.model.humanDescription }`;
+    structureContext = structureContext + `\n${ this.artefact.configuration }`;
+    structureContext = structureContext + `\n structure models ${ this.context.structureModels }`;
+    structureContext = structureContext + `\nspecifications ${ this.context.specifications }`;
+
+    return structureContext;
   }
 
   /**
