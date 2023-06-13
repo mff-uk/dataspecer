@@ -13,6 +13,7 @@ import {
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
 import { OFN } from "@dataspecer/core/well-known";
+import { LanguageString } from "@dataspecer/core/core";
 
 // SHACL version REC-shacl-20170720 - doesn't have official version with major.minor.bugfix
 /*
@@ -67,21 +68,24 @@ Core Constraint Components
         4.6.3 sh:or
         4.6.4 sh:xone
     4.7 Shape-based Constraint Components -- TODO Think about if this is going to be used
-        4.7.1 sh:node - This would be useful if there is possible to put nodes inside nodes in dataspecer - is possible
-        4.7.2 sh:property IN PROGRESS
+        4.7.1 sh:node - This would be useful if there is possible to put nodes inside nodes in dataspecer - is possible DONE
+        4.7.2 sh:property DONE
         4.7.3 sh:qualifiedValueShape, sh:qualifiedMinCount, sh:qualifiedMaxCount
     4.8 Other Constraint Components -- TODO: Which of these are going to be a thing in dataspecer?
         4.8.1 sh:closed, sh:ignoredProperties - for DISCUSSION
         4.8.2 sh:hasValue - Is for checking specific values at the ends of paths = WILL NOT BE IMPLEMENTED
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
 
-
+TODO: zalamování sh:comments?
+TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape.
+TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 
 */
 
 // Tuple type
 type QName = [prefix: string | null, localName: string];
 type PrefixDef = [tag: string, iri: string];
 type sameTag = [tag: string, number: number];
+type classNameShapeTuple = [classShapeName: string, classObject: StructureModelClass];
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
@@ -96,6 +100,8 @@ export class ShaclAdapter {
   protected shapes: string[] = []; // Entity beginning with name of the shape and ending with .
   protected debugString: string = "";
   protected sameTags: sameTag[] = [];
+  protected sameClass: classNameShapeTuple[] = [];
+  protected thisDataStructurePrefix : string = "";
 
   constructor(
     model: StructureModel,
@@ -115,56 +121,77 @@ export class ShaclAdapter {
       console.warn("SHACL generator: Multiple schema roots not supported yet.");
     }
 
+    const dataStructureContext = this.getDataStructureContext();
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
-      this.shapes.push(this.generateClassConstraints(root, result));
+      this.generateClassConstraints(root);
     }
+    
     result = result + this.generatePrefixesString();
-    result = result + this.getDataStructureContext();
+    result = result + dataStructureContext;
     for(const part of this.shapes){
-      result = result + part;
+      result = result + `\n` + part;
     }
-    result = result + this.debugString;
+    //result = result + this.debugString;
     return { data: result };
   };
 
   generatePrefixesString(): string {
     var prefixesString = "";
     for(const tuple of this.knownPrefixes){
-      prefixesString = prefixesString.concat(`@prefix ${ tuple[0] }: <${ tuple[1] }> .\n`);
+      prefixesString = prefixesString.concat(`@prefix ${ tuple[0] }: \t<${ tuple[1] }> .\n`);
     }
     return prefixesString;
   }
 
-  generateClassConstraints(root: StructureModelClass, result: string): string {
-    var newResult;
-    newResult = result.concat("\n" + this.generateNodeShapeName(root));
-    newResult = newResult.concat(this.generateNodeShapeHead(root));
-    newResult = newResult.concat(this.generatePropertiesConstraints(root));
-    return newResult;
+  generateClassConstraints(root: StructureModelClass): string {
+    var newResult = "";
+    var nodeName : string;
+    nodeName = this.generateNodeShapeName(root);
+    // TODO Make sure the shape name is not duplicate for completely different different class
+    if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
+      // The class has not been Shaped yet -- to get rid of duplicate shapes
+      newResult = newResult.concat(`\n${ this.thisDataStructurePrefix }:` + nodeName);
+      newResult = newResult.concat(this.generateNodeShapeHead(root));
+      const propDesc = this.generatePropertiesConstraints(root);
+      if(!propDesc){
+        newResult = newResult.slice(0, -1) + '.';
+      } else{
+        newResult = newResult.concat(propDesc);
+      }
+      this.shapes.push(newResult);
+      this.sameClass.push([nodeName, root]);
+    }
+    return nodeName;
   }
 
   generateNodeShapeHead(root: StructureModelClass): string {
     var head;
     head = "\n\ta sh:NodeShape ;";
+    const prefixedTargetClass = this.prefixify(root.pimIri);
     head =
-      root.pimIri != null
-        ? head.concat(`\n\tsh:targetClass <${root.pimIri}> ;`)
+      root.cimIri != null
+        ? head.concat(`\n\tsh:targetClass ${ prefixedTargetClass[0] }:${prefixedTargetClass[1]} ;`)
         : "";
-    for (const languageTag in root.humanLabel) {
-      const language = root.humanLabel[languageTag];
-      head =
-        root.humanLabel != null
-          ? head.concat(`\n\trdfs:label \"${language}\"@${languageTag} ;`)
-          : "";
+
+    head = this.unpackLanguageString(head,"rdfs:label", root.humanLabel);   
+
+    if(root.humanLabel == null){
+      head.slice(0, -1) + '.';
     }
+    head = this.unpackLanguageString(head,"rdfs:comment", root.humanDescription);
+    /*
     for (const languageTag in root.humanDescription) {
       const language = root.humanDescription[languageTag];
       head =
         root.humanDescription != null
           ? head.concat(`\n\trdfs:comment \"${language}\"@${languageTag} ;`)
           : "";
+    }
+    */
+    if(root.humanDescription == null){
+      head.slice(0, -1) + '.';
     }
     //head = (root.pimIri != null) ? head.concat(`\n\trdfs:seeAlso <${ root.pimIri }> ;`) : "";
     return head;
@@ -230,25 +257,16 @@ export class ShaclAdapter {
           propDesc = propDesc.concat(`\n\t\tsh:maxCount ${cardinalitymax} ;`);
         }
         // set labels so that the user knows what is being checked
-        for (const languageTag in humanLabel) {
-          const language = humanLabel[languageTag];
-          propDesc = propDesc.concat(
-            `\n\t\tsh:name "${language}"@${languageTag} ;`
-          );
-        }
+        propDesc = this.unpackLanguageString(propDesc,`\tsh:name`, humanLabel);
         // set descriptions if available
-        for (const languageTag in humandesc) {
-          const language = humandesc[languageTag];
-          propDesc = propDesc.concat(
-            `\n\t\tsh:description "${language}"@${languageTag} ;`
-          );
-        }
+        propDesc = this.unpackLanguageString(propDesc,`\tsh:description`, humandesc);
+
         // setting other properties according to the type of datatype
         for (var dt of datatypes) {
           if(dt.isAssociation() == true){
             // create new NodeShape and tie this property to it
             const dtcasted = <StructureModelComplexType> dt;
-            propDesc = propDesc.concat(`\n\t\tsh:node ${ dtcasted.dataType } ;`);
+            propDesc = propDesc.concat(`\n\t\tsh:node ${this.thisDataStructurePrefix}:${ this.generateClassConstraints(dtcasted.dataType) } ;`);
             
           } else if(dt.isAttribute() == true){
             // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
@@ -269,13 +287,14 @@ export class ShaclAdapter {
               }
             }
             
-          } /*else if(dt.isCustomType() == true){
+          } else if(dt.isCustomType() == true){
+            // TODO
             const dtcasted = <StructureModelCustomType> dt;
             propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
           } else{
             throw new Error("Datatype must be one of the 3 basic types.");
           }
-          */
+          
         }
         //propDesc = propDesc.concat(`\n\t\tsh:datatype ${datatypes} ;`);
         /*
@@ -285,14 +304,14 @@ export class ShaclAdapter {
         */
         propDesc = propDesc.concat(`\n\t]`);
         // Check if the property is the last one in the properties list
-        if (i === root.properties.length - 1) {
-          propDesc = propDesc.concat(" .");
-        } else {
+        if (i != root.properties.length - 1) {
           propDesc = propDesc.concat(" ;");
+        } else{
+          propDesc = propDesc.concat(" .");
         }
       }
     }
-
+    
     return propDesc;
   }
 
@@ -303,16 +322,48 @@ export class ShaclAdapter {
     return "";
   }
 
+  unpackLanguageString(stringToAppendTo: string, beginning: string, languageString: LanguageString): string {
+    for (const languageTag in languageString) {
+      const language = languageString[languageTag];
+      stringToAppendTo =
+        languageString != null
+          ? stringToAppendTo.concat(`\n\t${beginning} \"${language}\"@${languageTag} ;`)
+          : "";
+    }
+    return stringToAppendTo;
+  }
+
+  // TODO finish data structure info implementation
   getDataStructureContext() : string {
     var structureContext = "";
+    
+    const prefixOfDataStructure = this.prefixify(this.model.psmIri);
+    this.thisDataStructurePrefix = prefixOfDataStructure[0];
+    structureContext = structureContext.concat(`\n${ prefixOfDataStructure[0] }: `);
+    structureContext = this.unpackLanguageString(structureContext,`rdfs:label`, this.model.humanLabel);
 
-    structureContext = structureContext + `\n${ this.model.specification }`;
-    structureContext = structureContext + `\n${ this.model.psmIri }`;
-    structureContext = structureContext + `\n${ this.model.humanDescription }`;
-    structureContext = structureContext + `\n${ this.artefact.configuration }`;
+    structureContext = this.unpackLanguageString(structureContext,`rdfs:comment`, this.model.humanDescription);
+
+    // Saved in "XML specific attributes" - how tog get?
+    structureContext = structureContext.concat(`\n\tsh:declare [`);
+    structureContext = structureContext.concat(`\n\tsh:prefix "<data Structure prefix>" ;`);
+    structureContext = structureContext.concat(`\n\tsh:namespace "<data Structure namespace>" ;`);
+    structureContext = structureContext.concat(`\n\t] .`);
+
+    // Data about generator for SHACL
+    /*
+    structureContext = structureContext + `\nthis.artefact.name ${ this.artefact.name }`;
+    structureContext = structureContext + `\nthis.artefact.generator  ${ this.artefact.generator }`;
+    structureContext = structureContext + `\nthis.artefact.iri  ${ this.artefact.iri }`;
+    structureContext = structureContext + `\nthis.artefact.outputPath ${ this.artefact.outputPath}`;
+    structureContext = structureContext + `\nthis.artefact.publicUrl ${ this.artefact.publicUrl}`;
+    structureContext = structureContext + `\nthis.artefact.type ${ this.artefact.type}`;
+    
     structureContext = structureContext + `\n structure models ${ this.context.structureModels }`;
     structureContext = structureContext + `\nspecifications ${ this.context.specifications }`;
-
+    structureContext = structureContext + `\n conceptual models ${ this.context.conceptualModels }`;
+    structureContext = structureContext + `\n structure models ${ this.context.reader}`;
+    */
     return structureContext;
   }
 
