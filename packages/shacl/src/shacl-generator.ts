@@ -7,6 +7,7 @@ import {
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import {ShaclAdapter} from "./shacl-adapter";
 
 interface ShaclGeneratorObject {
   data: string;
@@ -49,7 +50,9 @@ export class ShaclGenerator implements ArtefactGenerator {
     );
 
     // todo use model, context, artefact to create the result
-    return {data: "# SHACL artifact\n"};
+    //return {data: "# SHACL artifact\n"};
+    const adapter = new ShaclAdapter(model, context, artefact);
+    return adapter.generate();
   }
 
   async generateToStream(
