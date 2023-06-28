@@ -77,8 +77,10 @@ Core Constraint Components
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
 
 TODO: zalamování sh:comments?
-TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape.
-TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 
+TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape. - po diskuzi nebude implementováno.
+TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 - myslí si, že je to matematický výraz. Tyto 
+názvy nebudu používat - místo toho vložit cim.
+TODO: použít knihovnu na vytváření .ttl dokumentu. 
 */
 
 // Tuple type
@@ -89,7 +91,9 @@ type classNameShapeTuple = [classShapeName: string, classObject: StructureModelC
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
-
+const N3 = require('n3');
+const { DataFactory } = N3;
+const { namedNode, literal, defaultGraph, triple } = DataFactory;
 export class ShaclAdapter {
   
   
@@ -102,6 +106,7 @@ export class ShaclAdapter {
   protected sameTags: sameTag[] = [];
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
+  protected writer: any;
 
   constructor(
     model: StructureModel,
@@ -111,30 +116,26 @@ export class ShaclAdapter {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
+    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
   }
 
   public generate = async () => {
-    var result = "";
-    this.getContext();
+    //const writer1 = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#" } });
     
     if (this.model.roots.length > 1) {
       console.warn("SHACL generator: Multiple schema roots not supported yet.");
     }
 
-    const dataStructureContext = this.getDataStructureContext();
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
       this.generateClassConstraints(root);
     }
     
-    result = result + this.generatePrefixesString();
-    result = result + dataStructureContext;
-    for(const part of this.shapes){
-      result = result + `\n` + part;
-    }
-    //result = result + this.debugString;
-    return { data: result };
+    this.generatePrefixesString();
+    var resultString = "";
+    this.writer.end((error, result) => resultString = result);
+    return { data: resultString };
   };
 
   generatePrefixesString(): string {
@@ -149,52 +150,59 @@ export class ShaclAdapter {
     var newResult = "";
     var nodeName : string;
     nodeName = this.generateNodeShapeName(root);
-    // TODO Make sure the shape name is not duplicate for completely different different class
+    const classNameIri = 'ex:' + nodeName;
+    // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
-      // The class has not been Shaped yet -- to get rid of duplicate shapes
-      newResult = newResult.concat(`\n${ this.thisDataStructurePrefix }:` + nodeName);
-      newResult = newResult.concat(this.generateNodeShapeHead(root));
-      const propDesc = this.generatePropertiesConstraints(root);
-      if(!propDesc){
-        newResult = newResult.slice(0, -1) + '.';
-      } else{
-        newResult = newResult.concat(propDesc);
-      }
+      // The class has not been Shaped yet -- to get rid of duplicate shape
+      this.generateNodeShapeHead(root, classNameIri);
+      const propDesc = this.generatePropertiesConstraints(root, classNameIri);
+
       this.shapes.push(newResult);
       this.sameClass.push([nodeName, root]);
     }
     return nodeName;
   }
 
-  generateNodeShapeHead(root: StructureModelClass): string {
-    var head;
-    head = "\n\ta sh:NodeShape ;";
-    const prefixedTargetClass = this.prefixify(root.pimIri);
-    head =
-      root.cimIri != null
-        ? head.concat(`\n\tsh:targetClass ${ prefixedTargetClass[0] }:${prefixedTargetClass[1]} ;`)
-        : "";
+  generateNodeShapeHead(root: StructureModelClass, classNameIri: string): void {
+    var head = "";
+    this.writer.addQuad(
+      namedNode(classNameIri),
+      namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      namedNode('http://www.w3.org/ns/shacl#NodeShape')
+    );
+    this.writer.addQuad(
+        namedNode(classNameIri),
+        namedNode('http://www.w3.org/ns/shacl#targetClass'),
+        namedNode(root.cimIri)
+    );
+    const languageDesc = root.humanDescription;
+    for (const languageTag in languageDesc) {
+      const language = languageDesc[languageTag];
+      if(languageDesc != null){
+        this.writer.addQuad(
+          namedNode(classNameIri),
+          namedNode('http://www.w3.org/2000/01/rdf-schema#comment'),
+          literal(language, languageTag)
+        );
+      } else{
+        return null;
+      }
+    }
 
-    head = this.unpackLanguageString(head,"rdfs:label", root.humanLabel);   
+    const languageLabel = root.humanLabel;
+    for (const languageTag in languageLabel) {
+      const language = languageLabel[languageTag];
+      if(languageLabel != null){
+        this.writer.addQuad(
+          namedNode(classNameIri),
+          namedNode('http://www.w3.org/2000/01/rdf-schema#label'),
+          literal(language, languageTag)
+        );
+      } else{
+        return null;
+      }
+    }
 
-    if(root.humanLabel == null){
-      head.slice(0, -1) + '.';
-    }
-    head = this.unpackLanguageString(head,"rdfs:comment", root.humanDescription);
-    /*
-    for (const languageTag in root.humanDescription) {
-      const language = root.humanDescription[languageTag];
-      head =
-        root.humanDescription != null
-          ? head.concat(`\n\trdfs:comment \"${language}\"@${languageTag} ;`)
-          : "";
-    }
-    */
-    if(root.humanDescription == null){
-      head.slice(0, -1) + '.';
-    }
-    //head = (root.pimIri != null) ? head.concat(`\n\trdfs:seeAlso <${ root.pimIri }> ;`) : "";
-    return head;
   }
 
   /**
@@ -229,7 +237,7 @@ export class ShaclAdapter {
     return capitalizedTechnicalLabel + "Shape";
   }
 
-  generatePropertiesConstraints(root: StructureModelClass): string {
+  generatePropertiesConstraints(root: StructureModelClass, classNameIri: string): string {
     var propDesc = "";
     if (root.properties != null && root.properties.length != 0) {
       for (const [i, prop] of root.properties.entries()) {
@@ -243,6 +251,23 @@ export class ShaclAdapter {
         const isreverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
 
+        this.writer.addQuad(
+            namedNode(classNameIri),
+            namedNode('http://www.w3.org/ns/shacl#property'),
+            this.writer.blank([{
+              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+              object:    namedNode(cimiri),
+            },{
+              predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
+              object:    literal(cardinalitymin),
+            },{
+              predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
+              object:    literal(cardinalitymax),
+            },
+            this.getObjectForPropType(prop.dataTypes)])
+          );
+
+          /*
         // set up the inner property shape
         propDesc = propDesc.concat(`\n\tsh:property [`);
         // set up the path of the analyzed property
@@ -256,65 +281,91 @@ export class ShaclAdapter {
         if(cardinalitymax != null){
           propDesc = propDesc.concat(`\n\t\tsh:maxCount ${cardinalitymax} ;`);
         }
-        // set labels so that the user knows what is being checked
-        propDesc = this.unpackLanguageString(propDesc,`\tsh:name`, humanLabel);
-        // set descriptions if available
-        propDesc = this.unpackLanguageString(propDesc,`\tsh:description`, humandesc);
+*/
 
-        // setting other properties according to the type of datatype
-        for (var dt of datatypes) {
-          if(dt.isAssociation() == true){
-            // create new NodeShape and tie this property to it
-            const dtcasted = <StructureModelComplexType> dt;
-            propDesc = propDesc.concat(`\n\t\tsh:node ${this.thisDataStructurePrefix}:${ this.generateClassConstraints(dtcasted.dataType) } ;`);
-            
-          } else if(dt.isAttribute() == true){
-            // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
-            const dtcasted = <StructureModelPrimitiveType> dt;
-            if(dtcasted.dataType != null){
-              const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
-              var datatypeString = "";
-              if(datatypeFromMap != undefined){
-                datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
-              } else{
-                const datatypeInContext = this.prefixify(dtcasted.dataType);
-                datatypeString = `${ datatypeInContext[0] }:${ datatypeInContext[1]}`;
-              }
-              propDesc = propDesc.concat(`\n\t\tsh:datatype ${ datatypeString } ;`);
-              // Setting pattern restrictions if they exist
-              if(dtcasted.regex != null){
-                propDesc = propDesc.concat(`\n\t\tsh:pattern ${ dtcasted.regex } ;`);
-              }
-            }
-            
-          } else if(dt.isCustomType() == true){
-            // TODO
-            const dtcasted = <StructureModelCustomType> dt;
-            propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
-          } else{
-            throw new Error("Datatype must be one of the 3 basic types.");
-          }
-          
-        }
+        // set labels so that the user knows what is being checked
+        //propDesc = this.unpackLanguageString(`\tsh:name`, humanLabel);
+        // set descriptions if available
+        //propDesc = this.unpackLanguageString(`\tsh:description`, humandesc);
+
+        
         //propDesc = propDesc.concat(`\n\t\tsh:datatype ${datatypes} ;`);
         /*
         propDesc = propDesc.concat(`\n\t\tdemat ${demat} ;`);
         propDesc = propDesc.concat(`\n\t\tisreverse ${isreverse} ;`);
         propDesc = propDesc.concat(`\n\t\tpathtoorigin ${pathtoorigin} ;`);
         */
-        propDesc = propDesc.concat(`\n\t]`);
-        // Check if the property is the last one in the properties list
-        if (i != root.properties.length - 1) {
-          propDesc = propDesc.concat(" ;");
-        } else{
-          propDesc = propDesc.concat(" .");
-        }
       }
     }
     
     return propDesc;
   }
 
+  protected getObjectForPropMin(min: number): object {
+    if(min != 0){
+      return {
+        predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
+        object:    literal(min)
+      }
+    } else{
+      return null;
+    }
+    
+  }
+
+  protected getObjectForPropType(datatypes: StructureModelType[]): object {
+    // setting other properties according to the type of datatype
+    for (var dt of datatypes) {
+      if(dt.isAssociation() == true){
+        // create new NodeShape and tie this property to it
+        const dtcasted = <StructureModelComplexType> dt;
+        const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
+        return {
+          predicate: namedNode('http://www.w3.org/ns/shacl#node'),
+          object:    namedNode('ex:' + nameForAnotherClass)
+        }
+        
+      } else if(dt.isAttribute() == true){
+        // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
+        const dtcasted = <StructureModelPrimitiveType> dt;
+        if(dtcasted.dataType != null){
+          const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
+          var datatypeString = "";
+          if(datatypeFromMap != undefined){
+            datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
+            return {
+              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
+              object:    namedNode(dtcasted.dataType)
+            }
+          } else{
+            const datatypeInContext = this.prefixify(dtcasted.dataType);
+            datatypeString = `${ datatypeInContext[0] }:${ datatypeInContext[1]}`;
+            return {
+              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
+              object:    namedNode(dtcasted.dataType)
+            }
+          }
+          /*
+          propDesc = propDesc.concat(`\n\t\tsh:datatype ${ datatypeString } ;`);
+          // Setting pattern restrictions if they exist
+          if(dtcasted.regex != null){
+            propDesc = propDesc.concat(`\n\t\tsh:pattern ${ dtcasted.regex } ;`);
+          }
+          */
+        }
+        
+      } else if(dt.isCustomType() == true){
+        // TODO
+        const dtcasted = <StructureModelCustomType> dt;
+        return {};
+        //propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
+      } else{
+        throw new Error("Datatype must be one of the 3 basic types.");
+      }
+      
+    }
+  }
+  
   protected getContext(): string {
     this.knownPrefixes.push(SHACL_PREFIX_DEF);
     this.knownPrefixes.push(RDFS_PREFIX_DEF);
@@ -322,6 +373,19 @@ export class ShaclAdapter {
     return "";
   }
 
+unpackLanguageString(languageString: LanguageString): typeof literal {
+    for (const languageTag in languageString) {
+      const language = languageString[languageTag];
+      if(languageString != null){
+        return literal(language, languageTag);
+      } else{
+        return null;
+      }
+    }
+
+    
+  }
+/*
   unpackLanguageString(stringToAppendTo: string, beginning: string, languageString: LanguageString): string {
     for (const languageTag in languageString) {
       const language = languageString[languageTag];
@@ -332,40 +396,7 @@ export class ShaclAdapter {
     }
     return stringToAppendTo;
   }
-
-  // TODO finish data structure info implementation
-  getDataStructureContext() : string {
-    var structureContext = "";
-    
-    const prefixOfDataStructure = this.prefixify(this.model.psmIri);
-    this.thisDataStructurePrefix = prefixOfDataStructure[0];
-    structureContext = structureContext.concat(`\n${ prefixOfDataStructure[0] }: `);
-    structureContext = this.unpackLanguageString(structureContext,`rdfs:label`, this.model.humanLabel);
-
-    structureContext = this.unpackLanguageString(structureContext,`rdfs:comment`, this.model.humanDescription);
-
-    // Saved in "XML specific attributes" - how tog get?
-    structureContext = structureContext.concat(`\n\tsh:declare [`);
-    structureContext = structureContext.concat(`\n\tsh:prefix "<data Structure prefix>" ;`);
-    structureContext = structureContext.concat(`\n\tsh:namespace "<data Structure namespace>" ;`);
-    structureContext = structureContext.concat(`\n\t] .`);
-
-    // Data about generator for SHACL
-    /*
-    structureContext = structureContext + `\nthis.artefact.name ${ this.artefact.name }`;
-    structureContext = structureContext + `\nthis.artefact.generator  ${ this.artefact.generator }`;
-    structureContext = structureContext + `\nthis.artefact.iri  ${ this.artefact.iri }`;
-    structureContext = structureContext + `\nthis.artefact.outputPath ${ this.artefact.outputPath}`;
-    structureContext = structureContext + `\nthis.artefact.publicUrl ${ this.artefact.publicUrl}`;
-    structureContext = structureContext + `\nthis.artefact.type ${ this.artefact.type}`;
-    
-    structureContext = structureContext + `\n structure models ${ this.context.structureModels }`;
-    structureContext = structureContext + `\nspecifications ${ this.context.specifications }`;
-    structureContext = structureContext + `\n conceptual models ${ this.context.conceptualModels }`;
-    structureContext = structureContext + `\n structure models ${ this.context.reader}`;
-    */
-    return structureContext;
-  }
+  */
 
   /**
    * Parse the IRI into tag:name and put known prefixes into array. Check for duplicates in tags.
