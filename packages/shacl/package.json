@@ -9,7 +9,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "n3": "^1.16.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
