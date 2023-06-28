@@ -4,6 +4,7 @@
 module.exports = function override(config, env) {
     config.resolve.fallback = {
         buffer: false,
+        "stream": false,
     };
     config.ignoreWarnings = [
         function ignoreSourcemapsloaderWarnings(warning) {
