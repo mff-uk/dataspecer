@@ -65,8 +65,12 @@ export const useViewLayoutContext = () => {
         return viewLayout.cimColorMap[cimId];
     };
 
+    const colorOfClass = (pimClass: PimClass) => {
+        return viewLayout.elementColorMap.get(pimClass) ?? "bg-red-500"; // FIXME: make better coloring system
+    };
+
     const cimColor = (cimAdapter: CimAdapter) => {
-        return viewLayout.colorMap.get(cimAdapter) ?? "Ivory";
+        return viewLayout.colorMap.get(cimAdapter) ?? "bg-red-500"; // FIXME: make better coloring system
     };
 
     const highlightElement = (cls: PimClass) => {
@@ -81,13 +85,14 @@ export const useViewLayoutContext = () => {
         setPositionOf,
         colorOfCim,
         cimColor,
+        colorOfClass,
         highlightElement,
     };
 };
 
 export const getRandomViewLayoutFor = (paperSize: Position, cims: CimAdapter[]) => {
-    const colors = ["AliceBlue", "AntiqueWhite", "Aquamarine", "Bisque", "FloralWhite"];
-    const colorMap = new Map(cims.map((cim, index) => [cim, colors[index] ?? "Ivory"]));
+    const colors = ["bg-lime-500", "bg-amber-400", "bg-purple-400", "bg-sky-500"]; // FIXME: make better coloring system
+    const colorMap = new Map(cims.map((cim, index) => [cim, colors[index] ?? "bg-teal-400"]));
 
     return {
         id: getRandomName(),
