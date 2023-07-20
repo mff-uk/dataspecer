@@ -9,8 +9,10 @@ Minimal installation requires only the SHACL package and all its dependencies.
 3. Bootstrap packages (install dependencies and link them) by `npx lerna bootstrap` optionally with `--scope @dataspecer/shacl --include-dependencies` to skip other packages
 4. Build all packages (this is necessary to build dependencies) by `npx lerna run build` optionally with `--scope @dataspecer/shacl --include-dependencies` to skip other packages
 
-Then, you can:
+## To reproduce the issue:
 - Run tests by `npm run test` from the package directory
+
+  
 - Build the package by `npm run build` from the package directory
 
 ---
