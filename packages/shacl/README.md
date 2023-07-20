@@ -11,12 +11,3 @@ Minimal installation requires only the SHACL package and all its dependencies.
 
 ## To reproduce the issue:
 - Run tests by `npm run test` from the package directory
-
-  
-- Build the package by `npm run build` from the package directory
-
----
-
-To use this package with a client application, you need to bootstrap and also build client application's packages. Either use lerna commands without the scope modifier or add another scope `--scope application`.
-
-To start development mode, where everything updates automatically, run `npm run build:watch` from this package's directory and `npm run build:watch` from `/applications/client` directory as well.
