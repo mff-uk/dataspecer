@@ -6,7 +6,7 @@
     "moduleResolution": "Node16",
     "outDir": "lib",
     "sourceMap": true,
-    "target": "ESNext"
+    "target": "ESNext",
   },
   "include": [
     "src/**/*"

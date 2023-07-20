@@ -10,7 +10,11 @@
   "main": "lib/index.js",
   "dependencies": {
     "@dataspecer/core": "*",
-    "n3": "^1.16.4"
+    "@rdfjs/parser-n3": "^2.0.1",
+    "fs": "^0.0.1-security",
+    "n3": "^1.16.4",
+    "rdf-ext": "^2.2.0",
+    "rdf-validate-shacl": "^0.4.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
