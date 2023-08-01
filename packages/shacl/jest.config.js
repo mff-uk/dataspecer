@@ -10,7 +10,7 @@ const esModules = [
   "fetch-blob",
   "formdata-polyfill",
   "is-stream",
-  "duplex-to"
+  "duplex-to",
 ].join('|');
 const ignorePatterns =  [`/node_modules/(?!${esModules})`];
 module.exports = {

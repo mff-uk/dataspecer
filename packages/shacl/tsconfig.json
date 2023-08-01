@@ -7,8 +7,12 @@
     "outDir": "lib",
     "sourceMap": true,
     "target": "ESNext",
+    "skipLibCheck": true,
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "src/tests/*.spec.ts", "node_modules/*"
   ]
 }
