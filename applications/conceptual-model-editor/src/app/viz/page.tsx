@@ -12,7 +12,7 @@ import { AvailableCimClasses } from "./available-cim-classes";
 
 const sampleCim5 = getSampleCimOf(5, 6);
 
-export default function Page() {
+const Page = () => {
     const [cims, setCims] = useState([getSampleCimOf(3, 5), sampleCim5]);
     const [viewLayout, setViewLayout] = useState(getRandomViewLayoutFor({ x: 1400, y: 700 }, ...cims));
 
@@ -33,4 +33,6 @@ export default function Page() {
             </div>
         </>
     );
-}
+};
+
+export default Page;

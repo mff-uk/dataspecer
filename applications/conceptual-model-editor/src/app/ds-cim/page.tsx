@@ -3,13 +3,14 @@
 import React, { Suspense, useState } from "react";
 import { CimAdapter } from "@dataspecer/core/cim";
 import { CimAdapterContext, useCimAdapterContext } from "./hooks/use-cim-adapter-context";
-import { PimClass } from "@dataspecer/core/pim/model";
+import { PimAssociation, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import Header from "../components/header";
 import { ViewLayoutContext, getRandomViewLayoutFor, useViewLayoutContext } from "./view-layout";
 import { Vocabularies } from "./vocabularies";
 import { NewCimAdapter, getSampleAdapters } from "./cim-adapters/cim-adapters";
 import { LocalChange, LocalChangesContext } from "./hooks/use-local-changes-context";
-import { HtmlVisualisation } from "./visualizations/html-visualisation";
+import { HtmlVisualization } from "./visualizations/html-visualization";
+import { LocalChanges } from "./local-changes";
 
 const SearchClassesComponent = () => {
     const { searchClasses } = useCimAdapterContext();
@@ -24,13 +25,13 @@ const SearchClassesComponent = () => {
     return (
         <div>
             <form onSubmit={search}>
-                <input
+                <input // TODO: sanitize
                     type="text"
                     className="rounded border-2 border-amber-600"
                     value={searchedTerm}
                     onChange={(e) => setSearchedTerm(e.target.value)}
                 />
-                <input
+                <input // TODO: sanitize
                     className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
                     type="submit"
                     value="Load classes"
@@ -78,7 +79,7 @@ const PimClassComponent = (props: { pimCls: PimClass; fromCim: CimAdapter }) => 
 };
 
 const ListOfAvailableClasses = () => {
-    const { cims, classes2 } = useCimAdapterContext();
+    const { cims, classes } = useCimAdapterContext();
 
     if (cims.length == 0) return <>No cim present</>;
 
@@ -87,11 +88,11 @@ const ListOfAvailableClasses = () => {
             <SearchClassesComponent />
 
             <h1>Classes</h1>
-            {[...classes2.keys()].map((cimAdapter, index) => (
+            {[...classes.keys()].map((cimAdapter, index) => (
                 <div key={`cimAdapter${index}`}>
                     <h3>fromCim: CimAdapter{index}</h3>
                     <div>
-                        {classes2.get(cimAdapter)?.map((cls) => (
+                        {classes.get(cimAdapter)?.map((cls) => (
                             <PimClassComponent pimCls={cls} fromCim={cimAdapter} key={cls.iri} />
                         ))}
                     </div>
@@ -120,11 +121,12 @@ const svgExporter = (svgElement: SVGSVGElement, name: string) => {
     svgElement.removeChild(downloadLink);
 };
 
-export default function Page() {
+const Page = () => {
     // const [cims, setCims] = useState<CimAdapter[]>([getSgovAdapter(), getSomeRDFsFileAdapter()]);
     const [cims, setCims] = useState<NewCimAdapter[]>(getSampleAdapters());
-    const [classes, setClasses] = useState([] as PimClass[]);
-    const [classes2, setClasses2] = useState(new Map<NewCimAdapter, PimClass[]>());
+    const [classes, setClasses] = useState(new Map<NewCimAdapter, PimClass[]>());
+    const [attributes, setAttributes] = useState([] as PimAttribute[]);
+    const [associations, setAssociations] = useState([] as PimAssociation[]);
     const [viewLayout, setViewLayout] = useState(getRandomViewLayoutFor({ x: 1000, y: 500 }, cims));
     const [localChanges, setLocalChanges] = useState([] as LocalChange[]);
 
@@ -132,14 +134,27 @@ export default function Page() {
         <>
             <Header page="Cim Adapter from @dataspecer/core" />
             <Suspense fallback={<>Loading</>}>
-                <CimAdapterContext.Provider value={{ cims, setCims, classes, setClasses, classes2, setClasses2 }}>
+                <CimAdapterContext.Provider
+                    value={{
+                        cims,
+                        setCims,
+                        classes,
+                        setClasses,
+                        attributes,
+                        setAttributes,
+                        associations,
+                        setAssociations,
+                    }}
+                >
                     <LocalChangesContext.Provider value={{ localChanges, setLocalChanges }}>
                         <ViewLayoutContext.Provider value={{ viewLayout, setViewLayout }}>
                             <div className="my-0 grid h-[calc(100%-48px)] grid-cols-[20%_auto_20%] grid-rows-1">
                                 <Vocabularies />
-                                {/* <ListOfAvailableClasses /> */}
-                                <HtmlVisualisation />
-                                <div>sidebar</div>
+                                <HtmlVisualization />
+                                <div className="flex flex-col justify-between">
+                                    <div>sidebar</div>
+                                    <LocalChanges />
+                                </div>
                             </div>
                         </ViewLayoutContext.Provider>
                     </LocalChangesContext.Provider>
@@ -147,4 +162,6 @@ export default function Page() {
             </Suspense>
         </>
     );
-}
+};
+
+export default Page;

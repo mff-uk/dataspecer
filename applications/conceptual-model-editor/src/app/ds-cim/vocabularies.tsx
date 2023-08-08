@@ -10,6 +10,7 @@ import { NewCimAdapter } from "./cim-adapters/cim-adapters";
 import { PimClass } from "@dataspecer/core/pim/model";
 import { useViewLayoutContext } from "./view-layout";
 import { LocalChangeType, useLocalChangesContext } from "./hooks/use-local-changes-context";
+import { getLabelOrIri } from "./utils/get-label-or-iri";
 
 const AddAdapter = () => {
     return (
@@ -42,37 +43,107 @@ const VocabularyTemplate = (props: { icon: string; label: string; children: Reac
     );
 };
 
+const TypeMarker = (props: { text: string }) => {
+    return <span className="mx-1 text-xs font-thin">{props.text}</span>;
+};
+
 const ClassFromInMemoryVocabulary = (props: { pimCls: PimClass; fromCim: NewCimAdapter }) => {
     const { addClassToView2 } = useViewLayoutContext();
-
+    const { getAttributesOfClass, getAssociationsOfClass } = useCimAdapterContext();
     const { pimCls: cls, fromCim: cim } = props;
+    const [attributesExpanded, setAttributesExpanded] = useState(false);
+
+    const expandAttributes = () => {
+        setAttributesExpanded((previous) => !previous);
+    };
+
+    const attributesOfClass = getAttributesOfClass(cls);
+    const associationsOfClass = getAssociationsOfClass(cls);
 
     return (
-        <div className="flex flex-row justify-between">
-            <div className=" whitespace-nowrap">{cls.pimHumanLabel?.cs ?? cls.iri?.slice(-15)}</div>
-            <div>
-                <span className="hover:cursor-pointer" onClick={() => addClassToView2(cls, cim)}>
-                    🦥
-                </span>
+        <div>
+            <div className="flex flex-row justify-between">
+                <div className="flex items-center whitespace-nowrap">
+                    <TypeMarker text="c" />
+                    {getLabelOrIri(cls)}
+                </div>
+                <div className="flex flex-row">
+                    {attributesOfClass.length + associationsOfClass.length > 0 && (
+                        <button
+                            title="expand attributes and associations"
+                            onClick={expandAttributes}
+                            className="  text-slate-500 "
+                        >
+                            expand
+                        </button>
+                    )}
+                    <button title="add this class to current view" onClick={() => addClassToView2(cls, cim)}>
+                        🦥
+                    </button>
+                    <button title="log this class to console" onClick={() => console.log(cls)}>
+                        📝
+                    </button>
+                </div>
             </div>
+            {attributesExpanded && (
+                <div>
+                    <div>
+                        <ul>
+                            {attributesOfClass.map((attr) => (
+                                <li key={attr.iri} className="flex items-center bg-slate-100">
+                                    <TypeMarker text="at" />
+                                    {getLabelOrIri(attr)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            {associationsOfClass.map((assoc) => (
+                                <li key={assoc.iri}>
+                                    <TypeMarker text="as" />
+                                    {getLabelOrIri(assoc)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 const InMemoryVocabulary = (props: { adapter: NewCimAdapter }) => {
-    const { classes2 } = useCimAdapterContext();
+    const { classes, attributes, associations } = useCimAdapterContext();
     const { classHasChanged } = useLocalChangesContext();
     const { cimColor } = useViewLayoutContext();
 
     return (
         <VocabularyTemplate icon="💾" label={props.adapter.getLabel()} color={cimColor(props.adapter)}>
+            classes: {classes.get(props.adapter)?.length}, attributes: {attributes.length}, associations:{" "}
+            {associations.length}
             <ul className="bg-white">
-                {classes2.get(props.adapter)?.map((cls) => {
+                {classes.get(props.adapter)?.map((cls) => {
                     if (classHasChanged(cls)) {
                         return <ChangedClass pimCls={cls} />;
                     }
                     return <ClassFromInMemoryVocabulary pimCls={cls} fromCim={props.adapter} key={cls.iri} />;
                 })}
+            </ul>
+            <ul className="bg-slate-50">
+                {associations.map((association) => (
+                    <li key={association.iri}>
+                        <div className="flex flex-row justify-between">
+                            <div className="flex items-center">
+                                <TypeMarker text="as" />
+                                <span>{getLabelOrIri(association)}</span>
+                            </div>
+                            <button title="log this association to console" onClick={() => console.log(association)}>
+                                📝
+                            </button>
+                        </div>
+                    </li>
+                ))}
             </ul>
         </VocabularyTemplate>
     );
@@ -86,14 +157,14 @@ const ClassFromExternalVocabulary = (props: { pimCls: PimClass; fromCim: NewCimA
 
     return (
         <div className="flex flex-row justify-between [&>div]:whitespace-nowrap">
-            <div className="overflow-x-hidden">{cls.pimHumanLabel?.cs ?? cls.iri?.slice(-15)}</div>
+            <div className="overflow-x-hidden">{getLabelOrIri(cls)}</div>
             <div>
-                <span className="hover:cursor-pointer" onClick={() => addClassToView2(cls, cim)}>
+                <button title="add this class to view" onClick={() => addClassToView2(cls, cim)}>
                     🦥
-                </span>
-                <span className="hover:cursor-pointer" onClick={() => loadNeighbors(cls)}>
+                </button>
+                <button title="search for neighbors of this class" onClick={() => loadNeighbors(cls)}>
                     🔍
-                </span>
+                </button>
             </div>
         </div>
     );
@@ -104,9 +175,7 @@ const ChangedClass = (props: { pimCls: PimClass }) => {
 
     return (
         <div className="flex flex-row justify-between">
-            <div className="overflow-x-hidden whitespace-nowrap line-through">
-                {cls.pimHumanLabel?.cs ?? cls.iri?.slice(-15)}
-            </div>
+            <div className="overflow-x-hidden whitespace-nowrap line-through">{getLabelOrIri(cls)}</div>
             <div> 🙃 </div>
         </div>
     );
@@ -122,28 +191,30 @@ const FindClassRow = (props: { handleSearch: (s: string) => void }) => {
 
     return (
         <div className="flex flex-row">
-            <input
-                placeholder="Seach a concept..." // FIXME: congigurable value
+            <input // TODO: sanitize
+                placeholder="Search a concept..." // FIXME: configurable value
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 onKeyUp={(e) => {
                     if (e.key === "Enter") searchButtonClickHandler();
                 }}
             />
-            <div onClick={searchButtonClickHandler}>🔍</div>
+            <button title="search for class in this vocabulary" onClick={searchButtonClickHandler}>
+                🔍
+            </button>
         </div>
     );
 };
 
 const ExternalVocabulary = (props: { adapter: NewCimAdapter }) => {
-    const { classes2, searchClasses } = useCimAdapterContext();
+    const { classes, searchClasses } = useCimAdapterContext();
     const { classHasChanged } = useLocalChangesContext();
     const { cimColor } = useViewLayoutContext();
 
     return (
         <VocabularyTemplate icon="⏳" label={props.adapter.getLabel()} color={cimColor(props.adapter)}>
             <ul className="bg-white">
-                {classes2.get(props.adapter)?.map((cls) => {
+                {classes.get(props.adapter)?.map((cls) => {
                     if (classHasChanged(cls)) {
                         return <ChangedClass pimCls={cls} />;
                     }
@@ -175,12 +246,12 @@ const CreateNewClassDialog = (props: { handleClick: (c: CreateClassFields) => vo
 
     return (
         <div className="flex flex-col">
-            <input
+            <input // TODO: sanitize
                 placeholder="iri"
                 value={classProps.iri}
                 onChange={(e) => setClassProps({ ...classProps, iri: e.target.value })}
             />
-            <input
+            <input // TODO: sanitize
                 placeholder="cs label"
                 value={classProps.pimHumanLabel?.cs}
                 onChange={(e) => setClassProps({ ...classProps, pimHumanLabel: { cs: e.target.value } })}
@@ -188,7 +259,9 @@ const CreateNewClassDialog = (props: { handleClick: (c: CreateClassFields) => vo
                     if (e.key === "Enter") props.handleClick(classProps);
                 }}
             />
-            <button onClick={() => props.handleClick(classProps)}>Create 🔧</button>
+            <button title="create a class" onClick={() => props.handleClick(classProps)}>
+                Create 🔧
+            </button>
         </div>
     );
 };
@@ -214,18 +287,17 @@ const LocalVocabulary = (props: { adapter: LocalCimAdapter }) => {
                     return (
                         <li key={lc.onClass.iri}>
                             <div className="flex flex-row justify-between">
+                                <div>{getLabelOrIri(lc.onClass)}</div>
                                 <div>
-                                    {lc.onClass.pimHumanLabel?.cs || lc.onClass.pimHumanLabel?.en || lc.onClass.iri}
-                                </div>
-                                <div>
-                                    <span
+                                    <button
+                                        title="add this class to view"
                                         className="hover:cursor-pointer"
                                         // TODO: decide on inner design
                                         // @ts-ignore not implemented yey
                                         onClick={() => addClassToView2(lc.onClass, null)}
                                     >
                                         🦥
-                                    </span>
+                                    </button>
                                 </div>
                             </div>
                         </li>
@@ -257,7 +329,7 @@ export const Vocabularies = () => {
 
     return (
         <div className="h-full overflow-y-scroll bg-[#d9d9d9]">
-            <h1 className="text-xl">Vocabularies</h1>
+            <h1 className="ml-2 text-xl">Vocabularies</h1>
             <div>
                 <AddAdapter />
                 <div id="vocabulary-list">

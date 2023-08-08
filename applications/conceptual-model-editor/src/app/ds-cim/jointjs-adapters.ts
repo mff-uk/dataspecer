@@ -1,9 +1,7 @@
-import React, { useContext } from "react";
 import * as joint from "jointjs/dist/joint";
 import { PimClass } from "@dataspecer/core/pim/model";
 import { type Position } from "./view-layout";
-import { useCimAdapterContext } from "./hooks/use-cim-adapter-context";
-import { ViewLayout, useViewLayoutContext } from "./view-layout";
+import { ViewLayout } from "./view-layout";
 
 export const JointJSAdapterWithStates = () => {};
 
@@ -33,7 +31,8 @@ export class JointJsAdapter4 {
         this.cimClassPositionMap = positionMap;
     }
 
-    sync(pimClasses: PimClass[], viewLayout: ViewLayout): void {
+    /**  @deprecated */
+    syncDeprecated(pimClasses: PimClass[], viewLayout: ViewLayout): void {
         console.log("syncing in joint adapter", pimClasses, this.paper);
 
         this.graph.clear();
@@ -43,6 +42,8 @@ export class JointJsAdapter4 {
             this.graph.addCell(pimClassToJointJsHeaderedClass(pimClass, position, cellColor));
         });
     }
+
+    sync() {}
 }
 
 const pimClassToJointJsHeaderedClass = (pimClass: PimClass, pos: Position, pimColor = "magenta") => {
@@ -53,7 +54,7 @@ const pimClassToJointJsHeaderedClass = (pimClass: PimClass, pos: Position, pimCo
             title: "joint.shapes.standard.HeaderedRectangle",
         },
         header: {
-            fill: "lightgray",
+            fill: "lightgrey",
         },
         headerText: {
             text: pimClass.iri ?? "noName",
@@ -69,21 +70,4 @@ const pimClassToJointJsHeaderedClass = (pimClass: PimClass, pos: Position, pimCo
     jointElem.position(pos.x, pos.y);
 
     return jointElem;
-};
-
-export const JointJsAdapterContext = React.createContext({
-    adapter: null as unknown as JointJsAdapter4,
-});
-
-export const useJointJsAdapter = () => {
-    const { adapter } = useContext(JointJsAdapterContext);
-    const { classes } = useCimAdapterContext();
-    const { viewLayout } = useViewLayoutContext();
-
-    const syncState = () => {
-        console.log(classes);
-        console.log(adapter.sync(classes, viewLayout));
-    };
-
-    return { adapter, syncState };
 };

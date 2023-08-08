@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { PimClass } from "@dataspecer/core/pim/model";
+import { getRandomName } from "~/app/utils/random-gen";
 
 export type LocalChangesContextType = {
     localChanges: LocalChange[];
@@ -17,13 +18,14 @@ export enum LocalChangeType {
 export type LocalChange = {
     onClass: PimClass;
     action: LocalChangeType;
+    id: string;
 };
 
 export const useLocalChangesContext = () => {
     const { localChanges, setLocalChanges } = useContext(LocalChangesContext);
 
     const changeClass = (cls: PimClass, action: LocalChangeType) => {
-        setLocalChanges([...localChanges, { onClass: cls, action }]);
+        setLocalChanges([...localChanges, { onClass: cls, action, id: getRandomName(8) }]);
     };
 
     const classHasChanged = (cls: PimClass) => {
@@ -34,5 +36,9 @@ export const useLocalChangesContext = () => {
         return false;
     };
 
-    return { localChanges, changeClass, classHasChanged };
+    const undoChange = (localChange: LocalChange) => {
+        setLocalChanges([...localChanges.filter((lc) => lc.id !== localChange.id)]);
+    };
+
+    return { localChanges, changeClass, classHasChanged, undoChange };
 };

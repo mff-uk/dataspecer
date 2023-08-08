@@ -3,7 +3,7 @@ import { useCimAdapterContext } from "../hooks/use-cim-adapter-context";
 import { JointJsAdapter4 } from "../jointjs-adapters";
 import { useViewLayoutContext } from "../view-layout";
 
-export const JointVisualisation = () => {
+export const JointVisualization = () => {
     const canvasRef = useRef<HTMLDivElement | null>(null);
     const { classes } = useCimAdapterContext();
     const { viewLayout } = useViewLayoutContext();
@@ -21,14 +21,15 @@ export const JointVisualisation = () => {
     }, [canvasRef]);
 
     useEffect(() => {
-        adapter?.sync(classes, viewLayout);
+        // adapter?.sync(classes, viewLayout); // FIXME: update implementation
+        adapter?.sync();
     }, [classes, viewLayout]);
 
     return (
         <div>
             <button
                 className="rounded border border-indigo-600 bg-indigo-50 hover:bg-indigo-100"
-                onClick={() => adapter?.sync(classes, viewLayout)}
+                onClick={() => adapter?.sync()} // FIXME: also update impl
             >
                 sync viz
             </button>
