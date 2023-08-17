@@ -13,9 +13,12 @@
     "@babel/preset-typescript": "^7.22.5",
     "@dataspecer/core": "*",
     "@rdfjs/parser-n3": "^2.0.1",
+    "fs": "^0.0.1-security",
     "n3": "^1.16.4",
+    "path": "^0.12.7",
     "rdf-ext": "^2.2.0",
-    "rdf-validate-shacl": "^0.4.5"
+    "rdf-validate-shacl": "^0.4.5",
+    "turtle-validator": "^1.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
