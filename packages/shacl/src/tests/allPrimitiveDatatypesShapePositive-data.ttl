@@ -1,0 +1,23 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.com/> .
+@prefix exam: <https://example.com/class1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost/resources/catalog>    a exam:mojeCimIri ;
+                                        dcterms:title "Název v češtině"@cs ;
+                                        dcterms:description "Popis v češtině"@cs ;
+                                        dcat:dataset <https://example.org/muj_dataset> ;
+                                        dcterms:publisher <https://example.org/muj_publisher> ;
+                                        ex:mojeCimIri true ;
+                                        ex:vek 25;
+                                        ex:student true;
+                                        ex:hodnoceni "3.5"^^xsd:decimal;
+                                        ex:datum_nastupu "2002-09-24"^^xsd:date;
+                                        ex:zacatek_vyuky "09:00:00"^^xsd:time;
+                                        ex:cas_zalozeni "2002-09-24T09:00:00Z"^^xsd:dateTimeStamp;
+                                        ex:profil "profil.com"^^xsd:anyURI;
+                                        ex:slovni_hodnoceni "Slovní hodnocení studenta"^^xsd:string
+                                        .

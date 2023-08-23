@@ -30,12 +30,13 @@ async function main() {
   for (const result of report.results) {
     // See https://www.w3.org/TR/shacl/#results-validation-result for details
     // about each property
-    console.log(result.message)
+    /*console.log(result.message)
     console.log(result.path)
     console.log(result.focusNode)
     console.log(result.severity)
     console.log(result.sourceConstraintComponent)
     console.log(result.sourceShape)
+  */
   }
 
   // Validation report as RDF dataset

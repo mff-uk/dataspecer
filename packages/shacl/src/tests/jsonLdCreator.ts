@@ -70,7 +70,7 @@ class JsonLdCreator{
         var artefact = new DataSpecificationSchema();
         artefact.psm = "https://example.com/class1/mojePimIri"
         artefact.outputPath = path.resolve("data-json-ld-generated.json");
-        console.log(artefact.outputPath);
+        //console.log(artefact.outputPath);
         const output: StreamDictionary =  new MemoryStreamDictionary();
         const coreResourceReader : CoreResourceReader = {} as CoreResourceReader;
         const context: ArtefactGeneratorContext = {
@@ -98,12 +98,15 @@ class JsonLdCreator{
           defaultStringSelector
         );
         */
-        console.log(JSON.stringify(model, null, 2));
+       // Good one
+        //console.log(JSON.stringify(model, null, 2));
       //console.log(JSON.stringify(actual, null, 2));
       const stream = new MemoryOutputStream();
       //await writeJsonLd(actual, stream);
-      console.log(stream.getContent());
-        await writeJsonLd(model, stream);
+      // Good one
+      //console.log(stream.getContent());
+      // FOR SCHEMA OUTPUT TO STDOUT
+        //await writeJsonLd(model, stream);
         await stream.close();
         //const jsonSchemaGenerator = structureModelToJsonLd({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
         return model;

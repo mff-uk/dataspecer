@@ -113,7 +113,7 @@ export class ShaclAdapter {
 
   constructor(
     model: StructureModel,
-    context: ArtefactGeneratorContext,
+    context: ArtefactGeneratorContext | null,
     artefact: DataSpecificationArtefact
   ) {
     this.model = model;

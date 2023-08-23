@@ -4,10 +4,11 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <https://example.com/> .
 @prefix exam: <https://example.com/class1/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://localhost/resources/catalog>    a exam:mojeCimIri ;
                                         dcterms:title "Název v češtině"@cs ;
                                         dcterms:description "Popis v češtině"@cs ;
                                         dcat:dataset <https://example.org/muj_dataset> ;
                                         dcterms:publisher <https://example.org/muj_publisher> ;
-                                        ex:mojeCimIri true.
+                                        ex:vek "25"^^xsd:integer.

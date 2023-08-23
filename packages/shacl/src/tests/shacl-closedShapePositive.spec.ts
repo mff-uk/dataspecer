@@ -47,7 +47,7 @@ test('Test SHACL ', async () => {
   await main();
   //const validationResult = true;
   //const nOfErrors = validTurtle();
-  expect(validationResult).toBe(false);
+  expect(validationResult).toBe(true);
   /*function callback(error, data) {
   try {
     nOfErrors.then(result => {

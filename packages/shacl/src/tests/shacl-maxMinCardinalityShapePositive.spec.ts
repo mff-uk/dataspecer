@@ -4,23 +4,7 @@ import fs, { PathLike } from "fs";
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
-import validator from "turtle-validator/lib/validator";
 
-
-import  ShapeCreator  from "./shapeCreator";
-import  JsonSchemaCreator  from "./jsonSchemaCreator";
-import JsonLdCreator from "./jsonLdCreator";
-import   ModelCreator   from "./modelCreator3";
-
-var mc = new ModelCreator();
-const sm = mc.createModel();
-var sc = new ShapeCreator();
-const shape = sc.createShape(sm);
-var jsc = new JsonSchemaCreator();
-const jsonSchema = jsc.createJsonSchema(sm);
-var jldc = new JsonLdCreator();
-const jsonLd = jldc.createJsonLD(sm);
-var result = undefined;
 
 var validationResult : boolean;
 
@@ -31,21 +15,14 @@ async function loadDataset (filePath) {
   return  await factory.dataset().import(parser.import(stream))
 }
 
-function validTurtle() {
- const result = validator(fs.createReadStream("src/tests/shape.trig"), showValidation);
- return result;
-}
-
 async function main() {
   //const shapes = await loadDataset('src/tests/shape.trig')
   //const data = await loadDataset('src/tests/data.trig')
-  const shapes = await loadDataset('src/tests/shapeToValidateShapes.ttl');
-  const data = await loadDataset('src/tests/closedShapePositive.ttl');
+  const shapes = await loadDataset('src/tests/maxMinCardinalityShapePositive.ttl');
+  const data = await loadDataset('src/tests/maxMinCardinalityShapePositive-data.ttl');
   const validator = new SHACLValidator(shapes, { factory });
   const report = await validator.validate(data);
   validationResult = report.conforms;
-
-/*
   // Check conformance: `true` or `false`
   console.log(report.conforms)
   
@@ -63,36 +40,9 @@ async function main() {
 
   // Validation report as RDF dataset
   //console.log(report.dataset)
-  */
-  //console.log(shape);
 }
-
-// Use stdio as an input stream
-function showValidation(feedback): Promise<Number> {
-  for(const error of feedback.errors){
-    console.log('ERROR: ' + error);
-  }
-  for(const warning of feedback.warnings){
-    console.log('WARNING: ' + warning);
-  }
-  /*
-  feedback.errors.forEach(function (error) {
-    console.log('ERROR: ' + error);
-  });
-  feedback.warnings.forEach(function (warning) {
-    console.log('WARNING: ' + warning);
-  });
-  */
-  console.log("Validator finished with " + feedback.warnings.length + " warnings and " + feedback.errors.length + " errors.");
-  //process.exit(feedback.errors.length > 0 ? 2 : 0);
-  result = feedback.errors.length;
-  return feedback.errors.length;
-}
-
-//main();
 
 test('Test SHACL ', async () => {
-  
   //await console.log("Json Schema  " + (await jsonSchema).root);
   await main();
   //const validationResult = true;
