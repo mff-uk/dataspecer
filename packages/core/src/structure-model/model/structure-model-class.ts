@@ -61,6 +61,11 @@ export class StructureModelClass {
   isCodelist = false;
 
   isReferenced = false;
+  
+  /**
+   * True if class is supposed to support only its own attributes for purposes of generating validation schemas.
+   */
+  isClosed = false;
 
   /**
    * If class represents codelist this property holds URLs of the datasets
