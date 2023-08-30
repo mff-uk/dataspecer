@@ -100,14 +100,14 @@ class JsonSchemaCreator{
           {} as DataSpecificationArtefact,
           defaultStringSelector
         );
-        //console.log(JSON.stringify(model, null, 2));
-      //console.log(JSON.stringify(actual, null, 2));
+        console.log(JSON.stringify(model, null, 2));
+      console.log(JSON.stringify(actual, null, 2));
       const stream = new MemoryOutputStream();
       // FOR SCHEMA OUTPUT TO STDOUT
-      //await writeJsonSchema(actual, stream);
-      //console.log(stream.getContent());
+        await writeJsonSchema(actual, stream);
+        console.log(stream.getContent());
       // FOR JSONLD OUTPUT TO STDOUT
-        //await writeJsonLd(model, stream);
+        await writeJsonLd(model, stream);
         await stream.close();
         const jsonSchemaGenerator = structureModelToJsonSchema({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
         return jsonSchemaGenerator;

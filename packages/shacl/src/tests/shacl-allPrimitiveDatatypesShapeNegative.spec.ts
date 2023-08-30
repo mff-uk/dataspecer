@@ -4,7 +4,7 @@ import fs, { PathLike } from "fs";
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
-
+import { validateDataAgainstShape } from "./shacl-adapter.spec"
 
 var validationResult : boolean;
 
@@ -14,6 +14,8 @@ async function loadDataset (filePath) {
   const parser = new ParserN3({ factory })
   return  await factory.dataset().import(parser.import(stream))
 }
+
+
 
 async function main() {
   //const shapes = await loadDataset('src/tests/shape.trig')
@@ -42,27 +44,17 @@ async function main() {
   //console.log(report.dataset)
 }
 
-test('Test SHACL ', async () => {
-  //await console.log("Json Schema  " + (await jsonSchema).root);
+test('Test SHACL against data - all primitive types NEGATIVE', async () => {
   await main();
-  //const validationResult = true;
-  //const nOfErrors = validTurtle();
   expect(validationResult).toBe(false);
-  /*function callback(error, data) {
-  try {
-    nOfErrors.then(result => {
-      expect(result).toBe(0);
-      done();
-    }
-      
+  //const validation = await validateDataAgainstShape('src/tests/allPrimitiveDatatypesShapeNegative-data.ttl', 
+  //'src/tests/allPrimitiveDatatypesShape.ttl');
+  //expect(validation).toBe(false);
+});
 
-      );
-    
-  } catch (error) {
-    done(error);
-  }
-}
-  callback;
-  */
-  //await expect(validTurtle("src/tests/shape.trig")).resolves.toBe(0);
+test('Shape conforms to SHACL standard - all primitive types', async () => {
+
+  const validation = await validateDataAgainstShape('src/tests/allPrimitiveDatatypesShape.ttl', 'src/tests/shapeToValidateShapes.ttl');
+  expect(validation).toBe(true);
+
 });

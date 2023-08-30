@@ -13,6 +13,10 @@ import {
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
 import { OFN } from "@dataspecer/core/well-known";
+//import { N3Deref } from 'n3';
+//import { DataFactory as DataFactoryN3 } from 'n3';
+//import { Writer as WriterN3 } from 'n3';
+import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 
 // SHACL version REC-shacl-20170720 - doesn't have official version with major.minor.bugfix
@@ -91,9 +95,11 @@ type classNameShapeTuple = [classShapeName: string, classObject: StructureModelC
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
-const N3 = require('n3');
+//const N3 = require('n3');
 const { DataFactory } = N3;
+//const N3 = N3Deref;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
+//const { Writer } = WriterN3;
 export class ShaclAdapter {
   
   
@@ -151,6 +157,7 @@ export class ShaclAdapter {
     this.knownPrefixes.push(RDFS_PREFIX_DEF);
     var prefixesString = "";
     let iterations = this.knownPrefixes.length;
+    
     prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
     for(const tuple of this.knownPrefixes){
       prefixesString = prefixesString.concat(`${ tuple[0] }: '${ tuple[1] }'`);
@@ -234,7 +241,7 @@ export class ShaclAdapter {
    */
   public generateNodeShapeName(root: StructureModelClass): string {
     var capitalizedTechnicalLabel = "";
-
+    
     if (root.technicalLabel != null) {
       const split = root.technicalLabel.split(" ",5);
       this.debugString = this.debugString + `\n${split}`;

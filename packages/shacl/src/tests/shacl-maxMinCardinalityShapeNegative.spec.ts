@@ -1,13 +1,10 @@
-
-
-import fs, { PathLike } from "fs";
+import fs from "fs";
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
-
+import { validateDataAgainstShape } from "./shacl-adapter.spec";
 
 var validationResult : boolean;
-
 
 async function loadDataset (filePath) {
   const stream = fs.createReadStream(filePath)
@@ -16,9 +13,7 @@ async function loadDataset (filePath) {
 }
 
 async function main() {
-  //const shapes = await loadDataset('src/tests/shape.trig')
-  //const data = await loadDataset('src/tests/data.trig')
-  const shapes = await loadDataset('src/tests/maxMinCardinalityShapeNegative.ttl');
+  const shapes = await loadDataset('src/tests/maxMinCardinalityShape.ttl');
   const data = await loadDataset('src/tests/maxMinCardinalityShapeNegative-data.ttl');
   const validator = new SHACLValidator(shapes, { factory });
   const report = await validator.validate(data);
@@ -26,7 +21,6 @@ async function main() {
   // Check conformance: `true` or `false`
   console.log(report.conforms)
   
-
   for (const result of report.results) {
     // See https://www.w3.org/TR/shacl/#results-validation-result for details
     // about each property
@@ -37,32 +31,15 @@ async function main() {
     console.log(result.sourceConstraintComponent)
     console.log(result.sourceShape)
   }
-
-  // Validation report as RDF dataset
-  //console.log(report.dataset)
 }
 
-test('Test SHACL ', async () => {
-  //await console.log("Json Schema  " + (await jsonSchema).root);
+test('Test SHACL against data - cardinality NEGATIVE ', async () => {
+
   await main();
-  //const validationResult = true;
-  //const nOfErrors = validTurtle();
-  expect(validationResult).toBe(false);
-  /*function callback(error, data) {
-  try {
-    nOfErrors.then(result => {
-      expect(result).toBe(0);
-      done();
-    }
-      
 
-      );
-    
-  } catch (error) {
-    done(error);
-  }
-}
-  callback;
-  */
-  //await expect(validTurtle("src/tests/shape.trig")).resolves.toBe(0);
+  expect(validationResult).toBe(false);
+
+  //const validation = await validateDataAgainstShape("src/tests/maxMinCardinalityShapeNegative-data.ttl","src/tests/maxMinCardinalityShape.ttl");
+  
+  //expect(validation).toBe(false);
 });

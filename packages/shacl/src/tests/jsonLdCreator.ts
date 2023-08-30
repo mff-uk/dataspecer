@@ -1,4 +1,3 @@
-import { structureModelToJsonSchema } from "../../../json/src/json-schema/json-schema-model-adapter";
 import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
 import {
     StructureModel,
@@ -99,14 +98,14 @@ class JsonLdCreator{
         );
         */
        // Good one
-        //console.log(JSON.stringify(model, null, 2));
-      //console.log(JSON.stringify(actual, null, 2));
+        console.log(JSON.stringify(model, null, 2));
+        //console.log(JSON.stringify(actual, null, 2));
       const stream = new MemoryOutputStream();
-      //await writeJsonLd(actual, stream);
+        //await writeJsonLd(actual, stream);
       // Good one
-      //console.log(stream.getContent());
+        console.log(stream.getContent());
       // FOR SCHEMA OUTPUT TO STDOUT
-        //await writeJsonLd(model, stream);
+        await writeJsonLd(model, stream);
         await stream.close();
         //const jsonSchemaGenerator = structureModelToJsonLd({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
         return model;

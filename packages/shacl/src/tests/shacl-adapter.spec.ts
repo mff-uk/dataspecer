@@ -1,25 +1,22 @@
-
-
 import fs, { PathLike } from "fs";
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
 import validator from "turtle-validator/lib/validator";
 
-
 import  ShapeCreator  from "./shapeCreator";
 import  JsonSchemaCreator  from "./jsonSchemaCreator";
 import JsonLdCreator from "./jsonLdCreator";
-import   ModelCreator   from "./modelCreator3";
+import   ModelCreator   from "./modelCreator4SimpleObject";
 
 var mc = new ModelCreator();
 const sm = mc.createModel();
 var sc = new ShapeCreator();
 const shape = sc.createShape(sm);
-var jsc = new JsonSchemaCreator();
-const jsonSchema = jsc.createJsonSchema(sm);
-var jldc = new JsonLdCreator();
-const jsonLd = jldc.createJsonLD(sm);
+//var jsc = new JsonSchemaCreator();
+//const jsonSchema = jsc.createJsonSchema(sm);
+//var jldc = new JsonLdCreator();
+//const jsonLd = jldc.createJsonLD(sm);
 var result = undefined;
 
 var validationResult : boolean;
@@ -31,12 +28,35 @@ async function loadDataset (filePath) {
   return  await factory.dataset().import(parser.import(stream))
 }
 
-function validTurtle() {
- const result = validator(fs.createReadStream("src/tests/shape.trig"), showValidation);
- return result;
+export async function validateDataAgainstShape( shapeFileName : string, dataFileName : string ) : Promise<boolean>{
+  var validation : boolean;
+  const shapes = await loadDataset(shapeFileName);
+  const data = await loadDataset(dataFileName);
+  const validator = new SHACLValidator(shapes, { factory });
+  const report = await validator.validate(data);
+  validation = report.conforms;
+
+  // Check conformance: `true` or `false`
+  console.log(report.conforms)
+  
+  for (const result of report.results) {
+    // See https://www.w3.org/TR/shacl/#results-validation-result for details
+    // about each property
+    console.log(result.message)
+    console.log(result.path)
+    console.log(result.focusNode)
+    console.log(result.severity)
+    console.log(result.sourceConstraintComponent)
+    console.log(result.sourceShape)
+  }
+
+  // Validation report as RDF dataset
+  //console.log(report.dataset)
+  return validation;
 }
 
 async function main() {
+  
   //const shapes = await loadDataset('src/tests/shape.trig')
   //const data = await loadDataset('src/tests/data.trig')
   const shapes = await loadDataset('src/tests/shapeToValidateShapes.ttl');
@@ -45,7 +65,7 @@ async function main() {
   const report = await validator.validate(data);
   validationResult = report.conforms;
 
-/*
+
   // Check conformance: `true` or `false`
   console.log(report.conforms)
   
@@ -63,56 +83,17 @@ async function main() {
 
   // Validation report as RDF dataset
   //console.log(report.dataset)
-  */
-  //console.log(shape);
+  
 }
-
-// Use stdio as an input stream
-function showValidation(feedback): Promise<Number> {
-  for(const error of feedback.errors){
-    console.log('ERROR: ' + error);
-  }
-  for(const warning of feedback.warnings){
-    console.log('WARNING: ' + warning);
-  }
-  /*
-  feedback.errors.forEach(function (error) {
-    console.log('ERROR: ' + error);
-  });
-  feedback.warnings.forEach(function (warning) {
-    console.log('WARNING: ' + warning);
-  });
-  */
-  console.log("Validator finished with " + feedback.warnings.length + " warnings and " + feedback.errors.length + " errors.");
-  //process.exit(feedback.errors.length > 0 ? 2 : 0);
-  result = feedback.errors.length;
-  return feedback.errors.length;
-}
-
-//main();
 
 test('Test SHACL ', async () => {
   
   //await console.log("Json Schema  " + (await jsonSchema).root);
   await main();
+  //await validateDataAgainstShape("src/tests/shapeToValidateShapes.ttl","src/tests/closedShapePositive.ttl");
   //const validationResult = true;
   //const nOfErrors = validTurtle();
+  //const validation = await validateDataAgainstShape("src/tests/closedShapePositive.ttl","src/tests/shapeToValidateShapes.ttl");
   expect(validationResult).toBe(true);
-  /*function callback(error, data) {
-  try {
-    nOfErrors.then(result => {
-      expect(result).toBe(0);
-      done();
-    }
-      
 
-      );
-    
-  } catch (error) {
-    done(error);
-  }
-}
-  callback;
-  */
-  //await expect(validTurtle("src/tests/shape.trig")).resolves.toBe(0);
 });
