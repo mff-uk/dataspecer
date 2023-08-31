@@ -1,0 +1,19 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.org/> .
+
+<http://localhost/resources/catalog>    a dcat:Catalog ;
+                                        dcterms:title "Název v češtině"@cs ;
+                                        dcterms:description "Popis v češtině"@cs ;
+                                        dcat:dataset <https://example.org/muj_dataset> ;
+                                        dcterms:publisher <https://example.org/muj_publisher> .
+
+<http://localhost/resources/class1>    a <https://example.com/class1/mojeCimIri> ;
+                                        dcterms:title "Název v češtině"@cs ;
+                                        dcterms:description "Popis v češtině"@cs ;
+                                        dcat:dataset <https://example.org/muj_dataset> ;
+                                        dcterms:publisher <https://example.org/muj_publisher>
+                                     .                                        
+
