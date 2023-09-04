@@ -23,7 +23,7 @@ import {
   import { DefaultJsonConfiguration } from "../../../json/src/configuration";
   import { JsonConfiguration } from "../../../json/src/configuration";
   import { ShaclAdapter } from "../shacl-adapter";
-  import  ModelCreator  from "./modelCreator";
+  import  ModelCreator  from "./ClosedShapeModelCreator";
   import  ConceptualModelCreator  from "./conceptualModelCreator";
   import {ArtefactGenerator, ArtefactGeneratorContext, StructureClassLocation} from "@dataspecer/core/generator";
 import { JsonSchema } from "../../../json/src/json-schema/json-schema-model";

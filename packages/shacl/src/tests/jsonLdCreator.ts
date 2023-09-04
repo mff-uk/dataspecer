@@ -21,7 +21,7 @@ import {
   import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
   import { DefaultJsonConfiguration } from "../../../json/src/configuration";
   import { JsonConfiguration } from "../../../json/src/configuration";
-  import  ModelCreator  from "./modelCreator";
+  import  ModelCreator  from "./ClosedShapeModelCreator";
   import  ConceptualModelCreator  from "./conceptualModelCreator";
   import {ArtefactGenerator, ArtefactGeneratorContext, StructureClassLocation} from "@dataspecer/core/generator";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";

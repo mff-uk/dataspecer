@@ -4,16 +4,15 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "moduleResolution": "Node16",
-    "outDir": "lib",
+    "outDir": "./lib/",
     "sourceMap": true,
     "target": "ESNext",
-    "skipLibCheck": true,
     "types": ["@types/jest"],
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "src/tests/*.spec.ts","node_modules/*"
+    "src/tests/*.spec.ts","node_modules/*","src/tests/"
   ]
 }

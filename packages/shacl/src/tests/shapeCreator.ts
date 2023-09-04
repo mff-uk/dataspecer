@@ -11,7 +11,7 @@ import {
   import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import { ShaclAdapter } from "../shacl-adapter";
-  import  ModelCreator  from "./modelCreator4SimpleObject";
+  import  ModelCreator  from "./SimpleObjectModelCreator";
 
 class ShapeCreator{
     

@@ -10,8 +10,9 @@ import {
   } from "@dataspecer/core/structure-model/model";
   import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+  import ModelCreator from "./ModelCreatorInterface";
 
-class ModelCreator {
+class AllPrimitiveTypesModelCreator implements ModelCreator{
 
    createModel(): StructureModel{
     var model = new StructureModel();
@@ -204,4 +205,4 @@ class ModelCreator {
   }
 }
 
-export default ModelCreator;
+export default AllPrimitiveTypesModelCreator;

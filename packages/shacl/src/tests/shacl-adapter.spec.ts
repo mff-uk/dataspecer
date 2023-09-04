@@ -3,16 +3,17 @@ import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
 import validator from "turtle-validator/lib/validator";
+import * as Support from "./testSupport";
 
 import  ShapeCreator  from "./shapeCreator";
 import  JsonSchemaCreator  from "./jsonSchemaCreator";
 import JsonLdCreator from "./jsonLdCreator";
-import   ModelCreator   from "./modelCreator4SimpleObject";
+import   ModelCreator   from "./SimpleObjectModelCreator";
 
-var mc = new ModelCreator();
-const sm = mc.createModel();
-var sc = new ShapeCreator();
-const shape = sc.createShape(sm);
+//var mc = new ModelCreator();
+//const sm = mc.createModel();
+//var sc = new ShapeCreator();
+//const shape = sc.createShape(sm);
 //var jsc = new JsonSchemaCreator();
 //const jsonSchema = jsc.createJsonSchema(sm);
 //var jldc = new JsonLdCreator();

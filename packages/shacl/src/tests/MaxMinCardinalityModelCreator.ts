@@ -10,31 +10,32 @@ import {
   } from "@dataspecer/core/structure-model/model";
   import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+  import ModelCreator from "./ModelCreatorInterface";
 
-class ModelCreator {
+class MaxMinCardinalityModelCreator implements ModelCreator{
 
    createModel(): StructureModel{
     var model = new StructureModel();
   
       var primitiveType1 : StructureModelPrimitiveType;
       primitiveType1 = new StructureModelPrimitiveType();
-      primitiveType1.dataType = "http://www.w3.org/2001/XMLSchema#boolean";
+      primitiveType1.dataType = "http://www.w3.org/2001/XMLSchema#integer";
       primitiveType1.example = null;
       primitiveType1.regex = null;
   
       var property1 : StructureModelProperty;
       property1 = new StructureModelProperty();
-      property1.cardinalityMax = 2;
-      property1.cardinalityMin = 0;
-      property1.cimIri = "https://example.com/mojeCimIri";
+      property1.cardinalityMax = 1;
+      property1.cardinalityMin = 1;
+      property1.cimIri = "https://example.com/vek";
       property1.dataTypes = [primitiveType1];
       property1.dematerialize = false;
-      property1.humanDescription = {["cs"]: "Popisek 1"};
-      property1.humanLabel = {["cs"]: "Label 1"};
+      property1.humanDescription = {["cs"]: "Vek"};
+      property1.humanLabel = {["cs"]: "vek"};
       property1.isReverse = false;
       property1.pimIri = "https://example.com/mojePimIri";
       property1.psmIri = "https://example.com/mojePsmIri";
-      property1.technicalLabel = "technicky popisek";
+      property1.technicalLabel = "vek-popisek";
   
   
       var class1 : StructureModelClass;
@@ -63,4 +64,4 @@ class ModelCreator {
   }
 }
 
-export default ModelCreator;
+export default MaxMinCardinalityModelCreator;

@@ -11,6 +11,7 @@ const esModules = [
   "formdata-polyfill",
   "is-stream",
   "duplex-to",
+  "fs",
 ].join('|');
 const ignorePatterns =  [`/node_modules/(?!${esModules})`];
 module.exports = {
