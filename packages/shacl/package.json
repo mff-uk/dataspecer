@@ -12,6 +12,7 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
     "@dataspecer/core": "*",
+    "@dataspecer/json": "*",
     "@rdfjs/parser-n3": "^2.0.1",
     "fs": "^0.0.1-security",
     "n3": "^1.16.4",

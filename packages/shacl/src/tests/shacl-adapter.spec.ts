@@ -3,12 +3,12 @@ import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
 import validator from "turtle-validator/lib/validator";
-import * as Support from "./testSupport";
+import * as Support from "./support/testSupport";
 
-import  ShapeCreator  from "./shapeCreator";
-import  JsonSchemaCreator  from "./jsonSchemaCreator";
-import JsonLdCreator from "./jsonLdCreator";
-import   ModelCreator   from "./SimpleObjectModelCreator";
+import  ShapeCreator  from "./support/shapeCreator";
+import  JsonSchemaCreator  from "./support/jsonSchemaCreator";
+import JsonLdCreator from "./support/jsonLdCreator";
+import   ModelCreator   from "./support/SimpleObjectModelCreator";
 
 //var mc = new ModelCreator();
 //const sm = mc.createModel();
@@ -60,8 +60,8 @@ async function main() {
   
   //const shapes = await loadDataset('src/tests/shape.trig')
   //const data = await loadDataset('src/tests/data.trig')
-  const shapes = await loadDataset('src/tests/shapeToValidateShapes.ttl');
-  const data = await loadDataset('src/tests/closedShapePositive.ttl');
+  const shapes = await loadDataset('src/tests/shapes/shapeToValidateShapes.ttl');
+  const data = await loadDataset('src/tests/shapes/closedShapePositive.ttl');
   const validator = new SHACLValidator(shapes, { factory });
   const report = await validator.validate(data);
   validationResult = report.conforms;

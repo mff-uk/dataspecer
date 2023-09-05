@@ -48,7 +48,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
     const report = await validator.validate(data);
     conforms = report.conforms;
     // Check conformance: `true` or `false`
-    console.log(report.conforms)
+    //console.log(report.conforms)
     
     for (const result of report.results) {
       // See https://www.w3.org/TR/shacl/#results-validation-result for details

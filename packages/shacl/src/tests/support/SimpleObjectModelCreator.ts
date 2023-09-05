@@ -1,11 +1,9 @@
 import {
     StructureModel,
     StructureModelClass,
-    StructureModelType,
     StructureModelComplexType,
     StructureModelProperty,
     StructureModelPrimitiveType,
-    StructureModelCustomType,
     StructureModelSchemaRoot,
   } from "@dataspecer/core/structure-model/model";
   import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
@@ -17,10 +15,6 @@ class SimpleObjectModelCreator implements ModelCreator{
   createModel(): StructureModel{
     var model = new StructureModel();
   
-    
-
-      
-
       var zipType : StructureModelPrimitiveType;
       zipType = new StructureModelPrimitiveType();
       zipType.dataType = "http://www.w3.org/2001/XMLSchema#integer";
@@ -107,8 +101,6 @@ class SimpleObjectModelCreator implements ModelCreator{
       country.pimIri = "https://example.com/mojePimIriStat";
       country.psmIri = "https://example.com/mojePsmIriStat";
       country.technicalLabel = "stat-popisek";
-
-
 
       var class2 : StructureModelClass;
       class2 = new StructureModelClass();

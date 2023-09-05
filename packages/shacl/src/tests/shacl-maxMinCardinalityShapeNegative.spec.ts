@@ -1,10 +1,10 @@
-import * as Support from "./testSupport";
-import  MaxMinCardinalityModelCreator from "./MaxMinCardinalityModelCreator";
+import * as Support from "./support/testSupport";
+import  MaxMinCardinalityModelCreator from "./support/MaxMinCardinalityModelCreator";
 
 test('Test SHACL against data - cardinality NEGATIVE ', async () => {
 
-  await Support.prepareShape(new MaxMinCardinalityModelCreator(), './maxMinCardinalityShape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/maxMinCardinalityShapeNegative-data.ttl","src/tests/maxMinCardinalityShape.ttl");
+  await Support.prepareShape(new MaxMinCardinalityModelCreator(), '../shapes/maxMinCardinalityShape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/data/maxMinCardinalityShapeNegative-data.ttl","src/tests/shapes/maxMinCardinalityShape.ttl");
   expect(validation).toBe(false);
 
 });

@@ -1,3 +1,4 @@
+import { structureModelToJsonSchema } from "../../../../json/src/json-schema/json-schema-model-adapter";
 import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
 import {
     StructureModel,
@@ -19,16 +20,20 @@ import {
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
   import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
-  import { DefaultJsonConfiguration } from "../../../json/src/configuration";
-  import { JsonConfiguration } from "../../../json/src/configuration";
+  import { DefaultJsonConfiguration } from "../../../../json/src/configuration";
+  import { JsonConfiguration } from "../../../../json/src/configuration";
+  import { ShaclAdapter } from "../../shacl-adapter";
   import  ModelCreator  from "./ClosedShapeModelCreator";
   import  ConceptualModelCreator  from "./conceptualModelCreator";
   import {ArtefactGenerator, ArtefactGeneratorContext, StructureClassLocation} from "@dataspecer/core/generator";
+import { JsonSchema } from "../../../../json/src/json-schema/json-schema-model";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { JsonLdGenerator } from "../../../json/src/json-ld/json-ld-generator";
+import { JsonLdGenerator } from "../../../../json/src/json-ld/json-ld-generator";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
+import { ConceptualModelClass } from "@dataspecer/core/conceptual-model";
+import { writeJsonSchema } from "../../../../json/src/json-schema/json-schema-writer";
 import * as path from 'path';
 
 
@@ -58,8 +63,8 @@ interface Context {
     configuration: JsonConfiguration;
   }
 
-class JsonLdCreator{
-    async createJsonLD(smc : StructureModel ) : Promise<Object> {
+class JsonSchemaCreator{
+    async createJsonSchema(smc : StructureModel ) : Promise<JsonSchema> {
         const structureModelClass = new ModelCreator;
         const conceptualModelClass = new ConceptualModelCreator;
         const jsonconfig = DefaultJsonConfiguration;
@@ -77,7 +82,7 @@ class JsonLdCreator{
             conceptualModels: { ["https://example.com/class1/mojePimIri"]: conceptualModelClass.createModel() },
             structureModels: { ["https://example.com/class1/mojePimIri"]: smc },
             reader: coreResourceReader,
-            createGenerator(iri: string): Promise<ArtefactGenerator | null> {return null;},
+            createGenerator(iri: string): Promise<ArtefactGenerator | null> { return null as any;},
             findStructureClass(iri: string): StructureClassLocation | null {return null}
           };
 
@@ -87,8 +92,7 @@ class JsonLdCreator{
 
         const specification = new DataSpecification();
         specification.iri = "root;";
-        /*
-        const actual = structureModelToJsonLd(
+        const actual = structureModelToJsonSchema(
           { root: specification },
           specification,
           smc,
@@ -96,19 +100,17 @@ class JsonLdCreator{
           {} as DataSpecificationArtefact,
           defaultStringSelector
         );
-        */
-       // Good one
         console.log(JSON.stringify(model, null, 2));
-        //console.log(JSON.stringify(actual, null, 2));
+      console.log(JSON.stringify(actual, null, 2));
       const stream = new MemoryOutputStream();
-        //await writeJsonLd(actual, stream);
-      // Good one
-        console.log(stream.getContent());
       // FOR SCHEMA OUTPUT TO STDOUT
+        await writeJsonSchema(actual, stream);
+        console.log(stream.getContent());
+      // FOR JSONLD OUTPUT TO STDOUT
         await writeJsonLd(model, stream);
         await stream.close();
-        //const jsonSchemaGenerator = structureModelToJsonLd({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
-        return model;
+        const jsonSchemaGenerator = structureModelToJsonSchema({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
+        return jsonSchemaGenerator;
     }
 }
 
@@ -120,4 +122,4 @@ async function writeJsonLd(
     await stream.close();
   }
 
-export default JsonLdCreator;
+export default JsonSchemaCreator;

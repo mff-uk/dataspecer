@@ -1,18 +1,18 @@
-import * as Support from "./testSupport";
-import AllPrimitiveTypesModelCreator from "./AllPrimitiveTypesModelCreator";
+import * as Support from "./support/testSupport";
+import AllPrimitiveTypesModelCreator from "./support/AllPrimitiveTypesModelCreator";
 
 test('Test SHACL against data - all primitive types POSITIVE ', async () => {
 
-  await Support.prepareShape(new AllPrimitiveTypesModelCreator(), './allPrimitiveDatatypesShape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/allPrimitiveDatatypesShapePositive-data.ttl", "src/tests/allPrimitiveDatatypesShape.ttl");
+  await Support.prepareShape(new AllPrimitiveTypesModelCreator(), '../shapes/allPrimitiveDatatypesShape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/data/allPrimitiveDatatypesShapePositive-data.ttl", "src/tests/shapes/allPrimitiveDatatypesShape.ttl");
   expect(validation).toBe(true);
 
 });
 
 test('Shape conforms to SHACL standard - all primitive types', async () => {
 
-  await Support.prepareShape(new AllPrimitiveTypesModelCreator(), './allPrimitiveDatatypesShape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/allPrimitiveDatatypesShape.ttl", "src/tests/shapeToValidateShapes.ttl");
+  await Support.prepareShape(new AllPrimitiveTypesModelCreator(), '../shapes/allPrimitiveDatatypesShape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/shapes/allPrimitiveDatatypesShape.ttl", "src/tests/shapes/shapeToValidateShapes.ttl");
   expect(validation).toBe(true);
 
 });
