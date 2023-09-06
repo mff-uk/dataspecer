@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Class 1 Label 1",
+    "description": "Class 1 Popisek 1",
+    "type": "object",
+    "required": [],
+    "properties": {
+      "technicky popisek": {
+        "type": "array",
+        "items": {
+          "title": "Label 1",
+          "description": "Popisek 1",
+          "type": "boolean"
+        }
+      }
+    }
+  }

@@ -1,0 +1,13 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.com/> .
+@prefix exam: <https://example.com/class1/>.
+
+<http://localhost/resources/catalog>    a exam:mojeCimIri ;
+                                        dcterms:title "Název v češtině"@cs ;
+                                        dcterms:description "Popis v češtině"@cs ;
+                                        dcat:dataset <https://example.org/muj_dataset> ;
+                                        dcterms:publisher <https://example.org/muj_publisher> ;
+                                        ex:mojeCimIri true.
