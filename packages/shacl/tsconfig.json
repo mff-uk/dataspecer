@@ -4,11 +4,15 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "moduleResolution": "Node16",
-    "outDir": "lib",
+    "outDir": "./lib",
     "sourceMap": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "types": ["@types/jest"],
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "src/tests/","node_modules/*","src/tests"
   ]
 }

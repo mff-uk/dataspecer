@@ -1,0 +1,17 @@
+@prefix exam: <https://example.com/class1/>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+    <https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
+        sh:targetClass exam:mojeCimIri;
+        rdfs:comment "Class 1 Popisek 1"@cs;
+        rdfs:label "Class 1 Label 1"@cs;
+        sh:property [
+      sh:path <https://example.com/mojeCimIri>;
+      sh:maxCount 2;
+      sh:datatype xsd:boolean ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) .

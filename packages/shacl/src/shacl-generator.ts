@@ -4,10 +4,10 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
-import {ShaclAdapter} from "./shacl-adapter";
+import {ShaclAdapter} from "./shacl-adapter.js";
 
 interface ShaclGeneratorObject {
   data: string;

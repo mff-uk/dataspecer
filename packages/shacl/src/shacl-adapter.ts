@@ -13,6 +13,10 @@ import {
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
 import { OFN } from "@dataspecer/core/well-known";
+//import { N3Deref } from 'n3';
+//import { DataFactory as DataFactoryN3 } from 'n3';
+//import { Writer as WriterN3 } from 'n3';
+import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 
 // SHACL version REC-shacl-20170720 - doesn't have official version with major.minor.bugfix
@@ -91,9 +95,11 @@ type classNameShapeTuple = [classShapeName: string, classObject: StructureModelC
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
-const N3 = require('n3');
+//const N3 = require('n3');
 const { DataFactory } = N3;
+//const N3 = N3Deref;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
+//const { Writer } = WriterN3;
 export class ShaclAdapter {
   
   
@@ -107,20 +113,22 @@ export class ShaclAdapter {
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
   protected writer: any;
+  protected scriptString: string = "";
+  protected prefixesString: string = "";
+  protected insidesString: string = "";
 
   constructor(
     model: StructureModel,
-    context: ArtefactGeneratorContext,
+    context: ArtefactGeneratorContext | null,
     artefact: DataSpecificationArtefact
   ) {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
-    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
+    //this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
   }
 
   public generate = async () => {
-    //const writer1 = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#" } });
     
     if (this.model.roots.length > 1) {
       console.warn("SHACL generator: Multiple schema roots not supported yet.");
@@ -132,30 +140,48 @@ export class ShaclAdapter {
       this.generateClassConstraints(root);
     }
     
-    this.generatePrefixesString();
+    this.prefixesString = this.generatePrefixesString();
+    for(const str of this.shapes){
+      this.insidesString = this.insidesString.concat(str);
+    }
+    this.scriptString = this.prefixesString + this.insidesString;
+    eval(this.scriptString);
     var resultString = "";
     this.writer.end((error, result) => resultString = result);
     return { data: resultString };
+    //return { data: this.scriptString};
   };
 
   generatePrefixesString(): string {
+    this.knownPrefixes.push(SHACL_PREFIX_DEF);
+    this.knownPrefixes.push(RDFS_PREFIX_DEF);
     var prefixesString = "";
+    let iterations = this.knownPrefixes.length;
+    
+    prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
     for(const tuple of this.knownPrefixes){
-      prefixesString = prefixesString.concat(`@prefix ${ tuple[0] }: \t<${ tuple[1] }> .\n`);
+      prefixesString = prefixesString.concat(`${ tuple[0] }: '${ tuple[1] }'`);
+      if(--iterations){
+        prefixesString = prefixesString.concat(`, \n`);
+      }
     }
+    prefixesString = prefixesString.concat(` } });\n`);
     return prefixesString;
   }
 
   generateClassConstraints(root: StructureModelClass): string {
     var newResult = "";
     var nodeName : string;
+    
     nodeName = this.generateNodeShapeName(root);
-    const classNameIri = 'ex:' + nodeName;
+    const prefixTag = this.prefixify(root.cimIri)[0];
+    const prefixForName = this.knownPrefixes.find(tuple => tuple[0] === prefixTag);
+    const classNameIri = prefixForName[1]  + nodeName;
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
       // The class has not been Shaped yet -- to get rid of duplicate shape
-      this.generateNodeShapeHead(root, classNameIri);
-      const propDesc = this.generatePropertiesConstraints(root, classNameIri);
+      newResult = newResult.concat(this.generateNodeShapeHead(root, classNameIri));
+      newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
 
       this.shapes.push(newResult);
       this.sameClass.push([nodeName, root]);
@@ -163,29 +189,32 @@ export class ShaclAdapter {
     return nodeName;
   }
 
-  generateNodeShapeHead(root: StructureModelClass, classNameIri: string): void {
-    var head = "";
-    this.writer.addQuad(
-      namedNode(classNameIri),
+
+  generateNodeShapeHead(root: StructureModelClass, classNameIri: string): string {
+    var newResult = "";
+    newResult = newResult.concat(
+    `this.writer.addQuad(
+      namedNode('${ classNameIri}'),
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
     this.writer.addQuad(
-        namedNode(classNameIri),
-        namedNode('http://www.w3.org/ns/shacl#targetClass'),
-        namedNode(root.cimIri)
-    );
+      namedNode('${ classNameIri}'),
+      namedNode('http://www.w3.org/ns/shacl#targetClass'),
+      namedNode('${ root.cimIri}')
+    );`);
+    
     const languageDesc = root.humanDescription;
     for (const languageTag in languageDesc) {
       const language = languageDesc[languageTag];
       if(languageDesc != null){
+        newResult = newResult.concat(`
         this.writer.addQuad(
-          namedNode(classNameIri),
+          namedNode('${ classNameIri}'),
           namedNode('http://www.w3.org/2000/01/rdf-schema#comment'),
-          literal(language, languageTag)
+          literal('${ language}', '${ languageTag}')
         );
-      } else{
-        return null;
+        `);
       }
     }
 
@@ -193,16 +222,16 @@ export class ShaclAdapter {
     for (const languageTag in languageLabel) {
       const language = languageLabel[languageTag];
       if(languageLabel != null){
+        newResult = newResult.concat(`
         this.writer.addQuad(
-          namedNode(classNameIri),
+          namedNode('${ classNameIri}'),
           namedNode('http://www.w3.org/2000/01/rdf-schema#label'),
-          literal(language, languageTag)
+          literal('${ language}', '${ languageTag}')
         );
-      } else{
-        return null;
-      }
+        `);
+      } 
     }
-
+    return newResult;
   }
 
   /**
@@ -210,9 +239,9 @@ export class ShaclAdapter {
    * @param root
    * @returns Camel case name for the shape.
    */
-  generateNodeShapeName(root: StructureModelClass): string {
+  public generateNodeShapeName(root: StructureModelClass): string {
     var capitalizedTechnicalLabel = "";
-
+    
     if (root.technicalLabel != null) {
       const split = root.technicalLabel.split(" ",5);
       this.debugString = this.debugString + `\n${split}`;
@@ -237,6 +266,8 @@ export class ShaclAdapter {
     return capitalizedTechnicalLabel + "Shape";
   }
 
+
+
   generatePropertiesConstraints(root: StructureModelClass, classNameIri: string): string {
     var propDesc = "";
     if (root.properties != null && root.properties.length != 0) {
@@ -250,22 +281,22 @@ export class ShaclAdapter {
         const demat = prop.dematerialize;
         const isreverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
-
+        propDesc = propDesc.concat(`
         this.writer.addQuad(
-            namedNode(classNameIri),
-            namedNode('http://www.w3.org/ns/shacl#property'),
-            this.writer.blank([{
-              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-              object:    namedNode(cimiri),
-            },{
-              predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-              object:    literal(cardinalitymin),
-            },{
-              predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
-              object:    literal(cardinalitymax),
-            },
-            this.getObjectForPropType(prop.dataTypes)])
-          );
+          namedNode('${classNameIri}'),
+          namedNode('http://www.w3.org/ns/shacl#property'),
+          this.writer.blank([
+            {
+            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+            object:    namedNode('${cimiri}'),
+            },`);
+        
+        propDesc = propDesc.concat(this.getObjectForPropMin(cardinalitymin));
+        propDesc = propDesc.concat(this.getObjectForPropMax(cardinalitymax));
+        propDesc = propDesc.concat(this.getObjectForPropType(prop.dataTypes));
+        
+        propDesc = propDesc.concat(`]));`);
+        
 
           /*
         // set up the inner property shape
@@ -301,50 +332,73 @@ export class ShaclAdapter {
     return propDesc;
   }
 
-  protected getObjectForPropMin(min: number): object {
-    if(min != 0){
-      return {
+  protected getObjectForPropMin(min: number): string{
+    if(min != 0 && min != null){
+      return `{
         predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-        object:    literal(min)
-      }
-    } else{
-      return null;
+        object:    literal(${min})
+      },`
+    } else {
+      return "";
     }
-    
   }
 
-  protected getObjectForPropType(datatypes: StructureModelType[]): object {
+  protected getObjectForPropMax(max: number): any {
+    if(max != 0 && max != null){
+      return `{
+        predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
+        object:    literal(${max})
+      },`
+    } else {
+      return "";
+    }
+  }
+
+
+  protected getObjectForPropType(datatypes: StructureModelType[]): string {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
         // create new NodeShape and tie this property to it
         const dtcasted = <StructureModelComplexType> dt;
         const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
-        return {
+        const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
+        return `{
           predicate: namedNode('http://www.w3.org/ns/shacl#node'),
-          object:    namedNode('ex:' + nameForAnotherClass)
-        }
+          object:    namedNode('${ namedNodeString}')
+        }`;
         
       } else if(dt.isAttribute() == true){
         // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
         const dtcasted = <StructureModelPrimitiveType> dt;
-        if(dtcasted.dataType != null){
+        if(dtcasted != null){
           const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
           var datatypeString = "";
+          
           if(datatypeFromMap != undefined){
             datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
-            return {
-              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode(dtcasted.dataType)
+            if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
+              this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
             }
+            return `{
+              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
+              object:    namedNode('${simpleTypeMapIRI[dtcasted.dataType]}')
+            }`;
+            return `{
+              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
+              object:    namedNode('${simpleTypeMapIRI[dtcasted.dataType]}')
+            }`;
           } else{
-            const datatypeInContext = this.prefixify(dtcasted.dataType);
-            datatypeString = `${ datatypeInContext[0] }:${ datatypeInContext[1]}`;
-            return {
+            if(dtcasted.dataType != null){
+            return `{
               predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode(dtcasted.dataType)
-            }
+              object:    namedNode('${dtcasted.dataType}')
+            }`;
+          } else {
+            return "";
           }
+          }
+        
           /*
           propDesc = propDesc.concat(`\n\t\tsh:datatype ${ datatypeString } ;`);
           // Setting pattern restrictions if they exist
@@ -355,25 +409,24 @@ export class ShaclAdapter {
         }
         
       } else if(dt.isCustomType() == true){
-        // TODO
+        // CUSTOM TYPE IS NOT USED AT THE MOMENT
         const dtcasted = <StructureModelCustomType> dt;
-        return {};
+        if(dtcasted != null){
+        return `{
+          predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
+          object:    namedNode('${ dtcasted.data}')
+        }`;}
         //propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
       } else{
-        throw new Error("Datatype must be one of the 3 basic types.");
+        return ``;
+        //throw new Error("Datatype must be one of the 3 basic types.");
       }
       
-    }
+    
   }
-  
-  protected getContext(): string {
-    this.knownPrefixes.push(SHACL_PREFIX_DEF);
-    this.knownPrefixes.push(RDFS_PREFIX_DEF);
-
-    return "";
   }
-
-unpackLanguageString(languageString: LanguageString): typeof literal {
+  /*
+  unpackLanguageString(languageString: LanguageString): typeof literal {
     for (const languageTag in languageString) {
       const language = languageString[languageTag];
       if(languageString != null){
@@ -385,6 +438,8 @@ unpackLanguageString(languageString: LanguageString): typeof literal {
 
     
   }
+  */
+
 /*
   unpackLanguageString(stringToAppendTo: string, beginning: string, languageString: LanguageString): string {
     for (const languageTag in languageString) {
@@ -407,7 +462,7 @@ unpackLanguageString(languageString: LanguageString): typeof literal {
     var qname : QName;
     var splitted = iri.split("/", 100); 
     var name = splitted[splitted.length-1];
-    var prefix = iri.substring(0, iri.length - name.length - 1);
+    var prefix = iri.substring(0, iri.length - name.length);
     const found = this.knownPrefixes.find(obj => obj[1] === prefix);
     if( found != null){
       qname = [found[0], name];
@@ -454,4 +509,16 @@ const simpleTypeMapQName: Record<string, QName> = {
   [OFN.decimal]: ["xsd", "decimal"],
   [OFN.url]: ["xsd", "anyURI"],
   [OFN.string]: ["xsd", "string"],
+};
+
+// Types for specification in sh:datatype
+const simpleTypeMapIRI: Record<string, string> = {
+  [OFN.boolean]: "http://www.w3.org/2001/XMLSchema#boolean",
+  [OFN.date]: "http://www.w3.org/2001/XMLSchema#date",
+  [OFN.time]: "http://www.w3.org/2001/XMLSchema#time",
+  [OFN.dateTime]: "http://www.w3.org/2001/XMLSchema#dateTimeStamp",
+  [OFN.integer]: "http://www.w3.org/2001/XMLSchema#integer",
+  [OFN.decimal]: "http://www.w3.org/2001/XMLSchema#decimal",
+  [OFN.url]: "http://www.w3.org/2001/XMLSchema#anyURI",
+  [OFN.string]: "http://www.w3.org/2001/XMLSchema#string",
 };
