@@ -10,14 +10,14 @@ import  JsonSchemaCreator  from "./support/jsonSchemaCreator";
 import JsonLdCreator from "./support/jsonLdCreator";
 import   ModelCreator   from "./support/SimpleObjectModelCreator";
 
-//var mc = new ModelCreator();
-//const sm = mc.createModel();
-//var sc = new ShapeCreator();
-//const shape = sc.createShape(sm);
-//var jsc = new JsonSchemaCreator();
-//const jsonSchema = jsc.createJsonSchema(sm);
-//var jldc = new JsonLdCreator();
-//const jsonLd = jldc.createJsonLD(sm);
+var mc = new ModelCreator();
+const sm = mc.createModel();
+var sc = new ShapeCreator();
+const shape = sc.createShape(sm);
+var jsc = new JsonSchemaCreator();
+const jsonSchema = jsc.createJsonSchema(sm);
+var jldc = new JsonLdCreator();
+const jsonLd = jldc.createJsonLD(sm);
 var result = undefined;
 
 var validationResult : boolean;

@@ -10,7 +10,7 @@
     "types": ["@types/jest"],
   },
   "include": [
-    "src/**/*"
+    "src/**/*", "src/tests/support/jsonLdCreator.ts"
   ],
   "exclude": [
     "src/tests/","node_modules/*","src/tests"

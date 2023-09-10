@@ -4,13 +4,13 @@ import { StructureModel } from "@dataspecer/core/structure-model/model";
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
   import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
-  import { DefaultJsonConfiguration } from "@dataspecer/json/src/configuration";
+  import { DefaultJsonConfiguration } from "../../../../json/src/configuration";
   import { JsonConfiguration } from "@dataspecer/json/src/configuration";
   import  ModelCreator  from "./ClosedShapeModelCreator";
   import  ConceptualModelCreator  from "./conceptualModelCreator";
   import {ArtefactGenerator, ArtefactGeneratorContext, StructureClassLocation} from "@dataspecer/core/generator";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import {JsonLdGenerator} from "@dataspecer/json/src/json-ld";
+import {JsonLdGenerator} from "../../../../json/src/json-ld";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
@@ -56,7 +56,7 @@ class JsonLdCreator{
           };
 
         const model = await jsonldgen.generateToObject(context, artefact, spec);
-        //const stream = output.writePath(artefact.outputPath);
+      //const stream = output.writePath(artefact.outputPath);
         //assert((await output.exists(artefact.outputPath)).valueOf(), "dOESNT EXIST");
 
         const specification = new DataSpecification();

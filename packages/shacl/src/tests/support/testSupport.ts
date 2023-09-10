@@ -49,7 +49,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
     conforms = report.conforms;
     // Check conformance: `true` or `false`
     //console.log(report.conforms)
-    
+    /*
     for (const result of report.results) {
       // See https://www.w3.org/TR/shacl/#results-validation-result for details
       // about each property
@@ -60,7 +60,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
       console.log(result.sourceConstraintComponent)
       console.log(result.sourceShape)
     }
-
+*/
     return conforms; 
 }
 

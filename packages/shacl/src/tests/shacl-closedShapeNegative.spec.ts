@@ -8,3 +8,12 @@ test('Test SHACL against data - closed shape NEGATIVE  ', async () => {
   expect(validation).toBe(false);
 
 });
+
+
+test('Shape conforms to SHACL standard - closed shape ', async () => {
+
+  await Support.prepareShape(new ClosedShapeModelCreator(), '../shapes/closedShape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/shapes/closedShape.ttl", "src/tests/shapes/shapeToValidateShapes.ttl");
+  expect(validation).toBe(true);
+
+});
