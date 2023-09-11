@@ -10,14 +10,14 @@ import  JsonSchemaCreator  from "./support/jsonSchemaCreator";
 import JsonLdCreator from "./support/jsonLdCreator";
 import   ModelCreator   from "./support/SimpleObjectModelCreator";
 
-//var mc = new ModelCreator();
-//const sm = mc.createModel();
-//var sc = new ShapeCreator();
-//const shape = sc.createShape(sm);
-//var jsc = new JsonSchemaCreator();
-//const jsonSchema = jsc.createJsonSchema(sm);
-//var jldc = new JsonLdCreator();
-//const jsonLd = jldc.createJsonLD(sm);
+var mc = new ModelCreator();
+const sm = mc.createModel();
+var sc = new ShapeCreator();
+const shape = sc.createShape(sm);
+var jsc = new JsonSchemaCreator();
+const jsonSchema = jsc.createJsonSchema(sm);
+var jldc = new JsonLdCreator();
+const jsonLd = jldc.createJsonLD(sm);
 var result = undefined;
 
 var validationResult : boolean;
@@ -61,7 +61,7 @@ async function main() {
   //const shapes = await loadDataset('src/tests/shape.trig')
   //const data = await loadDataset('src/tests/data.trig')
   const shapes = await loadDataset('src/tests/shapes/shapeToValidateShapes.ttl');
-  const data = await loadDataset('src/tests/shapes/closedShapePositive.ttl');
+  const data = await loadDataset('src/tests/shapes/closedShape.ttl');
   const validator = new SHACLValidator(shapes, { factory });
   const report = await validator.validate(data);
   validationResult = report.conforms;

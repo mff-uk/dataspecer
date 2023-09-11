@@ -79,12 +79,13 @@ Core Constraint Components
         4.8.1 sh:closed, sh:ignoredProperties - for DISCUSSION
         4.8.2 sh:hasValue - Is for checking specific values at the ends of paths = WILL NOT BE IMPLEMENTED
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
+DONE použít knihovnu na vytváření .ttl dokumentu. 
 
 TODO: zalamování sh:comments?
 TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape. - po diskuzi nebude implementováno.
 TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 - myslí si, že je to matematický výraz. Tyto 
 názvy nebudu používat - místo toho vložit cim.
-TODO: použít knihovnu na vytváření .ttl dokumentu. 
+
 */
 
 // Tuple type
@@ -204,15 +205,32 @@ export class ShaclAdapter {
       namedNode('${ root.cimIri}')
     );`);
     
+    if(root.isClosed){
+      const trueStatement = true;
+      newResult = newResult.concat(
+        `this.writer.addQuad(
+          namedNode('${ classNameIri }'),
+          namedNode('http://www.w3.org/ns/shacl#closed'),
+          literal(${trueStatement})
+        );
+        this.writer.addQuad(
+          namedNode('${ classNameIri }'),
+          namedNode('http://www.w3.org/ns/shacl#ignoredProperties'),
+          this.writer.list([
+            namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          ])
+        );`);
+    }
+
     const languageDesc = root.humanDescription;
     for (const languageTag in languageDesc) {
       const language = languageDesc[languageTag];
       if(languageDesc != null){
         newResult = newResult.concat(`
         this.writer.addQuad(
-          namedNode('${ classNameIri}'),
+          namedNode('${ classNameIri }'),
           namedNode('http://www.w3.org/2000/01/rdf-schema#comment'),
-          literal('${ language}', '${ languageTag}')
+          literal('${ language }', '${ languageTag }')
         );
         `);
       }
@@ -380,10 +398,6 @@ export class ShaclAdapter {
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
             }
-            return `{
-              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode('${simpleTypeMapIRI[dtcasted.dataType]}')
-            }`;
             return `{
               predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
               object:    namedNode('${simpleTypeMapIRI[dtcasted.dataType]}')

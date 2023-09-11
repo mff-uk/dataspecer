@@ -53,12 +53,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
     for (const result of report.results) {
       // See https://www.w3.org/TR/shacl/#results-validation-result for details
       // about each property
-      console.log(result.message)
-      console.log(result.path)
-      console.log(result.focusNode)
-      console.log(result.severity)
-      console.log(result.sourceConstraintComponent)
-      console.log(result.sourceShape)
+      console.log("File: " + dataFileName + "\nMessage: " + result.message + "\nPath: " + result.path + "\nfocusNode: " + result.focusNode + "\nresult.severity: " + result.severity + "\nSourceConstraintComponent: " + result.sourceConstraintComponent + "\nSourceShape: " + result.sourceShape);
     }
 
     return conforms; 

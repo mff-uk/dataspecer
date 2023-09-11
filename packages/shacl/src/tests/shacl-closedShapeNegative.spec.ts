@@ -1,6 +1,6 @@
 import * as Support from "./support/testSupport";
 import ClosedShapeModelCreator from "./support/ClosedShapeModelCreator";
-/*
+
 test('Test SHACL against data - closed shape NEGATIVE  ', async () => {
 
   await Support.prepareShape(new ClosedShapeModelCreator(), '../shapes/closedShape.ttl');
@@ -8,7 +8,7 @@ test('Test SHACL against data - closed shape NEGATIVE  ', async () => {
   expect(validation).toBe(false);
 
 });
-*/
+
 
 test('Shape conforms to SHACL standard - closed shape ', async () => {
 

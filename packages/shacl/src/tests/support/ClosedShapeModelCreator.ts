@@ -53,6 +53,7 @@ class ClosedShapeModelCreator implements ModelCreator{
       class1.specification = null;
       class1.structureSchema = null;
       class1.technicalLabel = "Technický popisek class 1";
+      class1.isClosed = true;
   
       var root1 : StructureModelSchemaRoot;
       root1 = new StructureModelSchemaRoot();
