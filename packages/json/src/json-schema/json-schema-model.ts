@@ -25,6 +25,11 @@ export class JsonSchemaObject extends JsonSchemaDefinition {
 
   required: string[] = [];
 
+  /**
+   * If true, sets additionalProperties to false.
+   */
+  noAdditionalProperties = false;
+
   constructor() {
     super(JsonSchemaObject.TYPE);
   }
