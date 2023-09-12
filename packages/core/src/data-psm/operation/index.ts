@@ -21,6 +21,7 @@ export * from "./data-psm-set-human-label";
 export * from "./data-psm-set-dematerialized";
 export * from "./data-psm-set-external-root-types";
 export * from "./data-psm-set-interpretation";
+export * from "./data-psm-set-is-closed";
 export * from "./data-psm-set-order";
 export * from "./data-psm-set-part";
 export * from "./data-psm-set-roots";

@@ -2,7 +2,26 @@ import React, {memo, useCallback, useEffect, useState} from "react";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {SetTechnicalLabel} from "../../../operations/set-technical-label";
 import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
-import {Alert, Box, Button, Card, Checkbox, Collapse, FormControlLabel, FormGroup, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    Checkbox,
+    Collapse,
+    FormControl,
+    FormControlLabel,
+    FormGroup,
+    Grid,
+    IconButton, Radio, RadioGroup,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography
+} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue} from "../../helper/datatype-selector";
 import {knownDatatypes} from "../../../utils/known-datatypes";
@@ -23,6 +42,7 @@ import { RegexField } from "../../helper/regex-field";
 import { StringExamplesField } from "../../helper/string-examples-field";
 import { SetRegex } from "../../../operations/set-regex";
 import { SetExample } from "../../../operations/set-example";
+import {SetIsClosed} from "../../../operations/set-is-closed";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -164,6 +184,29 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         ),
     );
 
+    // region class is closed
+
+    const [isClassClosed, setIsClassClosed] = useState<boolean | null>(null);
+    let isSourceClassClosed: boolean | null = null;
+    if (isClass) {
+        isSourceClassClosed = (resource as unknown as DataPsmClass).dataPsmIsClosed ?? null;
+    }
+
+    useEffect(() => {
+        if (isClass) {
+            setIsClassClosed(isSourceClassClosed);
+        }
+    }, [isSourceClassClosed, isClass]);
+
+    useSaveHandler(
+        isClass && isSourceClassClosed !== isClassClosed,
+        useCallback(
+            async () => resource && await store.executeComplexOperation(new SetIsClosed(resource.iri as string, isClassClosed)),
+            [resource, store, isClassClosed]
+        ),
+    );
+
+    // endregion class is closed
     return <>
         <Box sx={{mb: 3}}>
             <Typography variant="subtitle1" component="h2">
@@ -311,7 +354,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
                 <Alert severity="info">{t('dematerialization.help')}</Alert>
                 <Alert severity={
-                    isAssociationDematerialized ? (
+                    isClassClosed ? (
                         (cardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
                     ): "info"
                 }>{t('dematerialization.cardinality restriction')}</Alert>
@@ -319,8 +362,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 {/* "Set dematerialized" checkbox */}
                 <FormControlLabel
                     control={<Checkbox
-                        checked={isAssociationDematerialized}
-                        onChange={event => setIsAssociationDematerialized(event.target.checked)}
+                        checked={isClassClosed}
+                        onChange={event => setIsClassClosed(event.target.checked)}
                     />}
                     label={t('dematerialization.checkbox') as string}
                 />
@@ -330,5 +373,20 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         {(isStringDatatype || isClass) &&
             <StringExamplesField value={examples} onChange={setExamples} disabled={pimReadOnly} regex={regex} />
         }
+
+        {isClass && <FormControl>
+            <Typography variant="subtitle1" component="h2">
+                {t('class-closed.title')}
+            </Typography>
+            <RadioGroup
+                row
+                value={isClassClosed === true ? "true" : isClassClosed === false ? "false" : "null"}
+                onChange={el => setIsClassClosed(el.target.value === "true" ? true : el.target.value === "false" ? false : null)}
+            >
+                <FormControlLabel value="true" control={<Radio />} label={t('class-closed.yes')} />
+                <FormControlLabel value="false" control={<Radio />} label={t('class-closed.no')} />
+                <FormControlLabel value="null" control={<Radio />} label={t('class-closed.implicit')} />
+            </RadioGroup>
+        </FormControl>}
     </>
 });

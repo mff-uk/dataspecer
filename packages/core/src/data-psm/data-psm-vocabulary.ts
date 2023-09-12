@@ -103,6 +103,8 @@ export const SET_HUMAN_LABEL = PSM + "SetHumanLabel";
 
 export const SET_INTERPRETATION = PSM + "SetInterpretation";
 
+export const SET_IS_CLOSED = PSM + "SetIsClosed";
+
 export const SET_ORDER = PSM + "SetOrder";
 
 export const SET_PART = PSM + "SetPart";
