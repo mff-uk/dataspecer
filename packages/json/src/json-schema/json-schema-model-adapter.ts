@@ -227,9 +227,18 @@ function structureModelPropertyToJsonDefinition(
     result.types = dataTypes;
   }
   //
-  result.title = context.stringSelector(property.humanLabel);
-  result.description = context.stringSelector(property.humanDescription);
-  return wrapWithCardinality(property, result);
+  const wrapped = wrapWithCardinality(property, result);
+
+  const title = context.stringSelector(property.humanLabel);
+  if (title && title.length > 0) {
+    wrapped.title = title;
+  }
+  const description = context.stringSelector(property.humanDescription);
+  if (description && description.length > 0) {
+    wrapped.description = description;
+  }
+
+  return wrapped;
 }
 
 function wrapWithCardinality(
