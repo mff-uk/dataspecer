@@ -45,6 +45,7 @@ test("Create data PSM class.", async () => {
       dataPsmHumanDescription: operation.dataPsmHumanDescription,
       dataPsmExtends: operation.dataPsmExtends,
       dataPsmParts: [],
+      dataPsmIsClosed: operation.dataPsmIsClosed,
     },
   });
   expect(actual.changed).toEqual({
