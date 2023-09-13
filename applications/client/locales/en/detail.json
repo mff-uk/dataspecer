@@ -7,6 +7,12 @@
   "cardinality custom": "custom",
   "cardinality custom title": "Custom cardinality",
   "cardinality infinity": "infinity",
+  "class-closed": {
+    "title": "Additional class properties",
+    "yes": "closed",
+    "no": "open",
+    "implicit": "implicit value"
+  },
   "codelist": "codelist",
   "codelist url": "codelist url",
   "confirm": "confirm",

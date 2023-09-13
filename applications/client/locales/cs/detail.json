@@ -7,6 +7,12 @@
   "cardinality custom": "vlastní",
   "cardinality custom title": "Vlastní kardinalita",
   "cardinality infinity": "nekonečno",
+  "class-closed": {
+    "title": "Otevřenost třídy vůči dalším vlastnostem",
+    "yes": "uzavřená",
+    "no": "otevřená",
+    "implicit": "výchozí hodnota"
+  },
   "codelist": "Číselník",
   "codelist url": "URL číselníku",
   "confirm": "potvrdit",

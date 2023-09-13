@@ -65,6 +65,7 @@ test("Create data PSM schema with class and attribute.", async () => {
     iri: "http://localhost/class/3",
     types: [PSM.CLASS],
     dataPsmInterpretation: dataPsmClass.dataPsmInterpretation,
+    dataPsmIsClosed: dataPsmClass.dataPsmIsClosed,
     dataPsmTechnicalLabel: dataPsmClass.dataPsmTechnicalLabel,
     dataPsmHumanLabel: dataPsmClass.dataPsmHumanLabel,
     dataPsmHumanDescription: dataPsmClass.dataPsmHumanDescription,

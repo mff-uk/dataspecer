@@ -15,6 +15,8 @@ export class DataPsmClass extends DataPsmResource {
 
   dataPsmParts: string[] = [];
 
+  dataPsmIsClosed: boolean | null = null;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmClass.TYPE);

@@ -7,6 +7,8 @@ export class DataPsmCreateClass extends DataPsmCreate {
 
   dataPsmExtends: string[] = [];
 
+  dataPsmIsClosed: boolean | null = null;
+
   constructor() {
     super();
     this.types.push(DataPsmCreateClass.TYPE);

@@ -36,6 +36,7 @@ export async function executeDataPsmCreateClass(
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmExtends = operation.dataPsmExtends;
   result.dataPsmParts = [];
+  result.dataPsmIsClosed = operation.dataPsmIsClosed;
 
   return CoreExecutorResult.createSuccess(
     [result],

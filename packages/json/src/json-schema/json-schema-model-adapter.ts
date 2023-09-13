@@ -139,6 +139,7 @@ function structureModelClassToJsonSchemaDefinition(
   const result = new JsonSchemaObject();
   result.title = context.stringSelector(modelClass.humanLabel);
   result.description = context.stringSelector(modelClass.humanDescription);
+  result.noAdditionalProperties = modelClass.isClosed === true;
   for (const property of modelClass.properties) {
     const name = property.technicalLabel;
     result.properties[name] = structureModelPropertyToJsonDefinition(
@@ -226,9 +227,18 @@ function structureModelPropertyToJsonDefinition(
     result.types = dataTypes;
   }
   //
-  result.title = context.stringSelector(property.humanLabel);
-  result.description = context.stringSelector(property.humanDescription);
-  return wrapWithCardinality(property, result);
+  const wrapped = wrapWithCardinality(property, result);
+
+  const title = context.stringSelector(property.humanLabel);
+  if (title && title.length > 0) {
+    wrapped.title = title;
+  }
+  const description = context.stringSelector(property.humanDescription);
+  if (description && description.length > 0) {
+    wrapped.description = description;
+  }
+
+  return wrapped;
 }
 
 function wrapWithCardinality(
