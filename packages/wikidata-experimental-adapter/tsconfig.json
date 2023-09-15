@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./lib/",
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
