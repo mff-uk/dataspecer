@@ -1,0 +1,71 @@
+@prefix exam: <https://example.com/class1/>.
+@prefix exam1: <https://example.com/class2/>.
+@prefix exam2: <https://example.com/>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+exam1:AdresaShape a sh:NodeShape;
+    sh:targetClass exam1:adresa;
+    rdfs:comment "Adresa bydliště dané osoby"@cs;
+    rdfs:label "Adresa"@cs, "Adres"@pl;
+    sh:property [
+  sh:path exam2:Ulice;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
+], [
+  sh:path exam2:CisloPopisne;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
+], [
+  sh:path exam2:Mesto;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
+], [
+  sh:path exam2:PSC;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
+], [
+  sh:path exam2:Stat;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
+].
+exam2:Narozeni-a-umrtiShape a sh:NodeShape;
+    sh:targetClass exam2:Narozeni_a_umrti_class;
+    rdfs:comment "Datum narození a úmrtí dané osoby"@cs;
+    rdfs:label "Datum narození a úmrtí"@cs, "Date of birth and death"@en;
+    sh:property [
+  sh:path exam2:Narozeni;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#date>
+], [
+  sh:path exam2:Umrti;
+  sh:maxCount 1;
+  sh:datatype <http://www.w3.org/2001/XMLSchema#date>
+].
+exam:OsobaShape a sh:NodeShape;
+    sh:targetClass exam:mojeCimIri;
+    sh:closed true;
+    sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
+    rdfs:comment "Class 1 Popisek 1"@cs;
+    rdfs:label "Class 1 Label 1"@cs;
+    sh:property [
+  sh:path exam2:Adresa;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:node exam1:AdresaShape
+], [
+  sh:path exam2:Jmeno_A_Prijmeni;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:node exam2:AdresaShape
+], [
+  sh:path exam2:Narozeni_a_umrti;
+  sh:minCount 1;
+  sh:maxCount 1;
+  sh:node exam2:Narozeni-a-umrtiShape
+].

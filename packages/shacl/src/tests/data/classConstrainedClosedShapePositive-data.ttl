@@ -1,0 +1,29 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.com/> .
+@prefix exam: <https://example.com/class1/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost/resources/catalog>    a exam:mojeCimIri ;
+                                        ex:Adresa <http://localhost/resources/adresa>;
+                                        ex:Jmeno_A_Prijmeni <http://localhost/resources/jmeno_a_prijmeni>;
+                                        ex:Narozeni_a_umrti <http://localhost/resources/narozeni_a_umrti>.
+<http://localhost/resources/adresa>     a <https://example.com/class2/adresa> ;                                   
+                                        ex:Ulice "Masarykova" ;
+                                        ex:CisloPopisne "23"^^xsd:integer ;
+                                        ex:PSC "73532"^^xsd:integer ;
+                                        ex:Mesto "Rychnov" ;
+                                        ex:Stat "Česká republika";
+                                        ex:datum_nastupu "2002-09-24"^^xsd:date;
+                                        ex:cisloDomu "1223"^^xsd:integer.
+<http://localhost/resources/jmeno_a_prijmeni>   a <https://example.com/Jmeno_A_Prijmeni_class>;
+                                        ex:Jmeno "Zembo";
+                                        ex:Jmeno "Lambo";
+                                        ex:Prijmeni "Vymysleny".
+<http://localhost/resources/narozeni_a_umrti> a ex:Narozeni_a_umrti_class;
+                                        ex:Narozeni "1935-09-24"^^xsd:date;
+                                        ex:Umrti "2002-09-24"^^xsd:date;
+                                        ex:PrvniNarozeniny "1936-09-24"^^xsd:date.
+

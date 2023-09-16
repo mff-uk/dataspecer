@@ -145,7 +145,8 @@ export class ShaclAdapter {
     for(const str of this.shapes){
       this.insidesString = this.insidesString.concat(str);
     }
-    this.scriptString = this.prefixesString + this.insidesString;
+    //this.scriptString = this.prefixesString + this.insidesString;
+    this.scriptString = this.insidesString;
     eval(this.scriptString);
     var resultString = "";
     this.writer.end((error, result) => resultString = result);
@@ -158,7 +159,15 @@ export class ShaclAdapter {
     this.knownPrefixes.push(RDFS_PREFIX_DEF);
     var prefixesString = "";
     let iterations = this.knownPrefixes.length;
-    
+    var prefixesObject: { [key: string]: any } = {};
+
+    for(const tuple of this.knownPrefixes){
+      var newAttribute = tuple[0];
+      prefixesObject[newAttribute] =  tuple[1] ;
+    }
+
+    this.writer  = new N3.Writer({ prefixes: prefixesObject});
+/*
     prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
     for(const tuple of this.knownPrefixes){
       prefixesString = prefixesString.concat(`${ tuple[0] }: '${ tuple[1] }'`);
@@ -167,6 +176,7 @@ export class ShaclAdapter {
       }
     }
     prefixesString = prefixesString.concat(` } });\n`);
+    */
     return prefixesString;
   }
 

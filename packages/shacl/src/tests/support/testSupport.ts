@@ -8,6 +8,7 @@ import  SHACLValidator  from "rdf-validate-shacl";
 import * as Support from "./testSupport";
 import  ShapeCreator  from "./shapeCreator";
 import   ModelCreator   from "./ModelCreatorInterface";
+import { ValidationReport } from 'rdf-validate-shacl/src/validation-report';
 
 export async function prepareShape(mc : ModelCreator, shapeFileName : string): Promise<boolean> {
   const sm = await mc.createModel();
@@ -28,7 +29,7 @@ export async function syncWriteFile(filename: string, data: any): Promise<boolea
   });
 
   const contents = readFileSync(join(__dirname, filename), 'utf-8');
-  console.log(contents); 
+  //console.log(contents); 
 
   return true;
 }
@@ -39,7 +40,7 @@ export async function loadDataset (filePath) {
   return  await factory.dataset().import(parser.import(stream))
 }
 
-export async function validateDataAgainstShape( dataFileName : string, shapeFileName : string ) : Promise<boolean>{
+export async function validateDataAgainstShape( dataFileName : string, shapeFileName : string ) : Promise<ValidationReport<typeof factory>>{
     var conforms = false;
 
     const shapes = await this.loadDataset(shapeFileName);
@@ -56,7 +57,8 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
       console.log("File: " + dataFileName + "\nMessage: " + result.message + "\nPath: " + result.path + "\nfocusNode: " + result.focusNode + "\nresult.severity: " + result.severity + "\nSourceConstraintComponent: " + result.sourceConstraintComponent + "\nSourceShape: " + result.sourceShape);
     }
 
-    return conforms; 
+    //return conforms;
+    return report; 
 }
 
 

@@ -1,5 +1,6 @@
 import { structureModelToJsonSchema } from "../../../../json/src/json-schema/json-schema-model-adapter";
 import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
+import * as Support from "./testSupport";
 import {
     StructureModel,
     StructureModelClass,
@@ -103,11 +104,14 @@ class JsonSchemaCreator{
         );
         console.log("Model .... " + JSON.stringify(model, null, 2));
       console.log("Actual .... " + JSON.stringify(actual, null, 2));
+      console.log(model);
+      console.log(actual);
       const stream = new MemoryOutputStream();
       // FOR SCHEMA OUTPUT TO STDOUT
         await writeJsonSchema(actual, stream);
         console.log(stream.getContent());
       // FOR JSONLD OUTPUT TO STDOUT
+        Support.syncWriteFile('../data/schema.json', JSON.stringify(model, null, 2));
         await writeJsonLd(model, stream);
         await stream.close();
         const jsonSchemaGenerator = structureModelToJsonSchema({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
