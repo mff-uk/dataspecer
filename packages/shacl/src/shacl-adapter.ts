@@ -126,7 +126,7 @@ export class ShaclAdapter {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
-    //this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
+    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
   }
 
   public generate = async () => {
@@ -147,7 +147,7 @@ export class ShaclAdapter {
     }
     //this.scriptString = this.prefixesString + this.insidesString;
     this.scriptString = this.insidesString;
-    eval(this.scriptString);
+    //eval(this.scriptString);
     var resultString = "";
     this.writer.end((error, result) => resultString = result);
     return { data: resultString };
@@ -166,7 +166,7 @@ export class ShaclAdapter {
       prefixesObject[newAttribute] =  tuple[1] ;
     }
 
-    this.writer  = new N3.Writer({ prefixes: prefixesObject});
+    //this.writer  = new N3.Writer({ prefixes: prefixesObject});
 /*
     prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
     for(const tuple of this.knownPrefixes){
@@ -203,46 +203,43 @@ export class ShaclAdapter {
 
   generateNodeShapeHead(root: StructureModelClass, classNameIri: string): string {
     var newResult = "";
-    newResult = newResult.concat(
-    `this.writer.addQuad(
-      namedNode('${ classNameIri}'),
+    this.writer.addQuad(
+      namedNode( classNameIri),
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
     this.writer.addQuad(
-      namedNode('${ classNameIri}'),
+      namedNode( classNameIri),
       namedNode('http://www.w3.org/ns/shacl#targetClass'),
-      namedNode('${ root.cimIri}')
-    );`);
+      namedNode( root.cimIri)
+    );
     
     if(root.isClosed){
       const trueStatement = true;
-      newResult = newResult.concat(
-        `this.writer.addQuad(
-          namedNode('${ classNameIri }'),
+      this.writer.addQuad(
+          namedNode( classNameIri ),
           namedNode('http://www.w3.org/ns/shacl#closed'),
-          literal(${trueStatement})
+          literal(trueStatement)
         );
         this.writer.addQuad(
-          namedNode('${ classNameIri }'),
+          namedNode( classNameIri ),
           namedNode('http://www.w3.org/ns/shacl#ignoredProperties'),
           this.writer.list([
             namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
           ])
-        );`);
+        );
     }
 
     const languageDesc = root.humanDescription;
     for (const languageTag in languageDesc) {
       const language = languageDesc[languageTag];
       if(languageDesc != null){
-        newResult = newResult.concat(`
         this.writer.addQuad(
-          namedNode('${ classNameIri }'),
+          namedNode( classNameIri ),
           namedNode('http://www.w3.org/2000/01/rdf-schema#comment'),
-          literal('${ language }', '${ languageTag }')
+          literal(language , languageTag )
         );
-        `);
+        
       }
     }
 
@@ -250,13 +247,11 @@ export class ShaclAdapter {
     for (const languageTag in languageLabel) {
       const language = languageLabel[languageTag];
       if(languageLabel != null){
-        newResult = newResult.concat(`
         this.writer.addQuad(
-          namedNode('${ classNameIri}'),
+          namedNode(classNameIri),
           namedNode('http://www.w3.org/2000/01/rdf-schema#label'),
-          literal('${ language}', '${ languageTag}')
+          literal(language,  languageTag)
         );
-        `);
       } 
     }
     return newResult;
@@ -309,21 +304,69 @@ export class ShaclAdapter {
         const demat = prop.dematerialize;
         const isreverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
-        propDesc = propDesc.concat(`
-        this.writer.addQuad(
-          namedNode('${classNameIri}'),
-          namedNode('http://www.w3.org/ns/shacl#property'),
-          this.writer.blank([
-            {
-            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-            object:    namedNode('${cimiri}'),
-            },`);
         
+        var blankNodes = [];
+
+          if(cardinalitymin != 0 && cardinalitymin != null){
+            blankNodes.push({
+              predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
+              object:    literal(cardinalitymin)
+            });
+          }
+          if(cardinalitymax != 0 && cardinalitymax != null) {
+            blankNodes.push({
+              predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
+              object:    literal(cardinalitymax)
+            });
+          }
+          blankNodes.push({
+            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+            object:    namedNode(cimiri),
+            });
+
+          this.getObjectForPropType(prop.dataTypes, blankNodes);
+          
+
+          this.writer.addQuad(
+            namedNode(classNameIri),
+            namedNode('http://www.w3.org/ns/shacl#property'),
+            this.writer.blank(blankNodes));
+/*
+          this.writer.addQuad(
+            namedNode(classNameIri),
+            namedNode('http://www.w3.org/ns/shacl#property'),
+            this.writer.blank([
+              {
+              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+              object:    namedNode(cimiri),
+              }
+            ]));
+            */
+/*
+          this.writer.addQuad(
+            namedNode(classNameIri),
+            namedNode('http://www.w3.org/ns/shacl#property'),
+            this.writer.blank([
+              {
+              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+              object:    namedNode(cimiri),
+              },
+              (cardinalitymin != 0 && cardinalitymin != null) ? {
+                predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
+                object:    literal(cardinalitymin)
+              } : {},
+              (cardinalitymax != 0 && cardinalitymax != null) ? {
+                  predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
+                  object:    literal(cardinalitymax)
+                } : {},
+              this.getObjectForPropType(prop.dataTypes)
+            ]));
+        */
         propDesc = propDesc.concat(this.getObjectForPropMin(cardinalitymin));
         propDesc = propDesc.concat(this.getObjectForPropMax(cardinalitymax));
-        propDesc = propDesc.concat(this.getObjectForPropType(prop.dataTypes));
+        //propDesc = propDesc.concat(this.getObjectForPropType(prop.dataTypes));
         
-        propDesc = propDesc.concat(`]));`);
+        propDesc = propDesc.concat(``);
         
 
           /*
@@ -383,7 +426,7 @@ export class ShaclAdapter {
   }
 
 
-  protected getObjectForPropType(datatypes: StructureModelType[]): string {
+  protected getObjectForPropType(datatypes: StructureModelType[], blankNodes: any[]): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -391,10 +434,15 @@ export class ShaclAdapter {
         const dtcasted = <StructureModelComplexType> dt;
         const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
         const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
-        return `{
+
+        var splitted = dtcasted.dataType.cimIri.split("/", 100); 
+        var name = splitted[splitted.length-1];
+        var prefix = dtcasted.dataType.cimIri.substring(0, dtcasted.dataType.cimIri.length - name.length);
+        const shapeName = prefix + nameForAnotherClass;
+        blankNodes.push({
           predicate: namedNode('http://www.w3.org/ns/shacl#node'),
-          object:    namedNode('${ namedNodeString}')
-        }`;
+          object:    namedNode( shapeName )
+        });
         
       } else if(dt.isAttribute() == true){
         // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
@@ -408,19 +456,17 @@ export class ShaclAdapter {
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
             }
-            return `{
+            blankNodes.push( {
               predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode('${simpleTypeMapIRI[dtcasted.dataType]}')
-            }`;
+              object:    namedNode(simpleTypeMapIRI[dtcasted.dataType])
+            });
           } else{
             if(dtcasted.dataType != null){
-            return `{
+            blankNodes.push( {
               predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode('${dtcasted.dataType}')
-            }`;
-          } else {
-            return "";
-          }
+              object:    namedNode(dtcasted.dataType)
+            });
+          } 
           }
         
           /*
@@ -436,18 +482,14 @@ export class ShaclAdapter {
         // CUSTOM TYPE IS NOT USED AT THE MOMENT
         const dtcasted = <StructureModelCustomType> dt;
         if(dtcasted != null){
-        return `{
+        blankNodes.push( {
           predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
           object:    namedNode('${ dtcasted.data}')
-        }`;}
+        });}
         //propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
-      } else{
-        return ``;
+      };
         //throw new Error("Datatype must be one of the 3 basic types.");
-      }
-      
-    
-  }
+    }
   }
   /*
   unpackLanguageString(languageString: LanguageString): typeof literal {
