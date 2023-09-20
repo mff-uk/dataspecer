@@ -1,9 +1,13 @@
 {
-  "name": "@dataspecer/new-core",
+  "name": "@dataspecer/core-v2",
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
     "prebuild": "rimraf lib"
+  },
+  "exports": {
+    "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
+    "./semantic-model/model": "./lib/semantic-model/model/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*"

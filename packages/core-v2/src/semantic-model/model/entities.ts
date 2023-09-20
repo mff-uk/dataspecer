@@ -1,5 +1,23 @@
-import {Resource} from "../model/resource";
-import {NamedThing} from "./helper";
+/**
+ * Base entity.
+ */
+export type Entity = {
+    id: string;
+    [key: string]: any;
+}
+
+/**
+ * A human text that is translated into multiple languages.
+ *
+ * Keys are ISO 639-1 language codes.
+ */
+export type LanguageString = { [key: string]: string };
+
+export interface NamedThing {
+    name?: LanguageString;
+    alias?: LanguageString;
+    description?: LanguageString;
+}
 
 /**
  * Represent classes, enumerations and simple data types.
