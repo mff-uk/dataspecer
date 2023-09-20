@@ -9,6 +9,7 @@ import {coy} from "react-syntax-highlighter/dist/esm/styles/prism";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
+import turtle from 'react-syntax-highlighter/dist/esm/languages/prism/turtle';
 import {useAsyncMemo} from "../../hooks/use-async-memo";
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -17,6 +18,11 @@ SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("xsd", xml);
 SyntaxHighlighter.registerLanguage("xslt", xml);
 PrismSyntaxHighlighter.registerLanguage("sparql", sparql);
+PrismSyntaxHighlighter.registerLanguage("turtle", turtle);
+
+const EXTENSION_TO_LANGUAGE: {[key: string]: string} = {
+    ttl: "turtle",
+}
 
 /**
  * Component that renders single artifact result by generator id.
@@ -52,8 +58,8 @@ export const SingleArtifactPreview: React.FC<{
     return <>
         {files?.map(file => <Box sx={{whiteSpace: "pre"}}>
             <Typography variant="h5" sx={{mb: 2}}>{file.filename}</Typography>
-            {["sparql"].includes(file.extension) ?
-            <PrismSyntaxHighlighter language={file.extension} style={coy}>{file.content}</PrismSyntaxHighlighter>
+            {["sparql", "ttl"].includes(file.extension) ?
+            <PrismSyntaxHighlighter language={EXTENSION_TO_LANGUAGE[file.extension] ?? file.extension} style={coy}>{file.content}</PrismSyntaxHighlighter>
             :
             <SyntaxHighlighter language={file.extension} style={githubGist}>{file.content}</SyntaxHighlighter>
             }
