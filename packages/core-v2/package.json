@@ -7,10 +7,12 @@
   },
   "exports": {
     "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
-    "./semantic-model/model": "./lib/semantic-model/model/index.js"
+    "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
+    "./semantic-model/simplified": "./lib/semantic-model/simplified/index.js"
   },
   "dependencies": {
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "@dataspecer/sgov-adapter": "*"
   },
   "devDependencies": {
     "rimraf": "^5.0.1",

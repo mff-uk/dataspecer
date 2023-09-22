@@ -1,15 +1,17 @@
-import {Entity} from "../model/entities";
-import {SemanticModel} from "../model";
+import {Entity} from "../../entity-model/entity";
+
+import {EntityModel} from "../../entity-model";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
  * aggregation was performed.
  */
 interface AggregatedEntityWrapper {
-    id: string;
+    iri: string;
     aggregatedEntity: Entity | null;
-    isLoading: boolean;
 }
+
+type SupportedModels = EntityModel;
 
 /**
  * Aggregates multiple models (the model graph] describing the semantics (concepts and their relations) into one.
@@ -23,19 +25,19 @@ interface SemanticModelAggregator {
      * @todo for now, only accepts one model
      * @param model
      */
-    addModel(model: SemanticModel): void;
+    addModel(model: SupportedModels): void;
 
     /**
      * Returns the specific view.
      * @todo option to choose the view
      */
-    getView(): SemanticModelAggregatorView;
+    getView(toModel: SupportedModels): SemanticModelAggregatorView;
 }
 
 class SemanticModelAggregatorInternal implements SemanticModelAggregator {
-    model: SemanticModel | null = null;
+    model: EntityModel | null = null;
 
-    addModel(model: SemanticModel) {
+    addModel(model: SupportedModels) {
         if (this.model != null) {
             throw new Error('Not implemented yet.');
         }
@@ -43,7 +45,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         this.model = model;
     };
 
-    getView(): SemanticModelAggregatorView {
+    getView(toModel: SupportedModels): SemanticModelAggregatorView {
         if (this.model == null) {
             throw new Error('Not implemented yet. First add model.');
         }
@@ -77,7 +79,9 @@ export class SemanticModelAggregatorView {
      * Returns all entities aggregated.
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
-        return this.aggregator.model?.getEntities() ?? {};
+        // todo temporary
+        return Object.fromEntries(Object.values(this.aggregator.model?.getEntities() ?? {})
+            .map(entity => [entity.iri, {iri: entity.iri, aggregatedEntity: entity} as AggregatedEntityWrapper]));
     };
 
     /**
@@ -86,6 +90,15 @@ export class SemanticModelAggregatorView {
      * @returns Function that can be called to unsubscribe from changes
      */
     subscribeToChanges(callback: (updated: Record<string, AggregatedEntityWrapper>, removed: string[]) => void): () => void {
-        return this.aggregator.model?.subscribeToChanges(callback) ?? (() => {});
+        // todo temporary
+        return this.aggregator.model?.subscribeToChanges((updated, removed) => callback(
+            Object.fromEntries(Object.values(updated)
+                .map(entity => [entity.iri, {iri: entity.iri, aggregatedEntity: entity} as AggregatedEntityWrapper])),
+            removed
+        )) ?? (() => {});
+    }
+
+    changeView(toModel: SupportedModels) {
+        throw new Error('Not implemented yet.');
     }
 }
