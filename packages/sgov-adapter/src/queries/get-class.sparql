@@ -14,7 +14,21 @@ CONSTRUCT {
 } WHERE {
   ?node a z:typ-objektu .
   OPTIONAL { ?node skos:prefLabel ?label . }
-  OPTIONAL { ?node rdfs:subClassOf ?ancestor . }
+  OPTIONAL {
+    ?node rdfs:subClassOf ?ancestor .
+    ?ancestor a z:typ-objektu .
+    FILTER NOT EXISTS {
+        ?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+    }
+
+    OPTIONAL {
+        ?ancestor rdfs:subClassOf ?elementParent .
+        ?elementParent skos:inScheme [] .
+        FILTER NOT EXISTS {
+            ?elementParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+        }
+    }
+  }
   OPTIONAL { ?node skos:definition ?definition . }
   OPTIONAL { ?node skos:scopeNote ?definition . }
   OPTIONAL { ?node skos:inScheme ?glossary . }
