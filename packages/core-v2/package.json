@@ -1,0 +1,21 @@
+{
+  "name": "@dataspecer/core-v2",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf lib"
+  },
+  "exports": {
+    "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
+    "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
+    "./semantic-model/simplified": "./lib/semantic-model/simplified/index.js"
+  },
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "@dataspecer/sgov-adapter": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
+  }
+}
