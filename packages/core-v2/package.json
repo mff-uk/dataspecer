@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/sgov-adapter": "*"
+    "@dataspecer/sgov-adapter": "*",
+    "@dataspecer/backend-utils": "*",
+    "@dataspecer/rdfs-adapter": "*"
   },
   "devDependencies": {
     "rimraf": "^5.0.1",

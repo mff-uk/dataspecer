@@ -1,7 +1,7 @@
 import {IriProvider} from "@dataspecer/core/cim";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {SgovAdapter} from "@dataspecer/sgov-adapter";
-import {CimAdapterWrapper} from "../async-queryable/cim-adapter-wrapper";
+import {CimAdapterWrapper} from "../v1-adapters/cim-adapter-wrapper";
 import {ExternalSemanticModel} from "./external-semantic-model";
 import {SimpleAsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/implementation";
 

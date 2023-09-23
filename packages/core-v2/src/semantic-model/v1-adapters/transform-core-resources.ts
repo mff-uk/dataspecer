@@ -1,11 +1,7 @@
-import {CimAdapter} from "@dataspecer/core/cim/cim-adapter";
-import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
-import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/concepts";
-import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/model";
-import {Entities} from "../../entity-model/entity";
-import {SearchQueryEntity} from "./queries";
-
+import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts";
+import {Entities} from "../../entity-model";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
+import { CoreResource } from "@dataspecer/core/core";
 
 const GENERALIZATION_PREFIX = "https://dataspecer.com/semantic-models/generalization";
 
@@ -23,7 +19,7 @@ function createGeneralization(fromIri: string, toIri: string): SemanticModelGene
     }
 }
 
-function transformPimClass(cls: PimClass) {
+export function transformPimClass(cls: PimClass) {
     const result: Entities = {};
 
     result[cls.iri as string] = {
@@ -40,20 +36,18 @@ function transformPimClass(cls: PimClass) {
     return result;
 }
 
-function transformCoreResourceReader(reader: CoreResourceReader) {
+export function transformCoreResources(resources: Record<string, CoreResource>) {
     let result: Entities = {};
 
-    const syncReader = reader as unknown as { resources: { [iri: string]: CoreResource } };
-
     // Transform classes
-    for (const resource of Object.values(syncReader.resources)) {
+    for (const resource of Object.values(resources)) {
         if (PimClass.is(resource)) {
             // Merge transform pim class into result
             result = {...result, ...transformPimClass(resource)};
         }
         if (PimAssociation.is(resource)) {
-            const left = syncReader.resources[resource.pimEnd[0]] as PimAssociationEnd;
-            const right = syncReader.resources[resource.pimEnd[1]] as PimAssociationEnd;
+            const left = resources[resource.pimEnd[0]] as PimAssociationEnd;
+            const right = resources[resource.pimEnd[1]] as PimAssociationEnd;
             const association = {
                 iri: resource.iri as string,
                 type: ["relationship"],
@@ -104,46 +98,4 @@ function transformCoreResourceReader(reader: CoreResourceReader) {
     }
 
     return result;
-}
-
-/**
- * Adapter from {@link CimAdapter} from core version 1 to the {@link AsyncQueryableObservableEntityModel} from core version 2.
- */
-export class CimAdapterWrapper implements AsyncQueryableEntityModel {
-    private cimAdapter: CimAdapter;
-
-    constructor(cimAdapter: CimAdapter) {
-        this.cimAdapter = cimAdapter;
-    }
-
-    async query(queryIri: string): Promise<Entities> {
-        if (queryIri.startsWith("surroundings:")) {
-            const iri = queryIri.substring("surroundings:".length);
-            const reader = await this.cimAdapter.getSurroundings(iri);
-            return  transformCoreResourceReader(reader);
-        }
-        if (queryIri.startsWith("search:")) {
-            const searchQuery = queryIri.substring("search:".length);
-            const result = await this.cimAdapter.search(searchQuery);
-            const searchResult = {
-                iri: queryIri,
-                type: ["search-results"],
-                order: result.map(cls => cls.iri),
-            } as SearchQueryEntity;
-            return {
-                [queryIri]: searchResult,
-                ...Object.fromEntries(result.map(r => [r.iri, r])),
-            }
-        }
-        if (queryIri.startsWith("class:")) {
-            const iri = queryIri.substring("class:".length);
-            const pimClass = await this.cimAdapter.getClass(iri);
-            if (pimClass) {
-                return transformPimClass(pimClass);
-            } else {
-                return {};
-            }
-        }
-        throw new Error(`Query ${queryIri} is not supported.`);
-    }
 }
