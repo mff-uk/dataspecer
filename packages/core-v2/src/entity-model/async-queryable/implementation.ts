@@ -72,6 +72,8 @@ export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityMod
             }
         }
 
+        delete this.queries[queryIri];
+
         this.change({}, removedIris);
     }
 
