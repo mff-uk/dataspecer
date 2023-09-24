@@ -1,0 +1,26 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  <__search_results> <__has_search_result> ?item .
+	?item rdfs:label ?itemLabel ;
+		schema:description ?itemDescription ;
+		rdfs:subClassOf ?subClassOf .
+} WHERE {
+ VALUES ?item {
+    %CLASS%
+  }
+  SERVICE wikibase:label { 
+    bd:serviceParam wikibase:language "en". 
+  }
+  OPTIONAL { 
+    ?item schema:description ?itemDescription . 
+    FILTER(LANG(?itemDescription) = "en")
+  }
+  OPTIONAL {
+   ?item p:P279 ?statement .
+   ?statement ps:P279 ?subClassOf . 
+  }
+}

@@ -25,3 +25,23 @@ export const XSD = {
   dateTimeStamp: XSD_PREFIX + "dateTimeStamp",
   anyURI: XSD_PREFIX + "anyURI",
 };
+
+export const RDF = {
+  type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+};
+
+export const RDFS = {
+  subClassOf: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+  domain: "http://www.w3.org/2000/01/rdf-schema#domain",
+  range: "http://www.w3.org/2000/01/rdf-schema#range",
+  label: "http://www.w3.org/2000/01/rdf-schema#label",
+};
+
+export const SCHEMA = {
+  description: "http://schema.org/description",
+}
+
+
+export const WIKIDATA_SPARQL_FREE_VAR_PREFIX = "http://query.wikidata.org/bigdata/namespace/wdq/"
+
+export const WIKIDATA_ENTITY_PREFIX = "http://www.wikidata.org/entity/";
