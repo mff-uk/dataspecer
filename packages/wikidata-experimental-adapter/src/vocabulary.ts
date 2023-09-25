@@ -41,11 +41,19 @@ export const SCHEMA = {
   description: "http://schema.org/description",
 }
 
-
 export const WIKIDATA_SPARQL_FREE_VAR_PREFIX = "http://query.wikidata.org/bigdata/namespace/wdq/";
 
 export const WIKIDATA_ENTITY_PREFIX = "http://www.wikidata.org/entity/";
 
 export const WIKIDATA = {
   item: WIKIDATA_ENTITY_PREFIX + "Q16222597",
+  valueTypeConstraint: WIKIDATA_ENTITY_PREFIX + "Q21510865",
+  subjectTypeConstraint: WIKIDATA_ENTITY_PREFIX + "Q21503250",
+}
+
+export const WIKIBASE_TYPE_PREFIX = "http://wikiba.se/ontology#";
+
+export const WIKIBASE = {
+  wikibaseItem: WIKIBASE_TYPE_PREFIX + "WikibaseItem",
+  propertyType: WIKIBASE_TYPE_PREFIX + "propertyType",
 }

@@ -3,6 +3,7 @@ import search from "./sparql-queries/search.sparql";
 import getClass from "./sparql-queries/get-class.sparql";
 import getSurroundingsParents from "./sparql-queries/get-surroundings-parents.sparql";
 import getSurroundingsChildren from "./sparql-queries/get-surroundings-children.sparql";
+import getSurroundingsOutwardAssociations from "./sparql-queries/get-surroundings-outward-associations.sparql"
 import getFullHierarchyChildren from "./sparql-queries/get-full-hierarchy-children.sparql";
 import getFullHierarchyParents from "./sparql-queries/get-full-hierarchy-parents.sparql";
 import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
@@ -15,6 +16,7 @@ import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
 import { loadWikidataItem, isWikidataItem } from "./entity-adapters/sparql-wikidata-item-adapter";
 import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
+import { loadWikidataAssociationOrAttribute } from "./entity-adapters/sparql-wikidata-association-attribute-adapter";
 
 const getSurroundingsParentsAndChilren = [
      getClass,
@@ -22,10 +24,14 @@ const getSurroundingsParentsAndChilren = [
      getSurroundingsParents,
 ];
 
+const getSurroundingsAssociations = [
+    getSurroundingsOutwardAssociations,
+]
+
 const getFullHierarchy = [
     getClass,
     getFullHierarchyParents,
-    getFullHierarchyChildren,
+    //getFullHierarchyChildren,
 ]
 
 const searchQuery = (searchString: string) => search({query: `"${jsStringEscape(searchString)}"`});
@@ -35,6 +41,8 @@ const getClassQuery = (cimIri: string) => getClass({class: `<${cimIri}>`});
 const getSurroundingsParentsAndChilrenQuery = (cimIri: string) => getSurroundingsParentsAndChilren.map(q => q({class: `<${cimIri}>`}));
 
 const getFullHierarchyQuery = (cimIri: string) => getFullHierarchy.map(q => q({class: `<${cimIri}>`}));
+
+const getSurroundingsAssociationsQuery = (cimIri: string) => getSurroundingsAssociations.map(q => q({class: `<${cimIri}>`}));
 
 const IRI_REGEXP = new RegExp("^http://www.wikidata.org/entity/Q[1-9][0-9]*$");
 
@@ -79,7 +87,6 @@ export class WikidataAdapter implements CimAdapter {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        console.log(searchString);
         const source = new SparqlQueryRdfSource(
             this.httpFetch,
             this.WIKIDATA_SPARQL_ENDPOINT,
@@ -137,12 +144,27 @@ export class WikidataAdapter implements CimAdapter {
             throw new Error("Missing IRI provider.");
         }
         
-        const sources = getSurroundingsParentsAndChilrenQuery(cimIri).map(
+        // Associations queries.
+        const associationsSources = getSurroundingsAssociationsQuery(cimIri).map(
             (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
         );
-        await Promise.all(sources.map((q) => q.query()));
-        const source = FederatedSource.createExhaustive(sources);
-        const resources = await this.loadChildrenAndParentsFromEntity(cimIri, source);
+        const associationsFinishPromise = Promise.all(associationsSources.map((q) => q.query()));
+        
+        // Parents and children queries.
+        const parentsChildrenSources = getSurroundingsParentsAndChilrenQuery(cimIri).map(
+            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
+        );
+        const parentsChildrenFinishPromise = Promise.all(parentsChildrenSources.map((q) => q.query()));
+
+        // Work on parents because associations queries take longer.
+        await parentsChildrenFinishPromise;
+        const parentsChildrenSource = FederatedSource.createExhaustive(parentsChildrenSources);
+        let resources = await this.loadChildrenAndParentsFromEntity(cimIri, parentsChildrenSource);
+
+        await associationsFinishPromise;
+        const associationsSource = FederatedSource.createExhaustive(associationsSources);
+        resources = await this.loadAssociationsAndItsTypesFromEntity(cimIri, associationsSource, resources);
+
         return ReadOnlyMemoryStore.create(resources);
     }
 
@@ -179,15 +201,12 @@ export class WikidataAdapter implements CimAdapter {
         let cimIrisToProcess = [rootClassCimIri];
         while (cimIrisToProcess.length) {
             const processedCimIri = cimIrisToProcess.pop();
-            console.log("processed " + processedCimIri)
             if (classesProcessed.has(processedCimIri)) { 
-                console.log("end " + processedCimIri)
                 continue;
             } 
             classesProcessed.add(processedCimIri);
             const rdfClassWrap = RdfSourceWrap.forIri(processedCimIri, source);
             if (!(await isWikidataItem(rdfClassWrap))) {
-                console.log("is not " + processedCimIri)
                 continue;
             } 
             
@@ -199,7 +218,32 @@ export class WikidataAdapter implements CimAdapter {
             
             resources[pimClass.iri] = pimClass;
         }
-        console.log(resources);
+        return resources;
+    }
+
+    protected async loadAssociationsAndItsTypesFromEntity(
+        rootClassCimIri: string,
+        source: RdfSource,
+        resources: { [iri: string]: CoreResource }
+      ): Promise<{ [iri: string]: CoreResource }> {
+        const processedCLasses = new Set<string>(...Object.keys(resources).map(this.iriProvider.pimToCim));
+        const classCimIrisToProcess = []; 
+
+        const associationsResults = await source.property(
+            this.varToWikidataSparqlVar("__search_results"),
+            this.varToWikidataSparqlVar("__has_search_results")
+        );
+
+        for (const result of associationsResults) {
+            const rdfResultWrap = RdfSourceWrap.forIri(result.value, source);
+            const [coreResources, newClassIrisToProcess]: [CoreResource[], string[]] 
+                = await loadWikidataAssociationOrAttribute(rootClassCimIri, rdfResultWrap, source, this.iriProvider);
+            coreResources.forEach((r) => resources[r.iri] = r);
+            classCimIrisToProcess.push(newClassIrisToProcess);
+        }
+
+        // TODO find classes.
+
         return resources;
     }
 }

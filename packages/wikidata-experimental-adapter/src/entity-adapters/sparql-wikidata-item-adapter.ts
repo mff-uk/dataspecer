@@ -6,7 +6,6 @@ import { loadWikidataEntityToResource } from "./sparql-wikidata-entity-adapter";
 import { IriProvider } from "@dataspecer/core/cim";
 
 export async function isWikidataItem(entity: RdfSourceWrap): Promise<boolean> {
-  console.log(await entity.types());
   return (await entity.types()).includes(WIKIDATA.item);
 }
 
