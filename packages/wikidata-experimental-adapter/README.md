@@ -1,6 +1,17 @@
 # Wikidata experimental adapter
 
-How to start it up?
+## What can it do?
+
+- full hierarchy
+  - children
+  - parents
+- surroundings
+  - parents in height 1
+  - children in depth 1
+  - attributes (wikidata properties that do not point to items based on subject contraint)
+  - associations
+    - internaly there are outward pimAssociations but I need to add pimClasses for the endpoints.
+## How to start it up?
 
 1. `> git clone repository`
 2. `> cd repository`
