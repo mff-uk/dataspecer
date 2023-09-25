@@ -1,10 +1,14 @@
 
 import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { PimClass } from "@dataspecer/core/pim/model";
-import { RDFS } from "../vocabulary";
+import { RDFS, WIKIDATA } from "../vocabulary";
 import { loadWikidataEntityToResource } from "./sparql-wikidata-entity-adapter";
 import { IriProvider } from "@dataspecer/core/cim";
 
+export async function isWikidataItem(entity: RdfSourceWrap): Promise<boolean> {
+  console.log(await entity.types());
+  return (await entity.types()).includes(WIKIDATA.item);
+}
 
 export async function loadWikidataItem(
     entity: RdfSourceWrap,

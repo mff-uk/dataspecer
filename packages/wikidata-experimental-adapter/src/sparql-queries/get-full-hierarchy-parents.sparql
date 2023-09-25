@@ -4,24 +4,16 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 CONSTRUCT {
-	?item a wd:Q16222597 ;
+  ?item a wd:Q16222597 ;
         rdfs:label ?itemLabel ;
-		    schema:description ?itemDescription ;
-		    rdfs:subClassOf ?subClassOf .
+        schema:description ?itemDescription ;
+        rdfs:subClassOf ?linkTo .
 } WHERE {
- VALUES ?item {
-    %CLASS%
-  }
-  ?item ?predicate ?object .
-  SERVICE wikibase:label { 
-    bd:serviceParam wikibase:language "en". 
-  }
+  %CLASS% wdt:P279* ?item
+  OPTIONAL { ?item wdt:P279 ?linkTo }
   OPTIONAL { 
     ?item schema:description ?itemDescription . 
     FILTER(LANG(?itemDescription) = "en")
   }
-  OPTIONAL {
-   ?item p:P279 ?statement .
-   ?statement ps:P279 ?subClassOf . 
-  }
+  SERVICE wikibase:label {bd:serviceParam wikibase:language "en" }
 }

@@ -42,6 +42,10 @@ export const SCHEMA = {
 }
 
 
-export const WIKIDATA_SPARQL_FREE_VAR_PREFIX = "http://query.wikidata.org/bigdata/namespace/wdq/"
+export const WIKIDATA_SPARQL_FREE_VAR_PREFIX = "http://query.wikidata.org/bigdata/namespace/wdq/";
 
 export const WIKIDATA_ENTITY_PREFIX = "http://www.wikidata.org/entity/";
+
+export const WIKIDATA = {
+  item: WIKIDATA_ENTITY_PREFIX + "Q16222597",
+}

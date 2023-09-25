@@ -3,6 +3,8 @@ import search from "./sparql-queries/search.sparql";
 import getClass from "./sparql-queries/get-class.sparql";
 import getSurroundingsParents from "./sparql-queries/get-surroundings-parents.sparql";
 import getSurroundingsChildren from "./sparql-queries/get-surroundings-children.sparql";
+import getFullHierarchyChildren from "./sparql-queries/get-full-hierarchy-children.sparql";
+import getFullHierarchyParents from "./sparql-queries/get-full-hierarchy-parents.sparql";
 import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {OFN, XSD, WIKIDATA_ENTITY_PREFIX, WIKIDATA_SPARQL_FREE_VAR_PREFIX, RDFS} from "./vocabulary";
@@ -11,21 +13,30 @@ import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
 import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
-import { loadWikidataItem } from "./entity-adapters/sparql-wikidata-item-adapter";
+import { loadWikidataItem, isWikidataItem } from "./entity-adapters/sparql-wikidata-item-adapter";
 import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
 
-const getChildrenParents = [
+const getSurroundingsParentsAndChilren = [
+     getClass,
      getSurroundingsChildren,
-     getSurroundingsParents
+     getSurroundingsParents,
 ];
+
+const getFullHierarchy = [
+    getClass,
+    getFullHierarchyParents,
+    getFullHierarchyChildren,
+]
 
 const searchQuery = (searchString: string) => search({query: `"${jsStringEscape(searchString)}"`});
 
 const getClassQuery = (cimIri: string) => getClass({class: `<${cimIri}>`});
 
-const getChildrenParentsQuery = (cimIri: string) => getChildrenParents.map(q => q({class: `<${cimIri}>`}));
+const getSurroundingsParentsAndChilrenQuery = (cimIri: string) => getSurroundingsParentsAndChilren.map(q => q({class: `<${cimIri}>`}));
 
-const IRI_REGEXP = new RegExp("^" + WIKIDATA_ENTITY_PREFIX + "[QP][1-9][0-9]*$");
+const getFullHierarchyQuery = (cimIri: string) => getFullHierarchy.map(q => q({class: `<${cimIri}>`}));
+
+const IRI_REGEXP = new RegExp("^http://www.wikidata.org/entity/Q[1-9][0-9]*$");
 
 export class WikidataAdapter implements CimAdapter {
     protected readonly WIKIDATA_SPARQL_ENDPOINT = "https://query.wikidata.org/sparql";
@@ -81,7 +92,6 @@ export class WikidataAdapter implements CimAdapter {
             this.varToWikidataSparqlVar("__has_search_result")
         );
         
-        console.log(results.length);
         let sorted = [];
         for (const result of results) {
             const resultWrap = RdfSourceWrap.forIri(result.value, source);
@@ -96,7 +106,7 @@ export class WikidataAdapter implements CimAdapter {
             const classByIri = await this.getClass(searchString);
             if (classByIri) {
               sorted = [classByIri];
-            }
+            } else sorted = []
         }
 
         return sorted;
@@ -114,17 +124,11 @@ export class WikidataAdapter implements CimAdapter {
         );
         await source.query();
 
-        const results = await source.property(
-            this.varToWikidataSparqlVar("__search_results"),
-            this.varToWikidataSparqlVar("__has_search_result")
-        );
-
-        if (results.length !== 1) {
+        const resultWrap = RdfSourceWrap.forIri(cimIri, source);
+        if (!(await isWikidataItem(resultWrap))) {
             return null;
-        } else {
-            const resultWrap = RdfSourceWrap.forIri(results[0].value, source);
-            return await loadWikidataItem(resultWrap, this.iriProvider);
         }
+        return await loadWikidataItem(resultWrap, this.iriProvider);
     }
 
     // @todo implement
@@ -133,7 +137,7 @@ export class WikidataAdapter implements CimAdapter {
             throw new Error("Missing IRI provider.");
         }
         
-        const sources = getChildrenParentsQuery(cimIri).map(
+        const sources = getSurroundingsParentsAndChilrenQuery(cimIri).map(
             (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
         );
         await Promise.all(sources.map((q) => q.query()));
@@ -143,8 +147,17 @@ export class WikidataAdapter implements CimAdapter {
     }
 
     async getFullHierarchy(cimIri: string): Promise<CoreResourceReader> {
-        // Keep as is
-        return ReadOnlyMemoryStore.create({});;
+        if (!this.iriProvider) {
+            throw new Error("Missing IRI provider.");
+        }
+
+        const sources = getFullHierarchyQuery(cimIri).map(
+            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
+        );
+        await Promise.all(sources.map((q) => q.query()));
+        const source = FederatedSource.createExhaustive(sources);
+        const resources = await this.loadChildrenAndParentsFromEntity(cimIri, source);
+        return ReadOnlyMemoryStore.create(resources);
     }
 
     async getResourceGroup(cimIri: string): Promise<string[]> {
@@ -161,23 +174,29 @@ export class WikidataAdapter implements CimAdapter {
         source: RdfSource
       ): Promise<{ [iri: string]: CoreResource }> {
         const resources: { [iri: string]: CoreResource } = {};
-       
-        const parentsCimIris = (await source.property(rootClassCimIri, RDFS.subClassOf)).map((r) => r.value);
-        const childrenCimIris = (await source.reverseProperty(RDFS.subClassOf, rootClassCimIri)).map((r) => r.value);
-        const cimIrisToProcess = [...new Set([...parentsCimIris, ...childrenCimIris])];
-
-        console.log("parents and children");
-        console.log(parentsCimIris);
-
+        
         const classesProcessed = new Set<string>();
+        let cimIrisToProcess = [rootClassCimIri];
         while (cimIrisToProcess.length) {
             const processedCimIri = cimIrisToProcess.pop();
-            if (classesProcessed.has(processedCimIri)) {
+            console.log("processed " + processedCimIri)
+            if (classesProcessed.has(processedCimIri)) { 
+                console.log("end " + processedCimIri)
                 continue;
-            }
-
+            } 
+            classesProcessed.add(processedCimIri);
             const rdfClassWrap = RdfSourceWrap.forIri(processedCimIri, source);
+            if (!(await isWikidataItem(rdfClassWrap))) {
+                console.log("is not " + processedCimIri)
+                continue;
+            } 
+            
             const pimClass = await loadWikidataItem(rdfClassWrap, this.iriProvider);
+            
+            const parentsCimIris = (await source.property(processedCimIri, RDFS.subClassOf)).map((r) => r.value);
+            const childrenCimIris = (await source.reverseProperty(RDFS.subClassOf, processedCimIri)).map((r) => r.value);
+            cimIrisToProcess = [...cimIrisToProcess, ...parentsCimIris, ...childrenCimIris];
+            
             resources[pimClass.iri] = pimClass;
         }
         console.log(resources);

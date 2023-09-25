@@ -5,9 +5,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 CONSTRUCT {
  %CLASS% rdfs:subClassOf ?parent .
- ?parent rdfs:label ?parentLabel ;
-		 schema:description ?parentDescription ;
-		 rdfs:subClassOf ?parentOfParent .
+ ?parent a wd:Q16222597 ;
+         rdfs:label ?parentLabel ;
+		     schema:description ?parentDescription ;
+		     rdfs:subClassOf ?parentOfParent .
 } WHERE {
    %CLASS% p:P279 ?statement .
    ?statement ps:P279 ?parent . 

@@ -4,7 +4,8 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 CONSTRUCT {
-  ?child rdfs:subClassOf ?linkTo ;
+  ?child a wd:Q16222597 ;
+         rdfs:subClassOf ?linkTo ;
          rdfs:label ?childLabel ;
          schema:description ?childDescription .
 } WHERE {
