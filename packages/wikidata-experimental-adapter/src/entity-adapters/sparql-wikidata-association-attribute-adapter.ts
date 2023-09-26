@@ -38,17 +38,10 @@ export async function loadWikidataAssociationOrAttribute(
     let newClassesIris: string[] = [];
     if (await isWikidataOutwardAssociation(entity)) {
       const possibleObjects = await entity.property(RDFS.range);
-      possibleObjects.forEach(async (o) => {
-        
-        // subject object is the same
-        if (rootCimIri === o.value) {
-          console.log("match");
-          console.log(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider));
-        }
-        coreResources.push(...(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider)))
-        newClassesIris.push(o.value);
+      for await (const o of possibleObjects) {
+          coreResources.push(...(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider)))
+          newClassesIris.push(o.value);
       }
-      );
     }
     return [coreResources, newClassesIris];
 }

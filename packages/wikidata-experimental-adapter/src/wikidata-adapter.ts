@@ -3,7 +3,8 @@ import search from "./sparql-queries/search.sparql";
 import getClass from "./sparql-queries/get-class.sparql";
 import getSurroundingsParents from "./sparql-queries/get-surroundings-parents.sparql";
 import getSurroundingsChildren from "./sparql-queries/get-surroundings-children.sparql";
-import getSurroundingsOutwardAssociations from "./sparql-queries/get-surroundings-outward-associations.sparql"
+import getSurroundingsOutwardAssociations from "./sparql-queries/get-surroundings-outward-associations.sparql";
+import getSurroundingsAssociationClasses from "./sparql-queries/get-surroundings-association-classes.sparql";
 import getFullHierarchyChildren from "./sparql-queries/get-full-hierarchy-children.sparql";
 import getFullHierarchyParents from "./sparql-queries/get-full-hierarchy-parents.sparql";
 import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
@@ -17,6 +18,7 @@ import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-quer
 import { loadWikidataItem, isWikidataItem } from "./entity-adapters/sparql-wikidata-item-adapter";
 import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
 import { loadWikidataAssociationOrAttribute } from "./entity-adapters/sparql-wikidata-association-attribute-adapter";
+import { WikidataPhpGetEntities } from "./wikidata-php-api/wikidata-php-api-get-entities";
 
 const getSurroundingsParentsAndChilren = [
      getClass,
@@ -43,6 +45,9 @@ const getSurroundingsParentsAndChilrenQuery = (cimIri: string) => getSurrounding
 const getFullHierarchyQuery = (cimIri: string) => getFullHierarchy.map(q => q({class: `<${cimIri}>`}));
 
 const getSurroundingsAssociationsQuery = (cimIri: string) => getSurroundingsAssociations.map(q => q({class: `<${cimIri}>`}));
+
+const getSurroundingsAssociationClassesQuery = (cimIris: string[]) => getSurroundingsAssociationClasses({classes: cimIris.map((s) => `<${s}>`).join(' ')});
+
 
 const IRI_REGEXP = new RegExp("^http://www.wikidata.org/entity/Q[1-9][0-9]*$");
 
@@ -185,7 +190,6 @@ export class WikidataAdapter implements CimAdapter {
         return WIKIDATA_SPARQL_FREE_VAR_PREFIX + variable;
     }
 
-
     protected createGroupQuerySparqlSources(
         cimIri: string,
         groupQuery: (string) => string[]
@@ -233,7 +237,7 @@ export class WikidataAdapter implements CimAdapter {
         resources: { [iri: string]: CoreResource }
       ): Promise<{ [iri: string]: CoreResource }> {
         const processedCLasses = new Set<string>(...Object.keys(resources).map(this.iriProvider.pimToCim));
-        const classCimIrisToProcess = []; 
+        const classCimIrisToProcess: string[] = []; 
 
         const associationsResults = await source.property(
             this.varToWikidataSparqlVar("__search_results"),
@@ -245,16 +249,25 @@ export class WikidataAdapter implements CimAdapter {
             const [coreResources, newClassIrisToProcess]: [CoreResource[], string[]] 
                 = await loadWikidataAssociationOrAttribute(rootClassCimIri, rdfResultWrap, source, this.iriProvider);
             coreResources.forEach((r) => resources[r.iri] = r);
-            classCimIrisToProcess.push(newClassIrisToProcess);
+            newClassIrisToProcess.forEach((c) => {
+                if (!processedCLasses.has(c)) {
+                    classCimIrisToProcess.push(c);
+                    processedCLasses.add(c);
+                }
+            })
         }
-        
-        console.log(classCimIrisToProcess.length);
 
-        // TODO find classes.
-
-        // test if the resource contains the root.
-        console.log(resources[this.iriProvider.cimToPim(rootClassCimIri)]);
+        //const newPimClasses = await this.getClasses(classCimIrisToProcess);
+        //newPimClasses.forEach((r) => resources[r.iri] = r);
 
         return resources;
+    }
+
+    protected async getClasses(cimIris: string[]): Promise<PimClass[]> {
+        if (!this.iriProvider) {
+            throw new Error("Missing IRI provider.");
+        }
+        const results = await WikidataPhpGetEntities(this.httpFetch, cimIris);
+        return [];
     }
 }
