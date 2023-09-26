@@ -138,24 +138,18 @@ export class WikidataAdapter implements CimAdapter {
         return await loadWikidataItem(resultWrap, this.iriProvider);
     }
 
+    //http://www.wikidata.org/entity/Q5
     // @todo implement
     async getSurroundings(cimIri: string): Promise<CoreResourceReader> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
         
-        // Associations queries.
-        const associationsSources = getSurroundingsAssociationsQuery(cimIri).map(
-            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
-        );
-        const associationsFinishPromise = Promise.all(associationsSources.map((q) => q.query()));
+        const [associationsSources, associationsFinishPromise] = 
+            this.createGroupQuerySparqlSources(cimIri, getSurroundingsAssociationsQuery);
+        const [parentsChildrenSources, parentsChildrenFinishPromise] = 
+            this.createGroupQuerySparqlSources(cimIri, getSurroundingsParentsAndChilrenQuery);
         
-        // Parents and children queries.
-        const parentsChildrenSources = getSurroundingsParentsAndChilrenQuery(cimIri).map(
-            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
-        );
-        const parentsChildrenFinishPromise = Promise.all(parentsChildrenSources.map((q) => q.query()));
-
         // Work on parents because associations queries take longer.
         await parentsChildrenFinishPromise;
         const parentsChildrenSource = FederatedSource.createExhaustive(parentsChildrenSources);
@@ -189,6 +183,18 @@ export class WikidataAdapter implements CimAdapter {
 
     protected varToWikidataSparqlVar(variable: string): string {
         return WIKIDATA_SPARQL_FREE_VAR_PREFIX + variable;
+    }
+
+
+    protected createGroupQuerySparqlSources(
+        cimIri: string,
+        groupQuery: (string) => string[]
+      ): [SparqlQueryRdfSource[], Promise<void[]>] {
+        const sources = groupQuery(cimIri).map(
+            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
+        );
+        const finishPromise = Promise.all(sources.map((q) => q.query()));
+        return [sources, finishPromise];
     }
 
     protected async loadChildrenAndParentsFromEntity(
@@ -232,7 +238,7 @@ export class WikidataAdapter implements CimAdapter {
         const associationsResults = await source.property(
             this.varToWikidataSparqlVar("__search_results"),
             this.varToWikidataSparqlVar("__has_search_results")
-        );
+        );  
 
         for (const result of associationsResults) {
             const rdfResultWrap = RdfSourceWrap.forIri(result.value, source);
@@ -241,8 +247,13 @@ export class WikidataAdapter implements CimAdapter {
             coreResources.forEach((r) => resources[r.iri] = r);
             classCimIrisToProcess.push(newClassIrisToProcess);
         }
+        
+        console.log(classCimIrisToProcess.length);
 
         // TODO find classes.
+
+        // test if the resource contains the root.
+        console.log(resources[this.iriProvider.cimToPim(rootClassCimIri)]);
 
         return resources;
     }

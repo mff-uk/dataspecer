@@ -23,14 +23,12 @@ async function isAssociationFakeAttribute(
      return (await entity.node(WIKIBASE.propertyType)) !== WIKIBASE.wikibaseItem;
 }
 
-
 export async function loadWikidataAssociationOrAttribute(
   rootCimIri: string,
   entity: RdfSourceWrap,
   source: RdfSource,
   idProvider: IriProvider
 ): Promise<[CoreResource[], string[]]> {
-    
     if (await isAssociationFakeAttribute(entity)) {
       const pimAttribute = await loadWikidataFakeAttribute(rootCimIri, entity, idProvider);
       return [[pimAttribute],[]];
@@ -41,12 +39,17 @@ export async function loadWikidataAssociationOrAttribute(
     if (await isWikidataOutwardAssociation(entity)) {
       const possibleObjects = await entity.property(RDFS.range);
       possibleObjects.forEach(async (o) => {
-          coreResources.push(...(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider)))
-          newClassesIris.push(o.value);
+        
+        // subject object is the same
+        if (rootCimIri === o.value) {
+          console.log("match");
+          console.log(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider));
         }
+        coreResources.push(...(await loadWikidataAssociation("out", rootCimIri, o.value, entity, idProvider)))
+        newClassesIris.push(o.value);
+      }
       );
     }
-    
     return [coreResources, newClassesIris];
 }
 
