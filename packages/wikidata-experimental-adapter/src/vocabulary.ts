@@ -49,6 +49,7 @@ export const WIKIDATA = {
   item: WIKIDATA_ENTITY_PREFIX + "Q16222597",
   valueTypeConstraint: WIKIDATA_ENTITY_PREFIX + "Q21510865",
   subjectTypeConstraint: WIKIDATA_ENTITY_PREFIX + "Q21503250",
+  subclassOf: WIKIDATA_ENTITY_PREFIX + "P279",
 }
 
 export const WIKIBASE_TYPE_PREFIX = "http://wikiba.se/ontology#";

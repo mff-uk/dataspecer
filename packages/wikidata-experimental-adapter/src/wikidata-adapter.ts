@@ -19,6 +19,8 @@ import { loadWikidataItem, isWikidataItem } from "./entity-adapters/sparql-wikid
 import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
 import { loadWikidataAssociationOrAttribute } from "./entity-adapters/sparql-wikidata-association-attribute-adapter";
 import { WikidataPhpGetEntities } from "./wikidata-php-api/wikidata-php-api-get-entities";
+import { isWikidataItemPhp, loadWikidataItemFromPhpWrap } from "./entity-adapters/php-api-wikidata-item-adapter";
+import { loadWikidataEntityFromPhpWrapToResource } from "./entity-adapters/php-api-wikidata-entity-adapter";
 
 const getSurroundingsParentsAndChilren = [
      getClass,
@@ -105,7 +107,7 @@ export class WikidataAdapter implements CimAdapter {
         );
         
         let sorted = [];
-        for (const result of results) {
+        for await (const result of results) {
             const resultWrap = RdfSourceWrap.forIri(result.value, source);
             sorted.push({
               sort: Number((await resultWrap.property(this.varToWikidataSparqlVar("__order")))[0].value),
@@ -244,7 +246,7 @@ export class WikidataAdapter implements CimAdapter {
             this.varToWikidataSparqlVar("__has_search_results")
         );  
 
-        for (const result of associationsResults) {
+        for await (const result of associationsResults) {
             const rdfResultWrap = RdfSourceWrap.forIri(result.value, source);
             const [coreResources, newClassIrisToProcess]: [CoreResource[], string[]] 
                 = await loadWikidataAssociationOrAttribute(rootClassCimIri, rdfResultWrap, source, this.iriProvider);
@@ -257,8 +259,8 @@ export class WikidataAdapter implements CimAdapter {
             })
         }
 
-        //const newPimClasses = await this.getClasses(classCimIrisToProcess);
-        //newPimClasses.forEach((r) => resources[r.iri] = r);
+        const newPimClasses = await this.getClasses(classCimIrisToProcess);
+        newPimClasses.forEach((r) => resources[r.iri] = r);
 
         return resources;
     }
@@ -267,7 +269,16 @@ export class WikidataAdapter implements CimAdapter {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
+
+        let newPimClasses: PimClass[] = []
+
         const results = await WikidataPhpGetEntities(this.httpFetch, cimIris);
-        return [];
+        for await (const entityWrap of results) {
+            if (await isWikidataItemPhp(entityWrap)) {
+                const cls = await loadWikidataItemFromPhpWrap(entityWrap, this.iriProvider);
+                newPimClasses.push(cls);
+            }
+        }
+        return newPimClasses;
     }
 }
