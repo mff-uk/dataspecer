@@ -4,12 +4,12 @@ import getClass from "./sparql-queries/get-class.sparql";
 import getSurroundingsParents from "./sparql-queries/get-surroundings-parents.sparql";
 import getSurroundingsChildren from "./sparql-queries/get-surroundings-children.sparql";
 import getSurroundingsOutwardAssociations from "./sparql-queries/get-surroundings-outward-associations.sparql";
-import getSurroundingsAssociationClasses from "./sparql-queries/get-surroundings-association-classes.sparql";
+import getSurroundingsInwardAssociations from "./sparql-queries/get-surroundings-inward-associations.sparql";
 import getFullHierarchyChildren from "./sparql-queries/get-full-hierarchy-children.sparql";
 import getFullHierarchyParents from "./sparql-queries/get-full-hierarchy-parents.sparql";
 import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
-import {OFN, XSD, WIKIDATA_ENTITY_PREFIX, WIKIDATA_SPARQL_FREE_VAR_PREFIX, RDFS} from "./vocabulary";
+import {OFN, XSD, WIKIDATA_SPARQL_FREE_VAR_PREFIX, RDFS} from "./vocabulary";
 import {PimClass} from "@dataspecer/core/pim/model/pim-class";
 import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
@@ -30,12 +30,13 @@ const getSurroundingsParentsAndChilren = [
 
 const getSurroundingsAssociations = [
     getSurroundingsOutwardAssociations,
+    getSurroundingsInwardAssociations,
 ]
 
 const getFullHierarchy = [
     getClass,
     getFullHierarchyParents,
-    //getFullHierarchyChildren,
+    getFullHierarchyChildren,
 ]
 
 const searchQuery = (searchString: string) => search({query: `"${jsStringEscape(searchString)}"`});
@@ -47,8 +48,6 @@ const getSurroundingsParentsAndChilrenQuery = (cimIri: string) => getSurrounding
 const getFullHierarchyQuery = (cimIri: string) => getFullHierarchy.map(q => q({class: `<${cimIri}>`}));
 
 const getSurroundingsAssociationsQuery = (cimIri: string) => getSurroundingsAssociations.map(q => q({class: `<${cimIri}>`}));
-
-const getSurroundingsAssociationClassesQuery = (cimIris: string[]) => getSurroundingsAssociationClasses({classes: cimIris.map((s) => `<${s}>`).join(' ')});
 
 
 const IRI_REGEXP = new RegExp("^http://www.wikidata.org/entity/Q[1-9][0-9]*$");
@@ -259,8 +258,10 @@ export class WikidataAdapter implements CimAdapter {
             })
         }
 
+        console.log(1);
         const newPimClasses = await this.getClasses(classCimIrisToProcess);
         newPimClasses.forEach((r) => resources[r.iri] = r);
+        console.log(2);
 
         return resources;
     }

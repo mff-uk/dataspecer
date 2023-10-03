@@ -36,6 +36,7 @@ export async function loadWikidataAssociationOrAttribute(
     
     let coreResources: CoreResource[] = [];
     let newClassesIris: string[] = [];
+    
     if (await isWikidataOutwardAssociation(entity)) {
       const possibleObjects = await entity.property(RDFS.range);
       for await (const o of possibleObjects) {
@@ -43,6 +44,18 @@ export async function loadWikidataAssociationOrAttribute(
           newClassesIris.push(o.value);
       }
     }
+
+    if (await isWikidataInwardAssociation(entity)) {
+      const possibleSubjects = await entity.property(RDFS.domain);
+      for await (const s of possibleSubjects) {
+          if (s.value === rootCimIri) 
+            continue;
+          coreResources.push(...(await loadWikidataAssociation("in", s.value, rootCimIri, entity, idProvider)))
+          newClassesIris.push(s.value);
+      } 
+    } 
+    
+
     return [coreResources, newClassesIris];
 }
 

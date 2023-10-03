@@ -17,7 +17,7 @@ type WikidataMainSnakEntityValue = {
 }
  
 type WikidataMainSnak = {
-    datavalue: WikidataMainSnakEntityValue;
+    datavalue?: WikidataMainSnakEntityValue;
 }
 
 type WikidataSnak = {
@@ -49,7 +49,9 @@ export class WikidataItemPhpWrap {
             if (subclassOfProperty in claims) {
                 const parentsSnaks = claims[subclassOfProperty];
                 parentsSnaks.forEach((snak) => {
-                    parentsIris.push(WIKIDATA_ENTITY_PREFIX + snak.mainsnak.datavalue.value.id);
+                    const id = snak.mainsnak.datavalue?.value.id;
+                    if (id != null) 
+                        parentsIris.push(WIKIDATA_ENTITY_PREFIX + id);
                 });
             }
         }
