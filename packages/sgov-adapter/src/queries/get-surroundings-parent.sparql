@@ -2,18 +2,29 @@ DEFINE sql:signal-void-variables 0
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 
 CONSTRUCT {
     %NODE% rdfs:subClassOf ?parent .
     ?parent
-        rdfs:subClassOf ?ancestor ;
         skos:prefLabel ?label ;
         skos:definition ?definition ;
         skos:inScheme ?glossary ;
         <__is_ciselnik> ?is_ciselnik .
 } WHERE {
     %NODE% rdfs:subClassOf ?parent .
-    OPTIONAL { ?parent rdfs:subClassOf ?ancestor }
+    ?parent a z:typ-objektu .
+    FILTER NOT EXISTS {
+        ?parent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+    }
+
+    OPTIONAL {
+        ?parent rdfs:subClassOf ?elementParent .
+        ?elementParent skos:inScheme [] .
+        FILTER NOT EXISTS {
+            ?elementParent skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+        }
+    }
     OPTIONAL { ?parent skos:prefLabel ?label }
     OPTIONAL { ?parent skos:definition ?definition }
     OPTIONAL { ?parent skos:scopeNote ?definition }
