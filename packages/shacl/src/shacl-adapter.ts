@@ -575,6 +575,7 @@ const simpleTypeMapQName: Record<string, QName> = {
   [OFN.decimal]: ["xsd", "decimal"],
   [OFN.url]: ["xsd", "anyURI"],
   [OFN.string]: ["xsd", "string"],
+  [OFN.text]: ["rdf", "langString"],
 };
 
 // Types for specification in sh:datatype
@@ -587,4 +588,5 @@ const simpleTypeMapIRI: Record<string, string> = {
   [OFN.decimal]: "http://www.w3.org/2001/XMLSchema#decimal",
   [OFN.url]: "http://www.w3.org/2001/XMLSchema#anyURI",
   [OFN.string]: "http://www.w3.org/2001/XMLSchema#string",
+  [OFN.text]: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
 };
