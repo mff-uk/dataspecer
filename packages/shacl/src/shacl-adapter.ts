@@ -236,7 +236,7 @@ export class ShaclAdapter {
       if(languageDesc != null){
         this.writer.addQuad(
           namedNode( classNameIri ),
-          namedNode('http://www.w3.org/2000/01/rdf-schema#comment'),
+          namedNode('http://www.w3.org/ns/shacl#description'),
           literal(language , languageTag )
         );
         
@@ -249,7 +249,7 @@ export class ShaclAdapter {
       if(languageLabel != null){
         this.writer.addQuad(
           namedNode(classNameIri),
-          namedNode('http://www.w3.org/2000/01/rdf-schema#label'),
+          namedNode('http://www.w3.org/ns/shacl#name'),
           literal(language,  languageTag)
         );
       } 
