@@ -1,44 +1,43 @@
-@prefix exam: <https://example.com/class1/>.
-@prefix exam1: <https://example.com/class2/>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix ex: <https://example.org/>.
 
-exam1:AdresaShape a sh:NodeShape;
-    sh:targetClass exam1:adresa;
+<https://example.com/class1/OsobaShape> a sh:NodeShape;
+    sh:targetClass <https://example.com/class1/mojeCimIri>;
+    rdfs:comment "Class 1 Popisek 1"@cs;
+    rdfs:label "Class 1 Label 1"@cs.
+<https://example.com/class2/AdresaShape> a sh:NodeShape;
+    sh:targetClass <https://example.com/class2/adresa>;
     rdfs:comment "Adresa bydliště dané osoby"@cs;
     rdfs:label "Adresa"@cs, "Adres"@pl;
     sh:property [
+  sh:maxCount 1;
   sh:path <https://example.com/Ulice>;
-  sh:maxCount 1;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ], [
+  sh:minCount 1;
+  sh:maxCount 1;
   sh:path <https://example.com/CisloPopisne>;
-  sh:minCount 1;
-  sh:maxCount 1;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ], [
-  sh:path <https://example.com/Mesto>;
   sh:minCount 1;
   sh:maxCount 1;
+  sh:path <https://example.com/Mesto>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ], [
-  sh:path <https://example.com/PSC>;
   sh:minCount 1;
   sh:maxCount 1;
+  sh:path <https://example.com/PSC>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ], [
-  sh:path <https://example.com/Stat>;
   sh:minCount 1;
   sh:maxCount 1;
+  sh:path <https://example.com/Stat>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ].
-exam:OsobaShape a sh:NodeShape;
-    sh:targetClass exam:mojeCimIri;
-    rdfs:comment "Class 1 Popisek 1"@cs;
-    rdfs:label "Class 1 Label 1"@cs;
-    sh:property [
-  sh:path <https://example.com/Adresa>;
+<https://example.com/class1/OsobaShape> sh:property [
   sh:minCount 1;
   sh:maxCount 1;
-  sh:node exam1:AdresaShape
+  sh:path <https://example.com/Adresa>;
+  sh:node <https://example.com/class2/AdresaShape>
 ].

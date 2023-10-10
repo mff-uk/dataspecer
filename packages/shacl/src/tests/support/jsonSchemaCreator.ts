@@ -66,7 +66,7 @@ interface Context {
   }
 
 class JsonSchemaCreator{
-    async createJsonSchema(smc : StructureModel ) : Promise<JsonSchema> {
+    async createJsonSchema(smc : StructureModel ) : Promise<String> {
         const structureModelClass = new ModelCreator;
         const conceptualModelClass = new ConceptualModelCreator;
         const jsonconfig = DefaultJsonConfiguration;
@@ -76,6 +76,9 @@ class JsonSchemaCreator{
         var artefact = new DataSpecificationSchema();
         artefact.psm = "https://example.com/class1/mojePimIri"
         artefact.outputPath = path.resolve("data-json-ld-generated.json");
+        var customConfig = DefaultJsonConfiguration;
+        customConfig.dereferenceSchema = true;
+        artefact.configuration = customConfig;
         //console.log(artefact.outputPath);
         const output: StreamDictionary =  new MemoryStreamDictionary();
         const coreResourceReader : CoreResourceReader = {} as CoreResourceReader;
@@ -109,13 +112,14 @@ class JsonSchemaCreator{
       const stream = new MemoryOutputStream();
       // FOR SCHEMA OUTPUT TO STDOUT
         await writeJsonSchema(actual, stream);
-        console.log(stream.getContent());
+        //console.log(stream.getContent());
       // FOR JSONLD OUTPUT TO STDOUT
         Support.syncWriteFile('../data/schema.json', JSON.stringify(model, null, 2));
         await writeJsonLd(model, stream);
         await stream.close();
         const jsonSchemaGenerator = structureModelToJsonSchema({ ["https://example.com/class1/mojePimIri"]: spec }, spec, structureModelClass.createModel(), jsonconfig, new DataSpecificationArtefact());
-        return jsonSchemaGenerator;
+        //return jsonSchemaGenerator;
+        return JSON.stringify(model, null, 2);
     }
 }
 

@@ -1,14 +1,14 @@
-@prefix exam: <https://example.com/class1/>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix ex: <https://example.org/>.
 
 <https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
-    sh:targetClass exam:mojeCimIri;
+    sh:targetClass <https://example.com/class1/mojeCimIri>;
     rdfs:comment "Class 1 Popisek 1"@cs;
     rdfs:label "Class 1 Label 1"@cs;
     sh:property [
-  sh:path <https://example.com/vek>;
   sh:minCount 1;
   sh:maxCount 1;
+  sh:path <https://example.com/vek>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ].
