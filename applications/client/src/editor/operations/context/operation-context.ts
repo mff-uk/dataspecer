@@ -27,7 +27,7 @@ export class OperationContext implements TechnicalLabelOperationContext {
 
         let text = selectLanguage(pimResource.pimHumanLabel ?? {}, this.labelRules.languages);
 
-        if (text === undefined) return null;
+        if (text === undefined || text === null) return null;
 
         switch (this.labelRules.specialCharacters) {
             case "remove-all":
