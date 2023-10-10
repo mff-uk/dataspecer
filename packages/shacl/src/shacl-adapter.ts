@@ -230,31 +230,36 @@ export class ShaclAdapter {
         );
     }
 
-    const languageDesc = root.humanDescription;
-    for (const languageTag in languageDesc) {
-      const language = languageDesc[languageTag];
-      if(languageDesc != null){
-        this.writer.addQuad(
-          namedNode( classNameIri ),
-          namedNode('http://www.w3.org/ns/shacl#description'),
-          literal(language , languageTag )
-        );
-        
+    this.generateLanguageString(root.humanDescription,classNameIri, null, "description");
+    this.generateLanguageString(root.humanLabel,classNameIri, null, "name");
+    return newResult;
+  }
+
+  generateLanguageString(languageDescription: LanguageString, classNameIri: string, blankNodes: any[], attribute: string): void {
+    const predicate = "http://www.w3.org/ns/shacl#" + attribute;
+    if(classNameIri != null){
+      for (const languageTag in languageDescription) {
+        const language = languageDescription[languageTag];
+        if(languageDescription != null){
+          this.writer.addQuad(
+            namedNode( classNameIri ),
+            namedNode(predicate),
+            literal(language , languageTag )
+          );
+          
+        }
+      }
+    } else{
+      for (const languageTag in languageDescription) {
+        const language = languageDescription[languageTag];
+        if(languageDescription != null){
+          blankNodes.push({
+            predicate: namedNode(predicate),
+            object:    literal(language , languageTag )
+          });
+        }
       }
     }
-
-    const languageLabel = root.humanLabel;
-    for (const languageTag in languageLabel) {
-      const language = languageLabel[languageTag];
-      if(languageLabel != null){
-        this.writer.addQuad(
-          namedNode(classNameIri),
-          namedNode('http://www.w3.org/ns/shacl#name'),
-          literal(language,  languageTag)
-        );
-      } 
-    }
-    return newResult;
   }
 
   /**
@@ -305,8 +310,10 @@ export class ShaclAdapter {
         const isreverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
         
+        
         var blankNodes = [];
-
+        this.generateLanguageString(humandesc,null, blankNodes, "description");
+        this.generateLanguageString(humanLabel,null, blankNodes, "name");
           if(cardinalitymin != 0 && cardinalitymin != null){
             blankNodes.push({
               predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
@@ -430,19 +437,29 @@ export class ShaclAdapter {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
-        // create new NodeShape and tie this property to it
+        // create new NodeShape and tie this property to it if its not just an empty class
+        
         const dtcasted = <StructureModelComplexType> dt;
-        const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
-        const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
 
-        var splitted = dtcasted.dataType.cimIri.split("/", 100); 
-        var name = splitted[splitted.length-1];
-        var prefix = dtcasted.dataType.cimIri.substring(0, dtcasted.dataType.cimIri.length - name.length);
-        const shapeName = prefix + nameForAnotherClass;
-        blankNodes.push({
-          predicate: namedNode('http://www.w3.org/ns/shacl#node'),
-          object:    namedNode( shapeName )
-        });
+        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
+          blankNodes.push({
+            predicate: namedNode('http://www.w3.org/ns/shacl#nodeKind'),
+            object:    namedNode( 'http://www.w3.org/ns/shacl#BlankNodeOrIRI' )
+          });
+        } else{
+          const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
+          const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
+  
+          var splitted = dtcasted.dataType.cimIri.split("/", 100); 
+          var name = splitted[splitted.length-1];
+          var prefix = dtcasted.dataType.cimIri.substring(0, dtcasted.dataType.cimIri.length - name.length);
+          const shapeName = prefix + nameForAnotherClass;
+          blankNodes.push({
+            predicate: namedNode('http://www.w3.org/ns/shacl#node'),
+            object:    namedNode( shapeName )
+          });
+        }
+        
         
       } else if(dt.isAttribute() == true){
         // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.

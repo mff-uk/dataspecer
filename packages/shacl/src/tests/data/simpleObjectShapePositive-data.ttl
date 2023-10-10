@@ -7,10 +7,13 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://localhost/resources/catalog>    a exam:mojeCimIri ;
-                                        ex:Adresa <http://localhost/resources/adresa>.
+                                        ex:Adresa <http://localhost/resources/adresa> ;
+                                        ex:Link <http://localhost/resources/jen_link> ;
+                                        ex:Link _:link1 .
 <http://localhost/resources/adresa>     a <https://example.com/class2/adresa> ;                                   
                                         ex:Ulice "Masarykova" ;
                                         ex:CisloPopisne "23"^^xsd:integer ;
                                         ex:PSC "73532"^^xsd:integer ;
                                         ex:Mesto "Rychnov" ;
                                         ex:Stat "Česká republika".
+_:link1                                 a ex:LinkType .

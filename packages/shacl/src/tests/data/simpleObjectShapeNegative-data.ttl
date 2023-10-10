@@ -7,7 +7,8 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://localhost/resources/catalog>    a exam:mojeCimIri ;
-                                        ex:Adresa <http://localhost/resources/adresa>.
+                                        ex:Adresa <http://localhost/resources/adresa> ;
+                                        ex:Link "link" .
 <http://localhost/resources/adresa>     a <https://example.com/class2/adresa> ;                                   
                                         ex:Ulice "Masarykova" ;
                                         ex:CisloPopisne "23"^^xsd:integer ;

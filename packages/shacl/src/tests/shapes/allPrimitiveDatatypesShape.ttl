@@ -4,43 +4,59 @@
 
 <https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
-    rdfs:comment "Class 1 Popisek 1"@cs;
-    rdfs:label "Class 1 Label 1"@cs;
+    sh:description "Class 1 Popisek 1"@cs;
+    sh:name "Class 1 Label 1"@cs;
     sh:property [
+  sh:description "Vek"@cs;
+  sh:name "vek"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/vek>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ], [
+  sh:description "Studujici"@cs;
+  sh:name "studujici"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/student>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>
 ], [
+  sh:description "Hodnoceni"@cs;
+  sh:name "hodnoceni"@cs;
   sh:minCount 1;
   sh:maxCount 3;
   sh:path <https://example.com/hodnoceni>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>
 ], [
+  sh:description "Datum nástupu"@cs;
+  sh:name "Nástup"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/datum_nastupu>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#date>
 ], [
+  sh:description "Začátek výuky (hod)"@cs;
+  sh:name "Počáteční hodina výuky"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/zacatek_vyuky>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#time>
 ], [
+  sh:description "časová známka založení účtu"@cs;
+  sh:name "Datum a čas založení účtu"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/cas_zalozeni>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#dateTimeStamp>
 ], [
+  sh:description "Odkaz na profil studenta"@cs;
+  sh:name "Profil studenta"@cs;
   sh:maxCount 1;
   sh:path <https://example.com/profil_studenta>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#anyURI>
 ], [
+  sh:description "Poznámky k hodnocení studenta"@cs;
+  sh:name "Slovní hodnocení"@cs;
   sh:minCount 1;
   sh:path <https://example.com/slovni_hodnoceni>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>

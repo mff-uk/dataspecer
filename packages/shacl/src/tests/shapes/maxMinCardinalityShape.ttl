@@ -4,9 +4,11 @@
 
 <https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
-    rdfs:comment "Class 1 Popisek 1"@cs;
-    rdfs:label "Class 1 Label 1"@cs;
+    sh:description "Class 1 Popisek 1"@cs;
+    sh:name "Class 1 Label 1"@cs;
     sh:property [
+  sh:description "Vek"@cs;
+  sh:name "vek"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/vek>;

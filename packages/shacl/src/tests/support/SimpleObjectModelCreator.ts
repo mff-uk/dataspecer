@@ -117,9 +117,28 @@ class SimpleObjectModelCreator implements ModelCreator{
       class2.structureSchema = null;
       class2.technicalLabel = "adresa";
 
+      var classLink : StructureModelClass;
+      classLink = new StructureModelClass();
+      classLink.cimIri = "https://example.com/class2/link";
+      classLink.codelistUrl = ["https://example.com/class1/codelistIri"];
+      classLink.example = null;
+      classLink.humanDescription = {["cs"]: "Link na entitu"};
+      classLink.humanLabel = {["cs"]: "Link"};
+      classLink.pimIri = "https://example.com/class1/mojePimIriadresa";
+      classLink.properties = [];
+      classLink.psmIri = "https://example.com/class1/mojePsmIriadresa";
+      classLink.regex = null;
+      classLink.specification = null;
+      classLink.structureSchema = null;
+      classLink.technicalLabel = "link";
+
       var complexType1 : StructureModelComplexType;
       complexType1 = new StructureModelComplexType();
       complexType1.dataType = class2;
+
+      var complexType2 : StructureModelComplexType;
+      complexType2 = new StructureModelComplexType();
+      complexType2.dataType = classLink;
 
       var property1 : StructureModelProperty;
       property1 = new StructureModelProperty();
@@ -135,6 +154,20 @@ class SimpleObjectModelCreator implements ModelCreator{
       property1.psmIri = "https://example.com/mojePsmIriadresa";
       property1.technicalLabel = "adresa-popisek";
 
+      var propertyLink : StructureModelProperty;
+      propertyLink = new StructureModelProperty();
+      propertyLink.cardinalityMax = 2;
+      propertyLink.cardinalityMin = 1;
+      propertyLink.cimIri = "https://example.com/Link";
+      propertyLink.dataTypes = [complexType2];
+      propertyLink.dematerialize = false;
+      propertyLink.humanDescription = {["cs"]: "Link na entitu"};
+      propertyLink.humanLabel = {["cs"]: "Link"};
+      propertyLink.isReverse = false;
+      propertyLink.pimIri = "https://example.com/mojePimIriadresa";
+      propertyLink.psmIri = "https://example.com/mojePsmIriadresa";
+      propertyLink.technicalLabel = "link-popisek";
+
       var class1 : StructureModelClass;
       class1 = new StructureModelClass();
       class1.cimIri = "https://example.com/class1/mojeCimIri";
@@ -144,7 +177,7 @@ class SimpleObjectModelCreator implements ModelCreator{
       class1.humanDescription = {["cs"]: "Class 1 Popisek 1"};
       class1.humanLabel = {["cs"]: "Class 1 Label 1"};
       class1.pimIri = "https://example.com/class1/mojePimIri";
-      class1.properties = [property1];
+      class1.properties = [property1, propertyLink];
       class1.psmIri = "https://example.com/class1/mojePsmIri";
       class1.regex = null;
       class1.specification = null;

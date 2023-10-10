@@ -6,43 +6,57 @@
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
-    rdfs:comment "Class 1 Popisek 1"@cs;
-    rdfs:label "Class 1 Label 1"@cs.
+    sh:description "Class 1 Popisek 1"@cs;
+    sh:name "Class 1 Label 1"@cs.
 <https://example.com/class2/AdresaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class2/adresa>;
-    rdfs:comment "Adresa bydliště dané osoby"@cs;
-    rdfs:label "Adresa"@cs, "Adres"@pl;
+    sh:description "Adresa bydliště dané osoby"@cs;
+    sh:name "Adresa"@cs, "Adres"@pl;
     sh:property [
+  sh:description "Ulice bydliště"@cs;
+  sh:name "ulice"@cs;
   sh:maxCount 1;
   sh:path <https://example.com/Ulice>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ], [
+  sh:description "Číslo popisné dané budovy"@cs;
+  sh:name "Číslo popisné"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/CisloPopisne>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ], [
+  sh:description "Město, ve kterém se nachází budova"@cs;
+  sh:name "Město"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Mesto>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ], [
+  sh:description "Poštovní směrovací číslo"@cs;
+  sh:name "PSČ"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/PSC>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
 ], [
+  sh:description "Stát - země, ve které se objekt nachází"@cs;
+  sh:name "Stát"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Stat>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#string>
 ].
 <https://example.com/class1/OsobaShape> sh:property [
+  sh:description "Adresa bydliště dané osoby"@cs;
+  sh:name "Adresa"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Adresa>;
   sh:node <https://example.com/class2/AdresaShape>
 ], [
+  sh:description "Jméno a příjmení dané osoby"@cs;
+  sh:name "Jméno a příjmení"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Jmeno_A_Prijmeni>;
@@ -50,19 +64,25 @@
 ].
 <https://example.com/Narozeni-a-umrtiShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Narozeni_a_umrti_class>;
-    rdfs:comment "Datum narození a úmrtí dané osoby"@cs;
-    rdfs:label "Datum narození a úmrtí"@cs, "Date of birth and death"@en;
+    sh:description "Datum narození a úmrtí dané osoby"@cs;
+    sh:name "Datum narození a úmrtí"@cs, "Date of birth and death"@en;
     sh:property [
+  sh:description "Datum narození dané osoby"@cs;
+  sh:name "Datum narození"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Narozeni>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#date>
 ], [
+  sh:description "Datum úmrtí osoby"@cs;
+  sh:name "Datum úmrtí"@cs;
   sh:maxCount 1;
   sh:path <https://example.com/Umrti>;
   sh:datatype <http://www.w3.org/2001/XMLSchema#date>
 ].
 <https://example.com/class1/OsobaShape> sh:property [
+  sh:description "Datum narození a úmrtí dané osoby"@cs;
+  sh:name "Datum narození a úmrtí"@cs;
   sh:minCount 1;
   sh:maxCount 1;
   sh:path <https://example.com/Narozeni_a_umrti>;
