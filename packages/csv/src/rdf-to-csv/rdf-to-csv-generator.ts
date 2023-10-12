@@ -78,9 +78,10 @@ export class RdfToCsvGenerator implements ArtefactGenerator {
         assertNot(
             model === undefined,
             `Missing structure model ${schemaArtefact.psm}.`);
-        model = transformStructureModel(
-            conceptualModel, model, Object.values(context.specifications));
-
+        model = Object.values(context.conceptualModels).reduce(
+            (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
+            model
+        );
         if (configuration.enableMultipleTableSchema) return buildMultipleTableQueries(model);
         else return buildSingleTableQuery(model);
     }
