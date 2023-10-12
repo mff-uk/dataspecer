@@ -85,7 +85,7 @@ export async function artifactsToBikeshedContent(
 
     for (const artefact of specification.artefacts) {
         const url = pathRelative(baseUrl, artefact.publicUrl);
-        const title = artefactTitle[artefact.generator][context.i18n.language];
+        const title = artefactTitle[artefact.generator]?.[context.i18n.language] ?? "";
         table += `\t\t<tr><td>${title}</td><td><a href="${url}">${url}</a></td></tr>\n`;
     }
 
