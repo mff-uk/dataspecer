@@ -21,7 +21,8 @@ export class ShaclGenerator implements ArtefactGenerator {
   }
 
   generateForDocumentation(): Promise<unknown | null> {
-    throw new Error("Method not implemented.");
+    return Promise.resolve(null); // Null means no documentation is necessary
+    //throw new Error("Method not implemented.");
   }
 
   async generateToObject(
