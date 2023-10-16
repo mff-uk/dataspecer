@@ -31,6 +31,7 @@ import {executeDataPsmCreateExternalRoot} from "./data-psm-create-external-root-
 import {executeDataPsmDeleteExternalRoot} from "./data-psm-delete-external-root-executor";
 import {executeDataPsmSetExternalRootTypes} from "./data-psm-set-external-root-types-executor";
 import {executeDataPsmSetIsClosed} from "./data-psm-set-is-closed-executor";
+import {executeDataPsmSetIdType} from "./data-psm-set-idtype-executor";
 
 export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -132,6 +133,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetHumanLabel.is,
     executeDataPsmSetHumanLabel,
     Operations.DataPsmSetHumanLabel.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.DataPsmSetIdType.is,
+      executeDataPsmSetIdType,
+      Operations.DataPsmSetIdType.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetInterpretation.is,

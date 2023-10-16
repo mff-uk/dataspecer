@@ -140,6 +140,8 @@ function structureModelClassToJsonSchemaDefinition(
   result.title = context.stringSelector(modelClass.humanLabel);
   result.description = context.stringSelector(modelClass.humanDescription);
   result.noAdditionalProperties = modelClass.isClosed === true;
+  result.examples = (modelClass.example as string[] | null) ?? [];
+  result.objectExamples = (modelClass.objectExample as object[] | null) ?? [];
   for (const property of modelClass.properties) {
     const name = property.technicalLabel;
     result.properties[name] = structureModelPropertyToJsonDefinition(

@@ -9,12 +9,17 @@ import { JsonSchema } from "./json-schema-model";
 import { writeJsonSchema } from "./json-schema-writer";
 import { structureModelToJsonSchema } from "./json-schema-model-adapter";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
-import { transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import {
+  defaultConceptualTransformations,
+  defaultStructureTransformations,
+  transformStructureModel
+} from "@dataspecer/core/structure-model/transformation";
 import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
 import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
 import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
+import {structureModelAddJsonProperties} from "../json-structure-model/add-json-properties";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -33,7 +38,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     await stream.close();
   }
 
-  generateToObject(
+  async generateToObject(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification
@@ -57,14 +62,14 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
+    model = await structureModelAddJsonProperties(model, context.reader);
+    console.warn(model);
     model = Object.values(context.conceptualModels).reduce(
         (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
         model
     );
     model = structureModelAddIdAndTypeProperties(model, configuration);
-    return Promise.resolve(
-      structureModelToJsonSchema(context.specifications, specification, model, configuration, artefact)
-    );
+    return structureModelToJsonSchema(context.specifications, specification, model, configuration, artefact);
   }
 
   // todo add structureModelAddIdAndTypeProperties

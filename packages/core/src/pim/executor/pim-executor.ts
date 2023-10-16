@@ -16,6 +16,7 @@ import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor";
 import { executePimSetCardinality } from "./pim-set-cardinality-executor";
 import { executePimSetExample } from "./pim-set-example-executor";
 import { executePimSetRegex } from "./pim-set-regex-executor";
+import { executePimSetObjectExample } from "./pim-set-object-example-executor";
 
 export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -82,6 +83,11 @@ export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.PimSetHumanLabel.is,
     executePimSetHumanLabel,
     Operations.PimSetHumanLabel.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.PimSetObjectExample.is,
+      executePimSetObjectExample,
+      Operations.PimSetObjectExample.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.PimSetHumanDescription.is,

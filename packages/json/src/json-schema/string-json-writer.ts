@@ -6,7 +6,7 @@ class StringJsonWriterContext {
 
   private readonly shouldWriteComma: boolean[] = [];
 
-  private depth: number = 1; // Because we start with an object.
+  public depth: number = 1; // Because we start with an object.
 
   private buffer = "";
 
@@ -69,7 +69,7 @@ class StringJsonObjectWriter implements JsonObjectWriter {
   value(key: string, value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
     this.context.writeIndent();
-    this.context.append(`"${key}": ` + valueToString(value));
+    this.context.append(`"${key}": ` + valueToString(value, this.context.depth));
     return this.context.flush();
   }
 
@@ -98,8 +98,8 @@ class StringJsonObjectWriter implements JsonObjectWriter {
   }
 }
 
-function valueToString(value: string | number | boolean | null) {
-  return JSON.stringify(value);
+function valueToString(value: string | number | boolean | null | object | any[], depth: number) {
+  return JSON.stringify(value, undefined, 2).split("\n").map((s, i) => i > 0 ? " ".repeat(depth * 2) + s : s).join("\n");
 }
 
 class StringJsonArrayWriter {
@@ -119,7 +119,7 @@ class StringJsonArrayWriter {
   value(value: string | number | boolean | null): Promise<void> {
     this.context.writeSeparator();
     this.context.writeIndent();
-    this.context.append("" + valueToString(value));
+    this.context.append("" + valueToString(value, this.context.depth));
     return this.context.flush();
   }
 

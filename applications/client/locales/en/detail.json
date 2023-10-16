@@ -25,6 +25,14 @@
   "in all languages": "In all languages",
   "IRI": "IRI",
   "is codelist": "is codelist",
+  "json id type": {
+    "title": "Use of JSON @id and @type properties",
+    "value": {
+      "default": "Keep default settings",
+      "optional": "Set as optional",
+      "remove": "Remove from object"
+    }
+  },
   "label max": "max",
   "label min": "min",
   "label regex": "Regular expression",
@@ -35,6 +43,16 @@
   "no label": "no label",
   "no translations": "no translations are available",
   "nothing here": "Nothing here.",
+  "object examples": {
+    "dialog title": "Examples of objects",
+    "example": "Example",
+    "examples": "Examples",
+    "examples count_one": "One example",
+    "examples count_other": "{{count}} examples",
+    "help text": "Use JSON format to define example.",
+    "manage examples button": "Manage examples",
+    "no error": "No error."
+  },
   "ok": "OK",
   "resource": {
     "fail": "resource failed to load",

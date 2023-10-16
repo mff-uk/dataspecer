@@ -4,7 +4,7 @@ export interface JsonObjectWriter {
     value: string | number | boolean | null
   ): Promise<void>;
 
-  value(key: string, value: string | number | boolean | null): Promise<void>;
+  value(key: string, value: string | number | boolean | null | object | any[]): Promise<void>;
 
   object(key: string): JsonObjectWriter;
 
@@ -16,7 +16,7 @@ export interface JsonObjectWriter {
 export interface JsonArrayWriter {
   valueIfNotNull(value: string | number | boolean | null): Promise<void>;
 
-  value(value: string | number | boolean | null): Promise<void>;
+  value(value: string | number | boolean | null | object | any[]): Promise<void>;
 
   object(): JsonObjectWriter;
 

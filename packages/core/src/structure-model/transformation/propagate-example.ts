@@ -19,6 +19,7 @@ export function propagateExample(
       continue;
     }
     classData.example = classData.example ?? conceptualClass.example ?? null;
+    classData.objectExample = classData.objectExample ?? conceptualClass.objectExample ?? null;
     classData.properties.forEach(property => {
       const conceptualProperty = propertyMap[property.pimIri];
       assert(!!conceptualProperty, `propagateExample: Conceptual property ${property.pimIri} should exists.`);

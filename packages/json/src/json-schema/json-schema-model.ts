@@ -25,6 +25,10 @@ export class JsonSchemaObject extends JsonSchemaDefinition {
 
   required: string[] = [];
 
+  examples: string[] = [];
+
+  objectExamples: object[] = [];
+
   /**
    * If true, sets additionalProperties to false.
    */

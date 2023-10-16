@@ -76,4 +76,6 @@ export class StructureModelClass {
   regex: string | null = null;
 
   example: unknown[] | null = null;
+
+  objectExample: unknown[] | null = null;
 }

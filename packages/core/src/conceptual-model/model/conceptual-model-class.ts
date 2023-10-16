@@ -22,6 +22,8 @@ export class ConceptualModelClass {
 
   example: unknown[] | null = null;
 
+  objectExample: unknown[] | null = null;
+
   static getAllExtends(cls: ConceptualModelClass): ConceptualModelClass[] {
     const result = new Set<ConceptualModelClass>();
     const queue = [...cls.extends];

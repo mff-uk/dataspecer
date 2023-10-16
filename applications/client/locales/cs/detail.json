@@ -25,6 +25,14 @@
   "in all languages": "Ve všech jazycích",
   "IRI": "IRI",
   "is codelist": "je číselníkem",
+  "json id type": {
+    "title": "Použití JSON @id a @type vlastností",
+    "value": {
+      "default": "Nechat výchozí nastavení",
+      "optional": "Nastavit optional",
+      "remove": "Odstranit z objektu"
+    }
+  },
   "label max": "max",
   "label min": "min",
   "label regex": "Regulární výraz",
@@ -35,6 +43,18 @@
   "no label": "bez názvu",
   "no translations": "žádné překlady nejsou k dispozici",
   "nothing here": "Zde nic není.",
+  "object examples": {
+    "dialog title": "Příklady objektů",
+    "example": "Příklad",
+    "examples": "Příklady",
+    "examples count_one": "1 příklad",
+    "examples count_few": "{{count}} příklady",
+    "examples count_many": "{{count}} příkladů",
+    "examples count_other": "{{count}} příkladů",
+    "help text": "Use JSON format to define example.",
+    "manage examples button": "Spravovat příklady",
+    "no error": "Bez chyb"
+  },
   "ok": "OK",
   "resource": {
     "fail": "nelze načíst",

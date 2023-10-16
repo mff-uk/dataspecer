@@ -20,6 +20,8 @@ export class PimClass extends PimResource {
 
   pimExample: string[] | null = null;
 
+  pimObjectExample: object[] | null = null;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(PimClass.TYPE);

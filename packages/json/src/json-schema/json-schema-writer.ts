@@ -84,6 +84,13 @@ async function writeJsonSchemaObject(
     await required.value(key);
   }
   await required.closeArray();
+  if (schema.objectExamples.length > 0) {
+    const examples = writer.array("examples");
+    for (const example of schema.objectExamples) {
+        await examples.value(example);
+    }
+    await examples.closeArray();
+  }
   const properties = writer.object("properties");
   for (const [key, value] of Object.entries(schema.properties)) {
     const property = properties.object(key);

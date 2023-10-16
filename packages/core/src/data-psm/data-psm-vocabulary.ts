@@ -101,6 +101,8 @@ export const SET_HUMAN_DESCRIPTION = PSM + "SetHumanDescription";
 
 export const SET_HUMAN_LABEL = PSM + "SetHumanLabel";
 
+export const SET_ID_TYPE = PSM + "SetIdType";
+
 export const SET_INTERPRETATION = PSM + "SetInterpretation";
 
 export const SET_IS_CLOSED = PSM + "SetIsClosed";

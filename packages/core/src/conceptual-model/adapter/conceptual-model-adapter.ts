@@ -163,6 +163,7 @@ class ConceptualModelAdapter {
     model.extends = classData.pimExtends.map((iri) => this.getClass(iri));
     model.regex = classData.pimRegex ?? null;
     model.example = classData.pimExample ?? null;
+    model.objectExample = classData.pimObjectExample ?? null;
   }
 }
 

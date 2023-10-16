@@ -68,6 +68,8 @@ export const SET_HUMAN_DESCRIPTION = PIM + "SetHumanDescription";
 
 export const SET_HUMAN_LABEL = PIM + "SetHumanLabel";
 
+export const SET_OBJECT_EXAMPLE = PIM + "SetObjectExample";
+
 export const SET_REGEX = PIM + "SetRegex";
 
 export const SET_TECHNICAL_LABEL = PIM + "SetTechnicalLabel";

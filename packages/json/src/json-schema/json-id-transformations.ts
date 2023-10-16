@@ -2,6 +2,11 @@ import {StructureModel, StructureModelClass, StructureModelComplexType, Structur
 import {clone} from "@dataspecer/core/core";
 import {JsonConfiguration} from "../configuration";
 import { getClassTypeKey } from "../json-ld/json-ld-adapter";
+import {JsonStructureModelClass} from "../json-structure-model/structure-model-class";
+
+function ifUndefined(value: any, defaultValue: any) {
+  return value === undefined ? defaultValue : value;
+}
 
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
@@ -15,9 +20,15 @@ export function structureModelAddIdAndTypeProperties(
   const result = clone(structure) as StructureModel;
   const classes = result.getClasses();
   for (const structureClass of classes) {
+    const localClassConfiguration = {
+      jsonIdKeyAlias: ifUndefined((structureClass as JsonStructureModelClass).jsonIdKeyAlias, configuration.jsonIdKeyAlias),
+      jsonIdRequired: ifUndefined((structureClass as JsonStructureModelClass).jsonIdRequired, configuration.jsonIdRequired),
+      jsonTypeKeyAlias: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeKeyAlias, configuration.jsonTypeKeyAlias),
+      jsonTypeRequired: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeRequired, configuration.jsonTypeRequired),
+    };
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
-      if (configuration.jsonTypeKeyAlias !== null) {
+      if (localClassConfiguration.jsonTypeKeyAlias !== null) {
         const typeKeyValue = getClassTypeKey(structureClass, configuration);
 
         const datatype = new StructureModelCustomType();
@@ -39,16 +50,16 @@ export function structureModelAddIdAndTypeProperties(
         };
 
         const id = new StructureModelProperty();
-        id.technicalLabel = configuration.jsonTypeKeyAlias;
+        id.technicalLabel = localClassConfiguration.jsonTypeKeyAlias;
         id.cardinalityMax = 1;
-        if (configuration.jsonTypeRequired) {
+        if (localClassConfiguration.jsonTypeRequired) {
           id.cardinalityMin = 1;
         }
         id.dataTypes = [datatype];
 
         structureClass.properties.unshift(id);
       }
-      if (configuration.jsonIdKeyAlias !== null) {
+      if (localClassConfiguration.jsonIdKeyAlias !== null) {
         const idDatatype = new StructureModelComplexType();
         idDatatype.dataType = new StructureModelClass();
         idDatatype.dataType.specification = structureClass.specification;
@@ -60,9 +71,9 @@ export function structureModelAddIdAndTypeProperties(
         }
 
         const id = new StructureModelProperty();
-        id.technicalLabel = configuration.jsonIdKeyAlias;
+        id.technicalLabel = localClassConfiguration.jsonIdKeyAlias;
         id.cardinalityMax = 1;
-        if (configuration.jsonIdRequired) {
+        if (localClassConfiguration.jsonIdRequired) {
           id.cardinalityMin = 1;
         }
         id.dataTypes = [idDatatype];
