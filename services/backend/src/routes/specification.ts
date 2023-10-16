@@ -4,6 +4,9 @@ import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
 import {asyncHandler} from "../utils/async-handler";
 import {LocalStoreDescriptor} from "../models/local-store-descriptor";
 import {dataPsmGarbageCollection, pimGarbageCollection} from "@dataspecer/core/garbage-collection";
+import {CoreResource} from "@dataspecer/core/core";
+import {PimSchema} from "@dataspecer/core/pim/model";
+import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
     if (request.query.dataSpecificationIri) {
@@ -81,3 +84,76 @@ export const garbageCollection = asyncHandler(async (request: express.Request, r
         deletedEntities,
     });
 });
+
+type ImportSpecifications = {
+    store: Record<string, CoreResource>;
+    dataSpecifications: Record<string, object>;
+    specificationsToImport: Record<string, string>;
+}
+
+export const importSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const data = request.body as ImportSpecifications;
+
+    const postUpdate = [];
+    for (const toImport of Object.keys(data.specificationsToImport)) {
+        const type = data.specificationsToImport[toImport];
+        if (type == "AS-IS") {
+            await forceImportSpecification(data.dataSpecifications[toImport], data.store);
+            postUpdate.push(data.dataSpecifications[toImport]);
+        }
+    }
+    for (const specification of postUpdate) {
+        await postUpdateSpecification(specification);
+    }
+
+    response.sendStatus(200);
+});
+
+async function forceImportSpecification(dataSpecification: any, store: Record<string, CoreResource>) {
+    const pimStoreId = dataSpecification.pimStores[0].url.split('/').pop();
+    await updateOrCreateStoreFromMerge(pimStoreId, dataSpecification.pim, store);
+
+
+    let model = await dataSpecificationModel.getDataSpecification(dataSpecification.iri);
+    if (!model) {
+        model = await dataSpecificationModel.restoreDataSpecification(dataSpecification.iri, dataSpecification.pim, pimStoreId);
+    }
+
+    await dataSpecificationModel.modifyDataSpecification(dataSpecification.iri, {
+       artefactConfiguration: dataSpecification.artefactConfiguration,
+        //importsDataSpecifications: dataSpecification.importsDataSpecifications,
+        tags: dataSpecification.tags,
+        type: dataSpecification.type,
+        cimAdapters: dataSpecification.cimAdapters,
+    });
+
+    for (const psm of dataSpecification.psms) {
+        const storeId = dataSpecification.psmStores[psm][0].url.split('/').pop();
+        await updateOrCreateStoreFromMerge(storeId, psm, store);
+
+        await dataSpecificationModel.restoreDataStructure(dataSpecification.iri, psm, storeId);
+    }
+}
+
+async function postUpdateSpecification(dataSpecification: any) {
+    await dataSpecificationModel.modifyDataSpecification(dataSpecification.iri, {
+        importsDataSpecifications: dataSpecification.importsDataSpecifications,
+    });
+}
+
+async function updateOrCreateStoreFromMerge(storeId: string, schemaIri: string, mergedStore: Record<string, CoreResource>) {
+    const root = mergedStore[schemaIri];
+    const entities: string[] = [schemaIri];
+    if (PimSchema.is(root)) {
+        entities.push(...root.pimParts);
+    } else if (DataPsmSchema.is(root)) {
+        entities.push(...root.dataPsmParts);
+    }
+
+    const newObject: Record<string, CoreResource> = {};
+    for (const entity of entities) {
+        newObject[entity] = mergedStore[entity];
+    }
+    await storeModel.set(storeId, JSON.stringify({resources: newObject, operations: []}));
+}
+

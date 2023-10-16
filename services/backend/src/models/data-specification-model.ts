@@ -104,6 +104,19 @@ export class DataSpecificationModel {
     return this.getDataSpecificationFromPrisma(prismaDataSpecification);
   }
 
+  public async restoreDataSpecification(iri: string, pimSchema: string, pimStoreUuid: string): Promise<DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores> {
+    const prismaDataSpecification = await this.prismaClient.dataSpecification.create({
+      data: {
+        id: iri,
+        pimSchema,
+        storeId: pimStoreUuid,
+      },
+      ...prismaDataSpecificationConfig
+    });
+
+    return this.getDataSpecificationFromPrisma(prismaDataSpecification);
+  }
+
   public async deleteDataSpecification(iri: string): Promise<boolean> {
     // Remove all data structures and their stores
 
@@ -215,6 +228,44 @@ export class DataSpecificationModel {
     return {
       dataSpecification: this.getDataSpecificationFromPrisma(dataSpecification),
       createdPsmSchemaIri: dataPsmSchema,
+    }
+  }
+
+  /**
+   * Inserts or sets the data structure.
+   * @param dataSpecificationIri
+   * @param dataStructure
+   */
+  public async restoreDataStructure(dataSpecificationIri: string, psmSchema: string, storeId: string) {
+    const found = await this.prismaClient.dataStructure.findFirst({
+      where: {
+        belongsToDataSpecificationId: dataSpecificationIri,
+        psmSchema,
+      }
+    });
+
+    if (!found) {
+      await this.prismaClient.dataStructure.create({
+        data: {
+          id: uuidv4(),
+          storeId,
+          psmSchema,
+          belongsToDataSpecification: {
+            connect: {
+              id: dataSpecificationIri
+            }
+          },
+        },
+      });
+    } else {
+      await this.prismaClient.dataStructure.update({
+        where: {
+          id: found.id,
+        },
+        data: {
+          storeId,
+        }
+      });
     }
   }
 

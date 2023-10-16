@@ -14,6 +14,7 @@ import {DeleteDataSpecificationForm} from "../../components/delete-data-specific
 import {useTranslation} from "react-i18next";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { SpecificationMoreMenu } from "../../components/specification-more-menu";
+import {ImportButton} from "../../import/import-button";
 
 function getSpecificationUrl(dataSpecificationIri: string) {
     return `specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}`;
@@ -87,7 +88,8 @@ export const Home: React.FC = memo(() => {
             <Typography variant="h4" component="div" gutterBottom>
                 {t("data specifications")}
             </Typography>
-            <div>
+            <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
+                <ImportButton />
                 <CreateSpecificationButton onSpecificationCreated={redirect} />
             </div>
         </Box>

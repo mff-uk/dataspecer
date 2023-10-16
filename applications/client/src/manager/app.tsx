@@ -84,28 +84,26 @@ function App(props: {children: React.ReactNode}) {
                     <ConstructedStoreCacheContext.Provider value={constructedStoreCache}>
                         <AvailableTags.Provider value={tags}>
                             <FilterContext.Provider value={filter}>
-                                <SnackbarProvider maxSnack={3}>
-                                    <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
-                                        <Toolbar>
-                                            <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
-                                                <strong>Dataspecer</strong> specification manager
-                                            </Typography>
-                                            <ReturnBackButton />
-                                            <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
-                                                <Help />
-                                            </Box>
-                                        </Toolbar>
-                                    </AppBar>
-                                    <Container>
-                                        {props.children}
-                                        <Divider style={{margin: "1rem 0 1rem 0"}} />
-                                        {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
-                                            <>
-                                                Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
-                                            </>
-                                        }
-                                    </Container>
-                                </SnackbarProvider>
+                                <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
+                                    <Toolbar>
+                                        <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                            <strong>Dataspecer</strong> specification manager
+                                        </Typography>
+                                        <ReturnBackButton />
+                                        <Box display="flex" sx={{flexGrow: 1, gap: 4}} justifyContent="flex-end">
+                                            <Help />
+                                        </Box>
+                                    </Toolbar>
+                                </AppBar>
+                                <Container>
+                                    {props.children}
+                                    <Divider style={{margin: "1rem 0 1rem 0"}} />
+                                    {process.env.REACT_APP_DEBUG_VERSION !== undefined &&
+                                        <>
+                                            Version: <span>{process.env.REACT_APP_DEBUG_VERSION}</span>
+                                        </>
+                                    }
+                                </Container>
                             </FilterContext.Provider>
                         </AvailableTags.Provider>
                     </ConstructedStoreCacheContext.Provider>

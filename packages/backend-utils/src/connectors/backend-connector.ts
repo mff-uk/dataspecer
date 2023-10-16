@@ -3,6 +3,7 @@ import {DataSpecificationWithStores} from "../interfaces/data-specification-with
 import {DataSpecificationWithMetadata} from "../interfaces/data-specification-with-metadata";
 import {UpdateDataSpecification} from "../interfaces/update-data-specification";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
+import { CoreResource } from "@dataspecer/core/core";
 
 /**
  * Handles the communication with the applications/backend package.
@@ -127,6 +128,20 @@ export class BackendConnector {
       body: JSON.stringify({
         dataSpecificationIri,
         dataPsmSchemaIri,
+      }),
+    });
+  }
+
+  public async importSpecifications(dataSpecifications: Record<string, object>, specificationsToImport: Record<string, string>, store: Record<string, CoreResource>): Promise<void> {
+    await fetch(this.backendUrl + "/import", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dataSpecifications,
+        specificationsToImport,
+        store,
       }),
     });
   }

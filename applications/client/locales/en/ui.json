@@ -38,6 +38,23 @@
   "error": "error",
   "generate artifacts": "Generate artifacts",
   "generate zip file": "Generate .ZIP file",
+  "import": {
+    "action": "Action",
+    "button import": "Import",
+    "close button": "Close",
+    "create": "Create",
+    "create-not": "Do not create",
+    "data specification": "Data specification",
+    "exists locally": "Exists locally?",
+    "import": "Import",
+    "imported message": "Specifications were successfully imported.",
+    "overwrite": "Overwrite",
+    "overwrite-not": "Do not overwrite",
+    "title": "Import data specifications",
+    "unable to read file": "Unable to read file.",
+    "upload file": "Upload file",
+    "upload info": "Please upload a .zip archive that was generated from the Dataspecer. The archive must contain resources/merged_store.json and resources/data_specifications.json files."
+  },
   "iri_copy": {
     "fail": "Failed to copy IRI to the clipboard",
     "success": "Copied IRI to the clipboard",

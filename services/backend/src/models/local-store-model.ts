@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
-import {rm, readFile, writeFile, access} from "fs/promises";
+import {rm, readFile, writeFile} from "fs/promises";
 import {LocalStoreDescriptor} from "./local-store-descriptor";
 
 /**
@@ -35,8 +35,10 @@ export class LocalStoreModel {
     async remove(localStoreDescriptor: LocalStoreDescriptor): Promise<void> {
         const path = this.getStorePath(localStoreDescriptor.uuid);
         if (path) {
-            await access(path);
-            await rm(path, {force: true});
+            try {
+                await rm(path, {force: true});
+            } catch (e) {
+            }
         }
     }
 
@@ -68,7 +70,6 @@ export class LocalStoreModel {
         const path = this.getStorePath(id);
         if (path) {
             try {
-                await access(path);
                 return await writeFile(path, payload);
             } catch (e) {
             }

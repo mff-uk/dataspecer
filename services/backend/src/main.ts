@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import {
     addSpecification,
     cloneSpecification,
-    deleteSpecification, garbageCollection,
+    deleteSpecification, garbageCollection, importSpecifications,
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
@@ -58,6 +58,8 @@ application.post(basename + '/data-specification/garbage-collection', garbageCol
 
 application.post(basename + '/data-specification/data-psm', createDataPsm);
 application.delete(basename + '/data-specification/data-psm', deleteDataPsm);
+
+application.post(basename + '/import', importSpecifications);
 
 // Configuration
 

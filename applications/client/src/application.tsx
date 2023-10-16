@@ -1,5 +1,5 @@
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
-import React, {createContext, useEffect, useState} from "react";
+import React, {createContext, useCallback, useEffect, useState} from "react";
 import {BrowserRouter, useRoutes} from "react-router-dom";
 import ManagerPage from "./manager/app";
 import {Home} from "./manager/routes/home/home";
@@ -10,8 +10,10 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getDefaultConfigurators} from "./configurators";
 import {Generate} from "./manager/routes/specification/generate/generate";
+import { SnackbarProvider } from "notistack";
 
 export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
+export const RefreshContext = React.createContext(null as unknown as () => void);
 /**
  * Contains merged default configuration from the source code and the configuration from the backend.
  */
@@ -34,7 +36,8 @@ const useDefaultConfiguration = (backendConnector: BackendConnector) => {
 }
 
 export const Application = () => {
-    const [backendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
+    const [backendConnector, setBackendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
+    const refresh = useCallback(() => setBackendConnector(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch)), []);
     const defaultConfiguration = useDefaultConfiguration(backendConnector);
 
     useEffect(() => {
@@ -47,12 +50,16 @@ export const Application = () => {
     return (
         //<StrictMode> // https://github.com/atlassian/react-beautiful-dnd/issues/2350
         <ThemeProvider theme={theme}>
-            <BackendConnectorContext.Provider value={backendConnector}>
-                <DefaultConfigurationContext.Provider value={defaultConfiguration}>
-                    <CssBaseline />
-                    <MainRouter />
-                </DefaultConfigurationContext.Provider>
-            </BackendConnectorContext.Provider>
+            <SnackbarProvider maxSnack={3}>
+                <RefreshContext.Provider value={refresh}>
+                    <BackendConnectorContext.Provider value={backendConnector}>
+                        <DefaultConfigurationContext.Provider value={defaultConfiguration}>
+                            <CssBaseline />
+                            <MainRouter />
+                        </DefaultConfigurationContext.Provider>
+                    </BackendConnectorContext.Provider>
+                </RefreshContext.Provider>
+            </SnackbarProvider>
         </ThemeProvider>
         //</StrictMode>
     );

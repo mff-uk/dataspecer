@@ -42,6 +42,23 @@
   "error": "chyba",
   "generate artifacts": "Generovat artefakty",
   "generate zip file": "Generovat do .ZIP souboru",
+  "import": {
+    "action": "Akce",
+    "button import": "Importovat",
+    "close button": "Zavřít",
+    "create": "Vytvořit",
+    "create-not": "Nevytvářet",
+    "data specification": "Datová specifikace",
+    "exists locally": "Existuje lokálně?",
+    "import": "Importovat",
+    "imported message": "Specifikace byly úspěšně importovány.",
+    "overwrite": "Přepsat",
+    "overwrite-not": "Nepřepisovat",
+    "title": "Import datových specifikací",
+    "unable to read file": "Nelze přečíst soubor.",
+    "upload file": "Nahrát soubor",
+    "upload info": "Prosím nahrejte .zip archiv, který byl vygenerován z Dataspeceru. Archiv musí obsahovat soubory resources/merged_store.json a resources/data_specifications.json."
+  },
   "iri_copy": {
     "fail": "Nepodařilo se zkopírovat IRI do schránky",
     "success": "IRI zkopírováno do schránky",
