@@ -21,7 +21,7 @@ import {FullDataSpecification} from "../data-specifications";
 import { useTranslation } from "react-i18next";
 
 
-export const SelectionWindow = ({importData: importData, dataSpecificationsToImport, setDataSpecificationsToImport, requiredSpecifications}: { importData: ImportData, dataSpecificationsToImport: string[], setDataSpecificationsToImport: (value: string[]) => void, requiredSpecifications: string[]}) => {
+export const SelectionWindow = ({importData, dataSpecificationsToImport, setDataSpecificationsToImport, requiredSpecifications}: { importData: ImportData, dataSpecificationsToImport: string[], setDataSpecificationsToImport: (value: string[]) => void, requiredSpecifications: string[]}) => {
     const dataSpecifications = useMemo(() => Object.values(importData.dataSpecifications), [importData.dataSpecifications]);
     const {t} = useTranslation("ui", {keyPrefix: 'import'});
 

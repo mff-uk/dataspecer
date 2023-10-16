@@ -60,7 +60,6 @@ export const Home: React.FC = memo(() => {
     const DeleteForm = useDialog(DeleteDataSpecificationForm);
 
     const [filter] = useContext(FilterContext);
-    console.log("filter", filter);
     const specificationsToShow = useMemo(() =>
         rootDataSpecificationIris.filter(iri =>
             filter === null ||
@@ -126,7 +125,7 @@ export const Home: React.FC = memo(() => {
                 )}
                 {selected.length > 0 ? <Box sx={{display: "flex", gap: 2}}>
                     <Button onClick={generateDialogOpen.open}>Generate to .ZIP</Button>
-                    <Button color="error">Delete</Button>
+                    {/*<Button color="error">Delete</Button>*/}
                 </Box> : <FilterByTagSelect />}
             </Toolbar>
             <TableContainer>

@@ -8,7 +8,6 @@ import {DataSpecifications} from "./data-specifications";
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {AvailableTags, FilterContext} from "./routes/home/filter-by-tag-select";
 import {useLocalStorage} from "./utils/use-local-storage";
-import {SnackbarProvider} from 'notistack';
 import {BackendConnectorContext} from "../application";
 import {Help} from "../components/help";
 import {ReturnBackButton} from "../components/return-back/return-back-button";
