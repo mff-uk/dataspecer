@@ -70,6 +70,8 @@ class JsonSchemaCreator{
         const structureModelClass = new ModelCreator;
         const conceptualModelClass = new ConceptualModelCreator;
         const jsonconfig = DefaultJsonConfiguration;
+        jsonconfig.dereferenceSchema = true;
+        jsonconfig.jsonIdRequired
         const spec = new DataSpecification();
         spec.pim = "https://example.com/class1/mojePimIri";
         const jsonschemagen = new JsonSchemaGenerator();
@@ -105,6 +107,14 @@ class JsonSchemaCreator{
           {} as DataSpecificationArtefact,
           defaultStringSelector
         );
+
+//Snaha napsat generovani podle Stepanovy rady
+const memoryStream = new MemoryStreamDictionary();
+      jsonschemagen.generateToStream(context,artefact,specification,memoryStream);
+      //await memoryStream.readPath().read();
+      memoryStream.list();
+
+
         console.log("Model .... " + JSON.stringify(model, null, 2));
       console.log("Actual .... " + JSON.stringify(actual, null, 2));
       console.log(model);

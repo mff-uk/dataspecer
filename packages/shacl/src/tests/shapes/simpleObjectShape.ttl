@@ -6,57 +6,62 @@
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
+<https://base.com.myexample/2505adresa-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Adresa bydliště dané osoby"@cs;
+    sh:name "Adresa"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/Adresa>.
 <https://example.com/class2/AdresaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class2/adresa>;
     sh:description "Adresa bydliště dané osoby"@cs;
-    sh:name "Adresa"@cs, "Adres"@pl;
-    sh:property [
-  sh:description "Ulice bydliště"@cs;
-  sh:name "ulice"@cs;
-  sh:maxCount 1;
-  sh:path <https://example.com/Ulice>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
-], [
-  sh:description "Číslo popisné dané budovy"@cs;
-  sh:name "Číslo popisné"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/CisloPopisne>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
-], [
-  sh:description "Město, ve kterém se nachází budova"@cs;
-  sh:name "Město"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/Mesto>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
-], [
-  sh:description "Poštovní směrovací číslo"@cs;
-  sh:name "PSČ"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/PSC>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
-], [
-  sh:description "Stát - země, ve které se objekt nachází"@cs;
-  sh:name "Stát"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/Stat>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#string>
-].
-<https://example.com/class1/OsobaShape> sh:property [
-  sh:description "Adresa bydliště dané osoby"@cs;
-  sh:name "Adresa"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/Adresa>;
-  sh:node <https://example.com/class2/AdresaShape>
-], [
-  sh:description "Link na entitu"@cs;
-  sh:name "Link"@cs;
-  sh:minCount 1;
-  sh:maxCount 2;
-  sh:path <https://example.com/Link>;
-  sh:nodeKind sh:BlankNodeOrIRI
-].
+    sh:name "Adresa"@cs, "Adres"@pl.
+<https://base.com.myexample/2505ulice-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Ulice bydliště"@cs;
+    sh:name "ulice"@cs;
+    sh:maxCount 1;
+    sh:path <https://example.com/Ulice>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505ulice-popisekPropertyShape>.
+<https://base.com.myexample/2505cislo-popisne-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Číslo popisné dané budovy"@cs;
+    sh:name "Číslo popisné"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/CisloPopisne>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505cislo-popisne-popisekPropertyShape>.
+<https://base.com.myexample/2505mesto-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Město, ve kterém se nachází budova"@cs;
+    sh:name "Město"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/Mesto>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505mesto-popisekPropertyShape>.
+<https://base.com.myexample/2505psc-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Poštovní směrovací číslo"@cs;
+    sh:name "PSČ"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/PSC>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505psc-popisekPropertyShape>.
+<https://base.com.myexample/2505stat-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Stát - země, ve které se objekt nachází"@cs;
+    sh:name "Stát"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/Stat>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505stat-popisekPropertyShape>.
+<https://base.com.myexample/2505adresa-popisekPropertyShape> sh:node <https://example.com/class2/AdresaShape>.
+<https://example.com/class1/OsobaShape> sh:property <https://base.com.myexample/2505adresa-popisekPropertyShape>.
+<https://base.com.myexample/2505link-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Link na entitu"@cs;
+    sh:name "Link"@cs;
+    sh:minCount 1;
+    sh:maxCount 2;
+    sh:path <https://example.com/Link>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<https://example.com/class1/OsobaShape> sh:property <https://base.com.myexample/2505link-popisekPropertyShape>.

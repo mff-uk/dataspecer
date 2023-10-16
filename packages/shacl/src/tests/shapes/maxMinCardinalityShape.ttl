@@ -5,12 +5,12 @@
 <https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:description "Class 1 Popisek 1"@cs;
-    sh:name "Class 1 Label 1"@cs;
-    sh:property [
-  sh:description "Vek"@cs;
-  sh:name "vek"@cs;
-  sh:minCount 1;
-  sh:maxCount 1;
-  sh:path <https://example.com/vek>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#integer>
-].
+    sh:name "Class 1 Label 1"@cs.
+<https://base.com.myexample/2505vek-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Vek"@cs;
+    sh:name "vek"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://example.com/vek>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505vek-popisekPropertyShape>.

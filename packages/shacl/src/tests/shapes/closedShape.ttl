@@ -7,11 +7,11 @@
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:description "Class 1 Popisek 1"@cs;
-    sh:name "Class 1 Label 1"@cs;
-    sh:property [
-  sh:description "Popisek 1"@cs;
-  sh:name "Label 1"@cs;
-  sh:maxCount 2;
-  sh:path <https://example.com/mojeCimIri>;
-  sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>
-].
+    sh:name "Class 1 Label 1"@cs.
+<https://base.com.myexample/2505technickypopisekPropertyShape> a sh:PropertyShape;
+    sh:description "Popisek 1"@cs;
+    sh:name "Label 1"@cs;
+    sh:maxCount 2;
+    sh:path <https://example.com/mojeCimIri>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
+<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505technickypopisekPropertyShape>.

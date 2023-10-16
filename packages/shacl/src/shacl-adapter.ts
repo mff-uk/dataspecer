@@ -93,6 +93,7 @@ type QName = [prefix: string | null, localName: string];
 type PrefixDef = [tag: string, iri: string];
 type sameTag = [tag: string, number: number];
 type classNameShapeTuple = [classShapeName: string, classObject: StructureModelClass];
+type StructureModelClassOrProperty = StructureModelClass | StructureModelProperty;
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
@@ -300,6 +301,7 @@ export class ShaclAdapter {
     var propDesc = "";
     if (root.properties != null && root.properties.length != 0) {
       for (const [i, prop] of root.properties.entries()) {
+
         const cardinalitymin = prop.cardinalityMin;
         const cardinalitymax = prop.cardinalityMax;
         const cimiri = prop.cimIri;
@@ -310,104 +312,53 @@ export class ShaclAdapter {
         const isreverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
         
-        
-        var blankNodes = [];
-        this.generateLanguageString(humandesc,null, blankNodes, "description");
-        this.generateLanguageString(humanLabel,null, blankNodes, "name");
+        //Create PropertyNode to connect to
+        const nodeIRI = this.getIRIforShape(prop);
+
+        this.writer.addQuad(
+          namedNode( nodeIRI ),
+          namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          namedNode('http://www.w3.org/ns/shacl#PropertyShape')
+        );
+
+        this.generateLanguageString(humandesc, nodeIRI, null, "description");
+        this.generateLanguageString(humanLabel, nodeIRI, null, "name");
+
           if(cardinalitymin != 0 && cardinalitymin != null){
-            blankNodes.push({
-              predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-              object:    literal(cardinalitymin)
-            });
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#minCount'),
+              literal(cardinalitymin)
+            );
           }
+
           if(cardinalitymax != 0 && cardinalitymax != null) {
-            blankNodes.push({
-              predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
-              object:    literal(cardinalitymax)
-            });
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#maxCount'),
+              literal(cardinalitymax)
+            );
           }
-          blankNodes.push({
-            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-            object:    namedNode(cimiri),
-            });
 
-          this.getObjectForPropType(prop.dataTypes, blankNodes);
-          
+          this.writer.addQuad(
+            namedNode( nodeIRI ),
+            namedNode('http://www.w3.org/ns/shacl#path'),
+            namedNode( cimiri )
+          );
 
+          // Add datatype for the PopertyNode
+          // TODO
+          this.getObjectForPropType(prop.dataTypes, nodeIRI);
+
+          // Add property to the parent class
           this.writer.addQuad(
             namedNode(classNameIri),
             namedNode('http://www.w3.org/ns/shacl#property'),
-            this.writer.blank(blankNodes));
-/*
-          this.writer.addQuad(
-            namedNode(classNameIri),
-            namedNode('http://www.w3.org/ns/shacl#property'),
-            this.writer.blank([
-              {
-              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-              object:    namedNode(cimiri),
-              }
-            ]));
-            */
-/*
-          this.writer.addQuad(
-            namedNode(classNameIri),
-            namedNode('http://www.w3.org/ns/shacl#property'),
-            this.writer.blank([
-              {
-              predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-              object:    namedNode(cimiri),
-              },
-              (cardinalitymin != 0 && cardinalitymin != null) ? {
-                predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-                object:    literal(cardinalitymin)
-              } : {},
-              (cardinalitymax != 0 && cardinalitymax != null) ? {
-                  predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
-                  object:    literal(cardinalitymax)
-                } : {},
-              this.getObjectForPropType(prop.dataTypes)
-            ]));
-        */
-        propDesc = propDesc.concat(this.getObjectForPropMin(cardinalitymin));
-        propDesc = propDesc.concat(this.getObjectForPropMax(cardinalitymax));
-        //propDesc = propDesc.concat(this.getObjectForPropType(prop.dataTypes));
-        
-        propDesc = propDesc.concat(``);
-        
-
-          /*
-        // set up the inner property shape
-        propDesc = propDesc.concat(`\n\tsh:property [`);
-        // set up the path of the analyzed property
-        const qnameForPath = this.prefixify(cimiri);
-        propDesc = propDesc.concat(`\n\t\tsh:path ${ qnameForPath[0] }:${qnameForPath[1]};`);
-        // if there is minimal cardinality needed, set it 
-        if(cardinalitymin != null && cardinalitymin != 0){
-          propDesc = propDesc.concat(`\n\t\tsh:minCount ${cardinalitymin} ;`);
-        }
-        // if there is maximal cardinality needed, set it 
-        if(cardinalitymax != null){
-          propDesc = propDesc.concat(`\n\t\tsh:maxCount ${cardinalitymax} ;`);
-        }
-*/
-
-        // set labels so that the user knows what is being checked
-        //propDesc = this.unpackLanguageString(`\tsh:name`, humanLabel);
-        // set descriptions if available
-        //propDesc = this.unpackLanguageString(`\tsh:description`, humandesc);
-
-        
-        //propDesc = propDesc.concat(`\n\t\tsh:datatype ${datatypes} ;`);
-        /*
-        propDesc = propDesc.concat(`\n\t\tdemat ${demat} ;`);
-        propDesc = propDesc.concat(`\n\t\tisreverse ${isreverse} ;`);
-        propDesc = propDesc.concat(`\n\t\tpathtoorigin ${pathtoorigin} ;`);
-        */
+            namedNode( nodeIRI ));
       }
     }
     
-    return propDesc;
+    return "returnFromPropertiesCreation";
   }
 
   protected getObjectForPropMin(min: number): string{
@@ -432,8 +383,29 @@ export class ShaclAdapter {
     }
   }
 
+  protected irify(label: string) : string{
+    var irifiedString : string;
 
-  protected getObjectForPropType(datatypes: StructureModelType[], blankNodes: any[]): void {
+    irifiedString = label.replaceAll(/\s/g,"");
+
+    return irifiedString;
+  }
+
+  protected getIRIforShape(root: StructureModelClassOrProperty): string{
+    var generatedIRI : string;
+    // TODO 
+    var baseIRI = "https://base.com.myexample/"
+    var md5 = "2505";
+    const technicalName = this.irify(root.technicalLabel);
+    const nodeOrProperty = (root instanceof StructureModelClass) ? "NodeShape" : "PropertyShape";
+
+    generatedIRI = baseIRI + md5 + technicalName + nodeOrProperty;
+
+    return generatedIRI;
+  }
+
+
+  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -442,10 +414,10 @@ export class ShaclAdapter {
         const dtcasted = <StructureModelComplexType> dt;
 
         if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
-          blankNodes.push({
-            predicate: namedNode('http://www.w3.org/ns/shacl#nodeKind'),
-            object:    namedNode( 'http://www.w3.org/ns/shacl#BlankNodeOrIRI' )
-          });
+          this.writer.addQuad(
+            namedNode( propertyNodeIRI ),
+            namedNode('http://www.w3.org/ns/shacl#nodeKind'),
+            namedNode( 'http://www.w3.org/ns/shacl#BlankNodeOrIRI' ));
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
           const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
@@ -454,10 +426,10 @@ export class ShaclAdapter {
           var name = splitted[splitted.length-1];
           var prefix = dtcasted.dataType.cimIri.substring(0, dtcasted.dataType.cimIri.length - name.length);
           const shapeName = prefix + nameForAnotherClass;
-          blankNodes.push({
-            predicate: namedNode('http://www.w3.org/ns/shacl#node'),
-            object:    namedNode( shapeName )
-          });
+          this.writer.addQuad(
+            namedNode( propertyNodeIRI ),
+            namedNode('http://www.w3.org/ns/shacl#node'),
+            namedNode( shapeName ));
         }
         
         
@@ -473,16 +445,16 @@ export class ShaclAdapter {
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
             }
-            blankNodes.push( {
-              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode(simpleTypeMapIRI[dtcasted.dataType])
-            });
+            this.writer.addQuad(
+              namedNode( propertyNodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#datatype'),
+              namedNode( simpleTypeMapIRI[dtcasted.dataType] ));
           } else{
             if(dtcasted.dataType != null){
-            blankNodes.push( {
-              predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-              object:    namedNode(dtcasted.dataType)
-            });
+              this.writer.addQuad(
+                namedNode( propertyNodeIRI ),
+                namedNode('http://www.w3.org/ns/shacl#datatype'),
+                namedNode( dtcasted.dataType ));
           } 
           }
         
@@ -497,44 +469,19 @@ export class ShaclAdapter {
         
       } else if(dt.isCustomType() == true){
         // CUSTOM TYPE IS NOT USED AT THE MOMENT
+        /*
         const dtcasted = <StructureModelCustomType> dt;
         if(dtcasted != null){
         blankNodes.push( {
           predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
           object:    namedNode('${ dtcasted.data}')
         });}
+        */
         //propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
       };
         //throw new Error("Datatype must be one of the 3 basic types.");
     }
   }
-  /*
-  unpackLanguageString(languageString: LanguageString): typeof literal {
-    for (const languageTag in languageString) {
-      const language = languageString[languageTag];
-      if(languageString != null){
-        return literal(language, languageTag);
-      } else{
-        return null;
-      }
-    }
-
-    
-  }
-  */
-
-/*
-  unpackLanguageString(stringToAppendTo: string, beginning: string, languageString: LanguageString): string {
-    for (const languageTag in languageString) {
-      const language = languageString[languageTag];
-      stringToAppendTo =
-        languageString != null
-          ? stringToAppendTo.concat(`\n\t${beginning} \"${language}\"@${languageTag} ;`)
-          : "";
-    }
-    return stringToAppendTo;
-  }
-  */
 
   /**
    * Parse the IRI into tag:name and put known prefixes into array. Check for duplicates in tags.

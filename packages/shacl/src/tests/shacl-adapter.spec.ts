@@ -1,4 +1,4 @@
-/*
+
 import fs, { PathLike } from "fs";
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
@@ -204,7 +204,7 @@ const contextPart = `{
     }
   }
 }`;
- 
+ /*
 async function parse(doc: string): Promise<Stream<Quad>>{
   console.log("doc in parse function \n" + doc);
   const parserJsonld = new ParserJsonld();
@@ -245,6 +245,8 @@ output2.pipe(process.stdout);
 
   return output;
 }
+*/
+/*
 
 test('Test SHACL ', async () => {
   var mc = new ModelCreator();
@@ -263,7 +265,7 @@ const jsonLd = jldc.createJsonLD(sm);
 
   await console.log("doc part in test\n" + doc);
 
-  const output = await parse(doc);
+  //const output = await parse(doc);
   
   //await console.log("Json Schema  " + (await jsonSchema).root);
   //await main();
