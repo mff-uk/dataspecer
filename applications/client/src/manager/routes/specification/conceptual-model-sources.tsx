@@ -1,6 +1,6 @@
 import {
     Box, Button,
-    Card, CardContent, Collapse,
+    Card, CardContent, Chip, Collapse,
     FormControl,
     FormControlLabel,
     FormLabel,
@@ -39,16 +39,20 @@ export const ConceptualModelSources: FC<ConceptualModelSourcesProps> = (props) =
     }
 }
 
+const WIKIDATA_ADAPTER = "https://dataspecer.com/adapters/wikidata";
+
 const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = ({dataSpecificationIri, dataSpecification}) => {
     const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
     const {enqueueSnackbar} = useSnackbar();
 
-    const [radio, setRadio] = useState((dataSpecification.cimAdapters?.length ?? 0) === 0 ? "sgov" : "files");
-    const [urls, setUrls] = useState(dataSpecification.cimAdapters ?? []);
+    const adapters = dataSpecification.cimAdapters ?? [];
+
+    const [radio, setRadio] = useState(adapters.length === 0 ? "sgov" : (adapters.length === 1 && adapters[0] === WIKIDATA_ADAPTER ? "wikidata" : "files"));
+    const [urls, setUrls] = useState(dataSpecification.cimAdapters);
 
     const handleSave = useCallback(async () => {
-        const cimAdapters = radio === "sgov" ? [] : urls.filter(url => url.length > 0);
+        const cimAdapters = radio === "sgov" ? [] : (radio === "wikidata" ? [WIKIDATA_ADAPTER] : urls.filter(url => url.length > 0));
         const newSpecification = await backendConnector.updateDataSpecification(dataSpecificationIri, {cimAdapters});
         setDataSpecifications({...dataSpecifications, [newSpecification.iri]: newSpecification});
         enqueueSnackbar("Sources configuration saved", {variant: "success"});
@@ -71,6 +75,7 @@ const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = 
                         >
                             <FormControlLabel value="sgov" control={<Radio />} label="slovník.gov.cz" />
                             <FormControlLabel value="files" control={<Radio />} label="RDF files" />
+                            <FormControlLabel value="wikidata" control={<Radio />} label={<>Wikidata <Chip label="experimental" variant="outlined" color="warning" size="small" /></>} />
                         </RadioGroup>
                     </FormControl>
 
