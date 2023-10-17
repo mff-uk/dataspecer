@@ -4,12 +4,12 @@ export function searchQuery(search: string) {
     return "search:" + search;
 }
 
-export function classSurroundingsQuery(iri: string) {
-    return "surroundings:" + iri;
+export function classSurroundingsQuery(id: string) {
+    return "surroundings:" + id;
 }
 
-export function classQuery(iri: string) {
-    return "class:" + iri;
+export function classQuery(id: string) {
+    return "class:" + id;
 }
 
 export interface SearchQueryEntity extends Entity {
