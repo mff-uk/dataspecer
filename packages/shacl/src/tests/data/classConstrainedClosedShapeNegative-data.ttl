@@ -18,7 +18,7 @@
                                         ex:Stat "Česká republika";
                                         ex:datum_nastupu "2002-09-24"^^xsd:date;
                                         ex:cisloDomu "1223"^^xsd:integer.
-<http://localhost/resources/jmeno_a_prijmeni>   a <https://example.com/Jmeno_A_Prijmeni>;
+<http://localhost/resources/jmeno_a_prijmeni>   a <https://example.com/Jmeno_A_Prijmeni_class>;
                                         ex:Jmeno "Zembo";
                                         ex:Jmeno "Lambo";
                                         ex:Prijmeni "Vymysleny";

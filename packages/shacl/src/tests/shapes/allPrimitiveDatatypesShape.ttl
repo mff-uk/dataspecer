@@ -2,69 +2,69 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex: <https://example.org/>.
 
-<https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
-<https://base.com.myexample/2505vek-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/e136c6808f743586e67b93108870a7e8/vek-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Vek"@cs;
     sh:name "vek"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/vek>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505vek-popisekPropertyShape>.
-<https://base.com.myexample/2505studujici-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/e136c6808f743586e67b93108870a7e8/vek-popisekPropertyShape>.
+<https://example.com/d577c9fda44ff336eb32fe8f42e21da3/studujici-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Studujici"@cs;
     sh:name "studujici"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/student>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505studujici-popisekPropertyShape>.
-<https://base.com.myexample/2505hodnoceni-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/d577c9fda44ff336eb32fe8f42e21da3/studujici-popisekPropertyShape>.
+<https://example.com/2d64b33d0f8a09c90ab0e95a4943b67c/hodnoceni-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Hodnoceni"@cs;
     sh:name "hodnoceni"@cs;
     sh:minCount 1;
     sh:maxCount 3;
     sh:path <https://example.com/hodnoceni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505hodnoceni-popisekPropertyShape>.
-<https://base.com.myexample/2505darum-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/2d64b33d0f8a09c90ab0e95a4943b67c/hodnoceni-popisekPropertyShape>.
+<https://example.com/de7c93d348de03c32499c02e59c65c7b/darum-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Datum nástupu"@cs;
     sh:name "Nástup"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/datum_nastupu>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505darum-popisekPropertyShape>.
-<https://base.com.myexample/2505cas-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/de7c93d348de03c32499c02e59c65c7b/darum-popisekPropertyShape>.
+<https://example.com/e0ab3c6e824640c7a839eb269394b32b/cas-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Začátek výuky (hod)"@cs;
     sh:name "Počáteční hodina výuky"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/zacatek_vyuky>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505cas-popisekPropertyShape>.
-<https://base.com.myexample/2505casova-znacka-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/e0ab3c6e824640c7a839eb269394b32b/cas-popisekPropertyShape>.
+<https://example.com/428cb23ef6e434c90a74da56c872968c/casova-znacka-popisekPropertyShape> a sh:PropertyShape;
     sh:description "časová známka založení účtu"@cs;
     sh:name "Datum a čas založení účtu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/cas_zalozeni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#dateTimeStamp>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505casova-znacka-popisekPropertyShape>.
-<https://base.com.myexample/2505profil-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/428cb23ef6e434c90a74da56c872968c/casova-znacka-popisekPropertyShape>.
+<https://example.com/d88eba98f736ea153c60a12c555d3a55/profil-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Odkaz na profil studenta"@cs;
     sh:name "Profil studenta"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/profil_studenta>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#anyURI>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505profil-popisekPropertyShape>.
-<https://base.com.myexample/2505slovni-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/d88eba98f736ea153c60a12c555d3a55/profil-popisekPropertyShape>.
+<https://example.com/f63759556d2dfa81c24c87e4f98e38ed/slovni-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Poznámky k hodnocení studenta"@cs;
     sh:name "Slovní hodnocení"@cs;
     sh:minCount 1;
     sh:path <https://example.com/slovni_hodnoceni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505slovni-popisekPropertyShape>.
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/f63759556d2dfa81c24c87e4f98e38ed/slovni-popisekPropertyShape>.

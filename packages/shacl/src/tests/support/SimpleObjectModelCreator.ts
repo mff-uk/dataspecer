@@ -189,6 +189,8 @@ class SimpleObjectModelCreator implements ModelCreator{
       root1.classes = [class1];
   
       model.roots = [root1];
+      model.psmIri = "https://example.com/class1/mojePsmIri";
+      
   
     return model;
   }

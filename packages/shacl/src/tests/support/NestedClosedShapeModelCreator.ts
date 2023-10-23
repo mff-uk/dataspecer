@@ -245,7 +245,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       class3.isClosed = true;
       class3.specification = null;
       class3.structureSchema = null;
-      class3.technicalLabel = "adresa";
+      class3.technicalLabel = "jmeno-a-prijmeni-popisek";
 
       var complexType2 : StructureModelComplexType;
       complexType2 = new StructureModelComplexType();

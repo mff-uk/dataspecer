@@ -487,8 +487,9 @@ const contextPart = `{
   }
 }`;
 
-  async function generate(schema : String) : Promise<String> {
-    const json = JSON.parse(reffedSchema);
+  async function generate(schema : string) : Promise<String> {
+    //const json = JSON.parse(schema);
+    const json = JSON.parse(reffedSchema); // Sample json schema
     JSONSchemaFaker.option({alwaysFakeOptionals: true, requiredOnly: true});
     const asyncValue = await JSONSchemaFaker.resolve(json);
     
@@ -509,11 +510,12 @@ const contextPart = `{
     const output = parserJsonld.import(input);
   
     var str = "";
-
+    /*
     output.on('data', quad => {
       console.log(`${quad.subject.value} - ${quad.predicate.value} - ${quad.object.value}`);
     })
   console.log("str in fake \n" + str);
+  */
     /*
     output.on('data', quad => {
       console.log(`${quad.subject.value} - ${quad.predicate.value} - ${quad.object.value}`)

@@ -2,95 +2,117 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex: <https://example.org/>.
 
-<https://example.com/class1/OsobaShape> a sh:NodeShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
-<https://base.com.myexample/2505adresa-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Adresa>.
-<https://example.com/class2/AdresaShape> a sh:NodeShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class2/adresa>;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs, "Adres"@pl.
-<https://base.com.myexample/2505ulice-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/fdc4f97d6cdf0965d14c6ae8b9088144/ulice-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Ulice bydliště"@cs;
     sh:name "ulice"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Ulice>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505ulice-popisekPropertyShape>.
-<https://base.com.myexample/2505cislo-popisne-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.com/fdc4f97d6cdf0965d14c6ae8b9088144/ulice-popisekPropertyShape>.
+<https://example.com/182292a8146184809f265b9775ae733c/cislo-popisne-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
     sh:name "Číslo popisné"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/CisloPopisne>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505cislo-popisne-popisekPropertyShape>.
-<https://base.com.myexample/2505mesto-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.com/182292a8146184809f265b9775ae733c/cislo-popisne-popisekPropertyShape>.
+<https://example.com/ec7afcaa32464f12fe838df1161fc8cf/mesto-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Město, ve kterém se nachází budova"@cs;
     sh:name "Město"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Mesto>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505mesto-popisekPropertyShape>.
-<https://base.com.myexample/2505psc-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.com/ec7afcaa32464f12fe838df1161fc8cf/mesto-popisekPropertyShape>.
+<https://example.com/3c032636c8df97ad9a308e2a313f8716/psc-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Poštovní směrovací číslo"@cs;
     sh:name "PSČ"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/PSC>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505psc-popisekPropertyShape>.
-<https://base.com.myexample/2505stat-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.com/3c032636c8df97ad9a308e2a313f8716/psc-popisekPropertyShape>.
+<https://example.com/14f6adb526d3e0ef133bff8942ad88aa/stat-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Stát - země, ve které se objekt nachází"@cs;
     sh:name "Stát"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Stat>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.com/class2/AdresaShape> sh:property <https://base.com.myexample/2505stat-popisekPropertyShape>.
-<https://base.com.myexample/2505adresa-popisekPropertyShape> sh:node <https://example.com/class2/AdresaShape>.
-<https://example.com/class1/OsobaShape> sh:property <https://base.com.myexample/2505adresa-popisekPropertyShape>.
-<https://base.com.myexample/2505jmeno-a-prijmeni-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.com/14f6adb526d3e0ef133bff8942ad88aa/stat-popisekPropertyShape>.
+<https://example.com/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> sh:node <https://example.com/class2/https://example.com/734c20709639d1c179e0719bbb62668a/adresaNodeShape>.
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.com/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape>.
+<https://example.com/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Jméno a příjmení dané osoby"@cs;
     sh:name "Jméno a příjmení"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Jmeno_A_Prijmeni>;
-    sh:node <https://example.com/AdresaShape>.
-<https://example.com/class1/OsobaShape> sh:property <https://base.com.myexample/2505jmeno-a-prijmeni-popisekPropertyShape>.
-<https://base.com.myexample/2505narozeni-a-umrti-popisekPropertyShape> a sh:PropertyShape;
+    sh:path <https://example.com/Jmeno_A_Prijmeni>.
+<https://example.com/21c6605ec1ddb44c7492034ebbf9c28c/adresaNodeShape> a sh:NodeShape;
+    sh:targetClass <https://example.com/Jmeno_A_Prijmeni_class>;
+    sh:closed true;
+    sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
+    sh:description "Jméno a příjmení dané osoby"@cs;
+    sh:name "Jméno a příjmení"@cs, "First and last name"@en.
+<https://example.com/9575c5e9bb444a28b8d242d572804e75/jmeno-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Jméno osoby"@cs;
+    sh:name "Jméno"@cs;
+    sh:minCount 1;
+    sh:maxCount 2;
+    sh:path <https://example.com/Jmeno>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<https://example.com/21c6605ec1ddb44c7492034ebbf9c28c/adresaNodeShape> sh:property <https://example.com/9575c5e9bb444a28b8d242d572804e75/jmeno-popisekPropertyShape>.
+<https://example.com/b68648cdd062d7b59b33b9323a113b84/prijmeni-popisekPropertyShape> a sh:PropertyShape;
+    sh:description "Příjmení"@cs;
+    sh:name "Příjmení"@cs;
+    sh:minCount 1;
+    sh:maxCount 2;
+    sh:path <https://example.com/Prijmeni>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<https://example.com/21c6605ec1ddb44c7492034ebbf9c28c/adresaNodeShape> sh:property <https://example.com/b68648cdd062d7b59b33b9323a113b84/prijmeni-popisekPropertyShape>.
+<https://example.com/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape> sh:node <https://example.com/https://example.com/21c6605ec1ddb44c7492034ebbf9c28c/adresaNodeShape>.
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.com/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape>.
+<https://example.com/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Datum narození a úmrtí dané osoby"@cs;
     sh:name "Datum narození a úmrtí"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni_a_umrti>.
-<https://example.com/Narozeni-a-umrtiShape> a sh:NodeShape;
+<https://example.com/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Narozeni_a_umrti_class>;
     sh:description "Datum narození a úmrtí dané osoby"@cs;
     sh:name "Datum narození a úmrtí"@cs, "Date of birth and death"@en.
-<https://base.com.myexample/2505narozeni-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/022b24ad38b76b39e236aacef0a4d2b4/narozeni-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Datum narození dané osoby"@cs;
     sh:name "Datum narození"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.com/Narozeni-a-umrtiShape> sh:property <https://base.com.myexample/2505narozeni-popisekPropertyShape>.
-<https://base.com.myexample/2505umrti-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> sh:property <https://example.com/022b24ad38b76b39e236aacef0a4d2b4/narozeni-popisekPropertyShape>.
+<https://example.com/7b194b651cb25b2c4e34b5983ff8b1a7/umrti-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Datum úmrtí osoby"@cs;
     sh:name "Datum úmrtí"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Umrti>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.com/Narozeni-a-umrtiShape> sh:property <https://base.com.myexample/2505umrti-popisekPropertyShape>.
-<https://base.com.myexample/2505narozeni-a-umrti-popisekPropertyShape> sh:node <https://example.com/Narozeni-a-umrtiShape>.
-<https://example.com/class1/OsobaShape> sh:property <https://base.com.myexample/2505narozeni-a-umrti-popisekPropertyShape>.
+<https://example.com/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> sh:property <https://example.com/7b194b651cb25b2c4e34b5983ff8b1a7/umrti-popisekPropertyShape>.
+<https://example.com/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> sh:node <https://example.com/https://example.com/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape>.
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.com/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape>.

@@ -15,7 +15,7 @@ import { Readable } from 'stream';
 import { DataFactory, Sink, Stream, BaseQuad, Quad } from 'rdf-js';
 
 import rdf from '@rdfjs/data-model';
-import Serializer from '@rdfjs/serializer-turtle';
+//import Serializer from '@rdfjs/serializer-turtle';
 
 //const Serializer = require('@rdfjs/serializer-turtle');
 
@@ -224,7 +224,8 @@ async function parse(doc: string): Promise<Stream<Quad>>{
 
 
 //From quads to turtle
-const serializer = new Serializer()
+
+//const serializer = new Serializer()
 const input2 = Readable.from([
   rdf.quad(
     rdf.namedNode('https://housemd.rdf-ext.org/person/gregory-house'),
@@ -240,14 +241,14 @@ const input2 = Readable.from([
     rdf.namedNode('https://housemd.rdf-ext.org/person/james-wilson'))
 ]);
 
-const output2 = serializer.import(output);
+/*const output2 = serializer.import(output);
 output2.pipe(process.stdout);
 
   return output;
 }
 */
-/*
 
+/*
 test('Test SHACL ', async () => {
   var mc = new ModelCreator();
 const sm = mc.createModel();
@@ -256,14 +257,14 @@ const shape = sc.createShape(sm);
 var jsc = new JsonSchemaCreator();
 const jsonSchema = await jsc.createJsonSchema(sm);
 var jldc = new JsonLdCreator();
-const jsonLd = jldc.createJsonLD(sm);
+//const jsonLd = jldc.createJsonLD(sm);
   
-  const dataPart = await generate(jsonSchema);
-  await console.log("Data part in shacl-adapter \n" + dataPart);
+  const dataPart = await generate(jsonSchema.toString());
+ // await console.log("Generated Data part in shacl-adapter \n" + dataPart);
 
   const doc = contextPart.slice(0, -1) + "," + dataPart.slice(1);
 
-  await console.log("doc part in test\n" + doc);
+  //await console.log("doc part in test\n" + doc);
 
   //const output = await parse(doc);
   
@@ -277,8 +278,10 @@ const jsonLd = jldc.createJsonLD(sm);
 
 });
 */
+
 test('Test SHACL ', async () => {
 
   await expect(true).toBe(true);
 
 });
+

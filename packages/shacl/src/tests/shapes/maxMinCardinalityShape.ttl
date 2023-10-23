@@ -2,15 +2,15 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex: <https://example.org/>.
 
-<https://example.com/class1/TechnickýPopisekClass1Shape> a sh:NodeShape;
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
-<https://base.com.myexample/2505vek-popisekPropertyShape> a sh:PropertyShape;
+<https://example.com/e136c6808f743586e67b93108870a7e8/vek-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Vek"@cs;
     sh:name "vek"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/vek>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<https://example.com/class1/TechnickýPopisekClass1Shape> sh:property <https://base.com.myexample/2505vek-popisekPropertyShape>.
+<https://example.com/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> sh:property <https://example.com/e136c6808f743586e67b93108870a7e8/vek-popisekPropertyShape>.

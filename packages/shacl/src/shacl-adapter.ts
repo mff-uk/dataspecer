@@ -18,6 +18,7 @@ import { OFN } from "@dataspecer/core/well-known";
 //import { Writer as WriterN3 } from 'n3';
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
+import md5 from "md5";
 
 // SHACL version REC-shacl-20170720 - doesn't have official version with major.minor.bugfix
 /*
@@ -188,7 +189,8 @@ export class ShaclAdapter {
     nodeName = this.generateNodeShapeName(root);
     const prefixTag = this.prefixify(root.cimIri)[0];
     const prefixForName = this.knownPrefixes.find(tuple => tuple[0] === prefixTag);
-    const classNameIri = prefixForName[1]  + nodeName;
+    //const classNameIri = prefixForName[1]  + nodeName;
+    const classNameIri = nodeName;
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
       // The class has not been Shaped yet -- to get rid of duplicate shape
@@ -203,6 +205,7 @@ export class ShaclAdapter {
 
 
   generateNodeShapeHead(root: StructureModelClass, classNameIri: string): string {
+
     var newResult = "";
     this.writer.addQuad(
       namedNode( classNameIri),
@@ -292,7 +295,9 @@ export class ShaclAdapter {
       }
     }
     this.debugString = this.debugString + `\n${capitalizedTechnicalLabel}`;
-    return capitalizedTechnicalLabel + "Shape";
+
+    return this.getIRIforShape(root);
+    //return capitalizedTechnicalLabel + "Shape";
   }
 
 
@@ -383,10 +388,15 @@ export class ShaclAdapter {
     }
   }
 
-  protected irify(label: string) : string{
+  protected irify(root: StructureModelClassOrProperty) : string{
     var irifiedString : string;
 
-    irifiedString = label.replaceAll(/\s/g,"");
+    if(root.technicalLabel != null){
+      irifiedString = root.technicalLabel.replaceAll(/\s/g,"");
+    } else{
+      irifiedString = "";
+    }
+    
 
     return irifiedString;
   }
@@ -394,12 +404,15 @@ export class ShaclAdapter {
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
     // TODO 
-    var baseIRI = "https://base.com.myexample/"
-    var md5 = "2505";
-    const technicalName = this.irify(root.technicalLabel);
+    var baseIRI = "https://example.com/";
+    
+ 
+    //console.log(md5('message'));
+    var md5String = md5(root.cimIri);
+    const technicalName = this.irify(root);
     const nodeOrProperty = (root instanceof StructureModelClass) ? "NodeShape" : "PropertyShape";
 
-    generatedIRI = baseIRI + md5 + technicalName + nodeOrProperty;
+    generatedIRI = baseIRI + md5String + "/" + technicalName + nodeOrProperty;
 
     return generatedIRI;
   }
