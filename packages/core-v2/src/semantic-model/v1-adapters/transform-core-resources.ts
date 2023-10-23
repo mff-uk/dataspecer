@@ -2,6 +2,7 @@ import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationsh
 import {Entities} from "../../entity-model";
 import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { CoreResource } from "@dataspecer/core/core";
+import {SemanticModelEntity} from "../concepts/concepts";
 
 const GENERALIZATION_PREFIX = "https://dataspecer.com/semantic-models/generalization";
 
@@ -12,7 +13,8 @@ function getGeneralizationIri(fromIri: string, toIri: string): string {
 
 function createGeneralization(fromIri: string, toIri: string): SemanticModelGeneralization {
     return {
-        iri: getGeneralizationIri(fromIri, toIri),
+        id: getGeneralizationIri(fromIri, toIri),
+        iri: null,
         type: ["generalization"],
         child: fromIri,
         parent: toIri,
@@ -20,10 +22,11 @@ function createGeneralization(fromIri: string, toIri: string): SemanticModelGene
 }
 
 export function transformPimClass(cls: PimClass) {
-    const result: Entities = {};
+    const result: Record<string, SemanticModelEntity> = {};
 
     result[cls.iri as string] = {
-        iri: cls.iri,
+        id: cls.iri!,
+        iri: cls.pimInterpretation ?? null,
         name: cls.pimHumanLabel ?? {},
         description: cls.pimHumanDescription ?? {},
         type: ["class"],
@@ -31,7 +34,7 @@ export function transformPimClass(cls: PimClass) {
 
     cls.pimExtends
         .map(to => createGeneralization(cls.iri as string, to))
-        .forEach(generalization => result[generalization.iri] = generalization);
+        .forEach(generalization => result[generalization.id] = generalization);
 
     return result;
 }
@@ -49,7 +52,8 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
             const left = resources[resource.pimEnd[0]] as PimAssociationEnd;
             const right = resources[resource.pimEnd[1]] as PimAssociationEnd;
             const association = {
-                iri: resource.iri as string,
+                id: resource.iri as string,
+                iri: resource.pimInterpretation ?? null,
                 type: ["relationship"],
                 name: resource.pimHumanLabel ?? {},
                 description: resource.pimHumanDescription ?? {},
@@ -69,11 +73,12 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                 ]
             } as SemanticModelRelationship;
 
-            result[association.iri] = association;
+            result[association.id] = association;
         }
         if (PimAttribute.is(resource)) {
             const attribute = {
-                iri: resource.iri as string,
+                id: resource.iri as string,
+                iri: resource.pimInterpretation ?? null,
                 type: ["relationship"],
                 name: {},
                 description: {},
@@ -93,7 +98,7 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                 ]
             } as SemanticModelRelationship;
 
-            result[attribute.iri] = attribute;
+            result[attribute.id] = attribute;
         }
     }
 
