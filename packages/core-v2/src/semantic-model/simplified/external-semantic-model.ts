@@ -31,23 +31,23 @@ export class ExternalSemanticModel implements EntityModel {
         return searchQueryEntity.order.map<SemanticModelClass>(iri => result[iri] as SemanticModelClass);
     }
 
-    async allowClass(iri: string) {
-        const query = classQuery(iri);
+    async allowClass(id: string) {
+        const query = classQuery(id);
         await this.observableModel.addQuery(query);
     }
 
-    async releaseClass(iri: string) {
-        const query = classQuery(iri);
+    async releaseClass(id: string) {
+        const query = classQuery(id);
         await this.observableModel.releaseQuery(query);
     }
 
-    async allowClassSurroundings(iri: string) {
-        const query = classSurroundingsQuery(iri);
+    async allowClassSurroundings(id: string) {
+        const query = classSurroundingsQuery(id);
         await this.observableModel.addQuery(query);
     }
 
-    async releaseClassSurroundings(iri: string) {
-        const query = classSurroundingsQuery(iri);
+    async releaseClassSurroundings(id: string) {
+        const query = classSurroundingsQuery(id);
         await this.observableModel.releaseQuery(query);
     }
 }

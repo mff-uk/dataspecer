@@ -1,17 +1,19 @@
 import {Entity} from "../../entity-model/entity";
 
-import {EntityModel} from "../../entity-model";
+import {EntityModel} from "../../entity-model/model";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
  * aggregation was performed.
  */
 interface AggregatedEntityWrapper {
-    iri: string;
+    id: string;
     aggregatedEntity: Entity | null;
 }
 
 type SupportedModels = EntityModel;
+
+type AggregatedModelSubscriber = (updated: AggregatedEntityWrapper[], removed: string[]) => void;
 
 /**
  * Aggregates multiple models (the model graph] describing the semantics (concepts and their relations) into one.
@@ -22,34 +24,68 @@ type SupportedModels = EntityModel;
 interface SemanticModelAggregator {
     /**
      * Adds model describing the semantics to the aggregator.
-     * @todo for now, only accepts one model
-     * @param model
      */
     addModel(model: SupportedModels): void;
+
+    /**
+     * Unregisters the model from the aggregator.
+     */
+    deleteModel(model: SupportedModels): void;
 
     /**
      * Returns the specific view.
      * @todo option to choose the view
      */
-    getView(toModel: SupportedModels): SemanticModelAggregatorView;
+    getView(): SemanticModelAggregatorView;
 }
 
 class SemanticModelAggregatorInternal implements SemanticModelAggregator {
-    model: EntityModel | null = null;
+    models: Map<SupportedModels, () => void> = new Map();
+    baseModelEntities: AggregatedEntityWrapper[] = [];
+    baseModelSubscribers = new Set<AggregatedModelSubscriber>();
 
     addModel(model: SupportedModels) {
-        if (this.model != null) {
-            throw new Error('Not implemented yet.');
+        if (this.models.has(model)) {
+            throw new Error('Model already added.');
         }
+        const callback = (updated: Record<string, Entity>, removed: string[]) => {
+            if (!this.models.has(model)) {
+                return;
+            }
 
-        this.model = model;
+            const entities = Object.values(updated);
+            const wrappedEntities = entities.map(aggregatedEntity => ({id: aggregatedEntity.id, aggregatedEntity}));
+
+            // Suppose there is a model that joins them all. Then we need to inform it
+            this.notifyBaseModel(model, wrappedEntities, removed);
+        };
+        const unsubscribe = model.subscribeToChanges(callback);
+        this.models.set(model, unsubscribe);
+
+        callback(model.getEntities(), []);
     };
 
-    getView(toModel: SupportedModels): SemanticModelAggregatorView {
-        if (this.model == null) {
-            throw new Error('Not implemented yet. First add model.');
+    deleteModel(model: SupportedModels) {
+        const unsubscribe = this.models.get(model);
+        if (!unsubscribe) {
+            throw new Error('Model not added.');
         }
+        this.models.delete(model);
+        this.notifyBaseModel(model, [], Object.keys(model.getEntities()));
+    }
 
+    /**
+     * Temporary function that notifies base model about changes. We suppose that every model is a dependency of the base model.
+     */
+    private notifyBaseModel(fromModel: SupportedModels, updated: AggregatedEntityWrapper[], removed: string[]) {
+        // This does only a simple merge
+        this.baseModelEntities = this.baseModelEntities
+            .filter(entity => !removed.includes(entity.id) && !updated.find(updatedEntity => updatedEntity.id === entity.id))
+            .concat(updated);
+        this.baseModelSubscribers.forEach(subscriber => subscriber(updated, removed));
+    }
+
+    getView(): SemanticModelAggregatorView {
         return new SemanticModelAggregatorView(this);
     }
 }
@@ -80,8 +116,7 @@ export class SemanticModelAggregatorView {
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
         // todo temporary
-        return Object.fromEntries(Object.values(this.aggregator.model?.getEntities() ?? {})
-            .map(entity => [entity.iri, {iri: entity.iri, aggregatedEntity: entity} as AggregatedEntityWrapper]));
+        return Object.fromEntries(this.aggregator.baseModelEntities.map(e => [e.id, e]));
     };
 
     /**
@@ -89,13 +124,13 @@ export class SemanticModelAggregatorView {
      * @param callback Function that will be called when the entities change with the updated entities
      * @returns Function that can be called to unsubscribe from changes
      */
-    subscribeToChanges(callback: (updated: Record<string, AggregatedEntityWrapper>, removed: string[]) => void): () => void {
+    subscribeToChanges(callback: AggregatedModelSubscriber): () => void {
         // todo temporary
-        return this.aggregator.model?.subscribeToChanges((updated, removed) => callback(
-            Object.fromEntries(Object.values(updated)
-                .map(entity => [entity.iri, {iri: entity.iri, aggregatedEntity: entity} as AggregatedEntityWrapper])),
-            removed
-        )) ?? (() => {});
+        if (this.aggregator.baseModelSubscribers.has(callback)) {
+            throw new Error('Callback already subscribed.');
+        }
+        this.aggregator.baseModelSubscribers.add(callback);
+        return () => this.aggregator.baseModelSubscribers.delete(callback);
     }
 
     changeView(toModel: SupportedModels) {

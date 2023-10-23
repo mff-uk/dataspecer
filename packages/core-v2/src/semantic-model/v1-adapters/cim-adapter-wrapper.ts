@@ -25,7 +25,7 @@ export class CimAdapterWrapper implements AsyncQueryableEntityModel {
             const searchQuery = queryIri.substring("search:".length);
             const result = await this.cimAdapter.search(searchQuery);
             const searchResult = {
-                iri: queryIri,
+                id: queryIri,
                 type: ["search-results"],
                 order: result.map(cls => cls.iri),
             } as SearchQueryEntity;

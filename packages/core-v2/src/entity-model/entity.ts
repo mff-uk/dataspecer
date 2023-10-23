@@ -1,5 +1,5 @@
 export interface Entity {
-    iri: string;
+    id: string;
     type: string[];
 }
 

@@ -7,6 +7,15 @@ import {Entity} from "../../entity-model/entity";
  */
 export type LanguageString = { [key: string]: string };
 
+export interface SemanticModelEntity extends Entity {
+    /**
+     * Public, usually globally-recognised, identifier of the entity.
+     * The value may be null indicating that the entity has no public IRI.
+     * @example http://xmlns.com/foaf/0.1/Person
+     */
+    iri: string | null;
+}
+
 export interface NamedThing {
     name: LanguageString;
     //alias: LanguageString[];
@@ -16,7 +25,7 @@ export interface NamedThing {
 /**
  * Represent classes, enumerations and simple data types.
  */
-export interface SemanticModelClass extends NamedThing, Entity {
+export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_CLASS];
 
     // todo: is it class, enumeration, datatype, code list, ...
@@ -31,7 +40,7 @@ export function isSemanticModelClass(resource: Entity | null): resource is Seman
 /**
  * Represents attributes and associations.
  */
-export interface SemanticModelRelationship extends NamedThing, Entity {
+export interface SemanticModelRelationship extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_RELATIONSHIP];
 
     ends: SemanticModelRelationshipEnd[]
@@ -55,7 +64,7 @@ export function isSemanticModelRelationship(resource: Entity | null): resource i
 /**
  * Inheritance hierarchy.
  */
-export interface SemanticModelGeneralization extends Entity {
+export interface SemanticModelGeneralization extends SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_GENERALIZATION]
 
     /** {@link SemanticModelClass} */

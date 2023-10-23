@@ -7,16 +7,6 @@ export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityMod
     protected queries: Record<string, any> = {};
     protected reverseQueries: Map<string, string[]> = new Map();
 
-    protected addToReverseQueries(entityIri: string, queryIri: string): void {
-        if (!this.reverseQueries.has(entityIri)) {
-            this.reverseQueries.set(entityIri, []);
-        }
-        const queries = this.reverseQueries.get(entityIri)!;
-        if (!queries.includes(queryIri)) {
-            queries.push(queryIri);
-        }
-    }
-
     constructor(queryableModel: AsyncQueryableEntityModel) {
         super();
         this.model = queryableModel;
@@ -34,23 +24,23 @@ export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityMod
         }
 
         this.queries[queryIri] = result;
-        const iris = Object.keys(result);
-        const addedIris: Record<string, Entity> = {};
+        const ids = Object.keys(result);
+        const addedIds: Record<string, Entity> = {};
 
-        for (const iri of iris) {
-            if (!this.reverseQueries.has(iri)) {
-                this.reverseQueries.set(iri, []);
+        for (const id of ids) {
+            if (!this.reverseQueries.has(id)) {
+                this.reverseQueries.set(id, []);
             }
-            const queries = this.reverseQueries.get(iri)!;
+            const queries = this.reverseQueries.get(id)!;
             if (!queries.includes(queryIri)) {
                 if (queries.length == 0) {
-                    addedIris[iri] = result[iri];
+                    addedIds[id] = result[id];
                 }
                 queries.push(queryIri);
             }
         }
 
-        this.change(addedIris, []);
+        this.change(addedIds, []);
     }
 
     async releaseQuery(queryIri: string): Promise<void> {
@@ -59,22 +49,22 @@ export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityMod
             return;
         }
 
-        const iris = Object.keys(this.queries[queryIri]);
-        const removedIris: string[] = [];
-        for (const iri of iris) {
-            let queries = this.reverseQueries.get(iri)!;
+        const ids = Object.keys(this.queries[queryIri]);
+        const removedIds: string[] = [];
+        for (const id of ids) {
+            let queries = this.reverseQueries.get(id)!;
             queries = queries.filter(q => q !== queryIri);
             if (queries.length === 0) {
-                this.reverseQueries.delete(iri);
-                removedIris.push(iri);
+                this.reverseQueries.delete(id);
+                removedIds.push(id);
             } else {
-                this.reverseQueries.set(iri, queries);
+                this.reverseQueries.set(id, queries);
             }
         }
 
         delete this.queries[queryIri];
 
-        this.change({}, removedIris);
+        this.change({}, removedIds);
     }
 
 }
