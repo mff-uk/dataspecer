@@ -218,6 +218,14 @@ export class ShaclAdapter {
       namedNode( root.cimIri)
     );
     
+    if(root.regex != null && root.regex != undefined && root.regex != ""){
+      this.writer.addQuad(
+        namedNode( classNameIri ),
+        namedNode('http://www.w3.org/ns/shacl#pattern'),
+        literal( root.regex )
+      );
+    }
+
     if(root.isClosed){
       const trueStatement = true;
       this.writer.addQuad(
@@ -351,6 +359,8 @@ export class ShaclAdapter {
             namedNode( cimiri )
           );
 
+          
+          
           // Add datatype for the PopertyNode
           // TODO
           this.getObjectForPropType(prop.dataTypes, nodeIRI);
@@ -404,10 +414,8 @@ export class ShaclAdapter {
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
     // TODO 
-    var baseIRI = "https://example.com/";
+    var baseIRI = "https://example.org/";
     
- 
-    //console.log(md5('message'));
     var md5String = md5(root.cimIri);
     const technicalName = this.irify(root);
     const nodeOrProperty = (root instanceof StructureModelClass) ? "NodeShape" : "PropertyShape";
@@ -433,18 +441,18 @@ export class ShaclAdapter {
             namedNode( 'http://www.w3.org/ns/shacl#BlankNodeOrIRI' ));
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
-          const namedNodeString = this.prefixify(dtcasted.dataType.cimIri)[0] + ":" + nameForAnotherClass;
-  
-          var splitted = dtcasted.dataType.cimIri.split("/", 100); 
-          var name = splitted[splitted.length-1];
-          var prefix = dtcasted.dataType.cimIri.substring(0, dtcasted.dataType.cimIri.length - name.length);
-          const shapeName = prefix + nameForAnotherClass;
+   
           this.writer.addQuad(
             namedNode( propertyNodeIRI ),
             namedNode('http://www.w3.org/ns/shacl#node'),
-            namedNode( shapeName ));
+            namedNode( nameForAnotherClass ));
         }
-        
+        if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
+          this.writer.addQuad(
+            namedNode( propertyNodeIRI ),
+            namedNode('http://www.w3.org/ns/shacl#pattern'),
+            literal(dtcasted.dataType.regex.toString()));
+        }
         
       } else if(dt.isAttribute() == true){
         // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
@@ -462,6 +470,14 @@ export class ShaclAdapter {
               namedNode( propertyNodeIRI ),
               namedNode('http://www.w3.org/ns/shacl#datatype'),
               namedNode( simpleTypeMapIRI[dtcasted.dataType] ));
+            if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
+              if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
+                this.writer.addQuad(
+                  namedNode( propertyNodeIRI ),
+                  namedNode('http://www.w3.org/ns/shacl#pattern'),
+                  literal(dtcasted.regex.toString()));
+              }
+            }
           } else{
             if(dtcasted.dataType != null){
               this.writer.addQuad(
@@ -471,13 +487,6 @@ export class ShaclAdapter {
           } 
           }
         
-          /*
-          propDesc = propDesc.concat(`\n\t\tsh:datatype ${ datatypeString } ;`);
-          // Setting pattern restrictions if they exist
-          if(dtcasted.regex != null){
-            propDesc = propDesc.concat(`\n\t\tsh:pattern ${ dtcasted.regex } ;`);
-          }
-          */
         }
         
       } else if(dt.isCustomType() == true){
