@@ -43,6 +43,12 @@ export class DataPsmClass extends DataPsmResource {
    */
   jsonTypeRequired?: boolean | undefined;
 
+  /**
+   * Whether instances of this class may/must/must not have identity, for example IRI.
+   * If set to undefined, the default value will be used which is "ALWAYS" currently.
+   */
+  instancesHaveIdentity: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmClass.TYPE);

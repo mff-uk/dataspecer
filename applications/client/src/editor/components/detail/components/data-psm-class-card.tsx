@@ -7,7 +7,7 @@ import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {PimClass} from "@dataspecer/core/pim/model";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
 import {ClassExamples} from "./class-examples";
-import {JsonIdtype} from "./json-idtype";
+import {JsonType} from "./json-type";
 
 export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> = memo(({iri, onClose}) => {
     const resources = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(iri);
@@ -21,7 +21,7 @@ export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> =
             <Grid item xs={6}>
                 <RightPanel iri={iri} close={onClose}/>
                 <ClassExamples pimClassIri={resources.pimResource.iri} />
-                <JsonIdtype psmClassIri={iri} />
+                <JsonType psmClassIri={iri} />
             </Grid>
         </Grid>
     </>;

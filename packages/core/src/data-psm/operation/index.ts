@@ -19,6 +19,7 @@ export * from "./data-psm-set-datatype";
 export * from "./data-psm-set-human-description";
 export * from "./data-psm-set-human-label";
 export * from "./data-psm-set-idtype";
+export * from "./data-psm-set-instances-have-identity";
 export * from "./data-psm-set-dematerialized";
 export * from "./data-psm-set-external-root-types";
 export * from "./data-psm-set-interpretation";

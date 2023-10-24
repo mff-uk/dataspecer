@@ -8,10 +8,11 @@
   "cardinality custom title": "Custom cardinality",
   "cardinality infinity": "infinity",
   "class-closed": {
+    "implicit": "implicit value",
+    "no": "open",
     "title": "Additional class properties",
     "yes": "closed",
-    "no": "open",
-    "implicit": "implicit value"
+    "help": "Specifies whether additional properties that are not defined in the schema can be used in the data. If the class is closed, then these extra undefined properties are forbidden."
   },
   "codelist": "codelist",
   "codelist url": "codelist url",
@@ -23,19 +24,29 @@
     "title": "Dematerialization"
   },
   "in all languages": "In all languages",
-  "IRI": "IRI",
-  "is codelist": "is codelist",
-  "json id type": {
-    "title": "Use of JSON @id and @type properties",
+  "instancesHaveIdentity": {
+    "title": "Require identity of instances of classes",
     "value": {
-      "default": "Keep default settings",
-      "optional": "Set as optional",
-      "remove": "Remove from object"
+      "always": "always",
+      "never": "never",
+      "optional": "optional"
+    }
+  },
+  "IRI": "IRI",
+  "iri parameters help": "Class instances (data) can be identified by their specific IRI. For example, Prague, as a city instance, can have its IRI http://example.com/Praha. This option sets whether such an identifier is required in the data, which affects the validation of the data and its representation in RDF, for example, where resources without IRIs appear as blank nodes.",
+  "is codelist": "is codelist",
+  "json type": {
+    "title": "Use of JSON @type property",
+    "value": {
+      "default": "default",
+      "optional": "optional",
+      "remove": "never"
     }
   },
   "label max": "max",
   "label min": "min",
-  "label regex": "Regular expression",
+  "label regex for iri": "Regular expression of IRI",
+  "label regex for value": "Regular expression",
   "label string examples": "String examples",
   "label technical label": "Technical label",
   "no codelist url": "No codelist URL set",

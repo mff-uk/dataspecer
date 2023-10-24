@@ -6,6 +6,7 @@ import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
 import {JSON_LD_GENERATOR} from "./json-ld-generator";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
+import {JsonStructureModelClass} from "../json-structure-model/structure-model-class";
 
 type QName = [prefix: string | null, localName: string];
 
@@ -135,19 +136,29 @@ export class JsonLdAdapter {
    * Adds entry for a class to a given context.
    */
   protected generateClassContext(cls: StructureModelClass, context: object) {
-    const innerContext = {};
+    const jsonCls = cls as JsonStructureModelClass;
 
-    const data = {
-      "@id": cls.cimIri,
-      "@context": innerContext
-    };
+    // This decides whether we use Type-scoped context for this class, or Property-scoped context
+    const contextType = jsonCls.jsonTypeKeyAlias === null ? "PROPERTY-SCOPED" : (jsonCls.jsonTypeRequired === false ? "BOTH" : "TYPE-SCOPED");
 
-    for (const property of cls.properties) {
-      this.generatePropertyContext(property, innerContext);
+    const contextForProperties = contextType === "TYPE-SCOPED" ? {} : context;
+
+    if (contextType !== "PROPERTY-SCOPED") {
+      const classContext = {
+        "@id": cls.cimIri,
+      };
+
+      // Classes are identified by its type keyword
+      context[getClassTypeKey(cls, this.configuration)] = classContext;
+
+      if (contextType === "TYPE-SCOPED") {
+        classContext["@context"] = contextForProperties;
+      }
     }
 
-    // Classes are identified by its type keyword
-    context[getClassTypeKey(cls, this.configuration)] = data;
+    for (const property of cls.properties) {
+      this.generatePropertyContext(property, contextForProperties);
+    }
   }
 
   protected getContext(): object {
