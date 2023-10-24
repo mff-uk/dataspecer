@@ -5,6 +5,7 @@ interface RegexFieldProps {
     value: string,
     onChange: (value: string) => void;
     disabled?: boolean;
+    forIri: boolean;
 }
 
 function getRegexError(value: string): string | null {
@@ -26,7 +27,7 @@ export const RegexField = (props: RegexFieldProps) => {
 
     return <Box sx={{mb: 3}}>
         <Typography variant="subtitle1" component="h2">
-            {t('label regex')}
+            {props.forIri ? t('label regex for iri') : t('label regex for value')}
         </Typography>
         <TextField
             autoFocus

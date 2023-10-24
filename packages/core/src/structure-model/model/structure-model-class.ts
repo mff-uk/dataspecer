@@ -78,4 +78,9 @@ export class StructureModelClass {
   example: unknown[] | null = null;
 
   objectExample: unknown[] | null = null;
+
+  /**
+   * Whether instances of this class may/must/must not have identity, for example IRI.
+   */
+  instancesHaveIdentity: "ALWAYS" | "NEVER" | "OPTIONAL" = "ALWAYS";
 }

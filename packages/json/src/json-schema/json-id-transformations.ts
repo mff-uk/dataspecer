@@ -21,11 +21,14 @@ export function structureModelAddIdAndTypeProperties(
   const classes = result.getClasses();
   for (const structureClass of classes) {
     const localClassConfiguration = {
-      jsonIdKeyAlias: ifUndefined((structureClass as JsonStructureModelClass).jsonIdKeyAlias, configuration.jsonIdKeyAlias),
-      jsonIdRequired: ifUndefined((structureClass as JsonStructureModelClass).jsonIdRequired, configuration.jsonIdRequired),
+      jsonIdKeyAlias: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdKeyAlias,*/ configuration.jsonIdKeyAlias/*)*/,
+      jsonIdRequired: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdRequired,*/ configuration.jsonIdRequired/*)*/ && structureClass.instancesHaveIdentity === "ALWAYS",
       jsonTypeKeyAlias: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeKeyAlias, configuration.jsonTypeKeyAlias),
       jsonTypeRequired: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeRequired, configuration.jsonTypeRequired),
     };
+    if (structureClass.instancesHaveIdentity === "NEVER") {
+        localClassConfiguration.jsonIdKeyAlias = null;
+    }
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
       if (localClassConfiguration.jsonTypeKeyAlias !== null) {

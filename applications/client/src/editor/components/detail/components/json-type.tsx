@@ -6,22 +6,19 @@ import {useResource} from "@dataspecer/federated-observable-store-react/use-reso
 import {Box, FormControlLabel, Radio, RadioGroup, Typography} from "@mui/material";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {useSaveHandler} from "../../helper/save-handler";
-import {SetJsonIdtype} from "../../../operations/set-json-idtype";
+import {SetJsonType} from "../../../operations/set-json-type";
 
 function getState(resource: DataPsmClass) {
-    const optional = resource.jsonIdRequired === false &&
-        resource.jsonTypeRequired === false &&
-        resource.jsonIdKeyAlias === undefined &&
+    const optional = resource.jsonTypeRequired === false &&
         resource.jsonTypeKeyAlias === undefined;
 
-    const remove = resource.jsonIdKeyAlias === null &&
-        resource.jsonTypeKeyAlias === null;
+    const remove = resource.jsonTypeKeyAlias === null;
 
     return optional ? "OPTIONAL" : remove ? "REMOVE" : "DEFAULT";
 }
 
-export const JsonIdtype = memo(({psmClassIri}: {psmClassIri: string | null | undefined}) => {
-    const {t} = useTranslation("detail", {keyPrefix: "json id type"});
+export const JsonType = memo(({psmClassIri}: {psmClassIri: string | null | undefined}) => {
+    const {t} = useTranslation("detail", {keyPrefix: "json type"});
     const store = useFederatedObservableStore();
 
     const {resource: rawResource} = useResource(psmClassIri ?? null);
@@ -39,7 +36,7 @@ export const JsonIdtype = memo(({psmClassIri}: {psmClassIri: string | null | und
 
     useSaveHandler(
         resource && savedState !== state,
-        async () => resource && store.executeComplexOperation(new SetJsonIdtype(psmClassIri, state))
+        async () => resource && store.executeComplexOperation(new SetJsonType(psmClassIri, state))
     )
 
     return <>

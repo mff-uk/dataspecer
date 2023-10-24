@@ -52,10 +52,9 @@ export class JsonLdGenerator implements ArtefactGenerator {
     // );
     model = await structureModelAddJsonProperties(model, context.reader);
 
-    model = Object.values(context.conceptualModels).reduce(
-        (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
-        model
-    );
+    const mergedConceptualModel = {...conceptualModel};
+    mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
+    model = transformStructureModel(mergedConceptualModel, model, Object.values(context.specifications));
 
     const adapter = new JsonLdAdapter(model, context, artefact);
     return adapter.generate();

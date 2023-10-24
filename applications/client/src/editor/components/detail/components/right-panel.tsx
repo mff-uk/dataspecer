@@ -43,6 +43,8 @@ import { StringExamplesField } from "../../helper/string-examples-field";
 import { SetRegex } from "../../../operations/set-regex";
 import { SetExample } from "../../../operations/set-example";
 import {SetIsClosed} from "../../../operations/set-is-closed";
+import {InfoHelp} from "../../../../components/info-help";
+import {SetInstancesHaveIdentity} from "../../../operations/set-inastances-have-identity";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -207,6 +209,27 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     );
 
     // endregion class is closed
+
+    // region instances have identity
+
+    const [instancesHaveIdentity, setInstancesHaveIdentity] = useState<"OPTIONAL" | "NEVER" | undefined>(undefined);
+    const currentInstancesHaveIdentity = (resource as DataPsmClass).instancesHaveIdentity === "ALWAYS" ? undefined : (resource as DataPsmClass).instancesHaveIdentity as "OPTIONAL" | "NEVER" | undefined ;
+    useEffect(() => {
+        if (isClass) {
+            setInstancesHaveIdentity(currentInstancesHaveIdentity);
+        }
+    }, [isClass, resource, currentInstancesHaveIdentity]);
+
+    useSaveHandler(
+        isClass && currentInstancesHaveIdentity !== instancesHaveIdentity,
+        useCallback(
+            async () => resource && await store.executeComplexOperation(new SetInstancesHaveIdentity(resource.iri as string, instancesHaveIdentity)),
+            [resource, store, instancesHaveIdentity]
+        )
+    );
+
+    // endregion instances have identity
+
     return <>
         <Box sx={{mb: 3}}>
             <Typography variant="subtitle1" component="h2">
@@ -326,57 +349,72 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             </Box>
         </>}
 
-        {isClass && <Typography variant="h6">
-            {t('title iri parameters')}
-        </Typography>}
+        {isClass && <>
+             <Typography variant="subtitle1" component="h2">
+                {t('instancesHaveIdentity.title')} <InfoHelp text={t('iri parameters help')} />
+            </Typography>
+            <RadioGroup
+                row
+                value={instancesHaveIdentity ?? "ALWAYS"}
+                onChange={el => setInstancesHaveIdentity(el.target.value === "ALWAYS" ? undefined : el.target.value as "OPTIONAL" | "NEVER" | undefined)}
+            >
+                <FormControlLabel value="ALWAYS" control={<Radio />} label={t('instancesHaveIdentity.value.always')} />
+                <FormControlLabel value="OPTIONAL" control={<Radio />} label={t('instancesHaveIdentity.value.optional')} />
+                <FormControlLabel value="NEVER" control={<Radio />} label={t('instancesHaveIdentity.value.never')} />
+            </RadioGroup>
+        </>}
 
-        {/* <Collapse in={!!datatype} appear={false}> */}
-        {(isStringDatatype || isClass) &&
-            <RegexField disabled={readOnly} value={regex} onChange={setRegex} />
+        {(!isClass || (isClass && instancesHaveIdentity !== "NEVER")) &&
+         <>
+            {(isStringDatatype || isClass) &&
+                <RegexField disabled={readOnly} value={regex} onChange={setRegex} forIri={isClass} />
+            }
+
+            {(isAttribute || isAssociationEnd) &&
+                <Box sx={{mb: 3}}>
+                    <Typography variant="subtitle1" component="h2">
+                        {t('title cardinality')}
+                    </Typography>
+
+                    {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+                </Box>
+            }
+
+            {isAssociationEnd &&
+                <Box sx={{mb: 3}}>
+                    <Typography variant="subtitle1" component="h2">
+                      {t('dematerialization.title')}
+                    </Typography>
+
+                    <Alert severity="info">{t('dematerialization.help')}</Alert>
+                    <Alert severity={
+                        isClassClosed ? (
+                            (cardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
+                        ): "info"
+                    }>{t('dematerialization.cardinality restriction')}</Alert>
+
+                    {/* "Set dematerialized" checkbox */}
+                    <FormControlLabel
+                        control={<Checkbox
+                            checked={isClassClosed}
+                            onChange={event => setIsClassClosed(event.target.checked)}
+                        />}
+                        label={t('dematerialization.checkbox') as string}
+                    />
+              </Box>
+            }
+
+            {(isStringDatatype || isClass) &&
+                <StringExamplesField value={examples} onChange={setExamples} disabled={pimReadOnly} regex={regex} />
+            }
+
+         </>
         }
-        {/* </Collapse> */}
 
-        {(isAttribute || isAssociationEnd) &&
-            <Box sx={{mb: 3}}>
-                <Typography variant="subtitle1" component="h2">
-                    {t('title cardinality')}
-                </Typography>
-
-                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
-            </Box>
-        }
-
-        {isAssociationEnd &&
-            <Box sx={{mb: 3}}>
-                <Typography variant="subtitle1" component="h2">
-                  {t('dematerialization.title')}
-                </Typography>
-
-                <Alert severity="info">{t('dematerialization.help')}</Alert>
-                <Alert severity={
-                    isClassClosed ? (
-                        (cardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
-                    ): "info"
-                }>{t('dematerialization.cardinality restriction')}</Alert>
-
-                {/* "Set dematerialized" checkbox */}
-                <FormControlLabel
-                    control={<Checkbox
-                        checked={isClassClosed}
-                        onChange={event => setIsClassClosed(event.target.checked)}
-                    />}
-                    label={t('dematerialization.checkbox') as string}
-                />
-          </Box>
-        }
-
-        {(isStringDatatype || isClass) &&
-            <StringExamplesField value={examples} onChange={setExamples} disabled={pimReadOnly} regex={regex} />
-        }
 
         {isClass && <FormControl>
             <Typography variant="subtitle1" component="h2">
-                {t('class-closed.title')}
+                {t('class-closed.title')} <InfoHelp text={t('class-closed.help')} />
             </Typography>
             <RadioGroup
                 row

@@ -10,8 +10,6 @@ import { writeJsonSchema } from "./json-schema-writer";
 import { structureModelToJsonSchema } from "./json-schema-model-adapter";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import {
-  defaultConceptualTransformations,
-  defaultStructureTransformations,
   transformStructureModel
 } from "@dataspecer/core/structure-model/transformation";
 import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
@@ -63,11 +61,9 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       `Missing structure model ${schemaArtefact.psm}.`
     );
     model = await structureModelAddJsonProperties(model, context.reader);
-    console.warn(model);
-    model = Object.values(context.conceptualModels).reduce(
-        (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
-        model
-    );
+    const mergedConceptualModel = {...conceptualModel};
+    mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
+    model = transformStructureModel(mergedConceptualModel, model, Object.values(context.specifications));
     model = structureModelAddIdAndTypeProperties(model, configuration);
     return structureModelToJsonSchema(context.specifications, specification, model, configuration, artefact);
   }
