@@ -61,10 +61,9 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       `Missing structure model ${schemaArtefact.psm}.`
     );
     model = await structureModelAddJsonProperties(model, context.reader);
-    model = Object.values(context.conceptualModels).reduce(
-        (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
-        model
-    );
+    const mergedConceptualModel = {...conceptualModel};
+    mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
+    model = transformStructureModel(mergedConceptualModel, model, Object.values(context.specifications));
     model = structureModelAddIdAndTypeProperties(model, configuration);
     return structureModelToJsonSchema(context.specifications, specification, model, configuration, artefact);
   }
