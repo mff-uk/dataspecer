@@ -47,7 +47,7 @@ Core Constraint Components
         4.1.1 sh:class - TODO The type of all value nodes. The values of sh:class in a shape are IRIs. Note that multiple values for sh:class are 
         interpreted as a conjunction, i.e. the values need to be SHACL instances of all of them. 
         4.1.2 sh:datatype DONE
-        4.1.3 sh:nodeKind TODO
+        4.1.3 sh:nodeKind DONE
     4.2 Cardinality Constraint Components
         4.2.1 sh:minCount DONE
         4.2.2 sh:maxCount DONE
@@ -77,7 +77,7 @@ Core Constraint Components
         4.7.2 sh:property DONE
         4.7.3 sh:qualifiedValueShape, sh:qualifiedMinCount, sh:qualifiedMaxCount
     4.8 Other Constraint Components -- TODO: Which of these are going to be a thing in dataspecer?
-        4.8.1 sh:closed, sh:ignoredProperties - for DISCUSSION
+        4.8.1 sh:closed, sh:ignoredProperties - PARTLY DONE - ignored properties are defaultly only rdf:type
         4.8.2 sh:hasValue - Is for checking specific values at the ends of paths = WILL NOT BE IMPLEMENTED
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
 DONE použít knihovnu na vytváření .ttl dokumentu. 
@@ -149,6 +149,9 @@ export class ShaclAdapter {
     }
     //this.scriptString = this.prefixesString + this.insidesString;
     this.scriptString = this.insidesString;
+
+
+
     //eval(this.scriptString);
     var resultString = "";
     this.writer.end((error, result) => resultString = result);

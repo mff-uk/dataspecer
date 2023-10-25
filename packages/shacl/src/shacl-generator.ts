@@ -9,6 +9,10 @@ import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
 import {ShaclAdapter} from "./shacl-adapter.js";
 
+import { JsonSchemaGenerator } from "../../json/src/json-schema/json-schema-generator";
+import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import {JSON_SCHEMA} from "../../json/src/json-schema";
+
 interface ShaclGeneratorObject {
   data: string;
 }
@@ -62,8 +66,16 @@ export class ShaclGenerator implements ArtefactGenerator {
     specification: DataSpecification,
     output: StreamDictionary
   ): Promise<void> {
+        // Trying out generating data
+        const msd = new MemoryStreamDictionary();
+        const jsonGenerator = new JsonSchemaGenerator();
+        const jsonArtifact = specification.artefacts.find(artefact => artefact.generator === JSON_SCHEMA.Generator);
+        await jsonGenerator.generateToStream(context, jsonArtifact, specification, msd);
+        const data = await msd.readPath(jsonArtifact.outputPath).read();
+        // End of Trying out generating data 
     const model = await this.generateToObject(context, artefact, specification);
     const stream = output.writePath(artefact.outputPath);
+    await stream.write(data);
     await stream.write(model.data);
     await stream.close();
   }

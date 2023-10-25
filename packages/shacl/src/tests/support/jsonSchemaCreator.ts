@@ -130,7 +130,7 @@ class JsonSchemaCreator{
           defaultStringSelector
         );
 
-        
+      /*  
       // PART FROM STEPAN START
       const msd = new MemoryStreamDictionary();
       const jsonSchema = new DataSpecificationSchema();
@@ -143,7 +143,7 @@ class JsonSchemaCreator{
       jsonSchema.generator = JSON_SCHEMA.Generator;
       jsonSchema.psm = psmSchemaIri;
       jsonSchema.configuration = DefaultJsonConfiguration;
-      const jsonGenerator = new JsonSchemaGenerator();
+      //const jsonGenerator = new JsonSchemaGenerator();
       const jsonArtifact = specification.artefacts.find(artefact => artefact.generator === JSON_SCHEMA.Generator);
       if(jsonSchema != undefined){
         await jsonGenerator.generateToStream(context, jsonSchema, specification, msd);
@@ -158,6 +158,20 @@ class JsonSchemaCreator{
       console.log("After segment meant made by Stepan");
         
       // PART FROM STEPAN END  
+*/
+
+      const jsonGenerator = new JsonSchemaGenerator();
+
+      const jsonSchema = new DataSpecificationSchema();
+      jsonSchema.outputPath = `schema.json`;
+      jsonSchema.generator = JSON_SCHEMA.Generator;
+      jsonSchema.psm = (artefact as DataSpecificationSchema).psm;
+      jsonSchema.configuration = {};
+  
+      const streamDictionary = new MemoryStreamDictionary();
+      await jsonGenerator.generateToStream(context, jsonSchema, specification, streamDictionary);
+      const schema = await streamDictionary.readPath(jsonSchema.outputPath).read();
+      console.log(schema);
 
 //Snaha napsat generovani podle Stepanovy rady
       const memoryStream = new MemoryStreamDictionary();

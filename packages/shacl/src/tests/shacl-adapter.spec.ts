@@ -10,6 +10,8 @@ import  ShapeCreator  from "./support/shapeCreator";
 import  JsonSchemaCreator  from "./support/jsonSchemaCreator";
 import JsonLdCreator from "./support/jsonLdCreator";
 import   ModelCreator   from "./support/SimpleObjectModelCreator";
+import {JSON_SCHEMA, JsonSchemaGenerator} from "@dataspecer/json/json-schema";
+import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import ParserJsonld from '@rdfjs/parser-jsonld';
 import { Readable } from 'stream';
 import { DataFactory, Sink, Stream, BaseQuad, Quad } from 'rdf-js';
@@ -248,7 +250,7 @@ output2.pipe(process.stdout);
 }
 */
 
-/*
+
 test('Test SHACL ', async () => {
   var mc = new ModelCreator();
 const sm = mc.createModel();
@@ -257,7 +259,13 @@ const shape = sc.createShape(sm);
 var jsc = new JsonSchemaCreator();
 const jsonSchema = await jsc.createJsonSchema(sm);
 var jldc = new JsonLdCreator();
-//const jsonLd = jldc.createJsonLD(sm);
+//const jsonLd = jldc.createJsonLD(sm);3
+
+
+
+
+
+
   
   const dataPart = await generate(jsonSchema.toString());
  // await console.log("Generated Data part in shacl-adapter \n" + dataPart);
@@ -277,7 +285,7 @@ var jldc = new JsonLdCreator();
   await expect(true).toBe(true);
 
 });
-*/
+
 
 test('Test SHACL ', async () => {
 
