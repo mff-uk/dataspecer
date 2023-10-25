@@ -53,7 +53,7 @@ export class PimStoreWrapper extends InMemoryEntityModel {
         for (const iri in result) {
             const entity = result[iri];
             if (!deepEqual(entity, this.entities[iri])) {
-                updated[iri] = entity;
+                updated[iri] = entity!;
             }
         }
 

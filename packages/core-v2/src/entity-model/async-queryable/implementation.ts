@@ -34,7 +34,7 @@ export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityMod
             const queries = this.reverseQueries.get(id)!;
             if (!queries.includes(queryIri)) {
                 if (queries.length == 0) {
-                    addedIds[id] = result[id];
+                    addedIds[id] = result[id]!;
                 }
                 queries.push(queryIri);
             }

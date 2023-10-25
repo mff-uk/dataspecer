@@ -13,6 +13,10 @@ export interface OperationResult {
     // todo add more details
 }
 
+export interface CreatedEntityOperationResult extends OperationResult {
+    id: string;
+}
+
 // Create class
 
 const CREATE_CLASS_OPERATION = 'create';

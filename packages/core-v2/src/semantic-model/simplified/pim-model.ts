@@ -6,7 +6,7 @@ import {PimStoreWrapper} from "../v1-adapters/pim-store-wrapper";
 export async function createPimModel(dataspecerBackendUrl: string, dataSpecificationIri: string, httpFetch: HttpFetch): Promise<PimStoreWrapper> {
     const connector = new BackendConnector(dataspecerBackendUrl, httpFetch);
     const dataSpecification = await connector.readDataSpecification(dataSpecificationIri);
-    const store = HttpSynchronizedStore.createFromDescriptor(dataSpecification.pimStores[0], httpFetch);
+    const store = HttpSynchronizedStore.createFromDescriptor(dataSpecification.pimStores[0]!, httpFetch);
     const storeWrapper = new PimStoreWrapper(store);
     await store.load();
     storeWrapper.fetchFromPimStore();

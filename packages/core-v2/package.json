@@ -6,18 +6,23 @@
     "prebuild": "rimraf lib"
   },
   "exports": {
-    "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
-    "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
-    "./semantic-model/simplified": "./lib/semantic-model/simplified/index.js"
+    "./semantic-model/aggregator": "./lib/src/semantic-model/aggregator/index.js",
+    "./semantic-model/concepts": "./lib/src/semantic-model/concepts/index.js",
+    "./semantic-model/simplified": "./lib/src/semantic-model/simplified/index.js",
+    "./semantic-model/lightweight-owl": "./lib/src/semantic-model/lightweight-owl/index.js",
+    "./semantic-model/operations": "./lib/src/semantic-model/operations/index.js",
+    "./semantic-model/in-memory": "./lib/src/semantic-model/in-memory/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",
     "@dataspecer/sgov-adapter": "*",
     "@dataspecer/backend-utils": "*",
-    "@dataspecer/rdfs-adapter": "*"
+    "@dataspecer/rdfs-adapter": "*",
+    "n3": "^1.17.1"
   },
   "devDependencies": {
     "rimraf": "^5.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "@types/n3": "^1.16.3"
   }
 }

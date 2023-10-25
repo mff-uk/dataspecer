@@ -1,12 +1,12 @@
 import {InMemoryEntityModel} from "../../entity-model/implementation";
 import {
+    CreatedEntityOperationResult,
     isCreateClassOperation, isCreateGeneralizationOperation,
     isCreateRelationshipOperation,
     isDeleteEntityOperation,
     isModifyClassOperation, isModifyGeneralizationOperation,
     isModifyRelationOperation,
-    Operation,
-    OperationResult
+    Operation
 } from "../operations/operations";
 import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/concepts";
 
@@ -15,7 +15,7 @@ function uuid() {
 }
 
 export class InMemorySemanticModel extends InMemoryEntityModel {
-    public executeOperation(operation: Operation): OperationResult {
+    public executeOperation(operation: Operation) {
         // todo this is just a mock implementation
 
         if (isCreateClassOperation(operation)) {
@@ -43,7 +43,8 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
             this.change({[id]: cls}, []);
             return {
                 success: true,
-            };
+                id,
+            } satisfies CreatedEntityOperationResult;
         }
 
         if (isModifyClassOperation(operation)) {
@@ -52,7 +53,7 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
                     success: false,
                 };
             }
-            this.change({[operation.id]: {...this.entities[operation.id], ...operation.entity}}, []);
+            this.change({[operation.id]: {...this.entities[operation.id]!, ...operation.entity}}, []);
             return {
                 success: true,
             };
@@ -97,7 +98,8 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
             this.change({[id]: relationship}, []);
             return {
                 success: true,
-            };
+                id,
+            } satisfies CreatedEntityOperationResult;
         }
 
         if (isModifyRelationOperation(operation)) {
@@ -154,7 +156,8 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
             this.change({[id]: generalization}, []);
             return {
                 success: true,
-            };
+                id,
+            } satisfies CreatedEntityOperationResult;
         }
 
         if (isModifyGeneralizationOperation(operation)) {
@@ -163,7 +166,7 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
                     success: false,
                 };
             }
-            this.change({[operation.id]: {...this.entities[operation.id], ...operation.entity}}, []);
+            this.change({[operation.id]: {...this.entities[operation.id]!, ...operation.entity}}, []);
             return {
                 success: true,
             };

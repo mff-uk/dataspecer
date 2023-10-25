@@ -49,8 +49,8 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
             result = {...result, ...transformPimClass(resource)};
         }
         if (PimAssociation.is(resource)) {
-            const left = resources[resource.pimEnd[0]] as PimAssociationEnd;
-            const right = resources[resource.pimEnd[1]] as PimAssociationEnd;
+            const left = resources[resource.pimEnd[0]!] as PimAssociationEnd;
+            const right = resources[resource.pimEnd[1]!] as PimAssociationEnd;
             const association = {
                 id: resource.iri as string,
                 iri: resource.pimInterpretation ?? null,

@@ -1,14 +1,31 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
+    /* Base options */
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "outDir": "./lib/",
+    "skipLibCheck": true,
     "target": "es2022",
-    "lib": ["es2022", "dom"],
-    "useDefineForClassFields": true,
-    "strict": true
+    //"verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* Transpiling */
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "outDir": "./lib/",
+    "sourceMap": true,
+    "declaration": true,
+
+    /* In monorepo */
+    "composite": true,
+    "declarationMap": true,
+
+    /* Libraries */
+    "lib": ["es2022"]
   },
   "include": [
     "src/**/*"
