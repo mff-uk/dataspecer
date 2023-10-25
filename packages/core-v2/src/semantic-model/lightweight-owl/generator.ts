@@ -1,7 +1,4 @@
 import {
-    isSemanticModelClass,
-    isSemanticModelGeneralization,
-    isSemanticModelRelationship,
     LanguageString,
     SemanticModelClass,
     SemanticModelEntity,
@@ -12,6 +9,7 @@ import * as N3 from "n3";
 import {DataFactory, Quad_Predicate, Quad_Subject} from "n3";
 import namedNode = DataFactory.namedNode;
 import literal = DataFactory.literal;
+import {isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship} from "../concepts";
 
 
 function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {

@@ -11,7 +11,9 @@
     "./semantic-model/simplified": "./lib/src/semantic-model/simplified/index.js",
     "./semantic-model/lightweight-owl": "./lib/src/semantic-model/lightweight-owl/index.js",
     "./semantic-model/operations": "./lib/src/semantic-model/operations/index.js",
-    "./semantic-model/in-memory": "./lib/src/semantic-model/in-memory/index.js"
+    "./semantic-model/in-memory": "./lib/src/semantic-model/in-memory/index.js",
+    "./semantic-model/usage/concepts": "./lib/src/semantic-model/usage/concepts/index.js",
+    "./semantic-model/usage/operations": "./lib/src/semantic-model/usage/operations/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",

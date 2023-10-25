@@ -123,3 +123,53 @@ local.executeOperation(createRelationship({
 const entities = Object.values(aggregatorView.getEntities()).map(aggregated => aggregated.aggregatedEntity);
 console.log(await generate(entities));
 ```
+
+# UC04
+```ts
+import {SemanticModelAggregator} from "@dataspecer/core-v2/semantic-model/aggregator";
+import {InMemorySemanticModel} from "@dataspecer/core-v2/semantic-model/in-memory";
+import {createClass, createRelationship} from "@dataspecer/core-v2/semantic-model/operations"; // or replace nodejs with browser
+import {createRelationshipUsage} from "@dataspecer/core-v2/semantic-model/usage/operations";
+
+const aggregator = new SemanticModelAggregator();
+const view = aggregator.getView();
+
+const first = new InMemorySemanticModel();
+aggregator.addModel(first);
+
+const second = new InMemorySemanticModel();
+aggregator.addModel(second);
+
+// Create original entity
+first.executeOperation(createRelationship({
+    id: "http://purl.org/dc/terms/title",
+    iri: "http://purl.org/dc/terms/title",
+    name: {en: "title"},
+    ends: [
+        {
+            concept: "http://www.w3.org/2002/07/owl#Thing"
+        },
+        {
+            concept: "http://www.w3.org/2002/07/owl#Thing"
+        }
+    ]
+}));
+
+// Create dataset and usage of title
+const datasetId = second.executeOperation(createClass({
+    name: {cs: "Dataset"},
+})).id
+
+second.executeOperation(createRelationshipUsage({
+    usageOf: "http://purl.org/dc/terms/title",
+    name: {cs: "Titulek datasetu"},
+    ends: [{
+        concept: datasetId
+    },{
+
+    }]
+}));
+
+
+console.log(view.getEntities());
+```

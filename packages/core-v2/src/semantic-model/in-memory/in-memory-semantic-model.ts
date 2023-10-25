@@ -9,6 +9,12 @@ import {
     Operation
 } from "../operations/operations";
 import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/concepts";
+import {
+    isCreateClassUsageOperation,
+    isCreateRelationshipUsageOperation,
+    isModifyClassUsageOperation, isModifyRelationshipUsageOperation
+} from "../usage/operations";
+import {SemanticModelClassUsage, SemanticModelRelationshipUsage} from "../usage/concepts";
 
 function uuid() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -179,6 +185,123 @@ export class InMemorySemanticModel extends InMemoryEntityModel {
                 };
             }
             this.change({}, [operation.id]);
+            return {
+                success: true,
+            };
+        }
+
+        if (isCreateClassUsageOperation(operation)) {
+            let id = operation.entity.id;
+
+            // Generate random id if not provided
+            if (id === undefined) {
+                id = uuid();
+            }
+
+            if (this.entities[id]) {
+                return {
+                    success: false,
+                };
+            }
+
+            const cls: SemanticModelClassUsage = {
+                id,
+                usageOf: operation.entity.usageOf,
+                type: ["class-usage"],
+                name: operation.entity.name ?? null,
+                description: operation.entity.description ?? null,
+                usageNote: operation.entity.usageNote ?? null,
+            };
+
+            this.change({[id]: cls}, []);
+            return {
+                success: true,
+                id,
+            } satisfies CreatedEntityOperationResult;
+        }
+
+        if (isModifyClassUsageOperation(operation)) {
+            if (!this.entities[operation.id]) {
+                return {
+                    success: false,
+                };
+            }
+            this.change({[operation.id]: {...this.entities[operation.id]!, ...operation.entity}}, []);
+            return {
+                success: true,
+            };
+        }
+
+        if (isCreateRelationshipUsageOperation(operation)) {
+            let id = operation.entity.id;
+
+            // Generate random id if not provided
+            if (id === undefined) {
+                id = uuid();
+            }
+
+            if (this.entities[id]) {
+                return {
+                    success: false,
+                };
+            }
+
+            const relationship: SemanticModelRelationshipUsage = {
+                usageNote: operation.entity.usageNote ?? null,
+                id,
+                type: ["relationship-usage"],
+                usageOf: operation.entity.usageOf,
+                name: operation.entity.name ?? null,
+                description: operation.entity.description ?? null,
+                ends: [
+                    {
+                        name: operation.entity.ends?.[0]?.name ?? null,
+                        description: operation.entity.ends?.[0]?.description ?? null,
+                        cardinality: operation.entity.ends?.[0]?.cardinality ?? null,
+                        concept: operation.entity.ends?.[0]?.concept ?? null,
+                        usageNote: operation.entity.ends?.[0]?.usageNote ?? null,
+                    },
+                    {
+                        name: operation.entity.ends?.[1]?.name ?? null,
+                        description: operation.entity.ends?.[1]?.description ?? null,
+                        cardinality: operation.entity.ends?.[1]?.cardinality ?? null,
+                        concept: operation.entity.ends?.[1]?.concept ?? null,
+                        usageNote: operation.entity.ends?.[1]?.usageNote ?? null,
+                    }
+                ]
+            };
+
+            this.change({[id]: relationship}, []);
+            return {
+                success: true,
+                id,
+            } satisfies CreatedEntityOperationResult;
+        }
+
+        if (isModifyRelationshipUsageOperation(operation)) {
+            const oldRelationship = this.entities[operation.id] as SemanticModelRelationshipUsage | undefined
+
+            if (!oldRelationship) {
+                return {
+                    success: false,
+                };
+            }
+
+            const updatedRelationship = {
+                ...oldRelationship,
+                ends: [
+                    {
+                        ...oldRelationship.ends[0],
+                        ...operation.entity.ends?.[0],
+                    },
+                    {
+                        ...oldRelationship.ends[1],
+                        ...operation.entity.ends?.[0],
+                    }
+                ]
+            } as SemanticModelRelationshipUsage;
+
+            this.change({[operation.id]: updatedRelationship}, []);
             return {
                 success: true,
             };

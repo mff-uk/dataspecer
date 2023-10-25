@@ -1,4 +1,5 @@
 import {Entity} from "../../entity-model/entity";
+import {SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP} from "./concepts-utils";
 
 /**
  * A human text that is translated into multiple languages.
@@ -12,6 +13,8 @@ export interface SemanticModelEntity extends Entity {
      * Public, usually globally-recognised, identifier of the entity.
      * The value may be null indicating that the entity has no public IRI.
      * @example http://xmlns.com/foaf/0.1/Person
+     *
+     * IRI may be relative to the base IRI of the model.
      */
     iri: string | null;
 }
@@ -29,12 +32,6 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_CLASS];
 
     // todo: is it class, enumeration, datatype, code list, ...
-}
-
-export const SEMANTIC_MODEL_CLASS = "class"; // todo use proper IRI
-
-export function isSemanticModelClass(resource: Entity | null): resource is SemanticModelClass {
-    return resource?.type.includes(SEMANTIC_MODEL_CLASS) ?? false;
 }
 
 /**
@@ -55,12 +52,6 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
     concept: string;
 }
 
-export const SEMANTIC_MODEL_RELATIONSHIP = "relationship"; // todo use proper IRI
-
-export function isSemanticModelRelationship(resource: Entity | null): resource is SemanticModelRelationship {
-    return resource?.type.includes(SEMANTIC_MODEL_RELATIONSHIP) ?? false;
-}
-
 /**
  * Inheritance hierarchy.
  */
@@ -74,8 +65,3 @@ export interface SemanticModelGeneralization extends SemanticModelEntity {
     parent: string;
 }
 
-export const SEMANTIC_MODEL_GENERALIZATION = "generalization"; // todo use proper IRI
-
-export function isSemanticModelGeneralization(resource: Entity | null): resource is SemanticModelGeneralization {
-    return resource?.type.includes(SEMANTIC_MODEL_GENERALIZATION) ?? false;
-}
