@@ -12,7 +12,7 @@ Minimal installation requires only the SHACL package and all its dependencies.
 ## To reproduce the issue:
 - Run tests by `npm run test` from the package directory
 
-- The issue is in generating jsonSchema in schacl-adapter.spec.ts in class jsonSchemaCreator
+- The issue is in generating jsonSchema in `schacl-adapter.spec.ts` in class `jsonSchemaCreator.ts`
 - The question is - are CONTEXT and SPECIFICATION initialized properly?
 -     Regarding this line of code: await jsonGenerator.generateToStream(context, jsonSchema, specification, streamDictionary);
 - The context and specification are being initialized before this line in the file, maybe something is missing in them or maybe something in them is badly initialized.
