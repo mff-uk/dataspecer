@@ -38,7 +38,8 @@
       "always": "yes",
       "never": "never",
       "optional": "no"
-    }
+    },
+    "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The never option then removes any auxiliary constructs for working with types from the artifacts."
   },
   "IRI": "IRI",
   "iri parameters help": "Class instances (data) can be identified by their specific IRI. For example, Prague, as a city instance, can have its IRI http://example.com/Praha. This option sets whether such an identifier is required in the data, which affects the validation of the data and its representation in RDF, for example, where resources without IRIs appear as blank nodes.",

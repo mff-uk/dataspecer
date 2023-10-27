@@ -35,10 +35,11 @@
   "instancesSpecifyTypes": {
     "title": "Vyžadovat typování instancí",
     "value": {
-      "always": "ano",
+      "always": "vždy",
       "never": "nikdy",
-      "optional": "ne"
-    }
+      "optional": "volitelné"
+    },
+    "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nikdy pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy."
   },
   "IRI": "IRI",
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",

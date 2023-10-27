@@ -7,6 +7,7 @@ import {Box, FormControlLabel, Radio, RadioGroup, Typography} from "@mui/materia
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {useSaveHandler} from "../../helper/save-handler";
 import {SetInstancesSpecifyTypes} from "../../../operations/set-inastances-specify-types";
+import {InfoHelp} from "../../../../components/info-help";
 
 export const InstanceType = memo(({psmClassIri}: {psmClassIri: string | null | undefined}) => {
     const {t} = useTranslation("detail");
@@ -34,7 +35,7 @@ export const InstanceType = memo(({psmClassIri}: {psmClassIri: string | null | u
         {resource && <>
             <Box sx={{mb: 3}}>
                 <Typography variant="subtitle1" component="h2">
-                    {t('instancesSpecifyTypes.title')}
+                    {t('instancesSpecifyTypes.title')} <InfoHelp text={t('instancesSpecifyTypes.help')} />
                 </Typography>
                 <RadioGroup
                     row
@@ -43,7 +44,7 @@ export const InstanceType = memo(({psmClassIri}: {psmClassIri: string | null | u
                 >
                     <FormControlLabel value="ALWAYS" control={<Radio />} label={t('instancesSpecifyTypes.value.always')} />
                     <FormControlLabel value="OPTIONAL" control={<Radio />} label={t('instancesSpecifyTypes.value.optional')} />
-                    {/*<FormControlLabel value="NEVER" control={<Radio />} label={t('instancesSpecifyTypes.value.never')} />*/}
+                    <FormControlLabel value="NEVER" control={<Radio />} label={t('instancesSpecifyTypes.value.never')} />
                 </RadioGroup>
             </Box>
         </>}
