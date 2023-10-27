@@ -49,6 +49,12 @@ export class DataPsmClass extends DataPsmResource {
    */
   instancesHaveIdentity: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
 
+  /**
+   * Require explicit instance typing. For example as @type property in JSON-LD.
+   * If set to undefined, the default value will be used which is "ALWAYS" currently.
+   */
+  instancesSpecifyTypes: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmClass.TYPE);

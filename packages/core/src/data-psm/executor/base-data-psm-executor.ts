@@ -33,6 +33,7 @@ import {executeDataPsmSetExternalRootTypes} from "./data-psm-set-external-root-t
 import {executeDataPsmSetIsClosed} from "./data-psm-set-is-closed-executor";
 import {executeDataPsmSetIdType} from "./data-psm-set-idtype-executor";
 import {executeDataPsmSetInstancesHaveIdentity} from "./data-psm-set-instances-have-identity";
+import {executeDataPsmSetInstancesSpecifyTypes} from "./data-psm-set-instances-specify-type";
 
 export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -144,6 +145,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
       Operations.DataPsmSetInstancesHaveIdentity.is,
       executeDataPsmSetInstancesHaveIdentity,
       Operations.DataPsmSetInstancesHaveIdentity.TYPE
+  ),
+  CoreOperationExecutor.create(
+      Operations.DataPsmSetInstancesSpecifyTypes.is,
+      executeDataPsmSetInstancesSpecifyTypes,
+      Operations.DataPsmSetInstancesSpecifyTypes.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetInterpretation.is,

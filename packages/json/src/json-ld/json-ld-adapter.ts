@@ -6,7 +6,6 @@ import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
 import {JSON_LD_GENERATOR} from "./json-ld-generator";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
-import {JsonStructureModelClass} from "../json-structure-model/structure-model-class";
 
 type QName = [prefix: string | null, localName: string];
 
@@ -136,10 +135,9 @@ export class JsonLdAdapter {
    * Adds entry for a class to a given context.
    */
   protected generateClassContext(cls: StructureModelClass, context: object) {
-    const jsonCls = cls as JsonStructureModelClass;
-
     // This decides whether we use Type-scoped context for this class, or Property-scoped context
-    const contextType = jsonCls.jsonTypeKeyAlias === null ? "PROPERTY-SCOPED" : (jsonCls.jsonTypeRequired === false ? "BOTH" : "TYPE-SCOPED");
+    const contextType = cls.instancesSpecifyTypes === "NEVER" ? "PROPERTY-SCOPED" : (cls.instancesSpecifyTypes === "OPTIONAL" ? "BOTH" : "TYPE-SCOPED");
+    //const contextType = jsonCls.jsonTypeKeyAlias === null ? "PROPERTY-SCOPED" : (jsonCls.jsonTypeRequired === false ? "BOTH" : "TYPE-SCOPED");
 
     const contextForProperties = contextType === "TYPE-SCOPED" ? {} : context;
 

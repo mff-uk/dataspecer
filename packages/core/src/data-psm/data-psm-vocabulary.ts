@@ -105,6 +105,8 @@ export const SET_ID_TYPE = PSM + "SetIdType";
 
 export const SET_INSTANCES_HAVE_IDENTITY = PSM + "SetInstancesHaveIdentity";
 
+export const SET_INSTANCES_SPECIFY_TYPES = PSM + "SetInstancesSpecifyTypes";
+
 export const SET_INTERPRETATION = PSM + "SetInterpretation";
 
 export const SET_IS_CLOSED = PSM + "SetIsClosed";

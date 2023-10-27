@@ -5,7 +5,6 @@ import {transformStructureModel} from "@dataspecer/core/structure-model/transfor
 import {JsonLdAdapter} from "./json-ld-adapter";
 import {writeJsonLd} from "./json-ld-writer";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {structureModelAddJsonProperties} from "../json-structure-model/add-json-properties";
 
 export const JSON_LD_GENERATOR = "http://dataspecer.com/generator/json-ld"
 
@@ -50,7 +49,6 @@ export class JsonLdGenerator implements ArtefactGenerator {
     //   model,
     //   Object.values(context.specifications)
     // );
-    model = await structureModelAddJsonProperties(model, context.reader);
 
     const mergedConceptualModel = {...conceptualModel};
     mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());

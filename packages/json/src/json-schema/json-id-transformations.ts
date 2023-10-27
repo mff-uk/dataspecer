@@ -2,7 +2,6 @@ import {StructureModel, StructureModelClass, StructureModelComplexType, Structur
 import {clone} from "@dataspecer/core/core";
 import {JsonConfiguration} from "../configuration";
 import { getClassTypeKey } from "../json-ld/json-ld-adapter";
-import {JsonStructureModelClass} from "../json-structure-model/structure-model-class";
 
 function ifUndefined(value: any, defaultValue: any) {
   return value === undefined ? defaultValue : value;
@@ -23,11 +22,14 @@ export function structureModelAddIdAndTypeProperties(
     const localClassConfiguration = {
       jsonIdKeyAlias: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdKeyAlias,*/ configuration.jsonIdKeyAlias/*)*/,
       jsonIdRequired: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdRequired,*/ configuration.jsonIdRequired/*)*/ && structureClass.instancesHaveIdentity === "ALWAYS",
-      jsonTypeKeyAlias: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeKeyAlias, configuration.jsonTypeKeyAlias),
-      jsonTypeRequired: ifUndefined((structureClass as JsonStructureModelClass).jsonTypeRequired, configuration.jsonTypeRequired),
+      jsonTypeKeyAlias: /*ifUndefined((structureClass as JsonStructureModelClass).jsonTypeKeyAlias,*/ configuration.jsonTypeKeyAlias/*)*/,
+      jsonTypeRequired: /*ifUndefined((structureClass as JsonStructureModelClass).jsonTypeRequired,*/ configuration.jsonTypeRequired/*)*/ && structureClass.instancesSpecifyTypes === "ALWAYS",
     };
     if (structureClass.instancesHaveIdentity === "NEVER") {
         localClassConfiguration.jsonIdKeyAlias = null;
+    }
+    if (structureClass.instancesSpecifyTypes === "NEVER") {
+      localClassConfiguration.jsonTypeKeyAlias = null;
     }
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && structureClass.properties.length > 0) {

@@ -125,6 +125,7 @@ class StructureModelAdapter {
     model.structureSchema = this.psmSchemaIri;
     model.isClosed = classData.dataPsmIsClosed === true;
     model.instancesHaveIdentity = classData.instancesHaveIdentity ?? "ALWAYS";
+    model.instancesSpecifyTypes = classData.instancesSpecifyTypes ?? "ALWAYS";
   }
 
   private async loadClassReference(

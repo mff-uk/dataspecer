@@ -8,11 +8,11 @@
   "cardinality custom title": "Vlastní kardinalita",
   "cardinality infinity": "nekonečno",
   "class-closed": {
+    "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud je třída uzavřená, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
     "implicit": "výchozí hodnota",
     "no": "otevřená",
     "title": "Otevřenost třídy vůči dalším vlastnostem",
-    "yes": "uzavřená",
-    "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud je třída uzavřená, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány."
+    "yes": "uzavřená"
   },
   "codelist": "Číselník",
   "codelist url": "URL číselníku",
@@ -32,17 +32,17 @@
       "optional": "volitelné"
     }
   },
+  "instancesSpecifyTypes": {
+    "title": "Vyžadovat typování instancí",
+    "value": {
+      "always": "ano",
+      "never": "nikdy",
+      "optional": "ne"
+    }
+  },
   "IRI": "IRI",
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",
   "is codelist": "je číselníkem",
-  "json type": {
-    "title": "Použití JSON @type vlastnosti",
-    "value": {
-      "default": "výchozí",
-      "optional": "volitelné",
-      "remove": "nikdy"
-    }
-  },
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regulární výraz IRI instancí",
@@ -94,7 +94,6 @@
   "title cardinality": "Kardinalita",
   "title class": "Třída",
   "title data type": "Datový typ",
-  "title iri parameters": "Struktura IRI",
   "title schema": "Schéma",
   "title to class": "Odkazovaná třída",
   "XML attributes": "XML specifické atributy",
