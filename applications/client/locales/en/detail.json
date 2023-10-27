@@ -8,11 +8,11 @@
   "cardinality custom title": "Custom cardinality",
   "cardinality infinity": "infinity",
   "class-closed": {
-    "help": "Specifies whether additional properties that are not defined in the schema can be used in the data. If the class is closed, then these extra undefined properties are forbidden.",
-    "implicit": "implicit value",
-    "no": "open",
+    "help": "Specifies whether additional properties that are not defined in the schema can be used in the data. If no, then these extra undefined properties are forbidden.",
+    "implicit": "default",
+    "no": "allowed",
     "title": "Additional class properties",
-    "yes": "closed"
+    "yes": "disallowed"
   },
   "codelist": "codelist",
   "codelist url": "codelist url",
@@ -25,19 +25,19 @@
   },
   "in all languages": "In all languages",
   "instancesHaveIdentity": {
-    "title": "Require identity of instances of classes",
+    "title": "Class instance identification",
     "value": {
-      "always": "always",
-      "never": "never",
+      "always": "required",
+      "never": "disabled",
       "optional": "optional"
     }
   },
   "instancesSpecifyTypes": {
-    "title": "Require explicit instance typing",
+    "title": "Explicit instance typing",
     "value": {
-      "always": "yes",
-      "never": "never",
-      "optional": "no"
+      "always": "required",
+      "never": "disabled",
+      "optional": "optional"
     },
     "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The never option then removes any auxiliary constructs for working with types from the artifacts."
   },

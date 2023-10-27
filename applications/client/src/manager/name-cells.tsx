@@ -56,7 +56,7 @@ export const DataSpecificationDetailInfoCell: React.FC<{
     return <>
         {specification.psms.length} structure{specification.psms.length !== 1 && "s"}
         {specification.importsDataSpecifications.length > 0 && <>
-        , {specification.importsDataSpecifications.length} import{specification.importsDataSpecifications.length !== 1 && "s"}
+        , {specification.importsDataSpecifications.length} reuse{specification.importsDataSpecifications.length !== 1 && "s"}
         </>}
     </>;
 };

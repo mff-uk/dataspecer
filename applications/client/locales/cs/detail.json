@@ -8,11 +8,11 @@
   "cardinality custom title": "Vlastní kardinalita",
   "cardinality infinity": "nekonečno",
   "class-closed": {
-    "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud je třída uzavřená, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
-    "implicit": "výchozí hodnota",
-    "no": "otevřená",
-    "title": "Otevřenost třídy vůči dalším vlastnostem",
-    "yes": "uzavřená"
+    "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud ne, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
+    "implicit": "výchozí",
+    "no": "povoleno",
+    "title": "Další vlastnosti tříd",
+    "yes": "nepovoleno"
   },
   "codelist": "Číselník",
   "codelist url": "URL číselníku",
@@ -25,18 +25,18 @@
   },
   "in all languages": "Ve všech jazycích",
   "instancesHaveIdentity": {
-    "title": "Vyžadovat identitu instancí",
+    "title": "Identifikace instancí tříd",
     "value": {
-      "always": "vždy",
-      "never": "nikdy",
+      "always": "vyžadováno",
+      "never": "nepoužívat",
       "optional": "volitelné"
     }
   },
   "instancesSpecifyTypes": {
-    "title": "Vyžadovat typování instancí",
+    "title": "Explicitní určení typu instancí",
     "value": {
-      "always": "vždy",
-      "never": "nikdy",
+      "always": "vyžadováno",
+      "never": "nepoužívat",
       "optional": "volitelné"
     },
     "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nikdy pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy."
