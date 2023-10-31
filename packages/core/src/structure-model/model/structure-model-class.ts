@@ -65,7 +65,7 @@ export class StructureModelClass {
   /**
    * True if class is supposed to support only its own attributes for purposes of generating validation schemas.
    */
-  isClosed = false;
+  isClosed: boolean | null = null;
 
   /**
    * If class represents codelist this property holds URLs of the datasets

@@ -123,7 +123,7 @@ class StructureModelAdapter {
     model.humanDescription = classData.dataPsmHumanDescription;
     model.technicalLabel = classData.dataPsmTechnicalLabel;
     model.structureSchema = this.psmSchemaIri;
-    model.isClosed = classData.dataPsmIsClosed === true;
+    model.isClosed = classData.dataPsmIsClosed;
     model.instancesHaveIdentity = classData.instancesHaveIdentity;
     model.instancesSpecifyTypes = classData.instancesSpecifyTypes;
   }

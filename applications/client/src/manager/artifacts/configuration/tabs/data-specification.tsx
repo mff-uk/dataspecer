@@ -65,6 +65,22 @@ export const DataSpecification: FC<{
         <div><InfoHelp text={t('instancesSpecifyTypes.help')} /></div>
       </Grid>
     </Grid>
+    <Grid container rowGap={1}  sx={{ mt: 6 }}>
+      <Grid item xs={12} sx={{display: "flex", alignItems: "end"}}>
+        <SelectWithDefault
+            label="Additional class properties"
+            current={input ?? {}}
+            itemKey="dataPsmIsClosed"
+            onChange={onChange}
+            default={defaultObject}
+            options={{
+              "OPEN": "allowed",
+              "CLOSED": "disallowed",
+            }}
+        />
+        <div><InfoHelp text={t('class-closed.help')} /></div>
+      </Grid>
+    </Grid>
 
 
     <Typography variant="h6" sx={{ mt: 6 }}>Generated artifacts</Typography>

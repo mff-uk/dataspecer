@@ -11,6 +11,7 @@ export function structureModelAddDefaultValues(
     for (const classData of classes) {
         classData.instancesHaveIdentity ??= configuration.instancesHaveIdentity;
         classData.instancesSpecifyTypes ??= configuration.instancesSpecifyTypes;
+        classData.isClosed ??= configuration.dataPsmIsClosed == "CLOSED";
     }
     return result;
 }

@@ -24,6 +24,8 @@ export const DefaultDataSpecificationConfiguration =  {
      * If set to undefined, the default value will be used which is "ALWAYS" currently.
      */
     instancesSpecifyTypes: "ALWAYS" as "ALWAYS" | "NEVER" | "OPTIONAL",
+
+    dataPsmIsClosed: "OPEN" as "OPEN" | "CLOSED",
 }
 
 export type DataSpecificationConfiguration = typeof DefaultDataSpecificationConfiguration;
