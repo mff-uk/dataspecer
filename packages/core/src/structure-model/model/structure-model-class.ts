@@ -82,10 +82,10 @@ export class StructureModelClass {
   /**
    * Whether instances of this class may/must/must not have identity, for example IRI.
    */
-  instancesHaveIdentity: "ALWAYS" | "NEVER" | "OPTIONAL" = "ALWAYS";
+  instancesHaveIdentity: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
 
   /**
    * Require explicit instance typing. For example as @type property in JSON-LD.
    */
-  instancesSpecifyTypes: "ALWAYS" | "NEVER" | "OPTIONAL" = "ALWAYS";
+  instancesSpecifyTypes: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
 }

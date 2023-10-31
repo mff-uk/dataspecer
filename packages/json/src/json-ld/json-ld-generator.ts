@@ -1,10 +1,11 @@
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {DataSpecification, DataSpecificationArtefact, DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import {structureModelAddDefaultValues, transformStructureModel} from "@dataspecer/core/structure-model/transformation";
 import {JsonLdAdapter} from "./json-ld-adapter";
 import {writeJsonLd} from "./json-ld-writer";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
+import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
 
 export const JSON_LD_GENERATOR = "http://dataspecer.com/generator/json-ld"
 
@@ -49,10 +50,16 @@ export class JsonLdGenerator implements ArtefactGenerator {
     //   model,
     //   Object.values(context.specifications)
     // );
+    // Global options for the data specification
+    const globalConfiguration = DataSpecificationConfigurator.merge(
+        DefaultDataSpecificationConfiguration,
+        DataSpecificationConfigurator.getFromObject(schemaArtefact.configuration)
+    ) as DataSpecificationConfiguration;
 
     const mergedConceptualModel = {...conceptualModel};
     mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
     model = transformStructureModel(mergedConceptualModel, model, Object.values(context.specifications));
+    model = structureModelAddDefaultValues(model, globalConfiguration);
 
     const adapter = new JsonLdAdapter(model, context, artefact);
     return adapter.generate();

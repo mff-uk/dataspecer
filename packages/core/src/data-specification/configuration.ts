@@ -12,6 +12,18 @@ export const DefaultDataSpecificationConfiguration =  {
      * Default behaviour is to include all artifacts.
      */
     useGenerators: {} as Record<string, boolean>,
+
+    /**
+     * Whether instances of this class may/must/must not have identity, for example IRI.
+     * If set to undefined, the default value will be used which is "ALWAYS" currently.
+     */
+    instancesHaveIdentity: "ALWAYS" as "ALWAYS" | "NEVER" | "OPTIONAL",
+
+    /**
+     * Require explicit instance typing. For example as @type property in JSON-LD.
+     * If set to undefined, the default value will be used which is "ALWAYS" currently.
+     */
+    instancesSpecifyTypes: "ALWAYS" as "ALWAYS" | "NEVER" | "OPTIONAL",
 }
 
 export type DataSpecificationConfiguration = typeof DefaultDataSpecificationConfiguration;

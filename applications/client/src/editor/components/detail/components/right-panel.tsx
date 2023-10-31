@@ -212,8 +212,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     // region instances have identity
 
-    const [instancesHaveIdentity, setInstancesHaveIdentity] = useState<"OPTIONAL" | "NEVER" | undefined>(undefined);
-    const currentInstancesHaveIdentity = (resource as DataPsmClass).instancesHaveIdentity === "ALWAYS" ? undefined : (resource as DataPsmClass).instancesHaveIdentity as "OPTIONAL" | "NEVER" | undefined ;
+    const [instancesHaveIdentity, setInstancesHaveIdentity] = useState<"ALWAYS" | "OPTIONAL" | "NEVER" | undefined>(undefined);
+    const currentInstancesHaveIdentity = (resource as DataPsmClass).instancesHaveIdentity;
     useEffect(() => {
         if (isClass) {
             setInstancesHaveIdentity(currentInstancesHaveIdentity);
@@ -355,12 +355,13 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             </Typography>
             <RadioGroup
                 row
-                value={instancesHaveIdentity ?? "ALWAYS"}
-                onChange={el => setInstancesHaveIdentity(el.target.value === "ALWAYS" ? undefined : el.target.value as "OPTIONAL" | "NEVER" | undefined)}
+                value={instancesHaveIdentity ?? "DEFAULT"}
+                onChange={el => setInstancesHaveIdentity(el.target.value === "DEFAULT" ? undefined : el.target.value as "ALWAYS" | "OPTIONAL" | "NEVER" | undefined)}
             >
                 <FormControlLabel value="ALWAYS" control={<Radio />} label={t('instancesHaveIdentity.value.always')} />
                 <FormControlLabel value="OPTIONAL" control={<Radio />} label={t('instancesHaveIdentity.value.optional')} />
                 <FormControlLabel value="NEVER" control={<Radio />} label={t('instancesHaveIdentity.value.never')} />
+                <FormControlLabel value="DEFAULT" control={<Radio />} label={t('instancesHaveIdentity.value.default')} />
             </RadioGroup>
         </>}
 

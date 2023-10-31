@@ -3,10 +3,6 @@ import {clone} from "@dataspecer/core/core";
 import {JsonConfiguration} from "../configuration";
 import { getClassTypeKey } from "../json-ld/json-ld-adapter";
 
-function ifUndefined(value: any, defaultValue: any) {
-  return value === undefined ? defaultValue : value;
-}
-
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
  * based on generator configuration.
@@ -20,10 +16,10 @@ export function structureModelAddIdAndTypeProperties(
   const classes = result.getClasses();
   for (const structureClass of classes) {
     const localClassConfiguration = {
-      jsonIdKeyAlias: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdKeyAlias,*/ configuration.jsonIdKeyAlias/*)*/,
-      jsonIdRequired: /*ifUndefined((structureClass as JsonStructureModelClass).jsonIdRequired,*/ configuration.jsonIdRequired/*)*/ && structureClass.instancesHaveIdentity === "ALWAYS",
-      jsonTypeKeyAlias: /*ifUndefined((structureClass as JsonStructureModelClass).jsonTypeKeyAlias,*/ configuration.jsonTypeKeyAlias/*)*/,
-      jsonTypeRequired: /*ifUndefined((structureClass as JsonStructureModelClass).jsonTypeRequired,*/ configuration.jsonTypeRequired/*)*/ && structureClass.instancesSpecifyTypes === "ALWAYS",
+      jsonIdKeyAlias: configuration.jsonIdKeyAlias,
+      jsonIdRequired: structureClass.instancesHaveIdentity === "ALWAYS",
+      jsonTypeKeyAlias: configuration.jsonTypeKeyAlias/*)*/,
+      jsonTypeRequired: structureClass.instancesSpecifyTypes === "ALWAYS",
     };
     if (structureClass.instancesHaveIdentity === "NEVER") {
         localClassConfiguration.jsonIdKeyAlias = null;

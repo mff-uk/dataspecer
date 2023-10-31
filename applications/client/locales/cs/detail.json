@@ -9,7 +9,7 @@
   "cardinality infinity": "nekonečno",
   "class-closed": {
     "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud ne, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
-    "implicit": "výchozí",
+    "implicit": "výchozí hodnota",
     "no": "povoleno",
     "title": "Další vlastnosti tříd",
     "yes": "nepovoleno"
@@ -29,7 +29,8 @@
     "value": {
       "always": "vyžadováno",
       "never": "nepoužívat",
-      "optional": "volitelné"
+      "optional": "volitelné",
+      "default": "výchozí hodnota"
     }
   },
   "instancesSpecifyTypes": {
@@ -37,9 +38,10 @@
     "value": {
       "always": "vyžadováno",
       "never": "nepoužívat",
-      "optional": "volitelné"
+      "optional": "volitelné",
+      "default": "výchozí hodnota"
     },
-    "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nikdy pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy."
+    "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nepoužívat pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy."
   },
   "IRI": "IRI",
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",

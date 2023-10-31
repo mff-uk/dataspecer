@@ -9,7 +9,7 @@
   "cardinality infinity": "infinity",
   "class-closed": {
     "help": "Specifies whether additional properties that are not defined in the schema can be used in the data. If no, then these extra undefined properties are forbidden.",
-    "implicit": "default",
+    "implicit": "default value",
     "no": "allowed",
     "title": "Additional class properties",
     "yes": "disallowed"
@@ -29,7 +29,8 @@
     "value": {
       "always": "required",
       "never": "disabled",
-      "optional": "optional"
+      "optional": "optional",
+      "default": "default value"
     }
   },
   "instancesSpecifyTypes": {
@@ -37,9 +38,10 @@
     "value": {
       "always": "required",
       "never": "disabled",
-      "optional": "optional"
+      "optional": "optional",
+      "default": "default value"
     },
-    "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The never option then removes any auxiliary constructs for working with types from the artifacts."
+    "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The disabled option then removes any auxiliary constructs for working with types from the artifacts."
   },
   "IRI": "IRI",
   "iri parameters help": "Class instances (data) can be identified by their specific IRI. For example, Prague, as a city instance, can have its IRI http://example.com/Praha. This option sets whether such an identifier is required in the data, which affects the validation of the data and its representation in RDF, for example, where resources without IRIs appear as blank nodes.",

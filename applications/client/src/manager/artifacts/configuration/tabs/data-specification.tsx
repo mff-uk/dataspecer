@@ -1,14 +1,18 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import { DataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
 import { FormGroup, Grid, Typography } from "@mui/material";
-import { FC } from "react";
-import { SwitchWithDefault, TextFieldWithDefault } from "../ui-components/index";
+import React, { FC } from "react";
+import {SelectWithDefault, SwitchWithDefault, TextFieldWithDefault} from "../ui-components/index";
+import {InfoHelp} from "../../../../components/info-help";
+import {useTranslation} from "react-i18next";
 
 export const DataSpecification: FC<{
   input: DeepPartial<DataSpecificationConfiguration>,
   defaultObject?: DataSpecificationConfiguration,
   onChange: (options: DeepPartial<DataSpecificationConfiguration>) => void,
 }> = ({ input, onChange, defaultObject }) => {
+  const {t} = useTranslation("detail");
+
   return <FormGroup>
 
     <Typography variant="h6">Base URL</Typography>
@@ -27,6 +31,41 @@ export const DataSpecification: FC<{
     <Typography variant="body2" sx={{mt: 1}}>
         For artifacts that will be published on the web.
     </Typography>
+
+    <Typography variant="h6" sx={{ mt: 6 }}>Instance identification and typing</Typography>
+    <Grid container spacing={2}>
+      <Grid item xs={6} sx={{display: "flex", alignItems: "end"}}>
+        <SelectWithDefault
+            label="Class instance identification"
+            current={input ?? {}}
+            itemKey="instancesHaveIdentity"
+            onChange={onChange}
+            default={defaultObject}
+            options={{
+              "ALWAYS": "required",
+              "OPTIONAL": "optional",
+              "NEVER": "disabled",
+            }}
+        />
+        <div><InfoHelp text={t('iri parameters help')} /></div>
+      </Grid>
+      <Grid item xs={6} sx={{display: "flex", alignItems: "end"}}>
+        <SelectWithDefault
+            label="Explicit instance typing"
+            current={input ?? {}}
+            itemKey="instancesSpecifyTypes"
+            onChange={onChange}
+            default={defaultObject}
+            options={{
+              "ALWAYS": "required",
+              "OPTIONAL": "optional",
+              "NEVER": "disabled",
+            }}
+        />
+        <div><InfoHelp text={t('instancesSpecifyTypes.help')} /></div>
+      </Grid>
+    </Grid>
+
 
     <Typography variant="h6" sx={{ mt: 6 }}>Generated artifacts</Typography>
     <Grid container rowGap={1}>

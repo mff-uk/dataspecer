@@ -6,3 +6,4 @@ export * from "./propagate-cardinality";
 export * from "./propagate-label";
 export * from "./propagate-regex";
 export * from "./propagate-example";
+export * from "./add-default-values";

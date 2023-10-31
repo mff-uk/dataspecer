@@ -17,8 +17,8 @@ export const InstanceType = memo(({psmClassIri}: {psmClassIri: string | null | u
     const resource = DataPsmClass.is(rawResource) ? rawResource : null;
 
 
-    const [instancesSpecifyTypes, setInstancesSpecifyTypes] = useState<"OPTIONAL" | "NEVER" | undefined>(undefined);
-    const currentInstancesSpecifyTypes = (resource as DataPsmClass).instancesSpecifyTypes === "ALWAYS" ? undefined : (resource as DataPsmClass).instancesSpecifyTypes as "OPTIONAL" | "NEVER" | undefined ;
+    const [instancesSpecifyTypes, setInstancesSpecifyTypes] = useState<"ALWAYS" | "OPTIONAL" | "NEVER" | undefined>(undefined);
+    const currentInstancesSpecifyTypes = (resource as DataPsmClass).instancesSpecifyTypes;
     useEffect(() => {
             setInstancesSpecifyTypes(currentInstancesSpecifyTypes);
     }, [resource, currentInstancesSpecifyTypes]);
@@ -39,12 +39,13 @@ export const InstanceType = memo(({psmClassIri}: {psmClassIri: string | null | u
                 </Typography>
                 <RadioGroup
                     row
-                    value={instancesSpecifyTypes ?? "ALWAYS"}
-                    onChange={el => setInstancesSpecifyTypes(el.target.value === "ALWAYS" ? undefined : el.target.value as "OPTIONAL" | "NEVER" | undefined)}
+                    value={instancesSpecifyTypes ?? "DEFAULT"}
+                    onChange={el => setInstancesSpecifyTypes(el.target.value === "DEFAULT" ? undefined : el.target.value as "ALWAYS" | "OPTIONAL" | "NEVER" | undefined)}
                 >
                     <FormControlLabel value="ALWAYS" control={<Radio />} label={t('instancesSpecifyTypes.value.always')} />
                     <FormControlLabel value="OPTIONAL" control={<Radio />} label={t('instancesSpecifyTypes.value.optional')} />
                     <FormControlLabel value="NEVER" control={<Radio />} label={t('instancesSpecifyTypes.value.never')} />
+                    <FormControlLabel value="DEFAULT" control={<Radio />} label={t('instancesSpecifyTypes.value.default')} />
                 </RadioGroup>
             </Box>
         </>}
