@@ -124,6 +124,33 @@ const entities = Object.values(aggregatorView.getEntities()).map(aggregated => a
 console.log(await generate(entities));
 ```
 
+# UC03
+
+```ts
+import {BackendPackageService} from "@dataspecer/core-v2/project";
+import {httpFetch} from "@dataspecer/core/io/fetch/fetch-nodejs"; // or replace nodejs with browser
+
+const service = new BackendPackageService(BACKEND_URL, httpFetch);
+const root = await service.getPackage("cme-root"); // Just a name of the root package for your application
+
+console.log(root.subPackages.map(p => `${p.id}: ${p.name.cs}`));
+
+// Create a new package
+const pckg = await service.createPackage("cme-root", {
+    name: {cs: "My new project"}
+});
+
+// Tell models to be part of the package
+await service.updateSemanticModelPackageModels(pckg.id, models);
+
+// You can modify individual models as you wish
+
+// You can close the application
+
+// To restore models use
+const models = await service.constructSemanticModelPackageModels(packg.id);
+```
+
 # UC04
 ```ts
 import {SemanticModelAggregator} from "@dataspecer/core-v2/semantic-model/aggregator";
