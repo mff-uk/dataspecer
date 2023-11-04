@@ -10,12 +10,14 @@
     },
     "dependencies": {
         "@dataspecer/core": "*",
+        "@dataspecer/core-v2": "^0.0.0",
         "@dataspecer/rdfs-adapter": "*",
         "@dataspecer/sgov-adapter": "^0.0.0",
         "jointjs": "^3.7.0",
         "next": "^13.2.4",
         "react": "18.2.0",
         "react-dom": "18.2.0",
+        "reactflow": "^11.9.4",
         "zod": "^3.21.4"
     },
     "devDependencies": {
