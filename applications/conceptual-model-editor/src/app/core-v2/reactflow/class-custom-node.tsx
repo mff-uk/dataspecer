@@ -1,5 +1,5 @@
 import { Handle, Position } from "reactflow";
-import { getNameOf } from "../utils";
+import { getNameOf } from "../util/utils";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../entity-detail-dialog";
 

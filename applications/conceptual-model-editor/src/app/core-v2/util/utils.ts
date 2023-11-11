@@ -1,14 +1,13 @@
-import { NamedThing } from "node_modules/@dataspecer/core-v2/lib/semantic-model/concepts/concepts";
+import { NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     SemanticModelRelationship,
     SemanticModelClass,
     SemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Edge, MarkerType, Node } from "reactflow";
-import { useClassesContext } from "./classes-context";
-import { useModelGraphContext } from "./graph-context";
-import { getRandomNumberInRange } from "../utils/random-gen";
+import { Edge, MarkerType, Node, XYPosition } from "reactflow";
+import { getRandomNumberInRange } from "../../utils/random-gen";
 import { LanguageString } from "@dataspecer/core/core";
+import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID, UNKNOWN_MODEL_ID } from "./constants";
 
 export const getNameOf = (namedThing: NamedThing) => {
     const key = Object.keys(namedThing.name).at(0);
@@ -27,15 +26,17 @@ export const isOwlThing = (classId: string) => classId == "http://www.w3.org/200
 
 // --- coloring --- --- ---
 export const colorForModel = new Map([
-    ["local", "bg-orange-300"],
-    ["sgov", "bg-emerald-300"],
-    ["dcterms", "bg-rose-300"],
+    [LOCAL_MODEL_ID, "bg-orange-300"],
+    [SGOV_MODEL_ID, "bg-emerald-300"],
+    [DCTERMS_MODEL_ID, "bg-rose-300"],
+    [UNKNOWN_MODEL_ID, "bg-red-600"],
 ]); // FIXME: udelej poradne
 
 export const tailwindColorToHex = new Map([
     ["bg-orange-300", "#fdba74"],
     ["bg-emerald-300", "#6ee7b7"],
     ["bg-rose-300", "#fda4af"],
+    ["bg-red-600", "#dc2626"],
 ]);
 
 // --- react flow --- --- ---
@@ -46,7 +47,7 @@ export const getRandomPosition = () => {
 
 export const semanticModelClassToReactFlowNode = (
     cls: SemanticModelClass,
-    position: { x: number; y: number } | undefined,
+    position: XYPosition,
     tailwindColor: string | undefined // FIXME: vymysli lip
 ) =>
     ({

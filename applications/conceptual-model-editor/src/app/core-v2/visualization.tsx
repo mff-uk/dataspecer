@@ -14,7 +14,7 @@ import ReactFlow, {
 import { useMemo, useCallback, useEffect } from "react";
 import { ClassCustomNode } from "./reactflow/class-custom-node";
 import SimpleFloatingEdge from "./reactflow/simple-floating-edge";
-import { useClassesContext } from "./classes-context";
+import { useClassesContext } from "./context/classes-context";
 import {
     isOwlThing,
     getRandomPosition,
@@ -23,14 +23,14 @@ import {
     semanticModelRelationshipToReactFlowEdge,
     colorForModel,
     tailwindColorToHex,
-} from "./utils";
+} from "./util/utils";
 
 import "reactflow/dist/style.css";
-import { useVisualizationContext } from "./visualization-context";
+import { useVisualizationContext } from "./context/visualization-context";
 
 export const Visualization = () => {
     const { classes, relationships, generalizations } = useClassesContext();
-    const { hideOwlThing } = useVisualizationContext();
+    const { hideOwlThing, getClassPosition, setClassPosition } = useVisualizationContext();
 
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -38,20 +38,18 @@ export const Visualization = () => {
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
     useEffect(() => {
-        console.log(relationships);
-        setNodes((nodes) => {
-            // FIXME: cele tohle vypada otresne
-            const presentNodeIds = new Set(nodes.map((n) => n.id));
-            return [
-                ...classes
-                    .filter((cls) => !hideOwlThing || !isOwlThing(cls.cls.id)) // FIXME: do this properly
-                    .filter((cls) => !presentNodeIds.has(cls.cls.id))
-                    .map((cls, i) =>
-                        semanticModelClassToReactFlowNode(cls.cls, getRandomPosition(), colorForModel.get(cls.origin))
-                    ),
-                ...nodes.filter((node) => !hideOwlThing || !isOwlThing(node.id)), // FIXME: do this properly,
-            ];
-        });
+        console.log("rerunning effect in visualization.tsx");
+        setNodes([
+            ...classes
+                .filter((cls) => !hideOwlThing || !isOwlThing(cls.cls.id)) // FIXME: do this properly
+                .map((cls, i) =>
+                    semanticModelClassToReactFlowNode(
+                        cls.cls,
+                        getClassPosition(cls.cls.id),
+                        colorForModel.get(cls.origin)
+                    )
+                ),
+        ]);
         setEdges([
             ...relationships
                 .filter((rel) => {
@@ -65,6 +63,14 @@ export const Visualization = () => {
         ]);
     }, [classes, relationships, hideOwlThing]);
 
+    const handleNodeChanges = (changes: NodeChange[]) => {
+        for (const change of changes) {
+            if (change.type == "position") {
+                setClassPosition(change.id, change.positionAbsolute); // FIXME: maybe optimize so that it doesn't update every pixel
+            }
+        }
+    };
+
     return (
         <div className="h-full w-full">
             <ReactFlow
@@ -73,19 +79,21 @@ export const Visualization = () => {
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 onNodesChange={(changes: NodeChange[]) => {
-                    console.log(changes);
                     onNodesChange(changes);
+                    handleNodeChanges(changes);
                 }}
                 onEdgesChange={(changes: EdgeChange[]) => {
-                    console.log(changes);
+                    // console.log(changes);
                     onEdgesChange(changes);
                 }}
                 // onConnect={onConnect}
+                snapGrid={[20, 20]}
+                snapToGrid={true}
             >
                 <Controls />
                 <MiniMap
                     nodeColor={miniMapNodeColor}
-                    style={{ borderStyle: "solid", borderColor: "darkblue", borderWidth: "5px" }}
+                    style={{ borderStyle: "solid", borderColor: "#5438dc", borderWidth: "5px" }}
                 />
                 <Background gap={12} size={1} />
             </ReactFlow>

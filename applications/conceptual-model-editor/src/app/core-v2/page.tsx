@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
@@ -12,38 +12,53 @@ import {
     isSemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ExternalSemanticModel, createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { InMemorySemanticModel } from "node_modules/@dataspecer/core-v2/lib/semantic-model/in-memory/in-memory-semantic-model";
-import { ModelGraphContext, useModelGraphContext } from "./graph-context";
-import Header from "../components/header";
-import { colorForModel, getNameOf } from "./utils";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { ModelGraphContext, useModelGraphContext } from "./context/graph-context";
+import Header from "./header";
+import { colorForModel, getNameOf } from "./util/utils";
 import { Visualization } from "./visualization";
-import { ClassesContext, type SemanticModelClassWithOrigin, useClassesContext } from "./classes-context";
-import { EntityModel } from "node_modules/@dataspecer/core-v2/lib/entity-model";
-import { VisualizationContext, useVisualizationContext } from "./visualization-context";
+import { ClassesContext, type SemanticModelClassWithOrigin, useClassesContext } from "./context/classes-context";
+import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { VisualizationContext, useVisualizationContext } from "./context/visualization-context";
 import { getRandomName } from "../utils/random-gen";
 import { useEntityDetailDialog } from "./entity-detail-dialog";
+import { useBackendConnection } from "./backend-connection";
+import { useModifyEntityDialog } from "./modify-entity-dialog";
+import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "./util/constants";
+import { usePackageSearch } from "./util/package-search";
+import { XYPosition } from "reactflow";
 
 const ModelsComponent = () => {
-    const { aggregator, setAggregatorView, addModelToGraph, models } = useModelGraphContext();
+    const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels } = useModelGraphContext();
     const [searchedTerm, setSearchedTerm] = useState("");
+    const { packageId } = usePackageSearch();
+    const { getModelsFromBackend } = useBackendConnection();
+
+    useEffect(() => {
+        console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent");
+        if (!packageId) return;
+        const getModels = () => getModelsFromBackend(packageId);
+        getModels().then((models) => addModelToGraph(...models));
+        return cleanModels;
+    }, [packageId]);
 
     const handleAddModel = async (modelType: string) => {
         console.log("handle add model called");
 
-        if (modelType === "sgov") {
+        if (modelType === SGOV_MODEL_ID) {
             const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
             model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
-            addModelToGraph(modelType, model);
-        } else if (modelType === "dcterms") {
+            addModelToGraph(model);
+        } else if (modelType === DCTERMS_MODEL_ID) {
             const model = await createRdfsModel(
                 ["https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl"],
                 httpFetch
             );
             model.fetchFromPimStore();
-            addModelToGraph(modelType, model);
-        } else if (modelType === "local") {
+            addModelToGraph(model);
+        } else if (modelType === LOCAL_MODEL_ID) {
             const model = new InMemorySemanticModel();
-            addModelToGraph(modelType, model);
+            addModelToGraph(model);
         } else {
             alert(`unsupported model type ${modelType}`);
             return;
@@ -53,23 +68,6 @@ const ModelsComponent = () => {
         setAggregatorView(aggregatedView);
 
         console.log("in add model", models);
-    };
-
-    const handleModelAllowClass = (e: React.FormEvent) => {
-        e.preventDefault();
-        alert("TODO: implement after change uc2");
-        // if (aggregatorModel instanceof PimStoreWrapper) return;
-        // console.log("model allow class called", e, aggregatorModel, searchedTerm);
-        // aggregatorModel?.allowClass(searchedTerm).catch(() => null);
-        // setSearchedTerm("");
-    };
-
-    const handleModelSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        alert("TODO: jak delat search podle slov, pr: číselník");
-        // console.log("model search called", e, aggregatorModel, searchedTerm);
-        // aggregatorModel?.search(searchedTerm).catch(() => null);
-        // setSearchedTerm("");
     };
 
     const AddModelButton = (props: { disabled: boolean; modelType: string }) => (
@@ -90,30 +88,53 @@ const ModelsComponent = () => {
                 {[...models.keys()].map((modelId, index) => (
                     <li key={"model" + index}>
                         <div className={`m-2 ${colorForModel.get(modelId)}`}>
-                            <h4>
+                            <h4 onClick={() => console.log(models.get(modelId))}>
                                 Model #{index} - {modelId}
                             </h4>
                         </div>
                     </li>
                 ))}
             </ul>
-            <AddModelButton disabled={models.has("sgov")} modelType="sgov" />
-            <AddModelButton disabled={models.has("dcterms")} modelType="dcterms" />
-            <AddModelButton disabled={models.has("local")} modelType="local" />
+            <AddModelButton disabled={models.has(SGOV_MODEL_ID)} modelType={SGOV_MODEL_ID} />
+            <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} />
+            <AddModelButton disabled={models.has(LOCAL_MODEL_ID)} modelType={LOCAL_MODEL_ID} />
         </div>
     );
 };
 
 const EntityCatalogue = () => {
-    const { aggregatorView, models, addClassToLocalGraph } = useModelGraphContext();
+    const { aggregatorView, models, addClassToLocalGraph, modifyClassInLocalModel } = useModelGraphContext();
     const { setClasses, classes, allowedClasses, setAllowedClasses, setRelationships, setGeneralizations } =
         useClassesContext();
     const [entityDetailSelected, setEntityDetailSelected] = useState(null as unknown as SemanticModelClass);
     const { hideOwlThing, setHideOwlThing } = useVisualizationContext();
 
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
+    const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
 
     useEffect(() => {
+        setClasses(
+            [...models.keys()]
+                .map((modelId) =>
+                    Object.values(models.get(modelId)!.getEntities())
+                        .filter(isSemanticModelClass)
+                        .map((c) => ({ cls: c, origin: modelId }))
+                )
+                .flat()
+        );
+        setRelationships(
+            [...models.keys()]
+                .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
+                .flat()
+        );
+        setGeneralizations(
+            [...models.keys()]
+                .map((modelId) =>
+                    Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelGeneralization)
+                )
+                .flat()
+        );
+
         // TODO: jak zarucit, ze se mi zobrazi krabicky hned pri prvnim pridani veci do modelu, nejak to blbne
         const callToUnsubscribe = aggregatorView?.subscribeToChanges(() => {
             setClasses(
@@ -170,6 +191,19 @@ const EntityCatalogue = () => {
         }
     };
 
+    const handleOpenModification = (cls: SemanticModelClass) => {
+        console.log("in handle open modification for semantic model class", cls);
+        setEntityDetailSelected(cls);
+        openModifyEntityDialog();
+    };
+
+    const handleModifyConcept = (cls: SemanticModelClass, entity: Partial<Omit<SemanticModelClass, "type" | "id">>) => {
+        const resultSuccess = modifyClassInLocalModel(cls.id, entity); //{ cs: getRandomName(5), en: getRandomName(5) }, undefined);
+        if (!resultSuccess) {
+            alert("FIXME: something went wrong, class not added to local model");
+        }
+    };
+
     // classes from model
     const getClassesFromModel = (modelId: string) => {
         const model = models.get(modelId);
@@ -188,7 +222,7 @@ const EntityCatalogue = () => {
                 ));
         } else if (model instanceof InMemorySemanticModel) {
             clses = [
-                ...classes.filter((v) => v.origin == modelId).map((v) => <NonExpandableRow cls={v} key={v.cls.id} />),
+                ...classes.filter((v) => v.origin == modelId).map((v) => <ModifiableRow cls={v} key={v.cls.id} />),
                 <div className="flex flex-row justify-between whitespace-nowrap">
                     Add a concept
                     <button className="ml-2 bg-teal-300 px-1" onClick={handleAddConcept}>
@@ -233,6 +267,19 @@ const EntityCatalogue = () => {
             </button>
         </div>
     );
+    const ModifiableRow = (props: { cls: SemanticModelClassWithOrigin }) => (
+        <div className="flex flex-row justify-between whitespace-nowrap">
+            {getNameOf(props.cls.cls)}
+            <div>
+                <button className="ml-2 bg-teal-300 px-1" onClick={() => handleOpenModification(props.cls.cls)}>
+                    Modify
+                </button>
+                <button className="ml-0.5 bg-teal-300 px-1" onClick={() => handleOpenDetail(props.cls.cls)}>
+                    Detail
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <>
@@ -254,14 +301,15 @@ const EntityCatalogue = () => {
                     <ul>{[...models.keys()].map((modelId) => getClassesFromModel(modelId))}</ul>
                 </div>
             </div>
-            {/* {entityDetailDialogOpen && (
-                <EntityDetailDialog
-                    cls={entityDetailSelected}
-                    open={entityDetailDialogOpen}
-                    onClose={() => setEntityDetailDialogOpen(false)}
-                />
-            )} */}
             {isEntityDetailDialogOpen && <EntityDetailDialog cls={entityDetailSelected} />}
+            {isModifyEntityDialogOpen && (
+                <ModifyEntityDialog
+                    cls={entityDetailSelected}
+                    save={(entity: Partial<Omit<SemanticModelClass, "type" | "id">>) =>
+                        handleModifyConcept(entityDetailSelected, entity)
+                    }
+                />
+            )}
         </>
     );
 };
@@ -278,10 +326,11 @@ const Page = () => {
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [hideOwlThing, setHideOwlThing] = useState(false);
+    const [classPositionMap, setClassPositionMap] = useState(new Map<string, XYPosition>());
 
     return (
         <>
-            <Header page="use case 001" />
+            <Header />
             <main className="h-[calc(100%-48px)] w-full bg-teal-50">
                 <ModelGraphContext.Provider
                     value={{
@@ -304,8 +353,9 @@ const Page = () => {
                             setGeneralizations,
                         }}
                     >
-                        <VisualizationContext.Provider value={{ hideOwlThing, setHideOwlThing }}>
-                            {" "}
+                        <VisualizationContext.Provider
+                            value={{ hideOwlThing, setHideOwlThing, classPositionMap, setClassPositionMap }}
+                        >
                             <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
                                 <EntityCatalogue />
                                 <Visualization />
