@@ -4,13 +4,18 @@ import {OFN, XSD} from "./vocabulary";
 import {PimClass} from "@dataspecer/core/pim/model/pim-class";
 import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
+import { WdConnector } from "./connector/wd-connector";
+import { ISearchResponse } from "./connector/response";
+import { loadWikidataClass } from "./entity-adapters/wd-class-adapter";
 
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
+    protected readonly connector: WdConnector;
     
     constructor(httpFetch: HttpFetch) {
         this.httpFetch = httpFetch;
+        this.connector = new WdConnector(this.httpFetch);
     }
 
     setIriProvider(iriProvider: IriProvider): void {
@@ -42,7 +47,16 @@ export class WikidataAdapter implements CimAdapter {
 
     // @todo implement
     async search(searchString: string): Promise<PimClass[]> {
-        return [];
+        if (!this.iriProvider) {
+            throw new Error("Missing IRI provider.");
+        }
+        const results = []
+        const searchResponse: ISearchResponse = await this.connector.search(searchString);
+        for (const cls of searchResponse.results.classes) {
+            const newPimClass = loadWikidataClass(cls, this.iriProvider);
+            results.push(newPimClass);
+        }
+        return results;
     }
 
     // @todo implement
