@@ -3,16 +3,20 @@ import { IriProvider } from "@dataspecer/core/cim";
 import { EntityId, EntityIdsList, EntityTypes, IWdEntity } from "../connector/entities/wd-entity";
 import { WIKIDATA_ENTITY_PREFIX } from "../vocabulary";
 
-export function entityIdToCimId(entityId: number, type: EntityTypes): string {
-    if (type === EntityTypes.CLASS) {
-        return WIKIDATA_ENTITY_PREFIX + "Q" + entityId.toString();
-    } else {
-        return WIKIDATA_ENTITY_PREFIX + "P" + entityId.toString();
-    }
+export function entityIdToCimIri(entityId: EntityId, type: EntityTypes): string {
+    return WIKIDATA_ENTITY_PREFIX + addEntityPrefixToId(entityId, type);
+}
+
+export function addEntityPrefixToId(entityId: EntityId, type: EntityTypes): string {
+  if (type === EntityTypes.CLASS) {
+      return "Q" + entityId.toString();
+  } else {
+      return "P" + entityId.toString();
+  }
 }
 
 export function entityIdsToCimIds(entityIds: EntityIdsList, type: EntityTypes): string[] {
-    return entityIds.map((id) => entityIdToCimId(id, type));
+    return entityIds.map((id) => entityIdToCimIri(id, type));
 }
 
 export function cimIriToEntityId(cimIri: string): EntityId {
@@ -27,6 +31,6 @@ export function loadWikidataEntityToResource(
 ): void {
   resource.pimHumanLabel = entity.labels;
   resource.pimHumanDescription = entity.descriptions;
-  resource.pimInterpretation = entityIdToCimId(entity.id, type);
+  resource.pimInterpretation = entityIdToCimIri(entity.id, type);
   resource.iri = iriProvider.cimToPim(resource.pimInterpretation);
 }

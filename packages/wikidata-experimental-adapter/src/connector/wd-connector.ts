@@ -36,7 +36,7 @@ export class WdConnector {
     }
 
     public async hierarchy(id: EntityId): Promise<IHierarchyResponse | undefined> {
-        const url = this.API_ENDPOINTS.hierarchy(id, 'full');
+        const url = this.API_ENDPOINTS.hierarchy(id, 'parents');
         const resp = await ((await this.httpFetch(url)).json()) as object
         return this.isIErrorResponse(resp) ? undefined : resp as IHierarchyResponse;
     }
