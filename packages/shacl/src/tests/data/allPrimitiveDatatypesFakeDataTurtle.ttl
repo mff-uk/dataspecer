@@ -1,0 +1,9 @@
+<https://a.ceudQ1y5pcwbgimNSUL7fjA-O76L4ex0IB+SOrFxEt+tBflETMqECO5cDw6are3b7QR-Hhxg9?uwtn=VBy&> a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    <https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa> true;
+    <https://slovník.gov.cz/generický/adresy/pojem/název-městského-obvodu-městské-části> "proident non";
+    <https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo> -13233192;
+    <https://slovník.gov.cz/generický/adresy/pojem/text-adresy> "https://EmXlmwuwQvtihvXvExwYMketvvozLv.avIndVLvOPFIuf64-byM1i8l0ZBOUjXogKarc.WaiTYMUUvuWHy"^^<http://www.w3.org/2001/XMLSchema#anyURI>;
+    <https://slovník.gov.cz/generický/adresy/pojem/typ-čísla-domovního> "-4.7043929721552097"^^<http://www.w3.org/2001/XMLSchema#decimal>;
+    <https://slovník.gov.cz/generický/adresy/pojem/znak-čísla-orientačního> "1938-05-24"^^<http://www.w3.org/2001/XMLSchema#date>;
+    <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-katastrálního-území> "08:21:19.365Z"^^<http://www.w3.org/2001/XMLSchema#time>;
+    <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-okresu> "1893-12-23T13:13:10.0Z"^^<http://www.w3.org/2001/XMLSchema#dateTimeStamp>.
