@@ -1,6 +1,5 @@
 import * as Support from "./support/testSupport";
 import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
-import generate, {fromJsonToTurtle} from "./support/FakeDataCreator";
 
 const testType = "simpleObject";
 const modelCreator = new SimpleObjectModelCreator();

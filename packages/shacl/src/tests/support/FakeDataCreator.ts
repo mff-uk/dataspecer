@@ -7,7 +7,7 @@ import * as fs from "fs";
 // TODO: Parsing raw Json data to Nquads changes simple decimal containing floating point to number containing exponent E, which is not a decimal number
 
   export async function generate(fileName : string) : Promise<String> {
-    const schema = fs.readFileSync('./src/tests/data/allPrimitiveDatatypesSchema.json',
+    const schema = fs.readFileSync(fileName,
     { encoding: 'utf8', flag: 'r' });
     const json = JSON.parse(schema);
     JSONSchemaFaker.option({requiredOnly: true});

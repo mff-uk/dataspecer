@@ -179,7 +179,7 @@ class NestedClosedModelCreator implements ModelCreator{
       class4.pimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační";
       class4.properties = [birthdate];
       class4.psmIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační";
-      class4.regex = null;
+      class4.regex = "^\\d{3}(?:[-\\s]\\d{2}){1}$";
       class4.isClosed = true;
       class4.specification = null;
       class4.structureSchema = null;
@@ -267,19 +267,19 @@ class NestedClosedModelCreator implements ModelCreator{
 
       var class1 : StructureModelClass;
       class1 = new StructureModelClass();
-      class1.cimIri = "https://example.com/class1/mojeCimIri";
-      class1.codelistUrl = ["https://example.com/class1/codelistIri"];
+      class1.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa";
+      class1.codelistUrl = ["https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa"];
       class1.example = null;
       //class1.extends = null;
-      class1.humanDescription = {["cs"]: "Class 1 Popisek 1"};
-      class1.humanLabel = {["cs"]: "Class 1 Label 1"};
-      class1.pimIri = "https://example.com/class1/mojePimIri";
+      class1.humanDescription = {["cs"]: "Adresa popis"};
+      class1.humanLabel = {["cs"]: "Adresa"};
+      class1.pimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa";
       class1.properties = [property1, property2, property3];
-      class1.psmIri = "https://example.com/class1/mojePsmIri";
+      class1.psmIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa";
       class1.regex = null;
       class1.specification = null;
       class1.structureSchema = null;
-      class1.technicalLabel = "osoba";
+      class1.technicalLabel = "adresa";
   
       var root1 : StructureModelSchemaRoot;
       root1 = new StructureModelSchemaRoot();

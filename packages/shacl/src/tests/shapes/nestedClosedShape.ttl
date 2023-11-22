@@ -2,10 +2,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex: <https://example.org/>.
 
-<https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> a sh:NodeShape;
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03/adresaNodeShape> a sh:NodeShape;
     sh:nodeKind sh:BlankNodeOrIRI;
-    sh:description "Class 1 Popisek 1"@cs;
-    sh:name "Class 1 Label 1"@cs.
+    sh:description "Adresa popis"@cs;
+    sh:name "Adresa"@cs.
 <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
@@ -57,7 +57,7 @@
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
 <https://example.org/734c20709639d1c179e0719bbb62668a/adresaNodeShape> sh:property <https://example.org/14f6adb526d3e0ef133bff8942ad88aa/stat-popisekPropertyShape>.
 <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> sh:node <https://example.org/734c20709639d1c179e0719bbb62668a/adresaNodeShape>.
-<https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03/adresaNodeShape> sh:property <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape>.
 <https://example.org/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Jméno a příjmení dané osoby"@cs;
     sh:name "Jméno a příjmení"@cs;
@@ -88,7 +88,7 @@
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
 <https://example.org/21c6605ec1ddb44c7492034ebbf9c28c/jmeno-a-prijmeni-popisekNodeShape> sh:property <https://example.org/b68648cdd062d7b59b33b9323a113b84/prijmeni-popisekPropertyShape>.
 <https://example.org/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape> sh:node <https://example.org/21c6605ec1ddb44c7492034ebbf9c28c/jmeno-a-prijmeni-popisekNodeShape>.
-<https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.org/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03/adresaNodeShape> sh:property <https://example.org/d5999314c0466e169d765b055df1e55c/jmeno-a-prijmeni-popisekPropertyShape>.
 <https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> a sh:PropertyShape;
     sh:description "Datum narození a úmrtí dané osoby"@cs;
     sh:name "Datum narození a úmrtí"@cs;
@@ -97,6 +97,7 @@
     sh:path <https://example.com/Narozeni_a_umrti>.
 <https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape> a sh:NodeShape;
     sh:targetObjectsOf <https://example.com/Narozeni_a_umrti>;
+    sh:pattern "^\\d{3}(?:[-\\s]\\d{2}){1}$";
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -111,4 +112,4 @@
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
 <https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape> sh:property <https://example.org/00e5693dd7c0f49d2acb654950978ffa/dodatek-cisla-orientacnihoPropertyShape>.
 <https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> sh:node <https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape>.
-<https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03/adresaNodeShape> sh:property <https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape>.
