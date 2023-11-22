@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "adresa",
+  "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "má_kód_adresního_místa",
+    "název_městského_obvodu_městské_části",
+    "název_vyššího_územního_samosprávního_celku",
+    "poštovní_směrovací_číslo",
+    "text_adresy",
+    "typ_čísla_domovního",
+    "znak_čísla_orientačního",
+    "má_název_katastrálního_území",
+    "má_název_okresu"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "iri"
+    },
+    "type": {
+      "oneOf": [
+        {
+          "const": "adresa"
+        },
+        {
+          "type": "array",
+          "contains": {
+            "const": "adresa"
+          },
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "má_kód_adresního_místa": {
+      "title": "má kód adresního místa",
+      "type": "boolean"
+    },
+    "název_městského_obvodu_městské_části": {
+      "title": "název městského obvodu/městské části",
+      "description": "Název městského obvodu/městské části, který je vyplněn pouze v případě členěných statutárních měst.",
+      "type": "string"
+    },
+    "název_vyššího_územního_samosprávního_celku": {
+      "title": "název vyššího územního samosprávního celku",
+      "description": "Název vyššího územního samosprávního celku. Tato vlastnost odpovídá vlastnosti adminUnitL2 z ISA2 Core Location Vocabulary.",
+      "type": "object",
+      "required": [
+
+      ],
+      "properties": {
+        "cs": {
+          "title": "Hodnota v českém jazyce",
+          "type": "string"
+        },
+        "en": {
+          "title": "Hodnota v anglickém jazyce",
+          "type": "string"
+        }
+      }
+    },
+    "poštovní_směrovací_číslo": {
+      "title": "poštovní směrovací číslo",
+      "type": "integer"
+    },
+    "text_adresy": {
+      "title": "text adresy",
+      "description": "Celá adresa jako jeden řetězec. Text se řídí Přílohou č. 1 k vyhlášce č. 359/2011 Sb., o základním registru územní identifikace, adres a nemovitostí. Tato vlastnost odpovídá vlastnosti fullAddress z ISA2 Core Location Vocabulary.",
+      "type": "string"
+    },
+    "typ_čísla_domovního": {
+      "title": "typ čísla domovního",
+      "description": "Typ čísla domovního, může nabývat hodnot: č.p. - číslo popisné stavebního objektu č.ev. - číslo evidenční stavebního objektu. Hodnota této vlastnosti je částí hodnoty vlastnosti locatorDesignator z ISA2 Core Location Vocabulary.",
+      "type": "integer"
+    },
+    "znak_čísla_orientačního": {
+      "title": "znak čísla orientačního",
+      "description": "Znak čísla orientačního. Je uveden v případě, že je znak k orientačnímu číslu přidělen. Tato položka nedává smysl bez současného vyplnění čísla orientačního. Hodnota této vlastnosti je částí hodnoty vlastnosti locatorDesignator z ISA2 Core Location Vocabulary.",
+      "type": "string",
+      "format": "date"
+    },
+    "má_název_katastrálního_území": {
+      "title": "má název katastrálního území",
+      "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+      "type": "string",
+      "format": "date"
+    },
+    "má_název_okresu": {
+      "title": "má název okresu",
+      "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

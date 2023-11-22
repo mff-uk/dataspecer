@@ -1,0 +1,311 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "adresa",
+    "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+    "type": "object",
+    "required": [
+      "id",
+      "type",
+      "poštovní_směrovací_číslo",
+      "číslo_orientační"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "iri"
+      },
+      "type": {
+        "oneOf": [
+          {
+            "const": "adresa"
+          },
+          {
+            "type": "array",
+            "contains": {
+              "const": "adresa"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "má_kód_adresního_místa": {
+        "title": "má kód adresního místa",
+        "type": "array",
+        "items": {
+          "title": "Řetězec",
+          "type": "string"
+        }
+      },
+      "poštovní_směrovací_číslo": {
+        "title": "poštovní směrovací číslo",
+        "type": "string",
+        "pattern": "^\\d{3}(?:[-\\s]\\d{2}){1}$"
+      },
+      "text_adresy": {
+        "title": "text adresy",
+        "description": "Celá adresa jako jeden řetězec. Text se řídí Přílohou č. 1 k vyhlášce č. 359/2011 Sb., o základním registru územní identifikace, adres a nemovitostí. Tato vlastnost odpovídá vlastnosti fullAddress z ISA2 Core Location Vocabulary.",
+        "type": "array",
+        "items": {
+          "title": "Řetězec",
+          "type": "string"
+        }
+      },
+      "je_adresou_stavebního_objektu": {
+        "title": "je adresou stavebního objektu",
+        "type": "array",
+        "items": {
+          "title": "stavební objekt",
+          "description": "Stavebním objektem se rozumí dokončená budova zapisovaná do katastru nemovitostí, která je samostatnou věcí, nebo budova, která je součástí pozemku nebo součástí práva stavby a údaje o ní se do katastru nemovitostí zapisují k pozemku nebo k právu stavby, nebo jiná dokončená stavba, která se do katastru nemovitostí nezapisuje, ale bylo jí přiděleno číslo popisné nebo evidenční.",
+          "type": "object",
+          "required": [
+            "id",
+            "type"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "iri"
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "const": "stavební objekt"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "const": "stavební objekt"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "typ_ochrany_stavebního_objektu": {
+              "title": "typ ochrany stavebního objektu",
+              "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "typ_stavebního_objektu": {
+              "title": "typ stavebního objektu",
+              "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "způsob_ochrany_stavebního_objektu": {
+              "title": "způsob ochrany stavebního objektu",
+              "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "způsob_využití_stavebního_objektu": {
+              "title": "způsob využití stavebního objektu",
+              "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "má_adresní_místo": {
+              "title": "má adresní místo",
+              "description": "Stavební objekt, kterému bylo přiděleno číslo popisné nebo evidenční, má jedno nebo více adresních míst.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "iri"
+              }
+            },
+            "má_identifikační_údaje_stavebního_objektu": {
+              "title": "má identifikační údaje stavebního objektu",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "iri"
+              }
+            },
+            "má_technickoekonomické_atributy_stavebního_objektu": {
+              "title": "má technickoekonomické atributy stavebního objektu",
+              "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "iri"
+              }
+            }
+          }
+        }
+      },
+      "má_přiřazené_území_obce": {
+        "title": "má přiřazené území obce",
+        "type": "array",
+        "items": {
+          "title": "území obce",
+          "type": "object",
+          "required": [
+            "id",
+            "type",
+            "datum_vzniku_obce",
+            "název_obce",
+            "status_obce"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "iri"
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "const": "území obce"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "const": "území obce"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "datum_vzniku_obce": {
+              "title": "datum vzniku obce",
+              "description": "O základních územních prvcích uvedených v § 31 odst. 1 písm. a) až o) a o územně evidenční jednotce část obce se vede doplňující údaj o datu jejich vzniku.",
+              "type": "string",
+              "format": "date"
+            },
+            "název_obce": {
+              "title": "název obce",
+              "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+              "type": "string"
+            },
+            "status_obce": {
+              "title": "status obce",
+              "description": "O území obce se v registru územní identifikace vede doplňující údaj o tom, zda obec je městys, město, statutární město nebo hlavní město (dále jen „status obce“).",
+              "type": "object",
+              "required": [
+  
+              ],
+              "properties": {
+                "cs": {
+                  "title": "Hodnota v českém jazyce",
+                  "type": "string"
+                },
+                "en": {
+                  "title": "Hodnota v anglickém jazyce",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "má_přiřazené_území_okresu": {
+        "title": "má přiřazené území okresu",
+        "type": "array",
+        "items": {
+          "title": "území okresu",
+          "type": "object",
+          "required": [
+            "id",
+            "type"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "iri"
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "const": "území okresu"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "const": "území okresu"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "datum_vzniku_okresu": {
+              "title": "datum vzniku okresu",
+              "description": "O základních územních prvcích uvedených v § 31 odst. 1 písm. a) až o) a o územně evidenční jednotce část obce se vede doplňující údaj o datu jejich vzniku.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "název_okresu": {
+              "title": "název okresu",
+              "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "má_území_okresu": {
+              "title": "má území okresu",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "iri"
+              }
+            }
+          }
+        }
+      },
+      "číslo_orientační": {
+        "title": "Číslo orientační",
+        "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "dodatek_čísla_orientačního"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "iri"
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "Číslo orientační"
+              },
+              {
+                "type": "array",
+                "contains": {
+                  "const": "Číslo orientační"
+                },
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "dodatek_čísla_orientačního": {
+            "title": "dodatek čísla orientačního",
+            "description": "Jako dodatek čísel orientačních může být použit jeden malý znak české abecedy bez diakritických znamének.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,49 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
+    "type": "@type",
+    "adresa": {
+      "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+      "@context": {
+        "má_kód_adresního_místa": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa",
+          "@type": "xsd:boolean"
+        },
+        "název_městského_obvodu_městské_části": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/název-městského-obvodu-městské-části",
+          "@type": "xsd:string"
+        },
+        "název_vyššího_územního_samosprávního_celku": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/název-vyššího-územního-samosprávního-celku",
+          "@container": "@language"
+        },
+        "poštovní_směrovací_číslo": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo",
+          "@type": "xsd:integer"
+        },
+        "text_adresy": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/text-adresy",
+          "@type": "xsd:anyURI"
+        },
+        "typ_čísla_domovního": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/typ-čísla-domovního",
+          "@type": "xsd:decimal"
+        },
+        "znak_čísla_orientačního": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/znak-čísla-orientačního",
+          "@type": "xsd:date"
+        },
+        "má_název_katastrálního_území": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-katastrálního-území",
+          "@type": "xsd:time"
+        },
+        "má_název_okresu": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-okresu",
+          "@type": "xsd:dateTimeStamp"
+        }
+      }
+    }
+  }
+}
