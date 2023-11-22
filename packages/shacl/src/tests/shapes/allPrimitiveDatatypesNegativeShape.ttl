@@ -3,7 +3,7 @@
 @prefix ex: <https://example.org/>.
 
 <https://example.org/bfe55dedc512e9e184b5194b632c1c03/Technickýpopisekvěci1NodeShape> a sh:NodeShape;
-    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:description "Věc 1 Popisek 1"@cs;
     sh:name "Věc 1 Label 1"@cs.
 <https://example.org/49c3ca40cabd34a07f73aed81e6b042f/vek-popisekPropertyShape> a sh:PropertyShape;

@@ -12,7 +12,7 @@ import {
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import ModelCreator from "./ModelCreatorInterface";
 
-class ClosedShapeModelCreator implements ModelCreator{
+class ClosedModelCreator implements ModelCreator{
 
    createModel(): StructureModel{
     var model = new StructureModel();
@@ -65,4 +65,4 @@ class ClosedShapeModelCreator implements ModelCreator{
   }
 }
 
-export default ClosedShapeModelCreator;
+export default ClosedModelCreator;

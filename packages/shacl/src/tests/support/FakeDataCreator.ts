@@ -1,529 +1,192 @@
-import * as Support from "./testSupport";
 import{ JSONSchemaFaker } from "json-schema-faker";
-import ParserJsonld from '@rdfjs/parser-jsonld';
-import { Readable } from 'stream';
-import { DataFactory, Sink, Stream, BaseQuad, Quad } from 'rdf-js';
+import * as jsonld from 'jsonld';
+import * as Support from "./testSupport";
+import * as N3 from "n3";
+import * as fs from "fs";
 
-/*
-const jsf = require("json-schema-faker");
-const fs = require("fs");
-const path = require("path");
+// TODO: Parsing raw Json data to Nquads changes simple decimal containing floating point to number containing exponent E, which is not a decimal number
 
-const schema = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../data/schema.json"), "utf8")
-);
-const dataPath = path.join(__dirname, "../data/generated_data.json");
-
-// Extend the base functionality
-jsf.extend("faker", () => require("faker"));
-jsf.extend("cuid", () => {
-  const cuid = require("cuid");
-
-  const res = {
-    cuid: () => cuid(),
-  };
-  return res;
-});
-
-const data = {};
-
-async function main() {
-  let currentData;
-  if (fs.existsSync(dataPath)) {
-    currentData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
-  }
-
-  const entries = Object.entries(schema.definitions);
-
-  for (const [key, value] of entries) {
-    if (currentData && currentData[key]) {
-      console.log("Using existing data for", key);
-      data[key] = currentData[key];
-      continue;
+  export async function generate(fileName : string) : Promise<String> {
+    const schema = fs.readFileSync('./src/tests/data/allPrimitiveDatatypesSchema.json',
+    { encoding: 'utf8', flag: 'r' });
+    const json = JSON.parse(schema);
+    JSONSchemaFaker.option({requiredOnly: true});
+    const generatedJson = await JSONSchemaFaker.resolve(json);
+    
+    if(generatedJson == null){
+      return "";
+    } else {
+      return JSON.stringify(generatedJson, null, 2);
     }
-
-    const injected = {
-        ...(typeof value === 'object' ? value : {}) ,
-      definitions: schema.definitions,
-    };
-
-    // use the async-version (preferred way)
-    const sample = await jsf.resolve(injected);
-    data[key] = sample;
   }
 
-  const outputJson = JSON.stringify(data, null, 2);
-  fs.writeFileSync(dataPath, outputJson);
-}
+  export async function fromRawJsonDataToNquads(rawJsonData : string, testType : string) : Promise<String> {
+      const doc3 = rawJsonData;
+      console.log(rawJsonData);
+      const context3 = fs.readFileSync('./src/tests/data/' + testType + 'Context.json',{ encoding: 'utf8', flag: 'r' });;
+
+      const compacted3 = context3.slice(0, -1) + "," + doc3.substr(1);
+
+      const parsed = JSON.parse(compacted3);
+      console.log(compacted3);
+      console.log(parsed);
+      const nquads = await jsonld.toRDF(parsed, {format: 'application/n-quads'});
+      console.log(nquads);
+      const written = await Support.syncWriteFile("../data/" + testType + "FakeData.ttl", nquads);
+
+      return nquads.toString();
+  }
+
+/*  
+  export async function fromJsonLdToTurtle(jsonld : string) : Promise<String> {
+
+  }
+
+  export async function fromQuadsToJsonld(quads : string) : Promise<String> {
+
+  }
 */
-const reffedSchema = `{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Věc",
-  "type": "object",
-  "required": [
-    "id",
-    "type",
-    "název"
-  ],
-  "properties": {
-    "id": {
-      "type": "string",
-      "format": "iri"
-    },
-    "type": {
-      "oneOf": [
-        {
-          "const": "Věc"
-        },
-        {
-          "type": "array",
-          "contains": {
-            "const": "Věc"
-          },
-          "items": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "název": {
-      "title": "název",
-      "type": "object",
-      "required": [
+  export async function fromJsonToTurtle(rawJsonData : string, testType : string) : Promise<void> {
+    const nquadsData = fromRawJsonDataToNquads(rawJsonData, testType);
+    // TODO
+     //UNQUOTE ONCE DECIMAL number changing into numbers containing exponent is resolved
+    // Parsing Nquads to Turtle format from one file to other
+      var access = fs.createWriteStream('./src/tests/data/' + testType + 'FakeDataTurtle.ttl');
+      const streamParser = new N3.StreamParser({ format: 'application/n-quads' }),
+      inputStream = fs.createReadStream('./src/tests/data/' + testType + 'FakeData.ttl'), 
+      streamWriter = new N3.StreamWriter();
+      inputStream.pipe(streamParser);
+      streamParser.pipe(streamWriter);
+      streamWriter.pipe(access);
+    
+    // End of enriching keys
+  }
 
-      ],
-      "properties": {
-        "cs": {
-          "title": "Hodnota v českém jazyce",
-          "type": "string"
-        },
-        "en": {
-          "title": "Hodnota v anglickém jazyce",
-          "type": "string"
-        }
-      }
-    },
-    "popis": {
-      "title": "popis",
-      "type": "object",
-      "required": [
-
-      ],
-      "properties": {
-        "cs": {
-          "title": "Hodnota v českém jazyce",
-          "type": "string"
-        },
-        "en": {
-          "title": "Hodnota v anglickém jazyce",
-          "type": "string"
-        }
-      }
-    },
-    "příloha": {
-      "title": "má přílohu",
-      "type": "array",
-      "items": {
-        "title": "Digitální objekt",
-        "description": "Digitální objekt je objekt existující pouze v digitálním světě (např. databáze nebo datová sada) příp. se jedná o plně digitalizovaný objekt reálného světa (např. dokument, obrázek nebo kniha).",
-        "type": "object",
-        "required": [
-          "id",
-          "type",
-          "url",
-          "správce_osobních_údajů",
-          "typ_média",
-          "má_podmínky_užití"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "iri"
+  const jsonldDataExamnple = {
+    "@context": {
+      "@version": 1.1,
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "id": "@id",
+      "type": "@type",
+      "Událost": {
+        "@id": "https://slovník.gov.cz/datový/události/pojem/událost",
+        "@context": {
+          "registrace": {
+            "@id": "https://slovník.gov.cz/datový/události/pojem/registrace",
+            "@type": "xsd:boolean"
           },
-          "type": {
-            "oneOf": [
-              {
-                "const": "Digitální objekt"
-              },
-              {
-                "type": "array",
-                "contains": {
-                  "const": "Digitální objekt"
-                },
-                "items": {
-                  "type": "string"
+          "dlouhý_popis": "https://slovník.gov.cz/datový/události/pojem/dlouhý-popis",
+          "název": {
+            "@id": "https://slovník.gov.cz/generický/věci/pojem/název",
+            "@container": "@language"
+          },
+          "popis": "https://slovník.gov.cz/generický/věci/pojem/popis",
+          "vytvořeno": {
+            "@id": "https://slovník.gov.cz/generický/věci/pojem/vytvořeno",
+            "@container": "@set",
+            "@type": "@id"
+          },
+          "relevantní_do": {
+            "@id": "https://slovník.gov.cz/generický/věci/pojem/relevantní-do",
+            "@container": "@set",
+            "@type": "@id"
+          },
+          "má_umístění": {
+            "@id": "https://slovník.gov.cz/datový/události/pojem/má-umístění",
+            "@container": "@set",
+            "@context": {
+              "Lokalizace prostorového objektu": {
+                "@id": "https://slovník.gov.cz/veřejný-sektor/pojem/lokalizace-prostorového-objektu",
+                "@context": {
+                  "má_lokalizaci": {
+                    "@reverse": "https://slovník.gov.cz/veřejný-sektor/pojem/má-lokalizaci",
+                    "@container": "@set",
+                    "@type": "@id"
+                  },
+                  "má_umístění": {
+                    "@reverse": "https://slovník.gov.cz/datový/události/pojem/má-umístění",
+                    "@container": "@set",
+                    "@type": "@id"
+                  }
                 }
               }
-            ]
-          },
-          "url": {
-            "title": "url ke stažení",
-            "type": "string",
-            "format": "iri"
-          },
-          "poskytovatele": {
-            "title": "má poskytovatele",
-            "description": "K digitálnímu objektu přiřazuje jeho poskytovatele.",
-            "type": "string",
-            "format": "iri"
-          },
-          "kurátor": {
-            "title": "má kurátora",
-            "description": "K digitálnímu objektu přiřazuje jeho kurátora.",
-            "type": "string",
-            "format": "iri"
-          },
-          "autor_díla": {
-            "title": "má autora díla",
-            "description": "K digitálnímu dílu přiřazuje jeho autora.",
-            "type": "string",
-            "format": "iri"
-          },
-          "vykonavatel_autorské_dílo": {
-            "title": "má vykonavatele majetkových práv autorských u autorského díla",
-            "description": "Přiřazuje k digitálnímu objektu vykonavatele majetkových práv autorských.",
-            "type": "string",
-            "format": "iri"
-          },
-          "autor_originální_databáze": {
-            "title": "má autora originální databáze",
-            "description": "K digitálnímu objektu, který je originální databází, přiřazuje jejího autora.",
-            "type": "string",
-            "format": "iri"
-          },
-          "vykonavatel_originální_databáze": {
-            "title": "má vykonavatele majetkových práv autorských u originální databáze",
-            "description": "Vykonavatele majetkových práv autorských daného digitálního objektu, který je originální databází. Typicky se bude jednat o zaměstnavatele autora (§ 58 zákona č. 121/2000 Sb, autorský zákon).",
-            "type": "string",
-            "format": "iri"
-          },
-          "pořizovatel_databáze": {
-            "title": "má pořizovatele databáze",
-            "description": "K digitálnímu objektu, který je databází, přiřazuje pořizovatele  dané databáze.",
-            "type": "string",
-            "format": "iri"
-          },
-          "správce_osobních_údajů": {
-            "title": "má správce osobních údajů",
-            "description": "K digitálnímu objektu přiřazuje správce osobních údajů.",
-            "type": "string",
-            "format": "iri"
-          },
-          "zpracovatel_osobních_údajů": {
-            "title": "má zpracovatele osobních údajů",
-            "description": "Přiřazuje k digitálnímu dílu zpracovatele osobních údajů.",
-            "type": "string",
-            "format": "iri"
-          },
-          "typ_média": {
-            "title": "má typ média",
-            "description": "Určuje, o jaký typ digitálního objektu se jedná ve smyslu typu digitálního média a jeho konkrétního formátu (např. datový soubor, obrázek, video, audio, apod.).",
-            "type": "string",
-            "format": "iri"
-          },
-          "má_podmínky_užití": {
-            "title": "má podmínky užití",
-            "description": "Specifikace podmínek užití digitálního objektu.",
-            "type": "object",
-            "required": [
-              "id",
-              "type"
-            ],
-            "properties": {
-              "id": {
-                "type": "string",
-                "format": "iri"
-              },
-              "type": {
-                "oneOf": [
-                  {
-                    "const": "Podmínky užití"
-                  },
-                  {
-                    "type": "array",
-                    "contains": {
-                      "const": "Podmínky užití"
-                    },
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                ]
-              },
-              "obsahuje_autorské_dílo": {
-                "title": "obsahuje autorské dílo",
-                "description": "Vyjádření, zda daný digitální objekt je či není autorským dílem, které není originální databází.",
-                "type": "boolean"
-              },
-              "obsahuje_více_autorských_děl": {
-                "title": "obsahuje více autorských děl",
-                "description": "Vyjádření, že daný digitální objekt obsahuje více autorských děl, která nejsou originální databází. V takovém případě se má za to, že podmínky užití jednotlivých děl jsou upraveny uvnitř digitálního objektu.",
-                "type": "boolean"
-              },
-              "licence_autorského_díla": {
-                "title": "licence autorského díla",
-                "description": "Licence autorského díla, které není originální databází. Při nastavení podmínek užití doporučujeme řídit se dle doporučení pro Stanovení podmínek užití otevřených dat. Lze využít i vlastní licenci, která musí být uvedena odkazem na tuto licenci. Tato praxe je ale výrazně nedoporučována s ohledem na zajištění interoperability digitálních objektů.",
-                "type": "string",
-                "format": "iri"
-              },
-              "originální_databáze": {
-                "title": "originální databáze",
-                "description": "Vyjádření, zda daný digitální objekt je či není originální (autorskoprávně chráněnou) databází.",
-                "type": "boolean"
-              },
-              "licence_originální_databáze": {
-                "title": "licence originální databáze",
-                "description": "Licence originální databáze. Při nastavení podmínek užití doporučujeme řídit se dle doporučení pro Stanovení podmínek užití otevřených dat. Lze využít i vlastní licenci, která musí být uvedena odkazem na tuto licenci. Tato praxe je ale výrazně nedoporučována s ohledem na zajištění interoperability digitálních objektů.",
-                "type": "string",
-                "format": "iri"
-              },
-              "ochrana_zvláštními_právy_pořizovatele_databáze": {
-                "title": "databáze chráněná zvláštními právy pořizovatele databáze",
-                "description": "Vyjádření, zda daný digitální objekt je či není chráněn zvláštními právy pořizovatele databáze.",
-                "type": "boolean"
-              },
-              "licence_databáze_chráněné_zvláštními_právy_pořizovatele_databáze": {
-                "title": "licence pro databázi chráněnou zvláštními právy pořizovatele databáze",
-                "description": "Licence pro databázi chráněnou zvláštními právy pořizovatele databáze. Při nastavení podmínek užití doporučujeme řídit se dle doporučení pro Stanovení podmínek užití otevřených dat. Lze využít i vlastní licenci, která musí být uvedena odkazem na tuto licenci. Tato praxe je ale výrazně nedoporučována s ohledem na zajištění interoperability digitálních objektů.",
-                "type": "string",
-                "format": "iri"
-              },
-              "obsahuje_osobní_údaje": {
-                "title": "obsahuje osobní údaje",
-                "description": "Vyjádření, zda daný digitální objekt obsahuje či neobsahuje osobní údaje.",
-                "type": "boolean"
-              }
             }
           }
         }
       }
-    }
-  }
-}`;
-/*
-const schema = {
-    $schema: "https://json-schema.org/draft/2020-12/schema",
-    title: "Věc",
-    type: "object",
-    required: [
-      "id",
-      "type",
-      "název",
-      "popis"
+    },
+  "id": "http://hCQoiUqXjDvYEMzqvXkmYIcomNSpXFUy.mgzvoJGPvLhtocYIHQJWY4K,5LGF+sp9kJuRHT4iREho95Y1Ws?qhmqzdk=e7&fpfai&",
+    "type": "Událost",
+    "vytvořeno": [
+      "http://BhgbMoTiJazPpvnTwslHfUKwjzhkyik.xupj.FqMwd-M8U1R9bxoYPkUo,2tJwwpAvaWtz6HwGEBX8nm,JlW.k02pLUuSAquhdQ",
+      "https://AsBkyeaTIjfIGdQswnSPLqRAFwvLYzeD.cpSXesSqOtbIFt180HncqJsNUi10YlsYlTIF0nRV1Z,7Esc1QaHI",
+      "https://nrvOBIDXbxLG.omwpgx+5SgLh3nDoffP4M0271BW3ewHlmJO6CqZIdmchCiNBJJZuBkhWUgPF1.i0,zP9CLn?naycjt=O&xtdnct&"
     ],
-    properties: {
-      id: {
-        type: "string",
-        format: "iri"
-      },
-      type: {
-        oneOf: [
-          {
-            const: "Věc"
-          },
-          {
-            type: "array",
-            contains: {
-              const: "Věc"
-            },
-            items: {
-              type: "string"
-            }
-          }
+    "název": {
+      "en": "velit ut tempor",
+      "cs": "dolor veniam"
+    },
+    "má_umístění": [
+      {
+        "id": "https://OgjWuzTuFTKFYIiiLOBYhsPlPjOwOfPE.ivmwxS57QeIq5aTAVbYYpGVvhOUfZgNuVt7qPl3zQj+LMbq2OCbFawe",
+        "type": [
+          "Lokalizace prostorového objektu"
         ]
       },
-      název: {
-        title: "název",
-        type: "object",
-        required: [
-  
+      {
+        "id": "https://rgIeRWCGmSDa.yqtiWcgek2FkZ,4I",
+        "type": "Lokalizace prostorového objektu",
+        "má_lokalizaci": [
+          "https://vKDKSIrhGJutTtIbcZMSJqIobSzUVDp.coUAz4RlZS,oZ,atRuFGLbKe,o3NHhiAmxQBELcKT400Fnl.6lW,+6Fg.9uoZ2u9SJT5",
+          "http://oilFMPltjG.ztvhvDPQEn3yTGsEODEbzy8t2y+QBT.fxzTlUb7VowS0+iPelRn",
+          "http://XfBK.wmXTrCXURrLyKnT9ZvQDUsMVMc10a6K,IygRHyKaaUNe54uWEf-kKlqd1pbJCQUCJQoeCbIW",
+          "https://nRzWY.ajst9FoL2oujupmbej9Z9Y,d2D,TVyse-9PFxQnH9A3C0?"
         ],
-        properties: {
-          cs: {
-            title: "Hodnota v českém jazyce",
-            type: "string"
-          },
-          en: {
-            title: "Hodnota v anglickém jazyce",
-            type: "string"
-          }
-        }
+        "má_umístění": [
+          "https://wnkIfXUIsOmnnAjGIsypRCHwMqff.kopvCJANq1POeJKvP07Pn",
+          "http://maMsewrqVePEVTyclTqNitZqxngFVqNG.vcpC0bUkqcrQ4SvFkcEitvF2WNJxUXNe+YpaqsZXuX1+Vy?ecgvnla=We&",
+          "https://UOQrUmXAVWDDGpSkrF.dubW.iI?",
+          "http://EEjlPOkOuIJeKakoVOVWGneXohqZZOTig.ljcnqhsPwh6b2xZJuhX,Gkj.l+WPcLvg6MjhchXahAZ9kvMvLEOa5YiEb,jou",
+          "https://WItKuuAtuOmyflFzMxuxqN.zcfR4l?gfrzl=SJt&"
+        ]
       },
-      popis: {
-        title: "popis",
-        type: "object",
-        required: [
-  
+      {
+        "id": "https://mGkN.eruqtZ8G9VPGXZuTTMrgZzXKIfobFNBTwVki1WPi,r57l,9KhB7BCd0wTF9HroO+Likkn?yoeda&ztyez&",
+        "type": [
+          "consequat in elit officia Ut",
+          "Lokalizace prostorového objektu"
         ],
-        properties: {
-          cs: {
-            title: "Hodnota v českém jazyce",
-            type: "string"
-          },
-          en: {
-            title: "Hodnota v anglickém jazyce",
-            type: "string"
-          }
-        }
+        "má_lokalizaci": [
+          "https://WdiAzUbVtFKVurwVoWYhhs.qjnXuWWe5pH+cVDW5P.jFzg4NdNeLYjgcs9v",
+          "http://AvmWcoEAEISQTkn.jmtqa+52jJoMzg,hyKGUf9AC1F,vkHQns4?nxsvkrv=27uN&",
+          "http://HhTxS.sjejfksSzcHqKR",
+          "https://tpmnuvE.jhmoiuPeXZsfa1FEr,yEwbyldWTpxhmv0hITumjoygLJtdQQKSZVUdUj6GgPk2M9Y",
+          "https://dZYQQcNXJVwiflXHEXlHxeXzMnREUPlNO.tmkaYKsIFFPnIw66pVCCntQPapgufyBHtPvGgk7Za50TdWhO?gpna=D&aolhtkw&vd&"
+        ],
+        "má_umístění": [
+          "http://zOIPGHKBhkTGoqxY.ppgQiy?tric=cT&"
+        ]
       }
-    }
-  }
-;
-*/
-const contextPart = `{
-  "@context": {
-    "@version": 1.1,
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "id": "@id",
-    "type": "@type",
-    "Věc": {
-      "@id": "https://slovník.gov.cz/generický/věci/pojem/věc",
-      "@context": {
-        "název": {
-          "@id": "https://slovník.gov.cz/generický/věci/pojem/název",
-          "@container": "@language"
-        },
-        "popis": {
-          "@id": "https://slovník.gov.cz/generický/věci/pojem/popis",
-          "@container": "@language"
-        },
-        "příloha": {
-          "@id": "https://slovník.gov.cz/generický/věci/pojem/má-přílohu",
-          "@container": "@set",
-          "@context": {
-            "Digitální objekt": {
-              "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/digitální-objekt",
-              "@context": {
-                "url": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/url-ke-stažení",
-                  "@type": "xsd:anyURI"
-                },
-                "poskytovatele": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-poskytovatele",
-                  "@type": "@id"
-                },
-                "kurátor": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-kurátora",
-                  "@type": "@id"
-                },
-                "autor_díla": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-autora-díla",
-                  "@type": "@id"
-                },
-                "vykonavatel_autorské_dílo": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-vykonavatele-majetkových-práv-autorských-u-autorského-díla",
-                  "@type": "@id"
-                },
-                "autor_originální_databáze": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-autora-originální-databáze",
-                  "@type": "@id"
-                },
-                "vykonavatel_originální_databáze": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-vykonavatele-majetkových-práv-autorských-u-originální-databáze",
-                  "@type": "@id"
-                },
-                "pořizovatel_databáze": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-pořizovatele-databáze",
-                  "@type": "@id"
-                },
-                "správce_osobních_údajů": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-správce-osobních-údajů",
-                  "@type": "@id"
-                },
-                "zpracovatel_osobních_údajů": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-zpracovatele-osobních-údajů",
-                  "@type": "@id"
-                },
-                "typ_média": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-typ-média",
-                "má_podmínky_užití": {
-                  "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/má-podmínky-užití",
-                  "@type": "@id",
-                  "@context": {
-                    "Podmínky užití": {
-                      "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/podmínky-užití",
-                      "@context": {
-                        "obsahuje_autorské_dílo": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/obsahuje-autorské-dílo",
-                          "@type": "xsd:boolean"
-                        },
-                        "obsahuje_více_autorských_děl": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/obsahuje-více-autorských-děl",
-                          "@type": "xsd:boolean"
-                        },
-                        "licence_autorského_díla": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/licence-autorského-díla",
-                          "@type": "@id"
-                        },
-                        "originální_databáze": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/originální-databáze",
-                          "@type": "xsd:boolean"
-                        },
-                        "licence_originální_databáze": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/licence-originální-databáze",
-                          "@type": "@id"
-                        },
-                        "ochrana_zvláštními_právy_pořizovatele_databáze": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/databáze-chráněná-zvláštními-právy-pořizovatele-databáze",
-                          "@type": "xsd:boolean"
-                        },
-                        "licence_databáze_chráněné_zvláštními_právy_pořizovatele_databáze": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/licence-pro-databázi-chráněnou-zvláštními-právy-pořizovatele-databáze",
-                          "@type": "@id"
-                        },
-                        "obsahuje_osobní_údaje": {
-                          "@id": "https://slovník.gov.cz/generický/digitální-objekty/pojem/obsahuje-osobní-údaje",
-                          "@type": "xsd:boolean"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}`;
-
-  async function generate(schema : string) : Promise<String> {
-    //const json = JSON.parse(schema);
-    const json = JSON.parse(reffedSchema); // Sample json schema
-    JSONSchemaFaker.option({alwaysFakeOptionals: true, requiredOnly: true});
-    const asyncValue = await JSONSchemaFaker.resolve(json);
-    
-    //const contextPart = JSON.stringify(jsonContext, null, 2);
-    //const dataPart = JSON.stringify(asyncValue, null, 2).slice(1);
-    
-
-    const doc = contextPart.slice(0, -1) + "," + JSON.stringify(asyncValue, null, 2).slice(1);
-    const parserJsonld = new ParserJsonld();
-  
-    const input = new Readable({
-      read: () => {
-        input.push(doc);
-        input.push(null);
-      }
-    })
-  
-    const output = parserJsonld.import(input);
-  
-    var str = "";
-    /*
-    output.on('data', quad => {
-      console.log(`${quad.subject.value} - ${quad.predicate.value} - ${quad.object.value}`);
-    })
-  console.log("str in fake \n" + str);
-  */
-    /*
-    output.on('data', quad => {
-      console.log(`${quad.subject.value} - ${quad.predicate.value} - ${quad.object.value}`)
-    })
-*/
-    return JSON.stringify(asyncValue, null, 2);
-    //await console.log("Async value of generated data\n" + JSON.stringify(asyncValue, null, 2));
-
-  }
+    ],
+    "popis": "in tempor culpa velit",
+    "relevantní_do": [
+      "http://oYqksEmyrLKjkVwjyrVThyYulE.cqwOVBkMgBBDpo7rUlExowqqiZ+2pXSWLUsq-iZc?",
+      "http://YzQGkQStPpxersjzEAHmLpfdxKyjFJ.hjb0aND3xmEt?kzxgu=q6VW&p&bkri&",
+      "https://g.hhjKpVOt1S1,yVtUX5qVdZiM9P9JuU6aIyHz8fOfxZI73K2xJiPK7iKDCdAL.23ptD.OWldE?ph&",
+      "http://lZp.iiRnZX5FTjtmU,NC2.dSoZtic4.qKJTsHBOOVMR,QQIN6HAnIVz0?abszv=Z32H2&sbr=Oahsc&"
+    ],
+    "dlouhý_popis": [
+      "magna exercitation sint ipsum",
+      "reprehenderit culpa minim",
+      "consequat"
+    ],
+    "registrace": [
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  };
 
   export default generate;

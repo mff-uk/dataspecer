@@ -3,7 +3,7 @@
 @prefix ex: <https://example.org/>.
 
 <https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/class1/mojeCimIri>;
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
 <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> a sh:PropertyShape;
@@ -13,7 +13,8 @@
     sh:maxCount 1;
     sh:path <https://example.com/Adresa>.
 <https://example.org/734c20709639d1c179e0719bbb62668a/adresaNodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/class2/adresa>;
+    sh:targetObjectsOf <https://example.com/Adresa>;
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs, "Adres"@pl.
 <https://example.org/fdc4f97d6cdf0965d14c6ae8b9088144/ulice-popisekPropertyShape> a sh:PropertyShape;
@@ -64,9 +65,10 @@
     sh:maxCount 1;
     sh:path <https://example.com/Jmeno_A_Prijmeni>.
 <https://example.org/21c6605ec1ddb44c7492034ebbf9c28c/jmeno-a-prijmeni-popisekNodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/Jmeno_A_Prijmeni_class>;
+    sh:targetObjectsOf <https://example.com/Jmeno_A_Prijmeni>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Jméno a příjmení dané osoby"@cs;
     sh:name "Jméno a příjmení"@cs, "First and last name"@en.
 <https://example.org/9575c5e9bb444a28b8d242d572804e75/jmeno-popisekPropertyShape> a sh:PropertyShape;
@@ -93,26 +95,20 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni_a_umrti>.
-<https://example.org/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/Narozeni_a_umrti_class>;
+<https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape> a sh:NodeShape;
+    sh:targetObjectsOf <https://example.com/Narozeni_a_umrti>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
-    sh:description "Datum narození a úmrtí dané osoby"@cs;
+    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:description "Číslo orientační"@cs;
     sh:name "Datum narození a úmrtí"@cs, "Date of birth and death"@en.
-<https://example.org/022b24ad38b76b39e236aacef0a4d2b4/narozeni-popisekPropertyShape> a sh:PropertyShape;
+<https://example.org/00e5693dd7c0f49d2acb654950978ffa/dodatek-cisla-orientacnihoPropertyShape> a sh:PropertyShape;
     sh:description "Datum narození dané osoby"@cs;
-    sh:name "Datum narození"@cs;
+    sh:name "Dodatek čísla orientačního"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Narozeni>;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/326/2000/pojem/dodatek-čísla-orientačního>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.org/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> sh:property <https://example.org/022b24ad38b76b39e236aacef0a4d2b4/narozeni-popisekPropertyShape>.
-<https://example.org/7b194b651cb25b2c4e34b5983ff8b1a7/umrti-popisekPropertyShape> a sh:PropertyShape;
-    sh:description "Datum úmrtí osoby"@cs;
-    sh:name "Datum úmrtí"@cs;
-    sh:maxCount 1;
-    sh:path <https://example.com/Umrti>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.org/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape> sh:property <https://example.org/7b194b651cb25b2c4e34b5983ff8b1a7/umrti-popisekPropertyShape>.
-<https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> sh:node <https://example.org/81c822fe4836bdb4085258eba74eb8f0/narozeni-a-umrtiNodeShape>.
+<https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape> sh:property <https://example.org/00e5693dd7c0f49d2acb654950978ffa/dodatek-cisla-orientacnihoPropertyShape>.
+<https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape> sh:node <https://example.org/90377914e9bf36d733f16f6480fd28cc/cislo-orientacniNodeShape>.
 <https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> sh:property <https://example.org/87ccedb536726e7f139f37054c8223dc/narozeni-a-umrti-popisekPropertyShape>.

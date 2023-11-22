@@ -3,9 +3,9 @@
 @prefix ex: <https://example.org/>.
 
 <https://example.org/9d55c986a6df1cfb10333bd37133352e/Technickýpopisekclass1NodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
 <https://example.org/5de6466106881541436c127be79c5987/technickypopisekPropertyShape> a sh:PropertyShape;

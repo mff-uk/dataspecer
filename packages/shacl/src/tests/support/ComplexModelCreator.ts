@@ -1,31 +1,61 @@
 import {
-    StructureModel,
-    StructureModelClass,
-    StructureModelComplexType,
-    StructureModelProperty,
-    StructureModelPrimitiveType,
-    StructureModelSchemaRoot,
-  } from "@dataspecer/core/structure-model/model";
-  import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
-  import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-  import ModelCreator from "./ModelCreatorInterface";
+  StructureModel,
+  StructureModelClass,
+  StructureModelComplexType,
+  StructureModelProperty,
+  StructureModelPrimitiveType,
+  StructureModelSchemaRoot,
+} from "@dataspecer/core/structure-model/model";
+import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
+import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import ModelCreator from "./ModelCreatorInterface";
 
-class NestedClosedShapeModelCreator implements ModelCreator{
+class ComplexModelCreator  implements ModelCreator{
 
   createModel(): StructureModel{
     var model = new StructureModel();
-  
+
+    var booleanType : StructureModelPrimitiveType;
+    booleanType = new StructureModelPrimitiveType();
+    booleanType.dataType = "http://www.w3.org/2001/XMLSchema#boolean";
+    booleanType.example = null;
+    booleanType.regex = null;
+
+    var decimalType : StructureModelPrimitiveType;
+    decimalType = new StructureModelPrimitiveType();
+    decimalType.dataType = "http://www.w3.org/2001/XMLSchema#decimal";
+    decimalType.example = null;
+    decimalType.regex = null;
+
+    var timeType : StructureModelPrimitiveType;
+    timeType = new StructureModelPrimitiveType();
+    timeType.dataType = "http://www.w3.org/2001/XMLSchema#time";
+    timeType.example = null;
+    timeType.regex = null;
+
+    var dateTimeType : StructureModelPrimitiveType;
+    dateTimeType = new StructureModelPrimitiveType();
+    dateTimeType.dataType = "http://www.w3.org/2001/XMLSchema#dateTimeStamp";
+    dateTimeType.example = null;
+    dateTimeType.regex = null;
+
+    var URIType : StructureModelPrimitiveType;
+    URIType = new StructureModelPrimitiveType();
+    URIType.dataType = "http://www.w3.org/2001/XMLSchema#anyURI";
+    URIType.example = null;
+    URIType.regex = null;
+
       var zipType : StructureModelPrimitiveType;
       zipType = new StructureModelPrimitiveType();
       zipType.dataType = "http://www.w3.org/2001/XMLSchema#integer";
       zipType.example = null;
       zipType.regex = "^\d{3}(?:[-\s]\d{2}){1}$";
 
-      var primitiveType1 : StructureModelPrimitiveType;
-      primitiveType1 = new StructureModelPrimitiveType();
-      primitiveType1.dataType = "http://www.w3.org/2001/XMLSchema#integer";
-      primitiveType1.example = null;
-      primitiveType1.regex = null;
+      var integerType : StructureModelPrimitiveType;
+      integerType = new StructureModelPrimitiveType();
+      integerType.dataType = "http://www.w3.org/2001/XMLSchema#integer";
+      integerType.example = null;
+      integerType.regex = null;
 
       var dateType : StructureModelPrimitiveType;
       dateType = new StructureModelPrimitiveType();
@@ -33,17 +63,17 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       dateType.example = null;
       dateType.regex = null;
 
-      var primitiveType8 : StructureModelPrimitiveType;
-      primitiveType8 = new StructureModelPrimitiveType();
-      primitiveType8.dataType = "http://www.w3.org/2001/XMLSchema#string";
-      primitiveType8.example = null;
-      primitiveType8.regex = null;
+      var stringType : StructureModelPrimitiveType;
+      stringType = new StructureModelPrimitiveType();
+      stringType.dataType = "http://www.w3.org/2001/XMLSchema#string";
+      stringType.example = null;
+      stringType.regex = null;
 
       var street : StructureModelProperty;
       street = new StructureModelProperty();
       street.cardinalityMax = 1;
       street.cimIri = "https://example.com/Ulice";
-      street.dataTypes = [primitiveType8];
+      street.dataTypes = [stringType];
       street.dematerialize = false;
       street.humanDescription = {["cs"]: "Ulice bydliště"};
       street.humanLabel = {["cs"]: "ulice"};
@@ -57,7 +87,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       bn.cardinalityMax = 1;
       bn.cardinalityMin = 1;
       bn.cimIri = "https://example.com/CisloPopisne";
-      bn.dataTypes = [primitiveType1];
+      bn.dataTypes = [integerType];
       bn.dematerialize = false;
       bn.humanDescription = {["cs"]: "Číslo popisné dané budovy"};
       bn.humanLabel = {["cs"]: "Číslo popisné"};
@@ -71,7 +101,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       city.cardinalityMax = 1;
       city.cardinalityMin = 1;
       city.cimIri = "https://example.com/Mesto";
-      city.dataTypes = [primitiveType8];
+      city.dataTypes = [stringType];
       city.dematerialize = false;
       city.humanDescription = {["cs"]: "Město, ve kterém se nachází budova"};
       city.humanLabel = {["cs"]: "Město"};
@@ -99,7 +129,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       country.cardinalityMax = 1;
       country.cardinalityMin = 1;
       country.cimIri = "https://example.com/Stat";
-      country.dataTypes = [primitiveType8];
+      country.dataTypes = [stringType];
       country.dematerialize = false;
       country.humanDescription = {["cs"]: "Stát - země, ve které se objekt nachází"};
       country.humanLabel = {["cs"]: "Stát"};
@@ -108,38 +138,22 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       country.psmIri = "https://example.com/mojePsmIriStat";
       country.technicalLabel = "stat-popisek";
 
-      var class2 : StructureModelClass;
-      class2 = new StructureModelClass();
-      class2.cimIri = "https://example.com/class2/adresa";
-      class2.codelistUrl = ["https://example.com/class1/codelistIri"];
-      class2.example = null;
-      class2.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
-      class2.humanLabel = {["cs"]: "Adresa", ["pl"]: "Adres"};
-      class2.pimIri = "https://example.com/class1/mojePimIriadresa";
-      class2.properties = [street, bn, city, zipcode, country];
-      class2.psmIri = "https://example.com/class1/mojePsmIriadresa";
-      class2.regex = null;
-      class2.specification = null;
-      class2.structureSchema = null;
-      class2.technicalLabel = "adresa";
+      var area : StructureModelProperty;
+      area = new StructureModelProperty();
+      area.cardinalityMax = 0;
+      area.cardinalityMin = 1;
+      area.cimIri = "https://example.com/Rozloha";
+      area.dataTypes = [decimalType];
+      area.dematerialize = false;
+      area.humanDescription = {["cs"]: "Rozloha pozemku"};
+      area.humanLabel = {["cs"]: "Rozloha pozemku v kmxkm."};
+      area.isReverse = false;
+      area.pimIri = "https://example.com/mojePimIriStat";
+      area.psmIri = "https://example.com/mojePsmIriStat";
+      area.technicalLabel = "rozloha-popisek";
 
-      var complexType1 : StructureModelComplexType;
-      complexType1 = new StructureModelComplexType();
-      complexType1.dataType = class2;
+     
 
-      var property1 : StructureModelProperty;
-      property1 = new StructureModelProperty();
-      property1.cardinalityMax = 1;
-      property1.cardinalityMin = 1;
-      property1.cimIri = "https://example.com/Adresa";
-      property1.dataTypes = [complexType1];
-      property1.dematerialize = false;
-      property1.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
-      property1.humanLabel = {["cs"]: "Adresa"};
-      property1.isReverse = false;
-      property1.pimIri = "https://example.com/mojePimIriadresa";
-      property1.psmIri = "https://example.com/mojePsmIriadresa";
-      property1.technicalLabel = "adresa-popisek";
 
       var birthdate : StructureModelProperty;
       birthdate = new StructureModelProperty();
@@ -180,7 +194,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       class4.properties = [birthdate, deathdate];
       class4.psmIri = "https://example.com/class1/mojePsmIriadresa";
       class4.regex = null;
-      class4.isClosed = true;
+      class4.isClosed = false;
       class4.specification = null;
       class4.structureSchema = null;
       class4.technicalLabel = "narozeni-a-umrti";
@@ -203,12 +217,74 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       property3.psmIri = "https://example.com/mojePsmIriadresa";
       property3.technicalLabel = "narozeni-a-umrti-popisek";
 
+      var endTime : StructureModelProperty;
+      endTime = new StructureModelProperty();
+      endTime.cardinalityMax = 1;
+      endTime.cardinalityMin = 1;
+      endTime.cimIri = "https://example.com/Konec_cas";
+      endTime.dataTypes = [timeType];
+      endTime.dematerialize = false;
+      endTime.humanDescription = {["cs"]: "Konec"};
+      endTime.humanLabel = {["cs"]: "Konec v čase"};
+      endTime.isReverse = false;
+      endTime.pimIri = "https://example.com/mojePimIriPSC";
+      endTime.psmIri = "https://example.com/mojePsmIriPSC";
+      endTime.technicalLabel = "konec-cas-popisek";
+
+      var startTime : StructureModelProperty;
+      startTime = new StructureModelProperty();
+      startTime.cardinalityMax = 1;
+      startTime.cardinalityMin = 0;
+      startTime.cimIri = "https://example.com/Zacatek_cas";
+      startTime.dataTypes = [timeType];
+      startTime.dematerialize = false;
+      startTime.humanDescription = {["cs"]: "Začátek"};
+      startTime.humanLabel = {["cs"]: "Začátek uveden v čase"};
+      startTime.isReverse = false;
+      startTime.pimIri = "https://example.com/mojePimIriStat";
+      startTime.psmIri = "https://example.com/mojePsmIriStat";
+      startTime.technicalLabel = "casovy-zacatek-popisek";
+
+      var class5 : StructureModelClass;
+      class5 = new StructureModelClass();
+      class5.cimIri = "https://example.com/Vyucovaci_hodina_class";
+      class5.codelistUrl = ["https://example.com/class1/codelistIri"];
+      class5.example = null;
+      class5.humanDescription = {["cs"]: "Vyučovací hodina dané osoby"};
+      class5.humanLabel = {["cs"]: "Vyučovací hodina", ["en"]: "Lesson"};
+      class5.pimIri = "https://example.com/class1/mojePimIriadresa";
+      class5.properties = [startTime, endTime];
+      class5.psmIri = "https://example.com/class1/mojePsmIriadresa";
+      class5.regex = null;
+      class5.isClosed = false;
+      class5.specification = null;
+      class5.structureSchema = null;
+      class5.technicalLabel = "vyucovaci-hodina";
+
+      var complexType4 : StructureModelComplexType;
+      complexType4 = new StructureModelComplexType();
+      complexType4.dataType = class5;
+
+      var property5 : StructureModelProperty;
+      property5 = new StructureModelProperty();
+      property5.cardinalityMax = 1;
+      property5.cardinalityMin = 1;
+      property5.cimIri = "https://example.com/Vyucovaci_hodina";
+      property5.dataTypes = [complexType4];
+      property5.dematerialize = false;
+      property5.humanDescription = {["cs"]: "Vyučovací hodina dané osoby"};
+      property5.humanLabel = {["cs"]: "Vyučovací hodina a její detaily"};
+      property5.isReverse = false;
+      property5.pimIri = "https://example.com/mojePimIriadresa";
+      property5.psmIri = "https://example.com/mojePsmIriadresa";
+      property5.technicalLabel = "vyucovaci-hodina-popisek";
+
       var surname : StructureModelProperty;
       surname = new StructureModelProperty();
       surname.cardinalityMax = 2;
       surname.cardinalityMin = 1;
       surname.cimIri = "https://example.com/Prijmeni";
-      surname.dataTypes = [primitiveType8];
+      surname.dataTypes = [stringType];
       surname.dematerialize = false;
       surname.humanDescription = {["cs"]: "Příjmení"};
       surname.humanLabel = {["cs"]: "Příjmení"};
@@ -222,7 +298,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       name.cardinalityMax = 2;
       name.cardinalityMin = 1;
       name.cimIri = "https://example.com/Jmeno";
-      name.dataTypes = [primitiveType8];
+      name.dataTypes = [stringType];
       name.dematerialize = false;
       name.humanDescription = {["cs"]: "Jméno osoby"};
       name.humanLabel = {["cs"]: "Jméno"};
@@ -245,7 +321,7 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       class3.isClosed = true;
       class3.specification = null;
       class3.structureSchema = null;
-      class3.technicalLabel = "jmeno-a-prijmeni-popisek";
+      class3.technicalLabel = "jmeno-a-prijmeni";
 
       var complexType2 : StructureModelComplexType;
       complexType2 = new StructureModelComplexType();
@@ -265,18 +341,53 @@ class NestedClosedShapeModelCreator implements ModelCreator{
       property2.psmIri = "https://example.com/mojePsmIriadresa";
       property2.technicalLabel = "jmeno-a-prijmeni-popisek";
 
+      var class2 : StructureModelClass;
+      class2 = new StructureModelClass();
+      class2.cimIri = "https://example.com/class2/adresa";
+      class2.codelistUrl = ["https://example.com/class1/codelistIri"];
+      class2.example = null;
+      class2.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
+      class2.humanLabel = {["cs"]: "Adresa", ["pl"]: "Adres"};
+      class2.pimIri = "https://example.com/class1/mojePimIriadresa";
+      class2.properties = [street, bn, city, zipcode, country, area, property2];
+      class2.psmIri = "https://example.com/class1/mojePsmIriadresa";
+      class2.regex = null;
+      class2.specification = null;
+      class2.structureSchema = null;
+      class2.technicalLabel = "adresa";
+
+      
+      var complexType1 : StructureModelComplexType;
+      complexType1 = new StructureModelComplexType();
+      complexType1.dataType = class2;
+
+      var property1 : StructureModelProperty;
+      property1 = new StructureModelProperty();
+      property1.cardinalityMax = 1;
+      property1.cardinalityMin = 1;
+      property1.cimIri = "https://example.com/Adresa";
+      property1.dataTypes = [complexType1];
+      property1.dematerialize = false;
+      property1.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
+      property1.humanLabel = {["cs"]: "Adresa"};
+      property1.isReverse = false;
+      property1.pimIri = "https://example.com/mojePimIriadresa";
+      property1.psmIri = "https://example.com/mojePsmIriadresa";
+      property1.technicalLabel = "adresa-popisek";
+
       var class1 : StructureModelClass;
       class1 = new StructureModelClass();
-      class1.cimIri = "https://example.com/class1/mojeCimIri";
-      class1.codelistUrl = ["https://example.com/class1/codelistIri"];
+      class1.cimIri = "https://example.com/Věc";
+      class1.codelistUrl = ["https://example.com/Věc"];
       class1.example = null;
       //class1.extends = null;
       class1.humanDescription = {["cs"]: "Class 1 Popisek 1"};
       class1.humanLabel = {["cs"]: "Class 1 Label 1"};
-      class1.pimIri = "https://example.com/class1/mojePimIri";
-      class1.properties = [property1, property2, property3];
-      class1.psmIri = "https://example.com/class1/mojePsmIri";
+      class1.pimIri = "https://example.com/Věc";
+      class1.properties = [property1, property3, property5];
+      class1.psmIri = "https://example.com/Věc";
       class1.regex = null;
+      class1.isClosed = true;
       class1.specification = null;
       class1.structureSchema = null;
       class1.technicalLabel = "osoba";
@@ -291,4 +402,4 @@ class NestedClosedShapeModelCreator implements ModelCreator{
   }
 }
 
-export default NestedClosedShapeModelCreator;
+export default ComplexModelCreator;

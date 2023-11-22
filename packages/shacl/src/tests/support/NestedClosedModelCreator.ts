@@ -10,7 +10,7 @@ import {
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import ModelCreator from "./ModelCreatorInterface";
 
-class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
+class NestedClosedModelCreator implements ModelCreator{
 
   createModel(): StructureModel{
     var model = new StructureModel();
@@ -145,15 +145,15 @@ class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
       birthdate = new StructureModelProperty();
       birthdate.cardinalityMax = 1;
       birthdate.cardinalityMin = 1;
-      birthdate.cimIri = "https://example.com/Narozeni";
+      birthdate.cimIri = "https://slovník.gov.cz/legislativní/sbírka/326/2000/pojem/dodatek-čísla-orientačního";
       birthdate.dataTypes = [dateType];
       birthdate.dematerialize = false;
       birthdate.humanDescription = {["cs"]: "Datum narození dané osoby"};
-      birthdate.humanLabel = {["cs"]: "Datum narození"};
+      birthdate.humanLabel = {["cs"]: "Dodatek čísla orientačního"};
       birthdate.isReverse = false;
-      birthdate.pimIri = "https://example.com/mojePimIriPSC";
-      birthdate.psmIri = "https://example.com/mojePsmIriPSC";
-      birthdate.technicalLabel = "narozeni-popisek";
+      birthdate.pimIri = "https://slovník.gov.cz/legislativní/sbírka/326/2000/pojem/dodatek-čísla-orientačního";
+      birthdate.psmIri = "https://slovník.gov.cz/legislativní/sbírka/326/2000/pojem/dodatek-čísla-orientačního";
+      birthdate.technicalLabel = "dodatek-cisla-orientacniho";
 
       var deathdate : StructureModelProperty;
       deathdate = new StructureModelProperty();
@@ -171,19 +171,19 @@ class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
 
       var class4 : StructureModelClass;
       class4 = new StructureModelClass();
-      class4.cimIri = "https://example.com/Narozeni_a_umrti_class";
-      class4.codelistUrl = ["https://example.com/class1/codelistIri"];
+      class4.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační";
+      class4.codelistUrl = ["https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační"];
       class4.example = null;
-      class4.humanDescription = {["cs"]: "Datum narození a úmrtí dané osoby"};
+      class4.humanDescription = {["cs"]: "Číslo orientační"};
       class4.humanLabel = {["cs"]: "Datum narození a úmrtí", ["en"]: "Date of birth and death"};
-      class4.pimIri = "https://example.com/class1/mojePimIriadresa";
-      class4.properties = [birthdate, deathdate];
-      class4.psmIri = "https://example.com/class1/mojePsmIriadresa";
+      class4.pimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační";
+      class4.properties = [birthdate];
+      class4.psmIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační";
       class4.regex = null;
-      class4.isClosed = false;
+      class4.isClosed = true;
       class4.specification = null;
       class4.structureSchema = null;
-      class4.technicalLabel = "narozeni-a-umrti";
+      class4.technicalLabel = "cislo-orientacni";
 
       var complexType3 : StructureModelComplexType;
       complexType3 = new StructureModelComplexType();
@@ -245,7 +245,7 @@ class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
       class3.isClosed = true;
       class3.specification = null;
       class3.structureSchema = null;
-      class3.technicalLabel = "adresa";
+      class3.technicalLabel = "jmeno-a-prijmeni-popisek";
 
       var complexType2 : StructureModelComplexType;
       complexType2 = new StructureModelComplexType();
@@ -277,7 +277,6 @@ class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
       class1.properties = [property1, property2, property3];
       class1.psmIri = "https://example.com/class1/mojePsmIri";
       class1.regex = null;
-      class1.isClosed = true;
       class1.specification = null;
       class1.structureSchema = null;
       class1.technicalLabel = "osoba";
@@ -292,4 +291,4 @@ class ClassConstrainedClosedShapeModelCreator implements ModelCreator{
   }
 }
 
-export default ClassConstrainedClosedShapeModelCreator;
+export default NestedClosedModelCreator;

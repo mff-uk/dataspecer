@@ -47,7 +47,7 @@ Core Constraint Components
         4.1.1 sh:class - TODO The type of all value nodes. The values of sh:class in a shape are IRIs. Note that multiple values for sh:class are 
         interpreted as a conjunction, i.e. the values need to be SHACL instances of all of them. 
         4.1.2 sh:datatype DONE
-        4.1.3 sh:nodeKind TODO
+        4.1.3 sh:nodeKind DONE
     4.2 Cardinality Constraint Components
         4.2.1 sh:minCount DONE
         4.2.2 sh:maxCount DONE
@@ -77,10 +77,11 @@ Core Constraint Components
         4.7.2 sh:property DONE
         4.7.3 sh:qualifiedValueShape, sh:qualifiedMinCount, sh:qualifiedMaxCount
     4.8 Other Constraint Components -- TODO: Which of these are going to be a thing in dataspecer?
-        4.8.1 sh:closed, sh:ignoredProperties - for DISCUSSION
+        4.8.1 sh:closed, sh:ignoredProperties - DONE
         4.8.2 sh:hasValue - Is for checking specific values at the ends of paths = WILL NOT BE IMPLEMENTED
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
 DONE použít knihovnu na vytváření .ttl dokumentu. 
+TODO: typed/untyped instances in SHACL - can't rely on sh:targetClass, needs to use nested shapes.
 
 TODO: zalamování sh:comments?
 TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape. - po diskuzi nebude implementováno.
@@ -140,7 +141,7 @@ export class ShaclAdapter {
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
-      this.generateClassConstraints(root);
+      this.generateClassConstraints(root, null);
     }
     
     this.prefixesString = this.generatePrefixesString();
@@ -182,7 +183,7 @@ export class ShaclAdapter {
     return prefixesString;
   }
 
-  generateClassConstraints(root: StructureModelClass): string {
+  generateClassConstraints(root: StructureModelClass, objectOf : String): string {
     var newResult = "";
     var nodeName : string;
     
@@ -194,7 +195,7 @@ export class ShaclAdapter {
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
       // The class has not been Shaped yet -- to get rid of duplicate shape
-      newResult = newResult.concat(this.generateNodeShapeHead(root, classNameIri));
+      newResult = newResult.concat(this.generateNodeShapeHead(root, classNameIri, objectOf));
       newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
 
       this.shapes.push(newResult);
@@ -204,7 +205,7 @@ export class ShaclAdapter {
   }
 
 
-  generateNodeShapeHead(root: StructureModelClass, classNameIri: string): string {
+  generateNodeShapeHead(root: StructureModelClass, classNameIri: string, objectOf : String): string {
 
     var newResult = "";
     this.writer.addQuad(
@@ -212,11 +213,55 @@ export class ShaclAdapter {
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
-    this.writer.addQuad(
-      namedNode( classNameIri),
-      namedNode('http://www.w3.org/ns/shacl#targetClass'),
-      namedNode( root.cimIri)
-    );
+    switch(root.instancesSpecifyTypes){
+      case "ALWAYS": {
+        this.writer.addQuad(
+          namedNode( classNameIri),
+          namedNode('http://www.w3.org/ns/shacl#targetClass'),
+          namedNode( root.cimIri)
+        );
+      }
+        break;
+      case "NEVER": {
+        this.writer.addQuad(
+          namedNode(classNameIri),
+          namedNode('http://www.w3.org/ns/shacl#not'),
+          this.writer.blank([{
+            predicate: namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            object:    namedNode('http://www.w3.org/ns/shacl#PropertyShape'),
+          },{
+            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+            object:    namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          },{
+            predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
+            object:    literal(1),
+          }])
+      )}
+      case "OPTIONAL": 
+        default: {
+          if(objectOf == null){
+            /*
+            // The target node is the root class, there is no object of predicate to rely on
+            for (var property in root.properties) {
+              // TODO
+            }
+            this.writer.addQuad(
+              namedNode( classNameIri),
+              namedNode('http://www.w3.org/ns/shacl#or'),
+              namedNode( objectOf )
+            );
+            */
+          } else{
+            // The target node is not the root class, we can rely on it being object of a predicate
+            this.writer.addQuad(
+              namedNode( classNameIri),
+              namedNode('http://www.w3.org/ns/shacl#targetObjectsOf'),
+              namedNode( objectOf )
+            );
+          }
+        }
+    }
+    
     
     if(root.regex != null && root.regex != undefined && root.regex != ""){
       this.writer.addQuad(
@@ -241,6 +286,22 @@ export class ShaclAdapter {
           ])
         );
     }
+
+    var nodeType = "";
+    switch(root.instancesHaveIdentity){
+      case "ALWAYS": {nodeType = 'http://www.w3.org/ns/shacl#IRI';}
+      break;
+      case "NEVER": {nodeType = 'http://www.w3.org/ns/shacl#BlankNode';}
+      break;
+      case "OPTIONAL": {nodeType = 'http://www.w3.org/ns/shacl#BlankNodeOrIRI';}
+      break;
+      default: {nodeType = 'http://www.w3.org/ns/shacl#BlankNodeOrIRI';}
+    }
+    this.writer.addQuad(
+      namedNode( classNameIri ),
+      namedNode('http://www.w3.org/ns/shacl#nodeKind'),
+      namedNode( nodeType )
+    );
 
     this.generateLanguageString(root.humanDescription,classNameIri, null, "description");
     this.generateLanguageString(root.humanLabel,classNameIri, null, "name");
@@ -363,7 +424,7 @@ export class ShaclAdapter {
           
           // Add datatype for the PopertyNode
           // TODO
-          this.getObjectForPropType(prop.dataTypes, nodeIRI);
+          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri);
 
           // Add property to the parent class
           this.writer.addQuad(
@@ -426,7 +487,7 @@ export class ShaclAdapter {
   }
 
 
-  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string): void {
+  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -435,23 +496,34 @@ export class ShaclAdapter {
         const dtcasted = <StructureModelComplexType> dt;
 
         if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
+          var nodeType = "";
+          switch(dtcasted.dataType.instancesHaveIdentity){
+            case "ALWAYS": {nodeType = 'http://www.w3.org/ns/shacl#IRI';}
+            break;
+            case "NEVER": {nodeType = 'http://www.w3.org/ns/shacl#BlankNode';}
+            break;
+            case "OPTIONAL": {nodeType = 'http://www.w3.org/ns/shacl#BlankNodeOrIRI';}
+            break;
+            default: {nodeType = 'http://www.w3.org/ns/shacl#BlankNodeOrIRI';}
+          }
           this.writer.addQuad(
             namedNode( propertyNodeIRI ),
             namedNode('http://www.w3.org/ns/shacl#nodeKind'),
-            namedNode( 'http://www.w3.org/ns/shacl#BlankNodeOrIRI' ));
+            namedNode( nodeType )
+          );
+          if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
+            this.writer.addQuad(
+              namedNode( propertyNodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#pattern'),
+              literal(dtcasted.dataType.regex.toString()));
+          }
         } else{
-          const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType);
+          const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, objectOf);
    
           this.writer.addQuad(
             namedNode( propertyNodeIRI ),
             namedNode('http://www.w3.org/ns/shacl#node'),
             namedNode( nameForAnotherClass ));
-        }
-        if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
-          this.writer.addQuad(
-            namedNode( propertyNodeIRI ),
-            namedNode('http://www.w3.org/ns/shacl#pattern'),
-            literal(dtcasted.dataType.regex.toString()));
         }
         
       } else if(dt.isAttribute() == true){
