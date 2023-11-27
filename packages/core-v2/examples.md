@@ -151,6 +151,75 @@ await service.updateSemanticModelPackageModels(pckg.id, models);
 const models = await service.constructSemanticModelPackageModels(packg.id);
 ```
 
+```ts
+const service = new BackendPackageService("http://localhost:3100", httpFetch);
+const PARENT_PACKAGE_ID = "https://dataspecer.com/packages";
+const MY_PACKAGE_ID = "https://dataspecer.com/packages/my-experimental-package";
+
+console.log("Create new package and add sgov model into it.");
+{
+    await service.createPackage(PARENT_PACKAGE_ID, {
+        id: MY_PACKAGE_ID,
+        name: {en: "My experimental package"},
+        tags: ["experimental"],
+    });
+
+    const sgov = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
+    await sgov.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
+
+    await service.updateSemanticModelPackageModels(MY_PACKAGE_ID, [sgov]);
+}
+
+console.log("Construct models from the package only from the backend.");
+{
+    const models = await service.constructSemanticModelPackageModels(MY_PACKAGE_ID);
+    // Models should contain only sgov with already allowed classes
+
+    console.log(models?.[0]?.getEntities());
+}
+
+console.log("Add semantic model with person class.");
+{
+    // To create a new semantic model, we must call the service directly.
+    const semanticModel = await service.createRemoteSemanticModel(MY_PACKAGE_ID);
+
+    const newClassId = semanticModel.executeOperation(createClass({
+        name: {cs: "Person"},
+    })).id;
+
+    console.log(newClassId);
+
+    // This semantic model is automatically saved to the backend.
+}
+
+// Saving is done asynchronously, so we must wait a bit with a demonstration
+await new Promise(resolve => setTimeout(resolve, 1000));
+
+console.log("Check, if the package has two models.");
+{
+    const models = await service.constructSemanticModelPackageModels(MY_PACKAGE_ID);
+    // Models should contain sgov and our semantic model
+
+    console.log(models?.[0]?.getEntities());
+    console.log(models?.[1]?.getEntities());
+}
+
+console.log("List all packages.");
+{
+    console.log(await service.getPackage(PARENT_PACKAGE_ID));
+}
+
+console.log("Remove our package.");
+{
+    await service.deletePackage(MY_PACKAGE_ID);
+}
+
+console.log("List all packages again.");
+{
+    console.log(await service.getPackage(PARENT_PACKAGE_ID));
+}
+```
+
 # UC04
 ```ts
 import {SemanticModelAggregator} from "@dataspecer/core-v2/semantic-model/aggregator";

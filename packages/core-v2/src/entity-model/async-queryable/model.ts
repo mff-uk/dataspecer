@@ -1,5 +1,5 @@
 import {Entity} from "../entity";
-import {EntityModel} from "../model";
+import {EntityModel} from "../entity-model";
 
 /**
  * Model that contains entities and can be queried. An example is a large conceptual model that is in non-dataspecer

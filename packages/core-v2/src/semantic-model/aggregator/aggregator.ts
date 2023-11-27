@@ -1,6 +1,6 @@
 import {Entity} from "../../entity-model/entity";
 
-import {EntityModel} from "../../entity-model/model";
+import {EntityModel} from "../../entity-model/entity-model";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the

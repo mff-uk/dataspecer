@@ -1,6 +1,6 @@
 import {CoreResourceReader} from "@dataspecer/core/core";
 import {Entity} from "../../entity-model/entity";
-import {InMemoryEntityModel} from "../../entity-model/implementation";
+import {InMemoryEntityModel} from "../../entity-model/in-memory-entity-model";
 
 import {transformCoreResources} from "./transform-core-resources";
 
@@ -41,8 +41,10 @@ export class PimStoreWrapper extends InMemoryEntityModel {
         const deleted: string[] = [];
         const updated: Record<string, Entity> = {};
 
+        const currentEntities = this.getEntities();
+
         // First remove entities that are not present
-        const oldIris = Object.keys(this.entities);
+        const oldIris = Object.keys(currentEntities);
         for (const iri of oldIris) {
             if (!result[iri]) {
                 deleted.push(iri);
@@ -52,7 +54,7 @@ export class PimStoreWrapper extends InMemoryEntityModel {
         // Update new
         for (const iri in result) {
             const entity = result[iri];
-            if (!deepEqual(entity, this.entities[iri])) {
+            if (!deepEqual(entity, currentEntities[iri])) {
                 updated[iri] = entity!;
             }
         }
