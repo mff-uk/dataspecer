@@ -1,23 +1,19 @@
 import {Entity} from "./entity";
-import {EntityModel} from "./model";
+import {EntityModel} from "./entity-model";
 
+/**
+ * Implementation of the entity model that stores entities in the memory.
+ */
 export class InMemoryEntityModel implements EntityModel {
-    protected entities: Record<string, Entity> = {};
-    protected listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
+    /** @internal */
+    public entities: Record<string, Entity> = {};
+    /** @internal */
+    public listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
 
-    /**
-     * Returns all entities in the model as a map from entity id to entity.
-     */
     getEntities(): Record<string, Entity> {
         return {...this.entities};
     }
 
-    /**
-     * Allows to subscribe to changes in the model.
-     * @param callback Function that will be called with changes. The first argument contains updated or new entities,
-     * the second argument contains ids of removed entities.
-     * @returns Function that can be called to unsubscribe from the changes.
-     */
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void {
         this.listeners.push(callback);
 
@@ -26,7 +22,15 @@ export class InMemoryEntityModel implements EntityModel {
         }
     }
 
-    protected change(updated: Record<string, Entity>, removed: string[]) {
+    /**
+     * Helper function to change the entities and properly notify all listeners.
+     * @param updated
+     * @param removed
+     */
+    public change(updated: Record<string, Entity>, removed: string[]) {
+        // Filter removed entities from updated
+        removed = removed.filter(iri => updated[iri] === undefined);
+
         this.entities = {...this.entities, ...updated};
         for (const removedId of removed) {
             delete this.entities[removedId];

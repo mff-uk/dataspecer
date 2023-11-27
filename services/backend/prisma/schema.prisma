@@ -57,3 +57,33 @@ model DataStructure {
   belongsToDataSpecification   DataSpecification? @relation(fields: [belongsToDataSpecificationId], references: [id])
   belongsToDataSpecificationId String?
 }
+
+model Package {
+  // Internal Package Id
+  id Int @id @default(autoincrement())
+
+  // Parent Package Id, if any
+  parentPackageId Int?
+
+  // Chunk of puclic ID that is composed of parent package id and this package id...
+  iriChunk String
+
+  // Structured pakcage metadata
+  metadata String @default("{}")
+
+  @@unique([parentPackageId, iriChunk], name: "unique_chunk")
+}
+
+// model PackageDocument {
+//   // Internal Package Document Id
+//   id Int @id
+//
+//   // Owner package Id
+//   packageId Int
+//
+//   // Package document name
+//   name String
+//
+//   // Document metadata
+//   metadata String @default("{}")
+// }

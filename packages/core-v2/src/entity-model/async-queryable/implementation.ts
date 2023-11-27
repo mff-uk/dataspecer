@@ -1,10 +1,10 @@
 import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "./model";
 import {Entity} from "../entity";
-import {InMemoryEntityModel} from "../implementation";
+import {InMemoryEntityModel} from "../in-memory-entity-model";
 
 export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityModel implements AsyncQueryableObservableEntityModel {
     protected model: AsyncQueryableEntityModel;
-    protected queries: Record<string, any> = {};
+    public queries: Record<string, any> = {};
     protected reverseQueries: Map<string, string[]> = new Map();
 
     constructor(queryableModel: AsyncQueryableEntityModel) {
