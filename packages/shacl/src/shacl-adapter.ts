@@ -133,6 +133,9 @@ export class ShaclAdapter {
     if(!("publicBaseUrl" in this.artefact.configuration)){
       this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
     }
+    else if(isEmptyOrSpaces(this.artefact.configuration["publicBaseUrl"])){
+      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
+    }
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
     this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", base: this.baseURL } }); 
   }
@@ -625,6 +628,10 @@ export class ShaclAdapter {
 
     return qname;
   }
+}
+
+function isEmptyOrSpaces(str) : boolean{
+  return str === null || str.match(/^ *$/) !== null;
 }
 
 // Types for specification in sh:datatype
