@@ -10,7 +10,7 @@
 <https://example.org/3ca8304dcf1fc87344bb2200d03a1533/dlouhý-popisPropertyShape> a sh:PropertyShape;
     sh:description "Dlouhý popis události"@cs;
     sh:name "Dlouhý popis"@cs;
-    sh:minCount 2;
+    sh:minCount 1;
     sh:path <https://slovník.gov.cz/datový/události/pojem/dlouhý-popis>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
 <https://example.org/592c9b06370681009306e69d53f64a8b/Technickýpopisekclass1NodeShape> sh:property <https://example.org/3ca8304dcf1fc87344bb2200d03a1533/dlouhý-popisPropertyShape>.

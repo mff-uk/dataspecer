@@ -12,6 +12,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
+import {isTheSameEntity} from "./shacl-support.js";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
 //import { DataFactory as DataFactoryN3 } from 'n3';
@@ -111,6 +112,7 @@ export class ShaclAdapter {
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
   protected knownPrefixes: PrefixDef[] = []; // list of tags and corresponding IRIs
+  //protected knownCims: KnownCim[] = []; 
   protected shapes: string[] = []; // Entity beginning with name of the shape and ending with .
   protected debugString: string = "";
   protected sameTags: sameTag[] = [];
@@ -287,13 +289,16 @@ export class ShaclAdapter {
           namedNode('http://www.w3.org/ns/shacl#closed'),
           literal(trueStatement)
         );
-        this.writer.addQuad(
-          namedNode( classNameIri ),
-          namedNode('http://www.w3.org/ns/shacl#ignoredProperties'),
-          this.writer.list([
-            namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          ])
-        );
+        if(!(root.instancesSpecifyTypes == "NEVER")){
+          this.writer.addQuad(
+            namedNode( classNameIri ),
+            namedNode('http://www.w3.org/ns/shacl#ignoredProperties'),
+            this.writer.list([
+              namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            ])
+          );
+        }
+        
     }
 
     var nodeType = "";
@@ -392,7 +397,7 @@ export class ShaclAdapter {
         const humandesc = prop.humanDescription;
         const datatypes = prop.dataTypes;
         const demat = prop.dematerialize;
-        const isreverse = prop.isReverse;
+        const isReverse = prop.isReverse;
         const pathtoorigin = prop.pathToOrigin;
         
         //Create PropertyNode to connect to
@@ -432,8 +437,9 @@ export class ShaclAdapter {
           
           
           // Add datatype for the PopertyNode
-          // TODO
-          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri);
+          const reverseClass = isReverse ? classNameIri : null;
+          console.log("isReverse: " + reverseClass + " classNameIRI "  + classNameIri);
+          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri, reverseClass);
 
           // Add property to the parent class
           this.writer.addQuad(
@@ -494,7 +500,7 @@ export class ShaclAdapter {
   }
 
 
-  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string): void {
+  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string, reverseClass: string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -518,12 +524,19 @@ export class ShaclAdapter {
             namedNode('http://www.w3.org/ns/shacl#nodeKind'),
             namedNode( nodeType )
           );
+          if(reverseClass != null){
+            this.writer.addQuad(
+              namedNode( propertyNodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#node'),
+              namedNode( reverseClass )); 
+          }
           if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
             this.writer.addQuad(
               namedNode( propertyNodeIRI ),
               namedNode('http://www.w3.org/ns/shacl#pattern'),
               literal(dtcasted.dataType.regex.toString()));
           }
+          
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, objectOf);
    

@@ -1,4 +1,3 @@
-
 import fs from "fs";
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -68,13 +67,11 @@ export async function testShape(testType : string, modelCreator : ModelCreator):
 }
 
 export async function validateDataAgainstShape( dataFileName : string, shapeFileName : string ) : Promise<ValidationReport<typeof factory>>{
-    var conforms = false;
 
     const shapes = await this.loadDataset(shapeFileName);
     const data = await this.loadDataset(dataFileName);
     const validator = new SHACLValidator(shapes, { factory });
     const report = await validator.validate(data);
-    conforms = report.conforms;
     // Check conformance: `true` or `false`
     console.log("Validation conforms :" + report.conforms)
     
