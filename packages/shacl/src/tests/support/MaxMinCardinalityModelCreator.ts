@@ -38,7 +38,7 @@ class MaxMinCardinalityModelCreator implements ModelCreator{
   
       var property1 : StructureModelProperty;
       property1 = new StructureModelProperty();
-      property1.cardinalityMin = 2;
+      property1.cardinalityMin = 1;
       property1.cimIri = "https://slovník.gov.cz/datový/události/pojem/dlouhý-popis";
       property1.dataTypes = [primitiveType1];
       property1.dematerialize = false;

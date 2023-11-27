@@ -58,9 +58,8 @@ export class ShaclGenerator implements ArtefactGenerator {
         model
     );
     
-      artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
-    // todo use model, context, artefact to create the result
-    //return {data: "# SHACL artifact\n"};
+    artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
+
     const adapter = new ShaclAdapter(model, context, artefact);
     return adapter.generate();
   }
