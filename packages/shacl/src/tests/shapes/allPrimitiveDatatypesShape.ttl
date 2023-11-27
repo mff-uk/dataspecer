@@ -1,8 +1,9 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix ex: <https://example.org/>.
+@prefix base: <https://example.org/>.
 
 <https://example.org/bfe55dedc512e9e184b5194b632c1c03/Technickýpopisekvěci1NodeShape> a sh:NodeShape;
+    sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Věc 1 Popisek 1"@cs;
     sh:name "Věc 1 Label 1"@cs.

@@ -120,6 +120,7 @@ export class ShaclAdapter {
   protected scriptString: string = "";
   protected prefixesString: string = "";
   protected insidesString: string = "";
+  protected baseURL: string = "";
 
   constructor(
     model: StructureModel,
@@ -129,7 +130,11 @@ export class ShaclAdapter {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
-    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", ex:"https://example.org/" } }); 
+    if(!("publicBaseUrl" in this.artefact.configuration)){
+      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
+    }
+    this.baseURL = this.artefact.configuration["publicBaseUrl"];
+    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", base: this.baseURL } }); 
   }
 
   public generate = async () => {
@@ -152,6 +157,7 @@ export class ShaclAdapter {
     this.scriptString = this.insidesString;
     //eval(this.scriptString);
     var resultString = "";
+    
     this.writer.end((error, result) => resultString = result);
     return { data: resultString };
     //return { data: this.scriptString};
@@ -474,9 +480,7 @@ export class ShaclAdapter {
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    // TODO 
-    var baseIRI = "https://example.org/";
-    
+    const baseIRI = this.baseURL;
     var md5String = md5(root.cimIri);
     const technicalName = this.irify(root);
     const nodeOrProperty = (root instanceof StructureModelClass) ? "NodeShape" : "PropertyShape";

@@ -183,6 +183,7 @@ class SimpleObjectModelCreator implements ModelCreator{
       class1.specification = null;
       class1.structureSchema = null;
       class1.technicalLabel = "osoba";
+      class1.instancesSpecifyTypes = "ALWAYS";
   
       var root1 : StructureModelSchemaRoot;
       root1 = new StructureModelSchemaRoot();

@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Událost",
+    "description": "Společenská událost, kterou pořadatel pořádá pro skupinu účastníků",
+    "type": "object",
+    "required": [
+      "id",
+      "type",
+      "registrace",
+      "dlouhý_popis"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "iri"
+      },
+      "type": {
+        "oneOf": [
+          {
+            "const": "Událost"
+          },
+          {
+            "type": "array",
+            "contains": {
+              "const": "Událost"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "registrace": {
+        "title": "registrace",
+        "description": "Uvádí zda je nutné regitrovat se. Může mít podobu jednoduchého textového popisu anebo odkazu na web registrace.",
+        "type": "boolean"
+      },
+      "dlouhý_popis": {
+        "title": "dlouhý popis",
+        "description": "Uvádí zda je nutné regitrovat se. Může mít podobu jednoduchého textového popisu anebo odkazu na web registrace.",
+        "type": "array",
+        "items": {
+          "title": "Řetězec",
+          "type": "string"
+        }
+      }
+    }
+  }

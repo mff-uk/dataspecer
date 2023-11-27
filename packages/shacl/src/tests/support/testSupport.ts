@@ -55,8 +55,9 @@ export async function testNegative(testType : string, modelCreator : ModelCreato
   const dataPart = await generate('./src/tests/data/' + testType + 'Schema.json');  
   // Transform the raw json data to Turtle format with the help of JSON-LD Context from file
   await fromJsonToTurtle(dataPart.toString(), testType);
-  await Support.prepareShape(modelCreator, '../shapes/' + testType.slice(0, -8) + 'Shape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + "FakeDataTurtle.ttl", "src/tests/shapes/" + testType + "Shape.ttl");
+  const slicedName = testType.slice(0, -8);
+  await Support.prepareShape(modelCreator, '../shapes/' + slicedName + 'Shape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + "FakeDataTurtle.ttl", "src/tests/shapes/" + slicedName + "Shape.ttl");
   return validation;
 }
 

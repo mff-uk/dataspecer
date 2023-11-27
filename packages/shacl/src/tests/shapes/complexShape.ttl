@@ -1,6 +1,6 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix ex: <https://example.org/>.
+@prefix base: <https://example.org/>.
 
 <https://example.org/2da40eef3feaff877bb3b51ed1214374/osobaNodeShape> a sh:NodeShape;
     sh:closed true;

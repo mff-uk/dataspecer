@@ -1,106 +1,56 @@
 {
-    "@context": {
-      "@version": 1.1,
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "id": "@id",
-      "type": "@type",
-      "adresa": {
-        "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
-        "@context": {
-          "má_kód_adresního_místa": {
-            "@id": "https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa",
-            "@type": "xsd:string"
-          },
-          "poštovní_směrovací_číslo": {
-            "@id": "https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo",
-            "@type": "xsd:string"
-          },
-          "text_adresy": {
-            "@id": "https://slovník.gov.cz/generický/adresy/pojem/text-adresy",
-            "@type": "xsd:string"
-          },
-          "je_adresou_stavebního_objektu": {
-            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu",
-            "@container": "@set",
-            "@context": {
-              "stavební objekt": {
-                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/stavební-objekt",
-                "@context": {
-                  "typ_ochrany_stavebního_objektu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu",
-                  "typ_stavebního_objektu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-stavebního-objektu",
-                  "způsob_ochrany_stavebního_objektu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/způsob-ochrany-stavebního-objektu",
-                  "způsob_využití_stavebního_objektu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/způsob-využití-stavebního-objektu",
-                  "má_adresní_místo": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-adresní-místo",
-                    "@container": "@set",
-                    "@type": "@id"
-                  },
-                  "má_identifikační_údaje_stavebního_objektu": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu",
-                    "@container": "@set",
-                    "@type": "@id"
-                  },
-                  "má_technickoekonomické_atributy_stavebního_objektu": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-technickoekonomické-atributy-stavebního-objektu",
-                    "@container": "@set",
-                    "@type": "@id"
+  "@context": {
+    "@version": 1.1,
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
+    "type": "@type",
+    "adresa": {
+      "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+      "@context": {
+        "má_kód_adresního_místa": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa",
+          "@type": "xsd:string"
+        },
+        "je_adresou_stavebního_objektu": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu",
+          "@type": "@id",
+          "@context": {
+            "stavební objekt": {
+              "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/stavební-objekt",
+              "@context": {
+                "typ_ochrany_stavebního_objektu": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu",
+                  "@type": "xsd:string"
+                },
+                "má_identifikační_údaje_stavebního_objektu": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu",
+                  "@container": "@set",
+                  "@context": {
+                    "identifikační údaje stavebního objektu": {
+                      "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/identifikační-údaje-stavebního-objektu",
+                      "@context": {
+                        "číslo_popisné_nebo_evidenční": {
+                          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-popisné-nebo-evidenční",
+                          "@type": "xsd:string"
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
-          },
-          "má_přiřazené_území_obce": {
-            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce",
-            "@container": "@set",
-            "@context": {
-              "území obce": {
-                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-obce",
-                "@context": {
-                  "datum_vzniku_obce": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce",
-                    "@type": "xsd:date"
-                  },
-                  "název_obce": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-obce",
-                    "@type": "xsd:string"
-                  },
-                  "status_obce": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/status-obce",
-                    "@container": "@language"
-                  }
-                }
-              }
-            }
-          },
-          "má_přiřazené_území_okresu": {
-            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-okresu",
-            "@container": "@set",
-            "@context": {
-              "území okresu": {
-                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-okresu",
-                "@context": {
-                  "datum_vzniku_okresu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-okresu",
-                  "název_okresu": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-okresu",
-                  "má_území_okresu": {
-                    "@reverse": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-území-okresu",
-                    "@container": "@set",
-                    "@type": "@id"
-                  }
-                }
-              }
-            }
-          },
-          "číslo_orientační": {
-            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem-z-cim-transformace/číslo-orientační",
-            "@type": "@id",
-            "@context": {
-              "Číslo orientační": {
-                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-orientační",
-                "@context": {
-                  "dodatek_čísla_orientačního": {
-                    "@id": "https://slovník.gov.cz/legislativní/sbírka/326/2000/pojem/dodatek-čísla-orientačního",
-                    "@type": "xsd:string"
-                  }
+          }
+        },
+        "má_přiřazené_území_obce": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce",
+          "@container": "@set",
+          "@context": {
+            "území obce": {
+              "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-obce",
+              "@context": {
+                "datum_vzniku_obce": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce",
+                  "@type": "xsd:date"
                 }
               }
             }
@@ -109,3 +59,4 @@
       }
     }
   }
+}

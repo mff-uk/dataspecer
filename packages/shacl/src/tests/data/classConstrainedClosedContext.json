@@ -1,0 +1,47 @@
+{
+    "@context": {
+      "@version": 1.1,
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "id": "@id",
+      "type": "@type",
+      "adresa": {
+        "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+        "@context": {
+          "je_adresou_stavebního_objektu": {
+            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu",
+            "@type": "@id",
+            "@context": {
+              "stavební objekt": {
+                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/stavební-objekt",
+                "@context": {
+                  "typ_ochrany_stavebního_objektu": {
+                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu",
+                    "@type": "xsd:string"
+                  },
+                  "typ_stavebního_objektu": {
+                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-stavebního-objektu",
+                    "@type": "xsd:string"
+                  }
+                }
+              }
+            }
+          },
+          "má_přiřazené_území_městského_obvodu_v_hlavním_městě_praze": {
+            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze",
+            "@type": "@id",
+            "@context": {
+              "území městského obvodu v hlavním městě Praze": {
+                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze",
+                "@context": {
+                  "datum_vzniku_území_městského_obvodu_v_hlavním_městě_praze": {
+                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze",
+                    "@type": "xsd:date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,21 @@
+{
+    "@context": {
+      "@version": 1.1,
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "id": "@id",
+      "type": "@type",
+      "adresa": {
+        "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+        "@context": {
+          "má_kód_adresního_místa": {
+            "@id": "https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa",
+            "@type": "xsd:decimal"
+          },
+          "text_adresy": {
+            "@id": "https://slovník.gov.cz/generický/adresy/pojem/text-adresy",
+            "@type": "xsd:string"
+          }
+        }
+      }
+    }
+  }

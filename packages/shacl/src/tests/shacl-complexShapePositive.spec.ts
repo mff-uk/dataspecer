@@ -1,15 +1,10 @@
 import * as Support from "./support/testSupport";
 import ComplexModelCreator from "./support/ComplexModelCreator";
-import generate, {fromJsonToTurtle} from "./support/FakeDataCreator";
 
 const testType = "complex";
 const modelCreator = new ComplexModelCreator();
 
 test('Test SHACL against data - complex shape POSITIVE ', async () => {
-  /*
-  const validation = await Support.testPositive(testType, modelCreator);
-  expect(validation.conforms).toBe(true);
-*/
   await Support.prepareShape(new ComplexModelCreator(), '../shapes/complexShape.ttl');
   const validation = await Support.validateDataAgainstShape('src/tests/data/complexShapePositive-data.ttl', 'src/tests/shapes/complexShape.ttl');
   expect(validation.conforms).toBe(true);
@@ -20,9 +15,4 @@ test('Test SHACL against data - complex shape POSITIVE ', async () => {
 test('Shape conforms to SHACL standard - complex shape ', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);
-/*
-  await Support.prepareShape(new ComplexShapeModelCreator(), '../shapes/complexShape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/shapes/complexShape.ttl", "src/tests/shapes/shapeToValidateShapes.ttl");
-  expect(validation.conforms).toBe(true);
- */
 });

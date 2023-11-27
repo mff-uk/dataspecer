@@ -5,7 +5,9 @@ import { ShaclAdapter } from "../../shacl-adapter";
 class ShapeCreator{
     
     async createShape(sm : StructureModel) : Promise<String> {
-        const adapter = new ShaclAdapter(sm, null, new DataSpecificationArtefact());
+        var artefact = new DataSpecificationArtefact();
+        artefact.configuration = { "publicBaseUrl" : "https://example.org/"};
+        const adapter = new ShaclAdapter(sm, null, artefact);
         const data =  (await adapter.generate()).data;
         //await console.log(data);
 

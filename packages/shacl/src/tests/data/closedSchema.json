@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "adresa",
+    "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "type",
+      "má_kód_adresního_místa",
+      "text_adresy"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "iri"
+      },
+      "type": {
+        "oneOf": [
+          {
+            "const": "adresa"
+          },
+          {
+            "type": "array",
+            "contains": {
+              "const": "adresa"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "má_kód_adresního_místa": {
+        "title": "má kód adresního místa",
+        "type": "number"
+      },
+      "text_adresy": {
+        "title": "text adresy",
+        "description": "Celá adresa jako jeden řetězec. Text se řídí Přílohou č. 1 k vyhlášce č. 359/2011 Sb., o základním registru územní identifikace, adres a nemovitostí. Tato vlastnost odpovídá vlastnosti fullAddress z ISA2 Core Location Vocabulary.",
+        "type": "array",
+        "items": {
+          "title": "Řetězec",
+          "type": "string"
+        }
+      }
+    }
+  }

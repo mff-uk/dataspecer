@@ -1,0 +1,163 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "adresa",
+    "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+    "type": "object",
+    "required": [
+      "id",
+      "type",
+      "má_kód_adresního_místa",
+      "je_adresou_stavebního_objektu"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "iri"
+      },
+      "type": {
+        "oneOf": [
+          {
+            "const": "adresa"
+          },
+          {
+            "type": "array",
+            "contains": {
+              "const": "adresa"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "má_kód_adresního_místa": {
+        "title": "má kód adresního místa",
+        "type": "string"
+      },
+      "je_adresou_stavebního_objektu": {
+        "title": "je adresou stavebního objektu",
+        "description": "Stavebním objektem se rozumí dokončená budova zapisovaná do katastru nemovitostí, která je samostatnou věcí, nebo budova, která je součástí pozemku nebo součástí práva stavby a údaje o ní se do katastru nemovitostí zapisují k pozemku nebo k právu stavby, nebo jiná dokončená stavba, která se do katastru nemovitostí nezapisuje, ale bylo jí přiděleno číslo popisné nebo evidenční.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "typ_ochrany_stavebního_objektu",
+          "typ_stavebního_objektu"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "iri"
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "stavební objekt"
+              },
+              {
+                "type": "array",
+                "contains": {
+                  "const": "stavební objekt"
+                },
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "typ_ochrany_stavebního_objektu": {
+            "title": "typ ochrany stavebního objektu",
+            "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+            "type": "string"
+          },
+          "typ_stavebního_objektu": {
+            "title": "typ stavebního objektu",
+            "description": "O stavebním objektu se dále v registru územní identifikace vedou údaje o typu stavebního objektu, způsobu jeho využití a o typu a způsobu jeho ochrany a technickoekonomický atribut měsíc a rok dokončení.",
+            "type": "string"
+          },
+          "má_identifikační_údaje_stavebního_objektu": {
+            "title": "má identifikační údaje stavebního objektu",
+            "type": "array",
+            "items": {
+              "title": "identifikační údaje stavebního objektu",
+              "description": "Identifikační údaji o územním prvku, kterým je stavební objekt, jsou identifikační údaje pozemku, na kterém je stavební objekt postaven, a dále 1. údaj o jeho čísle popisném nebo evidenčním, pokud se přiděluje, a údaj o části obce, ke které stavební objekt přísluší, nebo 2. údaj o tom, že se jedná o stavební objekt, kterému se popisné ani evidenční číslo nepřiděluje.",
+              "type": "object",
+              "required": [
+                "id",
+                "type",
+                "číslo_popisné_nebo_evidenční"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "iri"
+                },
+                "type": {
+                  "oneOf": [
+                    {
+                      "const": "identifikační údaje stavebního objektu"
+                    },
+                    {
+                      "type": "array",
+                      "contains": {
+                        "const": "identifikační údaje stavebního objektu"
+                      },
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "číslo_popisné_nebo_evidenční": {
+                  "title": "Číslo popisné nebo evidenční",
+                  "description": "Identifikační údaji o územním prvku, kterým je stavební objekt, jsou identifikační údaje pozemku, na kterém je stavební objekt postaven, a dále 1. údaj o jeho čísle popisném nebo evidenčním, pokud se přiděluje, a údaj o části obce, ke které stavební objekt přísluší.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "má_přiřazené_území_obce": {
+        "title": "má přiřazené území obce",
+        "type": "array",
+        "items": {
+          "title": "území obce",
+          "type": "object",
+          "required": [
+            "id",
+            "type",
+            "datum_vzniku_obce"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "iri"
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "const": "území obce"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "const": "území obce"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "datum_vzniku_obce": {
+              "title": "datum vzniku obce",
+              "description": "O základních územních prvcích uvedených v § 31 odst. 1 písm. a) až o) a o územně evidenční jednotce část obce se vede doplňující údaj o datu jejich vzniku.",
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
+      }
+    }
+  }

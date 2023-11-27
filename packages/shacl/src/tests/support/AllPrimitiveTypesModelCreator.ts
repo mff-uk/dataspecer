@@ -194,6 +194,7 @@ class AllPrimitiveTypesModelCreator implements ModelCreator{
       class1.specification = null;
       class1.structureSchema = null;
       class1.technicalLabel = "Technický popisek věci 1";
+      class1.instancesSpecifyTypes = "ALWAYS";
   
       var root1 : StructureModelSchemaRoot;
       root1 = new StructureModelSchemaRoot();

@@ -1,8 +1,9 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix ex: <https://example.org/>.
+@prefix base: <https://example.org/>.
 
 <https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> a sh:NodeShape;
+    sh:targetClass <https://example.com/class1/mojeCimIri>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.

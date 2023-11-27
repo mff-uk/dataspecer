@@ -1,0 +1,21 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
+    "type": "@type",
+    "Událost": {
+      "@id": "https://slovník.gov.cz/datový/události/pojem/událost",
+      "@context": {
+        "registrace": {
+          "@id": "https://slovník.gov.cz/datový/události/pojem/registrace",
+          "@type": "xsd:boolean"
+        },
+        "dlouhý_popis": {
+          "@id": "https://slovník.gov.cz/datový/události/pojem/dlouhý-popis",
+          "@type": "xsd:string"
+        }
+      }
+    }
+  }
+}

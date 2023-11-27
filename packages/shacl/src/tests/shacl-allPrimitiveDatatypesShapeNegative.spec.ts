@@ -16,10 +16,4 @@ test('Test SHACL against data - all primitive types NEGATIVE', async () => {
   const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + "FakeDataTurtle.ttl", "src/tests/shapes/" + testType + "Shape.ttl");
   
   expect(validation.conforms).toBe(false);
-  /*
-  await Support.prepareShape(new AllPrimitiveTypesModelCreator(), '../shapes/allPrimitiveDatatypesShape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/data/allPrimitiveDatatypesShapeNegative-data.ttl", "src/tests/shapes/allPrimitiveDatatypesShape.ttl");
-  expect(validation.conforms).toBe(false);
-  */
-  
 });
