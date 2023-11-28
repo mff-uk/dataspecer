@@ -1,3 +1,8 @@
+/**
+ * A JSON serializable object that represents an entity.
+ * @example Semantic class, relation, generalization, etc.
+ * Each entity is identified by its unique ID.
+ */
 export interface Entity {
     id: string;
     type: string[];

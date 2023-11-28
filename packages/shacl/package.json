@@ -5,7 +5,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "prebuild": "rimraf lib",
-    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
+    "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -20,6 +21,7 @@
     "faker": "^6.6.6",
     "fs": "^0.0.1-security",
     "json-schema-faker": "^0.5.3",
+    "jsonld": "^8.3.1",
     "md5": "^2.3.0",
     "n3": "^1.16.4",
     "path": "^0.12.7",

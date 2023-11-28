@@ -16,9 +16,9 @@
                                         ex:PSC "73532"^^xsd:integer ;
                                         ex:Mesto "Rychnov" ;
                                         ex:Stat "Česká republika";
-                                        ex:Jmeno_A_Prijmeni <http://localhost/resources/jmeno_a_prijmeni>;
+                                        ex:Jmeno_A_Prijmeni _:b1;
                                         ex:Rozloha "50.50"^^xsd:decimal.
-<http://localhost/resources/jmeno_a_prijmeni>   a <https://example.com/Jmeno_A_Prijmeni_class>;
+_:b1   a <https://example.com/Jmeno_A_Prijmeni_class>;
                                         ex:Jmeno "Zembo";
                                         ex:Jmeno "Lambo";
                                         ex:Prijmeni "Vymysleny".

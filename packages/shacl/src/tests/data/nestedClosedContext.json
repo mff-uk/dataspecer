@@ -1,0 +1,62 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
+    "type": "@type",
+    "adresa": {
+      "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+      "@context": {
+        "má_kód_adresního_místa": {
+          "@id": "https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa",
+          "@type": "xsd:string"
+        },
+        "je_adresou_stavebního_objektu": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu",
+          "@type": "@id",
+          "@context": {
+            "stavební objekt": {
+              "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/stavební-objekt",
+              "@context": {
+                "typ_ochrany_stavebního_objektu": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu",
+                  "@type": "xsd:string"
+                },
+                "má_identifikační_údaje_stavebního_objektu": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu",
+                  "@container": "@set",
+                  "@context": {
+                    "identifikační údaje stavebního objektu": {
+                      "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/identifikační-údaje-stavebního-objektu",
+                      "@context": {
+                        "číslo_popisné_nebo_evidenční": {
+                          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-popisné-nebo-evidenční",
+                          "@type": "xsd:string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "má_přiřazené_území_obce": {
+          "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce",
+          "@container": "@set",
+          "@context": {
+            "území obce": {
+              "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-obce",
+              "@context": {
+                "datum_vzniku_obce": {
+                  "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce",
+                  "@type": "xsd:date"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

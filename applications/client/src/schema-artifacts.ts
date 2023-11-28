@@ -10,6 +10,7 @@ import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
 import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import {JsonExampleGenerator} from "@dataspecer/json-example";
 
 /**
  * This is the place to register your own artefacts if you need to.
@@ -35,6 +36,17 @@ export function getSchemaArtifacts(
     jsonSchema.configuration = configuration;
     if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
         artifacts.push(jsonSchema);
+    }
+
+    const jsonExample = new DataSpecificationSchema();
+    jsonExample.iri = `${psmSchemaIri}#jsonExample`;
+    jsonExample.outputPath = `${basePath}/example.json`;
+    jsonExample.publicUrl = `${baseUrl}/example.json`;
+    jsonExample.generator = JsonExampleGenerator.IDENTIFIER;
+    jsonExample.psm = psmSchemaIri;
+    jsonExample.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
+        artifacts.push(jsonExample);
     }
 
     const jsonLd = new DataSpecificationSchema();
@@ -135,6 +147,17 @@ export function getSchemaArtifacts(
     shacl.configuration = configuration;
     if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
         artifacts.push(shacl);
+    }
+
+    const shex = new DataSpecificationSchema();
+    shex.iri = `${psmSchemaIri}#shex`;
+    shex.outputPath = `${basePath}/validation.shex`;
+    shex.publicUrl = `${baseUrl}/validation.shex`;
+    shex.generator = "https://schemas.dataspecer.com/generator/shex";
+    shex.psm = psmSchemaIri;
+    shex.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+        artifacts.push(shex);
     }
 
     return artifacts;

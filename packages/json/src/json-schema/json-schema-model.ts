@@ -89,6 +89,8 @@ export class JsonSchemaBoolean extends JsonSchemaDefinition {
 export class JsonSchemaNumber extends JsonSchemaDefinition {
   private static TYPE = "json-schema-number";
 
+  public isInteger = false;
+
   constructor() {
     super(JsonSchemaNumber.TYPE);
   }

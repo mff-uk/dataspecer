@@ -1,9 +1,10 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix ex: <https://example.org/>.
+@prefix base: <https://example.org/>.
 
 <https://example.org/9d55c986a6df1cfb10333bd37133352e/osobaNodeShape> a sh:NodeShape;
     sh:targetClass <https://example.com/class1/mojeCimIri>;
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
 <https://example.org/b1460ef5fc0f4d6d18f472840e27c13d/adresa-popisekPropertyShape> a sh:PropertyShape;
@@ -13,7 +14,8 @@
     sh:maxCount 1;
     sh:path <https://example.com/Adresa>.
 <https://example.org/734c20709639d1c179e0719bbb62668a/adresaNodeShape> a sh:NodeShape;
-    sh:targetClass <https://example.com/class2/adresa>;
+    sh:targetObjectsOf <https://example.com/Adresa>;
+    sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs, "Adres"@pl.
 <https://example.org/fdc4f97d6cdf0965d14c6ae8b9088144/ulice-popisekPropertyShape> a sh:PropertyShape;

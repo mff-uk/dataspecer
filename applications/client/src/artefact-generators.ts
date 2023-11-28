@@ -10,7 +10,8 @@ import {XmlCommonSchemaGenerator} from "@dataspecer/xml/xml-common-schema";
 import {XsltLiftingGenerator, XsltLoweringGenerator} from "@dataspecer/xml/xml-transformations";
 import {CsvSchemaGenerator} from "@dataspecer/csv/csv-schema";
 import {RdfToCsvGenerator} from "@dataspecer/csv/rdf-to-csv";
-import {ShaclGenerator} from "@dataspecer/shacl";
+import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
+import {JsonExampleGenerator} from "@dataspecer/json-example";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -22,6 +23,7 @@ export function getArtefactGenerators() {
         new BikeshedGenerator(),
         new JsonLdGenerator(),
         new JsonSchemaGenerator(),
+        new JsonExampleGenerator(),
         new XmlSchemaGenerator(),
         new XmlCommonSchemaGenerator(),
         new XsltLoweringGenerator(),
@@ -31,6 +33,7 @@ export function getArtefactGenerators() {
         new PlantUmlGenerator(),
         new SparqlGenerator(),
         new ShaclGenerator(),
+        new ShexGenerator(),
 
         // Generators that need backend support
         new PlantUmlImageGenerator(),

@@ -6,8 +6,11 @@ import {
 } from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
 import {ShaclAdapter} from "./shacl-adapter.js";
+import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
+import {StructureModel} from "@dataspecer/core/structure-model/model";
+import {clone} from "@dataspecer/core/core";
 
 interface ShaclGeneratorObject {
   data: string;
@@ -45,13 +48,18 @@ export class ShaclGenerator implements ArtefactGenerator {
         `Missing structure model ${schemaArtefact.psm}.`
     );
 
+    const globalConfiguration = DataSpecificationConfigurator.merge(
+      DefaultDataSpecificationConfiguration,
+      DataSpecificationConfigurator.getFromObject(schemaArtefact.configuration)
+  ) as DataSpecificationConfiguration;
+
     model = Object.values(context.conceptualModels).reduce(
         (model, conceptualModel) => transformStructureModel(conceptualModel, model, Object.values(context.specifications)),
         model
     );
+    
+    artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
 
-    // todo use model, context, artefact to create the result
-    //return {data: "# SHACL artifact\n"};
     const adapter = new ShaclAdapter(model, context, artefact);
     return adapter.generate();
   }
@@ -66,5 +74,20 @@ export class ShaclGenerator implements ArtefactGenerator {
     const stream = output.writePath(artefact.outputPath);
     await stream.write(model.data);
     await stream.close();
+  }
+
+  structureModelAddDefaultValues(
+    structure: StructureModel,
+    configuration: DataSpecificationConfiguration,
+  ): StructureModel {
+      const result = clone(structure) as StructureModel;
+      const classes = result.getClasses();
+      for (const classData of classes) {
+          classData.instancesHaveIdentity ??= configuration.instancesHaveIdentity;
+          classData.instancesSpecifyTypes ??= configuration.instancesSpecifyTypes;
+          classData.isClosed ??= configuration.dataPsmIsClosed == "CLOSED";
+          
+      }
+      return result;
   }
 }

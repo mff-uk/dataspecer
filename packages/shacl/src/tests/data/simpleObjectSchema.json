@@ -1,0 +1,85 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "adresa",
+    "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+    "type": "object",
+    "required": [
+      "id",
+      "type",
+      "prvek_rúian",
+      "má_přiřazené_území_městského_obvodu_v_hlavním_městě_praze"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "iri"
+      },
+      "type": {
+        "oneOf": [
+          {
+            "const": "adresa"
+          },
+          {
+            "type": "array",
+            "contains": {
+              "const": "adresa"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "prvek_rúian": {
+        "title": "prvek rúian",
+        "description": "Prvek v Registru územních identifikátorů, adres a nemovitostí - bez rozlišení typu - ve formě IRI.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "iri"
+        }
+      },
+      "má_přiřazené_území_městského_obvodu_v_hlavním_městě_praze": {
+        "title": "má přiřazené území městského obvodu v hlavním městě Praze",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "název_městského_obvodu_v_hlavním_městě_praze",
+          "datum_vzniku_území_městského_obvodu_v_hlavním_městě_praze"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "iri"
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "území městského obvodu v hlavním městě Praze"
+              },
+              {
+                "type": "array",
+                "contains": {
+                  "const": "území městského obvodu v hlavním městě Praze"
+                },
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "název_městského_obvodu_v_hlavním_městě_praze": {
+            "title": "název městského obvodu v hlavním městě Praze",
+            "description": "Adresou se rozumí kombinace názvu okresu, názvu obce nebo vojenského újezdu, názvu části obce nebo v případě hlavního města Prahy názvu katastrálního území a názvu městského obvodu, čísla popisného nebo evidenčního, názvu ulice a čísla orientačního a dále zvláštních údajů pro doručování prostřednictvím poštovních služeb, která jednoznačně určuje adresní místo.",
+            "type": "string"
+          },
+          "datum_vzniku_území_městského_obvodu_v_hlavním_městě_praze": {
+            "title": "datum vzniku území městského obvodu v hlavním městě Praze",
+            "description": "O základních územních prvcích uvedených v § 31 odst. 1 písm. a) až o) a o územně evidenční jednotce část obce se vede doplňující údaj o datu jejich vzniku.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
