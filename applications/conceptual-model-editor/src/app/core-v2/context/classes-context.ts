@@ -6,8 +6,8 @@ import {
 import React, { useContext } from "react";
 
 export type ClassesContextType = {
-    classes: SemanticModelClassWithOrigin[];
-    setClasses: React.Dispatch<React.SetStateAction<SemanticModelClassWithOrigin[]>>;
+    classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
+    setClasses: React.Dispatch<React.SetStateAction<Map<string, SemanticModelClassWithOrigin>>>;
     allowedClasses: string[];
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];

@@ -1,7 +1,7 @@
 import { Handle, Position } from "reactflow";
 import { getNameOf } from "../util/utils";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useEntityDetailDialog } from "../entity-detail-dialog";
+import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 
 export const ClassCustomNode = (props: {
     data: {
@@ -47,12 +47,12 @@ export const ClassCustomNode = (props: {
             </div>
 
             <Handle type="source" position={Position.Top} id="sa" />
-            <Handle type="source" position={Position.Right} id="sb" />
+            {/* <Handle type="source" position={Position.Right} id="sb" /> */}
             <Handle type="source" position={Position.Bottom} id="sc" />
-            <Handle type="source" position={Position.Left} id="sd" />
-            <Handle type="target" position={Position.Top} id="ta" />
+            {/* <Handle type="source" position={Position.Left} id="sd" /> */}
+            {/* <Handle type="target" position={Position.Top} id="ta" /> */}
             <Handle type="target" position={Position.Right} id="tb" />
-            <Handle type="target" position={Position.Bottom} id="tc" />
+            {/* <Handle type="target" position={Position.Bottom} id="tc" /> */}
             <Handle type="target" position={Position.Left} id="td" />
         </>
     );

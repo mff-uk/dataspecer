@@ -5,6 +5,7 @@ import { createClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
+import { ViewLayout } from "./context/view-context";
 
 export const useBackendConnection = () => {
     const BACKEND_URL = "http://localhost:3100";
@@ -20,6 +21,10 @@ export const useBackendConnection = () => {
         return models;
     };
 
+    const getViewsFromBackend = async (packageId: string) => {
+        return constructViewsMock();
+    };
+
     const updateSemanticModelPackageModels = async (packageId: string, models: EntityModel[]) => {
         await service.updateSemanticModelPackageModels(packageId, models);
         console.log(`updated models for package ${packageId}`, models);
@@ -29,7 +34,19 @@ export const useBackendConnection = () => {
         return ["zvířátkový-package", "package-xyz", "testovací-package"];
     };
 
-    return { service, getPackageFromBackend, updateSemanticModelPackageModels, listPackages, getModelsFromBackend };
+    const listViews = () => {
+        return ["view-1", "view-xyz"];
+    };
+
+    return {
+        service,
+        getPackageFromBackend,
+        updateSemanticModelPackageModels,
+        listPackages,
+        listViews,
+        getModelsFromBackend,
+        getViewsFromBackend,
+    };
 };
 
 const constructSemanticModelPackageModelsMock = async (packageId: string) => {
@@ -63,4 +80,26 @@ const constructSemanticModelPackageModelsMock = async (packageId: string) => {
 
     const models = [sgov, dcterms, local] as EntityModel[];
     return models;
+};
+
+const constructViewsMock = async () => {
+    const viewLayout1 = {
+        id: "view-1",
+        name: { cs: "pohled-1" },
+        elementPositionMap: new Map([
+            ["https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl", { x: 100, y: 90 }],
+            ["https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup", { x: 100, y: 140 }],
+        ]),
+    } as ViewLayout;
+
+    const viewLayoutXyz = {
+        id: "view-xyz",
+        name: { cs: "pohled-xyz" },
+        elementPositionMap: new Map([
+            ["https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl", { x: 90, y: 100 }],
+            ["https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup", { x: 140, y: 100 }],
+        ]),
+    } as ViewLayout;
+
+    return [viewLayout1, viewLayoutXyz];
 };

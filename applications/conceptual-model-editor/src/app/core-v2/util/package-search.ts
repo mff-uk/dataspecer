@@ -1,13 +1,22 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useQueryParams } from "./query-params";
+
+const PACKAGE_ID = "package-id";
 
 export const usePackageSearch = () => {
     const { queryParams, setQueryParams } = useQueryParams();
+    const [packageId, setPackageId] = useState<string>();
 
-    const packageId = useMemo(() => queryParams.get("package-id"), [queryParams]);
+    useEffect(() => {
+        const pId = queryParams.get(PACKAGE_ID);
+        if (pId && pId != packageId) {
+            setPackageId(pId);
+            console.log(`package-search: setting a new package id pid:'${pId}', packageId:'${packageId}'`);
+        }
+    }, [queryParams]);
 
     const setPackage = (pckgId: string) => {
-        setQueryParams({ "package-id": pckgId });
+        setQueryParams({ [PACKAGE_ID]: pckgId });
     };
 
     return { packageId, setPackage };

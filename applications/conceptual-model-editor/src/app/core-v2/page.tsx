@@ -21,16 +21,17 @@ import { ClassesContext, type SemanticModelClassWithOrigin, useClassesContext } 
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualizationContext, useVisualizationContext } from "./context/visualization-context";
 import { getRandomName } from "../utils/random-gen";
-import { useEntityDetailDialog } from "./entity-detail-dialog";
+import { useEntityDetailDialog } from "./dialogs/entity-detail-dialog";
 import { useBackendConnection } from "./backend-connection";
-import { useModifyEntityDialog } from "./modify-entity-dialog";
+import { useModifyEntityDialog } from "./dialogs/modify-entity-dialog";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "./util/constants";
 import { usePackageSearch } from "./util/package-search";
 import { XYPosition } from "reactflow";
+import { ViewContext, ViewLayout } from "./context/view-context";
+import { EntityCatalogue } from "./catalogue/entity-catalogue";
 
 const ModelsComponent = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels } = useModelGraphContext();
-    const [searchedTerm, setSearchedTerm] = useState("");
     const { packageId } = usePackageSearch();
     const { getModelsFromBackend } = useBackendConnection();
 
@@ -102,218 +103,6 @@ const ModelsComponent = () => {
     );
 };
 
-const EntityCatalogue = () => {
-    const { aggregatorView, models, addClassToLocalGraph, modifyClassInLocalModel } = useModelGraphContext();
-    const { setClasses, classes, allowedClasses, setAllowedClasses, setRelationships, setGeneralizations } =
-        useClassesContext();
-    const [entityDetailSelected, setEntityDetailSelected] = useState(null as unknown as SemanticModelClass);
-    const { hideOwlThing, setHideOwlThing } = useVisualizationContext();
-
-    const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
-    const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
-
-    useEffect(() => {
-        setClasses(
-            [...models.keys()]
-                .map((modelId) =>
-                    Object.values(models.get(modelId)!.getEntities())
-                        .filter(isSemanticModelClass)
-                        .map((c) => ({ cls: c, origin: modelId }))
-                )
-                .flat()
-        );
-        setRelationships(
-            [...models.keys()]
-                .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
-                .flat()
-        );
-        setGeneralizations(
-            [...models.keys()]
-                .map((modelId) =>
-                    Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelGeneralization)
-                )
-                .flat()
-        );
-
-        // TODO: jak zarucit, ze se mi zobrazi krabicky hned pri prvnim pridani veci do modelu, nejak to blbne
-        const callToUnsubscribe = aggregatorView?.subscribeToChanges(() => {
-            setClasses(
-                [...models.keys()]
-                    .map((modelId) =>
-                        Object.values(models.get(modelId)!.getEntities())
-                            .filter(isSemanticModelClass)
-                            .map((c) => ({ cls: c, origin: modelId }))
-                    )
-                    .flat()
-            );
-            setRelationships(
-                [...models.keys()]
-                    .map((modelId) =>
-                        Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship)
-                    )
-                    .flat()
-            );
-            setGeneralizations(
-                [...models.keys()]
-                    .map((modelId) =>
-                        Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelGeneralization)
-                    )
-                    .flat()
-            );
-        });
-        return callToUnsubscribe;
-    }, [models, aggregatorView]);
-
-    const toggleAllow = async (modelId: string, classId: string) => {
-        console.log("in toggle allow", aggregatorView);
-        const model = models.get(modelId);
-        if (!(model instanceof ExternalSemanticModel)) return;
-
-        if (allowedClasses.includes(classId)) {
-            setAllowedClasses(allowedClasses.filter((allowed) => allowed !== classId));
-            await model.releaseClassSurroundings(classId);
-        } else {
-            setAllowedClasses([...allowedClasses, classId]);
-            await model.allowClassSurroundings(classId);
-        }
-    };
-
-    const handleOpenDetail = (cls: SemanticModelClass) => {
-        console.log("in handle open detail for semantic model class", cls);
-        setEntityDetailSelected(cls);
-        openEntityDetailDialog();
-    };
-
-    const handleAddConcept = () => {
-        const resultSuccess = addClassToLocalGraph({ cs: getRandomName(5), en: getRandomName(5) }, undefined);
-        if (!resultSuccess) {
-            alert("FIXME: something went wrong, class not added to local model");
-        }
-    };
-
-    const handleOpenModification = (cls: SemanticModelClass) => {
-        console.log("in handle open modification for semantic model class", cls);
-        setEntityDetailSelected(cls);
-        openModifyEntityDialog();
-    };
-
-    const handleModifyConcept = (cls: SemanticModelClass, entity: Partial<Omit<SemanticModelClass, "type" | "id">>) => {
-        const resultSuccess = modifyClassInLocalModel(cls.id, entity); //{ cs: getRandomName(5), en: getRandomName(5) }, undefined);
-        if (!resultSuccess) {
-            alert("FIXME: something went wrong, class not added to local model");
-        }
-    };
-
-    // classes from model
-    const getClassesFromModel = (modelId: string) => {
-        const model = models.get(modelId);
-        let clses: JSX.Element[];
-        if (model instanceof ExternalSemanticModel) {
-            clses = classes
-                .filter((v) => v.origin == modelId)
-                .map((v) => (
-                    <ExpandableRow
-                        cls={v}
-                        key={v.cls.id}
-                        toggleHandler={() => {
-                            toggleAllow(modelId, v.cls.id);
-                        }}
-                    />
-                ));
-        } else if (model instanceof InMemorySemanticModel) {
-            clses = [
-                ...classes.filter((v) => v.origin == modelId).map((v) => <ModifiableRow cls={v} key={v.cls.id} />),
-                <div className="flex flex-row justify-between whitespace-nowrap">
-                    Add a concept
-                    <button className="ml-2 bg-teal-300 px-1" onClick={handleAddConcept}>
-                        Add
-                    </button>
-                </div>,
-            ];
-        } else {
-            clses = classes.filter((v) => v.origin == modelId).map((v) => <NonExpandableRow cls={v} key={v.cls.id} />);
-        }
-        return (
-            <li
-                key={modelId}
-                onClick={() => console.log(modelId)}
-                className={colorForModel.get(modelId) ?? "bg-fuchsia-800"}
-            >
-                <ul>{clses}</ul>
-            </li>
-        );
-    };
-
-    // components
-    const ExpandableRow = (props: { cls: SemanticModelClassWithOrigin; toggleHandler: () => void }) => {
-        const cls = props.cls.cls;
-        return (
-            <div className="flex flex-row justify-between whitespace-nowrap">
-                <span onClick={props.toggleHandler}>
-                    {allowedClasses.includes(cls.id) ? "✅ " : "❌ "}
-                    {getNameOf(cls)}
-                </span>
-                <button className="ml-2 bg-teal-300 px-1" onClick={() => handleOpenDetail(cls)}>
-                    Detail
-                </button>
-            </div>
-        );
-    };
-    const NonExpandableRow = (props: { cls: SemanticModelClassWithOrigin }) => (
-        <div className="flex flex-row justify-between whitespace-nowrap">
-            {getNameOf(props.cls.cls)}
-            <button className="ml-2 bg-teal-300 px-1" onClick={() => handleOpenDetail(props.cls.cls)}>
-                Detail
-            </button>
-        </div>
-    );
-    const ModifiableRow = (props: { cls: SemanticModelClassWithOrigin }) => (
-        <div className="flex flex-row justify-between whitespace-nowrap">
-            {getNameOf(props.cls.cls)}
-            <div>
-                <button className="ml-2 bg-teal-300 px-1" onClick={() => handleOpenModification(props.cls.cls)}>
-                    Modify
-                </button>
-                <button className="ml-0.5 bg-teal-300 px-1" onClick={() => handleOpenDetail(props.cls.cls)}>
-                    Detail
-                </button>
-            </div>
-        </div>
-    );
-
-    return (
-        <>
-            <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
-                <ModelsComponent />
-                <div className="h-full overflow-y-scroll">
-                    <div className="flex flex-row">
-                        <h2>Classes:</h2>
-                        <input
-                            name="owl-thing-hidden"
-                            type="radio"
-                            onClick={() => setHideOwlThing((prev) => !prev)}
-                            checked={hideOwlThing}
-                        />
-
-                        <label htmlFor="owl-thing-hidden"> hide owl:thing</label>
-                    </div>
-
-                    <ul>{[...models.keys()].map((modelId) => getClassesFromModel(modelId))}</ul>
-                </div>
-            </div>
-            {isEntityDetailDialogOpen && <EntityDetailDialog cls={entityDetailSelected} />}
-            {isModifyEntityDialogOpen && (
-                <ModifyEntityDialog
-                    cls={entityDetailSelected}
-                    save={(entity: Partial<Omit<SemanticModelClass, "type" | "id">>) =>
-                        handleModifyConcept(entityDetailSelected, entity)
-                    }
-                />
-            )}
-        </>
-    );
-};
-
 const Page = () => {
     const { aggregator } = useMemo(() => {
         const aggregator = new SemanticModelAggregator();
@@ -321,49 +110,56 @@ const Page = () => {
     }, []);
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
     const [models, setModels] = useState(new Map<string, EntityModel>());
-    const [classes, setClasses] = useState<SemanticModelClassWithOrigin[]>([]);
+    const [classes, setClasses] = useState(new Map<string, SemanticModelClassWithOrigin>()); //<SemanticModelClassWithOrigin[]>([]);
     const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [hideOwlThing, setHideOwlThing] = useState(false);
     const [classPositionMap, setClassPositionMap] = useState(new Map<string, XYPosition>());
+    const [activeViewId, setActiveViewId] = useState("");
+    const [viewLayouts, setViewLayouts] = useState([] as ViewLayout[]);
 
     return (
         <>
-            <Header />
-            <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                <ModelGraphContext.Provider
+            <ModelGraphContext.Provider
+                value={{
+                    aggregator,
+                    aggregatorView,
+                    setAggregatorView,
+                    models,
+                    setModels,
+                }}
+            >
+                <ClassesContext.Provider
                     value={{
-                        aggregator,
-                        aggregatorView,
-                        setAggregatorView,
-                        models,
-                        setModels,
+                        classes,
+                        setClasses,
+                        allowedClasses,
+                        setAllowedClasses,
+                        relationships,
+                        setRelationships,
+                        generalizations,
+                        setGeneralizations,
                     }}
                 >
-                    <ClassesContext.Provider
-                        value={{
-                            classes,
-                            setClasses,
-                            allowedClasses,
-                            setAllowedClasses,
-                            relationships,
-                            setRelationships,
-                            generalizations,
-                            setGeneralizations,
-                        }}
-                    >
+                    <ViewContext.Provider value={{ activeViewId, setActiveViewId, viewLayouts, setViewLayouts }}>
                         <VisualizationContext.Provider
                             value={{ hideOwlThing, setHideOwlThing, classPositionMap, setClassPositionMap }}
                         >
-                            <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                                <EntityCatalogue />
-                                <Visualization />
-                            </div>
+                            <Header />
+                            <main className="h-[calc(100%-48px)] w-full bg-teal-50">
+                                <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                                    <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
+                                        <ModelsComponent />
+                                        <EntityCatalogue />
+                                    </div>
+                                    <Visualization />
+                                </div>
+                            </main>
                         </VisualizationContext.Provider>
-                    </ClassesContext.Provider>
-                </ModelGraphContext.Provider>
-            </main>
+                    </ViewContext.Provider>
+                </ClassesContext.Provider>
+            </ModelGraphContext.Provider>
         </>
     );
 };

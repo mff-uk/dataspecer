@@ -1,7 +1,7 @@
 import { Node, Position, internalsSymbol } from "reactflow";
 
 // returns the position (top,right,bottom or right) passed node compared to
-function getParams(nodeA: Node, nodeB: Node) {
+function getParams(nodeA: Node, nodeB: Node, isTarget: boolean) {
     const centerA = getNodeCenter(nodeA);
     const centerB = getNodeCenter(nodeB);
 
@@ -11,20 +11,25 @@ function getParams(nodeA: Node, nodeB: Node) {
     let position;
 
     // when the horizontal difference between the nodes is bigger, we use Position.Left or Position.Right for the handle
-    if (horizontalDiff > verticalDiff) {
+    // if (horizontalDiff > verticalDiff) {
+    // source is top/bottom, target is left right
+    if (isTarget) {
         position = centerA.x > centerB.x ? Position.Left : Position.Right;
     } else {
         // here the vertical difference between the nodes is bigger, so we use Position.Top or Position.Bottom for the handle
         position = centerA.y > centerB.y ? Position.Top : Position.Bottom;
     }
 
-    const { x, y } = getHandleCoordsByPosition(nodeA, position);
+    const { x, y } = getHandleCoordsByPosition(nodeA, position, isTarget);
     return { x, y, position };
 }
 
-const getHandleCoordsByPosition = (node: Node, handlePosition: Position) => {
+const getHandleCoordsByPosition = (node: Node, handlePosition: Position, isTarget: boolean) => {
     // all handles are from type source, that's why we use handleBounds.source here
-    const handle = node[internalsSymbol]?.handleBounds?.source?.find((h) => h.position === handlePosition);
+    const handle = isTarget
+        ? node[internalsSymbol]?.handleBounds?.target?.find((h) => h.position === handlePosition)
+        : node[internalsSymbol]?.handleBounds?.source?.find((h) => h.position === handlePosition);
+
     const DEFAULT_COORDS = { x: 69, y: 420 };
 
     if (!handle || !handle.width || !handle.height) return DEFAULT_COORDS; // FIXME:
@@ -68,8 +73,8 @@ const getNodeCenter = (node: Node) => {
 
 // returns the parameters (sx, sy, tx, ty, sourcePos, targetPos) you need to create an edge
 export const getEdgeParams = (source: Node, target: Node) => {
-    const { x: sx, y: sy, position: sourcePos } = getParams(source, target);
-    const { x: tx, y: ty, position: targetPos } = getParams(target, source);
+    const { x: sx, y: sy, position: sourcePos } = getParams(source, target, false);
+    const { x: tx, y: ty, position: targetPos } = getParams(target, source, true);
 
     return {
         sx,

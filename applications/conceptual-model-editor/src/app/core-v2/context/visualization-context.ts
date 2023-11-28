@@ -21,6 +21,7 @@ export const useVisualizationContext = () => {
         setClassPosition(classId, newPos);
         return newPos;
     };
+
     const setClassPosition = (classId: string, position: XYPosition | undefined) => {
         if (!position) return;
         setClassPositionMap((prev) => prev.set(classId, position));

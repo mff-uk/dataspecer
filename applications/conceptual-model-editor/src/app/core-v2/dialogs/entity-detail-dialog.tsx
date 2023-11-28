@@ -1,6 +1,6 @@
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { getNameOf, getDescriptionOf } from "./util/utils";
+import { getNameOf, getDescriptionOf } from "../util/utils";
 
 export const useEntityDetailDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
