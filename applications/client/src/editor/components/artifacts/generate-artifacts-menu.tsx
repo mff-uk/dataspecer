@@ -29,7 +29,8 @@ import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
 import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {ShaclGenerator} from "@dataspecer/shacl";
+import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
+import {JsonExampleGenerator} from "@dataspecer/json-example";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -215,6 +216,13 @@ export const GenerateArtifactsMenu: React.FC<{
                   onPreview={() => ProvidedPreviewDialog.open({generatorId: JSON_LD_GENERATOR})}
                   setLive={v => (v ? add : del)(JSON_LD_GENERATOR)}
                 />
+                <GeneratedArtifactItem
+                    title={"JSON examples"}
+                    generator={JsonExampleGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(JsonExampleGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: JsonExampleGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(JsonExampleGenerator.IDENTIFIER)}
+                />
                 <Divider />
                 <GeneratedArtifactItem
                     title={"XSD schema"}
@@ -266,6 +274,13 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(ShaclGenerator.IDENTIFIER)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: ShaclGenerator.IDENTIFIER})}
                     setLive={v => (v ? add : del)(ShaclGenerator.IDENTIFIER)}
+                />
+                <GeneratedArtifactItem
+                    title={"ShEx"}
+                    generator={ShexGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(ShexGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: ShexGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(ShexGenerator.IDENTIFIER)}
                 />
 
                 <MenuNote>

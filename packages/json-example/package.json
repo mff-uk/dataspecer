@@ -1,0 +1,19 @@
+{
+  "name": "@dataspecer/json-example",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf lib"
+  },
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "@dataspecer/json": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.2"
+  }
+}

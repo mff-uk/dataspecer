@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    /* Base options */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    //"verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* Transpiling */
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "outDir": "./lib/",
+    "rootDir": "./src/",
+    "sourceMap": true,
+    "declaration": true,
+
+    /* In monorepo */
+    "composite": true,
+    "declarationMap": true,
+
+    /* Libraries */
+    "lib": [
+      "es2022",
+      "dom"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

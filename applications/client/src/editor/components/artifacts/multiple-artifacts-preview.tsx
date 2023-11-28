@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Box, Container, Fab, Paper, Typography} from "@mui/material";
+import {Alert, Box, Container, Fab, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import CloseIcon from '@mui/icons-material/Close';
 import {useSingleGeneratedFileArtifact} from "./use-single-generated-file-artifact";
@@ -32,7 +32,7 @@ export const SingleArtifactPreview: React.FC<{
 }> = ({generatorIdentifier}) => {
     const {t} = useTranslation("artifacts");
 
-    const [memoryStreamDictionary] = useSingleGeneratedFileArtifact(generatorIdentifier);
+    const [memoryStreamDictionary, isLoading] = useSingleGeneratedFileArtifact(generatorIdentifier);
 
     const [files] = useAsyncMemo(async () => {
         if (!memoryStreamDictionary) {
@@ -50,6 +50,17 @@ export const SingleArtifactPreview: React.FC<{
         }
         return result;
     }, [memoryStreamDictionary]);
+
+    if (isLoading) {
+        return <Stack spacing={1}>
+            <Skeleton variant="rounded" />
+            <Skeleton variant="rounded" />
+            <Skeleton variant="rounded" height={60} />
+            <Skeleton variant="rounded" />
+            <Skeleton variant="rounded" height={60} />
+            <Skeleton variant="rounded" />
+        </Stack>
+    }
 
     if (!memoryStreamDictionary) {
         return <Alert severity="error"><strong>{t("error")}</strong></Alert>;

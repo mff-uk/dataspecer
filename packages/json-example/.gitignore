@@ -1,0 +1,4 @@
+node_modules
+lib
+!.gitignore
+tsconfig.tsbuildinfo
