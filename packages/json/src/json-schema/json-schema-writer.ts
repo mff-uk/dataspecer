@@ -47,7 +47,7 @@ async function writeJsonDefinition(
   } else if (JsonSchemaBoolean.is(schema)) {
     return writeJsonSchemaBoolean(writer);
   } else if (JsonSchemaNumber.is(schema)) {
-    return writeJsonSchemaNumber(writer);
+    return writeJsonSchemaNumber(writer, (schema as JsonSchemaNumber).isInteger);
   } else if (JsonSchemaString.is(schema)) {
     return writeJsonSchemaString(writer, schema);
   } else if (JsonSchemaAnyOf.is(schema)) {
@@ -119,8 +119,8 @@ async function writeJsonSchemaBoolean(writer: JsonObjectWriter): Promise<void> {
   await writer.value("type", "boolean");
 }
 
-async function writeJsonSchemaNumber(writer: JsonObjectWriter): Promise<void> {
-  await writer.value("type", "number");
+async function writeJsonSchemaNumber(writer: JsonObjectWriter, isInteger: boolean): Promise<void> {
+  await writer.value("type", isInteger ? "integer" : "number");
 }
 
 async function writeJsonSchemaString(

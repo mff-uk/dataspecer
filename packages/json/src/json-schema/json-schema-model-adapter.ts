@@ -275,7 +275,9 @@ function structureModelPrimitiveToJsonDefinition(
       break;
     case XSD.integer:
     case OFN.integer:
-      result = new JsonSchemaNumber();
+      const number = new JsonSchemaNumber();
+      number.isInteger = true;
+      result = number;
       result.title = context.stringSelector(OFN_LABELS[OFN.integer]);
       break;
     case XSD.boolean:
