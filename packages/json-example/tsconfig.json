@@ -6,7 +6,6 @@
     "target": "es2022",
     //"verbatimModuleSyntax": true,
     "allowJs": true,
-    "resolveJsonModule": true,
     "moduleDetection": "force",
 
     /* Strictness */
@@ -16,8 +15,7 @@
     /* Transpiling */
     "moduleResolution": "nodenext",
     "module": "NodeNext",
-    "outDir": "./lib/",
-    "rootDir": "./src/",
+    "outDir": "./lib",
     "sourceMap": true,
     "declaration": true,
 

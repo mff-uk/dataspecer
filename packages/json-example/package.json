@@ -5,12 +5,14 @@
     "build": "tsc",
     "prebuild": "rimraf lib"
   },
-  "exports": {
-    ".": "./lib/index.js"
-  },
+  "main": "lib/src/index.js",
+  "type": "module",
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/json": "*"
+    "@dataspecer/json": "*",
+    "@dataspecer/shacl": "*",
+    "fs": "^0.0.1-security",
+    "json-schema-faker": "^0.5.4"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",

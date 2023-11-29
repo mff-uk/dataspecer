@@ -1,3 +1,3 @@
 export {
     JsonExampleGenerator
-} from "./json-example-generator";
+} from "./json-example-generator.js";
