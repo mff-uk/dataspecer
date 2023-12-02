@@ -80,6 +80,17 @@ export const useModelGraphContext = () => {
 
     const cleanModels = () => setModels(new Map<string, EntityModel>());
 
+    const removeModelFromModels = (modelId: string) => {
+        const model = models.get(modelId);
+        if (!model) {
+            alert(`no model with id: ${modelId} found`);
+            return;
+        }
+        aggregator.deleteModel(model);
+        models.delete(getIdOfEntityModel(model));
+        setModels(new Map(models));
+    };
+
     return {
         aggregator,
         models,
@@ -89,5 +100,6 @@ export const useModelGraphContext = () => {
         addClassToLocalGraph,
         modifyClassInLocalModel,
         cleanModels,
+        removeModelFromModels,
     };
 };

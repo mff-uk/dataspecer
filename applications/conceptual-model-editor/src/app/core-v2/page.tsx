@@ -31,7 +31,8 @@ import { ViewContext, ViewLayout } from "./context/view-context";
 import { EntityCatalogue } from "./catalogue/entity-catalogue";
 
 const ModelsComponent = () => {
-    const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels } = useModelGraphContext();
+    const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels, removeModelFromModels } =
+        useModelGraphContext();
     const { packageId } = usePackageSearch();
     const { getModelsFromBackend } = useBackendConnection();
 
@@ -82,17 +83,22 @@ const ModelsComponent = () => {
         </button>
     );
 
+    const ModelItem = (props: { modelId: string }) => (
+        <div className={`m-2 flex flex-row justify-between ${colorForModel.get(props.modelId)}`}>
+            <h4 onClick={() => console.log(models.get(props.modelId))}>Model - {props.modelId}</h4>
+            <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
+                🗑️
+            </button>
+        </div>
+    );
+
     return (
         <div className="overflow-y-scroll bg-teal-100">
             <h3 className=" font-semibold">Add Model Section</h3>
             <ul>
                 {[...models.keys()].map((modelId, index) => (
                     <li key={"model" + index}>
-                        <div className={`m-2 ${colorForModel.get(modelId)}`}>
-                            <h4 onClick={() => console.log(models.get(modelId))}>
-                                Model #{index} - {modelId}
-                            </h4>
-                        </div>
+                        <ModelItem modelId={modelId} />
                     </li>
                 ))}
             </ul>

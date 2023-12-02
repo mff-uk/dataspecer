@@ -1,11 +1,12 @@
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { BackendPackageService } from "@dataspecer/core-v2/project";
+import { BackendPackageService, PackageEditable } from "@dataspecer/core-v2/project";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
 import { ViewLayout } from "./context/view-context";
+import { getOneNameFromLanguageString } from "./util/utils";
 
 export const useBackendConnection = () => {
     const BACKEND_URL = "http://localhost:3100";
@@ -13,11 +14,13 @@ export const useBackendConnection = () => {
 
     const getPackageFromBackend = async (packageId: string) => {
         const pckg = await service.getPackage(packageId);
+        console.log("got package from backend", packageId, pckg);
         return pckg;
     };
 
     const getModelsFromBackend = async (packageId: string) => {
-        const models = await constructSemanticModelPackageModelsMock(packageId); //service.constructSemanticModelPackageModels(packageId);
+        const models = await service.constructSemanticModelPackageModels(packageId);
+        console.log(models);
         return models;
     };
 
@@ -28,6 +31,17 @@ export const useBackendConnection = () => {
     const updateSemanticModelPackageModels = async (packageId: string, models: EntityModel[]) => {
         await service.updateSemanticModelPackageModels(packageId, models);
         console.log(`updated models for package ${packageId}`, models);
+    };
+
+    const createPackage = async (packageId: string, packageNameCs: string) => {
+        const pckg = await service.createPackage(".root", {
+            id: packageId,
+            name: { cs: packageNameCs },
+            tags: [],
+        } as PackageEditable);
+        console.log(pckg);
+        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name)} logged to console`);
+        return pckg;
     };
 
     const listPackages = () => {
@@ -46,6 +60,7 @@ export const useBackendConnection = () => {
         listViews,
         getModelsFromBackend,
         getViewsFromBackend,
+        createPackage,
     };
 };
 
