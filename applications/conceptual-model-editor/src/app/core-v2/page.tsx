@@ -1,34 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
-import {
-    isSemanticModelClass,
-    SemanticModelRelationship,
-    type SemanticModelClass,
-    isSemanticModelRelationship,
-    SemanticModelGeneralization,
-    isSemanticModelGeneralization,
-} from "@dataspecer/core-v2/semantic-model/concepts";
-import { ExternalSemanticModel, createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ModelGraphContext, useModelGraphContext } from "./context/graph-context";
 import Header from "./header";
-import { colorForModel, getNameOf } from "./util/utils";
+import { colorForModel } from "./util/utils";
 import { Visualization } from "./visualization";
-import { ClassesContext, type SemanticModelClassWithOrigin, useClassesContext } from "./context/classes-context";
+import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { VisualizationContext, useVisualizationContext } from "./context/visualization-context";
-import { getRandomName } from "../utils/random-gen";
-import { useEntityDetailDialog } from "./dialogs/entity-detail-dialog";
+import { VisualizationContext } from "./context/visualization-context";
 import { useBackendConnection } from "./backend-connection";
-import { useModifyEntityDialog } from "./dialogs/modify-entity-dialog";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "./util/constants";
 import { usePackageSearch } from "./util/package-search";
-import { XYPosition } from "reactflow";
 import { ViewContext, ViewLayout } from "./context/view-context";
 import { EntityCatalogue } from "./catalogue/entity-catalogue";
+import { Position } from "./visualization/position";
 
 const ModelsComponent = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels, removeModelFromModels } =
@@ -121,7 +111,7 @@ const Page = () => {
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [hideOwlThing, setHideOwlThing] = useState(false);
-    const [classPositionMap, setClassPositionMap] = useState(new Map<string, XYPosition>());
+    const [classPositionMap, setClassPositionMap] = useState(new Map<string, Position>());
     const [activeViewId, setActiveViewId] = useState("");
     const [viewLayouts, setViewLayouts] = useState([] as ViewLayout[]);
 

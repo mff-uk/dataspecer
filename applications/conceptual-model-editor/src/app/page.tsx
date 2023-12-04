@@ -16,6 +16,9 @@ export default function Page() {
                         <Link href={"/viz"}>Visualization</Link>
                     </li>
                     <li>
+                        <Link href={"/core-v2"}>Core-v2</Link>
+                    </li>
+                    <li>
                         <Link href={"/ds-cim"}>Where the proper Cim is used</Link>
                     </li>
                 </ul>

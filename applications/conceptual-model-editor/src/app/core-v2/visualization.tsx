@@ -31,7 +31,7 @@ import { useCreateConnectionDialog } from "./dialogs/create-connection-dialog";
 import { useViewContext } from "./context/view-context";
 
 export const Visualization = () => {
-    const { classes, relationships, generalizations } = useClassesContext();
+    const { classes, relationships, generalizations, createConnection } = useClassesContext();
     const { classesAndPositions, updateClassPosition } = useViewContext();
     const { hideOwlThing, getClassPosition, setClassPosition } = useVisualizationContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
@@ -47,7 +47,7 @@ export const Visualization = () => {
             console.log("gonna connect", connection);
             console.log("TODO: create connection between boxes with ds api");
             openCreateConnectionDialog(connection);
-            return setEdges((eds) => addEdge(connection, eds));
+            return setEdges((eds) => addEdge(connection, eds)); // todo: tady pokracuj, at se zavre formular a podle toho se zapamatuje, jeslti je hrana nebo ne
         },
         [setEdges]
     );
