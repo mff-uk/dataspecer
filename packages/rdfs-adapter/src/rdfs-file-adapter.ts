@@ -294,28 +294,33 @@ export class RdfsFileAdapter implements CimAdapter {
         // CIM IRI of the range class or IRI of the datatype
         let rangeClassIri: string | null;
         let isAttribute = false;
+        let isAssociation = true;
 
         const type = entity.property(RDF.type);
         isAttribute ||= type.some(v => v.value === OWL.DatatypeProperty);
 
         if (rangeNodes.length === 0) {
             rangeClassIri = OWL.Thing;
+            isAttribute = true;
         } else if (rangeNodes.length === 1) {
             const mappedDatatype = this.mapDatatype(rangeNodes[0]);
             if (mappedDatatype !== undefined) {
                 rangeClassIri = mappedDatatype;
                 isAttribute = true;
+                isAssociation = false;
             } else {
                 rangeClassIri = rangeNodes[0];
             }
         } else {
             // check if all range nodes are attributes
             isAttribute = true;
+            isAssociation = false;
             rangeClassIri = null;
             for (const rangeNode of rangeNodes) {
                 const datatype = this.mapDatatype(rangeNode);
                 if (datatype === undefined) {
                     isAttribute = false;
+                    isAssociation = true;
                     rangeClassIri = UNION_RANGE_PREFIX + entity.iri;
                     break;
                 }
@@ -325,14 +330,16 @@ export class RdfsFileAdapter implements CimAdapter {
 
         if (isAttribute) {
             const attribute = new PimAttribute();
-            attribute.iri = this.iriProvider.cimToPim(entity.iri);
             loadRdfsEntityToResource(entity, this.iriProvider, attribute);
+            attribute.iri = this.iriProvider.cimToPim(entity.iri) + "#attribute";
             attribute.pimOwnerClass = this.iriProvider.cimToPim(domainClassIri);
             attribute.pimDatatype = rangeClassIri;
 
             connectedClasses.push(domainClassIri);
             resources.push(attribute);
-        } else {
+        }
+        
+        if (isAssociation) {
             rangeClassIri = rangeClassIri!; // Only attribute may have null
 
             const domain = new PimAssociationEnd();
