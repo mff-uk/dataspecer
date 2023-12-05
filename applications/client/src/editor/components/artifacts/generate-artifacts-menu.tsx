@@ -31,6 +31,7 @@ import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
+import {OpenapiGenerator} from "@dataspecer/openapi";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -281,6 +282,14 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(ShexGenerator.IDENTIFIER)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: ShexGenerator.IDENTIFIER})}
                     setLive={v => (v ? add : del)(ShexGenerator.IDENTIFIER)}
+                />
+                <Divider />
+                <GeneratedArtifactItem
+                    title={"OpenAPI specification"}
+                    generator={OpenapiGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(OpenapiGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: OpenapiGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(OpenapiGenerator.IDENTIFIER)}
                 />
 
                 <MenuNote>

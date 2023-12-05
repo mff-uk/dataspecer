@@ -160,5 +160,16 @@ export function getSchemaArtifacts(
         artifacts.push(shex);
     }
 
+    const openapi = new DataSpecificationSchema();
+    openapi.iri = `${psmSchemaIri}#openapi`;
+    openapi.outputPath = `${basePath}/openapi-specification.yaml`;
+    openapi.publicUrl = `${baseUrl}/openapi-specification.yaml`;
+    openapi.generator = "https://schemas.dataspecer.com/generator/openapi";
+    openapi.psm = psmSchemaIri;
+    openapi.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["openapi"] !== false) {
+        artifacts.push(openapi);
+    }
+
     return artifacts;
 }

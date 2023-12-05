@@ -1,0 +1,3 @@
+export {
+    OpenapiGenerator,
+} from "./generator";

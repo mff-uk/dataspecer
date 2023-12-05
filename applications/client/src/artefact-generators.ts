@@ -12,6 +12,7 @@ import {CsvSchemaGenerator} from "@dataspecer/csv/csv-schema";
 import {RdfToCsvGenerator} from "@dataspecer/csv/rdf-to-csv";
 import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
+import {OpenapiGenerator} from "@dataspecer/openapi";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -33,6 +34,9 @@ export function getArtefactGenerators() {
         new PlantUmlGenerator(),
         new SparqlGenerator(),
         new ShaclGenerator(),
+        new OpenapiGenerator(),
+
+        // Generators that need backend support
         new ShexGenerator(),
 
         // Generators that need backend support
