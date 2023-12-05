@@ -20,6 +20,12 @@ export const getAdapter = (urls: string[]) => {
         return {iriProvider, cimAdapter};
     }
 
+    if (urls.length === 1 && urls[0] === "https://dataspecer.com/adapters/sgov-en") {
+        const cimAdapter = new SgovAdapter("https://er2023.dataspecer.com/sparql", httpFetch);
+        cimAdapter.setIriProvider(iriProvider);
+        return {iriProvider, cimAdapter};
+    }
+
     const cimAdapter = new RdfsFileAdapter(urls, httpFetch);
     cimAdapter.setIriProvider(iriProvider);
     return {iriProvider, cimAdapter};
