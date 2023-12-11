@@ -8,21 +8,16 @@ import { SPARQL } from "@dataspecer/sparql-query";
 import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
-import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
+import { RDF_TO_CSV } from "@dataspecer/csv/rdf-to-csv";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import {JsonExampleGenerator} from "@dataspecer/json-example";
+import { JsonExampleGenerator } from "@dataspecer/json-example";
 
 /**
  * This is the place to register your own artefacts if you need to.
  * @param baseUrl Public base URL of generated artifacts.
  * @param basePath Path to the base directory where the artifacts will be generated.
  */
-export function getSchemaArtifacts(
-    psmSchemaIri: string,
-    baseUrl: string,
-    basePath: string,
-    configuration: object
-) {
+export function getSchemaArtifacts(psmSchemaIri: string, baseUrl: string, basePath: string, configuration: object) {
     const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
 
     const artifacts: DataSpecificationArtefact[] = [];
@@ -158,6 +153,17 @@ export function getSchemaArtifacts(
     shex.configuration = configuration;
     if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
         artifacts.push(shex);
+    }
+
+    const openapi = new DataSpecificationSchema();
+    openapi.iri = `${psmSchemaIri}#openapi`;
+    openapi.outputPath = `${basePath}/openapi-specification.yaml`;
+    openapi.publicUrl = `${baseUrl}/openapi-specification.yaml`;
+    openapi.generator = "https://schemas.dataspecer.com/generator/openapi";
+    openapi.psm = psmSchemaIri;
+    openapi.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["openapi"] !== false) {
+        artifacts.push(openapi);
     }
 
     return artifacts;

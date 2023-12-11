@@ -10,6 +10,8 @@
     "@dataspecer/federated-observable-store": "*",
     "@dataspecer/federated-observable-store-react": "*",
     "@dataspecer/json": "*",
+    "@dataspecer/json-example": "*",
+    "@dataspecer/openapi": "*",
     "@dataspecer/plant-uml": "*",
     "@dataspecer/rdfs-adapter": "*",
     "@dataspecer/sgov-adapter": "*",

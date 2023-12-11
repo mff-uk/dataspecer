@@ -25,6 +25,7 @@ export const RDFS = {
   range: "http://www.w3.org/2000/01/rdf-schema#range",
   Class: "http://www.w3.org/2000/01/rdf-schema#Class",
   Literal: "http://www.w3.org/2000/01/rdf-schema#Literal",
+  Resource: "http://www.w3.org/2000/01/rdf-schema#Resource",
 };
 
 export const POJEM = {

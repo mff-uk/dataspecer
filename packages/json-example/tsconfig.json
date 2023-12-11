@@ -1,37 +1,30 @@
 {
-  "compilerOptions": {
-    /* Base options */
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "es2022",
-    //"verbatimModuleSyntax": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
+    "compilerOptions": {
+        /* Base options */
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "es2022",
+        //"verbatimModuleSyntax": true,
+        "allowJs": true,
+        "moduleDetection": "force",
 
-    /* Strictness */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
+        /* Strictness */
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
 
-    /* Transpiling */
-    "moduleResolution": "nodenext",
-    "module": "NodeNext",
-    "outDir": "./lib/",
-    "rootDir": "./src/",
-    "sourceMap": true,
-    "declaration": true,
+        /* Transpiling */
+        "moduleResolution": "nodenext",
+        "module": "NodeNext",
+        "outDir": "./lib",
+        "sourceMap": true,
+        "declaration": true,
 
-    /* In monorepo */
-    "composite": true,
-    "declarationMap": true,
+        /* In monorepo */
+        "composite": true,
+        "declarationMap": true,
 
-    /* Libraries */
-    "lib": [
-      "es2022",
-      "dom"
-    ]
-  },
-  "include": [
-    "src/**/*"
-  ]
+        /* Libraries */
+        "lib": ["es2022", "dom"]
+    },
+    "include": ["src/**/*"]
 }

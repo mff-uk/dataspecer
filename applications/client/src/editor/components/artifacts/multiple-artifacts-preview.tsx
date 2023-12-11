@@ -8,6 +8,7 @@ import {githubGist} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {coy} from "react-syntax-highlighter/dist/esm/styles/prism";
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
+import yaml from 'react-syntax-highlighter/dist/esm/languages/hljs/yaml';
 import sparql from 'react-syntax-highlighter/dist/esm/languages/prism/sparql';
 import turtle from 'react-syntax-highlighter/dist/esm/languages/prism/turtle';
 import {useAsyncMemo} from "../../hooks/use-async-memo";
@@ -17,6 +18,7 @@ SyntaxHighlighter.registerLanguage("jsonld", json);
 SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("xsd", xml);
 SyntaxHighlighter.registerLanguage("xslt", xml);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
 PrismSyntaxHighlighter.registerLanguage("sparql", sparql);
 PrismSyntaxHighlighter.registerLanguage("turtle", turtle);
 

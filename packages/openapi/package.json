@@ -1,18 +1,16 @@
 {
-  "name": "@dataspecer/json-example",
+  "name": "@dataspecer/openapi",
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
     "prebuild": "rimraf lib"
   },
-  "main": "lib/src/index.js",
-  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/json": "*",
-    "@dataspecer/shacl": "*",
-    "fs": "^0.0.1-security",
-    "json-schema-faker": "^0.5.4"
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
