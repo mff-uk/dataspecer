@@ -1,17 +1,11 @@
 import { NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    SemanticModelRelationship,
-    SemanticModelClass,
-    SemanticModelGeneralization,
-} from "@dataspecer/core-v2/semantic-model/concepts";
-import { Edge, MarkerType, Node, XYPosition } from "reactflow";
 import { getRandomNumberInRange } from "../../utils/random-gen";
 import { LanguageString } from "@dataspecer/core/core";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID, UNKNOWN_MODEL_ID } from "./constants";
 
 export const getNameOf = (namedThing: NamedThing) => {
     const key = Object.keys(namedThing.name).at(0);
-    return key ? `${namedThing.name[key]}@${key}` : "no-name";
+    return key ? { t: namedThing.name[key]!, l: key } : { t: "no-name", l: "unk" };
 };
 export const getDescriptionOf = (namedThing: NamedThing) => {
     const key = Object.keys(namedThing.description).at(0);
@@ -44,36 +38,3 @@ export const tailwindColorToHex = new Map([
 export const getRandomPosition = () => {
     return { x: getRandomNumberInRange(0, 800), y: getRandomNumberInRange(0, 1200) };
 };
-
-export const semanticModelClassToReactFlowNode = (
-    cls: SemanticModelClass,
-    position: XYPosition,
-    tailwindColor: string | undefined // FIXME: vymysli lip
-) =>
-    ({
-        id: cls.id,
-        position: position ?? { x: 69, y: 420 },
-        data: { cls, tailwindColor /*FIXME: */ },
-        type: "classCustomNode",
-    } as Node);
-
-export const semanticModelRelationshipToReactFlowEdge = (rel: SemanticModelRelationship, index: number = 6.9) =>
-    ({
-        id: rel.id,
-        source: rel.ends[0]!.concept,
-        target: rel.ends[1]!.concept,
-        markerEnd: MarkerType.Arrow,
-        type: "floating",
-        data: { label: getNameOf(rel) },
-    } as Edge);
-
-export const semanticModelGeneralizationToReactFlowEdge = (gen: SemanticModelGeneralization, index: number = 6.9) =>
-    ({
-        id: gen.id,
-        source: gen.child,
-        target: gen.parent,
-        markerEnd: MarkerType.ArrowClosed,
-        type: "straight",
-        data: { label: "generalization" },
-        style: { color: "maroon" },
-    } as Edge);

@@ -66,13 +66,6 @@ export const EntityCatalogue = () => {
                         .flat()
                         .map((cls) => [cls.cls.id, cls])
                 )
-                // [...models.keys()]
-                //     .map((modelId) =>
-                //         Object.values(models.get(modelId)!.getEntities())
-                //             .filter(isSemanticModelClass)
-                //             .map((c) => ({ cls: c, origin: modelId }))
-                //     )
-                //     .flat()
             );
             setRelationships(
                 [...models.keys()]
@@ -108,8 +101,7 @@ export const EntityCatalogue = () => {
 
     const handleOpenDetail = (cls: SemanticModelClass) => {
         console.log("in handle open detail for semantic model class", cls);
-        setEntityDetailSelected(cls);
-        openEntityDetailDialog();
+        openEntityDetailDialog(cls);
     };
 
     const handleAddConcept = () => {
@@ -121,15 +113,7 @@ export const EntityCatalogue = () => {
 
     const handleOpenModification = (cls: SemanticModelClass) => {
         console.log("in handle open modification for semantic model class", cls);
-        setEntityDetailSelected(cls);
-        openModifyEntityDialog();
-    };
-
-    const handleModifyConcept = (cls: SemanticModelClass, entity: Partial<Omit<SemanticModelClass, "type" | "id">>) => {
-        const resultSuccess = modifyClassInLocalModel(cls.id, entity); //{ cs: getRandomName(5), en: getRandomName(5) }, undefined);
-        if (!resultSuccess) {
-            alert("FIXME: something went wrong, class not added to local model");
-        }
+        openModifyEntityDialog(cls);
     };
 
     // classes from model
@@ -173,7 +157,7 @@ export const EntityCatalogue = () => {
             <div className="flex flex-row justify-between whitespace-nowrap">
                 <span onClick={props.toggleHandler}>
                     {allowedClasses.includes(cls.id) ? "✅ " : "❌ "}
-                    {getNameOf(cls)}
+                    {getNameOf(cls).t}
                 </span>
                 <div className="ml-2 flex flex-row bg-teal-300 px-1">
                     <button onClick={() => handleOpenDetail(cls)}>Detail</button>
@@ -190,7 +174,7 @@ export const EntityCatalogue = () => {
     };
     const NonExpandableRow = (props: { cls: SemanticModelClassWithOrigin }) => (
         <div className="flex flex-row justify-between whitespace-nowrap">
-            {getNameOf(props.cls.cls)}
+            {getNameOf(props.cls.cls).t}
             <button className="ml-2 bg-teal-300 px-1" onClick={() => handleOpenDetail(props.cls.cls)}>
                 Detail
             </button>
@@ -198,7 +182,7 @@ export const EntityCatalogue = () => {
     );
     const ModifiableRow = (props: { cls: SemanticModelClassWithOrigin }) => (
         <div className="flex flex-row justify-between whitespace-nowrap">
-            {getNameOf(props.cls.cls)}
+            {getNameOf(props.cls.cls).t}
             <div className="bg-teal-300 px-1">
                 <button className="ml-0.5" onClick={() => handleOpenModification(props.cls.cls)}>
                     Modify
@@ -234,15 +218,8 @@ export const EntityCatalogue = () => {
 
                 <ul>{[...models.keys()].map((modelId) => getClassesFromModel(modelId))}</ul>
             </div>
-            {isEntityDetailDialogOpen && <EntityDetailDialog cls={entityDetailSelected} />}
-            {isModifyEntityDialogOpen && (
-                <ModifyEntityDialog
-                    cls={entityDetailSelected}
-                    save={(entity: Partial<Omit<SemanticModelClass, "type" | "id">>) =>
-                        handleModifyConcept(entityDetailSelected, entity)
-                    }
-                />
-            )}
+            {isEntityDetailDialogOpen && <EntityDetailDialog />}
+            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
         </>
     );
 };

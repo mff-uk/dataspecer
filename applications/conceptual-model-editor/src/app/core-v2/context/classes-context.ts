@@ -2,9 +2,8 @@ import {
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
     createGeneralization,
     createRelationship,
@@ -12,7 +11,9 @@ import {
     modifyRelation,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
-import { ConnectionType } from "../util/connection";
+import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/connection";
+import { useModelGraphContext } from "./graph-context";
+import { LOCAL_MODEL_ID } from "../util/constants";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -43,26 +44,27 @@ export const useClassesContext = () => {
         generalizations,
         setGeneralizations,
     } = useContext(ClassesContext);
+    const { models } = useModelGraphContext();
 
-    const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
-        if (connection.connectionType == "association") {
-            const result = model.executeOperation(createRelationship({ ends: connection.ends }));
-            return result.success;
-        } else {
-            const result = model.executeOperation(
-                createGeneralization({ child: connection.childEntityId, parent: connection.parentEntityId })
-            );
-            return result.success;
+    const createConnection = (connection: ConnectionType) => {
+        const model = models.get(LOCAL_MODEL_ID);
+        if (!model || !(model instanceof InMemorySemanticModel)) {
+            alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
+            return;
         }
-    };
-
-    const modifyConnection = (model: InMemorySemanticModel, relationId: string, connection: ConnectionType) => {
-        if (connection.connectionType == "association") {
-            return model.executeOperation(modifyRelation(relationId, { ends: connection.ends })).success;
+        if (connection.type == "association") {
+            const conn = connection as AssociationConnectionType;
+            const result = model.executeOperation(createRelationship({ ...conn }));
+            console.log("create association operation done: ", model);
+            return result.success;
+        } else if (connection.type == "generalization") {
+            const conn = connection as GeneralizationConnectionType;
+            const result = model.executeOperation(createGeneralization({ ...conn }));
+            console.log("create generalization operation done: ", model);
+            return result.success;
         } else {
-            return model.executeOperation(
-                modifyGeneralization(relationId, { child: connection.childEntityId, parent: connection.parentEntityId })
-            ).success;
+            alert(`classes-context: create-connection: unknown type ${connection}`);
+            return false;
         }
     };
 

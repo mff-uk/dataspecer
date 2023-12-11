@@ -2,28 +2,22 @@ import ReactFlow, {
     Background,
     Connection,
     Controls,
-    Edge,
     EdgeChange,
     MiniMap,
     Node,
     NodeChange,
-    addEdge,
     useEdgesState,
     useNodesState,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useState } from "react";
-import { ClassCustomNode } from "./reactflow/class-custom-node";
-import SimpleFloatingEdge from "./reactflow/simple-floating-edge";
-import { useClassesContext } from "./context/classes-context";
+import { useMemo, useCallback, useEffect } from "react";
+import { ClassCustomNode, semanticModelClassToReactFlowNode } from "./reactflow/class-custom-node";
 import {
-    isOwlThing,
-    getRandomPosition,
-    semanticModelClassToReactFlowNode,
+    SimpleFloatingEdge,
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
-    colorForModel,
-    tailwindColorToHex,
-} from "./util/utils";
+} from "./reactflow/simple-floating-edge";
+import { useClassesContext } from "./context/classes-context";
+import { isOwlThing, colorForModel, tailwindColorToHex } from "./util/utils";
 
 import "reactflow/dist/style.css";
 import { useVisualizationContext } from "./context/visualization-context";
@@ -44,10 +38,8 @@ export const Visualization = () => {
 
     const onConnect = useCallback(
         (connection: Connection) => {
-            console.log("gonna connect", connection);
-            console.log("TODO: create connection between boxes with ds api");
             openCreateConnectionDialog(connection);
-            return setEdges((eds) => addEdge(connection, eds)); // todo: tady pokracuj, at se zavre formular a podle toho se zapamatuje, jeslti je hrana nebo ne
+            // TODO: tady by se tohle vubec nemelo volat to `setEdges`, to by se melo prebrat z modelu
         },
         [setEdges]
     );
@@ -66,31 +58,18 @@ export const Visualization = () => {
             .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
         console.log(classesAsNodes);
         setNodes(classesAsNodes);
-        //     ...classes
-        //         .filter((cls) => !hideOwlThing || !isOwlThing(cls.cls.id)) // FIXME: do this properly
-        //         .map((cls, i) =>
-        //             semanticModelClassToReactFlowNode(
-        //                 cls.cls,
-        //                 getClassPosition(cls.cls.id),
-        //                 colorForModel.get(cls.origin)
-        //             )
-        //         ),
-        // ]);
-        // setEdges([
-        //     ...relationships
-        //         .filter((rel) => {
-        //             if (rel.ends.length !== 2) console.log(rel);
-        //             return rel.ends.length === 2;
-        //         }) // FIXME: what to do with edges that don't have 2 ends
-        //         .map((rel, i) => semanticModelRelationshipToReactFlowEdge(rel, i)),
-        //     ...generalizations
-        //         .filter((gen) => !hideOwlThing || !isOwlThing(gen.parent)) // FIXME: do this properly
-        //         .map((gen, i) => semanticModelGeneralizationToReactFlowEdge(gen, i)),
-        // ]);
-    }, [
-        classesAndPositions,
-        /* classes, relationships, hideOwlThing */
-    ]);
+        setEdges([
+            ...relationships
+                .filter((rel) => {
+                    if (rel.ends.length !== 2) console.log(rel);
+                    return rel.ends.length === 2;
+                }) // FIXME: what to do with edges that don't have 2 ends
+                .map((rel, i) => semanticModelRelationshipToReactFlowEdge(rel, i)),
+            ...generalizations
+                .filter((gen) => !hideOwlThing || !isOwlThing(gen.parent)) // FIXME: do this properly
+                .map((gen, i) => semanticModelGeneralizationToReactFlowEdge(gen, i, undefined)),
+        ]);
+    }, [classesAndPositions, relationships]);
 
     const handleNodeChanges = (changes: NodeChange[]) => {
         for (const change of changes) {
