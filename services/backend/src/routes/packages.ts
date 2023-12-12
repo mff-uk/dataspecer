@@ -1,6 +1,6 @@
-import { asyncHandler } from "../utils/async-handler";
+import {asyncHandler} from "../utils/async-handler";
 import express from "express";
-import { convertStores, packageModel, storeModel } from "../main";
+import {convertStores, packageModel, storeModel} from "../main";
 
 export const getPackage = asyncHandler(async (request: express.Request, response: express.Response) => {
     const packageId = request.query.packageId;
