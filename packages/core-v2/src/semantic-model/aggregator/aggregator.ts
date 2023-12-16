@@ -11,11 +11,18 @@ import { VisualEntityModel, VisualEntityModelImpl } from "../../visual-model/vis
 interface AggregatedEntityWrapper {
     id: string;
     aggregatedEntity: Entity | null;
+    visualEntity: VisualEntity | null;
+}
+
+interface AggregatedVisualEntityWrapper {
+    id: string;
+    aggregatedEntity: VisualEntity | null;
 }
 
 type SupportedModels = EntityModel;
 
 type AggregatedModelSubscriber = (updated: AggregatedEntityWrapper[], removed: string[]) => void;
+type AggregatedVisualModelSubscriber = (updated: AggregatedVisualEntityWrapper[], removed: string[]) => void;
 
 /**
  * Aggregates multiple models (the model graph] describing the semantics (concepts and their relations) into one.
@@ -34,20 +41,23 @@ interface SemanticModelAggregator {
      */
     deleteModel(model: SupportedModels): void;
 
-    addVisualModel(model: VisualEntityModel): void;
-
     /**
      * Returns the specific view.
      * @todo option to choose the view
      */
     getView(): SemanticModelAggregatorView;
+
+    addVisualModel(model: VisualEntityModel): void;
 }
 
 class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     models: Map<SupportedModels, () => void> = new Map();
     baseModelEntities: AggregatedEntityWrapper[] = [];
     baseModelSubscribers = new Set<AggregatedModelSubscriber>();
-    visualModels: VisualEntityModel[] = [];
+
+    visualModels: VisualEntityModel[] = []; // Map<VisualEntityModel, () => void> = new Map();
+    // baseModelVisualEntities: AggregatedVisualEntityWrapper[] = [];
+    baseModelVisualSubscribers = new Set<AggregatedVisualModelSubscriber>();
     activeVisualModel: VisualEntityModel | null = null;
 
     addModel(model: SupportedModels) {
@@ -64,7 +74,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             const wrappedEntities = entities.map((aggregatedEntity) => ({
                 id: aggregatedEntity.id,
                 aggregatedEntity,
-                // visualEntity: this.visualModel?.getEntity(aggregatedEntity.id),
+                visualEntity: null,
             }));
 
             // Suppose there is a model that joins them all. Then we need to inform it
@@ -86,11 +96,6 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         // TODO: shouldn't `unsubscribe()` be called?
     }
 
-    addVisualModel(model: VisualEntityModel) {
-        this.visualModels = this.visualModels.concat(model);
-        this.activeVisualModel = model;
-    }
-
     /**
      * Temporary function that notifies base model about changes. We suppose that every model is a dependency of the base model.
      */
@@ -109,11 +114,28 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         return new SemanticModelAggregatorView(this);
     }
 
-    setActiveVisualModel(toModel: string) {
-        const model = this.visualModels.find((model) => model.getId() == toModel);
-        if (!model) {
-            throw new Error(`No such VisualModel with id: '${toModel}'`);
+    addVisualModel(model: VisualEntityModel) {
+        if (this.visualModels.find((m) => model.getId() == m.getId())) {
+            throw new Error("Model already added.");
         }
+
+        this.visualModels = this.visualModels.concat(model);
+        this.activeVisualModel = model;
+    }
+
+    setActiveVisualModel(toModel: string | VisualEntityModel) {
+        let model: VisualEntityModel;
+
+        if (typeof toModel == "string") {
+            const tempModel = this.visualModels.find((model) => model.getId() == toModel);
+            if (!tempModel) {
+                throw new Error(`No such VisualModel with id: '${toModel}'`);
+            }
+            model = tempModel;
+        } else {
+            model = toModel;
+        }
+
         this.activeVisualModel = model;
     }
 }
@@ -144,7 +166,18 @@ export class SemanticModelAggregatorView {
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
         // todo temporary
-        return Object.fromEntries(this.aggregator.baseModelEntities.map((e) => [e.id, e]));
+        const visualEntities = this.aggregator.activeVisualModel?.getVisualEntitiesM();
+
+        return Object.fromEntries(
+            this.aggregator.baseModelEntities.map((e) => [
+                e.id,
+                {
+                    id: e.id,
+                    aggregatedEntity: e.aggregatedEntity,
+                    visualEntity: this.aggregator.activeVisualModel?.getVisualEntitiesM().get(e.id) ?? null, //visualEntities?.find((visualEntity) => visualEntity.sourceEntityId == e.id) ?? null,
+                } as AggregatedEntityWrapper,
+            ])
+        );
     }
 
     /**
@@ -161,12 +194,24 @@ export class SemanticModelAggregatorView {
         return () => this.aggregator.baseModelSubscribers.delete(callback);
     }
 
-    getVisualEntities(): Record<string, VisualEntity> {
-        return { ...this.aggregator.activeVisualModel?.getEntities() };
-    }
+    // getVisualEntities(): Record<string, VisualEntity> {
+    //     return { ...this.aggregator.activeVisualModel?.getVisualEntities() };
+    // }
 
     changeView(toModel: SupportedModels) {
         throw new Error("Not implemented yet.");
+    }
+
+    getActiveViewId() {
+        return this.aggregator.activeVisualModel?.getId();
+    }
+
+    getActiveVisualModel() {
+        return this.aggregator.activeVisualModel;
+    }
+
+    getAvailableViews(): string[] {
+        return this.aggregator.visualModels.map((model) => model.getId());
     }
 
     changeVisualView(toModel: string) {

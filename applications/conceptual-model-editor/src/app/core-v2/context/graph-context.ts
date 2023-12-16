@@ -10,6 +10,7 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { PimStoreWrapper } from "node_modules/@dataspecer/core-v2/lib/src/semantic-model/v1-adapters/pim-store-wrapper";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "../util/constants";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 const bob = new SemanticModelAggregator();
 
@@ -19,6 +20,8 @@ export type ModelGraphContextType = {
     setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
     models: Map<string, EntityModel>;
     setModels: React.Dispatch<React.SetStateAction<Map<string, EntityModel>>>;
+    visualModels: Map<string, VisualEntityModel>;
+    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, VisualEntityModel>>>;
 };
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
@@ -34,7 +37,7 @@ const getIdOfEntityModel = (model: EntityModel) => {
 };
 
 export const useModelGraphContext = () => {
-    const { aggregator, aggregatorView, setAggregatorView, models, setModels /*activeModel, setActiveModel*/ } =
+    const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
         useContext(ModelGraphContext);
 
     const addModelToGraph = (...models: EntityModel[]) => {
@@ -101,5 +104,7 @@ export const useModelGraphContext = () => {
         modifyClassInLocalModel,
         cleanModels,
         removeModelFromModels,
+        visualModels,
+        setVisualModels,
     };
 };

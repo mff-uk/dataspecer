@@ -19,6 +19,7 @@ import { usePackageSearch } from "./util/package-search";
 import { ViewContext, ViewLayout } from "./context/view-context";
 import { EntityCatalogue } from "./catalogue/entity-catalogue";
 import { Position } from "./visualization/position";
+import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 const ModelsComponent = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels, removeModelFromModels } =
@@ -114,6 +115,7 @@ const Page = () => {
     const [classPositionMap, setClassPositionMap] = useState(new Map<string, Position>());
     const [activeViewId, setActiveViewId] = useState("");
     const [viewLayouts, setViewLayouts] = useState([] as ViewLayout[]);
+    const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
 
     return (
         <>
@@ -124,6 +126,8 @@ const Page = () => {
                     setAggregatorView,
                     models,
                     setModels,
+                    visualModels,
+                    setVisualModels,
                 }}
             >
                 <ClassesContext.Provider

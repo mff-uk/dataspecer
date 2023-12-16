@@ -59,13 +59,22 @@ export const ClassCustomNode = (props: {
     );
 };
 
+/**
+ *
+ * @param id VisualEntityId
+ * @param cls
+ * @param position
+ * @param tailwindColor
+ * @returns
+ */
 export const semanticModelClassToReactFlowNode = (
+    id: string,
     cls: SemanticModelClass,
     position: XYPosition,
     tailwindColor: string | undefined // FIXME: vymysli lip
 ) =>
     ({
-        id: cls.id,
+        id: id,
         position: position ?? { x: 69, y: 420 },
         data: { cls, tailwindColor /*FIXME: */ },
         type: "classCustomNode",

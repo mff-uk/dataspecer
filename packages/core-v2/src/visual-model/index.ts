@@ -1,4 +1,4 @@
 import { VisualEntity } from "./visual-entity";
-import { VisualEntityModel } from "./visual-model";
+import { VisualEntityModel, VisualEntityModelImpl } from "./visual-model";
 
-export { VisualEntity, VisualEntityModel };
+export { VisualEntity, VisualEntityModel, VisualEntityModelImpl };
