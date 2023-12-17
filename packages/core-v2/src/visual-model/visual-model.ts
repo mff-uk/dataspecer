@@ -3,9 +3,7 @@ import { type VisualEntities, VisualEntity } from "./visual-entity";
 export interface VisualEntityModel {
     getId(): string;
     getVisualEntity(entityId: string): VisualEntity | undefined;
-    getVisualEntityM(entityId: string): VisualEntity | undefined;
-    getVisualEntities(): Record<string, VisualEntity>;
-    getVisualEntitiesM(): Map<string, VisualEntity>;
+    getVisualEntities(): Map<string, VisualEntity>;
     addEntity(entity: Partial<Omit<VisualEntity, "id" | "type">>): void;
     updateEntity(visualEntityId: string, entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>): void;
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
@@ -13,8 +11,8 @@ export interface VisualEntityModel {
 
 export class VisualEntityModelImpl implements VisualEntityModel {
     public id: string = createId();
-    /** @internal */
-    public entities: Record<string, VisualEntity> = {}; //new Map();
+    // /** @internal */
+    // public entities: Record<string, VisualEntity> = {}; //new Map();
     /** @internal [sourceEntityId, VisualEntity] */
     public entitiesMap: Map<string, VisualEntity> = new Map();
     /** @internal */
@@ -25,23 +23,15 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     }
 
     getVisualEntity(entityId: string): VisualEntity | undefined {
-        return this.entities[entityId]; //  this.entities.get(entityId);
-    }
-
-    getVisualEntityM(entityId: string): VisualEntity | undefined {
         return this.entitiesMap.get(entityId);
     }
 
-    getVisualEntities(): Record<string, VisualEntity> {
-        return { ...this.entities }; //Object.fromEntries(this.entities);
-    }
-
-    getVisualEntitiesM() {
+    getVisualEntities(): Map<string, VisualEntity> {
         return this.entitiesMap;
     }
 
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void {
-        console.log("visual-model: subscribe-to-changes: pushing a callback", callback);
+        // console.log("visual-model: subscribe-to-changes: pushing a callback", callback);
         this.listeners.push(callback);
 
         return () => {
@@ -67,16 +57,19 @@ export class VisualEntityModelImpl implements VisualEntityModel {
         );
     }
 
-    updateEntity(visualEntityId: string, entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>) {
-        const currentVisualEntity = this.getVisualEntityM(visualEntityId);
-        if (!currentVisualEntity) {
+    updateEntity(
+        visualEntityId: string,
+        updatedVisualEntity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>
+    ) {
+        const visualEntity = this.getVisualEntity(visualEntityId);
+        if (!visualEntity) {
             return;
         }
         this.change(
             {
                 [visualEntityId]: {
-                    ...currentVisualEntity,
-                    ...entity,
+                    ...visualEntity,
+                    ...updatedVisualEntity,
                 },
             },
             []
@@ -92,18 +85,18 @@ export class VisualEntityModelImpl implements VisualEntityModel {
         // Filter removed entities from updated
         removed = removed.filter((id) => updated[id] === undefined);
 
-        console.log("visual-model: change: updated", updated);
+        // console.log("visual-model: change: updated", updated);
 
-        this.entities = { ...this.entities, ...updated };
+        // this.entities = { ...this.entities, ...updated };
         for (const [_, value] of Object.entries(updated)) {
             this.entitiesMap.set(value.sourceEntityId, value);
         }
         for (const removedId of removed) {
-            delete this.entities[removedId];
+            // delete this.entities[removedId];
             this.entitiesMap.delete(removedId);
         }
         for (const listener of this.listeners) {
-            console.log("visual-model: change: listener to be called", listener, updated, removed);
+            // console.log("visual-model: change: listener to be called", listener, updated, removed);
             listener(updated, removed);
         }
     }

@@ -2,6 +2,7 @@ import ReactFlow, {
     Background,
     Connection,
     Controls,
+    Edge,
     EdgeChange,
     MiniMap,
     Node,
@@ -25,8 +26,16 @@ import { useCreateConnectionDialog } from "./dialogs/create-connection-dialog";
 import { useViewContext } from "./context/view-context";
 import { useModelGraphContext } from "./context/graph-context";
 import { UNKNOWN_MODEL_ID } from "./util/constants";
-import { SemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClass,
+    SemanticModelGeneralization,
+    SemanticModelRelationship,
+    isSemanticModelClass,
+    isSemanticModelGeneralization,
+    isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { Entity } from "@dataspecer/core-v2/entity-model";
+import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const Visualization = () => {
     const { /* classes, */ relationships, generalizations, createConnection } = useClassesContext();
@@ -50,11 +59,24 @@ export const Visualization = () => {
         [setEdges]
     );
 
+    const relationshipOrGeneralizationToEdgeType = (entity: Entity | null): Edge | undefined => {
+        if (isSemanticModelRelationship(entity)) {
+            return semanticModelRelationshipToReactFlowEdge(entity as SemanticModelRelationship) as Edge;
+        } else if (isSemanticModelGeneralization(entity)) {
+            return semanticModelGeneralizationToReactFlowEdge(
+                entity as SemanticModelGeneralization,
+                undefined,
+                undefined
+            ) as Edge;
+        }
+        return;
+    };
+
     useEffect(() => {
         console.log("running subscription effect");
         const callback = () => {
-            console.log("a change subscriber defined in visualization:");
-            console.log(aggregatorView.getEntities());
+            // console.log("a change subscriber defined in visualization:");
+            // console.log(aggregatorView.getEntities());
 
             const entities = aggregatorView.getEntities();
 
@@ -64,61 +86,78 @@ export const Visualization = () => {
                     const { id, aggregatedEntity, visualEntity } = entities[entityId]!;
                     const cls = aggregatedEntity as SemanticModelClass;
                     const pos = visualEntity?.position;
-                    console.log(
-                        "a change subscriber defined in visualization: tranfsorming nodes",
-                        entities,
-                        cls,
-                        pos,
-                        visualEntity
-                    );
+                    // console.log(
+                    //     "a change subscriber defined in visualization: tranfsorming nodes",
+                    //     entities,
+                    //     cls,
+                    //     pos,
+                    //     visualEntity
+                    // );
                     if (!cls || !pos) return;
                     return semanticModelClassToReactFlowNode(id, cls, pos, colorForModel.get(UNKNOWN_MODEL_ID));
                 })
                 .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
             console.log("a change subscriber defined in visualization: setting nodes to new ones", classesAsNodes);
+            const edgesFromEntities = [...Object.keys(entities)]
+                .filter(
+                    (entityId) =>
+                        isSemanticModelRelationship(entities[entityId]?.aggregatedEntity ?? null) ||
+                        isSemanticModelGeneralization(entities[entityId]?.aggregatedEntity ?? null)
+                )
+                .map((entityId) => {
+                    const { id, aggregatedEntity, visualEntity } = entities[entityId]!;
+                    return relationshipOrGeneralizationToEdgeType(aggregatedEntity);
+                })
+                .filter((edgeOrUndefined: Edge | undefined): edgeOrUndefined is Edge => !!edgeOrUndefined);
+            console.log(
+                "a change subscriber defined in visualization: setting nodes and edges to new ones",
+                classesAsNodes,
+                edgesFromEntities
+            );
             setNodes(classesAsNodes);
+            setEdges(edgesFromEntities);
         };
         const callToUnsubscribe = aggregatorView.getActiveVisualModel()?.subscribeToChanges(callback);
 
         callback();
         return callToUnsubscribe;
-    }, [aggregatorView]);
+    }, [aggregatorView /* changed when new view is used */]);
 
-    useEffect(() => {
-        console.log("visualization: rerunning effect in visualization.tsx");
-        if (!classesAndPositions) return;
-        console.log("visualization: after return statement");
-        // const classesAsNodes = [...classesAndPositions.keys()]
-        //     .map((classId) => {
-        //         const cls = classes.get(classId);
-        //         const pos = classesAndPositions.get(classId);
-        //         if (!cls || !pos) return;
-        //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
-        //     })
-        //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
-        // const visualEntities = aggregatorView.getVisualEntities();
-        // const classesAsNodes = [...Object.keys(visualEntities)]
-        //     .map((visualEntityId) => {
-        //         const cls = classes.get(visualEntities[visualEntityId]!.sourceEntityId);
-        //         const pos = visualEntities[visualEntityId]?.position;
-        //         if (!cls || !pos) return;
-        //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
-        //     })
-        //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
-        // console.log(classesAsNodes);
-        // setNodes(classesAsNodes);
-        // setEdges([
-        //     ...relationships
-        //         .filter((rel) => {
-        //             if (rel.ends.length !== 2) console.log(rel);
-        //             return rel.ends.length === 2;
-        //         }) // FIXME: what to do with edges that don't have 2 ends
-        //         .map((rel, i) => semanticModelRelationshipToReactFlowEdge(rel, i)),
-        //     ...generalizations
-        //         .filter((gen) => !hideOwlThing || !isOwlThing(gen.parent)) // FIXME: do this properly
-        //         .map((gen, i) => semanticModelGeneralizationToReactFlowEdge(gen, i, undefined)),
-        // ]);
-    }, [classesAndPositions, relationships]);
+    // useEffect(() => {
+    //     // console.log("visualization: rerunning effect in visualization.tsx");
+    //     // if (!classesAndPositions) return;
+    //     // console.log("visualization: after return statement");
+    //     // const classesAsNodes = [...classesAndPositions.keys()]
+    //     //     .map((classId) => {
+    //     //         const cls = classes.get(classId);
+    //     //         const pos = classesAndPositions.get(classId);
+    //     //         if (!cls || !pos) return;
+    //     //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
+    //     //     })
+    //     //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
+    //     // const visualEntities = aggregatorView.getVisualEntities();
+    //     // const classesAsNodes = [...Object.keys(visualEntities)]
+    //     //     .map((visualEntityId) => {
+    //     //         const cls = classes.get(visualEntities[visualEntityId]!.sourceEntityId);
+    //     //         const pos = visualEntities[visualEntityId]?.position;
+    //     //         if (!cls || !pos) return;
+    //     //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
+    //     //     })
+    //     //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
+    //     // console.log(classesAsNodes);
+    //     // setNodes(classesAsNodes);
+    //     // setEdges([
+    //     //     ...relationships
+    //     //         .filter((rel) => {
+    //     //             if (rel.ends.length !== 2) console.log(rel);
+    //     //             return rel.ends.length === 2;
+    //     //         }) // FIXME: what to do with edges that don't have 2 ends
+    //     //         .map((rel, i) => semanticModelRelationshipToReactFlowEdge(rel, i)),
+    //     //     ...generalizations
+    //     //         .filter((gen) => !hideOwlThing || !isOwlThing(gen.parent)) // FIXME: do this properly
+    //     //         .map((gen, i) => semanticModelGeneralizationToReactFlowEdge(gen, i, undefined)),
+    //     // ]);
+    // }, [classesAndPositions, relationships]);
 
     const handleNodeChanges = (changes: NodeChange[]) => {
         for (const change of changes) {

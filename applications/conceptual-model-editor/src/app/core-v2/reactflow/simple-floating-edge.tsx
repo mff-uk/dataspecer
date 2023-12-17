@@ -13,6 +13,15 @@ import { getEdgeParams } from "./utils";
 import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getNameOf } from "../util/utils";
 
+// this is a little helper component to render the actual edge label
+const CardinalityEdgeLabel = ({ transform, label }: { transform: string; label: string }) => {
+    return (
+        <div className="nodrag nopan absolute bg-teal-800 p-1" style={{ transform }} className="nodrag nopan">
+            {label}
+        </div>
+    );
+};
+
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
     const sourceNode = useStore(useCallback((store) => store.nodeInternals.get(source), [source]));
     const targetNode = useStore(useCallback((store) => store.nodeInternals.get(target), [target]));
@@ -24,7 +33,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const { sx, sy, tx, ty, sourcePos, targetPos } = getEdgeParams(sourceNode, targetNode);
 
     const [edgePath, labelX, labelY] =
-        data.type == "a"
+        data.type == "r"
             ? getSimpleBezierPath({
                   sourceX: sx,
                   sourceY: sy,
@@ -36,8 +45,6 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
             : getStraightPath({
                   sourceX: sx,
                   sourceY: sy,
-                  // sourcePosition: sourcePos,
-                  // targetPosition: targetPos,
                   targetX: tx,
                   targetY: ty,
               });
@@ -54,13 +61,22 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
             />
             <EdgeLabelRenderer>
                 <div
-                    className="nodrag nopan absolute bg-teal-500  p-2"
+                    className="nodrag nopan absolute bg-teal-500 p-2"
                     style={{
                         transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                     }}
                 >
                     {data.label}
                 </div>
+                {data.cardinalitySource && (
+                    <CardinalityEdgeLabel
+                        transform={`translate(-50%,-10%) translate(${sx}px,${sy}px)`}
+                        label={data.cardinalitySource}
+                    />
+                )}
+                {data.cardinalityTarget && (
+                    <CardinalityEdgeLabel transform={` translate(${tx}px,${ty}px)`} label={data.cardinalityTarget} />
+                )}
             </EdgeLabelRenderer>
         </>
     );
@@ -73,7 +89,12 @@ export const semanticModelRelationshipToReactFlowEdge = (rel: SemanticModelRelat
         target: rel.ends[1]!.concept,
         markerEnd: { type: MarkerType.Arrow },
         type: "floating",
-        data: { label: getNameOf(rel).t, type: "a" },
+        data: {
+            label: getNameOf(rel).t,
+            type: "r",
+            cardinalitySource: rel.ends[0]?.cardinality?.toString(),
+            cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
+        },
         style: { strokeWidth: 2 },
     } as Edge);
 
