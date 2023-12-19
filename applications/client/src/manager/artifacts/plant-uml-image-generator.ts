@@ -16,14 +16,14 @@ export class PlantUmlImageGenerator implements ArtefactGenerator {
     return PlantUmlImageGenerator.IDENTIFIER;
   }
 
-  generateForDocumentation(
+  async generateForDocumentation(
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification,
     documentationIdentifier: string,
     callerContext: unknown,
   ): Promise<unknown | null> {
-    throw new Error("Method not implemented.");
+    return null;
   }
 
   generateToObject(

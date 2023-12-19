@@ -25,8 +25,8 @@ export class PlantUmlGenerator implements ArtefactGenerator {
     return PlantUmlGenerator.IDENTIFIER;
   }
 
-  generateForDocumentation(): Promise<unknown | null> {
-    throw new Error("Method not implemented.");
+  async generateForDocumentation(): Promise<unknown | null> {
+    return null
   }
 
   async generateToObject(

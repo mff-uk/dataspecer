@@ -1,0 +1,22 @@
+{
+  "name": "@dataspecer/template-artifact",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf lib"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./configuration": "./lib/configuration.js"
+  },
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "mustache": "^4.2.0"
+    
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.2.5",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}

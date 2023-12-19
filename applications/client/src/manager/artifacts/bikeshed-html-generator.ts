@@ -3,6 +3,14 @@ import {Bikeshed, BIKESHED, writeBikeshed} from "@dataspecer/bikeshed";
 import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {MemoryOutputStream} from "@dataspecer/core/io/stream/memory-output-stream";
+import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
+
+export interface ExtendsArtefact {
+    /**
+     * IRI of the generator that is extended by this artefact.
+     */
+    extends?: string;
+}
 
 /**
  * This artefact generator generates a bikeshed documentation in HTML using
@@ -16,8 +24,8 @@ export class BikeshedHtmlGenerator implements ArtefactGenerator {
         return BikeshedHtmlGenerator.IDENTIFIER;
     }
 
-    generateForDocumentation(): never {
-        throw new Error("Method not implemented.");
+    generateForDocumentation(): null {
+        return null;
     }
 
     generateToObject(): never {
@@ -26,22 +34,24 @@ export class BikeshedHtmlGenerator implements ArtefactGenerator {
 
     async generateToStream(
       context: ArtefactGeneratorContext,
-      artefact: DataSpecificationArtefact,
+      artefact: DataSpecificationArtefact & ExtendsArtefact,
       specification: DataSpecification,
       output: StreamDictionary,
     ): Promise<void> {
-        const bikeshedGenerator = await context.createGenerator(BIKESHED.Generator);
+        const bikeshedGenerator = await context.createGenerator(artefact.extends ?? BIKESHED.Generator);
         if (!bikeshedGenerator) {
             throw new Error("Bikeshed generator not found.");
         }
-        const bikeshed = await bikeshedGenerator.generateToObject(
-          context, artefact, specification
-        ) as Bikeshed;
+        const stream = new MemoryStreamDictionary();
+        await bikeshedGenerator.generateToStream(
+          context, artefact, specification, stream
+        );
 
-        const data = new MemoryOutputStream();
-        await writeBikeshed(bikeshed, data);
+        const bikeshed = await stream.readPath((await stream.list())[0]).read();
 
-        const html = await this.generateFromSource(data.getContent());
+        console.log(bikeshed);
+
+        const html = await this.generateFromSource(bikeshed);
 
         if (html) {
             const stream = output.writePath(artefact.outputPath as string);

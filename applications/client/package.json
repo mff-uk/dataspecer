@@ -17,6 +17,7 @@
     "@dataspecer/sgov-adapter": "*",
     "@dataspecer/shacl": "*",
     "@dataspecer/sparql-query": "*",
+    "@dataspecer/template-artifact": "*",
     "@dataspecer/wikidata-experimental-adapter": "*",
     "@dataspecer/xml": "*",
     "@emotion/css": "^11.10.6",

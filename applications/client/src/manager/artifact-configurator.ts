@@ -2,7 +2,7 @@ import {DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecifica
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {PlantUmlImageGenerator} from "./artifacts/plant-uml-image-generator";
 import {BIKESHED} from "@dataspecer/bikeshed";
-import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
+import {BikeshedHtmlGenerator, ExtendsArtefact} from "./artifacts/bikeshed-html-generator";
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
@@ -75,6 +75,30 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     bikeshedHtml.artefacts = currentSchemaArtefacts;
     bikeshedHtml.configuration = configuration;
     if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
+      artifacts.push(bikeshedHtml);
+    }
+
+    // todo new bikeshed by mustache-template - default off
+    if (dataSpecificationConfiguration.useGenerators?.["bikeshed-from-template"] === true) {
+      // Bikeshed source
+      const bikeshed = new DataSpecificationDocumentation();
+      bikeshed.iri = `${dataSpecificationIri}#bikeshednew`;
+      bikeshed.outputPath = `${dataSpecificationName}/documentation.new.bs`;
+      bikeshed.publicUrl = `${this.baseURL}/documentation.new.bs`;
+      bikeshed.generator = "https://schemas.dataspecer.com/generator/template-artifact";
+      bikeshed.artefacts = currentSchemaArtefacts;
+      bikeshed.configuration = configuration;
+      artifacts.push(bikeshed);
+
+      // Bikeshed HTML
+      const bikeshedHtml: DataSpecificationDocumentation & ExtendsArtefact = new DataSpecificationDocumentation();
+      bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtmlnew`;
+      bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.new.html`;
+      bikeshedHtml.publicUrl = `${this.baseURL}/documentation.new.html`;
+      bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
+      bikeshedHtml.artefacts = currentSchemaArtefacts;
+      bikeshedHtml.configuration = configuration;
+      bikeshedHtml.extends = "https://schemas.dataspecer.com/generator/template-artifact";
       artifacts.push(bikeshedHtml);
     }
 
