@@ -7,16 +7,19 @@ export interface VisualEntityModel {
     addEntity(entity: Partial<Omit<VisualEntity, "id" | "type">>): void;
     updateEntity(visualEntityId: string, entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>): void;
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
+    deserializeModel(data: object): VisualEntityModel;
 }
 
 export class VisualEntityModelImpl implements VisualEntityModel {
-    public id: string = createId();
-    // /** @internal */
-    // public entities: Record<string, VisualEntity> = {}; //new Map();
+    public id: string;
     /** @internal [sourceEntityId, VisualEntity] */
     public entitiesMap: Map<string, VisualEntity> = new Map();
     /** @internal */
     public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
+
+    constructor(modelId: string | undefined) {
+        this.id = modelId ?? createId();
+    }
 
     getId(): string {
         return this.id;
@@ -99,6 +102,24 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             // console.log("visual-model: change: listener to be called", listener, updated, removed);
             listener(updated, removed);
         }
+    }
+
+    serializeModel() {
+        return {
+            // TODO: fix
+            type: "https://dataspecer.com/core/model-descriptor/visual-model",
+            modelId: this.getId(),
+            visualEntities: Object.fromEntries(this.entitiesMap.entries()),
+        };
+    }
+
+    deserializeModel(data: object) {
+        const modelDescriptor = data as any;
+        const entities = modelDescriptor.visualEntities as Record<string, VisualEntity>;
+        for (const [sourceEntityId, visualEntity] of Object.entries(entities)) {
+            this.entitiesMap.set(sourceEntityId, visualEntity);
+        }
+        return this;
     }
 }
 

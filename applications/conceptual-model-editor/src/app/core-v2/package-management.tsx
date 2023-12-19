@@ -10,9 +10,7 @@ export const PackageManagement = () => {
     const { packageId, setPackage } = usePackageSearch();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [packages, setPackages] = useState([] as Package[]); // fixme: shouldn't be a state, should it?
-    const { models } = useModelGraphContext();
-
-    // const packages = useMemo(() => listPackages(), []);
+    const { models, visualModels } = useModelGraphContext();
 
     const handlePackageSelected = (pckgId: string) => {
         console.log("package-management: selected a new package:", pckgId);
@@ -45,13 +43,17 @@ export const PackageManagement = () => {
                     </button>
                     <button
                         className="bg-green-600 px-1"
+                        disabled={!packageId}
                         onClick={async () => {
+                            console.log("package-management: save package: pcgkid", packageId, models, visualModels);
                             if (!packageId) {
                                 return;
                             }
+
                             updateSemanticModelPackageModels(
                                 packageId,
-                                [...models.keys()].map((modelId) => models.get(modelId)!)
+                                [...models.values()],
+                                [...visualModels.values()]
                             );
                         }}
                     >

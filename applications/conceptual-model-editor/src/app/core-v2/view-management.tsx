@@ -10,7 +10,7 @@ import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/vi
 export const ViewManagement = () => {
     // const { viewLayouts } = useViewContext();
     // const { activeViewId, setActiveViewId } = useViewContext();
-    const { aggregatorView, aggregator, setAggregatorView } = useModelGraphContext();
+    const { aggregatorView, aggregator, setAggregatorView, setVisualModels } = useModelGraphContext();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const activeViewId = aggregatorView.getActiveViewId();
@@ -28,10 +28,10 @@ export const ViewManagement = () => {
     };
 
     const handleCreateNewView = () => {
-        const model = new VisualEntityModelImpl();
+        const model = new VisualEntityModelImpl(undefined);
         aggregator.addVisualModel(model);
         setAggregatorView(aggregator.getView());
-        // setVisualModels((prev) => new Map(prev.set(model.id, model)));
+        setVisualModels((prev) => new Map(prev.set(model.id, model)));
     };
 
     const toggleDropdown = () => {

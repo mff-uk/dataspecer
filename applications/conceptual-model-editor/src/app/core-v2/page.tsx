@@ -22,16 +22,36 @@ import { Position } from "./visualization/position";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 const ModelsComponent = () => {
-    const { aggregator, setAggregatorView, addModelToGraph, models, cleanModels, removeModelFromModels } =
-        useModelGraphContext();
+    const {
+        aggregator,
+        setAggregatorView,
+        addModelToGraph,
+        models,
+        cleanModels,
+        removeModelFromModels,
+        setVisualModels,
+    } = useModelGraphContext();
     const { packageId } = usePackageSearch();
     const { getModelsFromBackend } = useBackendConnection();
 
+    // FIXME: really stupid place to have it
     useEffect(() => {
-        console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent");
+        console.log(
+            "getModelsFromBackend is going to be called from useEffect in ModelsComponent, packageId:",
+            packageId
+        );
         if (!packageId) return;
         const getModels = () => getModelsFromBackend(packageId);
-        getModels().then((models) => addModelToGraph(...models));
+        getModels().then((models) => {
+            console.log("getModels: then: models:", models);
+            const [entityModels, visualModels] = models;
+            addModelToGraph(...entityModels);
+            for (const visualModel of visualModels) {
+                aggregator.addVisualModel(visualModel);
+            }
+            setVisualModels(new Map(visualModels.map((visualModel) => [visualModel.getId(), visualModel])));
+            setAggregatorView(aggregator.getView());
+        });
         return cleanModels;
     }, [packageId]);
 
