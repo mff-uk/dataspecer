@@ -31,6 +31,7 @@ export function prepareDataSpecification(
         ];
         c.properties.forEach(p => {
             p.dataTypes.filter(dt => dt.isAssociation()).forEach((dt: ConceptualModelComplexType) => {
+                // @ts-ignore
                 dt.class = conceptualModel.classes[dt.pimClassIri];
             });
         });
@@ -47,6 +48,7 @@ export function prepareDataSpecification(
                 ...getArtifactsView(
                     context,
                     context.specification.artefacts.filter(
+                        // @ts-ignore
                         a => context.artefact.artefacts.includes(a.iri)
                     ).filter(DataSpecificationSchema.is).filter(a => a.psm === iri).map(a => a.iri)
                 ),

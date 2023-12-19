@@ -114,9 +114,12 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         });
       });
       structureModel.getClasses().forEach(cls => {
+        // @ts-ignore
         cls.pimClass = mergedConceptualModel.classes[cls.pimIri];
+        // @ts-ignore
         cls.inThisSchema = !((cls.structureSchema !== structureModel.psmIri) || cls.isReferenced);
         cls.properties.forEach(prop => {
+          // @ts-ignore
           prop.pimAssociation = conceptualModelProperties[prop.pimIri];
         });
       });
