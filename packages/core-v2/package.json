@@ -6,6 +6,7 @@
     "prebuild": "rimraf lib"
   },
   "exports": {
+    "./entity-model": "./lib/src/entity-model/index.js",
     "./project": "./lib/src/project/index.js",
     "./semantic-model/aggregator": "./lib/src/semantic-model/aggregator/index.js",
     "./semantic-model/concepts": "./lib/src/semantic-model/concepts/index.js",
