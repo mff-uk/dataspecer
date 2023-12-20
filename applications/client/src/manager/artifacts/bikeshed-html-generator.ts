@@ -1,9 +1,8 @@
-import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
-import {Bikeshed, BIKESHED, writeBikeshed} from "@dataspecer/bikeshed";
-import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {MemoryOutputStream} from "@dataspecer/core/io/stream/memory-output-stream";
+import { BIKESHED } from "@dataspecer/bikeshed";
+import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 
 export interface ExtendsArtefact {
     /**
