@@ -95,6 +95,23 @@ export class Generator {
         `Can't load conceptual model '${specification.pim}'.`
       );
       conceptualModels[specification.pim] = conceptualModel;
+      
+      // todo: It seems that there is a problem that multiple classes can have the same CIM IRI
+      // this is a workaround for now
+      const pimMapping = new Map<string, string>();
+      for (const cls of Object.values(conceptualModel.classes)) {
+        const properties = cls.properties;
+        cls.properties = [];
+        for (const p of properties) {
+          const found = cls.properties.find(cp => cp.cimIri === p.cimIri)
+          if (!found) {
+            cls.properties.push(p);
+          } else {
+            pimMapping.set(p.pimIri, found.pimIri);
+          }
+        }
+      }
+
       for (const iri of specification.psms) {
         const structureModel = await coreResourcesToStructuralModel(
           this.reader,
@@ -105,6 +122,16 @@ export class Generator {
           `Can't load structure model '${iri}'.`
         );
         structureModels[iri] = structureModel;
+
+        // todo: It seems that there is a problem that multiple classes can have the same CIM IRI
+        // this is a workaround for now
+        for (const cls of structureModel.getClasses()) {
+          for (const p of cls.properties) {
+            if (pimMapping.has(p.pimIri)) {
+              p.pimIri = pimMapping.get(p.pimIri);
+            }
+          }
+        }
       }
     }
 
