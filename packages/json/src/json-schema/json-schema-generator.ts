@@ -105,7 +105,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
             Object.values(context.specifications)
         ),
       });
-    } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/openapi") {
+    } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
       const {structureModel, jsonSchema, mergedConceptualModel} = await this.generateToObject(context, artefact, specification, true);
       const conceptualModelProperties: Record<string, ConceptualModelProperty> = {};
       Object.values(mergedConceptualModel.classes).forEach(cls => {
@@ -123,8 +123,6 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
           prop.pimAssociation = conceptualModelProperties[prop.pimIri];
         });
       });
-      console.log(structureModel);
-      console.log(mergedConceptualModel);
       return {
         structureModel, jsonSchema,
         classes: await structureModel.getClasses(),
