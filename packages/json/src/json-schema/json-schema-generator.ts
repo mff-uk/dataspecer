@@ -22,6 +22,7 @@ import {structureModelAddJsonProperties} from "../json-structure-model/add-json-
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
 import { StructureModel } from "@dataspecer/core/structure-model/model";
 import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
+import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -106,6 +107,8 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         ),
       });
     } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
+      const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
+
       const {structureModel, jsonSchema, mergedConceptualModel} = await this.generateToObject(context, artefact, specification, true);
       const conceptualModelProperties: Record<string, ConceptualModelProperty> = {};
       Object.values(mergedConceptualModel.classes).forEach(cls => {
@@ -121,6 +124,24 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         cls.properties.forEach(prop => {
           // @ts-ignore
           prop.pimAssociation = conceptualModelProperties[prop.pimIri];
+
+          prop.dataTypes.forEach(dt => {
+            if (dt.isAssociation()) {
+              const target = dt.dataType;
+              if (target.structureSchema !== (artefact as DataSpecificationSchema).psm || target.isReferenced) {
+                // if the property points to an external class, we need link to bs documentation
+
+                const externalSpecification = context.specifications[target.specification];
+                const externalArtefact = externalSpecification.artefacts.find(a => a.generator == BIKESHED.Generator + "/html-output");
+
+                // @ts-ignore
+                dt.externalDocumentation = pathRelative(
+                  documentationArtefact.publicUrl,
+                  externalArtefact.publicUrl,
+                )
+              }
+            }
+          });
         });
       });
       return {
@@ -158,7 +179,7 @@ V této sekci je definován strukturní model pro [JSON schéma]({{#publicUrl}}{
 :: {{cardinalityRange}}
 : Typ
 {{#dataTypes}}
-{{#isAssociation}}:: [{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}](#{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/isAssociation}}{{#isAttribute}}:: {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
+{{#isAssociation}}:: [{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}]({{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}){{/isAssociation}}{{#isAttribute}}:: {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
 {{/dataTypes}}
 : Interpretace
 {{#pimAssociation}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimAssociation}}

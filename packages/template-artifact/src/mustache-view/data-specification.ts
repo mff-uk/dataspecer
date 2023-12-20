@@ -40,6 +40,7 @@ export function prepareDataSpecification(
     return {
         ...view,
         semanticModels: [{
+            ...conceptualModel,
             classes: Object.values(conceptualModel.classes)
         }],
         structureModels: context.specification.psms.map(iri => {

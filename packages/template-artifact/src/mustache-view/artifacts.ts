@@ -102,7 +102,7 @@ export function getArtifactsView(
                 artifact,
                 context.specification,
                 TemplateArtifactGenerator.IDENTIFIER,
-                null
+                {artifact: context.artefact}
             );
         },
     }));

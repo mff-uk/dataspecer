@@ -4,8 +4,8 @@ import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 
 export const DefaultTemplateArtifactConfiguration =  {
     template: `<pre class='metadata'>
-Title : Tourist destination 
-Shortname : Tourist destination 
+Title : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
+Shortname : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
 Status : LS 
 Editor : Dataspecer editor, https://dataspecer.com/ 
 Boilerplate : conformance no, copyright no 
