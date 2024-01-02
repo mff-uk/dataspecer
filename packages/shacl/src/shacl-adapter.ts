@@ -428,18 +428,25 @@ export class ShaclAdapter {
             );
           }
 
-          this.writer.addQuad(
-            namedNode( nodeIRI ),
-            namedNode('http://www.w3.org/ns/shacl#path'),
-            namedNode( cimiri )
-          );
-
-          
-          
+          if(isReverse){
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#path'),
+              this.writer.list([
+                namedNode('http://www.w3.org/ns/shacl#inversePath'),
+                namedNode( cimiri )
+              ])
+            );
+          } else{
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#path'),
+              namedNode( cimiri )
+            );
+          }
+    
           // Add datatype for the PopertyNode
-          const reverseClass = isReverse ? classNameIri : null;
-          console.log("isReverse: " + reverseClass + " classNameIRI "  + classNameIri);
-          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri, reverseClass);
+          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri);
 
           // Add property to the parent class
           this.writer.addQuad(
@@ -500,7 +507,7 @@ export class ShaclAdapter {
   }
 
 
-  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string, reverseClass: string): void {
+  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -524,12 +531,6 @@ export class ShaclAdapter {
             namedNode('http://www.w3.org/ns/shacl#nodeKind'),
             namedNode( nodeType )
           );
-          if(reverseClass != null){
-            this.writer.addQuad(
-              namedNode( propertyNodeIRI ),
-              namedNode('http://www.w3.org/ns/shacl#node'),
-              namedNode( reverseClass )); 
-          }
           if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
             this.writer.addQuad(
               namedNode( propertyNodeIRI ),
