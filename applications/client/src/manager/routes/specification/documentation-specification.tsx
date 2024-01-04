@@ -46,6 +46,7 @@ import {ConceptualModelSources} from "./conceptual-model-sources";
 import {useTranslation} from "react-i18next";
 import {GarbageCollection} from "./garbage-collection";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
+import { ConsistencyFix } from "./consistency-fix";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -244,6 +245,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         </Typography>
 
         <GarbageCollection dataSpecificationIri={dataSpecificationIri} />
+        <ConsistencyFix dataSpecificationIri={dataSpecificationIri} />
 
         <RedirectDialog isOpen={redirecting} />
         <DeleteForm.Component dataSpecificationIri={dataSpecificationIri as string} />

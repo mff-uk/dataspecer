@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import {
     addSpecification,
     cloneSpecification,
+    consistencyFix,
     deleteSpecification, garbageCollection, importSpecifications,
     listSpecifications,
     modifySpecification
@@ -70,6 +71,7 @@ application.post(basename + '/data-specification/clone', cloneSpecification);
 application.delete(basename + '/data-specification', deleteSpecification);
 application.put(basename + '/data-specification', modifySpecification);
 application.post(basename + '/data-specification/garbage-collection', garbageCollection);
+application.post(basename + '/data-specification/consistency-fix', consistencyFix);
 
 application.post(basename + '/data-specification/data-psm', createDataPsm);
 application.delete(basename + '/data-specification/data-psm', deleteDataPsm);
