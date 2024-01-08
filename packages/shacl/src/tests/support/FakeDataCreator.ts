@@ -22,7 +22,7 @@ import * as fs from "fs";
 
   export async function fromRawJsonDataToNquads(rawJsonData : string, testType : string) : Promise<String> {
       const doc3 = rawJsonData;
-      const context3 = fs.readFileSync('./src/tests/data/' + testType + 'Context.json',{ encoding: 'utf8', flag: 'r' });;
+      const context3 = fs.readFileSync('./src/tests/data/' + testType + 'Context.json',{ encoding: 'utf8', flag: 'r' });
 
       const compacted3 = context3.slice(0, -1) + "," + doc3.substr(1);
 

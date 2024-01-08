@@ -116,6 +116,7 @@ export class ShaclAdapter {
   protected shapes: string[] = []; // Entity beginning with name of the shape and ending with .
   protected debugString: string = "";
   protected sameTags: sameTag[] = [];
+  protected classesUsedInStructure: string[] = [];
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
   protected writer: any;
@@ -151,7 +152,13 @@ export class ShaclAdapter {
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
+      this.registerClasses(root);
+      
       this.generateClassConstraints(root, null);
+      for(var cls of this.classesUsedInStructure){
+        //console.log(cls);
+      }
+      //console.log(this.classesUsedInStructure);
     }
     
     this.prefixesString = this.generatePrefixesString();
@@ -642,8 +649,26 @@ export class ShaclAdapter {
 
     return qname;
   }
-}
 
+
+  protected registerClasses(root: StructureModelClass): void {
+    // if the class is not in the list, add it
+    if(this.classesUsedInStructure.indexOf(root.cimIri) == -1){
+      this.classesUsedInStructure.push[root.cimIri];
+      console.log(root.cimIri);
+      //console.log(this.classesUsedInStructure);
+    }
+    for (const [i, prop] of root.properties.entries()) {
+      for (var dt of prop.dataTypes) {
+        if(dt.isAssociation() == true){
+          const dtcasted = <StructureModelComplexType> dt;
+          this.registerClasses(dtcasted.dataType);
+        }
+      }
+    }
+    //console.log(this.classesUsedInStructure);
+  }
+}
 function isEmptyOrSpaces(str) : boolean{
   return str === null || str.match(/^ *$/) !== null;
 }
