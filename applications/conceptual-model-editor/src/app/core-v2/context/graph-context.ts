@@ -7,7 +7,7 @@ import { createClass, modifyClass } from "@dataspecer/core-v2/semantic-model/ope
 import React, { useContext } from "react";
 import { getOneNameFromLanguageString } from "../util/utils";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { PimStoreWrapper } from "node_modules/@dataspecer/core-v2/lib/src/semantic-model/v1-adapters/pim-store-wrapper";
+import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "../util/constants";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 

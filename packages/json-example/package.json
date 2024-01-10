@@ -5,8 +5,7 @@
     "build": "tsc",
     "prebuild": "rimraf lib"
   },
-  "main": "lib/src/index.js",
-  "type": "module",
+  "main": "lib/index.js",
   "dependencies": {
     "@dataspecer/core": "*",
     "@dataspecer/json": "*",
@@ -16,6 +15,6 @@
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.2"
+    "typescript": "~5.3.2"
   }
 }

@@ -15,7 +15,8 @@
     "./semantic-model/operations": "./lib/src/semantic-model/operations/index.js",
     "./semantic-model/in-memory": "./lib/src/semantic-model/in-memory/index.js",
     "./semantic-model/usage/concepts": "./lib/src/semantic-model/usage/concepts/index.js",
-    "./semantic-model/usage/operations": "./lib/src/semantic-model/usage/operations/index.js"
+    "./semantic-model/usage/operations": "./lib/src/semantic-model/usage/operations/index.js",
+    "./semantic-model/v1-adapters": "./lib/src/semantic-model/v1-adapters/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",
@@ -26,7 +27,7 @@
   },
   "devDependencies": {
     "rimraf": "^5.0.1",
-    "typescript": "^5.1.6",
+    "typescript": "~5.1.6",
     "@types/n3": "^1.16.3"
   }
 }
