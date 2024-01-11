@@ -54,7 +54,7 @@ export class RdfsFileAdapter implements CimAdapter {
     protected iriProvider!: IriProvider;
 
     public options = {
-        classType: RDFS.Class,
+        classType: [RDFS.Class, OWL.Class],
         propertyDomain: [RDFS.domain],
         propertyDomainIncludes: [SCHEMAORG.domainIncludes],
         propertyRange: [RDFS.range],
@@ -136,7 +136,7 @@ export class RdfsFileAdapter implements CimAdapter {
 
         // PROCESS CLASSES
 
-        const classesIris = source.reverseProperty(RDF.type, this.options.classType).map(r => r.value);
+        const classesIris = rdfSourceReverseProperty(source, this.options.classType, [RDF.type]).map(r => r.value);
         const classesToProcess = [...classesIris];
         let c: string;
         while (c = classesToProcess.pop()!) {

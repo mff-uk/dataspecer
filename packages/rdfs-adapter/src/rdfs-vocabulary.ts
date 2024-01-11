@@ -60,6 +60,7 @@ export const OWL = {
   Thing: "http://www.w3.org/2002/07/owl#Thing",
   ObjectProperty: "http://www.w3.org/2002/07/owl#ObjectProperty",
   DatatypeProperty: "http://www.w3.org/2002/07/owl#DatatypeProperty",
+  Class: "http://www.w3.org/2002/07/owl#Class",
 };
 
 
