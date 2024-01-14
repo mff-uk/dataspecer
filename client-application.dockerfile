@@ -5,12 +5,11 @@ WORKDIR /usr/src/app
 COPY applications/client applications/client
 COPY packages packages
 COPY schemas schemas
-COPY .npmrc lerna.json package-lock.json package.json .
+COPY .npmrc package-lock.json package.json .
 
 RUN npm instal
 
-RUN npx lerna bootstrap --scope client --include-dependencies
-RUN npx lerna run build-pack --scope client --include-dependencies
+RUN npx turbo run build --filter client
 
 # RELEASE STAGE
 FROM nginx:alpine

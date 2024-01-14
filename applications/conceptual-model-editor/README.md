@@ -2,7 +2,7 @@
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-Apart from the explicit use of several npm `@dataspecer/*` libraries currently linked via Lerna, this project is not dependent on the rest of the codebase.
+Apart from the explicit use of several npm `@dataspecer/*` libraries currently linked via npm workspaces, this project is not dependent on the rest of the codebase.
 
 This project uses:
 
@@ -14,34 +14,22 @@ This project uses:
 # Build instructions
 
 1. Clone the repository
-2. From the root of the mono repository install root packages
+2. From the root of the mono repository install all packages
 
 ```
 npm install
 ```
 
-3. Bootstrap (install dependencies and link packages) `npx lerna bootstrap` `--scope conceptual-model-editor --include-dependencies`
+3. Build dependent @dataspecer packages and this project by executing following command from the root of this repository
 
 ```
-npx lerna bootstrap
+npm run build
 ```
 
-or optionally with following flags to ignore other packages
+or to explicitly build only dependent packages, use
 
 ```
-npx lerna bootstrap --scope conceptual-model-editor --include-dependencies
-```
-
-4. Build dependent @dataspecer packages and this project by
-
-```
-npx lerna run build
-```
-
-or optionally with following flags to ignore other packages
-
-```
-npx lerna run build --scope conceptual-model-editor --include-dependencies
+npx turbo run build --scope=conceptual-model-editor
 ```
 
 Then, you can start dev server from this directory by
@@ -49,5 +37,3 @@ Then, you can start dev server from this directory by
 ```
 npm run dev
 ```
-
-Note: `npm install` from this directory will not work because of the local packages. Use `npx lerna bootstrap` and `npx lerna add <package> --scope conceptual-model-editor` from the root directory instead.

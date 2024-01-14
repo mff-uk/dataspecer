@@ -15,6 +15,5 @@ Please keep in mind, that some documents may be outdated.
 
 ## Design decisions
 
-- [Lerna and packages](2022-02-06-lerna-and-packages.md)
 - [Code style](2022-02-06-code-style.md)
 - [How to contribute to the documentation](2022-02-06-documentation.md)

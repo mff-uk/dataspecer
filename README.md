@@ -14,6 +14,6 @@ For more information about individual packages, applications, and services, plea
 
 ## Build instructions
 
-This codebase is managed by [Lerna](https://github.com/lerna/lerna). Please see the individual packages for their build instructions.
+This codebase is managed by [npm workspaces](https://docs.npmjs.com/cli/v10/using-npm/workspaces) and [Turborepo](https://turbo.build/repo/docs). Please see the individual packages for their build instructions.
 
 You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the applications.
