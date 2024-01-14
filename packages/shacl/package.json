@@ -4,6 +4,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "dev": "tsc -w",
     "prebuild": "rimraf lib",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
     "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose"

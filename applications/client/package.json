@@ -63,6 +63,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
+    "dev": "react-app-rewired start",
     "build:watch": "react-app-rewired start",
     "build": "react-app-rewired build",
     "extract-languages": "i18next"
