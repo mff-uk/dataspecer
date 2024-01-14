@@ -5,7 +5,7 @@ module.exports = {
     "ts",
   ],
   "transform": {
-    "^.+\\.[t|j]sx?$": "ts-jest"
+    "^.+\\.[t]sx?$": "ts-jest"
   },
   "roots": [
     "src",
