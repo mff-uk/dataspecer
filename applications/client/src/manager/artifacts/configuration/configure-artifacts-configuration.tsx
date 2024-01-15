@@ -5,7 +5,6 @@ import {Json} from "./tabs/json";
 import {Csv} from "./tabs/csv";
 import {Xml} from "./tabs/xml";
 import {Bikeshed} from "./tabs/bikeshed";
-import {BikeshedConfiguration, BikeshedConfigurator} from "@dataspecer/bikeshed";
 import {
     DataSpecificationConfiguration,
     DataSpecificationConfigurator
