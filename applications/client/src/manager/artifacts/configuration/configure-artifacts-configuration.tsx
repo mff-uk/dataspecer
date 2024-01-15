@@ -13,6 +13,7 @@ import {
 import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
+import { TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "@dataspecer/template-artifact/configuration";
 
 /**
  * Component that renders the UI for configuration change. It is possible to pre-set default configuration, or keep it
@@ -64,9 +65,9 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
         }
         {currentTab === 4 &&
             <Bikeshed
-                input={BikeshedConfigurator.getFromObject(configuration)}
-                onChange={u => onConfigurationChange(BikeshedConfigurator.setToObject(configuration, u))}
-                defaultObject={defaultConfiguration ? BikeshedConfigurator.getFromObject(defaultConfiguration) as BikeshedConfiguration : undefined}
+                input={TemplateArtifactConfigurator.getFromObject(configuration)}
+                onChange={u => onConfigurationChange(TemplateArtifactConfigurator.setToObject(configuration, u))}
+                defaultObject={defaultConfiguration ? TemplateArtifactConfigurator.getFromObject(defaultConfiguration) as TemplateArtifactConfiguration : undefined}
             />
         }
     </div>

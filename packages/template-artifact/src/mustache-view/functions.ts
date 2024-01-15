@@ -12,13 +12,17 @@ export function prepareFunctions(
     return {
         ...view,
         translate: function () {
+            if (typeof this === "string") {
+                return this;
+            }
             return this.cs ?? this.en ?? null;
         },
         relativePath: function () {
             return pathRelative(context.artefact.publicUrl, this);
         },
         sanitizeLink: function () {
-            return this.replace(/ /g, "-").toLowerCase();
+            // remove diacritics
+            return this.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "-").toLowerCase();
         },
         cardinalityRange: function () {
             return `${this.cardinalityMin ?? 0} - ${this.cardinalityMax ?? "∞"}`;
@@ -27,7 +31,7 @@ export function prepareFunctions(
             return this.cardinalityMin && this.cardinalityMin > 0;
         },
         getLabelForDataType: function () {
-            return OFN_LABELS[this];
+            return OFN_LABELS[this] ?? this;
         }
     }
 }

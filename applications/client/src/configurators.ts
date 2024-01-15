@@ -5,6 +5,7 @@ import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { BikeshedConfigurator } from "@dataspecer/bikeshed";
 import { ClientConfigurator } from "./configuration";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { TemplateArtifactConfigurator } from "@dataspecer/template-artifact/configuration";
 
 /**
  * Returns all configurators for generator families that will be used in the
@@ -19,5 +20,6 @@ export function getDefaultConfigurators(): Configurator[] {
         BikeshedConfigurator,
         ClientConfigurator,
         DataSpecificationConfigurator,
+        TemplateArtifactConfigurator,
     ]
 }

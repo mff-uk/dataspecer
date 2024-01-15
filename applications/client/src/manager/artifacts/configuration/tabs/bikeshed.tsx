@@ -1,76 +1,42 @@
-import { BikeshedConfiguration } from "@dataspecer/bikeshed";
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
-import {FormGroup, Box, Typography, Grid} from "@mui/material";
+import { TemplateArtifactConfiguration } from "@dataspecer/template-artifact/configuration";
+import { Box, FormGroup, Typography } from "@mui/material";
 import { FC } from "react";
-import {SelectWithDefault, TextFieldWithDefault, TableRecordWithDefault, SwitchWithDefault} from "../ui-components/index";
+import { TextFieldWithDefault } from "../ui-components/index";
 
-const BIKESHED_LANGUAGES = {"cs": "cs", "en": "en"};
+const TEMPLATE_BUILDING_BLOCKS = [
+  "metadata",
+  "abstract",
+  "artifactList",
+  "conceptualModel",
+];
 
-/**
- * Part of the dialog where CSV is being configured.
- *
- * The component expects full configuration object.
- * @constructor
- */
 export const Bikeshed: FC<{
-  input: DeepPartial<BikeshedConfiguration>,
-  defaultObject?: BikeshedConfiguration
-  onChange: (options: DeepPartial<BikeshedConfiguration>) => void,
+  input: DeepPartial<TemplateArtifactConfiguration>,
+  defaultObject?: TemplateArtifactConfiguration
+  onChange: (options: DeepPartial<TemplateArtifactConfiguration>) => void,
 }> = ({input, onChange, defaultObject}) => {
   return <FormGroup>
-    <SelectWithDefault
-        label={"Language"}
-        default={defaultObject}
-        current={input ?? {}}
-        itemKey={"language"}
-        onChange={onChange}
-        options={BIKESHED_LANGUAGES}
-    />
-    <Box mt={2} />
+    <Typography variant="h6">Input template</Typography>
     <TextFieldWithDefault
-        label="Editors"
-        current={input ?? {}}
-        itemKey="editor"
-        onChange={onChange}
+        label={"The template"}
         default={defaultObject}
+        current={input ?? {}}
+        itemKey={"template"}
+        onChange={onChange}
         inputProps={{fullWidth: true, multiline: true}}
     />
-    <Box mt={2} />
-    <TextFieldWithDefault
-        label="Abstract"
-        current={input ?? {}}
-        itemKey="abstract"
-        onChange={onChange}
-        default={defaultObject}
-        inputProps={{fullWidth: true, multiline: true}}
-    />
-
-    <Typography variant="h6" sx={{mt: 6}}>Additional metadata</Typography>
-    <TableRecordWithDefault
-        value={input.otherMetadata ? Object.entries(input.otherMetadata) as [string, string][] : undefined}
-        onValueChange={otherMetadata => {
-          if (otherMetadata) {
-            onChange({...input, otherMetadata: Object.fromEntries(otherMetadata)})
-          } else {
-            const result = {...input};
-            delete result["otherMetadata"];
-            onChange(result);
-          }
-        }}
-        defaultValue={defaultObject ? Object.entries(defaultObject?.otherMetadata ?? {}) : undefined}
-    />
-
-    <Typography variant="h6" sx={{mt: 6}}>Other settings</Typography>
-    <Grid container rowGap={1}>
-      <Grid item xs={12}>
-        <SwitchWithDefault
-            current={input ?? {}}
-            itemKey="useTechnicalLabelsInStructuralModels"
-            onChange={onChange}
-            default={defaultObject}
-            label={"Use technical labels in structural model description"}
-        />
-      </Grid>
-    </Grid>
+    <Typography variant="h6" sx={{mt: 6}}>Template building blocks</Typography>
+    {TEMPLATE_BUILDING_BLOCKS.map(buildingBlock => <>
+      <TextFieldWithDefault
+          label={buildingBlock + " template"}
+          current={input.templates ?? {}}
+          itemKey={buildingBlock}
+          onChange={templates => onChange({...input, templates})}
+          default={defaultObject.templates}
+          inputProps={{fullWidth: true, multiline: true}}
+      />
+      <Box mt={2} />
+    </>)}
   </FormGroup>
 }
