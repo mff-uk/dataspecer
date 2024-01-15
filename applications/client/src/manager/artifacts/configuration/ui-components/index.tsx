@@ -38,10 +38,11 @@ export const TextFieldWithDefault: FC<{
                 <CloseIcon />
               </IconButton>
             </InputAdornment>}
-          startAdornment={isDefault && <InputAdornment position="start">Default used: </InputAdornment>}
+          
           {...props.inputProps}
       />
-      {props.default && !isDefault && <FormHelperText>(default: {!props.default[props.itemKey] ? "-" : props.default[props.itemKey]})</FormHelperText>}
+      {props.default && !isDefault && props.default[props.itemKey].length < 200 && <FormHelperText>(default: {!props.default[props.itemKey] ? "-" : props.default[props.itemKey]})</FormHelperText>}
+      {isDefault && <FormHelperText>Default value is being used</FormHelperText>}
     </FormControl>;
   };
 

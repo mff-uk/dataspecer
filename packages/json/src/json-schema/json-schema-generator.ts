@@ -151,38 +151,14 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
           if (template.trim() !== "") {
             return render(template);
           } else {
-            return render(`## JSON struktura
+            return render(`## Přehled JSON struktury
 V této sekci je definován strukturní model pro [JSON schéma]({{#publicUrl}}{{{relativePath}}}{{/publicUrl}}).
+
 {{specification}}
 {{#classes}}{{#inThisSchema}}
-### {{#humanLabel}}{{translate}}{{/humanLabel}} ### {#{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
-{{#humanDescription}}{{#translate}}
-: Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
-: Interpretace
-{{#pimClass}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimClass}}
-
+- [{{#humanLabel}}{{translate}}{{/humanLabel}}]({{#pimClass}}#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}{{/pimClass}})
 {{#properties}}
-#### Vlastnost \`{{technicalLabel}}\` #### {#{{#humanLabel}}{{#translate}}json-structure-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
-: Klíč
-:: \`{{technicalLabel}}\`
-: Jméno
-:: {{#humanLabel}}{{translate}}{{/humanLabel}}
-{{#humanDescription}}{{#translate}}
-: Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
-: Povinnost
-:: {{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}
-: Kardinalita
-:: {{cardinalityRange}}
-: Typ
-{{#dataTypes}}
-{{#isAssociation}}:: [{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}]({{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}){{/isAssociation}}{{#isAttribute}}:: {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
-{{/dataTypes}}
-: Interpretace
-{{#pimAssociation}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimAssociation}}
+    - \`{{technicalLabel}}\`: {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}} ({{cardinalityRange}}) položka typu {{#dataTypes}}{{#isAssociation}}**{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}**{{/isAssociation}}{{#isAttribute}} {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}{{/dataTypes}}
 {{/properties}}
 {{/inThisSchema}}{{/classes}}
 `);
