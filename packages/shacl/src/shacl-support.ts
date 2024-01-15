@@ -36,8 +36,33 @@ function isTheSameProperty(property : StructureModelProperty, compared : Structu
         return false;
     }
     if(property.dataTypes != compared.dataTypes){
-        // TODO
-        return false;
+        if(compared.dataTypes[0].isAssociation() && !property.dataTypes[0].isAssociation()) {
+            return false;
+        }
+        if(compared.dataTypes[0].isAttribute() && !property.dataTypes[0].isAttribute()) {
+            return false;
+        }
+        if(compared.dataTypes[0].isCustomType() && !property.dataTypes[0].isCustomType()) {
+            return false;
+        }
+        if(compared.dataTypes[0].isAssociation()) {
+            const castedComparedTo = <StructureModelComplexType> compared.dataTypes[0];
+            const castedComparator = <StructureModelComplexType> property.dataTypes[0];
+            if(!isTheSameEntity(castedComparator.dataType, castedComparedTo.dataType)){
+                return false;
+            }
+            
+        }
+        if(compared.dataTypes[0].isAttribute() && !property.dataTypes[0].isAttribute()) {
+            const castedComparedTo = <StructureModelPrimitiveType> compared.dataTypes[0];
+            const castedComparator = <StructureModelPrimitiveType> property.dataTypes[0];
+            if((castedComparator.regex != castedComparedTo.dataType) || (castedComparator.regex != castedComparedTo.regex)){
+                return false;
+            }
+            
+        }
+        // TODO for customType
+        
     }
     if(property.dematerialize != compared.dematerialize){
         return false;
@@ -103,10 +128,15 @@ function isTheSameClass(cl : StructureModelClass, compared : StructureModelClass
     if(cl.pimIri != compared.pimIri){
         return false;
     }
+    /*
     if(cl.properties != compared.properties){
+        for (const propertyComparedTo of compared.properties) {
+            if(isTheSameProperty(prop))
+        }
         // TODO
         return false;
     }
+    */
     if(cl.regex != compared.regex){
         return false;
     }
