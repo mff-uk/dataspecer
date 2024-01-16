@@ -171,9 +171,10 @@ export class ShExAdapter {
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
       // The class has not been Shaped yet -- to get rid of duplicate shape
-      newResult = newResult.concat("\n" + this.generateShape(root, classNameIri, objectOf));
+      newResult = newResult.concat(nodeName );
       newResult = newResult.concat(this.prePropertyStatements(root));
       newResult = newResult.concat("{\n\t");
+      newResult = newResult.concat("\n" + this.generateShape(root, classNameIri, objectOf));
       newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
       newResult = newResult.concat("}\n");
 
@@ -424,7 +425,7 @@ export class ShExAdapter {
       }
     }
     
-    return "returnFromPropertiesCreation";
+    return newResult;
   }
 
   protected irify(root: StructureModelClassOrProperty) : string{
