@@ -37,8 +37,9 @@ Properties  - primitive datatypes available in the shape TODO
 
 Core Constraint Components
 
+    Prefixes - TODO
     Value Type Constraint Components
-      - Class - TODO 
+      - Class - DONE 
       - Datatype after path TODO
       - NodeKind (IRI, BNode, Literal, NonLiteral) TODO
     Cardinality Constraint Components (?+*{x,y}{x}{x,}) TODO
@@ -171,9 +172,8 @@ export class ShExAdapter {
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
       // The class has not been Shaped yet -- to get rid of duplicate shape
-      newResult = newResult.concat(nodeName );
+      newResult = newResult.concat("<" + nodeName + ">");
       newResult = newResult.concat(this.prePropertyStatements(root));
-      newResult = newResult.concat("{\n\t");
       newResult = newResult.concat("\n" + this.generateShape(root, classNameIri, objectOf));
       newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
       newResult = newResult.concat("}\n");
@@ -213,7 +213,7 @@ export class ShExAdapter {
   generateShape(root: StructureModelClass, classNameIri: string, objectOf : String): string {
 
     var newResult = "";
-    newResult = newResult.concat("\ta " + root.cimIri );
+    newResult = newResult.concat("\ta <" + root.cimIri + ">" );
     /*this.writer.addQuad(
       namedNode( classNameIri),
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
@@ -352,16 +352,14 @@ export class ShExAdapter {
         const pathtoorigin = prop.pathToOrigin;
         
         for (var dt of datatypes) {
-          if(i > 0){
-            newResult = newResult.concat(";");
-          }
+          newResult = newResult.concat(";");
           newResult = newResult.concat("\n");
           newResult = newResult.concat("\t");
           if(isReverse){
             newResult = newResult.concat(" ^");
           } 
             
-          newResult = newResult.concat(cimiri);
+          newResult = newResult.concat("<" + cimiri + ">");
           
 
           if(dt.isAttribute() == true){
@@ -376,7 +374,7 @@ export class ShExAdapter {
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
             }
-              newResult = newResult.concat(" " + simpleTypeMapIRI[dtcasted.dataType] ); 
+              newResult = newResult.concat(" <" + simpleTypeMapIRI[dtcasted.dataType] + ">"); 
             if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
               if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
                 newResult = newResult.concat(" \\" + dtcasted.regex.toString() + "\\" ); 
@@ -397,7 +395,7 @@ export class ShExAdapter {
             const nodeIRI = this.getIRIforShape(prop);
              // Add datatype for the PopertyNode
             const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, cimiri);
-            newResult = newResult.concat(" @" + nameForAnotherClass); 
+            newResult = newResult.concat(" @<" + nameForAnotherClass + ">"); 
             }
           }
 
