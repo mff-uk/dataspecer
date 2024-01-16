@@ -35,8 +35,8 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var street : StructureModelProperty;
       street = new StructureModelProperty();
-      street.cardinalityMax = 1;
-      street.cimIri = "https://example.com/Ulice";
+      street.cardinalityMin = 1;
+      street.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze";
       street.dataTypes = [primitiveType8];
       street.dematerialize = false;
       street.humanDescription = {["cs"]: "Ulice bydliště"};
@@ -48,10 +48,9 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var bn : StructureModelProperty;
       bn = new StructureModelProperty();
-      bn.cardinalityMax = 1;
       bn.cardinalityMin = 1;
-      bn.cimIri = "https://example.com/CisloPopisne";
-      bn.dataTypes = [primitiveType1];
+      bn.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze";
+      bn.dataTypes = [primitiveType8];
       bn.dematerialize = false;
       bn.humanDescription = {["cs"]: "Číslo popisné dané budovy"};
       bn.humanLabel = {["cs"]: "Číslo popisné"};
@@ -104,13 +103,13 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var class2 : StructureModelClass;
       class2 = new StructureModelClass();
-      class2.cimIri = "https://example.com/class2/adresa";
+      class2.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian";
       class2.codelistUrl = ["https://example.com/class1/codelistIri"];
       class2.example = null;
       class2.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
       class2.humanLabel = {["cs"]: "Adresa", ["pl"]: "Adres"};
       class2.pimIri = "https://example.com/class1/mojePimIriadresa";
-      class2.properties = [street, bn, city, zipcode, country];
+      class2.properties = [];
       class2.psmIri = "https://example.com/class1/mojePsmIriadresa";
       class2.regex = null;
       class2.specification = null;
@@ -119,13 +118,13 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var classLink : StructureModelClass;
       classLink = new StructureModelClass();
-      classLink.cimIri = "https://example.com/class2/link";
+      classLink.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze";
       classLink.codelistUrl = ["https://example.com/class1/codelistIri"];
       classLink.example = null;
       classLink.humanDescription = {["cs"]: "Link na entitu"};
       classLink.humanLabel = {["cs"]: "Link"};
       classLink.pimIri = "https://example.com/class1/mojePimIriadresa";
-      classLink.properties = [];
+      classLink.properties = [street, bn];
       classLink.psmIri = "https://example.com/class1/mojePsmIriadresa";
       classLink.regex = null;
       classLink.specification = null;
@@ -142,9 +141,8 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var property1 : StructureModelProperty;
       property1 = new StructureModelProperty();
-      property1.cardinalityMax = 1;
       property1.cardinalityMin = 1;
-      property1.cimIri = "https://example.com/Adresa";
+      property1.cimIri = "https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian";
       property1.dataTypes = [complexType1];
       property1.dematerialize = false;
       property1.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
@@ -156,9 +154,8 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var propertyLink : StructureModelProperty;
       propertyLink = new StructureModelProperty();
-      propertyLink.cardinalityMax = 2;
       propertyLink.cardinalityMin = 1;
-      propertyLink.cimIri = "https://example.com/Link";
+      propertyLink.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze";
       propertyLink.dataTypes = [complexType2];
       propertyLink.dematerialize = false;
       propertyLink.humanDescription = {["cs"]: "Link na entitu"};
@@ -170,7 +167,7 @@ class SimpleObjectModelCreator implements ModelCreator{
 
       var class1 : StructureModelClass;
       class1 = new StructureModelClass();
-      class1.cimIri = "https://example.com/class1/mojeCimIri";
+      class1.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa";
       class1.codelistUrl = ["https://example.com/class1/codelistIri"];
       class1.example = null;
       //class1.extends = null;

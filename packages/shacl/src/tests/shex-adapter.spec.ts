@@ -75,7 +75,7 @@ import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
 const testType = "simpleObject";
 const modelCreator = new SimpleObjectModelCreator();
 
-test.skip('Shape conforms to SHACL standard - simple object', async () => {
+test.skip('Shape conforms to SxEx standard - simple object', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
