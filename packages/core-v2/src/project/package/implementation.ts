@@ -7,6 +7,7 @@ import { HttpEntityModel } from "../../entity-model/http-entity-model";
 import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
 import { VisualEntityModel } from "../../visual-model";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model";
+import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
 
 async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise<WritableSemanticModelAdapter> {
     const baseModel = HttpEntityModel.createFromDescriptor(data, httpFetch);
@@ -93,6 +94,11 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/visual-model") {
                 const model = createVisualModel(modelDescriptor.modelId).deserializeModel(modelDescriptor);
                 constructedVisualModels.push(model);
+            } else if (
+                modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/in-memory-semantic-model"
+            ) {
+                const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
+                constructedEntityModels.push(model);
             } else {
                 throw new Error(`Unknown model descriptor type: ${modelDescriptor.type}. Can not create such model.`);
             }
@@ -107,7 +113,6 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         visualModels: VisualEntityModel[]
     ): Promise<Package> {
         const modelDescriptors: {}[] = [];
-        // const visualModelDescriptors: {}[] = [];
 
         for (const model of models) {
             // @ts-ignore

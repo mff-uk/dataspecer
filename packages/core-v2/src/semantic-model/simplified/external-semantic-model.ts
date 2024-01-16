@@ -1,15 +1,20 @@
-import {SemanticModelClass} from "../concepts/concepts";
-import {classQuery, classSurroundingsQuery, searchQuery, SearchQueryEntity} from "../async-queryable/queries";
-import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/model";
-import {Entity} from "../../entity-model";
-import {EntityModel} from "../../entity-model/entity-model";
-import {SimpleAsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/implementation";
+import { SemanticModelClass } from "../concepts/concepts";
+import { classQuery, classSurroundingsQuery, searchQuery, SearchQueryEntity } from "../async-queryable/queries";
+import {
+    AsyncQueryableEntityModel,
+    AsyncQueryableObservableEntityModel,
+} from "../../entity-model/async-queryable/model";
+import { Entity } from "../../entity-model";
+import { EntityModel } from "../../entity-model/entity-model";
+import { SimpleAsyncQueryableObservableEntityModel } from "../../entity-model/async-queryable/implementation";
 
 export class ExternalSemanticModel implements EntityModel {
+    private id: string;
     private model: AsyncQueryableEntityModel;
     private observableModel: AsyncQueryableObservableEntityModel;
 
     constructor(model: AsyncQueryableEntityModel, observableModel: AsyncQueryableObservableEntityModel) {
+        this.id = "https://dataspecer.com/core/model-descriptor/sgov";
         this.model = model;
         this.observableModel = observableModel;
     }
@@ -18,16 +23,22 @@ export class ExternalSemanticModel implements EntityModel {
         return {
             // todo fix
             type: "https://dataspecer.com/core/model-descriptor/sgov",
-            queries: Object.keys((this.observableModel as SimpleAsyncQueryableObservableEntityModel).queries)
+            id: this.id,
+            queries: Object.keys((this.observableModel as SimpleAsyncQueryableObservableEntityModel).queries),
         };
     }
 
     async unserializeModel(data: object) {
         const modelDescriptor = data as any;
+        this.id = modelDescriptor.id;
         const queries = modelDescriptor.queries as string[];
         for (const query of queries) {
             await this.observableModel.addQuery(query);
         }
+    }
+
+    getId(): string {
+        return this.id;
     }
 
     getEntities(): Record<string, Entity> {
@@ -45,7 +56,7 @@ export class ExternalSemanticModel implements EntityModel {
         const iri = searchQuery(query);
         const result = await this.model.query(iri);
         const searchQueryEntity = result[iri] as SearchQueryEntity;
-        return searchQueryEntity.order.map<SemanticModelClass>(iri => result[iri] as SemanticModelClass);
+        return searchQueryEntity.order.map<SemanticModelClass>((iri) => result[iri] as SemanticModelClass);
     }
 
     async allowClass(id: string) {

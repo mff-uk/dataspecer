@@ -5,13 +5,20 @@ export interface VisualEntityModel {
     getVisualEntity(entityId: string): VisualEntity | undefined;
     getVisualEntities(): Map<string, VisualEntity>;
     addEntity(entity: Partial<Omit<VisualEntity, "id" | "type">>): void;
-    updateEntity(visualEntityId: string, entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>): void;
+    updateEntity(
+        visualEntityId: string,
+        entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>
+    ): boolean;
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
     deserializeModel(data: object): VisualEntityModel;
+
+    getColor(semModelId: string): string;
+    setColor(semModelId: string, hexColor: string): void;
 }
 
 export class VisualEntityModelImpl implements VisualEntityModel {
-    public id: string;
+    private id: string;
+    private modelColors: Map<string, string> = new Map();
     /** @internal [sourceEntityId, VisualEntity] */
     public entitiesMap: Map<string, VisualEntity> = new Map();
     /** @internal */
@@ -66,7 +73,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     ) {
         const visualEntity = this.getVisualEntity(visualEntityId);
         if (!visualEntity) {
-            return;
+            return false;
         }
         this.change(
             {
@@ -77,6 +84,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             },
             []
         );
+        return true;
     }
 
     /**
@@ -121,6 +129,27 @@ export class VisualEntityModelImpl implements VisualEntityModel {
         }
         return this;
     }
+
+    getColor(modelId: string) {
+        const color = this.modelColors.get(modelId);
+        if (color) {
+            return color;
+        }
+
+        const defaultColor = "#ff0000";
+        this.setColor(modelId, defaultColor);
+        return defaultColor;
+    }
+
+    setColor(modelId: string, hexColor: string) {
+        // TODO: sanitize
+        this.modelColors.set(modelId, hexColor);
+        this.change({}, []); // TODO: dej to pryc
+    }
+}
+
+export function isVisualModel(what: object): what is VisualEntityModel {
+    return (what as VisualEntityModel).getVisualEntities !== undefined;
 }
 
 const createId = () => (Math.random() + 1).toString(36).substring(7);

@@ -2,7 +2,7 @@ import { Entity } from "../../entity-model/entity";
 
 import { EntityModel } from "../../entity-model/entity-model";
 import { VisualEntity } from "../../visual-model/visual-entity";
-import { VisualEntityModel, VisualEntityModelImpl } from "../../visual-model/visual-model";
+import { VisualEntityModel, isVisualModel } from "../../visual-model/visual-model";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
@@ -14,7 +14,7 @@ interface AggregatedEntityWrapper {
     visualEntity: VisualEntity | null;
 }
 
-type SupportedModels = EntityModel;
+type SupportedModels = EntityModel | VisualEntityModel;
 
 type AggregatedModelSubscriber = (updated: AggregatedEntityWrapper[], removed: string[]) => void;
 
@@ -40,9 +40,6 @@ interface SemanticModelAggregator {
      * @todo option to choose the view
      */
     getView(): SemanticModelAggregatorView;
-
-    addVisualModel(model: VisualEntityModel): void;
-    deleteVisualModel(modelId: string): void;
 }
 
 class SemanticModelAggregatorInternal implements SemanticModelAggregator {
@@ -50,12 +47,20 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     baseModelEntities: AggregatedEntityWrapper[] = [];
     baseModelSubscribers = new Set<AggregatedModelSubscriber>();
 
-    visualModels: VisualEntityModel[] = [];
     activeVisualModel: VisualEntityModel | null = null;
 
     addModel(model: SupportedModels) {
         if (this.models.has(model)) {
             throw new Error("Model already added.");
+        }
+
+        if (isVisualModel(model)) {
+            const unsubscribe = model.subscribeToChanges((updated, removed) => {
+                console.log("visual-model", model.getId(), "updated&removed", updated, removed);
+            });
+            this.models.set(model, unsubscribe);
+            this.activeVisualModel = model;
+            return;
         }
 
         const callback = (updated: Record<string, Entity>, removed: string[]) => {
@@ -73,9 +78,9 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             // Suppose there is a model that joins them all. Then we need to inform it
             this.notifyBaseModel(model, wrappedEntities, removed);
         };
+
         const unsubscribe = model.subscribeToChanges(callback);
         this.models.set(model, unsubscribe);
-
         callback(model.getEntities(), []);
     }
 
@@ -84,7 +89,16 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         if (!unsubscribe) {
             throw new Error("Model not added.");
         }
+
         this.models.delete(model);
+
+        if (isVisualModel(model)) {
+            this.setActiveVisualModel(
+                ([...this.models.keys()].find((m) => isVisualModel(m)) as VisualEntityModel) ?? null
+            );
+            return;
+        }
+
         this.notifyBaseModel(model, [], Object.keys(model.getEntities()));
         // TODO: shouldn't `unsubscribe()` be called?
     }
@@ -107,23 +121,11 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         return new SemanticModelAggregatorView(this);
     }
 
-    addVisualModel(model: VisualEntityModel) {
-        if (this.visualModels.find((m) => model.getId() == m.getId())) {
-            throw new Error("Model already added.");
-        }
-
-        this.visualModels = this.visualModels.concat(model);
-        this.setActiveVisualModel(model);
-    }
-
-    deleteVisualModel(modelId: string): void {
-        this.visualModels = this.visualModels.filter((model) => model.getId() != modelId);
-        this.setActiveVisualModel(this.visualModels[0] ?? null);
-    }
-
     setActiveVisualModel(toModel: string | VisualEntityModel | null) {
         if (typeof toModel == "string") {
-            this.activeVisualModel = this.visualModels.find((model) => model.getId() == toModel) ?? null;
+            this.activeVisualModel = [...this.models.keys()].find(
+                (m) => (m as VisualEntityModel)?.getId() == toModel
+            ) as VisualEntityModel;
             return;
         }
         this.activeVisualModel = toModel; // can be null or a real visual model
@@ -194,11 +196,13 @@ export class SemanticModelAggregatorView {
         return this.aggregator.activeVisualModel;
     }
 
-    getAvailableViews(): string[] {
-        return this.aggregator.visualModels.map((model) => model.getId());
+    getAvailableVisualModelIds(): string[] {
+        return [...this.aggregator.models.keys()]
+            .filter((m) => isVisualModel(m))
+            .map((m) => (m as VisualEntityModel).getId());
     }
 
-    changeVisualView(toModel: string) {
+    changeActiveVisualModel(toModel: string) {
         this.aggregator.setActiveVisualModel(toModel);
     }
 }

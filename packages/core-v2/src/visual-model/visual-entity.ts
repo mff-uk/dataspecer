@@ -10,6 +10,7 @@ export interface VisualEntity {
     visible: boolean;
     position: Position;
     hiddenAttributes: string[];
+    // color: string;
 }
 
 export type VisualEntities = Record<string, VisualEntity>;
