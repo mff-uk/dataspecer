@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "rimraf": "^4.4.1",
-    "typescript": "~5.0.4"
+    "typescript": "~5.3.3"
   },
   "dependencies": {
     "@dataspecer/core": "*"

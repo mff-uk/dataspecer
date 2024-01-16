@@ -7,7 +7,7 @@
     "target": "ESNext",                                     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
 
     /* Modules */
-    "module": "NodeNext",                                /* Specify what module code is generated. */
+    "module": "Node16",                                /* Specify what module code is generated. */
     "rootDir": "./src/",                                  /* Specify the root folder within your source files. */
 
     /* Emit */
