@@ -112,7 +112,7 @@ export class ShExAdapter {
   public generate = async () => {
     
     if (this.model.roots.length > 1) {
-      console.warn("SHACL generator: Multiple schema roots not supported yet.");
+      console.warn("ShEx generator: Multiple schema roots not supported yet.");
     }
 
     const rootClasses = this.model.roots[0].classes;
@@ -174,7 +174,7 @@ export class ShExAdapter {
       // The class has not been Shaped yet -- to get rid of duplicate shape
       newResult = newResult.concat("<" + nodeName + ">");
       newResult = newResult.concat(this.prePropertyStatements(root));
-      newResult = newResult.concat("\n" + this.generateShape(root, classNameIri, objectOf));
+      newResult = newResult.concat("{\n" + this.generateShape(root, classNameIri, objectOf));
       newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
       newResult = newResult.concat("}\n");
 
@@ -356,7 +356,7 @@ export class ShExAdapter {
           newResult = newResult.concat("\n");
           newResult = newResult.concat("\t");
           if(isReverse){
-            newResult = newResult.concat(" ^");
+            newResult = newResult.concat("\u005E");
           } 
             
           newResult = newResult.concat("<" + cimiri + ">");
