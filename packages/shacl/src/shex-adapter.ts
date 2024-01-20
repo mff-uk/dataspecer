@@ -71,7 +71,7 @@ const { DataFactory } = N3;
 //const N3 = N3Deref;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
 //const { Writer } = WriterN3;
-export class ShExAdapter {
+export class ShexAdapter {
   
   
   protected model: StructureModel;
@@ -187,16 +187,6 @@ export class ShExAdapter {
   prePropertyStatements(root: StructureModelClass): string {
     var newResult = "";
     
-
-    if(root.regex != null && root.regex != undefined && root.regex != ""){
-      newResult = newResult.concat(" \\" + root.regex + "\\");
-    }
-
-    if(root.isClosed){
-      newResult = newResult.concat(" CLOSED");
-        
-    }
-
     switch(root.instancesHaveIdentity){
       case "ALWAYS": newResult = newResult.concat(" IRI");
       break;
@@ -205,6 +195,15 @@ export class ShExAdapter {
       case "OPTIONAL": newResult = newResult.concat(" NonLiteral");
       break;
       default: newResult = newResult.concat(" NonLiteral");
+    }
+
+    if(root.regex != null && root.regex != undefined && root.regex != ""){
+      newResult = newResult.concat(" /" + root.regex + "/");
+    }
+
+    if(root.isClosed){
+      newResult = newResult.concat(" CLOSED");
+        
     }
 
     return newResult;
@@ -377,12 +376,14 @@ export class ShExAdapter {
               newResult = newResult.concat(" <" + simpleTypeMapIRI[dtcasted.dataType] + ">"); 
             if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
               if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
-                newResult = newResult.concat(" \\" + dtcasted.regex.toString() + "\\" ); 
+                newResult = newResult.concat(" /" + dtcasted.regex.toString() + "/" ); 
               }
             }
           } else{
             if(dtcasted.dataType != null){
-              newResult = newResult.concat(" " + dtcasted.dataType ); 
+              newResult = newResult.concat(" <" + dtcasted.dataType + ">" ); 
+            } else{
+              newResult = newResult.concat(" _" ); 
             }
           }
         

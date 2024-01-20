@@ -1,42 +1,42 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix base: <https://example.org/>.
+@base <https://example.org/>.
 
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03/osobaNodeShape> a sh:NodeShape;
+<bfe55dedc512e9e184b5194b632c1c03osobaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
-<https://example.org/0404634e3e3a6b298b7f84b13c615508/adresa-popisekPropertyShape> a sh:PropertyShape;
+<0404634e3e3a6b298b7f84b13c615508adresa-popisekShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03/osobaNodeShape> sh:property <https://example.org/0404634e3e3a6b298b7f84b13c615508/adresa-popisekPropertyShape>.
-<https://example.org/f7ea2c845acb6739520592fd82789ace/link-popisekPropertyShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03osobaShape> sh:property <0404634e3e3a6b298b7f84b13c615508adresa-popisekShape>.
+<f7ea2c845acb6739520592fd82789acelink-popisekShape> a sh:PropertyShape;
     sh:description "Link na entitu"@cs;
     sh:name "Link"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>.
-<https://example.org/fe735b834144ace6d68550def556ef07/linkNodeShape> a sh:NodeShape;
+<fe735b834144ace6d68550def556ef07linkShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Link na entitu"@cs;
     sh:name "Link"@cs.
-<https://example.org/97eace8ece3ae4787da1c3d75a18dd0c/ulice-popisekPropertyShape> a sh:PropertyShape;
+<97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape> a sh:PropertyShape;
     sh:description "Ulice bydliště"@cs;
     sh:name "ulice"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.org/fe735b834144ace6d68550def556ef07/linkNodeShape> sh:property <https://example.org/97eace8ece3ae4787da1c3d75a18dd0c/ulice-popisekPropertyShape>.
-<https://example.org/f70066e25d40941727411fcfcb652070/cislo-popisne-popisekPropertyShape> a sh:PropertyShape;
+<fe735b834144ace6d68550def556ef07linkShape> sh:property <97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape>.
+<f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
     sh:name "Číslo popisné"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.org/fe735b834144ace6d68550def556ef07/linkNodeShape> sh:property <https://example.org/f70066e25d40941727411fcfcb652070/cislo-popisne-popisekPropertyShape>.
-<https://example.org/f7ea2c845acb6739520592fd82789ace/link-popisekPropertyShape> sh:node <https://example.org/fe735b834144ace6d68550def556ef07/linkNodeShape>.
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03/osobaNodeShape> sh:property <https://example.org/f7ea2c845acb6739520592fd82789ace/link-popisekPropertyShape>.
+<fe735b834144ace6d68550def556ef07linkShape> sh:property <f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape>.
+<f7ea2c845acb6739520592fd82789acelink-popisekShape> sh:node <fe735b834144ace6d68550def556ef07linkShape>.
+<bfe55dedc512e9e184b5194b632c1c03osobaShape> sh:property <f7ea2c845acb6739520592fd82789acelink-popisekShape>.
