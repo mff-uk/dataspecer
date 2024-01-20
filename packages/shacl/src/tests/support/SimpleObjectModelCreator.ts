@@ -39,8 +39,8 @@ class SimpleObjectModelCreator implements ModelCreator{
       street.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze";
       street.dataTypes = [primitiveType8];
       street.dematerialize = false;
-      street.humanDescription = {["cs"]: "Ulice bydliště"};
-      street.humanLabel = {["cs"]: "ulice"};
+      street.humanDescription = {["cs"]: "Ulice bydliště", ["en"]: "Street of the address"};
+      street.humanLabel = {["cs"]: "ulice", ["en"]: "Street"};
       street.isReverse = false;
       street.pimIri = "https://example.com/mojePimIriUlice";
       street.psmIri = "https://example.com/mojePsmIriUlice";

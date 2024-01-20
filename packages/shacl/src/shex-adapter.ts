@@ -271,33 +271,6 @@ export class ShexAdapter {
     return newResult;
   }
 
-  generateLanguageString(languageDescription: LanguageString, classNameIri: string, blankNodes: any[], attribute: string): void {
-    const predicate = "http://www.w3.org/ns/shacl#" + attribute;
-    if(classNameIri != null){
-      for (const languageTag in languageDescription) {
-        const language = languageDescription[languageTag];
-        if(languageDescription != null){
-          this.writer.addQuad(
-            namedNode( classNameIri ),
-            namedNode(predicate),
-            literal(language , languageTag )
-          );
-          
-        }
-      }
-    } else{
-      for (const languageTag in languageDescription) {
-        const language = languageDescription[languageTag];
-        if(languageDescription != null){
-          blankNodes.push({
-            predicate: namedNode(predicate),
-            object:    literal(language , languageTag )
-          });
-        }
-      }
-    }
-  }
-
   /**
    * The function takes available description (technical or human label) and makes it camel case.
    * @param root
@@ -351,7 +324,7 @@ export class ShexAdapter {
         const pathtoorigin = prop.pathToOrigin;
         
         for (var dt of datatypes) {
-          newResult = newResult.concat(";");
+          newResult = newResult.concat(" ;");
           newResult = newResult.concat("\n");
           newResult = newResult.concat("\t");
           if(isReverse){
@@ -419,11 +392,27 @@ export class ShexAdapter {
             newResult = newResult.concat(" {" + cardinalitymin + ",}");
           }
       
-           
+          newResult = newResult.concat(this.generateLanguageString(prop.humanLabel,classNameIri, null, "label"));
+          newResult = newResult.concat(this.generateLanguageString(prop.humanDescription,classNameIri, null, "comment"));     
+          
         }
       }
     }
     
+    return newResult;
+  }
+
+generateLanguageString(languageDescription: LanguageString, classNameIri: string, blankNodes: any[], attribute: string): string {
+  var newResult = "";  
+  const predicate = "http://www.w3.org/2000/01/rdf-schema#" + attribute;
+  var firstString = true;
+      for (const languageTag in languageDescription) {
+        const language = languageDescription[languageTag];
+        if(languageDescription != null){
+          newResult = newResult.concat("\n\t\t// <" + predicate + ">\t\"" + language + "\"");        
+          break;
+        }
+      }      
     return newResult;
   }
 

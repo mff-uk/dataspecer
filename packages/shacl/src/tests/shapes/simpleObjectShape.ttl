@@ -25,8 +25,8 @@
     sh:description "Link na entitu"@cs;
     sh:name "Link"@cs.
 <97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape> a sh:PropertyShape;
-    sh:description "Ulice bydliště"@cs;
-    sh:name "ulice"@cs;
+    sh:description "Ulice bydliště"@cs, "Street of the address"@en;
+    sh:name "ulice"@cs, "Street"@en;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
