@@ -201,6 +201,7 @@ export class ShaclAdapter {
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
     switch(root.instancesSpecifyTypes){
+      // TODO make sure the class is unique in the structure
       case "ALWAYS": {
         this.writer.addQuad(
           namedNode( classNameIri),

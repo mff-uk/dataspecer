@@ -17,6 +17,7 @@ import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
 //import { DataFactory as DataFactoryN3 } from 'n3';
 //import { Writer as WriterN3 } from 'n3';
+import * as Support from "./shacl-support";
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 import md5 from "md5";
@@ -130,6 +131,10 @@ export class ShexAdapter {
       resultString = resultString + part;
     }
     
+    var recordOfDataAndPrefixes = Support.prefixifyFinalOutput(resultString, this.baseURL);
+
+    resultString = (await Support.prependPrefixes(recordOfDataAndPrefixes)).toString();
+
     return { data: resultString };
     //return { data: this.scriptString};
   };
@@ -356,7 +361,8 @@ export class ShexAdapter {
             if(dtcasted.dataType != null){
               newResult = newResult.concat(" <" + dtcasted.dataType + ">" ); 
             } else{
-              newResult = newResult.concat(" _" ); 
+              // Arbitrary datatype, datatype is not enforced by user
+              newResult = newResult.concat(" ." ); 
             }
           }
         
@@ -436,7 +442,7 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
     const technicalName = this.irify(root);
     const nodeOrProperty = "Shape";
 
-    generatedIRI = baseIRI + md5String + "/" + technicalName + nodeOrProperty;
+    generatedIRI = baseIRI + md5String + technicalName + nodeOrProperty;
 
     return generatedIRI;
   }
