@@ -2,18 +2,16 @@ prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 prefix base: <https://example.org/>
 
-base:fc95339538d871f8c31b52a6c6272623prvek-obsazeny-v-ruianShape NonLiteral{
-	a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian> ?}
-base:fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape NonLiteral{
+base:fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape IRI{
 	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze> xsd:string +
 		// rdfs:label	"ulice"
 		// rdfs:comment	"Ulice bydliště" ;
 	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze> xsd:string +
 		// rdfs:label	"Číslo popisné"
 		// rdfs:comment	"Číslo popisné dané budovy"}
-base:bfe55dedc512e9e184b5194b632c1c03adresaShape NonLiteral{
+base:bfe55dedc512e9e184b5194b632c1c03adresaShape IRI{
 	a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa> ;
-	<https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> @base:fc95339538d871f8c31b52a6c6272623prvek-obsazeny-v-ruianShape +
+	<https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> IRI { a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian> ? } +
 		// rdfs:label	"Prvek rúian"
 		// rdfs:comment	"Popis prvku rúian" ;
 	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze> @base:fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape +

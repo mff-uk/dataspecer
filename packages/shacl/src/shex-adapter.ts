@@ -186,7 +186,7 @@ export class ShexAdapter {
       break;
       case "OPTIONAL": newResult = newResult.concat(" NonLiteral");
       break;
-      default: newResult = newResult.concat(" NonLiteral");
+      default: newResult = newResult.concat(" IRI");
     }
 
     if(root.regex != null && root.regex != undefined && root.regex != ""){
@@ -209,7 +209,9 @@ export class ShexAdapter {
         break;
       case "OPTIONAL":  newResult = newResult.concat("\ta <" + root.cimIri + "> ?" );
       break;
-        default: 
+      case "NEVER": {}
+      break;
+        default: newResult = newResult.concat("\ta <" + root.cimIri + ">" );
     }
     
     return newResult;
@@ -270,12 +272,12 @@ export class ShexAdapter {
         for (var dt of datatypes) {
 
           if((root.instancesSpecifyTypes == "NEVER") && firstString){
-            firstString = false;
+              console.log("root.instancesSpecifyTypes: " + root.instancesSpecifyTypes.toString() + " " + firstString);
           } else {
             newResult = newResult.concat(" ;");
             newResult = newResult.concat("\n");
           }
-
+          firstString = false;
           newResult = newResult.concat("\t");
           if(isReverse){
             newResult = newResult.concat("\u005E");
@@ -318,9 +320,19 @@ export class ShexAdapter {
               const dtcasted = <StructureModelComplexType> dt;
               //Create Property Shape to connect to
               const nodeIRI = this.getIRIforShape(prop);
+
+              if(dtcasted.dataType.properties == null || dtcasted.dataType.properties.length == 0){
+                // create inner constraint just for the nodeType and Type
+                newResult = newResult.concat(this.createInnerShortConstraint(dtcasted.dataType));
+
+              } else{
+                
               // Add datatype for the PopertyNode
               const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, cimiri);
               newResult = newResult.concat(" @<" + nameForAnotherClass + ">"); 
+
+              }
+
             }
           }
 
@@ -352,6 +364,32 @@ export class ShexAdapter {
     
     return newResult;
   }
+
+  createInnerShortConstraint(cls : StructureModelClass){
+    var newResult = "";
+
+    switch(cls.instancesHaveIdentity){
+      case "ALWAYS": newResult = newResult.concat(" IRI");
+      break;
+      case "NEVER": newResult = newResult.concat(" BNode");
+      break;
+      case "OPTIONAL": newResult = newResult.concat(" NonLiteral");
+      break;
+      default: newResult = newResult.concat(" IRI");
+    }
+
+    switch(cls.instancesSpecifyTypes){
+      case "ALWAYS": newResult = newResult.concat(" { a <" + cls.cimIri + "> }");
+      break;
+      case "OPTIONAL": newResult = newResult.concat(" { a <" + cls.cimIri + "> ? }");
+      break;
+      case "NEVER": newResult = newResult.concat(" .");
+        break;
+        default: newResult = newResult.concat(" { a <" + cls.cimIri + "> }");
+    }
+
+    return newResult;
+  }  
 
 generateLanguageString(languageDescription: LanguageString, classNameIri: string, blankNodes: any[], attribute: string): string {
   var newResult = "";  
