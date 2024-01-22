@@ -1,4 +1,4 @@
-/*
+
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 import md5 from "md5";
@@ -8,15 +8,14 @@ import fs from "fs";
 import fetch from "node-fetch";
 import shexjs__loader from "@shexjs/loader";
 import {ShExValidator} from "@shexjs/validator";
-import { RdfJsDb } from '@shexjs/neighborhood-rdfjs';
 //const { ctor: RdfJsDb } = require('@shexjs/neighborhood-rdfjs');
 
-
+/*
 
 jest.useFakeTimers();
 const loader = require('@shexjs/loader');
 
-const shexc = "./data/shexSchema.shex";  // schema location
+const shexc = "./shexShapes/simpleObjectShape.shex";  // schema location
 const data = "./data/shexData.ttl";        // data location
 const node = "http://shex.io/examples/Issue1#Issue1"; // node in that data
 
@@ -67,9 +66,18 @@ ShExLoader.load({shexc: [shexc]}, {turtle: [data]})
   const validation = await Support.testNegative(testType, modelCreator);
   expect(validation.conforms).toBe(false);
 });
-*/
+
+
+let theGraph = someTriplifier(dataObject); # turn the dataObject into triples
+ShEx.Loader.load([validationShape], [], [], []).then(function (loaded) {
+  var db = ShEx.Util.makeN3DB(theGraph);
+  var validator = ShEx.Validator.construct(loaded.schema, { results: "api" });
+  var result = validator.validate(db, [{node: dataID, shape: shapeURL}]);
+  return result;
+}).catch(e => console.error(e));
 
 import * as Support from "./support/testSupport";
+*/
 import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
 
 const testType = "simpleObject";

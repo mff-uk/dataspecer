@@ -161,12 +161,12 @@ export async function prependPrefixes(recordOfDataAndPrefixes : Record<string, R
     for(var key in recordOfDataAndPrefixes){
         data = key;
         prefixes = recordOfDataAndPrefixes[key];
-        console.log("Setup in prependPrefixes ");
+        //console.log("Setup in prependPrefixes ");
     }
 
     for(var key in prefixes ){
         prefixesString = prefixesString.concat("prefix " + key + ": <" + prefixes[key] + ">\n");
-        console.log("prefixesString in prependPrefixes " + prefixesString);
+        //console.log("prefixesString in prependPrefixes " + prefixesString);
     }
 
     prefixesString = prefixesString.concat("\n");
@@ -198,7 +198,7 @@ function recognizeStandardPrefixes(data : string): Record<string, string>{
         }      
     }
     for(var key in prefixes){
-        console.log("prvek z prefixoveho pole " + key + ":" + prefixes[key]);
+        //console.log("prvek z prefixoveho pole " + key + ":" + prefixes[key]);
     }
        
    
@@ -225,7 +225,7 @@ function prefixifyString(data : string, prefixes: Record<string, string>): strin
             }
         );
     }
-    console.log("prefixified string: " + prefixifiedString);
+    //console.log("prefixified string: " + prefixifiedString);
     return prefixifiedString;
 }
 

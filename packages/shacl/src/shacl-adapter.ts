@@ -134,7 +134,7 @@ export class ShaclAdapter {
     this.context = context;
     this.artefact = artefact;
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
-    console.log("base URL in constructor is " + this.baseURL);
+    //console.log("base URL in constructor is " + this.baseURL);
     this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }); 
   }
 
@@ -609,7 +609,7 @@ export class ShaclAdapter {
     // if the class is not in the list, add it
     if(this.classesUsedInStructure.indexOf(root.cimIri) == -1){
       this.classesUsedInStructure.push[root.cimIri];
-      console.log(root.cimIri);
+      //console.log(root.cimIri);
     }
     for (const [i, prop] of root.properties.entries()) {
       for (var dt of prop.dataTypes) {

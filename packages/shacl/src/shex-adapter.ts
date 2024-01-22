@@ -107,7 +107,6 @@ export class ShexAdapter {
       this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
     }
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
-    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", base: this.baseURL } }); 
   }
 
   public generate = async () => {
@@ -136,7 +135,6 @@ export class ShexAdapter {
     resultString = (await Support.prependPrefixes(recordOfDataAndPrefixes)).toString();
 
     return { data: resultString };
-    //return { data: this.scriptString};
   };
 
   generatePrefixesString(): string {
@@ -151,17 +149,6 @@ export class ShexAdapter {
       prefixesObject[newAttribute] =  tuple[1] ;
     }
 
-    //this.writer  = new N3.Writer({ prefixes: prefixesObject});
-/*
-    prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
-    for(const tuple of this.knownPrefixes){
-      prefixesString = prefixesString.concat(`${ tuple[0] }: '${ tuple[1] }'`);
-      if(--iterations){
-        prefixesString = prefixesString.concat(`, \n`);
-      }
-    }
-    prefixesString = prefixesString.concat(` } });\n`);
-    */
     return prefixesString;
   }
 
@@ -215,62 +202,14 @@ export class ShexAdapter {
   }
 
   generateShape(root: StructureModelClass, classNameIri: string, objectOf : String): string {
-
     var newResult = "";
-    newResult = newResult.concat("\ta <" + root.cimIri + ">" );
-    /*this.writer.addQuad(
-      namedNode( classNameIri),
-      namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-      namedNode('http://www.w3.org/ns/shacl#NodeShape')
-    );
-    */
+
     switch(root.instancesSpecifyTypes){
-      case "ALWAYS": {
-        this.writer.addQuad(
-          namedNode( classNameIri),
-          namedNode('http://www.w3.org/ns/shacl#targetClass'),
-          namedNode( root.cimIri)
-        );
-      }
+      case "ALWAYS":  newResult = newResult.concat("\ta <" + root.cimIri + ">" );     
         break;
-      case "NEVER": {
-        this.writer.addQuad(
-          namedNode(classNameIri),
-          namedNode('http://www.w3.org/ns/shacl#not'),
-          this.writer.blank([{
-            predicate: namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            object:    namedNode('http://www.w3.org/ns/shacl#PropertyShape'),
-          },{
-            predicate: namedNode('http://www.w3.org/ns/shacl#path'),
-            object:    namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          },{
-            predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-            object:    literal(1),
-          }])
-      )}
-      case "OPTIONAL": 
-        default: {
-          if(objectOf == null){
-            /*
-            // The target node is the root class, there is no object of predicate to rely on
-            for (var property in root.properties) {
-              // TODO
-            }
-            this.writer.addQuad(
-              namedNode( classNameIri),
-              namedNode('http://www.w3.org/ns/shacl#or'),
-              namedNode( objectOf )
-            );
-            */
-          } else{
-            // The target node is not the root class, we can rely on it being object of a predicate
-            this.writer.addQuad(
-              namedNode( classNameIri),
-              namedNode('http://www.w3.org/ns/shacl#targetObjectsOf'),
-              namedNode( objectOf )
-            );
-          }
-        }
+      case "OPTIONAL":  newResult = newResult.concat("\ta <" + root.cimIri + "> ?" );
+      break;
+        default: 
     }
     
     return newResult;
@@ -307,7 +246,6 @@ export class ShexAdapter {
     this.debugString = this.debugString + `\n${capitalizedTechnicalLabel}`;
 
     return this.getIRIforShape(root);
-    //return capitalizedTechnicalLabel + "Shape";
   }
 
 
@@ -315,6 +253,7 @@ export class ShexAdapter {
   generatePropertiesConstraints(root: StructureModelClass, classNameIri: string): string {
     var newResult = "";
     var propDesc = "";
+    var firstString = true;
     if (root.properties != null && root.properties.length != 0) {
       for (const [i, prop] of root.properties.entries()) {
 
@@ -329,8 +268,14 @@ export class ShexAdapter {
         const pathtoorigin = prop.pathToOrigin;
         
         for (var dt of datatypes) {
-          newResult = newResult.concat(" ;");
-          newResult = newResult.concat("\n");
+
+          if((root.instancesSpecifyTypes == "NEVER") && firstString){
+            firstString = false;
+          } else {
+            newResult = newResult.concat(" ;");
+            newResult = newResult.concat("\n");
+          }
+
           newResult = newResult.concat("\t");
           if(isReverse){
             newResult = newResult.concat("\u005E");
@@ -371,11 +316,11 @@ export class ShexAdapter {
             for (var dt of datatypes) {
               // create new Shape and tie this property to it     
               const dtcasted = <StructureModelComplexType> dt;
-            //Create Property Shape to connect to
-            const nodeIRI = this.getIRIforShape(prop);
-             // Add datatype for the PopertyNode
-            const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, cimiri);
-            newResult = newResult.concat(" @<" + nameForAnotherClass + ">"); 
+              //Create Property Shape to connect to
+              const nodeIRI = this.getIRIforShape(prop);
+              // Add datatype for the PopertyNode
+              const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, cimiri);
+              newResult = newResult.concat(" @<" + nameForAnotherClass + ">"); 
             }
           }
 
@@ -483,10 +428,6 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
       
       qname = [newTag, name];
       this.knownPrefixes.push([newTag,prefix]);
-      /*this.debugString = this.debugString + "qname " + qname + `\n`;
-      this.debugString = this.debugString + "knownPrefixes " + this.knownPrefixes + `\n`;
-      this.debugString = this.debugString + "sameTags " + this.sameTags + `\n`;
-      */
     }
 
     return qname;
@@ -497,8 +438,6 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
     // if the class is not in the list, add it
     if(this.classesUsedInStructure.indexOf(root.cimIri) == -1){
       this.classesUsedInStructure.push[root.cimIri];
-      console.log(root.cimIri);
-      //console.log(this.classesUsedInStructure);
     }
     for (const [i, prop] of root.properties.entries()) {
       for (var dt of prop.dataTypes) {
@@ -508,7 +447,6 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
         }
       }
     }
-    //console.log(this.classesUsedInStructure);
   }
 }
 function isEmptyOrSpaces(str) : boolean{

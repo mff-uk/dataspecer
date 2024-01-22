@@ -106,30 +106,32 @@ class SimpleObjectModelCreator implements ModelCreator{
       class2.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian";
       class2.codelistUrl = ["https://example.com/class1/codelistIri"];
       class2.example = null;
-      class2.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
-      class2.humanLabel = {["cs"]: "Adresa", ["pl"]: "Adres"};
+      class2.humanDescription = {["cs"]: "Popis prvku obsaženého v rúian"};
+      class2.humanLabel = {["cs"]: "Prvek obsažený v rúian", ["pl"]: "Część"};
       class2.pimIri = "https://example.com/class1/mojePimIriadresa";
       class2.properties = [];
       class2.psmIri = "https://example.com/class1/mojePsmIriadresa";
       class2.regex = null;
       class2.specification = null;
       class2.structureSchema = null;
-      class2.technicalLabel = "adresa";
+      class2.technicalLabel = "prvek-obsazeny-v-ruian";
+      class2.instancesSpecifyTypes = "OPTIONAL";
 
       var classLink : StructureModelClass;
       classLink = new StructureModelClass();
       classLink.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze";
       classLink.codelistUrl = ["https://example.com/class1/codelistIri"];
       classLink.example = null;
-      classLink.humanDescription = {["cs"]: "Link na entitu"};
-      classLink.humanLabel = {["cs"]: "Link"};
+      classLink.humanDescription = {["cs"]: "Popis území městského obvodu"};
+      classLink.humanLabel = {["cs"]: "Území městského obvodu"};
       classLink.pimIri = "https://example.com/class1/mojePimIriadresa";
       classLink.properties = [street, bn];
       classLink.psmIri = "https://example.com/class1/mojePsmIriadresa";
       classLink.regex = null;
       classLink.specification = null;
       classLink.structureSchema = null;
-      classLink.technicalLabel = "link";
+      classLink.technicalLabel = "uzemi-mestskeho-obvodu";
+      classLink.instancesSpecifyTypes = "NEVER"
 
       var complexType1 : StructureModelComplexType;
       complexType1 = new StructureModelComplexType();
@@ -145,12 +147,12 @@ class SimpleObjectModelCreator implements ModelCreator{
       property1.cimIri = "https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian";
       property1.dataTypes = [complexType1];
       property1.dematerialize = false;
-      property1.humanDescription = {["cs"]: "Adresa bydliště dané osoby"};
-      property1.humanLabel = {["cs"]: "Adresa"};
+      property1.humanDescription = {["cs"]: "Popis prvku rúian"};
+      property1.humanLabel = {["cs"]: "Prvek rúian"};
       property1.isReverse = false;
       property1.pimIri = "https://example.com/mojePimIriadresa";
       property1.psmIri = "https://example.com/mojePsmIriadresa";
-      property1.technicalLabel = "adresa-popisek";
+      property1.technicalLabel = "prvek-ruian";
 
       var propertyLink : StructureModelProperty;
       propertyLink = new StructureModelProperty();
@@ -158,12 +160,12 @@ class SimpleObjectModelCreator implements ModelCreator{
       propertyLink.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze";
       propertyLink.dataTypes = [complexType2];
       propertyLink.dematerialize = false;
-      propertyLink.humanDescription = {["cs"]: "Link na entitu"};
-      propertyLink.humanLabel = {["cs"]: "Link"};
+      propertyLink.humanDescription = {["cs"]: "Link na entitu má přiřazené území"};
+      propertyLink.humanLabel = {["cs"]: "Má přiřazené území"};
       propertyLink.isReverse = false;
       propertyLink.pimIri = "https://example.com/mojePimIriadresa";
       propertyLink.psmIri = "https://example.com/mojePsmIriadresa";
-      propertyLink.technicalLabel = "link-popisek";
+      propertyLink.technicalLabel = "ma-prirazene-uzemi";
 
       var class1 : StructureModelClass;
       class1 = new StructureModelClass();
@@ -171,15 +173,15 @@ class SimpleObjectModelCreator implements ModelCreator{
       class1.codelistUrl = ["https://example.com/class1/codelistIri"];
       class1.example = null;
       //class1.extends = null;
-      class1.humanDescription = {["cs"]: "Class 1 Popisek 1"};
-      class1.humanLabel = {["cs"]: "Class 1 Label 1"};
+      class1.humanDescription = {["cs"]: "Adresa popisek"};
+      class1.humanLabel = {["cs"]: "Adresa"};
       class1.pimIri = "https://example.com/class1/mojePimIri";
       class1.properties = [property1, propertyLink];
       class1.psmIri = "https://example.com/class1/mojePsmIri";
       class1.regex = null;
       class1.specification = null;
       class1.structureSchema = null;
-      class1.technicalLabel = "osoba";
+      class1.technicalLabel = "adresa";
       class1.instancesSpecifyTypes = "ALWAYS";
   
       var root1 : StructureModelSchemaRoot;
