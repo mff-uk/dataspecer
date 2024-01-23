@@ -50,6 +50,8 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     structureModel: StructureModel,
     jsonSchema: JsonSchema,
     mergedConceptualModel: ConceptualModel,
+    configuration: JsonConfiguration,
+    globalConfiguration: DataSpecificationConfiguration
   }> {
     if (!DataSpecificationSchema.is(artefact)) {
       assertFailed("Invalid artefact type.");
@@ -85,7 +87,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     }
     const jsonSchema = structureModelToJsonSchema(context.specifications, specification, structureModel, configuration, artefact);
 
-    return {structureModel, jsonSchema, mergedConceptualModel}
+    return {structureModel, jsonSchema, mergedConceptualModel, configuration, globalConfiguration}
   }
 
   // todo add structureModelAddIdAndTypeProperties
@@ -109,7 +111,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
 
-      const {structureModel, jsonSchema, mergedConceptualModel} = await this.generateToObject(context, artefact, specification, true);
+      const {structureModel, jsonSchema, mergedConceptualModel, configuration} = await this.generateToObject(context, artefact, specification, true);
       const conceptualModelProperties: Record<string, ConceptualModelProperty> = {};
       Object.values(mergedConceptualModel.classes).forEach(cls => {
         cls.properties.forEach(prop => {
@@ -145,20 +147,72 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         });
       });
       return {
-        structureModel, jsonSchema,
+        structureModel,
+        jsonSchema,
+        configuration,
         classes: await structureModel.getClasses(),
         useTemplate: () => (template, render) => {
           if (template.trim() !== "") {
             return render(template);
           } else {
-            return render(`## Přehled JSON struktury
-V této sekci je definován strukturní model pro [JSON schéma]({{#publicUrl}}{{{relativePath}}}{{/publicUrl}}).
+            let infoText = "Datová sada je tvořena ";
+            switch (configuration.jsonRootCardinality) {
+              case "single":
+                infoText += "jediným prvkem odpovídající datové struktuře";
+                break;
+              case "array":
+                infoText += "seznamem prvků odpovídajících datové struktuře";
+                break;
+              case "object-with-array":
+                infoText += "seznamem prvků odpovídajících datové struktuře";
+                break;
+              default:
+                assertFailed("Unknown cardinality.");
+            }
 
-{{specification}}
+            let infoText2 = configuration.jsonRootCardinality === "object-with-array" ? ` Prvky jsou uvedeny v poli \`${configuration.jsonRootCardinalityObjectKey}\`.` : "";
+
+            return render(`## Přehled JSON struktury
+${infoText} {{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}.${infoText2}
+
 {{#classes}}{{#inThisSchema}}
 - [{{#humanLabel}}{{translate}}{{/humanLabel}}]({{#pimClass}}#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}{{/pimClass}})
 {{#properties}}
-    - \`{{technicalLabel}}\`: {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}} ({{cardinalityRange}}) položka typu {{#dataTypes}}{{#isAssociation}}**{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}**{{/isAssociation}}{{#isAttribute}} {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}{{/dataTypes}}
+    - \`{{technicalLabel}}\`: {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}} ({{cardinalityRange}}) položka typu {{#dataTypes}}{{#isAssociation}}**{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}**{{/isAssociation}}{{#isAttribute}} {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{#regex}} dle regulárního výrazu \`{{{.}}}\`{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}{{/dataTypes}}
+{{/properties}}
+{{/inThisSchema}}{{/classes}}
+
+## Detailní specifikace prvků JSON struktury
+V této části jsou specifikovány jednotlivé prvky JSON struktury.
+
+{{#classes}}{{#inThisSchema}}
+### {{#humanLabel}}{{translate}}{{/humanLabel}} ### {#{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
+{{#humanDescription}}{{#translate}}
+: Popis
+:: {{.}}
+{{/translate}}{{/humanDescription}}
+: Interpretace
+{{#pimClass}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimClass}}
+{{#properties}}
+#### Vlastnost \`{{technicalLabel}}\` #### {#{{#humanLabel}}{{#translate}}json-structure-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
+: Klíč
+:: \`{{technicalLabel}}\`
+: Jméno
+:: {{#humanLabel}}{{translate}}{{/humanLabel}}
+{{#humanDescription}}{{#translate}}
+: Popis
+:: {{.}}
+{{/translate}}{{/humanDescription}}
+: Povinnost
+:: {{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}
+: Kardinalita
+:: {{cardinalityRange}}
+: Typ
+{{#dataTypes}}
+{{#isAssociation}}:: [{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}]({{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}){{/isAssociation}}{{#isAttribute}}:: {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
+{{/dataTypes}}
+: Interpretace
+{{#pimAssociation}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimAssociation}}
 {{/properties}}
 {{/inThisSchema}}{{/classes}}
 `);
