@@ -163,7 +163,7 @@ export class ShexAdapter {
       newResult = newResult.concat(this.prePropertyStatements(root));
       newResult = newResult.concat("{\n" + this.generateShape(root, classNameIri, objectOf));
       newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
-      newResult = newResult.concat("}\n");
+      newResult = newResult.concat("\n}\n");
 
       this.shapes.push(newResult);
       this.sameClass.push([nodeName, root]);
