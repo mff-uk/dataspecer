@@ -135,7 +135,7 @@ export class ShaclAdapter {
     this.artefact = artefact;
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
     //console.log("base URL in constructor is " + this.baseURL);
-    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }); 
+    this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
   }
 
   public generate = async () => {
@@ -472,7 +472,8 @@ export class ShaclAdapter {
     var generatedIRI : string;
     var md5String = md5(root.cimIri);
     const technicalName = this.irify(root);
-    generatedIRI = this.baseURL +  md5String + technicalName + "Shape";
+
+    generatedIRI = (this.baseURL != null) ? this.baseURL +  md5String + technicalName + "Shape" : md5String + technicalName + "Shape";
 
     return generatedIRI;
   }

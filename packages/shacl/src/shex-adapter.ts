@@ -415,12 +415,11 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    const baseIRI = this.baseURL;
     var md5String = md5(root.cimIri);
     const technicalName = this.irify(root);
     const nodeOrProperty = "Shape";
 
-    generatedIRI = baseIRI + md5String + technicalName + nodeOrProperty;
+    generatedIRI = (this.baseURL != null) ? this.baseURL + md5String + technicalName + nodeOrProperty : md5String + technicalName + nodeOrProperty ;
 
     return generatedIRI;
   }
