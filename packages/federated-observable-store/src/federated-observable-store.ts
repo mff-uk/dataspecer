@@ -209,7 +209,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param cimIri
      * @param pimSchemaIri
      */
-    async getPimHavingInterpretation(cimIri: string, pimSchemaIri: string): Promise<string|null> {
+    async getPimHavingInterpretation(cimIri: string, resourceType: string, pimSchemaIri: string): Promise<string|null> {
         const schema = this.schemas.get(pimSchemaIri);
         if (!schema) {
             return null;
@@ -218,7 +218,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
         for (const resourceIri of schema.resources) {
             const resource = await this.readResource(resourceIri);
             // Ducktyping for PimResource
-            if ((resource as PimResource).pimInterpretation === cimIri) {
+            if ((resource as PimResource).pimInterpretation === cimIri && resource.types.includes(resourceType)) {
                 return resourceIri;
             }
         }
