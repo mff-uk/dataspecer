@@ -100,12 +100,7 @@ export class ShexAdapter {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
-    if(!("publicBaseUrl" in this.artefact.configuration)){
-      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
-    }
-    else if(isEmptyOrSpaces(this.artefact.configuration["publicBaseUrl"])){
-      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
-    }
+
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
   }
 
