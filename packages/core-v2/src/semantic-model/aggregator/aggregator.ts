@@ -8,7 +8,7 @@ import { VisualEntityModel, isVisualModel } from "../../visual-model/visual-mode
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
  * aggregation was performed.
  */
-interface AggregatedEntityWrapper {
+export interface AggregatedEntityWrapper {
     id: string;
     aggregatedEntity: Entity | null;
     visualEntity: VisualEntity | null;

@@ -136,7 +136,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             return color;
         }
 
-        const defaultColor = "#ff0000";
+        const defaultColor = "#db0000";
         this.setColor(modelId, defaultColor);
         return defaultColor;
     }
@@ -144,7 +144,22 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-        this.change({}, []); // TODO: dej to pryc
+        this.change(
+            Object.fromEntries(
+                [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
+                    entity.id,
+                    {
+                        id: entity.id,
+                        type: ["visual-entity"],
+                        sourceEntityId: sourceEntityId,
+                        visible: entity.visible ?? true,
+                        position: entity.position ?? randomPosition(),
+                        hiddenAttributes: entity.hiddenAttributes ?? [],
+                    },
+                ])
+            ),
+            []
+        );
     }
 }
 

@@ -71,40 +71,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         const result = await this.httpFetch(url.toString());
         const modelDescriptors = (await result.json()) as any[];
 
-        const constructedEntityModels: EntityModel[] = [];
-        const constructedVisualModels: VisualEntityModel[] = [];
-        // todo: use more robust approach
-        for (const modelDescriptor of modelDescriptors) {
-            if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/sgov") {
-                const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch);
-                await model.unserializeModel(modelDescriptor);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim") {
-                const model = await createPimModel(
-                    modelDescriptor.backendUrl,
-                    modelDescriptor.dataSpecificationIri,
-                    this.httpFetch
-                );
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/rdfs") {
-                const model = await createRdfsModel(modelDescriptor.urls, this.httpFetch);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://ofn.gov.cz/store-descriptor/http") {
-                constructedEntityModels.push(await createHttpSemanticModel(modelDescriptor, this.httpFetch));
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/visual-model") {
-                const model = createVisualModel(modelDescriptor.modelId).deserializeModel(modelDescriptor);
-                constructedVisualModels.push(model);
-            } else if (
-                modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/in-memory-semantic-model"
-            ) {
-                const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
-                constructedEntityModels.push(model);
-            } else {
-                throw new Error(`Unknown model descriptor type: ${modelDescriptor.type}. Can not create such model.`);
-            }
-        }
-
-        return [constructedEntityModels, constructedVisualModels] as const;
+        return this.getModelsFromModelDescriptors(modelDescriptors);
     }
 
     async updateSemanticModelPackageModels(
@@ -150,5 +117,42 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         const url = new URL(this.backendUrl + "/packages");
         url.searchParams.append("packageId", packageId);
         return url;
+    }
+
+    async getModelsFromModelDescriptors(modelDescriptors: any[]) {
+        const constructedEntityModels: EntityModel[] = [];
+        const constructedVisualModels: VisualEntityModel[] = [];
+        // todo: use more robust approach
+        for (const modelDescriptor of modelDescriptors) {
+            if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/sgov") {
+                const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch);
+                await model.unserializeModel(modelDescriptor);
+                constructedEntityModels.push(model);
+            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim") {
+                const model = await createPimModel(
+                    modelDescriptor.backendUrl,
+                    modelDescriptor.dataSpecificationIri,
+                    this.httpFetch
+                );
+                constructedEntityModels.push(model);
+            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/rdfs") {
+                const model = await createRdfsModel(modelDescriptor.urls, this.httpFetch);
+                constructedEntityModels.push(model);
+            } else if (modelDescriptor.type === "https://ofn.gov.cz/store-descriptor/http") {
+                constructedEntityModels.push(await createHttpSemanticModel(modelDescriptor, this.httpFetch));
+            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/visual-model") {
+                const model = createVisualModel(modelDescriptor.modelId).deserializeModel(modelDescriptor);
+                constructedVisualModels.push(model);
+            } else if (
+                modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/in-memory-semantic-model"
+            ) {
+                const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
+                constructedEntityModels.push(model);
+            } else {
+                throw new Error(`Unknown model descriptor type: ${modelDescriptor.type}. Can not create such model.`);
+            }
+        }
+
+        return [constructedEntityModels, constructedVisualModels] as const;
     }
 }
