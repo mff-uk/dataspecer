@@ -7,6 +7,9 @@ import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/connection";
 import { useClassesContext } from "../context/classes-context";
+import { useModelGraphContext } from "../context/graph-context";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { EntityModel } from "@dataspecer/core-v2/entity-model";
 
 const AssociationComponent = (props: {
     from: string;
@@ -123,6 +126,10 @@ export const useCreateConnectionDialog = () => {
         setIsOpen(true);
     };
 
+    const filterInMemoryModels = (models: Map<string, EntityModel>) => {
+        return [...models.entries()].filter(([mId, m]) => m instanceof InMemorySemanticModel).map(([mId, _]) => mId);
+    };
+
     const CreateConnectionDialog = () => {
         if (!connectionCreated) {
             close();
@@ -133,9 +140,11 @@ export const useCreateConnectionDialog = () => {
             close();
             return <></>;
         }
+        const { models } = useModelGraphContext();
+        const inMemoryModels = filterInMemoryModels(models);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
-
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
         const [iri, setIri] = useState("https://some.placeholder.com/iri");
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
             name: {},
@@ -144,10 +153,33 @@ export const useCreateConnectionDialog = () => {
         });
 
         return (
-            <dialog ref={createConnectionDialogRef} className="z-50 flex min-h-[400px] w-96 flex-col justify-between">
+            <dialog
+                ref={createConnectionDialogRef}
+                className="z-50 flex min-h-[400px] w-96 flex-col justify-between"
+                onCancel={(e) => {
+                    e.preventDefault();
+                    close();
+                }}
+            >
                 <div>
                     <div>
                         <h5>Connection</h5>
+                        <p>
+                            <label className="font-bold" htmlFor="models">
+                                active-model:
+                            </label>
+
+                            <select
+                                name="models"
+                                id="models"
+                                onChange={(e) => setActiveModel(e.target.value)}
+                                defaultValue={activeModel}
+                            >
+                                {inMemoryModels.map((mId) => (
+                                    <option value={mId}>{mId}</option>
+                                ))}
+                            </select>
+                        </p>
                         <p>
                             <span className="font-bold">from:</span> ..{source.substring(15)}
                         </p>
@@ -185,25 +217,31 @@ export const useCreateConnectionDialog = () => {
                 <div className="flex flex-row justify-evenly font-bold">
                     <button
                         onClick={() => {
-                            const result =
-                                connectionType == "generalization"
-                                    ? createConnection({
-                                          type: "generalization",
-                                          child: source,
-                                          parent: target,
-                                          iri: iri,
-                                      } as GeneralizationConnectionType)
-                                    : createConnection({
-                                          type: "association",
-                                          iri,
-                                          name: association.name,
-                                          description: association.description,
-                                          ends: association.ends,
-                                      } as AssociationConnectionType);
-                            if (!result) {
-                                alert("create-conn-dialog: create-connection failed");
+                            const saveModel = models.get(activeModel);
+                            if (saveModel && saveModel instanceof InMemorySemanticModel) {
+                                const result =
+                                    connectionType == "generalization"
+                                        ? createConnection(saveModel, {
+                                              type: "generalization",
+                                              child: source,
+                                              parent: target,
+                                              iri: iri,
+                                          } as GeneralizationConnectionType)
+                                        : createConnection(saveModel, {
+                                              type: "association",
+                                              iri,
+                                              name: association.name,
+                                              description: association.description,
+                                              ends: association.ends,
+                                          } as AssociationConnectionType);
+                                if (!result) {
+                                    alert("create-conn-dialog: create-connection failed");
+                                }
+                                console.log("create-connection-dialog: created successfully(?)");
+                            } else {
+                                alert(`create-conn-dialog: unknown active model '${activeModel}'`);
                             }
-                            console.log("create-connection-dialog: created successfully(?)");
+
                             close();
                         }}
                     >

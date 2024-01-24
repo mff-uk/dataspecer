@@ -17,15 +17,11 @@ import {
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
 } from "./reactflow/simple-floating-edge";
-import { useClassesContext } from "./context/classes-context";
-import { isOwlThing, colorForModel, tailwindColorToHex } from "./util/utils";
+import { isAttribute, tailwindColorToHex } from "./util/utils";
 
 import "reactflow/dist/style.css";
-import { useVisualizationContext } from "./context/visualization-context";
 import { useCreateConnectionDialog } from "./dialogs/create-connection-dialog";
-import { useViewContext } from "./context/view-context";
 import { useModelGraphContext } from "./context/graph-context";
-import { UNKNOWN_MODEL_ID } from "./util/constants";
 import {
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -35,15 +31,20 @@ import {
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Entity } from "@dataspecer/core-v2/entity-model";
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { useClassesContext } from "./context/classes-context";
+import { VisualEntity } from "@dataspecer/core-v2/visual-model";
+
+export interface AggregatedEntityWrapper {
+    id: string;
+    aggregatedEntity: Entity | null;
+    visualEntity: VisualEntity | null;
+}
 
 export const Visualization = () => {
-    const { /* classes, */ relationships, generalizations, createConnection } = useClassesContext();
-    const { classesAndPositions, updateClassPosition } = useViewContext();
-    const { aggregatorView, visualModels } = useModelGraphContext();
-    const { hideOwlThing, getClassPosition, setClassPosition } = useVisualizationContext();
+    const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
+    const { classes, relationships, attributes, generalizations } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -59,13 +60,16 @@ export const Visualization = () => {
         [setEdges]
     );
 
-    const relationshipOrGeneralizationToEdgeType = (entity: Entity | null): Edge | undefined => {
+    const relationshipOrGeneralizationToEdgeType = (
+        entity: Entity | null,
+        color: string | undefined
+    ): Edge | undefined => {
         if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(entity as SemanticModelRelationship) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(entity as SemanticModelRelationship, color) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
             return semanticModelGeneralizationToReactFlowEdge(
                 entity as SemanticModelGeneralization,
-                undefined,
+                color,
                 undefined
             ) as Edge;
         }
@@ -73,102 +77,205 @@ export const Visualization = () => {
     };
 
     useEffect(() => {
-        console.log("running subscription effect");
-        const callback = () => {
-            // console.log("a change subscriber defined in visualization:");
-            // console.log(aggregatorView.getEntities());
-
+        const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             const entities = aggregatorView.getEntities();
+            console.log("visualization: callback2", updated, removed, entities);
+            const [localClasses, localRelationships, localAttributes, localGeneralizations, localModels] = [
+                classes,
+                relationships,
+                attributes,
+                generalizations,
+                models,
+            ];
 
-            const classesAsNodes = [...Object.keys(entities)]
-                .filter((entityId) => isSemanticModelClass(entities[entityId]?.aggregatedEntity ?? null))
-                .map((entityId) => {
-                    const { id, aggregatedEntity, visualEntity } = entities[entityId]!;
-                    const cls = aggregatedEntity as SemanticModelClass;
-                    const pos = visualEntity?.position;
-                    // console.log(
-                    //     "a change subscriber defined in visualization: tranfsorming nodes",
-                    //     entities,
-                    //     cls,
-                    //     pos,
-                    //     visualEntity
-                    // );
-                    if (!cls || !pos) return;
-                    return semanticModelClassToReactFlowNode(id, cls, pos, colorForModel.get(UNKNOWN_MODEL_ID));
-                })
-                .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
-            console.log("a change subscriber defined in visualization: setting nodes to new ones", classesAsNodes);
-            const edgesFromEntities = [...Object.keys(entities)]
-                .filter(
-                    (entityId) =>
-                        isSemanticModelRelationship(entities[entityId]?.aggregatedEntity ?? null) ||
-                        isSemanticModelGeneralization(entities[entityId]?.aggregatedEntity ?? null)
-                )
-                .map((entityId) => {
-                    const { id, aggregatedEntity, visualEntity } = entities[entityId]!;
-                    return relationshipOrGeneralizationToEdgeType(aggregatedEntity);
-                })
-                .filter((edgeOrUndefined: Edge | undefined): edgeOrUndefined is Edge => !!edgeOrUndefined);
-            console.log(
-                "a change subscriber defined in visualization: setting nodes and edges to new ones",
-                classesAsNodes,
-                edgesFromEntities
-            );
-            setNodes(classesAsNodes);
-            setEdges(edgesFromEntities);
+            const getNode = (cls: SemanticModelClass, visualEntity: VisualEntity | null) => {
+                const pos = visualEntity?.position;
+                const visible = visualEntity?.visible;
+                console.log("callback2: getNode", cls, visualEntity, pos, visible);
+                if (!cls || !pos) {
+                    return;
+                }
+                if (!visible) {
+                    return "hide-it!";
+                }
+                const origin = localClasses.get(cls.id)?.origin;
+                if (!origin) {
+                    console.log("!origin", localClasses.get(cls.id), cls.id, localClasses);
+                }
+                return semanticModelClassToReactFlowNode(
+                    cls.id,
+                    cls,
+                    pos,
+                    origin ? activeVisualModel?.getColor(origin) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
+                    localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id).map((attr) => attr.ends[1]!)
+                );
+            };
+
+            const getEdge = (
+                relOrGen: SemanticModelRelationship | SemanticModelGeneralization,
+                color: string | undefined
+            ) => {
+                return relationshipOrGeneralizationToEdgeType(relOrGen, color);
+            };
+
+            for (const r in removed) {
+                // const { aggregatedEntity: entity, visualEntity } = entities[r] ?? {
+                //     aggregatedEntity: null,
+                //     visualEntity: null,
+                // };
+                // if (isSemanticModelClass(entity)) {
+                //     const n = getNode(entity, visualEntity);
+                //     console.log("callback2: is entity", entity, n);
+                //     if (n) {
+                //         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
+                //     }
+                // } else if (isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
+                //     if (isSemanticModelRelationship(entity) && isAttribute(entity)) {
+                //         // it is an attribute, rerender the node that the attribute comes form
+                //         const aggrEntity = entities[entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                //         if (isSemanticModelClass(aggrEntity)) {
+                //             // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
+                //             localAttributes.push(entity);
+                //             const visEntity = entities[aggrEntity.id]?.visualEntity;
+                //             const n = getNode(aggrEntity, visEntity ?? null);
+                //             console.log("visualization: is attribute: after get node", n, localAttributes);
+                //             if (n) {
+                //                 setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
+                //             }
+                //         } else {
+                //             console.log(
+                //                 "callback2: something weird",
+                //                 aggrEntity,
+                //                 entity,
+                //                 entities[aggrEntity?.id ?? ""]
+                //             );
+                //         }
+                //         continue;
+                //     }
+                //     const e = getEdge(entity);
+                //     console.log("callback2: is rel or gen", entity, e);
+                //     if (e) {
+                //         setEdges((prev) => prev.filter((e) => e.id !== id).concat(e));
+                //     }
+                // } else {
+                //     console.error("callback2 unknown entity type", id, entity, visualEntity);
+                //     throw new Error("unknown entity type");
+                // }
+            }
+
+            for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
+                const visualEntity = ve ?? entities[id]?.visualEntity ?? null; // FIXME: tohle je debilni, v updated by uz mohla behat visual informace
+                if (isSemanticModelClass(entity)) {
+                    const n = getNode(entity, visualEntity);
+                    console.log("callback2: is entity", entity, n);
+                    if (n == "hide-it!") {
+                        setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
+                    } else if (n) {
+                        setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
+                    }
+                } else if (isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
+                    if (isSemanticModelRelationship(entity) && isAttribute(entity)) {
+                        // it is an attribute, rerender the node that the attribute comes form
+                        const aggrEntityOfAttributesNode =
+                            entities[entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                        if (isSemanticModelClass(aggrEntityOfAttributesNode)) {
+                            // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
+                            localAttributes.push(entity);
+                            const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
+                            const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
+                            console.log("visualization: is attribute: after get node", n, localAttributes);
+                            if (n) {
+                                setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
+                            }
+                        } else {
+                            console.log(
+                                "callback2: something weird",
+                                aggrEntityOfAttributesNode,
+                                entity,
+                                entities[aggrEntityOfAttributesNode?.id ?? ""]
+                            );
+                        }
+                        continue;
+                    }
+                    const sourceModel = [...localModels.values()].find((m) =>
+                        [...Object.entries(m.getEntities())].find((e) => e[1].id == entity.id)
+                    );
+                    if (!sourceModel?.getId()) {
+                        console.error("didnt find model that has entity", entity, sourceModel, localClasses);
+                        continue;
+                    }
+                    const e = getEdge(entity, activeVisualModel?.getColor(sourceModel.getId()));
+                    console.log("callback2: is rel or gen", entity, e);
+                    // if (e) {
+                    //     setEdges((prev) => prev.filter((e) => e.id !== id).concat(e));
+                    // }
+                } else {
+                    console.error("callback2 unknown entity type", id, entity, visualEntity);
+                    throw new Error("unknown entity type");
+                }
+            }
+
+            const rerenderAllEdges = () => {
+                const relOrGenToModel = new Map<string, string>();
+                for (const [modelId, model] of localModels.entries()) {
+                    for (const entityId in model.getEntities()) {
+                        relOrGenToModel.set(entityId, modelId);
+                    }
+                }
+
+                const es = [...localRelationships, ...localGeneralizations]
+                    .map((relOrGen) =>
+                        getEdge(relOrGen, activeVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
+                    )
+                    .filter((e): e is Edge => e?.id != undefined);
+                setEdges(es);
+            };
+            rerenderAllEdges();
         };
-        const callToUnsubscribe = aggregatorView.getActiveVisualModel()?.subscribeToChanges(callback);
 
-        callback();
-        return callToUnsubscribe;
-    }, [aggregatorView /* changed when new view is used */]);
+        const callToUnsubscribe2 = aggregatorView.subscribeToChanges(aggregatorCallback);
+        const callToUnsubscribe3 = aggregatorView
+            .getActiveVisualModel()
+            ?.subscribeToChanges((updated: Record<string, VisualEntity>, removed: string[]) => {
+                const entities = aggregatorView.getEntities();
+                const updatedAsAggrEntityWrappers = Object.entries(updated).map(
+                    ([uId, visualEntity]) =>
+                        ({
+                            id: visualEntity.sourceEntityId,
+                            aggregatedEntity: entities[visualEntity.sourceEntityId]?.aggregatedEntity ?? null,
+                            visualEntity: visualEntity,
+                        } as AggregatedEntityWrapper)
+                );
+                aggregatorCallback(updatedAsAggrEntityWrappers, removed);
+            });
 
-    // useEffect(() => {
-    //     // console.log("visualization: rerunning effect in visualization.tsx");
-    //     // if (!classesAndPositions) return;
-    //     // console.log("visualization: after return statement");
-    //     // const classesAsNodes = [...classesAndPositions.keys()]
-    //     //     .map((classId) => {
-    //     //         const cls = classes.get(classId);
-    //     //         const pos = classesAndPositions.get(classId);
-    //     //         if (!cls || !pos) return;
-    //     //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
-    //     //     })
-    //     //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
-    //     // const visualEntities = aggregatorView.getVisualEntities();
-    //     // const classesAsNodes = [...Object.keys(visualEntities)]
-    //     //     .map((visualEntityId) => {
-    //     //         const cls = classes.get(visualEntities[visualEntityId]!.sourceEntityId);
-    //     //         const pos = visualEntities[visualEntityId]?.position;
-    //     //         if (!cls || !pos) return;
-    //     //         return semanticModelClassToReactFlowNode(cls.cls, pos, colorForModel.get(cls.origin));
-    //     //     })
-    //     //     .filter((nodeOrUndefined: Node | undefined): nodeOrUndefined is Node => !!nodeOrUndefined);
-    //     // console.log(classesAsNodes);
-    //     // setNodes(classesAsNodes);
-    //     // setEdges([
-    //     //     ...relationships
-    //     //         .filter((rel) => {
-    //     //             if (rel.ends.length !== 2) console.log(rel);
-    //     //             return rel.ends.length === 2;
-    //     //         }) // FIXME: what to do with edges that don't have 2 ends
-    //     //         .map((rel, i) => semanticModelRelationshipToReactFlowEdge(rel, i)),
-    //     //     ...generalizations
-    //     //         .filter((gen) => !hideOwlThing || !isOwlThing(gen.parent)) // FIXME: do this properly
-    //     //         .map((gen, i) => semanticModelGeneralizationToReactFlowEdge(gen, i, undefined)),
-    //     // ]);
-    // }, [classesAndPositions, relationships]);
+        aggregatorCallback([], []);
+
+        return () => {
+            callToUnsubscribe2?.();
+            callToUnsubscribe3?.();
+        };
+    }, [aggregatorView, classes /* changed when new view is used */]);
+
+    useEffect(() => {
+        console.log("!!!!! active visual model changed");
+        setNodes([]);
+        setEdges([]);
+        const modelId = [...models.keys()].at(0)!;
+        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)); // fixme: jak lip vyvolat change na vsech entitach? 😅
+    }, [activeVisualModel]);
 
     const handleNodeChanges = (changes: NodeChange[]) => {
         for (const change of changes) {
             if (change.type == "position") {
-                setClassPosition(change.id, change.positionAbsolute); // FIXME: maybe optimize so that it doesn't update every pixel
-                updateClassPosition(change.id, change.positionAbsolute); // FIXME: maybe optimize so that it doesn't update every pixel
+                // FIXME: maybe optimize so that it doesn't update every pixel
                 change.positionAbsolute &&
                     activeVisualModel?.updateEntity(change.id, { position: change.positionAbsolute });
             }
         }
     };
+
+    console.log("visualization: rerendered");
 
     return (
         <>
@@ -203,5 +310,5 @@ export const Visualization = () => {
 };
 
 const miniMapNodeColor = (node: Node) => {
-    return tailwindColorToHex.get(node.data?.tailwindColor) ?? "#e9e9e9";
+    return tailwindColorToHex.get(node.data?.color) ?? "#e9e9e9";
 };

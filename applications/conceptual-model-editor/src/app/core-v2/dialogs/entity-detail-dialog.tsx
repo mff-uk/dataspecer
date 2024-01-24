@@ -1,6 +1,7 @@
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
 import { getNameOf, getDescriptionOf } from "../util/utils";
+import { useClassesContext } from "../context/classes-context";
 
 export const useEntityDetailDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,8 +27,21 @@ export const useEntityDetailDialog = () => {
 
     const EntityDetailDialog = () => {
         const clsName = getNameOf(viewedClass);
+
+        const { attributes: a } = useClassesContext();
+        const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedClass.id);
+
+        console.log("entity-detail: attritbues", attributes, a);
+
         return (
-            <dialog ref={editDialogRef} className="flex h-96 w-96 flex-col justify-between">
+            <dialog
+                ref={editDialogRef}
+                className="flex h-96 w-96 flex-col justify-between"
+                onCancel={(e) => {
+                    e.preventDefault();
+                    close();
+                }}
+            >
                 <div>
                     <h5>
                         Detail of: {clsName.t}@{clsName.l}
@@ -35,8 +49,22 @@ export const useEntityDetailDialog = () => {
                     <p className=" text-gray-500">{viewedClass.iri}</p>
                 </div>
                 <p>type: {viewedClass.type}</p>
-                <p>{getDescriptionOf(viewedClass)}</p>
-
+                <p>
+                    {getDescriptionOf(viewedClass).t}@{getDescriptionOf(viewedClass).l}
+                </p>
+                <p>
+                    attributes:
+                    {attributes.map((v) => {
+                        const attr = v.ends.at(1)!;
+                        const name = getNameOf(attr);
+                        const description = getDescriptionOf(attr);
+                        return (
+                            <div title={description.t}>
+                                {name.t}@{name.l}
+                            </div>
+                        );
+                    })}
+                </p>
                 <div className="flex flex-row justify-evenly">
                     <button onClick={save}>confirm</button>
                     <button onClick={close}>close</button>
