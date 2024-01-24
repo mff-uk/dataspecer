@@ -105,10 +105,16 @@ export const EntityCatalogue = () => {
     };
 
     const handleAddConcept = () => {
+        console.log("entity-catalog: add-concept: clicked", classes);
         const resultSuccess = addClassToLocalGraph({ cs: getRandomName(5), en: getRandomName(5) }, undefined);
         if (!resultSuccess) {
             alert("FIXME: something went wrong, class not added to local model");
         }
+    };
+
+    const handleAddClassToActiveView = (classId: string) => {
+        addClassToActiveView(classId);
+        aggregatorView?.getActiveVisualModel()?.addEntity({ sourceEntityId: classId });
     };
 
     const handleOpenModification = (cls: SemanticModelClass) => {
@@ -164,7 +170,7 @@ export const EntityCatalogue = () => {
                     <button
                         className=" disabled:opacity-30"
                         disabled={classesAndPositions?.has(cls.id)}
-                        onClick={() => addClassToActiveView(cls.id)}
+                        onClick={() => handleAddClassToActiveView(cls.id)}
                     >
                         👁️
                     </button>
@@ -193,7 +199,7 @@ export const EntityCatalogue = () => {
                 <button
                     className="disabled:opacity-30"
                     disabled={classesAndPositions?.has(props.cls.cls.id)}
-                    onClick={() => addClassToActiveView(props.cls.cls.id)}
+                    onClick={() => handleAddClassToActiveView(props.cls.cls.id)}
                 >
                     👁️
                 </button>
