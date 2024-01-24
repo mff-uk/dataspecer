@@ -24,7 +24,7 @@ export const ConfigureArtifactsDialog: FC<{
   return <Dialog
     open={isOpen}
     onClose={close}
-    maxWidth="sm"
+    maxWidth="md"
     fullWidth
   >
     <DialogTitle>

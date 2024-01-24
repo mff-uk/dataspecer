@@ -75,7 +75,7 @@ export class AddSpecialization implements ComplexOperation {
 
     // THIRD: Add PSM class
 
-    const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.pimInterpretation as string, pimSchemaIri);
+    const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.pimInterpretation as string, PimClass.TYPE, pimSchemaIri);
     const toPimClass = await this.store.readResource(toPimClassIri as string) as PimClass;
 
     const dataPsmCreateClass = new DataPsmCreateClass();

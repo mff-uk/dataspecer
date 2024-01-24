@@ -8,8 +8,6 @@ export const DefaultDataSpecificationConfiguration =  {
 
     /**
      * Simple configuration to set which artifacts should be included.
-     *
-     * Default behaviour is to include all artifacts.
      */
     useGenerators: {} as Record<string, boolean>,
 

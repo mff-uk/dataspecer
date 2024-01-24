@@ -7,6 +7,7 @@ import {dataPsmGarbageCollection, pimGarbageCollection} from "@dataspecer/core/g
 import {CoreResource} from "@dataspecer/core/core";
 import {PimSchema} from "@dataspecer/core/pim/model";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {normalizePim} from "@dataspecer/core/processing-utils/normalize-pim";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
     if (request.query.dataSpecificationIri) {
@@ -82,6 +83,33 @@ export const garbageCollection = asyncHandler(async (request: express.Request, r
 
     response.send({
         deletedEntities,
+    });
+});
+
+export const consistencyFix = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const dataSpecificationIri = String(request.body.dataSpecificationIri);
+    const dataSpecification = await dataSpecificationModel.getDataSpecification(dataSpecificationIri);
+    if (!dataSpecification) {
+        response.status(404);
+        return;
+    }
+
+    const pimStore = await LocalStoreDescriptor.construct(dataSpecification.pimStores[0] as LocalStoreDescriptor, storeModel);
+    const psmStores = await Promise.all(Object.values(dataSpecification.psmStores).map(async (stores) => {
+        return await LocalStoreDescriptor.construct(stores[0] as LocalStoreDescriptor, storeModel);
+    }));
+
+    await pimStore.loadStore();
+    await Promise.all(psmStores.map(store => store.loadStore()));
+
+    // OPERATION 1: Normalize PIM
+    const normalizePimResult = normalizePim(pimStore.memoryStore.resources, psmStores.map(store => store.memoryStore.resources));
+
+    await pimStore.saveStore();
+    await Promise.all(psmStores.map(store => store.saveStore()));
+
+    response.send({
+        normalizePim: normalizePimResult,
     });
 });
 

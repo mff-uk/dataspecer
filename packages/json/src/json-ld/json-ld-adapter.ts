@@ -21,7 +21,7 @@ export function getClassTypeKey(cls: StructureModelClass, configuration: JsonCon
   if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
     let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
     if (!label) {
-      console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label fof given entity.`, cls);
+      console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label for given entity.`, cls);
       label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
     }
     return label ?? fallback;

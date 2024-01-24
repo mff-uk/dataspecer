@@ -62,7 +62,7 @@ export function getSchemaArtifacts(
 
     const xmlSchemaLocation = XmlConfigurator.getFromObject(configuration).commonXmlSchemaExternalLocation;
     const xsdCoreSchema = new DataSpecificationSchema();
-    xsdCoreSchema.iri = "https://schemas.dataspecer.com/xsd/core/2022-07.xsd"; // Real URL as IRI
+    xsdCoreSchema.iri = `${psmSchemaIri}#xsdCoreSchema`;
     xsdCoreSchema.outputPath = xmlSchemaLocation ? null : `${basePath}/2022-07.xsd`;
     xsdCoreSchema.publicUrl = xmlSchemaLocation ?? `${baseUrl}/2022-07.xsd`;
     xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;

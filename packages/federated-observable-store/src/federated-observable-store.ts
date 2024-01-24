@@ -1,5 +1,5 @@
 import {Resource} from "./resource";
-import {PimClass, PimSchema} from "@dataspecer/core/pim/model";
+import {PimResource, PimSchema} from "@dataspecer/core/pim/model";
 import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "@dataspecer/core/core";
 import {FederatedCoreResourceWriter} from "./federated-core-resource-writer";
 import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
@@ -209,7 +209,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param cimIri
      * @param pimSchemaIri
      */
-    async getPimHavingInterpretation(cimIri: string, pimSchemaIri: string): Promise<string|null> {
+    async getPimHavingInterpretation(cimIri: string, resourceType: string, pimSchemaIri: string): Promise<string|null> {
         const schema = this.schemas.get(pimSchemaIri);
         if (!schema) {
             return null;
@@ -217,7 +217,8 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
 
         for (const resourceIri of schema.resources) {
             const resource = await this.readResource(resourceIri);
-            if (PimClass.is(resource) && resource.pimInterpretation === cimIri) {
+            // Ducktyping for PimResource
+            if ((resource as PimResource).pimInterpretation === cimIri && resource.types.includes(resourceType)) {
                 return resourceIri;
             }
         }

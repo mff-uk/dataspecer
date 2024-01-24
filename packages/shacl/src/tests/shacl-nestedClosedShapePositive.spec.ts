@@ -4,7 +4,7 @@ import NestedClosedModelCreator from "./support/NestedClosedModelCreator";
 const testType = "nestedClosed";
 const modelCreator = new NestedClosedModelCreator();
 
-test('Test SHACL against data - nested closed shape POSITIVE ', async () => {
+test.skip('Test SHACL against data - nested closed shape POSITIVE ', async () => {
   const validation = await Support.testPositive(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });

@@ -2,7 +2,7 @@ import {DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecifica
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {PlantUmlImageGenerator} from "./artifacts/plant-uml-image-generator";
 import {BIKESHED} from "@dataspecer/bikeshed";
-import {BikeshedHtmlGenerator} from "./artifacts/bikeshed-html-generator";
+import {BikeshedHtmlGenerator, ExtendsArtefact} from "./artifacts/bikeshed-html-generator";
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
@@ -53,30 +53,53 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       artifacts.push(plantUmlImage);
     }
 
-
-    // Bikeshed source
-    const bikeshed = new DataSpecificationDocumentation();
-    bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
-    bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
-    bikeshed.publicUrl = `${this.baseURL}/documentation.bs`;
-    bikeshed.generator = BIKESHED.Generator;
-    bikeshed.artefacts = currentSchemaArtefacts;
-    bikeshed.configuration = configuration;
+    // New bikeshed by mustache-template - default off
     if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
+      // Bikeshed source
+      const bikeshed = new DataSpecificationDocumentation();
+      bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
+      bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
+      bikeshed.publicUrl = `${this.baseURL}/documentation.bs`;
+      bikeshed.generator = "https://schemas.dataspecer.com/generator/template-artifact";
+      bikeshed.artefacts = currentSchemaArtefacts;
+      bikeshed.configuration = configuration;
       artifacts.push(bikeshed);
-    }
 
-    // Bikeshed HTML
-    const bikeshedHtml = new DataSpecificationDocumentation();
-    bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
-    bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
-    bikeshedHtml.publicUrl = `${this.baseURL}/documentation.html`;
-    bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
-    bikeshedHtml.artefacts = currentSchemaArtefacts;
-    bikeshedHtml.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
+      // Bikeshed HTML
+      const bikeshedHtml: DataSpecificationDocumentation & ExtendsArtefact = new DataSpecificationDocumentation();
+      bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
+      bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
+      bikeshedHtml.publicUrl = `${this.baseURL}/documentation.html`;
+      bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
+      bikeshedHtml.artefacts = currentSchemaArtefacts;
+      bikeshedHtml.configuration = configuration;
+      bikeshedHtml.extends = "https://schemas.dataspecer.com/generator/template-artifact";
       artifacts.push(bikeshedHtml);
     }
+
+    if (dataSpecificationConfiguration.useGenerators?.["bikeshed@1"] === true) {
+      // Bikeshed source
+      const bikeshed = new DataSpecificationDocumentation();
+      bikeshed.iri = `${dataSpecificationIri}#bikeshed_v1`;
+      bikeshed.outputPath = `${dataSpecificationName}/documentation.v1.bs`;
+      bikeshed.publicUrl = `${this.baseURL}/documentation.v1.bs`;
+      bikeshed.generator = BIKESHED.Generator;
+      bikeshed.artefacts = currentSchemaArtefacts;
+      bikeshed.configuration = configuration;
+      artifacts.push(bikeshed);
+
+      // Bikeshed HTML
+      const bikeshedHtml: DataSpecificationDocumentation & ExtendsArtefact = new DataSpecificationDocumentation();
+      bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml_v1`;
+      bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.v1.html`;
+      bikeshedHtml.publicUrl = `${this.baseURL}/documentation.v1.html`;
+      bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
+      bikeshedHtml.artefacts = currentSchemaArtefacts;
+      bikeshedHtml.configuration = configuration;
+      bikeshedHtml.extends = BIKESHED.Generator;
+      artifacts.push(bikeshedHtml);
+    }
+
 
     return artifacts;
   }

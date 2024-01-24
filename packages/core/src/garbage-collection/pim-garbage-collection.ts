@@ -142,7 +142,7 @@ export async function pimGarbageCollection(
             } else if (DataPsmExternalRoot.is(entity)) {
                 entity.dataPsmTypes.forEach(i => keep.add(i));
             } else if (DataPsmOr.is(entity)) {
-                throw new Error(`GC not implemented for OR constructs yet.`);
+                // pass
             } else {
                 throw new Error(`Unknown entity ${entity.iri} type.`);
             }

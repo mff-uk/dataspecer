@@ -155,6 +155,16 @@ export const DataSpecification: FC<{
           undefinedIs={true}
         />
       </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+          label="Deprecated Bikeshed documentation"
+          current={input.useGenerators ?? {}}
+          itemKey="bikeshed@1"
+          onChange={(value) => onChange({ ...input, useGenerators: value })}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+          undefinedIs={false}
+        />
+      </Grid>
     </Grid>
 
     <Typography variant="body2" sx={{mt: 1}}>

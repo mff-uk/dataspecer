@@ -131,7 +131,7 @@ function structureModelClassToJsonSchemaDefinition(
     }
   }
   if (modelClass.isCodelist) {
-    return structureModelClassCodelist();
+    return structureModelClassCodelist(modelClass);
   }
   if (modelClass.properties.length === 0) {
     return structureModelClassEmpty(modelClass);
@@ -178,8 +178,15 @@ function findArtefactForImport(
   return null;
 }
 
-function structureModelClassCodelist(): JsonSchemaDefinition {
-  return new JsonSchemaString(JsonSchemaStringFormats.iri);
+function structureModelClassCodelist(modelClass: StructureModelClass): JsonSchemaDefinition {
+  const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
+  if (modelClass.regex) {
+    str.pattern = modelClass.regex;
+  }
+  if (modelClass.example && modelClass.example.length > 0) {
+    str.examples = modelClass.example as string[];
+  }
+  return str;
 }
 
 function structureModelClassEmpty(modelClass: StructureModelClass): JsonSchemaDefinition {

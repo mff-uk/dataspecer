@@ -1,0 +1,32 @@
+{
+    "@context": {
+      "@version": 1.1,
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "id": "@id",
+      "type": "@type",
+      "adresa": {
+        "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa",
+        "@context": {
+          "má_přiřazené_území_městského_obvodu_v_hlavním_městě_praze": {
+            "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze",
+            "@type": "@id",
+            "@context": {
+              "území městského obvodu v hlavním městě Praze": {
+                "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze",
+                "@context": {
+                  "název_městského_obvodu_v_hlavním_městě_praze": {
+                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze",
+                    "@type": "xsd:string"
+                  },
+                  "datum_vzniku_území_městského_obvodu_v_hlavním_městě_praze": {
+                    "@id": "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze",
+                    "@type": "xsd:string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

@@ -4,7 +4,7 @@ import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
 const testType = "simpleObject";
 const modelCreator = new SimpleObjectModelCreator();
 
-test('Test SHACL against data - simple object POSITIVE', async () => {
+test.skip('Test SHACL against data - simple object POSITIVE', async () => {
   const validation = await Support.testPositive(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });

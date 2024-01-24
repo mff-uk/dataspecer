@@ -116,6 +116,7 @@ export class ShaclAdapter {
   protected shapes: string[] = []; // Entity beginning with name of the shape and ending with .
   protected debugString: string = "";
   protected sameTags: sameTag[] = [];
+  protected classesUsedInStructure: string[] = [];
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
   protected writer: any;
@@ -132,14 +133,9 @@ export class ShaclAdapter {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
-    if(!("publicBaseUrl" in this.artefact.configuration)){
-      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
-    }
-    else if(isEmptyOrSpaces(this.artefact.configuration["publicBaseUrl"])){
-      this.artefact.configuration["publicBaseUrl"] = "https://example.org/";
-    }
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
-    this.writer  = new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#", base: this.baseURL } }); 
+    //console.log("base URL in constructor is " + this.baseURL);
+    this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
   }
 
   public generate = async () => {
@@ -151,26 +147,19 @@ export class ShaclAdapter {
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
+      this.registerClasses(root);
+      
       this.generateClassConstraints(root, null);
+      for(var cls of this.classesUsedInStructure){
+      }
     }
-    
-    this.prefixesString = this.generatePrefixesString();
-    for(const str of this.shapes){
-      this.insidesString = this.insidesString.concat(str);
-    }
-    //this.scriptString = this.prefixesString + this.insidesString;
-    this.scriptString = this.insidesString;
-    //eval(this.scriptString);
     var resultString = "";
     
     this.writer.end((error, result) => resultString = result);
     return { data: resultString };
-    //return { data: this.scriptString};
   };
 
   generatePrefixesString(): string {
-    this.knownPrefixes.push(SHACL_PREFIX_DEF);
-    this.knownPrefixes.push(RDFS_PREFIX_DEF);
     var prefixesString = "";
     let iterations = this.knownPrefixes.length;
     var prefixesObject: { [key: string]: any } = {};
@@ -179,18 +168,6 @@ export class ShaclAdapter {
       var newAttribute = tuple[0];
       prefixesObject[newAttribute] =  tuple[1] ;
     }
-
-    //this.writer  = new N3.Writer({ prefixes: prefixesObject});
-/*
-    prefixesString = prefixesString.concat(`this.writer  = new N3.Writer({ prefixes: { `);
-    for(const tuple of this.knownPrefixes){
-      prefixesString = prefixesString.concat(`${ tuple[0] }: '${ tuple[1] }'`);
-      if(--iterations){
-        prefixesString = prefixesString.concat(`, \n`);
-      }
-    }
-    prefixesString = prefixesString.concat(` } });\n`);
-    */
     return prefixesString;
   }
 
@@ -201,7 +178,6 @@ export class ShaclAdapter {
     nodeName = this.generateNodeShapeName(root);
     const prefixTag = this.prefixify(root.cimIri)[0];
     const prefixForName = this.knownPrefixes.find(tuple => tuple[0] === prefixTag);
-    //const classNameIri = prefixForName[1]  + nodeName;
     const classNameIri = nodeName;
     // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
@@ -225,6 +201,7 @@ export class ShaclAdapter {
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
     switch(root.instancesSpecifyTypes){
+      // TODO make sure the class is unique in the structure
       case "ALWAYS": {
         this.writer.addQuad(
           namedNode( classNameIri),
@@ -395,10 +372,7 @@ export class ShaclAdapter {
         const cimiri = prop.cimIri;
         const humanLabel = prop.humanLabel;
         const humandesc = prop.humanDescription;
-        const datatypes = prop.dataTypes;
-        const demat = prop.dematerialize;
         const isReverse = prop.isReverse;
-        const pathtoorigin = prop.pathToOrigin;
         
         //Create PropertyNode to connect to
         const nodeIRI = this.getIRIforShape(prop);
@@ -428,24 +402,31 @@ export class ShaclAdapter {
             );
           }
 
-          this.writer.addQuad(
-            namedNode( nodeIRI ),
-            namedNode('http://www.w3.org/ns/shacl#path'),
-            namedNode( cimiri )
-          );
-
-          
-          
+          if(isReverse){
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#path'),
+              this.writer.list([
+                namedNode('http://www.w3.org/ns/shacl#inversePath'),
+                namedNode( cimiri )
+              ])
+            );
+          } else{
+            this.writer.addQuad(
+              namedNode( nodeIRI ),
+              namedNode('http://www.w3.org/ns/shacl#path'),
+              namedNode( cimiri )
+            );
+          }
+    
           // Add datatype for the PopertyNode
-          const reverseClass = isReverse ? classNameIri : null;
-          console.log("isReverse: " + reverseClass + " classNameIRI "  + classNameIri);
-          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri, reverseClass);
+          this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri);
 
           // Add property to the parent class
           this.writer.addQuad(
-            namedNode(classNameIri),
+            namedNode(classNameIri.toString()),
             namedNode('http://www.w3.org/ns/shacl#property'),
-            namedNode( nodeIRI ));
+            namedNode( nodeIRI.toString() ));
       }
     }
     
@@ -489,18 +470,16 @@ export class ShaclAdapter {
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    const baseIRI = this.baseURL;
     var md5String = md5(root.cimIri);
     const technicalName = this.irify(root);
-    const nodeOrProperty = (root instanceof StructureModelClass) ? "NodeShape" : "PropertyShape";
 
-    generatedIRI = baseIRI + md5String + "/" + technicalName + nodeOrProperty;
+    generatedIRI = (this.baseURL != null) ? this.baseURL +  md5String + technicalName + "Shape" : md5String + technicalName + "Shape";
 
     return generatedIRI;
   }
 
 
-  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string, reverseClass: string): void {
+  protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
@@ -524,12 +503,6 @@ export class ShaclAdapter {
             namedNode('http://www.w3.org/ns/shacl#nodeKind'),
             namedNode( nodeType )
           );
-          if(reverseClass != null){
-            this.writer.addQuad(
-              namedNode( propertyNodeIRI ),
-              namedNode('http://www.w3.org/ns/shacl#node'),
-              namedNode( reverseClass )); 
-          }
           if(dtcasted.dataType.regex != null && dtcasted.dataType.regex != undefined && dtcasted.dataType.regex != ""){
             this.writer.addQuad(
               namedNode( propertyNodeIRI ),
@@ -583,17 +556,11 @@ export class ShaclAdapter {
         
       } else if(dt.isCustomType() == true){
         // CUSTOM TYPE IS NOT USED AT THE MOMENT
-        /*
-        const dtcasted = <StructureModelCustomType> dt;
-        if(dtcasted != null){
-        blankNodes.push( {
-          predicate: namedNode('http://www.w3.org/ns/shacl#datatype'),
-          object:    namedNode('${ dtcasted.data}')
-        });}
-        */
-        //propDesc = propDesc.concat(`\n\t\tsh:datatype ${ dtcasted.data } ;`);
-      };
-        //throw new Error("Datatype must be one of the 3 basic types.");
+        console.warn("SHACL generator: Custom Type is not supported.");
+      } else{
+        throw new Error("Datatype must be one of the 3 basic types.");
+      }
+      
     }
   }
 
@@ -633,16 +600,28 @@ export class ShaclAdapter {
       
       qname = [newTag, name];
       this.knownPrefixes.push([newTag,prefix]);
-      /*this.debugString = this.debugString + "qname " + qname + `\n`;
-      this.debugString = this.debugString + "knownPrefixes " + this.knownPrefixes + `\n`;
-      this.debugString = this.debugString + "sameTags " + this.sameTags + `\n`;
-      */
     }
 
     return qname;
   }
-}
 
+
+  protected registerClasses(root: StructureModelClass): void {
+    // if the class is not in the list, add it
+    if(this.classesUsedInStructure.indexOf(root.cimIri) == -1){
+      this.classesUsedInStructure.push[root.cimIri];
+      //console.log(root.cimIri);
+    }
+    for (const [i, prop] of root.properties.entries()) {
+      for (var dt of prop.dataTypes) {
+        if(dt.isAssociation() == true){
+          const dtcasted = <StructureModelComplexType> dt;
+          this.registerClasses(dtcasted.dataType);
+        }
+      }
+    }
+  }
+}
 function isEmptyOrSpaces(str) : boolean{
   return str === null || str.match(/^ *$/) !== null;
 }
