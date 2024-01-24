@@ -1,28 +1,41 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
-import { getNameOf } from "../util/utils";
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { getDescriptionOf, getNameOf } from "../util/utils";
+import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 
 export const ClassCustomNode = (props: {
     data: {
         cls: SemanticModelClass;
-        tailwindColor: string | undefined;
+        color: string | undefined;
+        attributes: SemanticModelRelationshipEnd[];
     };
 }) => {
     const cls = props.data.cls;
     const { id, iri } = cls;
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
 
-    const clr = props.data.tailwindColor ?? "bg-white";
+    const clr = props.data.color ?? "#ffffff";
+    const attributes = props.data.attributes;
     const clsName = getNameOf(cls);
+    console.log("class-custom-node", cls, attributes);
     return (
         <>
-            <div className={`m-1 border border-black [&]:text-sm ${clr}`}>
+            <div className={`m-1 border border-black [&]:text-sm`} style={{ backgroundColor: clr }}>
                 <h1 className=" overflow-x-hidden whitespace-nowrap border border-b-black">
                     {`${clsName.t}@${clsName.l}`}
                 </h1>
 
                 <p className="overflow-x-clip">{iri}</p>
+
+                {attributes?.map((attr) => {
+                    const { t: nt, l: nl } = getNameOf(attr);
+                    const { t: dt } = getDescriptionOf(attr);
+                    return (
+                        <p key={`${nt}.${attr.concept}`} title={dt}>
+                            {nt}@{nl}
+                        </p>
+                    );
+                })}
 
                 <div className="flex flex-row justify-between">
                     <button
@@ -45,16 +58,20 @@ export const ClassCustomNode = (props: {
                 </div>
             </div>
 
-            <Handle type="source" position={Position.Top} id="sa" />
-            {/* <Handle type="source" position={Position.Right} id="sb" /> */}
-            <Handle type="source" position={Position.Bottom} id="sc" />
-            {/* <Handle type="source" position={Position.Left} id="sd" /> */}
-            {/* <Handle type="target" position={Position.Top} id="ta" /> */}
-            <Handle type="target" position={Position.Right} id="tb" />
-            {/* <Handle type="target" position={Position.Bottom} id="tc" /> */}
-            <Handle type="target" position={Position.Left} id="td" />
+            <Handle type="source" position={Position.Top} id="sa">
+                s
+            </Handle>
+            <Handle type="source" position={Position.Bottom} id="sc">
+                s
+            </Handle>
+            <Handle type="target" position={Position.Right} id="tb">
+                t
+            </Handle>
+            <Handle type="target" position={Position.Left} id="td">
+                t
+            </Handle>
 
-            {isEntityDetailDialogOpen && <EntityDetailDialog /* cls={props.data.cls} */ />}
+            {isEntityDetailDialogOpen && <EntityDetailDialog />}
         </>
     );
 };
@@ -64,18 +81,19 @@ export const ClassCustomNode = (props: {
  * @param id VisualEntityId
  * @param cls
  * @param position
- * @param tailwindColor
+ * @param color
  * @returns
  */
 export const semanticModelClassToReactFlowNode = (
     id: string,
     cls: SemanticModelClass,
     position: XYPosition,
-    tailwindColor: string | undefined // FIXME: vymysli lip
+    color: string | undefined, // FIXME: vymysli lip
+    attributes: SemanticModelRelationshipEnd[]
 ) =>
     ({
         id: id,
         position: position ?? { x: 69, y: 420 },
-        data: { cls, tailwindColor /*FIXME: */ },
+        data: { cls, color /*FIXME: */, attributes },
         type: "classCustomNode",
     } as Node);

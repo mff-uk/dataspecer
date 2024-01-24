@@ -46,7 +46,7 @@ export const useBackendConnection = () => {
             tags: [],
         } as PackageEditable);
         console.log(pckg);
-        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name)} logged to console`);
+        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name).t} logged to console`);
         return pckg;
     };
 

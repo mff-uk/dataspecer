@@ -15,7 +15,7 @@ export const usePackageSearch = () => {
         }
     }, [queryParams]);
 
-    const setPackage = (pckgId: string) => {
+    const setPackage = (pckgId: string | null) => {
         setQueryParams({ [PACKAGE_ID]: pckgId });
     };
 

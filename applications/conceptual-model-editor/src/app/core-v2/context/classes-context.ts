@@ -22,6 +22,8 @@ export type ClassesContextType = {
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];
     setRelationships: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>;
+    attributes: SemanticModelRelationship[]; // Map<string, SemanticModelRelationship[]>;
+    setAttributes: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>; // React.Dispatch<React.SetStateAction<Map<string, SemanticModelRelationship[]>>>;
     generalizations: SemanticModelGeneralization[];
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
 };
@@ -41,13 +43,13 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
+        attributes,
+        setAttributes,
         generalizations,
         setGeneralizations,
     } = useContext(ClassesContext);
-    const { models } = useModelGraphContext();
 
-    const createConnection = (connection: ConnectionType) => {
-        const model = models.get(LOCAL_MODEL_ID);
+    const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
             return;
@@ -68,6 +70,16 @@ export const useClassesContext = () => {
         }
     };
 
+    const addAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {
+        if (!model || !(model instanceof InMemorySemanticModel)) {
+            alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
+            return;
+        }
+
+        const result = model.executeOperation(createRelationship(attr));
+        return result.success;
+    };
+
     return {
         classes,
         setClasses,
@@ -75,8 +87,11 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
+        attributes,
+        setAttributes,
         generalizations,
         setGeneralizations,
         createConnection,
+        addAttribute,
     };
 };

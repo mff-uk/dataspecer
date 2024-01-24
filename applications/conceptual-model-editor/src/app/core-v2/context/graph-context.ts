@@ -26,14 +26,9 @@ export type ModelGraphContextType = {
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
 
-const getIdOfEntityModel = (model: EntityModel) => {
-    if (model instanceof ExternalSemanticModel) {
-        return SGOV_MODEL_ID;
-    } else if (model instanceof PimStoreWrapper) {
-        return DCTERMS_MODEL_ID;
-    } else if (model instanceof InMemorySemanticModel) {
-        return LOCAL_MODEL_ID;
-    } else return "unknown:xyz" as string;
+/** @todo models should have an Id*/
+export const getIdOfEntityModel = (model: EntityModel) => {
+    return model.getId();
 };
 
 export const useModelGraphContext = () => {
@@ -48,32 +43,27 @@ export const useModelGraphContext = () => {
     };
 
     // FIXME: zas to vymysli nejak lip
-    const addClassToLocalGraph = (name: LanguageString, description: LanguageString | undefined) => {
-        const localModel = models.get(LOCAL_MODEL_ID);
-        if (!localModel || !(localModel instanceof InMemorySemanticModel)) {
-            alert("local model not found, see avail models in console");
-            console.log(models);
-            return false;
-        }
-
-        const result = localModel.executeOperation(
+    const addClassToModel = (
+        model: InMemorySemanticModel,
+        name: LanguageString,
+        description: LanguageString | undefined
+    ) => {
+        const result = model.executeOperation(
             createClass({
                 name: name,
-                iri: "https://my-fake.iri.com/" + getOneNameFromLanguageString(name),
+                iri: "https://my-fake.iri.com/" + getOneNameFromLanguageString(name).t,
                 description: description,
             })
         );
         return result.success;
     };
 
-    const modifyClassInLocalModel = (classId: string, newClass: Partial<Omit<SemanticModelClass, "type" | "id">>) => {
-        const localModel = models.get(LOCAL_MODEL_ID);
-        if (!localModel || !(localModel instanceof InMemorySemanticModel)) {
-            alert("local model not found, see avail models in console");
-            console.log(models);
-            return false;
-        }
-        const result = localModel.executeOperation(
+    const modifyClassInAModel = (
+        model: InMemorySemanticModel,
+        classId: string,
+        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>
+    ) => {
+        const result = model.executeOperation(
             modifyClass(classId, {
                 ...newClass,
             })
@@ -100,8 +90,8 @@ export const useModelGraphContext = () => {
         addModelToGraph,
         aggregatorView,
         setAggregatorView,
-        addClassToLocalGraph,
-        modifyClassInLocalModel,
+        addClassToModel,
+        modifyClassInAModel,
         cleanModels,
         removeModelFromModels,
         visualModels,
