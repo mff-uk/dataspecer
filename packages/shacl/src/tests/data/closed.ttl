@@ -1,0 +1,7 @@
+@prefix legsb: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix genadr: <https://slovník.gov.cz/generický/adresy/pojem/> .
+@prefix base: <http://www.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+base:adresa a legsb:adresa;
+    genadr:text-adresy "Additional info not in the structure"^^xsd:string.

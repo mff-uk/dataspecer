@@ -24,10 +24,13 @@ import * as fs from "fs";
       const doc3 = rawJsonData;
       const context3 = await fs.readFileSync('./src/tests/data/' + testType + 'Context.json',{ encoding: 'utf8', flag: 'r' });
 
-      const compacted3 = context3.slice(0, -1) + "," + doc3.substr(1);
+      const compacted3 = context3.slice(0, -1) + "," + doc3.substring(1);
 
-      const parsed = JSON.parse(compacted3);
-      const nquads = await jsonld.toRDF(parsed, {format: 'application/n-quads'});
+      const parsed = await JSON.parse(compacted3);
+      
+      console.log(compacted3);
+      console.log(parsed);
+      const nquads = await jsonld.toRDF(compacted3, {format: 'application/n-quads'});
       const written = await Support.syncWriteFile("../data/" + testType + "FakeData.ttl", nquads);
 
       return nquads.toString();

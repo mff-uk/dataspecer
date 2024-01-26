@@ -4,9 +4,8 @@ import AllPrimitiveTypesModelCreator from "./support/AllPrimitiveTypesModelCreat
 const testType = "allPrimitiveDatatypes";
 const modelCreator = new AllPrimitiveTypesModelCreator();
 
-test.skip('Test SHACL against data - all primitive types POSITIVE ', async () => {
-  await Support.prepareShape(modelCreator, '../shapes/' + testType + 'Shape.ttl');
-  const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + "FakeDataTurtle.ttl", "src/tests/shapes/" + testType + "Shape.ttl");
+test('Test SHACL against data - all primitive types POSITIVE ', async () => {
+  const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
 

@@ -4,8 +4,8 @@ import ClassConstrainedClosedModelCreator from "./support/ClassConstrainedClosed
 const testType = "classConstrainedClosedNegative";
 const modelCreator = new ClassConstrainedClosedModelCreator();
 
-test.skip('Test SHACL against data - class constrained closed shape NEGATIVE', async () => {
-  const validation = await Support.testNegative(testType, modelCreator);
+test('Test SHACL against data - class constrained closed shape NEGATIVE', async () => {
+  const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(false);
 });
 

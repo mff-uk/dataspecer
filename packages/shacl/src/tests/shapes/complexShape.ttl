@@ -3,6 +3,7 @@
 @base <https://example.org/>.
 
 <2da40eef3feaff877bb3b51ed1214374osobaShape> a sh:NodeShape;
+    sh:targetClass <https://example.com/Věc>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -13,7 +14,8 @@
     sh:name "Adresa"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Adresa>.
+    sh:path <https://example.com/Adresa>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <734c20709639d1c179e0719bbb62668aadresaShape> a sh:NodeShape;
     sh:targetObjectsOf <https://example.com/Adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -70,7 +72,8 @@
     sh:name "Jméno a příjmení"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Jmeno_A_Prijmeni>.
+    sh:path <https://example.com/Jmeno_A_Prijmeni>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <21c6605ec1ddb44c7492034ebbf9c28cjmeno-a-prijmeniShape> a sh:NodeShape;
     sh:targetObjectsOf <https://example.com/Jmeno_A_Prijmeni>;
     sh:closed true;
@@ -103,7 +106,8 @@
     sh:name "Datum narození a úmrtí"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Narozeni_a_umrti>.
+    sh:path <https://example.com/Narozeni_a_umrti>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <81c822fe4836bdb4085258eba74eb8f0narozeni-a-umrtiShape> a sh:NodeShape;
     sh:targetObjectsOf <https://example.com/Narozeni_a_umrti>;
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -131,7 +135,8 @@
     sh:name "Vyučovací hodina a její detaily"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://example.com/Vyucovaci_hodina>.
+    sh:path <https://example.com/Vyucovaci_hodina>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <73fe1e343af762d1ae41ed9d1ebf599dvyucovaci-hodinaShape> a sh:NodeShape;
     sh:targetObjectsOf <https://example.com/Vyucovaci_hodina>;
     sh:nodeKind sh:BlankNodeOrIRI;

@@ -18,7 +18,8 @@
     sh:description "Link na entitu má přiřazené území"@cs;
     sh:name "Má přiřazené území"@cs;
     sh:minCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> a sh:NodeShape;
     sh:not [
   a sh:PropertyShape;

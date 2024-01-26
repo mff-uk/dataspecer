@@ -10,7 +10,8 @@
 <f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce>;
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -31,7 +32,8 @@
     sh:name "Je adresou stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
     sh:closed true;
@@ -48,7 +50,8 @@
 <474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape> a sh:PropertyShape;
     sh:description "Má identifikační údaje popis"@cs;
     sh:name "Má identifikační údaje"@cs;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu>;
     sh:closed true;

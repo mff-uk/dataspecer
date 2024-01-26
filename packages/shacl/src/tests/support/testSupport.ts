@@ -69,6 +69,13 @@ export async function testNegative(testType : string, modelCreator : ModelCreato
   return validation;
 }
 
+export async function testFromData(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
+  const slicedName = (testType.endsWith("Negative")) ? testType.slice(0, -8) : testType;
+  await Support.prepareShape(modelCreator, '../shapes/' + slicedName + 'Shape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + ".ttl", "src/tests/shapes/" + slicedName + "Shape.ttl");
+  return validation;
+}
+
 export async function testShape(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
   await Support.prepareShape(modelCreator, '../shapes/' + testType + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/shapes/" + testType + "Shape.ttl", Support.shapeToValidateShapesFile);

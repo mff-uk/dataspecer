@@ -14,7 +14,8 @@
     sh:name "Je adresou stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
     sh:closed true;
@@ -45,7 +46,8 @@
     sh:name "Má přiřazené území městského obvodu v hlavním městě Praze"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:nodeKind sh:BlankNodeOrIRI.
 <fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:nodeKind sh:BlankNodeOrIRI;

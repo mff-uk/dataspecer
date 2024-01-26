@@ -406,9 +406,9 @@ export class ShaclAdapter {
             this.writer.addQuad(
               namedNode( nodeIRI ),
               namedNode('http://www.w3.org/ns/shacl#path'),
-              this.writer.list([
-                namedNode('http://www.w3.org/ns/shacl#inversePath'),
-                namedNode( cimiri )
+              this.writer.blank([{
+                predicate: namedNode('http://www.w3.org/ns/shacl#inversePath'),
+                object:    namedNode( cimiri )}
               ])
             );
           } else{
@@ -487,8 +487,7 @@ export class ShaclAdapter {
         
         const dtcasted = <StructureModelComplexType> dt;
 
-        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
-          var nodeType = "";
+        var nodeType = "";
           switch(dtcasted.dataType.instancesHaveIdentity){
             case "ALWAYS": {nodeType = 'http://www.w3.org/ns/shacl#IRI';}
             break;
@@ -509,6 +508,9 @@ export class ShaclAdapter {
               namedNode('http://www.w3.org/ns/shacl#pattern'),
               literal(dtcasted.dataType.regex.toString()));
           }
+
+        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
+          
           
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, objectOf);
