@@ -14,19 +14,16 @@ export const useBackendConnection = () => {
     const service = useMemo(() => new BackendPackageService(BACKEND_URL, httpFetch), []);
 
     const getPackageFromBackend = async (packageId: string) => {
-        const pckg = await service.getPackage(packageId);
-        console.log("got package from backend", packageId, pckg);
-        return pckg;
+        const pkg = await service.getPackage(packageId);
+        console.log("got package from backend", packageId, pkg);
+        return pkg;
     };
 
     const getModelsFromBackend = async (packageId: string) => {
+        console.log("getModelsFromBackend: gonna call service.constructXyz");
         const models = await service.constructSemanticModelPackageModels(packageId);
         console.log(models);
         return models;
-    };
-
-    const getViewsFromBackend = async (packageId: string) => {
-        return constructViewsMock();
     };
 
     const updateSemanticModelPackageModels = async (
@@ -40,18 +37,18 @@ export const useBackendConnection = () => {
     };
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
-        const pckg = await service.createPackage(".root", {
+        const pkg = await service.createPackage(".root", {
             id: packageId,
             name: { cs: packageNameCs },
             tags: [],
         } as PackageEditable);
-        console.log(pckg);
-        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name).t} logged to console`);
-        return pckg;
+        console.log(pkg);
+        alert(`package ${pkg.id}-${getOneNameFromLanguageString(pkg.name).t} logged to console`);
+        return pkg;
     };
 
-    const listPackages = () => {
-        return ["zvířátkový-package", "package-xyz", "testovací-package"];
+    const listPackages = async () => {
+        return await service.listPackages();
     };
 
     const listViews = () => {
@@ -65,62 +62,6 @@ export const useBackendConnection = () => {
         listPackages,
         listViews,
         getModelsFromBackend,
-        getViewsFromBackend,
         createPackage,
     };
-};
-
-const constructSemanticModelPackageModelsMock = async (packageId: string) => {
-    if (packageId == "") {
-        return [] as EntityModel[];
-    }
-
-    const sgov = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
-    sgov.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
-    sgov.allowClass("https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup");
-
-    const dcterms = await createRdfsModel(
-        ["https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl"],
-        httpFetch
-    );
-    dcterms.fetchFromPimStore();
-
-    const local = new InMemorySemanticModel();
-    local.executeOperation(
-        createClass({
-            name: { cs: "fejk-třída-pes" },
-            iri: "https://my-fake.iri.com/fejk-třída-pes",
-        })
-    );
-    local.executeOperation(
-        createClass({
-            name: { cs: "fejk-třída-kočka" },
-            iri: "https://my-fake.iri.com/fejk-třída-kočka",
-        })
-    );
-
-    const models = [sgov, dcterms, local] as EntityModel[];
-    return models;
-};
-
-const constructViewsMock = async () => {
-    const viewLayout1 = {
-        id: "view-1",
-        name: { cs: "pohled-1" },
-        elementPositionMap: new Map([
-            ["https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl", { x: 100, y: 90 }],
-            ["https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup", { x: 100, y: 140 }],
-        ]),
-    } as ViewLayout;
-
-    const viewLayoutXyz = {
-        id: "view-xyz",
-        name: { cs: "pohled-xyz" },
-        elementPositionMap: new Map([
-            ["https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl", { x: 90, y: 100 }],
-            ["https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup", { x: 140, y: 100 }],
-        ]),
-    } as ViewLayout;
-
-    return [viewLayout1, viewLayoutXyz];
 };

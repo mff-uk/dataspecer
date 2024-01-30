@@ -3,21 +3,22 @@ import { getDescriptionOf, getNameOf } from "../util/utils";
 import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 
-export const ClassCustomNode = (props: {
-    data: {
-        cls: SemanticModelClass;
-        color: string | undefined;
-        attributes: SemanticModelRelationshipEnd[];
-    };
-}) => {
+type ClassCustomNodeDataType = {
+    cls: SemanticModelClass;
+    color: string | undefined;
+    attributes: SemanticModelRelationshipEnd[];
+    openDialog: (cls: SemanticModelClass) => void;
+};
+
+export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const cls = props.data.cls;
     const { id, iri } = cls;
-    const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
+    // const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
 
     const clr = props.data.color ?? "#ffffff";
     const attributes = props.data.attributes;
     const clsName = getNameOf(cls);
-    console.log("class-custom-node", cls, attributes);
+
     return (
         <>
             <div className={`m-1 border border-black [&]:text-sm`} style={{ backgroundColor: clr }}>
@@ -50,7 +51,7 @@ export const ClassCustomNode = (props: {
                     <button
                         className="text-slate-500"
                         onClick={() => {
-                            openEntityDetailDialog(cls);
+                            props.data.openDialog(cls);
                         }}
                     >
                         detail
@@ -71,7 +72,7 @@ export const ClassCustomNode = (props: {
                 t
             </Handle>
 
-            {isEntityDetailDialogOpen && <EntityDetailDialog />}
+            {/* {isEntityDetailDialogOpen && <EntityDetailDialog />} */}
         </>
     );
 };
@@ -89,11 +90,12 @@ export const semanticModelClassToReactFlowNode = (
     cls: SemanticModelClass,
     position: XYPosition,
     color: string | undefined, // FIXME: vymysli lip
-    attributes: SemanticModelRelationshipEnd[]
+    attributes: SemanticModelRelationshipEnd[],
+    openDialog: (cls: SemanticModelClass) => void
 ) =>
     ({
         id: id,
         position: position ?? { x: 69, y: 420 },
-        data: { cls, color /*FIXME: */, attributes },
+        data: { cls, color /*FIXME: */, attributes, openDialog } satisfies ClassCustomNodeDataType,
         type: "classCustomNode",
     } as Node);

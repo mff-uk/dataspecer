@@ -5,6 +5,7 @@ import { useModelGraphContext } from "../context/graph-context";
 import { useAddModelDialog } from "../dialogs/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { useState } from "react";
+import { shortenSemanticModelId } from "../util/utils";
 
 export const ModelCatalog = () => {
     const { aggregator, aggregatorView, setAggregatorView, addModelToGraph, models, removeModelFromModels } =
@@ -63,10 +64,10 @@ export const ModelCatalog = () => {
     );
 
     const ModelItem = (props: { modelId: string }) => {
+        const model = models.get(props.modelId);
         return (
             <div className={`m-2 flex flex-row justify-between`}>
-                <h4 onClick={() => console.log(models.get(props.modelId))}>Model - {props.modelId}</h4>
-                <div>{models.get(props.modelId)?.getId()}</div>
+                <h4 onClick={() => console.log(model)}>Ⓜ {shortenSemanticModelId(props.modelId)}</h4>
                 <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
                     🗑️
                 </button>
@@ -88,7 +89,7 @@ export const ModelCatalog = () => {
                 <AddModelDialogButton />
                 <AddModelButton disabled={models.has(SGOV_MODEL_ID)} modelType={SGOV_MODEL_ID} />
                 <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} />
-                <AddModelButton disabled={models.has(LOCAL_MODEL_ID)} modelType={LOCAL_MODEL_ID} />
+                <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
             </div>
             {isAddModelDialogOpen && <AddModelDialog />}
         </>

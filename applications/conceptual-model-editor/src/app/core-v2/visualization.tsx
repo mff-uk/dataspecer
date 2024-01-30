@@ -33,17 +33,14 @@ import {
 import { Entity } from "@dataspecer/core-v2/entity-model";
 import { useClassesContext } from "./context/classes-context";
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-
-export interface AggregatedEntityWrapper {
-    id: string;
-    aggregatedEntity: Entity | null;
-    visualEntity: VisualEntity | null;
-}
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { useEntityDetailDialog } from "./dialogs/entity-detail-dialog";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
+    const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
     const { classes, relationships, attributes, generalizations } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
@@ -76,10 +73,20 @@ export const Visualization = () => {
         return;
     };
 
+    const rerenderEverythingOnCanvas = () => {
+        const modelId = [...models.keys()].at(0);
+        console.log("rerender everything on canvas", models, modelId, activeVisualModel);
+        if (!modelId) {
+            return;
+        }
+        console.log("rerender everything on canvas, calling setColor", models, modelId);
+        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)); // fixme: jak lip vyvolat change na vsech entitach? 😅
+    };
+
     useEffect(() => {
         const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
+            const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
-            console.log("visualization: callback2", updated, removed, entities);
             const [localClasses, localRelationships, localAttributes, localGeneralizations, localModels] = [
                 classes,
                 relationships,
@@ -87,6 +94,7 @@ export const Visualization = () => {
                 generalizations,
                 models,
             ];
+            console.log("visualization: callback2", updated, removed, entities, localClasses, localModels);
 
             const getNode = (cls: SemanticModelClass, visualEntity: VisualEntity | null) => {
                 const pos = visualEntity?.position;
@@ -98,16 +106,26 @@ export const Visualization = () => {
                 if (!visible) {
                     return "hide-it!";
                 }
-                const origin = localClasses.get(cls.id)?.origin;
-                if (!origin) {
-                    console.log("!origin", localClasses.get(cls.id), cls.id, localClasses);
+                let originModelId = localClasses.get(cls.id)?.origin;
+                if (!originModelId) {
+                    // just try to find the model directly
+                    const modelId = [...localModels.values()]
+                        .find((m) => {
+                            const c = m.getEntities()[cls.id];
+                            if (c) return true;
+                        })
+                        ?.getId();
+                    if (modelId) {
+                        originModelId = modelId;
+                    }
                 }
                 return semanticModelClassToReactFlowNode(
                     cls.id,
                     cls,
                     pos,
-                    origin ? activeVisualModel?.getColor(origin) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
-                    localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id).map((attr) => attr.ends[1]!)
+                    originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
+                    localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id).map((attr) => attr.ends[1]!),
+                    openEntityDetailDialog
                 );
             };
 
@@ -119,55 +137,13 @@ export const Visualization = () => {
             };
 
             for (const r in removed) {
-                // const { aggregatedEntity: entity, visualEntity } = entities[r] ?? {
-                //     aggregatedEntity: null,
-                //     visualEntity: null,
-                // };
-                // if (isSemanticModelClass(entity)) {
-                //     const n = getNode(entity, visualEntity);
-                //     console.log("callback2: is entity", entity, n);
-                //     if (n) {
-                //         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
-                //     }
-                // } else if (isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
-                //     if (isSemanticModelRelationship(entity) && isAttribute(entity)) {
-                //         // it is an attribute, rerender the node that the attribute comes form
-                //         const aggrEntity = entities[entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
-                //         if (isSemanticModelClass(aggrEntity)) {
-                //             // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
-                //             localAttributes.push(entity);
-                //             const visEntity = entities[aggrEntity.id]?.visualEntity;
-                //             const n = getNode(aggrEntity, visEntity ?? null);
-                //             console.log("visualization: is attribute: after get node", n, localAttributes);
-                //             if (n) {
-                //                 setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
-                //             }
-                //         } else {
-                //             console.log(
-                //                 "callback2: something weird",
-                //                 aggrEntity,
-                //                 entity,
-                //                 entities[aggrEntity?.id ?? ""]
-                //             );
-                //         }
-                //         continue;
-                //     }
-                //     const e = getEdge(entity);
-                //     console.log("callback2: is rel or gen", entity, e);
-                //     if (e) {
-                //         setEdges((prev) => prev.filter((e) => e.id !== id).concat(e));
-                //     }
-                // } else {
-                //     console.error("callback2 unknown entity type", id, entity, visualEntity);
-                //     throw new Error("unknown entity type");
-                // }
+                // todo
             }
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null; // FIXME: tohle je debilni, v updated by uz mohla behat visual informace
                 if (isSemanticModelClass(entity)) {
                     const n = getNode(entity, visualEntity);
-                    console.log("callback2: is entity", entity, n);
                     if (n == "hide-it!") {
                         setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
                     } else if (n) {
@@ -183,8 +159,7 @@ export const Visualization = () => {
                             localAttributes.push(entity);
                             const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
                             const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
-                            console.log("visualization: is attribute: after get node", n, localAttributes);
-                            if (n) {
+                            if (n && n != "hide-it!") {
                                 setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                             }
                         } else {
@@ -204,11 +179,8 @@ export const Visualization = () => {
                         console.error("didnt find model that has entity", entity, sourceModel, localClasses);
                         continue;
                     }
-                    const e = getEdge(entity, activeVisualModel?.getColor(sourceModel.getId()));
-                    console.log("callback2: is rel or gen", entity, e);
-                    // if (e) {
-                    //     setEdges((prev) => prev.filter((e) => e.id !== id).concat(e));
-                    // }
+                    const e = getEdge(entity, localActiveVisualModel?.getColor(sourceModel.getId()));
+                    // console.log("callback2: is rel or gen", entity, e);
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");
@@ -225,7 +197,7 @@ export const Visualization = () => {
 
                 const es = [...localRelationships, ...localGeneralizations]
                     .map((relOrGen) =>
-                        getEdge(relOrGen, activeVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
+                        getEdge(relOrGen, localActiveVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
                     )
                     .filter((e): e is Edge => e?.id != undefined);
                 setEdges(es);
@@ -258,11 +230,10 @@ export const Visualization = () => {
     }, [aggregatorView, classes /* changed when new view is used */]);
 
     useEffect(() => {
-        console.log("!!!!! active visual model changed");
+        console.log("visualization: active visual model changed", activeVisualModel);
         setNodes([]);
         setEdges([]);
-        const modelId = [...models.keys()].at(0)!;
-        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)); // fixme: jak lip vyvolat change na vsech entitach? 😅
+        rerenderEverythingOnCanvas();
     }, [activeVisualModel]);
 
     const handleNodeChanges = (changes: NodeChange[]) => {
@@ -275,11 +246,11 @@ export const Visualization = () => {
         }
     };
 
-    console.log("visualization: rerendered");
-
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
+            {isEntityDetailDialogOpen && <EntityDetailDialog />}
+
             <div className="h-full w-full">
                 <ReactFlow
                     nodes={nodes}

@@ -51,15 +51,25 @@ const Page = () => {
             .then((models) => {
                 console.log("getModels: then: models:", models);
                 const [entityModels, visualModels] = models;
-                for (const model of entityModels) {
-                    aggregator.addModel(model);
-                    setModels((previous) => previous.set(model.getId(), model));
-                }
                 for (const model of visualModels) {
                     aggregator.addModel(model);
                     setVisualModels((prev) => prev.set(model.getId(), model));
                 }
+                for (const model of entityModels) {
+                    aggregator.addModel(model);
+                    setModels((previous) => previous.set(model.getId(), model));
+                }
                 setAggregatorView(aggregator.getView());
+            })
+            .then(() => {
+                const activeVisModel = aggregatorView.getActiveVisualModel();
+                const modelId = [...models.keys()].at(0);
+                console.log("no modelId?", modelId, activeVisModel);
+                if (!modelId) {
+                    console.log("no modelId.");
+                    return;
+                }
+                activeVisModel?.setColor(modelId, activeVisModel.getColor(modelId));
             })
             .catch((reason) => {
                 alert("there was an error getting models from backend, see console");

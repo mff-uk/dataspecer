@@ -80,9 +80,14 @@ export const useClassesContext = () => {
         return result.success;
     };
 
+    const customSetClasses = (st: Map<string, SemanticModelClassWithOrigin>) => {
+        setClasses(st);
+        console.log("after set classes", st, new Map(classes.entries()));
+    };
+
     return {
         classes,
-        setClasses,
+        setClasses: customSetClasses,
         allowedClasses,
         setAllowedClasses,
         relationships,

@@ -26,6 +26,7 @@ import {
     deletePackage,
     getPackage,
     getSemanticModels,
+    listPackages,
     setSemanticModels,
     updatePackage
 } from "./routes/packages";
@@ -79,6 +80,7 @@ application.delete(basename + '/data-specification/data-psm', deleteDataPsm);
 application.post(basename + '/import', importSpecifications);
 
 // Api for packages (core-v2)
+application.get(basename + '/package-list', listPackages);
 application.get(basename + '/packages', getPackage);
 application.post(basename + '/packages', createPackage);
 application.patch(basename + '/packages', updatePackage);

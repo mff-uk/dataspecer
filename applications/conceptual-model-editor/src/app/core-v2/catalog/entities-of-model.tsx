@@ -3,7 +3,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
 import { SemanticModelClassWithOrigin, useClassesContext } from "../context/classes-context";
-import { colorForModel } from "../util/utils";
+import { colorForModel, shortenSemanticModelId } from "../util/utils";
 import { ExpandableRow, ModifiableRow, NonExpandableRow } from "./entity-catalog-rows";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -26,6 +26,9 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     useEffect(() => {
         setBackgroundColor(activeVisualModel?.getColor(model.getId()) ?? "#ff6969");
     }, [activeVisualModel]);
+
+    const modelId = model.getId();
+    let clses: JSX.Element[];
 
     console.log("entities of model rerender", model.getId(), activeVisualModel?.getId());
 
@@ -75,16 +78,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         openModifyEntityDialog(model, cls);
     };
 
-    const modelId = model.getId();
-    let clses: JSX.Element[];
-
     if (model instanceof ExternalSemanticModel) {
         clses = [...classes.entries()]
             .filter(([_, cwo]) => cwo.origin == modelId)
             .map(([clsId, cwo]) => (
                 <ExpandableRow
                     cls={cwo}
-                    key={clsId}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
                     toggleHandler={() => toggleAllow(model, clsId)}
                     expanded={() => allowedClasses.includes(clsId)}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
@@ -97,11 +97,11 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             ));
     } else if (model instanceof InMemorySemanticModel) {
         clses = [...classes.entries()]
-            .filter(([clsId, cwo]) => cwo.origin == model.getId())
+            .filter(([_, cwo]) => cwo.origin == model.getId())
             .map(([clsId, cwo]) => (
                 <ModifiableRow
                     cls={cwo}
-                    key={cwo.cls.id}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
                     openModificationHandler={() => handleOpenModification(model, cwo.cls)}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
@@ -125,7 +125,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .map((v) => (
                 <NonExpandableRow
                     cls={v}
-                    key={v.cls.id}
+                    key={v.cls.id + aggregatorView.getActiveVisualModel()?.getId()}
                     openDetailHandler={() => openEntityDetailDialog(v.cls)}
                     addToViewHandler={() => handleAddClassToActiveView(v.cls.id)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
@@ -136,11 +136,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             ));
     }
 
+    console.log("rerendering entities of model");
+
     return (
         <>
             <li key={modelId} style={{ backgroundColor: backgroundColor }}>
                 <div className="flex flex-row justify-between">
-                    <div>M: {modelId}</div>
+                    <h4>Ⓜ {shortenSemanticModelId(modelId)}</h4>
                     <div>
                         <input
                             type="color"
@@ -156,7 +158,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
                     </div>
                 </div>
-                {isOpen && <ul>{clses}</ul>}
+                {isOpen && <ul className="ml-1">{clses}</ul>}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}

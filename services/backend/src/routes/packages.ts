@@ -47,6 +47,11 @@ export const deletePackage = asyncHandler(async (request: express.Request, respo
     response.sendStatus(204);
 });
 
+export const listPackages = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const pkgs = await packageModel.listPackages();
+    response.send(pkgs);
+});
+
 export const getSemanticModels = asyncHandler(async (request: express.Request, response: express.Response) => {
     const packageId = request.query.packageId;
     if (typeof packageId !== "string" || !packageId) {

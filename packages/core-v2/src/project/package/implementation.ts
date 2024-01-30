@@ -30,9 +30,18 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         this.httpFetch = httpFetch;
     }
 
+    async listPackages(): Promise<Package[]> {
+        const url = this.getPackageListUrl().toString();
+        const result = await this.httpFetch(url);
+        if (!result || !result.json) {
+            return [];
+        }
+        return (await result.json()) as Package[];
+    }
+
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
-        return (await result.json()) as Package;
+                return (await result.json()) as Package;
     }
 
     async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {
@@ -111,6 +120,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         const data = await result.json();
 
         return await createHttpSemanticModel(data, this.httpFetch);
+    }
+
+    private getPackageListUrl(): URL {
+        return new URL(this.backendUrl + "/package-list");
     }
 
     private getPackageUrl(packageId: string): URL {

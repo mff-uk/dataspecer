@@ -23,36 +23,49 @@ export const PackageManagement = () => {
         setDropdownOpen((prev) => !prev);
     };
 
+    const fetchPackagesFromBackend = async () => {
+        setPackages(await listPackages());
+    };
+
     return (
         <div className="my-auto">
             <div className="flex flex-col [&]:text-[15px]">
                 <div className="flex flex-row">
                     <div>
-                        package:<span className="ml-2 font-mono">{packageId}</span>
+                        pkg:<span className="ml-2 font-mono">{packageId}</span>
                     </div>
-                    <button className="white ml-2" onClick={toggleDropdown}>
-                        🔍
+                    <button className="white ml-2" title="change package" onClick={toggleDropdown}>
+                        {dropdownOpen ? "🔼" : "🔽"}
+                    </button>
+                    <button
+                        className="white ml-2"
+                        title="sync package inventory with backend"
+                        onClick={fetchPackagesFromBackend}
+                    >
+                        🔄
                     </button>
                     <button
                         className="mx-1 bg-yellow-600 px-1"
+                        title="create a new package"
                         onClick={async () => {
-                            const pckgName = getRandomName(7);
-                            const pckg = await createPackage(pckgName, pckgName)
+                            const pkgName = getRandomName(7);
+                            const pkg = await createPackage(pkgName, pkgName)
                                 .then((resp) => resp)
                                 .catch((reason) => {
                                     alert("there was a problem creating package on backend");
                                     console.error(reason);
                                 });
-                            if (pckg) {
-                                setPackages((prev) => [...prev, pckg]);
+                            if (pkg) {
+                                setPackages((prev) => [...prev, pkg]);
                             }
                         }}
                     >
-                        create pckg
+                        ➕pkg
                     </button>
                     <button
                         className="bg-green-600 px-1"
                         disabled={!packageId}
+                        title="save package to backend"
                         onClick={async () => {
                             console.log("package-management: save package: pcgkid", packageId, models, visualModels);
                             if (!packageId) {
@@ -66,15 +79,15 @@ export const PackageManagement = () => {
                             );
                         }}
                     >
-                        save pckg
+                        💾pkg
                     </button>
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
-                        {packages.map((pckg) => (
-                            <li key={pckg.id} className="w-full">
-                                <button onClick={() => handlePackageSelected(pckg.id)}>
-                                    {getOneNameFromLanguageString(pckg.name).t}
+                        {packages.map((pkg) => (
+                            <li key={pkg.id} className="w-full">
+                                <button onClick={() => handlePackageSelected(pkg.id)}>
+                                    {getOneNameFromLanguageString(pkg.name).t}
                                 </button>
                             </li>
                         ))}
