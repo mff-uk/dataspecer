@@ -1,4 +1,3 @@
-export {
-  PlantUmlGenerator,
-  PlantUmlGeneratorObject,
-} from "./plant-uml-generator";
+export { PlantUmlGenerator } from "./plant-uml-generator";
+export type { PlantUmlGeneratorObject } from "./plant-uml-generator";
+

@@ -78,7 +78,7 @@ export class BackendConnector {
       },
       body: JSON.stringify(set),
     });
-    return await data.json();
+    return await data.json() as DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata;
   }
 
   public async cloneDataSpecification(dataSpecificationIri: string, set: UpdateDataSpecification = {}): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
@@ -92,7 +92,7 @@ export class BackendConnector {
         set,
       }),
     });
-    return await data.json();
+    return await data.json() as DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata;
   }
 
   public async updateDataSpecification(dataSpecificationIri: string, update: UpdateDataSpecification): Promise<DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata> {
@@ -106,7 +106,7 @@ export class BackendConnector {
         update,
       }),
     });
-    return await data.json();
+    return await data.json() as DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata;
   }
 
   public async deleteDataSpecification(dataSpecificationIri: string): Promise<void> {
@@ -134,7 +134,10 @@ export class BackendConnector {
         dataSpecificationIri: dataSpecificationIri,
       }),
     });
-    return await data.json();
+    return await data.json() as {
+      dataSpecification: DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores,
+      createdPsmSchemaIri: string,
+    };
   }
 
   public async deleteDataStructure(dataSpecificationIri: string, dataPsmSchemaIri: string): Promise<void> {

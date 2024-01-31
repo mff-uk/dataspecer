@@ -1,64 +1,26 @@
-import jsStringEscape from "js-string-escape";
-import search from "./sparql-queries/search.sparql";
-import getClass from "./sparql-queries/get-class.sparql";
-import getSurroundingsParents from "./sparql-queries/get-surroundings-parents.sparql";
-import getSurroundingsChildren from "./sparql-queries/get-surroundings-children.sparql";
-import getSurroundingsOutwardAssociations from "./sparql-queries/get-surroundings-outward-associations.sparql";
-import getSurroundingsInwardAssociations from "./sparql-queries/get-surroundings-inward-associations.sparql";
-import getFullHierarchyChildren from "./sparql-queries/get-full-hierarchy-children.sparql";
-import getFullHierarchyParents from "./sparql-queries/get-full-hierarchy-parents.sparql";
 import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
-import {OFN, XSD, WIKIDATA_SPARQL_FREE_VAR_PREFIX, RDFS} from "./vocabulary";
+import {OFN, XSD} from "./vocabulary";
 import {PimClass} from "@dataspecer/core/pim/model/pim-class";
 import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
-import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
-import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
-import { loadWikidataItem, isWikidataItem } from "./entity-adapters/sparql-wikidata-item-adapter";
-import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
-import { loadWikidataAssociationOrAttribute } from "./entity-adapters/sparql-wikidata-association-attribute-adapter";
-import { WikidataPhpGetEntities } from "./wikidata-php-api/wikidata-php-api-get-entities";
-import { isWikidataItemPhp, loadWikidataItemFromPhpWrap } from "./entity-adapters/php-api-wikidata-item-adapter";
-import { loadWikidataEntityFromPhpWrapToResource } from "./entity-adapters/php-api-wikidata-entity-adapter";
-
-const getSurroundingsParentsAndChilren = [
-     getClass,
-     getSurroundingsChildren,
-     getSurroundingsParents,
-];
-
-const getSurroundingsAssociations = [
-    getSurroundingsOutwardAssociations,
-    getSurroundingsInwardAssociations,
-]
-
-const getFullHierarchy = [
-    getClass,
-    getFullHierarchyParents,
-    getFullHierarchyChildren,
-]
-
-const searchQuery = (searchString: string) => search({query: `"${jsStringEscape(searchString)}"`});
-
-const getClassQuery = (cimIri: string) => getClass({class: `<${cimIri}>`});
-
-const getSurroundingsParentsAndChilrenQuery = (cimIri: string) => getSurroundingsParentsAndChilren.map(q => q({class: `<${cimIri}>`}));
-
-const getFullHierarchyQuery = (cimIri: string) => getFullHierarchy.map(q => q({class: `<${cimIri}>`}));
-
-const getSurroundingsAssociationsQuery = (cimIri: string) => getSurroundingsAssociations.map(q => q({class: `<${cimIri}>`}));
-
-
-const IRI_REGEXP = new RegExp("^http://www.wikidata.org/entity/Q[1-9][0-9]*$");
+import { WdConnector } from "./connector/wd-connector";
+import { IHierarchyResponse, ISurroundingsResponse } from "./connector/response";
+import { loadWikidataClass } from "./entity-adapters/wd-class-adapter";
+import { cimIriToEntityId } from "./entity-adapters/wd-entity-adapter";
+import { EntityId } from "./connector/entities/wd-entity";
+import { IWdClass } from "./connector/entities/wd-class";
+import { IWdProperty } from "./connector/entities/wd-property";
+import { associationTypes, loadWikidataProperty } from "./entity-adapters/wd-property-adapter";
 
 export class WikidataAdapter implements CimAdapter {
-    protected readonly WIKIDATA_SPARQL_ENDPOINT = "https://query.wikidata.org/sparql";
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
+    protected readonly connector: WdConnector;
     
     constructor(httpFetch: HttpFetch) {
         this.httpFetch = httpFetch;
+        this.connector = new WdConnector(this.httpFetch);
     }
 
     setIriProvider(iriProvider: IriProvider): void {
@@ -88,198 +50,125 @@ export class WikidataAdapter implements CimAdapter {
         return undefined;
     }
 
-    // @todo implement
     async search(searchString: string): Promise<PimClass[]> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        const source = new SparqlQueryRdfSource(
-            this.httpFetch,
-            this.WIKIDATA_SPARQL_ENDPOINT,
-            searchQuery(searchString)
-          );
-        await source.query();
-
-        const results = await source.property(
-            this.varToWikidataSparqlVar("__search_results"),
-            this.varToWikidataSparqlVar("__has_search_result")
-        );
-        
-        let sorted = [];
-        for await (const result of results) {
-            const resultWrap = RdfSourceWrap.forIri(result.value, source);
-            sorted.push({
-              sort: Number((await resultWrap.property(this.varToWikidataSparqlVar("__order")))[0].value),
-              cls: await loadWikidataItem(resultWrap, this.iriProvider),
-            });
+        const results = []
+        const searchResponse = await this.connector.search(searchString);
+        if (searchResponse != null) {
+            for (const cls of searchResponse.results.classes) {
+                const newPimClass = loadWikidataClass(cls, this.iriProvider);
+                results.push(newPimClass);
+            }
         }
-        sorted = sorted.sort((a, b) => a.sort - b.sort).map((p) => p.cls);
-
-        if (IRI_REGEXP.test(searchString)) {
-            const classByIri = await this.getClass(searchString);
-            if (classByIri) {
-              sorted = [classByIri];
-            } else sorted = []
-        }
-
-        return sorted;
+        return results;
     }
 
-    // @todo implement
     async getClass(cimIri: string): Promise<PimClass | null> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        const source = new SparqlQueryRdfSource(
-            this.httpFetch,
-            this.WIKIDATA_SPARQL_ENDPOINT,
-            getClassQuery(cimIri)
-        );
-        await source.query();
-
-        const resultWrap = RdfSourceWrap.forIri(cimIri, source);
-        if (!(await isWikidataItem(resultWrap))) {
-            return null;
+        const getClassResponse = await this.connector.getClass(cimIriToEntityId(cimIri));
+        if (getClassResponse != null && getClassResponse.results.classes.length != 0) {
+                const cls = getClassResponse.results.classes[0];
+                return loadWikidataClass(cls, this.iriProvider);
         }
-        return await loadWikidataItem(resultWrap, this.iriProvider);
+        return null;
     }
-
-    //http://www.wikidata.org/entity/Q5
-    // @todo implement
-    async getSurroundings(cimIri: string): Promise<CoreResourceReader> {
-        if (!this.iriProvider) {
-            throw new Error("Missing IRI provider.");
-        }
-        
-        const [associationsSources, associationsFinishPromise] = 
-            this.createGroupQuerySparqlSources(cimIri, getSurroundingsAssociationsQuery);
-        const [parentsChildrenSources, parentsChildrenFinishPromise] = 
-            this.createGroupQuerySparqlSources(cimIri, getSurroundingsParentsAndChilrenQuery);
-        
-        // Work on parents because associations queries take longer.
-        await parentsChildrenFinishPromise;
-        const parentsChildrenSource = FederatedSource.createExhaustive(parentsChildrenSources);
-        let resources = await this.loadChildrenAndParentsFromEntity(cimIri, parentsChildrenSource);
-
-        await associationsFinishPromise;
-        const associationsSource = FederatedSource.createExhaustive(associationsSources);
-        resources = await this.loadAssociationsAndItsTypesFromEntity(cimIri, associationsSource, resources);
-
-        return ReadOnlyMemoryStore.create(resources);
-    }
-
+    
     async getFullHierarchy(cimIri: string): Promise<CoreResourceReader> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
 
-        const sources = getFullHierarchyQuery(cimIri).map(
-            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
-        );
-        await Promise.all(sources.map((q) => q.query()));
-        const source = FederatedSource.createExhaustive(sources);
-        const resources = await this.loadChildrenAndParentsFromEntity(cimIri, source);
-        return ReadOnlyMemoryStore.create(resources);
+        const hierarchyResponse = await this.connector.hierarchy(cimIriToEntityId(cimIri));
+        if (hierarchyResponse != null) {
+            const resources = this.loadParentsChildrenHierarchy(hierarchyResponse);
+            return ReadOnlyMemoryStore.create(resources);
+        }
+        return ReadOnlyMemoryStore.create({});
     }
+
+    // @todo implement
+    async getSurroundings(cimIri: string): Promise<CoreResourceReader> {
+        if (!this.iriProvider) {
+            throw new Error("Missing IRI provider.");
+        }
+
+        const surroundingsResponse = await this.connector.surroundings(cimIriToEntityId(cimIri));
+        if (surroundingsResponse != null) {
+            const resources = this.loadSurroundings(surroundingsResponse);
+            return ReadOnlyMemoryStore.create(resources);
+        }
+        return ReadOnlyMemoryStore.create({});
+    }
+
 
     async getResourceGroup(cimIri: string): Promise<string[]> {
         // Keep as is
         return [];
     }
 
-    protected varToWikidataSparqlVar(variable: string): string {
-        return WIKIDATA_SPARQL_FREE_VAR_PREFIX + variable;
+    private loadParentsChildrenHierarchy(hierarchyResponse: IHierarchyResponse): { [iri: string]: CoreResource } {
+        // Outputs 
+        const resources: { [iri: string]: CoreResource } = {}
+        const loadedClassesSet = new Set<EntityId>();
+
+        // Load root
+        this.tryLoadClassesToResources([hierarchyResponse.results.root], resources, loadedClassesSet);
+
+        // Load parents
+        this.tryLoadClassesToResources(hierarchyResponse.results.parents, resources, loadedClassesSet);
+
+        // Load children
+        this.tryLoadClassesToResources(hierarchyResponse.results.children, resources, loadedClassesSet);
+
+        return resources;
     }
 
-    protected createGroupQuerySparqlSources(
-        cimIri: string,
-        groupQuery: (string) => string[]
-      ): [SparqlQueryRdfSource[], Promise<void[]>] {
-        const sources = groupQuery(cimIri).map(
-            (query) => new SparqlQueryRdfSource(this.httpFetch, this.WIKIDATA_SPARQL_ENDPOINT, query)
-        );
-        const finishPromise = Promise.all(sources.map((q) => q.query()));
-        return [sources, finishPromise];
-    }
+    private loadSurroundings(surroundingsResponse: ISurroundingsResponse): { [iri: string]: CoreResource } {
+        const resources: { [iri: string]: CoreResource } = {}
+        const loadedClassesSet = new Set<EntityId>();
+        const loadedOutwardsPropertiesSet = new Set<EntityId>();
+        const loadedInwardPropertiesSet = new Set<EntityId>();
 
-    protected async loadChildrenAndParentsFromEntity(
-        rootClassCimIri: string,
-        source: RdfSource
-      ): Promise<{ [iri: string]: CoreResource }> {
-        const resources: { [iri: string]: CoreResource } = {};
+        // Load root
+        const rootClass = surroundingsResponse.results.root
+        this.tryLoadClassesToResources([rootClass], resources, loadedClassesSet);
         
-        const classesProcessed = new Set<string>();
-        let cimIrisToProcess = [rootClassCimIri];
-        while (cimIrisToProcess.length) {
-            const processedCimIri = cimIrisToProcess.pop();
-            if (classesProcessed.has(processedCimIri)) { 
-                continue;
-            } 
-            classesProcessed.add(processedCimIri);
-            const rdfClassWrap = RdfSourceWrap.forIri(processedCimIri, source);
-            if (!(await isWikidataItem(rdfClassWrap))) {
-                continue;
-            } 
-            
-            const pimClass = await loadWikidataItem(rdfClassWrap, this.iriProvider);
-            
-            const parentsCimIris = (await source.property(processedCimIri, RDFS.subClassOf)).map((r) => r.value);
-            const childrenCimIris = (await source.reverseProperty(RDFS.subClassOf, processedCimIri)).map((r) => r.value);
-            cimIrisToProcess = [...cimIrisToProcess, ...parentsCimIris, ...childrenCimIris];
-            
-            resources[pimClass.iri] = pimClass;
-        }
+        // Load classes from endpoints
+        this.tryLoadClassesToResources(surroundingsResponse.results.propertyEndpoints, resources, loadedClassesSet);
+        
+        // Load subjectOf properties
+        this.tryLoadPropertiesToResources("outward", surroundingsResponse.results.subjectOf, rootClass, resources, loadedOutwardsPropertiesSet);
+        
+        // Load valueOf properties
+        this.tryLoadPropertiesToResources("inward", surroundingsResponse.results.valueOf, rootClass, resources, loadedInwardPropertiesSet);
+
         return resources;
     }
 
-    protected async loadAssociationsAndItsTypesFromEntity(
-        rootClassCimIri: string,
-        source: RdfSource,
-        resources: { [iri: string]: CoreResource }
-      ): Promise<{ [iri: string]: CoreResource }> {
-        const processedCLasses = new Set<string>(...Object.keys(resources).map(this.iriProvider.pimToCim));
-        const classCimIrisToProcess: string[] = []; 
 
-        const associationsResults = await source.property(
-            this.varToWikidataSparqlVar("__search_results"),
-            this.varToWikidataSparqlVar("__has_search_results")
-        );  
+    private tryLoadClassesToResources(wdClasses: IWdClass[], resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<EntityId>): void {
+        for (const cls of wdClasses) {
+            if (!loadedClassesSet.has(cls.id)) {
+                loadedClassesSet.add(cls.id);
+                const newPimClass = loadWikidataClass(cls, this.iriProvider)
+                resources[newPimClass.iri] = newPimClass;
+            } 
+        } 
+    }
 
-        for await (const result of associationsResults) {
-            const rdfResultWrap = RdfSourceWrap.forIri(result.value, source);
-            const [coreResources, newClassIrisToProcess]: [CoreResource[], string[]] 
-                = await loadWikidataAssociationOrAttribute(rootClassCimIri, rdfResultWrap, source, this.iriProvider);
-            coreResources.forEach((r) => resources[r.iri] = r);
-            newClassIrisToProcess.forEach((c) => {
-                if (!processedCLasses.has(c)) {
-                    classCimIrisToProcess.push(c);
-                    processedCLasses.add(c);
+    private tryLoadPropertiesToResources(inOrOut: associationTypes, wdProperties: IWdProperty[], rootClass: IWdClass, resources: { [iri: string]: CoreResource }, loadedPropertiesSet: Set<EntityId>): void {
+        for (const prop of wdProperties) {
+            if (!loadedPropertiesSet.has(prop.id)) {
+                loadedPropertiesSet.add(prop.id);
+                const coreResources: CoreResource[] = loadWikidataProperty(inOrOut, prop, rootClass, this.iriProvider)
+                for (const resource of coreResources) {
+                    resources[resource.iri] = resource;
                 }
-            })
+            } 
         }
-
-        console.log(1);
-        const newPimClasses = await this.getClasses(classCimIrisToProcess);
-        newPimClasses.forEach((r) => resources[r.iri] = r);
-        console.log(2);
-
-        return resources;
-    }
-
-    protected async getClasses(cimIris: string[]): Promise<PimClass[]> {
-        if (!this.iriProvider) {
-            throw new Error("Missing IRI provider.");
-        }
-
-        let newPimClasses: PimClass[] = []
-
-        const results = await WikidataPhpGetEntities(this.httpFetch, cimIris);
-        for await (const entityWrap of results) {
-            if (await isWikidataItemPhp(entityWrap)) {
-                const cls = await loadWikidataItemFromPhpWrap(entityWrap, this.iriProvider);
-                newPimClasses.push(cls);
-            }
-        }
-        return newPimClasses;
     }
 }

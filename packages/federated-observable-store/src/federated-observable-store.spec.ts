@@ -22,12 +22,16 @@ describe("FederatedObservableStore reading", () => {
         store = new FederatedObservableStore();
     });
 
-    test("a", async () => {
+    test("Test add store and subscriber", async () => {
+        let wasSubscribed = false;
+
         const subscriber: Subscriber = (iri, resource) =>
-            console.log("****", iri, resource);
+            wasSubscribed = true;
 
         store.addSubscriber("http://resource/1", subscriber);
         store.addStore(coreReader);
+
+        expect(wasSubscribed).toBe(true);
 
         await new Promise(process.nextTick);
     });

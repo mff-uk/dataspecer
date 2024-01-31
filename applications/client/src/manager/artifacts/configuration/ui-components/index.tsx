@@ -41,7 +41,7 @@ export const TextFieldWithDefault: FC<{
           
           {...props.inputProps}
       />
-      {props.default && !isDefault && props.default[props.itemKey].length < 200 && <FormHelperText>(default: {!props.default[props.itemKey] ? "-" : props.default[props.itemKey]})</FormHelperText>}
+      {props.default?.[props.itemKey] && !isDefault && props.default[props.itemKey].length < 200 && <FormHelperText>(default: {!props.default[props.itemKey] ? "-" : props.default[props.itemKey]})</FormHelperText>}
       {isDefault && <FormHelperText>Default value is being used</FormHelperText>}
     </FormControl>;
   };
