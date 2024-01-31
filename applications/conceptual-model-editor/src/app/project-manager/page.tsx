@@ -3,32 +3,63 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Header from "../components/header";
-import { BackendPackageService, Package } from "@dataspecer/core-v2/project";
+import { BackendPackageService, Package, PackageEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { getOneNameFromLanguageString } from "../core-v2/util/utils";
+import { getRandomName } from "../utils/random-gen";
 
 const Page = () => {
-    const BACKEND_URL = "http://localhost:3100";
-    const service = useMemo(() => new BackendPackageService(BACKEND_URL, httpFetch), []);
+    const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
 
-    const listPackages = async () => {
-        return service.listPackages();
+    const syncPackages = async () => {
+        setPackages(await service.listPackages());
     };
 
     const [packages, setPackages] = useState([] as Package[]);
 
     useEffect(() => {
-        const getPackages = async () => {
-            setPackages(await listPackages());
-        };
-        getPackages();
+        syncPackages();
     }, []);
+
+    const createPackage = async (packageId: string, packageNameCs: string) => {
+        const pkg = await service.createPackage(".root", {
+            id: packageId,
+            name: { cs: packageNameCs },
+            tags: [],
+        } as PackageEditable);
+        console.log(pkg);
+        alert(`package ${pkg.id}-${getOneNameFromLanguageString(pkg.name).t} logged to console`);
+        return pkg;
+    };
 
     return (
         <>
             <Header page="project manager 📚" />
             <main className="mx-auto max-w-screen-lg">
                 <h1 className="mb-12 px-6 text-3xl font-bold tracking-tight text-gray-900">Available packages</h1>
+                <div className="flex flex-row">
+                    <button className="white ml-2" title="sync package inventory with backend" onClick={syncPackages}>
+                        🔄
+                    </button>
+                    <button
+                        className="mx-1 bg-yellow-600 px-1"
+                        title="create a new package"
+                        onClick={async () => {
+                            const pkgName = getRandomName(7);
+                            const pkg = await createPackage(pkgName, pkgName)
+                                .then((resp) => resp)
+                                .catch((reason) => {
+                                    alert("there was a problem creating package on backend");
+                                    console.error(reason);
+                                });
+                            if (pkg) {
+                                syncPackages();
+                            }
+                        }}
+                    >
+                        ➕pkg
+                    </button>
+                </div>
                 <ul>
                     {packages?.map((pkg) => {
                         const urlSearchParams = new URLSearchParams();
