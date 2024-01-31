@@ -2,6 +2,7 @@ import Link from "next/link";
 import React, { Children } from "react";
 import { PackageManagement } from "./package-management";
 import { ViewManagement } from "./view-management";
+import { ExportManagement } from "./export-management";
 
 const Logo = () => {
     return (
@@ -12,7 +13,7 @@ const Logo = () => {
     );
 };
 
-const Header = ({ children }: { children?: React.ReactNode }) => {
+const Header = () => {
     return (
         <>
             <header className="flex h-12 w-full flex-row justify-between bg-[#5438dc] align-middle text-white">
@@ -24,7 +25,9 @@ const Header = ({ children }: { children?: React.ReactNode }) => {
                     <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />
                     <ViewManagement />
                 </div>
-                <div>{children}</div>
+                <div className="my-auto">
+                    <ExportManagement />
+                </div>
             </header>
         </>
     );

@@ -4,15 +4,14 @@ import { usePackageSearch } from "./util/package-search";
 import { Package } from "@dataspecer/core-v2/project";
 import { getOneNameFromLanguageString } from "./util/utils";
 import { useModelGraphContext } from "./context/graph-context";
+import { getRandomName } from "../utils/random-gen";
 
 export const PackageManagement = () => {
     const { listPackages, createPackage, updateSemanticModelPackageModels } = useBackendConnection();
     const { packageId, setPackage } = usePackageSearch();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [packages, setPackages] = useState([] as Package[]); // fixme: shouldn't be a state, should it?
-    const { models } = useModelGraphContext();
-
-    // const packages = useMemo(() => listPackages(), []);
+    const { models, visualModels } = useModelGraphContext();
 
     const handlePackageSelected = (pckgId: string) => {
         console.log("package-management: selected a new package:", pckgId);
@@ -37,21 +36,33 @@ export const PackageManagement = () => {
                     <button
                         className="mx-1 bg-yellow-600 px-1"
                         onClick={async () => {
-                            const pckg = await createPackage("demo-925", "můj-demo-925-pekič");
-                            setPackages((prev) => [...prev, pckg]);
+                            const pckgName = getRandomName(7);
+                            const pckg = await createPackage(pckgName, pckgName)
+                                .then((resp) => resp)
+                                .catch((reason) => {
+                                    alert("there was a problem creating package on backend");
+                                    console.error(reason);
+                                });
+                            if (pckg) {
+                                setPackages((prev) => [...prev, pckg]);
+                            }
                         }}
                     >
                         create pckg
                     </button>
                     <button
                         className="bg-green-600 px-1"
+                        disabled={!packageId}
                         onClick={async () => {
+                            console.log("package-management: save package: pcgkid", packageId, models, visualModels);
                             if (!packageId) {
                                 return;
                             }
+
                             updateSemanticModelPackageModels(
                                 packageId,
-                                [...models.keys()].map((modelId) => models.get(modelId)!)
+                                [...models.values()],
+                                [...visualModels.values()]
                             );
                         }}
                     >
@@ -63,7 +74,7 @@ export const PackageManagement = () => {
                         {packages.map((pckg) => (
                             <li key={pckg.id} className="w-full">
                                 <button onClick={() => handlePackageSelected(pckg.id)}>
-                                    {getOneNameFromLanguageString(pckg.name)}
+                                    {getOneNameFromLanguageString(pckg.name).t}
                                 </button>
                             </li>
                         ))}

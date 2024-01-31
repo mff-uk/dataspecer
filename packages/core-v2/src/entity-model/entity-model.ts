@@ -1,4 +1,4 @@
-import {Entities, Entity} from "./entity";
+import { Entities, Entity } from "./entity";
 
 /**
  * Represents a model (storage, container) that contains stand-alone, indivisible, entities.
@@ -21,5 +21,9 @@ export interface EntityModel {
      * @returns Function that can be called to unsubscribe from the changes.
      */
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void;
-}
 
+    /**
+     * Returns Id of the model
+     */
+    getId(): string;
+}

@@ -1,18 +1,36 @@
-import { useMemo, useState } from "react";
-import { useBackendConnection } from "./backend-connection";
-import { usePackageSearch } from "./util/package-search";
-import { useViewContext } from "./context/view-context";
-import { getNameOf, getOneNameFromLanguageString } from "./util/utils";
+import { useEffect, useState } from "react";
+import { useModelGraphContext } from "./context/graph-context";
+import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 
 export const ViewManagement = () => {
-    const { viewLayouts } = useViewContext();
-    const { activeViewId, setActiveViewId } = useViewContext();
+    const { aggregatorView, aggregator, setAggregatorView, setVisualModels } = useModelGraphContext();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const activeViewId = aggregatorView.getActiveViewId();
+    const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+
+    useEffect(() => {
+        if (availableVisualModelIds.length == 0) {
+            handleCreateNewView();
+        }
+    }, [availableVisualModelIds]);
+
+    const setActiveViewId = (modelId: string) => {
+        aggregatorView.changeActiveVisualModel(modelId);
+    };
 
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
+        setAggregatorView(aggregator.getView());
         console.log("selected view with id: ", viewId);
         toggleDropdown();
+    };
+
+    const handleCreateNewView = () => {
+        const model = new VisualEntityModelImpl(undefined);
+        aggregator.addModel(model);
+        setAggregatorView(aggregator.getView());
+        setVisualModels((prev) => new Map(prev.set(model.getId(), model)));
     };
 
     const toggleDropdown = () => {
@@ -27,16 +45,21 @@ export const ViewManagement = () => {
                         view:<span className="ml-2 font-mono">{activeViewId}</span>
                     </div>
                     <button className="white ml-2 text-[15px]" onClick={toggleDropdown}>
-                        👁️
+                        🗃️
+                    </button>
+                    <button
+                        className="white ml-2 text-[15px]"
+                        onClick={handleCreateNewView}
+                        title="create a new diagram"
+                    >
+                        <span className="font-bold">+</span>🖼️
                     </button>
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
-                        {viewLayouts.map((viewLayout) => (
-                            <li key={viewLayout.id} className="w-full">
-                                <button onClick={() => handleViewSelected(viewLayout.id)}>
-                                    {getOneNameFromLanguageString(viewLayout.name)}
-                                </button>
+                        {availableVisualModelIds.map((viewId) => (
+                            <li key={viewId} className="w-full">
+                                <button onClick={() => handleViewSelected(viewId)}>{viewId}</button>
                             </li>
                         ))}
                     </ul>

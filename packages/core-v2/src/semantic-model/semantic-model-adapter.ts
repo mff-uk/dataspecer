@@ -1,4 +1,4 @@
-import {Entities, Entity, EntityModel} from "../entity-model";
+import { Entities, Entity, EntityModel } from "../entity-model";
 
 /**
  * Provides entities as semantic model.
@@ -9,6 +9,10 @@ import {Entities, Entity, EntityModel} from "../entity-model";
  */
 export class SemanticModelAdapter implements EntityModel {
     constructor(protected readonly entityModel: EntityModel) {}
+
+    getId(): string {
+        return this.entityModel.getId();
+    }
 
     getEntities(): Entities {
         return this.entityModel.getEntities();

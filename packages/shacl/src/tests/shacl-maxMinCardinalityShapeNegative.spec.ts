@@ -5,6 +5,6 @@ const testType = "maxMinCardinalityNegative";
 const modelCreator = new MaxMinCardinalityModelCreator();
 
 test('Test SHACL against data - cardinality NEGATIVE ', async () => {
-  const validation = await Support.testNegative(testType, modelCreator);
+  const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(false);
 });

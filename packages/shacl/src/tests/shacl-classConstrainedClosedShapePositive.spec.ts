@@ -5,7 +5,7 @@ const testType = "classConstrainedClosed";
 const modelCreator = new ClassConstrainedClosedModelCreator();
 
 test('Test SHACL against data - class constrained closed shape POSITIVE ', async () => {
-  const validation = await Support.testPositive(testType, modelCreator);
+  const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
 

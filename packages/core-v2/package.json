@@ -17,6 +17,7 @@
     "./semantic-model/in-memory": "./lib/semantic-model/in-memory/index.js",
     "./semantic-model/usage/concepts": "./lib/semantic-model/usage/concepts/index.js",
     "./semantic-model/usage/operations": "./lib/semantic-model/usage/operations/index.js",
+    "./visual-model": "./lib/visual-model/index.js",
     "./semantic-model/v1-adapters": "./lib/semantic-model/v1-adapters/index.js"
   },
   "dependencies": {

@@ -1,0 +1,33 @@
+@prefix base: <http://www.example.org/> .
+@prefix ex: <https://example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+base:vec a ex:Věc;
+    ex:Adresa base:adresa;
+    ex:Narozeni_a_umrti base:narozeniAUmrti;
+    ex:Vyucovaci_hodina base:hodina, base:hodina2;
+    ex:additionalPredicate "Forbidden predicate in closed class".
+
+base:hodina2 a ex:Vyucovaci_hodina_class.
+
+base:hodina a ex:Vyucovaci_hodina_class;
+    ex:Zacatek_cas "08:21:19.365Z"^^xsd:time;
+    ex:Konec_cas "09:00:00.365Z"^^xsd:time, "19:00:00.365Z"^^xsd:time.
+
+base:narozeniAUmrti a ex:Narozeni_a_umrti_class;
+    ex:Narozeni "1938-12-11"^^xsd:date;
+    ex:Umrti "1995-05-24"^^xsd:date;
+    ex:znameni "Střelec".
+
+base:adresa a <http://example.com/class2/adresa>;
+    ex:Ulice "";
+    ex:CisloPopisne 23;
+    ex:Mesto "Praha";
+    ex:PSC "15500";
+    ex:Stat "Česká republika";
+    ex:Rozloha 1.5;
+    ex:Jmeno_A_Prijmeni base:celeJmeno.
+
+base:celeJmeno a ex:Jmeno_A_Prijmeni_class;
+    ex:Jmeno "Dominik", "Václav";
+    ex:Prijmeni "Potočka". 

@@ -1,0 +1,10 @@
+@prefix genum: <https://slovník.gov.cz/generický/umístění/pojem/> .
+@prefix datuda: <https://slovník.gov.cz/datový/události/pojem/> .
+@prefix base: <http://www.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+base:udalost a datuda:událost;
+    datuda:dlouhý-popis "Dlouhý popis"@cs;
+    datuda:dlouhý-popis "Long description"@en;
+    datuda:registrace "true"^^xsd:boolean;
+    datuda:registrace "false"^^xsd:boolean.

@@ -5,7 +5,7 @@ const testType = "maxMinCardinality";
 const modelCreator = new MaxMinCardinalityModelCreator();
 
 test('Test SHACL against data - cardinality POSITIVE ', async () => {
-  const validation = await Support.testPositive(testType, modelCreator);
+  const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
 

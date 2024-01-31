@@ -8,7 +8,7 @@ import * as PIM from "../pim-vocabulary";
  * associations ends points to classes.
  */
 export class PimClass extends PimResource {
-  private static readonly TYPE = PIM.CLASS;
+  static readonly TYPE = PIM.CLASS;
 
   pimExtends: string[] = [];
 

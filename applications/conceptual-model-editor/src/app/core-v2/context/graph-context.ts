@@ -10,6 +10,7 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "../util/constants";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 const bob = new SemanticModelAggregator();
 
@@ -19,22 +20,19 @@ export type ModelGraphContextType = {
     setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
     models: Map<string, EntityModel>;
     setModels: React.Dispatch<React.SetStateAction<Map<string, EntityModel>>>;
+    visualModels: Map<string, VisualEntityModel>;
+    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, VisualEntityModel>>>;
 };
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
 
-const getIdOfEntityModel = (model: EntityModel) => {
-    if (model instanceof ExternalSemanticModel) {
-        return SGOV_MODEL_ID;
-    } else if (model instanceof PimStoreWrapper) {
-        return DCTERMS_MODEL_ID;
-    } else if (model instanceof InMemorySemanticModel) {
-        return LOCAL_MODEL_ID;
-    } else return "unknown:xyz" as string;
+/** @todo models should have an Id*/
+export const getIdOfEntityModel = (model: EntityModel) => {
+    return model.getId();
 };
 
 export const useModelGraphContext = () => {
-    const { aggregator, aggregatorView, setAggregatorView, models, setModels /*activeModel, setActiveModel*/ } =
+    const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
         useContext(ModelGraphContext);
 
     const addModelToGraph = (...models: EntityModel[]) => {
@@ -45,32 +43,27 @@ export const useModelGraphContext = () => {
     };
 
     // FIXME: zas to vymysli nejak lip
-    const addClassToLocalGraph = (name: LanguageString, description: LanguageString | undefined) => {
-        const localModel = models.get(LOCAL_MODEL_ID);
-        if (!localModel || !(localModel instanceof InMemorySemanticModel)) {
-            alert("local model not found, see avail models in console");
-            console.log(models);
-            return false;
-        }
-
-        const result = localModel.executeOperation(
+    const addClassToModel = (
+        model: InMemorySemanticModel,
+        name: LanguageString,
+        description: LanguageString | undefined
+    ) => {
+        const result = model.executeOperation(
             createClass({
                 name: name,
-                iri: "https://my-fake.iri.com/" + getOneNameFromLanguageString(name),
+                iri: "https://my-fake.iri.com/" + getOneNameFromLanguageString(name).t,
                 description: description,
             })
         );
         return result.success;
     };
 
-    const modifyClassInLocalModel = (classId: string, newClass: Partial<Omit<SemanticModelClass, "type" | "id">>) => {
-        const localModel = models.get(LOCAL_MODEL_ID);
-        if (!localModel || !(localModel instanceof InMemorySemanticModel)) {
-            alert("local model not found, see avail models in console");
-            console.log(models);
-            return false;
-        }
-        const result = localModel.executeOperation(
+    const modifyClassInAModel = (
+        model: InMemorySemanticModel,
+        classId: string,
+        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>
+    ) => {
+        const result = model.executeOperation(
             modifyClass(classId, {
                 ...newClass,
             })
@@ -97,9 +90,11 @@ export const useModelGraphContext = () => {
         addModelToGraph,
         aggregatorView,
         setAggregatorView,
-        addClassToLocalGraph,
-        modifyClassInLocalModel,
+        addClassToModel,
+        modifyClassInAModel,
         cleanModels,
         removeModelFromModels,
+        visualModels,
+        setVisualModels,
     };
 };

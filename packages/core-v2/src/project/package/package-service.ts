@@ -1,6 +1,7 @@
-import {EntityModel} from "../../entity-model";
-import {Package, PackageEditable} from "./package";
-import {WritableSemanticModelAdapter} from "../../semantic-model/writable-semantic-model-adapter";
+import { EntityModel } from "../../entity-model";
+import { Package, PackageEditable } from "./package";
+import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
+import { VisualEntityModel } from "../../visual-model";
 
 /**
  * Provides basic operations with packages.
@@ -31,14 +32,18 @@ export interface SemanticModelPackageService extends PackageService {
     /**
      * Constructs all models from a package with semantic model.
      */
-    constructSemanticModelPackageModels(packageId: string): Promise<EntityModel[]>;
+    constructSemanticModelPackageModels(packageId: string): Promise<readonly [EntityModel[], VisualEntityModel[]]>;
 
     /**
      * Sets semantic models that should be stored in the given package.
      * If the set of models is changed (new model is added or existing is removed), this method should be called.
      * It will update the models that are stored in the package.
      */
-    updateSemanticModelPackageModels(packageId: string, models: EntityModel[]): Promise<Package>;
+    updateSemanticModelPackageModels(
+        packageId: string,
+        models: EntityModel[],
+        visualModels: VisualEntityModel[]
+    ): Promise<Package>;
 
     /**
      * For a given package, creates a new remote semantic model that can be used to store entities.

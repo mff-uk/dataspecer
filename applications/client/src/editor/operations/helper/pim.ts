@@ -8,7 +8,7 @@ export async function createPimClassIfMissing(
     pimSchema: string,
     store: FederatedObservableStore,
 ): Promise<string> {
-    const existingPimIri = await store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
+    const existingPimIri = await store.getPimHavingInterpretation(resource.pimInterpretation as string, PimClass.TYPE, pimSchema);
 
     if (existingPimIri) {
         // todo it does not perform any checks

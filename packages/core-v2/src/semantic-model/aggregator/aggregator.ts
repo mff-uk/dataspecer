@@ -1,17 +1,20 @@
-import {Entity} from "../../entity-model/entity";
+import { Entity } from "../../entity-model/entity";
 
-import {EntityModel} from "../../entity-model/entity-model";
+import { EntityModel } from "../../entity-model/entity-model";
+import { VisualEntity } from "../../visual-model/visual-entity";
+import { VisualEntityModel, isVisualModel } from "../../visual-model/visual-model";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
  * aggregation was performed.
  */
-interface AggregatedEntityWrapper {
+export interface AggregatedEntityWrapper {
     id: string;
     aggregatedEntity: Entity | null;
+    visualEntity: VisualEntity | null;
 }
 
-type SupportedModels = EntityModel;
+type SupportedModels = EntityModel | VisualEntityModel;
 
 type AggregatedModelSubscriber = (updated: AggregatedEntityWrapper[], removed: string[]) => void;
 
@@ -44,34 +47,60 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     baseModelEntities: AggregatedEntityWrapper[] = [];
     baseModelSubscribers = new Set<AggregatedModelSubscriber>();
 
+    activeVisualModel: VisualEntityModel | null = null;
+
     addModel(model: SupportedModels) {
         if (this.models.has(model)) {
-            throw new Error('Model already added.');
+            throw new Error("Model already added.");
         }
+
+        if (isVisualModel(model)) {
+            const unsubscribe = model.subscribeToChanges((updated, removed) => {
+                console.log("visual-model", model.getId(), "updated&removed", updated, removed);
+            });
+            this.models.set(model, unsubscribe);
+            this.activeVisualModel = model;
+            return;
+        }
+
         const callback = (updated: Record<string, Entity>, removed: string[]) => {
             if (!this.models.has(model)) {
                 return;
             }
 
             const entities = Object.values(updated);
-            const wrappedEntities = entities.map(aggregatedEntity => ({id: aggregatedEntity.id, aggregatedEntity}));
+            const wrappedEntities = entities.map((aggregatedEntity) => ({
+                id: aggregatedEntity.id,
+                aggregatedEntity,
+                visualEntity: null,
+            }));
 
             // Suppose there is a model that joins them all. Then we need to inform it
             this.notifyBaseModel(model, wrappedEntities, removed);
         };
+
         const unsubscribe = model.subscribeToChanges(callback);
         this.models.set(model, unsubscribe);
-
         callback(model.getEntities(), []);
-    };
+    }
 
     deleteModel(model: SupportedModels) {
         const unsubscribe = this.models.get(model);
         if (!unsubscribe) {
-            throw new Error('Model not added.');
+            throw new Error("Model not added.");
         }
+
         this.models.delete(model);
+
+        if (isVisualModel(model)) {
+            this.setActiveVisualModel(
+                ([...this.models.keys()].find((m) => isVisualModel(m)) as VisualEntityModel) ?? null
+            );
+            return;
+        }
+
         this.notifyBaseModel(model, [], Object.keys(model.getEntities()));
+        // TODO: shouldn't `unsubscribe()` be called?
     }
 
     /**
@@ -80,20 +109,33 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     private notifyBaseModel(fromModel: SupportedModels, updated: AggregatedEntityWrapper[], removed: string[]) {
         // This does only a simple merge
         this.baseModelEntities = this.baseModelEntities
-            .filter(entity => !removed.includes(entity.id) && !updated.find(updatedEntity => updatedEntity.id === entity.id))
+            .filter(
+                (entity) =>
+                    !removed.includes(entity.id) && !updated.find((updatedEntity) => updatedEntity.id === entity.id)
+            )
             .concat(updated);
-        this.baseModelSubscribers.forEach(subscriber => subscriber(updated, removed));
+        this.baseModelSubscribers.forEach((subscriber) => subscriber(updated, removed));
     }
 
     getView(): SemanticModelAggregatorView {
         return new SemanticModelAggregatorView(this);
     }
+
+    setActiveVisualModel(toModel: string | VisualEntityModel | null) {
+        if (typeof toModel == "string") {
+            this.activeVisualModel = [...this.models.keys()].find(
+                (m) => (m as VisualEntityModel)?.getId() == toModel
+            ) as VisualEntityModel;
+            return;
+        }
+        this.activeVisualModel = toModel; // can be null or a real visual model
+    }
 }
 
 // Necessary for exposing class internals for another class
 
-const semanticModelAggregatorInternal = SemanticModelAggregatorInternal as (new () => SemanticModelAggregator);
-export {semanticModelAggregatorInternal as SemanticModelAggregator}
+const semanticModelAggregatorInternal = SemanticModelAggregatorInternal as new () => SemanticModelAggregator;
+export { semanticModelAggregatorInternal as SemanticModelAggregator };
 
 /**
  * Provides methods for reading the aggregated semantic model graph. Usually, we want the aggregation of the whole
@@ -116,8 +158,17 @@ export class SemanticModelAggregatorView {
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
         // todo temporary
-        return Object.fromEntries(this.aggregator.baseModelEntities.map(e => [e.id, e]));
-    };
+        return Object.fromEntries(
+            this.aggregator.baseModelEntities.map((e) => [
+                e.id,
+                {
+                    id: e.id,
+                    aggregatedEntity: e.aggregatedEntity,
+                    visualEntity: this.aggregator.activeVisualModel?.getVisualEntity(e.id),
+                } as AggregatedEntityWrapper,
+            ])
+        );
+    }
 
     /**
      * Subscribe to changes.
@@ -127,13 +178,31 @@ export class SemanticModelAggregatorView {
     subscribeToChanges(callback: AggregatedModelSubscriber): () => void {
         // todo temporary
         if (this.aggregator.baseModelSubscribers.has(callback)) {
-            throw new Error('Callback already subscribed.');
+            throw new Error("Callback already subscribed.");
         }
         this.aggregator.baseModelSubscribers.add(callback);
         return () => this.aggregator.baseModelSubscribers.delete(callback);
     }
 
     changeView(toModel: SupportedModels) {
-        throw new Error('Not implemented yet.');
+        throw new Error("Not implemented yet.");
+    }
+
+    getActiveViewId() {
+        return this.aggregator.activeVisualModel?.getId();
+    }
+
+    getActiveVisualModel() {
+        return this.aggregator.activeVisualModel;
+    }
+
+    getAvailableVisualModelIds(): string[] {
+        return [...this.aggregator.models.keys()]
+            .filter((m) => isVisualModel(m))
+            .map((m) => (m as VisualEntityModel).getId());
+    }
+
+    changeActiveVisualModel(toModel: string) {
+        this.aggregator.setActiveVisualModel(toModel);
     }
 }

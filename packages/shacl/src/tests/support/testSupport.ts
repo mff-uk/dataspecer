@@ -11,6 +11,15 @@ import { ValidationReport } from 'rdf-validate-shacl/src/validation-report';
 import generate, {fromJsonToTurtle} from "./FakeDataCreator";
 
 export const shapeToValidateShapesFile = "src/tests/shapes/shapeToValidateShapes.ttl";
+export const shapeToValidateShexShapesFile = "src/tests/shexShapes/shapeToValidateShexShapes.shex";
+
+export async function prepareShexShape(mc : ModelCreator, shapeFileName : string): Promise<boolean> {
+  const sm = await mc.createModel();
+  var sc = new ShapeCreator();
+  const shape = await sc.createShexShape(sm);
+  const written = await Support.syncWriteFile(shapeFileName, shape);
+  return true;
+}
 
 export async function prepareShape(mc : ModelCreator, shapeFileName : string): Promise<boolean> {
   const sm = await mc.createModel();
@@ -60,10 +69,24 @@ export async function testNegative(testType : string, modelCreator : ModelCreato
   return validation;
 }
 
+export async function testFromData(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
+  const slicedName = (testType.endsWith("Negative")) ? testType.slice(0, -8) : testType;
+  await Support.prepareShape(modelCreator, '../shapes/' + slicedName + 'Shape.ttl');
+  const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + ".ttl", "src/tests/shapes/" + slicedName + "Shape.ttl");
+  return validation;
+}
+
 export async function testShape(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
   await Support.prepareShape(modelCreator, '../shapes/' + testType + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/shapes/" + testType + "Shape.ttl", Support.shapeToValidateShapesFile);
   return validation;
+}
+
+export async function testShexShape(testType : string, modelCreator : ModelCreator): Promise<String>{
+  await Support.prepareShexShape(modelCreator, '../shexShapes/' + testType + 'Shape.shex');
+  //const validation = await Support.validateDataAgainstShexShape("src/tests/shexShapes/" + testType + "Shape.shex", Support.shapeToValidateShapesFile);
+  //return validation;
+  return "true";
 }
 
 export async function validateDataAgainstShape( dataFileName : string, shapeFileName : string ) : Promise<ValidationReport<typeof factory>>{

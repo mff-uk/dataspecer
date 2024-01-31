@@ -1,24 +1,24 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix base: <https://example.org/>.
+@base <https://example.org/>.
 
-<https://example.org/592c9b06370681009306e69d53f64a8b/Technickýpopisekclass1NodeShape> a sh:NodeShape;
+<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/datový/události/pojem/událost>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Popis události"@cs;
     sh:name "Událost"@cs.
-<https://example.org/3ca8304dcf1fc87344bb2200d03a1533/dlouhý-popisPropertyShape> a sh:PropertyShape;
+<3ca8304dcf1fc87344bb2200d03a1533dlouhý-popisShape> a sh:PropertyShape;
     sh:description "Dlouhý popis události"@cs;
     sh:name "Dlouhý popis"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/datový/události/pojem/dlouhý-popis>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.org/592c9b06370681009306e69d53f64a8b/Technickýpopisekclass1NodeShape> sh:property <https://example.org/3ca8304dcf1fc87344bb2200d03a1533/dlouhý-popisPropertyShape>.
-<https://example.org/7db951535912fc381f06f3aa1ed554d2/registracePropertyShape> a sh:PropertyShape;
+<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> sh:property <3ca8304dcf1fc87344bb2200d03a1533dlouhý-popisShape>.
+<7db951535912fc381f06f3aa1ed554d2registraceShape> a sh:PropertyShape;
     sh:description "Zda je nutná registrace"@cs;
     sh:name "Registrace"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/datový/události/pojem/registrace>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
-<https://example.org/592c9b06370681009306e69d53f64a8b/Technickýpopisekclass1NodeShape> sh:property <https://example.org/7db951535912fc381f06f3aa1ed554d2/registracePropertyShape>.
+<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> sh:property <7db951535912fc381f06f3aa1ed554d2registraceShape>.

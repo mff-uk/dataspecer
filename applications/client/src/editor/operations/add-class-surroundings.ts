@@ -148,7 +148,7 @@ export class AddClassSurroundings implements ComplexOperation {
         resource: PimAttribute,
         pimSchema: string,
     ): Promise<string> {
-        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
+        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, PimAttribute.TYPE, pimSchema);
 
         if (existingPimIri) {
             // todo it does not perform any checks
@@ -156,7 +156,7 @@ export class AddClassSurroundings implements ComplexOperation {
         }
 
         const ownerClassSource = await this.sourcePimModel.readResource(resource.pimOwnerClass as string) as PimClass;
-        const ownerClassIri = await this.store.getPimHavingInterpretation(ownerClassSource.pimInterpretation as string, pimSchema);
+        const ownerClassIri = await this.store.getPimHavingInterpretation(ownerClassSource.pimInterpretation as string, PimClass.TYPE, pimSchema);
         if (ownerClassIri === null) {
             throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
         }
@@ -185,7 +185,7 @@ export class AddClassSurroundings implements ComplexOperation {
         associationIri: string,
         associationEnds: string[]
     }> {
-        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, pimSchema);
+        const existingPimIri = await this.store.getPimHavingInterpretation(resource.pimInterpretation as string, PimAssociation.TYPE, pimSchema);
 
         if (existingPimIri) {
             // todo it does not perform any checks
@@ -202,7 +202,7 @@ export class AddClassSurroundings implements ComplexOperation {
         for (const endIri of resource.pimEnd) {
             const endPim = await this.sourcePimModel.readResource(endIri) as PimAssociationEnd;
             const endClass = await this.sourcePimModel.readResource(endPim.pimPart as string) as PimClass;
-            const localPimIri = await this.store.getPimHavingInterpretation(endClass.pimInterpretation as string, pimSchema);
+            const localPimIri = await this.store.getPimHavingInterpretation(endClass.pimInterpretation as string, PimClass.TYPE, pimSchema);
             if (localPimIri === null) {
                 throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
             }

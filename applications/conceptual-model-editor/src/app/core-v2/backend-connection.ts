@@ -7,6 +7,7 @@ import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
 import { ViewLayout } from "./context/view-context";
 import { getOneNameFromLanguageString } from "./util/utils";
+import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
     const BACKEND_URL = "http://localhost:3100";
@@ -28,9 +29,14 @@ export const useBackendConnection = () => {
         return constructViewsMock();
     };
 
-    const updateSemanticModelPackageModels = async (packageId: string, models: EntityModel[]) => {
-        await service.updateSemanticModelPackageModels(packageId, models);
-        console.log(`updated models for package ${packageId}`, models);
+    const updateSemanticModelPackageModels = async (
+        packageId: string,
+        models: EntityModel[],
+        visualModels: VisualEntityModel[]
+    ) => {
+        const pckg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
+        console.log(`updated models for package ${packageId}`, models, visualModels, pckg);
+        alert(`package ${packageId} updated on backend and logged to console`);
     };
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
@@ -40,7 +46,7 @@ export const useBackendConnection = () => {
             tags: [],
         } as PackageEditable);
         console.log(pckg);
-        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name)} logged to console`);
+        alert(`package ${pckg.id}-${getOneNameFromLanguageString(pckg.name).t} logged to console`);
         return pckg;
     };
 

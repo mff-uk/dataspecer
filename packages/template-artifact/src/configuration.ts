@@ -4,17 +4,40 @@ import {DeepPartial} from "@dataspecer/core/core/utilities/deep-partial";
 
 export const DefaultTemplateArtifactConfiguration =  {
     template: `<pre class='metadata'>
-Title : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
+{{>metadata}}
+
+</pre>
+
+{{>abstract}}
+
+{{>artifactList}}
+
+{{>conceptualModel}}
+
+{{#structureModels}}
+# {{#humanLabel}}{{translate}}{{/humanLabel}}
+{{#humanDescription}}{{translate}}{{/humanDescription}}
+{{#artifacts}}{{#getDocumentation}}{{#useTemplate}}{{/useTemplate}}{{/getDocumentation}}{{/artifacts}}
+{{/structureModels}}` as string,
+
+    /**
+     * Pre-defined list of named templates that can be used in the main template
+     * as partials - for example {{>abstract}}. All templates have access to the
+     * same data as the main template
+     */
+    templates: {
+        metadata: `Title : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
 Shortname : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
 Status : LS 
 Editor : Dataspecer editor, https://dataspecer.com/ 
 Boilerplate : conformance no, copyright no 
 Abstract : This document was generated automatically by [Dataspecer](https://dataspecer.com/). 
-Markup Shorthands : markdown yes 
-Logo : https://ofn.gov.cz/static/images/logo.png 
-</pre>
-
-# Seznam artefaktů # {#seznam-artefaktu}
+Markup Shorthands : markdown yes
+TR: https://ofn.gov.cz/
+Previous Version: https://ofn.gov.cz/
+Repository: datagov-cz/otevrene-formalni-normy`,
+        abstract: ``,
+        artifactList: `# Seznam artefaktů # {#seznam-artefaktu}
 Tato sekce obsahuje odkaz na všechny soubory, které jsou součástí této dokumentace.
 <table class="def">
     <thead>
@@ -25,9 +48,8 @@ Tato sekce obsahuje odkaz na všechny soubory, které jsou součástí této dok
         <tr><td>{{title}}</td><td><a href="{{{relativePath}}}">{{{relativePath}}}</a></td></tr>
         {{/artifacts}}
     </tbody>
-</table>
-
-# Konceptuální model # {#konceptualni-model}
+</table>`,
+        conceptualModel: `# Konceptuální model # {#konceptualni-model}
 V této sekci je definován konceptuální model.
 
 <figure><img src="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}"><figcaption>Diagram konceptuálního modelu.</figcaption></figure>
@@ -63,24 +85,7 @@ V této sekci je definován konceptuální model.
 
 {{/properties}}
 {{/classes}}
-{{/semanticModels}}
-
-{{#structureModels}}
-# {{#humanLabel}}{{translate}}{{/humanLabel}}
-{{#humanDescription}}{{translate}}{{/humanDescription}}
-{{#artifacts}}{{#getDocumentation}}{{#useTemplate}}{{/useTemplate}}{{/getDocumentation}}{{/artifacts}}
-{{/structureModels}}
-` as string,
-
-
-
-    /**
-     * Pre-defined list of named templates that can be used in the main template
-     * as partials - for example {{>abstract}}. All templates have access to the
-     * same data as the main template
-     */
-    templates: {
-        test: `This is a test template with {{name}}.` as string,
+{{/semanticModels}}`,
     } as Record<string, string>,
 }
 
@@ -104,7 +109,14 @@ export class TemplateArtifactConfigurator {
     static merge(...options: DeepPartial<TemplateArtifactConfiguration>[]): DeepPartial<TemplateArtifactConfiguration> {
         let result: DeepPartial<TemplateArtifactConfiguration> = {};
         for (const option of options) {
-            result = {...result, ...option};
+            result = {
+                ...result,
+                ...option,
+                templates: {
+                    ...result.templates,
+                    ...option.templates
+                }
+            };
         }
 
         return result;

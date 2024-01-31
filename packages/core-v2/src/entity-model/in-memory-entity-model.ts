@@ -1,25 +1,31 @@
-import {Entity} from "./entity";
-import {EntityModel} from "./entity-model";
+import { Entity } from "./entity";
+import { EntityModel } from "./entity-model";
 
 /**
  * Implementation of the entity model that stores entities in the memory.
  */
 export class InMemoryEntityModel implements EntityModel {
     /** @internal */
+    public id: string = createId();
+    /** @internal */
     public entities: Record<string, Entity> = {};
     /** @internal */
     public listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
 
+    getId(): string {
+        return this.id;
+    }
+
     getEntities(): Record<string, Entity> {
-        return {...this.entities};
+        return { ...this.entities };
     }
 
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void {
         this.listeners.push(callback);
 
         return () => {
-            this.listeners = this.listeners.filter(l => l !== callback);
-        }
+            this.listeners = this.listeners.filter((l) => l !== callback);
+        };
     }
 
     /**
@@ -29,9 +35,9 @@ export class InMemoryEntityModel implements EntityModel {
      */
     public change(updated: Record<string, Entity>, removed: string[]) {
         // Filter removed entities from updated
-        removed = removed.filter(iri => updated[iri] === undefined);
+        removed = removed.filter((iri) => updated[iri] === undefined);
 
-        this.entities = {...this.entities, ...updated};
+        this.entities = { ...this.entities, ...updated };
         for (const removedId of removed) {
             delete this.entities[removedId];
         }
@@ -40,3 +46,5 @@ export class InMemoryEntityModel implements EntityModel {
         }
     }
 }
+
+const createId = () => (Math.random() + 1).toString(36).substring(7);
