@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModelGraphContext } from "./context/graph-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 
@@ -9,12 +9,6 @@ export const ViewManagement = () => {
     const activeViewId = aggregatorView.getActiveViewId();
     const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
 
-    useEffect(() => {
-        if (availableVisualModelIds.length == 0) {
-            handleCreateNewView();
-        }
-    }, [availableVisualModelIds]);
-
     const setActiveViewId = (modelId: string) => {
         aggregatorView.changeActiveVisualModel(modelId);
     };
@@ -22,7 +16,6 @@ export const ViewManagement = () => {
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
         setAggregatorView(aggregator.getView());
-        console.log("selected view with id: ", viewId);
         toggleDropdown();
     };
 
@@ -44,14 +37,10 @@ export const ViewManagement = () => {
                     <div>
                         view:<span className="ml-2 font-mono">{activeViewId}</span>
                     </div>
-                    <button className="white ml-2 text-[15px]" onClick={toggleDropdown}>
+                    <button className="white ml-2 text-[15px]" title="change view" onClick={toggleDropdown}>
                         🗃️
                     </button>
-                    <button
-                        className="white ml-2 text-[15px]"
-                        onClick={handleCreateNewView}
-                        title="create a new diagram"
-                    >
+                    <button className="white ml-2 text-[15px]" onClick={handleCreateNewView} title="create a new view">
                         <span className="font-bold">+</span>🖼️
                     </button>
                 </div>

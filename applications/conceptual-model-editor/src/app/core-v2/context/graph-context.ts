@@ -38,7 +38,7 @@ export const useModelGraphContext = () => {
     const addModelToGraph = (...models: EntityModel[]) => {
         for (const model of models) {
             aggregator.addModel(model);
-            setModels((previous) => previous.set(getIdOfEntityModel(model), model));
+            setModels((previous) => previous.set(model.getId(), model));
         }
     };
 
@@ -71,7 +71,10 @@ export const useModelGraphContext = () => {
         return result.success;
     };
 
-    const cleanModels = () => setModels(new Map<string, EntityModel>());
+    const cleanModels = () => {
+        setModels(new Map<string, EntityModel>());
+        setVisualModels(new Map<string, VisualEntityModel>());
+    };
 
     const removeModelFromModels = (modelId: string) => {
         const model = models.get(modelId);

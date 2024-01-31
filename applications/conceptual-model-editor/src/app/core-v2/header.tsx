@@ -7,8 +7,8 @@ import { ExportManagement } from "./export-management";
 const Logo = () => {
     return (
         <div className="my-auto flex flex-row">
-            <div className="  text-3xl font-bold text-white">ds</div>
-            <div className="text-[15px] text-[#c7556f]">cme</div>
+            <div className="text-3xl font-bold text-white">ds</div>
+            <div className="text-[15px] font-semibold text-[#FF2A2D]">cme</div>
         </div>
     );
 };
@@ -16,16 +16,16 @@ const Logo = () => {
 const Header = () => {
     return (
         <>
-            <header className="flex h-12 w-full flex-row justify-between bg-[#5438dc] align-middle text-white">
+            <header className="grid h-12 w-full grid-cols-3 grid-rows-1 justify-between bg-[#5438dc] text-white">
                 <Link href={"/"} className="my-auto ml-4">
                     <Logo />
                 </Link>
-                <div className="flex flex-row">
+                <div className="flex flex-row justify-center">
                     <PackageManagement />
                     <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />
                     <ViewManagement />
                 </div>
-                <div className="my-auto">
+                <div className="my-auto flex flex-row justify-end">
                     <ExportManagement />
                 </div>
             </header>
