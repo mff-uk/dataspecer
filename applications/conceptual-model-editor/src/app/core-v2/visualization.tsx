@@ -33,8 +33,9 @@ import {
 import { Entity } from "@dataspecer/core-v2/entity-model";
 import { useClassesContext } from "./context/classes-context";
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+
 import { useEntityDetailDialog } from "./dialogs/entity-detail-dialog";
+import { AggregatedEntityWrapper } from "node_modules/@dataspecer/core-v2/lib/src/semantic-model/aggregator/aggregator";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -75,11 +76,9 @@ export const Visualization = () => {
 
     const rerenderEverythingOnCanvas = () => {
         const modelId = [...models.keys()].at(0);
-        console.log("rerender everything on canvas", models, modelId, activeVisualModel);
         if (!modelId) {
             return;
         }
-        console.log("rerender everything on canvas, calling setColor", models, modelId);
         activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)); // fixme: jak lip vyvolat change na vsech entitach? 😅
     };
 
@@ -94,7 +93,6 @@ export const Visualization = () => {
                 generalizations,
                 models,
             ];
-            console.log("visualization: callback2", updated, removed, entities, localClasses, localModels);
 
             const getNode = (cls: SemanticModelClass, visualEntity: VisualEntity | null) => {
                 const pos = visualEntity?.position;
@@ -180,7 +178,6 @@ export const Visualization = () => {
                         continue;
                     }
                     const e = getEdge(entity, localActiveVisualModel?.getColor(sourceModel.getId()));
-                    // console.log("callback2: is rel or gen", entity, e);
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");

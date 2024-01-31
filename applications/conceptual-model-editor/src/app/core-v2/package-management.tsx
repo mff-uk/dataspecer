@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
 import { Package } from "@dataspecer/core-v2/project";
@@ -13,9 +13,8 @@ export const PackageManagement = () => {
     const [packages, setPackages] = useState([] as Package[]); // fixme: shouldn't be a state, should it?
     const { models, visualModels } = useModelGraphContext();
 
-    const handlePackageSelected = (pckgId: string) => {
-        console.log("package-management: selected a new package:", pckgId);
-        setPackage(pckgId);
+    const handlePackageSelected = (pkgId: string) => {
+        setPackage(pkgId);
         toggleDropdown();
     };
 
@@ -67,7 +66,6 @@ export const PackageManagement = () => {
                         disabled={!packageId}
                         title="save package to backend"
                         onClick={async () => {
-                            console.log("package-management: save package: pcgkid", packageId, models, visualModels);
                             if (!packageId) {
                                 return;
                             }

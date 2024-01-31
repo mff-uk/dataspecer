@@ -13,8 +13,6 @@ export const ModelCatalog = () => {
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
     const handleAddModel = async (modelType: string) => {
-        console.log("handle add model called");
-
         if (modelType === SGOV_MODEL_ID) {
             const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
             model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
@@ -37,8 +35,6 @@ export const ModelCatalog = () => {
 
         const aggregatedView = aggregator.getView();
         setAggregatorView(aggregatedView);
-
-        console.log("in add model", models);
     };
 
     const AddModelDialogButton = () => (

@@ -15,10 +15,8 @@ export const EntityCatalog = () => {
     const { setClasses, setRelationships, setGeneralizations, setAttributes } = useClassesContext();
 
     useEffect(() => {
-        console.log("entity-catalog: gonna setup new callback");
         const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             const [localModels] = [models];
-            console.log("entity-catalog: subscribe callback: updated&removed", updated, removed, localModels);
 
             const clsses = new Map(
                 [...models.keys()]
@@ -30,7 +28,6 @@ export const EntityCatalog = () => {
                     .flat()
                     .map((cls) => [cls.cls.id, cls])
             );
-            console.log("entity-catalog: just after create clses", clsses);
             const { rels, atts } = [...models.keys()]
                 .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
                 .flat()
@@ -56,7 +53,6 @@ export const EntityCatalog = () => {
                     )
                     .flat()
             );
-            console.log("clsses, rels & atts: ", clsses, rels, atts);
         };
         // TODO: tady udelej nejakej chytrejsi callback
         // staci, aby se pridaly a odebraly tridy, neni potreba
@@ -64,12 +60,9 @@ export const EntityCatalog = () => {
 
         callback([], []);
         return () => {
-            console.log("entity-catalog: calling unsubscibe");
             callToUnsubscribe();
         };
     }, [models, aggregatorView]);
-
-    console.log("entity-catalog: full rerender");
 
     return (
         <>

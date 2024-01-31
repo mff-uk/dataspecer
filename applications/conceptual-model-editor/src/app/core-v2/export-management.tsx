@@ -74,7 +74,6 @@ export const ExportManagement = () => {
                     title="open workspace from configuration file"
                     onClick={async () => {
                         const configuration = await uploadConfiguration();
-                        console.log(configuration);
 
                         const loadConfiguration = async (configuration: string) => {
                             cleanModels();
@@ -124,7 +123,6 @@ export const ExportManagement = () => {
                         } satisfies ExportedConfigurationType;
 
                         const workspace = JSON.stringify(ws);
-                        console.log(workspace);
                         download(workspace, `dscme-workspace-${Date.now()}.json`, "application/json");
                     }}
                 >
@@ -147,7 +145,6 @@ export const ExportManagement = () => {
                                     }
                                 )
                         );
-                        console.log(generatedLightweightOwl);
                         download(generatedLightweightOwl, `dscme-lw-ontology-${getRandomName(8)}.ttl`, "text/plain");
                     }}
                 >

@@ -30,8 +30,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const modelId = model.getId();
     let clses: JSX.Element[];
 
-    console.log("entities of model rerender", model.getId(), activeVisualModel?.getId());
-
     const toggleAllow = async (model: EntityModel, classId: string) => {
         console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
         if (!(model instanceof ExternalSemanticModel)) return;
@@ -48,12 +46,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleOpenDetail = (cls: SemanticModelClass) => {
-        console.log("in handle open detail for semantic model class", cls);
         openEntityDetailDialog(cls);
     };
 
     const handleAddConcept = (model: InMemorySemanticModel) => {
-        console.log("entity-catalog: add-concept: clicked", classes);
         const resultSuccess = addClassToModel(model, { cs: getRandomName(5), en: getRandomName(5) }, undefined);
         if (!resultSuccess) {
             alert("FIXME: something went wrong, class not added to local model");
@@ -61,10 +57,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleAddClassToActiveView = (classId: string) => {
-        console.log("entity-catalog: add-class-to-view-handler", classId);
         const updateStatus = activeVisualModel?.updateEntity(classId, { visible: true });
         if (!updateStatus) {
-            console.log("entity-catalog: add-class-to-view-handler", classId, updateStatus);
             aggregatorView?.getActiveVisualModel()?.addEntity({ sourceEntityId: classId });
         }
     };
@@ -74,7 +68,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleOpenModification = (model: InMemorySemanticModel, cls: SemanticModelClass) => {
-        console.log("in handle open modification for semantic model class", cls);
         openModifyEntityDialog(model, cls);
     };
 
@@ -135,8 +128,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 />
             ));
     }
-
-    console.log("rerendering entities of model");
 
     return (
         <>

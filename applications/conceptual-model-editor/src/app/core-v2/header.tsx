@@ -16,16 +16,16 @@ const Logo = () => {
 const Header = () => {
     return (
         <>
-            <header className="flex h-12 w-full flex-row justify-between bg-[#5438dc] align-middle text-white">
+            <header className="grid h-12 w-full grid-cols-3 grid-rows-1 justify-between bg-[#5438dc] text-white">
                 <Link href={"/"} className="my-auto ml-4">
                     <Logo />
                 </Link>
-                <div className="flex flex-row">
+                <div className="flex flex-row justify-center">
                     <PackageManagement />
                     <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />
                     <ViewManagement />
                 </div>
-                <div className="my-auto">
+                <div className="my-auto flex flex-row justify-end">
                     <ExportManagement />
                 </div>
             </header>

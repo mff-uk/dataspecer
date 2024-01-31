@@ -84,8 +84,6 @@ export const NonExpandableRow = (props: {
 }) => {
     const [isVisible, setIsVisible] = useState(props.isVisibleOnCanvas());
 
-    console.log("rerendering non-expandable row");
-
     return (
         <div className="flex flex-row justify-between whitespace-nowrap">
             {getNameOf(props.cls.cls).t}

@@ -1,26 +1,20 @@
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { BackendPackageService, PackageEditable } from "@dataspecer/core-v2/project";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass } from "@dataspecer/core-v2/semantic-model/operations";
-import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
-import { ViewLayout } from "./context/view-context";
 import { getOneNameFromLanguageString } from "./util/utils";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
-    const BACKEND_URL = "http://localhost:3100";
-    const service = useMemo(() => new BackendPackageService(BACKEND_URL, httpFetch), []);
+    console.log(process.env);
+    const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
 
     const getPackageFromBackend = async (packageId: string) => {
         const pkg = await service.getPackage(packageId);
-        console.log("got package from backend", packageId, pkg);
         return pkg;
     };
 
     const getModelsFromBackend = async (packageId: string) => {
-        console.log("getModelsFromBackend: gonna call service.constructXyz");
         const models = await service.constructSemanticModelPackageModels(packageId);
         console.log(models);
         return models;
@@ -31,8 +25,8 @@ export const useBackendConnection = () => {
         models: EntityModel[],
         visualModels: VisualEntityModel[]
     ) => {
-        const pckg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
-        console.log(`updated models for package ${packageId}`, models, visualModels, pckg);
+        const pkg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
+        console.log(`updated models for package ${packageId}`, models, visualModels, pkg);
         alert(`package ${packageId} updated on backend and logged to console`);
     };
 

@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Header from "../components/header";
-import { useBackendConnection } from "../core-v2/backend-connection";
-import { BackendPackageService, Package } from "@dataspecer/core-v2/project";
 import Link from "next/link";
-import { getOneNameFromLanguageString } from "../core-v2/util/utils";
+import Header from "../components/header";
+import { BackendPackageService, Package } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
+import { getOneNameFromLanguageString } from "../core-v2/util/utils";
 
 const Page = () => {
     const BACKEND_URL = "http://localhost:3100";

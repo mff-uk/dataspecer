@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ModelGraphContext, getIdOfEntityModel } from "./context/graph-context";
+import { ModelGraphContext } from "./context/graph-context";
 import Header from "./header";
 import { Visualization } from "./visualization";
 import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";

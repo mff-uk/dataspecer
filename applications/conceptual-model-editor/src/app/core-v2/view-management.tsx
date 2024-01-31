@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModelGraphContext } from "./context/graph-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 
@@ -16,7 +16,6 @@ export const ViewManagement = () => {
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
         setAggregatorView(aggregator.getView());
-        console.log("selected view with id: ", viewId);
         toggleDropdown();
     };
 

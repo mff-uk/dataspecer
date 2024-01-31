@@ -1,1 +1,1 @@
-export {SemanticModelAggregator, SemanticModelAggregatorView} from "./aggregator";
+export { SemanticModelAggregator, SemanticModelAggregatorView, AggregatedEntityWrapper } from "./aggregator";

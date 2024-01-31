@@ -57,12 +57,10 @@ export const useClassesContext = () => {
         if (connection.type == "association") {
             const conn = connection as AssociationConnectionType;
             const result = model.executeOperation(createRelationship({ ...conn }));
-            console.log("create association operation done: ", model);
             return result.success;
         } else if (connection.type == "generalization") {
             const conn = connection as GeneralizationConnectionType;
             const result = model.executeOperation(createGeneralization({ ...conn }));
-            console.log("create generalization operation done: ", model);
             return result.success;
         } else {
             alert(`classes-context: create-connection: unknown type ${connection}`);
@@ -82,7 +80,6 @@ export const useClassesContext = () => {
 
     const customSetClasses = (st: Map<string, SemanticModelClassWithOrigin>) => {
         setClasses(st);
-        console.log("after set classes", st, new Map(classes.entries()));
     };
 
     return {
