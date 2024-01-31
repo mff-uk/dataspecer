@@ -7,7 +7,7 @@ class XmlSchemaExtension {
 }
 
 export class DataPsmSchemaXmlExtension extends DataPsmSchema {
-  extensions?: {
+  declare extensions?: {
     string: object;
     [XML_EXTENSION]?: Partial<XmlSchemaExtension>
   }

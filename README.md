@@ -14,6 +14,19 @@ For more information about individual packages, applications, and services, plea
 
 ## Build instructions
 
-This codebase is managed by [Lerna](https://github.com/lerna/lerna). Please see the individual packages for their build instructions.
+This codebase is managed by [npm workspaces](https://docs.npmjs.com/cli/v10/using-npm/workspaces) and [Turborepo](https://turbo.build/repo/docs). Please see the individual packages for their build instructions.
 
 You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the applications.
+
+### In general
+
+Your `node -v` should be at least `v18.19.0`, but `v20` is recommended.
+
+After clonning the repository you should create local config files. Please see individual applications or packages what to do.
+
+For a start it is sufficient to create `applications/client/.env.local` file with a single line `REACT_APP_BACKEND=xxx` where you set demo backend.
+
+- Run `npm install` to install all external packages (including TypeScript for typechecking) and link all dependencies.
+- Run `npm run build` to build all packages. This will execute `turbo build` under the hood. This will build packages, which are necessary for the development of other packages and applications; and it also build applications themselves, which is not necessary for development (see the next step).
+
+To develop a concrete package or application, there is *usually* an `npm run dev` script that will run live server, which updates everything. See individual packages for more details.

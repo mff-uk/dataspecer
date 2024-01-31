@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
     "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "Node16",

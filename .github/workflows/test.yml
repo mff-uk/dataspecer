@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [ 18, 20 ]
+        node-version: [ 18, 20, 21 ]
     name: Node ${{ matrix.node-version }}
     steps:
       - uses: actions/checkout@v2
@@ -14,6 +14,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: npx lerna bootstrap
-      - run: npx lerna run build
-      - run: npx lerna run test
+      - run: npm run build
+      - run: npm run test

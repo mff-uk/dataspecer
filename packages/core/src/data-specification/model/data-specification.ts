@@ -7,13 +7,14 @@ export class DataSpecification {
 
   psms: string[] = [];
 
+  static TYPE_DOCUMENTATION = "http://dataspecer.com/vocabularies/data-specification/documentation" as const;
+  static TYPE_EXTERNAL = "http://dataspecer.com/vocabularies/data-specification/external" as const;
+
   /**
    * Specifications may be of different types to better support different use
    * cases. Currently, only the default and external type is supported.
    */
   type: string = DataSpecification.TYPE_DOCUMENTATION;
-  static TYPE_DOCUMENTATION = "http://dataspecer.com/vocabularies/data-specification/documentation" as const;
-  static TYPE_EXTERNAL = "http://dataspecer.com/vocabularies/data-specification/external" as const;
 
   /**
    * IRIs of other data specifications.
