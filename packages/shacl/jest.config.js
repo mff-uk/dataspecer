@@ -1,46 +1,42 @@
-const {defaults} = require("jest-config");
-// We could print default options here.
-
 const esModules = [
   "rdf-ext",
-  //"@rdfjs", // All libraries in this.
-  "@rdfjs/data-model",
-  "@rdfjs/dataset",
-  "@rdfjs/environment",
-  "@rdfjs/fetch-lite",
-  "@rdfjs/parser-n3",
-  "@rdfjs/sink",
-  "@rdfjs/types",
-  "@rdfjs/tree",
-  "@rdfjs/traverser",
-  "@rdfjs/to-ntriples",
-  "@rdfjs/term-set",
-  "@rdfjs/term-map",
-  "@rdfjs/sink-map",
-  "@rdfjs/score",
-  "@rdfjs/prefix-map",
-  "@rdfjs/parser-jsonld",
-  "@rdfjs/normalize",
-  "@rdfjs/namespace",
-  "@rdfjs/serializer-turtle",
+  "@rdfjs",
+  "stream-chunks",
+  "duplex-to",
+  "grapoi",
   "nodeify-fetch",
   "node-fetch",
   "data-uri-to-buffer",
   "fetch-blob",
   "formdata-polyfill",
   "is-stream",
-  "duplex-to",
-  "fs",
-].join('|');
-const ignorePatterns =  [`/node_modules/(?!${esModules})`];
+  "file-fetch",
+  "proto-fetch",
+];
+
 module.exports = {
   "verbose": true,
   "moduleFileExtensions": [
     "js",
     "ts",
   ],
-  transformIgnorePatterns: ignorePatterns,
-  //"transform": {"^.+\\.[t|j]sx?$": "ts-jest" },
+  // Default: Default: ["/node_modules/", "\\.pnp\\.[^\\\/]+$"]
+  // An array of regexp pattern strings that are matched against all source
+  // file paths before transformation. If the file path matches any of the
+  // patterns, it will NOT be transformed.
+  //
+  // By default, no module in node_module is transformed as the all match
+  // the default.
+  //
+  // We want to exclude ESModules, so they are transformed into CommonsJS.
+  // Not excluding the module lead to error when: import/export is used.
+  // Libraries to exclude are part of esModules variable.
+  //
+  // When you get error with import/export just add the library directory
+  // to the esModules.
+  transformIgnorePatterns: [
+    `/node_modules/(?!${esModules.join("|")})`
+  ],
   "roots": [
     "src",
   ],

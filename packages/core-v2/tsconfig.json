@@ -1,33 +1,27 @@
+// https://www.totaltypescript.com/tsconfig-cheat-sheet
 {
   "compilerOptions": {
-    /* Base options */
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
-    //"verbatimModuleSyntax": true,
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
+    "isolatedModules": true,
 
-    /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
 
-    /* Transpiling */
-    "moduleResolution": "nodenext",
-    "module": "NodeNext",
-    "outDir": "./lib/",
+    "moduleResolution": "Node16",
+    "module": "Node16",
+    "outDir": "lib",
     "sourceMap": true,
+
     "declaration": true,
 
-    /* In monorepo */
-    "composite": true,
     "declarationMap": true,
-
-    /* Libraries */
+    
     "lib": ["es2022"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

@@ -1,19 +1,28 @@
+// https://www.totaltypescript.com/tsconfig-cheat-sheet
 {
   "compilerOptions": {
-    "target": "es5",
-    "declarationMap": true,
-    "moduleResolution": "Node16",
-    "outDir": "./lib/",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
     "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    // todo enable strict mode
+    "strict": false,
+    "noUncheckedIndexedAccess": false,
+
+    "moduleResolution": "Node16",
+    "module": "Node16",
+    "outDir": "lib",
     "sourceMap": true,
+
     "declaration": true,
-    "downlevelIteration": true,
-    "lib": [
-      "esnext", "dom"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": false,
-    "esModuleInterop": true
+
+    "declarationMap": true,
+    
+    "lib": ["es2022"]
   },
   "include": ["src/**/*"]
 }

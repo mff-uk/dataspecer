@@ -24,10 +24,11 @@ See the [project structure](documentation/2022-04-21-project-structure.md), indi
 
 1. Clone the whole mono repository. `git clone ...`
 2. Optionally create `./.env.local` file that overrides `./.env` or use environmental variables during the build.
-3. Run `npm install` from the **root of the repository** to install Lerna.
-4. Run `npx lerna bootstrap` to install and link all packages.
-5. Run `npx lerna run build` to build `@dataspecer/core` and other packages and the editor. All generated files are in the `./buid` directory.
+3. Run `npm install` from the **root of the repository** to install all packages.
+4. Run `npm run build` from the **root of the repository** to build everything, namely all dependencies of this application. All generated files are in the `./buid` directory.
 
-Alternatively, you can run the live server by `npm run build:watch` from this directory. This would require all dependencies to be built, either by Lerna itself, or directly through npm in each package it depends on.
+To specifically build only this application, run `npm run build` from this directory. 
 
-If you are working on a package or application, run `build:watch` to continuously build after change. The build of application may fail due to removed files by the build process of the package. Then you need to restart the build job.
+Alternatively, you can run the live server by `npm run dev` from this directory. This would require all dependencies to be built before starting the live server.
+
+If you are working on a package or application, run `npm run dev` to continuously build after change. The build of application may fail due to removed files by the build process of the package. Then you need to restart the build job.

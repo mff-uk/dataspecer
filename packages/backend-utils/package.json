@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
+    "dev": "tsc -w",
     "prebuild": "rimraf lib"
   },
   "exports": {
@@ -13,7 +14,7 @@
   },
   "devDependencies": {
     "rimraf": "^4.4.1",
-    "typescript": "^5.0.4"
+    "typescript": "~5.3.3"
   },
   "dependencies": {
     "@dataspecer/core": "*"
