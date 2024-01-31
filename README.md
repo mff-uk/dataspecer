@@ -22,7 +22,7 @@ You can check [Cloudflare's build script](cloudflare.build.sh) that deploys the 
 
 Your `node -v` should be at least `v18.19.0`, but `v20` is recommended.
 
-After clonning the repository you should create local config files. Please see individual applications or packages what to do.
+After cloning the repository you should create local config files. Please see individual applications or packages what to do.
 
 For a start it is sufficient to create `applications/client/.env.local` file with a single line `REACT_APP_BACKEND=xxx` where you set demo backend.
 
