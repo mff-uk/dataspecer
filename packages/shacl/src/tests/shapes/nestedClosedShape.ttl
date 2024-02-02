@@ -2,80 +2,80 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> a sh:NodeShape;
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popis"@cs;
     sh:name "Adresa"@cs.
-<f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape> a sh:PropertyShape;
+<https://example.org/f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape> a sh:NodeShape;
+<https://example.org/fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-obce>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs, "Adres"@pl.
-<3b1a49824d48f589ded79b1604b9c29astat-popisekShape> a sh:PropertyShape;
+<https://example.org/3b1a49824d48f589ded79b1604b9c29astat-popisekShape> a sh:PropertyShape;
     sh:description "Stát - země, ve které se objekt nachází"@cs;
     sh:name "Stát"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape> sh:property <3b1a49824d48f589ded79b1604b9c29astat-popisekShape>.
-<f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape> sh:node <fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape>.
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape>.
-<550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> a sh:PropertyShape;
+<https://example.org/fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape> sh:property <https://example.org/3b1a49824d48f589ded79b1604b9c29astat-popisekShape>.
+<https://example.org/f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape> sh:node <https://example.org/fee1b254a96b23d1b5717c7e44376c6fuzemi-obceShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <https://example.org/f8e1210c579923a052b512381dcf3f1dma-prirazene-uzemi-obceShape>.
+<https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> a sh:PropertyShape;
     sh:description "Je adresou stavebního objektu popis"@cs;
     sh:name "Je adresou stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> a sh:NodeShape;
+<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Stavební objekt popis"@cs;
     sh:name "Stavební objekt"@cs.
-<ace7fdeb0cbcbe3162b148e66e054840typ-ochranyShape> a sh:PropertyShape;
+<https://example.org/ace7fdeb0cbcbe3162b148e66e054840typ-ochranyShape> a sh:PropertyShape;
     sh:description "Typ ochrany popisek"@cs;
     sh:name "Typ ochrany stavebního objektu"@cs;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <ace7fdeb0cbcbe3162b148e66e054840typ-ochranyShape>.
-<474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape> a sh:PropertyShape;
+<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <https://example.org/ace7fdeb0cbcbe3162b148e66e054840typ-ochranyShape>.
+<https://example.org/474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape> a sh:PropertyShape;
     sh:description "Má identifikační údaje popis"@cs;
     sh:name "Má identifikační údaje"@cs;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape> a sh:NodeShape;
+<https://example.org/b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape> a sh:NodeShape;
     sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-identifikační-údaje-stavebního-objektu>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Číslo orientační"@cs;
     sh:name "Datum narození a úmrtí"@cs, "Date of birth and death"@en.
-<2f06d67c8f5a88879f21b8dfbbe444bbcislo-popisne-nebo-evidencniShape> a sh:PropertyShape;
+<https://example.org/2f06d67c8f5a88879f21b8dfbbe444bbcislo-popisne-nebo-evidencniShape> a sh:PropertyShape;
     sh:description "Datum narození dané osoby"@cs;
     sh:name "Dodatek čísla orientačního"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-popisné-nebo-evidenční>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape> sh:property <2f06d67c8f5a88879f21b8dfbbe444bbcislo-popisne-nebo-evidencniShape>.
-<474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape> sh:node <b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape>.
-<a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape>.
-<550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> sh:node <a891b83f8dd5f889d2662697e179ba43stavebni-objektShape>.
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape>.
-<ce8ec9714757ae585b74ec03f314104cma-kod-adresniho-mistaShape> a sh:PropertyShape;
+<https://example.org/b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape> sh:property <https://example.org/2f06d67c8f5a88879f21b8dfbbe444bbcislo-popisne-nebo-evidencniShape>.
+<https://example.org/474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape> sh:node <https://example.org/b4513052600d78c271d35620cb54b0ecid-udaje-stavebniho-objektuShape>.
+<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <https://example.org/474a367625e75705bc9b947518621d91ma-identifikacni-udajeShape>.
+<https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> sh:node <https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape>.
+<https://example.org/ce8ec9714757ae585b74ec03f314104cma-kod-adresniho-mistaShape> a sh:PropertyShape;
     sh:description "Má kód adresního místa popis"@cs;
     sh:name "Má kód adresního místa"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <ce8ec9714757ae585b74ec03f314104cma-kod-adresniho-mistaShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <https://example.org/ce8ec9714757ae585b74ec03f314104cma-kod-adresniho-mistaShape>.

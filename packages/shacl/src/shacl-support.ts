@@ -229,6 +229,16 @@ function prefixifyString(data : string, prefixes: Record<string, string>): strin
     return prefixifiedString;
 }
 
+export async function fixTurtleFileWithBase(file: String, base: String): Promise<String> {
+    var fixedFile = file;
+
+    const regex = /\.\n{2}/i;
+    console.log(file.replace(regex, '.\n\nferret'));
+    fixedFile = file.replace(regex, '.\n@base <' + base + '>.\n\n');
+
+    return fixedFile;
+}
+
 // Usual prefixes that can be seen in types/predicates
 const usualPrefixes: Record<string, string> = {
     ["rdf"]: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",

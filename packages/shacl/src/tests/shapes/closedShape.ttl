@@ -2,16 +2,16 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> a sh:NodeShape;
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popis"@cs;
     sh:name "Adresa"@cs.
-<977d84b66804a75e36647e66df543bd6text-adresyShape> a sh:PropertyShape;
+<https://example.org/977d84b66804a75e36647e66df543bd6text-adresyShape> a sh:PropertyShape;
     sh:description "Text adresy popis"@cs;
     sh:name "Text adresy"@cs;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/text-adresy>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> sh:property <977d84b66804a75e36647e66df543bd6text-adresyShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> sh:property <https://example.org/977d84b66804a75e36647e66df543bd6text-adresyShape>.

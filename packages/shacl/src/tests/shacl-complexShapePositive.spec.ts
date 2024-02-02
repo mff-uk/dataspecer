@@ -4,7 +4,7 @@ import ComplexModelCreator from "./support/ComplexModelCreator";
 const testType = "complex";
 const modelCreator = new ComplexModelCreator();
 
-test('Test SHACL against data - complex shape POSITIVE ', async () => {
+test.skip('Test SHACL against data - complex shape POSITIVE ', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 

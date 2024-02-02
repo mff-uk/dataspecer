@@ -2,10 +2,10 @@
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 import md5 from "md5";
-import * as Support from "./support/testSupport";
 import ClosedModelCreator from "./support/ClosedModelCreator";
 import fs from "fs";
 import fetch from "node-fetch";
+import * as shex from "shexj"
 import shexjs__loader from "@shexjs/loader";
 import {ShExValidator} from "@shexjs/validator";
 //const { ctor: RdfJsDb } = require('@shexjs/neighborhood-rdfjs');
@@ -68,21 +68,22 @@ ShExLoader.load({shexc: [shexc]}, {turtle: [data]})
 });
 
 
+
 let theGraph = someTriplifier(dataObject); # turn the dataObject into triples
 ShEx.Loader.load([validationShape], [], [], []).then(function (loaded) {
   var db = ShEx.Util.makeN3DB(theGraph);
-  var validator = ShEx.Validator.construct(loaded.schema, { results: "api" });
+  var validator = ShExValidator.Validator.construct(loaded.schema, { results: "api" });
   var result = validator.validate(db, [{node: dataID, shape: shapeURL}]);
   return result;
 }).catch(e => console.error(e));
 
 import * as Support from "./support/testSupport";
-*/
+
 import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
 
 const testType = "simpleObject";
 const modelCreator = new SimpleObjectModelCreator();
-
+*/
 test.skip('Shape conforms to SxEx standard - simple object', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);

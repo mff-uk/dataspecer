@@ -2,25 +2,25 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> a sh:NodeShape;
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popisek"@cs;
     sh:name "Adresa"@cs.
-<0404634e3e3a6b298b7f84b13c615508prvek-ruianShape> a sh:PropertyShape;
+<https://example.org/0404634e3e3a6b298b7f84b13c615508prvek-ruianShape> a sh:PropertyShape;
     sh:description "Popis prvku rúian"@cs;
     sh:name "Prvek rúian"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <0404634e3e3a6b298b7f84b13c615508prvek-ruianShape>.
-<f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> a sh:PropertyShape;
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <https://example.org/0404634e3e3a6b298b7f84b13c615508prvek-ruianShape>.
+<https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> a sh:PropertyShape;
     sh:description "Link na entitu má přiřazené území"@cs;
     sh:name "Má přiřazené území"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> a sh:NodeShape;
+<https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> a sh:NodeShape;
     sh:not [
   a sh:PropertyShape;
   sh:path <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>;
@@ -30,19 +30,19 @@
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Popis území městského obvodu"@cs;
     sh:name "Území městského obvodu"@cs.
-<97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape> a sh:PropertyShape;
+<https://example.org/97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape> a sh:PropertyShape;
     sh:description "Ulice bydliště"@cs, "Street of the address"@en;
     sh:name "ulice"@cs, "Street"@en;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> sh:property <97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape>.
-<f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape> a sh:PropertyShape;
+<https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> sh:property <https://example.org/97eace8ece3ae4787da1c3d75a18dd0culice-popisekShape>.
+<https://example.org/f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
     sh:name "Číslo popisné"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> sh:property <f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape>.
-<f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> sh:node <fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape>.
-<bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape>.
+<https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> sh:property <https://example.org/f70066e25d40941727411fcfcb652070cislo-popisne-popisekShape>.
+<https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> sh:node <https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape>.
+<https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape>.

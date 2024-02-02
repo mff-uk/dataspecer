@@ -12,7 +12,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {isTheSameEntity} from "./shacl-support.js";
+import {isTheSameEntity, fixTurtleFileWithBase} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
 //import { DataFactory as DataFactoryN3 } from 'n3';
@@ -135,7 +135,9 @@ export class ShaclAdapter {
     this.artefact = artefact;
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
     //console.log("base URL in constructor is " + this.baseURL);
-    this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
+    // UNCOMMENT WHEN N3.Writer handles baseIRI properly
+    //this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
+    this.writer  =  new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
   }
 
   public generate = async () => {
@@ -156,6 +158,11 @@ export class ShaclAdapter {
     var resultString = "";
     
     this.writer.end((error, result) => resultString = result);
+
+    if(this.baseURL != null && this.baseURL != undefined){
+      resultString = (await fixTurtleFileWithBase(resultString, this.baseURL)).toString();
+    }
+
     return { data: resultString };
   };
 

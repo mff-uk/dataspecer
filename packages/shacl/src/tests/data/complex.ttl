@@ -1,5 +1,5 @@
 @prefix base: <http://www.example.org/> .
-@prefix ex: <http://example.com/> .
+@prefix ex: <https://example.com/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 base:vec a ex:Věc;
