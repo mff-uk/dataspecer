@@ -31,8 +31,6 @@ export const useEntityDetailDialog = () => {
         const { attributes: a } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedClass.id);
 
-        console.log("entity-detail: attritbues", attributes, a);
-
         return (
             <dialog
                 ref={editDialogRef}

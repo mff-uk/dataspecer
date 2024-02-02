@@ -3,7 +3,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
 import { SemanticModelClassWithOrigin, useClassesContext } from "../context/classes-context";
-import { colorForModel } from "../util/utils";
+import { colorForModel, shortenSemanticModelId } from "../util/utils";
 import { ExpandableRow, ModifiableRow, NonExpandableRow } from "./entity-catalog-rows";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -27,7 +27,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         setBackgroundColor(activeVisualModel?.getColor(model.getId()) ?? "#ff6969");
     }, [activeVisualModel]);
 
-    console.log("entities of model rerender", model.getId(), activeVisualModel?.getId());
+    const modelId = model.getId();
+    let clses: JSX.Element[];
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
@@ -45,12 +46,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleOpenDetail = (cls: SemanticModelClass) => {
-        console.log("in handle open detail for semantic model class", cls);
         openEntityDetailDialog(cls);
     };
 
     const handleAddConcept = (model: InMemorySemanticModel) => {
-        console.log("entity-catalog: add-concept: clicked", classes);
         const resultSuccess = addClassToModel(model, { cs: getRandomName(5), en: getRandomName(5) }, undefined);
         if (!resultSuccess) {
             alert("FIXME: something went wrong, class not added to local model");
@@ -58,10 +57,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleAddClassToActiveView = (classId: string) => {
-        console.log("entity-catalog: add-class-to-view-handler", classId);
         const updateStatus = activeVisualModel?.updateEntity(classId, { visible: true });
         if (!updateStatus) {
-            console.log("entity-catalog: add-class-to-view-handler", classId, updateStatus);
             aggregatorView?.getActiveVisualModel()?.addEntity({ sourceEntityId: classId });
         }
     };
@@ -71,12 +68,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleOpenModification = (model: InMemorySemanticModel, cls: SemanticModelClass) => {
-        console.log("in handle open modification for semantic model class", cls);
         openModifyEntityDialog(model, cls);
     };
-
-    const modelId = model.getId();
-    let clses: JSX.Element[];
 
     if (model instanceof ExternalSemanticModel) {
         clses = [...classes.entries()]
@@ -84,7 +77,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .map(([clsId, cwo]) => (
                 <ExpandableRow
                     cls={cwo}
-                    key={clsId}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
                     toggleHandler={() => toggleAllow(model, clsId)}
                     expanded={() => allowedClasses.includes(clsId)}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
@@ -97,11 +90,11 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             ));
     } else if (model instanceof InMemorySemanticModel) {
         clses = [...classes.entries()]
-            .filter(([clsId, cwo]) => cwo.origin == model.getId())
+            .filter(([_, cwo]) => cwo.origin == model.getId())
             .map(([clsId, cwo]) => (
                 <ModifiableRow
                     cls={cwo}
-                    key={cwo.cls.id}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
                     openModificationHandler={() => handleOpenModification(model, cwo.cls)}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
@@ -125,7 +118,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .map((v) => (
                 <NonExpandableRow
                     cls={v}
-                    key={v.cls.id}
+                    key={v.cls.id + aggregatorView.getActiveVisualModel()?.getId()}
                     openDetailHandler={() => openEntityDetailDialog(v.cls)}
                     addToViewHandler={() => handleAddClassToActiveView(v.cls.id)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
@@ -140,7 +133,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         <>
             <li key={modelId} style={{ backgroundColor: backgroundColor }}>
                 <div className="flex flex-row justify-between">
-                    <div>M: {modelId}</div>
+                    <h4>Ⓜ {shortenSemanticModelId(modelId)}</h4>
                     <div>
                         <input
                             type="color"
@@ -156,7 +149,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
                     </div>
                 </div>
-                {isOpen && <ul>{clses}</ul>}
+                {isOpen && <ul className="ml-1">{clses}</ul>}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}

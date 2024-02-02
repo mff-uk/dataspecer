@@ -8,8 +8,6 @@
 const config = {
     reactStrictMode: true,
 
-    experimental: { appDir: true },
-
     // Export to static HTML files for hosting without a Node.js server
     output: "export",
 

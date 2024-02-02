@@ -72,6 +72,11 @@ export class PackageModel {
         return this.prismaPackageToPackage(pkg, packageId);
     }
 
+    async listPackages(): Promise<Package[]> {
+        const pkgs = await this.prismaClient.package.findMany();
+        return await Promise.all(pkgs.map((pkg) => this.prismaPackageToPackage(pkg, pkg.iriChunk)));
+    }
+
     async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {
         let newParentPackageId: number|null = null;
         let newChunk = data.id;

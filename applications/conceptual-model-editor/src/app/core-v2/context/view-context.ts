@@ -31,7 +31,6 @@ export const useViewContext = () => {
     useEffect(() => {
         if (!packageId) return;
         const callSyncViewsWithBackend = () => {
-            console.log("view-context: useEffect: calling syncViewsWithBackend", packageId);
             syncViewsWithBackend(packageId);
         };
         callSyncViewsWithBackend();
@@ -40,7 +39,6 @@ export const useViewContext = () => {
     const activeView = useMemo(() => viewLayouts.find((vl) => vl.id == activeViewId), [activeViewId, viewLayouts]);
 
     useEffect(() => {
-        console.log("view-context: use-effect: setting classesAndPositions", activeView, `'${activeViewId}'`);
         setClassesAndPositions(new Map(activeView?.elementPositionMap));
     }, [activeViewId, viewLayouts]);
 
@@ -49,19 +47,15 @@ export const useViewContext = () => {
         const maybeViewId = vls.at(0)?.id;
         if (maybeViewId) {
             setActiveViewId(maybeViewId);
-            console.log("setting activeViewId to ", maybeViewId);
         }
         setViewLayouts(vls);
     };
 
     const addClassToActiveView = (classId: string) => {
-        console.log("view-context: in addClassToView:", activeView, `'${activeViewId}'`);
         if (!activeView) return; // TODO: what if active view is undefined?
         const pos = getRandomPosition();
         activeView?.elementPositionMap.set(classId, pos);
         setViewLayouts((prev) => [...prev]);
-
-        console.log("view-context: end of addClassToView:", activeView, `'${activeViewId}'`);
     };
 
     const createView = (id: string, name: LanguageString) => {
@@ -74,8 +68,6 @@ export const useViewContext = () => {
         activeView?.elementPositionMap.set(classId, position);
         // setClassesAndPositions((prev) => prev?.set(classId, position));
         setViewLayouts((prev) => [...prev]);
-
-        console.log("view-context: update-class-position: position changed", classId, position);
     };
 
     return {

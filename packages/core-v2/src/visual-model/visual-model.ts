@@ -118,6 +118,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             type: "https://dataspecer.com/core/model-descriptor/visual-model",
             modelId: this.getId(),
             visualEntities: Object.fromEntries(this.entitiesMap.entries()),
+            modelColors: Object.fromEntries(this.modelColors.entries()),
         };
     }
 
@@ -126,6 +127,10 @@ export class VisualEntityModelImpl implements VisualEntityModel {
         const entities = modelDescriptor.visualEntities as Record<string, VisualEntity>;
         for (const [sourceEntityId, visualEntity] of Object.entries(entities)) {
             this.entitiesMap.set(sourceEntityId, visualEntity);
+        }
+        const colors = (modelDescriptor.modelColors ?? {}) as Record<string, string>;
+        for (const [modelId, color] of Object.entries(colors)) {
+            this.modelColors.set(modelId, color);
         }
         return this;
     }
@@ -144,7 +149,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-        this.change(
+                this.change(
             Object.fromEntries(
                 [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
                     entity.id,

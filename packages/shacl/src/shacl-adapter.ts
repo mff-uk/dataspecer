@@ -251,6 +251,7 @@ export class ShaclAdapter {
             this.writer.addQuad(
               namedNode( classNameIri),
               namedNode('http://www.w3.org/ns/shacl#targetObjectsOf'),
+              // @ts-ignore, todo fix this, added type definitions for n3
               namedNode( objectOf )
             );
           }
@@ -271,6 +272,7 @@ export class ShaclAdapter {
       this.writer.addQuad(
           namedNode( classNameIri ),
           namedNode('http://www.w3.org/ns/shacl#closed'),
+          // @ts-ignore, todo fix this, added type definitions for n3
           literal(trueStatement)
         );
         if(!(root.instancesSpecifyTypes == "NEVER")){

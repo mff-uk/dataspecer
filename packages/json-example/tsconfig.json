@@ -1,35 +1,28 @@
+// https://www.totaltypescript.com/tsconfig-cheat-sheet
 {
-    "compilerOptions": {
-      /* Base options */
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "target": "es2022",
-      //"verbatimModuleSyntax": true,
-      "allowJs": true,
-      "moduleDetection": "force",
-  
-      /* Strictness */
-      "strict": true,
-      "noUncheckedIndexedAccess": true,
-  
-      /* Transpiling */
-      "moduleResolution": "nodenext",
-      "module": "NodeNext",
-      "outDir": "./lib",
-      "sourceMap": true,
-      "declaration": true,
-  
-      /* In monorepo */
-      "composite": true,
-      "declarationMap": true,
-  
-      /* Libraries */
-      "lib": [
-        "es2022",
-        "dom"
-      ]
-    },
-    "include": [
-      "src/**/*"
-    ]
-  }
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    // todo enable strict mode
+    "strict": false,
+    "noUncheckedIndexedAccess": false,
+
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "outDir": "lib",
+    "sourceMap": true,
+
+    "declaration": true,
+
+    "declarationMap": true,
+    
+    "lib": ["es2022"]
+  },
+  "include": ["src/**/*"]
+}

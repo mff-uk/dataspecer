@@ -10,7 +10,7 @@ import * as PIM from "../pim-vocabulary";
  * is no order on the ends, the association does not belong to any class.
  */
 export class PimAssociation extends PimResource {
-  private static readonly TYPE = PIM.ASSOCIATION;
+  static readonly TYPE = PIM.ASSOCIATION;
 
   pimEnd: string[];
 

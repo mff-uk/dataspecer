@@ -26,6 +26,11 @@ export const isAttribute = (relationship: SemanticModelRelationship) => {
     );
 };
 
+export const shortenSemanticModelId = (modelId: string) => {
+    const modelName = modelId.length > 20 ? `...${modelId.substring(modelId.length - 15)}` : modelId;
+    return modelName;
+};
+
 // --- coloring --- --- ---
 export const colorForModel = new Map([
     [LOCAL_MODEL_ID, "bg-orange-300"],

@@ -20,7 +20,6 @@ export const useAddModelDialog = () => {
         setIsOpen(true);
     };
     const save = (modelTtlFiles: string[]) => {
-        console.log("add-model-dialog: save: model ttl files", modelTtlFiles);
         const createModel = async () => {
             const model = await createRdfsModel(modelTtlFiles, httpFetch);
             return model;

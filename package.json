@@ -1,6 +1,11 @@
 {
   "devDependencies": {
-    "lerna": "^6.5.1"
+    "turbo": "^1.11.3"
   },
-  "name": "dataspecer"
+  "scripts": {
+    "build": "turbo build",
+    "test": "turbo test"
+  },
+  "name": "dataspecer",
+  "workspaces": ["packages/*", "services/*", "applications/*"]
 }

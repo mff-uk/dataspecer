@@ -8,15 +8,7 @@ import { useEffect } from "react";
 import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/graph-context";
 import { EntitiesOfModel } from "./entities-of-model";
-import { Entity } from "@dataspecer/core-v2/entity-model";
-import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-
-// TODO: jen naimportuj, udelej export v aggregator.ts
-interface AggregatedEntityWrapper {
-    id: string;
-    aggregatedEntity: Entity | null;
-    visualEntity: VisualEntity | null;
-}
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 export const EntityCatalog = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -24,19 +16,17 @@ export const EntityCatalog = () => {
 
     useEffect(() => {
         const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
-            console.log("entity-catalog: subscribe callback: updated&removed", updated, removed);
+            const [localModels] = [models];
 
-            setClasses(
-                new Map(
-                    [...models.keys()]
-                        .map((modelId) =>
-                            Object.values(models.get(modelId)!.getEntities())
-                                .filter(isSemanticModelClass)
-                                .map((c) => ({ cls: c, origin: modelId }))
-                        )
-                        .flat()
-                        .map((cls) => [cls.cls.id, cls])
-                )
+            const clsses = new Map(
+                [...models.keys()]
+                    .map((modelId) =>
+                        Object.values(models.get(modelId)!.getEntities())
+                            .filter(isSemanticModelClass)
+                            .map((c) => ({ cls: c, origin: modelId }))
+                    )
+                    .flat()
+                    .map((cls) => [cls.cls.id, cls])
             );
             const { rels, atts } = [...models.keys()]
                 .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
@@ -53,7 +43,7 @@ export const EntityCatalog = () => {
                     },
                     { rels: [] as SemanticModelRelationship[], atts: [] as SemanticModelRelationship[] }
                 );
-            console.log("rels & atts: ", rels, atts);
+            setClasses(clsses);
             setRelationships(rels);
             setAttributes(atts);
             setGeneralizations(
@@ -69,10 +59,10 @@ export const EntityCatalog = () => {
         const callToUnsubscribe = aggregatorView?.subscribeToChanges(callback);
 
         callback([], []);
-        return callToUnsubscribe;
+        return () => {
+            callToUnsubscribe();
+        };
     }, [models, aggregatorView]);
-
-    console.log("entity-catalog: full rerender");
 
     return (
         <>
