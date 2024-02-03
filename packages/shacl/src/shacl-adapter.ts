@@ -479,11 +479,12 @@ export class ShaclAdapter {
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    var md5String = md5(root.cimIri);
+    var md5String = md5(root.cimIri+root.psmIri);
     const technicalName = this.irify(root);
 
-    generatedIRI = (this.baseURL != null) ? this.baseURL +  md5String + technicalName + "Shape" : md5String + technicalName + "Shape";
-
+    // UNCOMMENT WHEN N3 library supports @base
+    // generatedIRI = (this.baseURL != null) ? this.baseURL +  md5String + technicalName + "Shape" : md5String + technicalName + "Shape";
+    generatedIRI = md5String + technicalName + "Shape";
     return generatedIRI;
   }
 
