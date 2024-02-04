@@ -12,7 +12,8 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {isTheSameEntity, fixTurtleFileWithBase} from "./shacl-support";
+import {isTheSameEntity, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
+  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
 //import { DataFactory as DataFactoryN3 } from 'n3';
@@ -100,11 +101,8 @@ type StructureModelClassOrProperty = StructureModelClass | StructureModelPropert
 
 const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
 const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
-//const N3 = require('n3');
 const { DataFactory } = N3;
-//const N3 = N3Deref;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
-//const { Writer } = WriterN3;
 export class ShaclAdapter {
   
   
@@ -119,11 +117,15 @@ export class ShaclAdapter {
   protected classesUsedInStructure: string[] = [];
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
-  protected writer: any;
+  protected writer = null;
   protected scriptString: string = "";
   protected prefixesString: string = "";
   protected insidesString: string = "";
   protected baseURL: string = "";
+  protected uniquePredicateClass = null;
+  protected uniquePredicatePredicate = null;
+  protected root = null;
+  protected rootName = null;
 
   constructor(
     model: StructureModel,
@@ -137,7 +139,7 @@ export class ShaclAdapter {
     //console.log("base URL in constructor is " + this.baseURL);
     // UNCOMMENT WHEN N3.Writer handles baseIRI properly
     //this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
-    this.writer  =  new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
+      this.writer  =  new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
   }
 
   public generate = async () => {
@@ -149,6 +151,7 @@ export class ShaclAdapter {
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
+      this.root = root;
       this.registerClasses(root);
       
       this.generateClassConstraints(root, null);
@@ -183,6 +186,7 @@ export class ShaclAdapter {
     var nodeName : string;
     
     nodeName = this.generateNodeShapeName(root);
+    this.rootName = (objectOf == null) ? nodeName : this.rootName;
     const prefixTag = this.prefixify(root.cimIri)[0];
     const prefixForName = this.knownPrefixes.find(tuple => tuple[0] === prefixTag);
     const classNameIri = nodeName;
@@ -207,17 +211,34 @@ export class ShaclAdapter {
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
+    // FOR TARGETTING in lower level
+    if(root == this.uniquePredicateClass){
+      this.writer.addQuad(
+        namedNode( classNameIri),
+        namedNode('http://www.w3.org/ns/shacl#targetClass'),
+        namedNode( root.cimIri)
+      );
+    }
+    if(root == this.uniquePredicatePredicate){
+      this.writer.addQuad(
+        namedNode( classNameIri),
+        namedNode('http://www.w3.org/ns/shacl#targetSubjectsOf'),
+        namedNode( this.uniquePredicatePredicate.cimIri)
+      );
+    }
     switch(root.instancesSpecifyTypes){
       // TODO make sure the class is unique in the structure
-      case "ALWAYS": {
-        this.writer.addQuad(
-          namedNode( classNameIri),
-          namedNode('http://www.w3.org/ns/shacl#targetClass'),
-          namedNode( root.cimIri)
-        );
-      }
+      case "ALWAYS": { 
+          if(objectOf == null){this.decideHowToTarget(root, classNameIri);} 
+          else{
+            this.writer.addQuad(
+              namedNode( classNameIri ),
+              namedNode('http://www.w3.org/ns/shacl#class'),
+              namedNode( root.cimIri )
+            );
+          } }
         break;
-      case "NEVER": {
+      case "NEVER": { if(objectOf == null){this.decideHowToTarget(root, classNameIri);}
         this.writer.addQuad(
           namedNode(classNameIri),
           namedNode('http://www.w3.org/ns/shacl#not'),
@@ -232,32 +253,10 @@ export class ShaclAdapter {
             object:    literal(1),
           }])
       )}
-      case "OPTIONAL": 
+      case "OPTIONAL": if(objectOf == null){this.decideHowToTarget(root, classNameIri);}
         default: {
-          if(objectOf == null){
-            /*
-            // The target node is the root class, there is no object of predicate to rely on
-            for (var property in root.properties) {
-              // TODO
-            }
-            this.writer.addQuad(
-              namedNode( classNameIri),
-              namedNode('http://www.w3.org/ns/shacl#or'),
-              namedNode( objectOf )
-            );
-            */
-          } else{
-            // The target node is not the root class, we can rely on it being object of a predicate
-            this.writer.addQuad(
-              namedNode( classNameIri),
-              namedNode('http://www.w3.org/ns/shacl#targetObjectsOf'),
-              // @ts-ignore, todo fix this, added type definitions for n3
-              namedNode( objectOf )
-            );
-          }
         }
     }
-    
     
     if(root.regex != null && root.regex != undefined && root.regex != ""){
       this.writer.addQuad(
@@ -437,6 +436,27 @@ export class ShaclAdapter {
             namedNode('http://www.w3.org/ns/shacl#property'),
             namedNode( nodeIRI.toString() ));
       }
+    }
+
+    // FOR TARGETTING in lower levels
+    if(root == this.uniquePredicateClass || root == this.uniquePredicatePredicate){
+      this.writer.addQuad(
+        namedNode( classNameIri.toString() ), 
+        namedNode('http://www.w3.org/ns/shacl#property'),
+        this.writer.blank([{
+          predicate: namedNode('http://www.w3.org/ns/shacl#path'),
+          object: this.writer.blank([{
+            predicate: namedNode('http://www.w3.org/ns/shacl#inversePath'),
+            object:    namedNode( this.root.cimIri )
+        }])}, {
+          predicate: namedNode('http://www.w3.org/ns/shacl#node'),
+          object: namedNode( this.rootName ),
+        }
+        
+        
+        
+      ])
+      );
     }
     
     return "returnFromPropertiesCreation";
@@ -633,10 +653,50 @@ export class ShaclAdapter {
       }
     }
   }
+
+
+  protected decideHowToTarget(cls : StructureModelClass, classNameIri : string): void {
+
+    if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
+      // USE CASE #1
+      console.log("DOING USE CASE 1 " + this.rootName);
+      this.writer.addQuad(
+        namedNode( classNameIri),
+        namedNode('http://www.w3.org/ns/shacl#targetClass'),
+        namedNode( cls.cimIri)
+      );
+    } else if(hasUniquePredicates(cls)){
+      // USE CASE #2
+      console.log("DOING USE CASE 2 " + this.rootName);
+      const cimOfUniquePredicate = getUniquePredicate(cls);
+      this.writer.addQuad(
+        namedNode( classNameIri),
+        namedNode('http://www.w3.org/ns/shacl#targetSubjectsOf'),
+        namedNode( cimOfUniquePredicate)
+      );
+  
+    } else if(anyPredicateHasUniqueType(cls)){
+      // USE CASE #3
+      console.log("DOING USE CASE 3 " + this.rootName);
+      this.uniquePredicateClass = getAnyPredicateUniqueType(cls);    
+    } else if(anyPredicateHasUniquePredicates(cls)){
+      // USE CASE #4
+      console.log("DOING USE CASE 4 " + this.rootName);
+      this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
+    } else{
+      console.log("DOING USE CASE 5 " + this.rootName);
+      // CANNOT TARGET THE SHAPE, fail to generate the artifact
+      // TODO Use a mechanism that dataspecer provides in case an artifact cant be generated
+      console.log("Cannot make shape USE CASE #5");
+    }
+  }
+
 }
 function isEmptyOrSpaces(str) : boolean{
   return str === null || str.match(/^ *$/) !== null;
 }
+
+
 
 // Types for specification in sh:datatype
 const simpleTypeMapQName: Record<string, QName> = {

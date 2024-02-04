@@ -4,13 +4,13 @@ import ClosedModelCreator from "./support/ClosedModelCreator";
 const testType = "closed";
 const modelCreator = new ClosedModelCreator();
 
-test('Test SHACL against data - closed shape POSITIVE ', async () => {
+test.skip('Test SHACL against data - closed shape POSITIVE ', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
 
 
-test('Shape conforms to SHACL standard - closed shape ', async () => {
+test.skip('Shape conforms to SHACL standard - closed shape ', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });

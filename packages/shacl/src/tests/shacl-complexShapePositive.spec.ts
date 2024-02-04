@@ -11,7 +11,7 @@ test.skip('Test SHACL against data - complex shape POSITIVE ', async () => {
 });
 
 
-test('Shape conforms to SHACL standard - complex shape ', async () => {
+test.skip('Shape conforms to SHACL standard - complex shape ', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });

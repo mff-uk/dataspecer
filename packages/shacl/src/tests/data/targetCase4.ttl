@@ -1,0 +1,12 @@
+@prefix legsb: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix base: <http://www.example.org/> .
+
+base:simpleObjectadresa a legsb:adresa ;
+    <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> base:prvek ;
+    legsb:má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze base:uzemi .
+base:prvek a legsb:adresa .
+base:uzemi a legsb:území-městského-obvodu-v-hlavním-městě-praze;
+            <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> "Prvek ruian";
+            legsb:má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze "Uzemi mestskeho obvodu";
+            base:unikatniPredikat base:uzemiMO.
+base:uzemiMO a legsb:má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze.

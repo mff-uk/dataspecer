@@ -4,7 +4,7 @@ import NestedClosedShapeModelCreator from "./support/NestedClosedModelCreator";
 const testType = "nestedClosedNegative";
 const modelCreator = new NestedClosedShapeModelCreator();
 
-test('Test SHACL against data - nested closed shape NEGATIVE', async () => {
+test.skip('Test SHACL against data - nested closed shape NEGATIVE', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(false);
 });

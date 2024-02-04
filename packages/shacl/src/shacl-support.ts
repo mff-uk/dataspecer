@@ -12,6 +12,7 @@ import {
     DataSpecificationArtefact,
     DataSpecificationSchema,
   } from "@dataspecer/core/data-specification/model";
+  import { LanguageString } from "@dataspecer/core/core";
 
 type ClassOrProperty = StructureModelClass | StructureModelProperty;
 
@@ -22,6 +23,217 @@ export function isTheSameEntity(root :ClassOrProperty, compared: ClassOrProperty
         return isTheSameProperty(root, compared);
     } else {
         return false;
+    }
+}
+
+export async function anyPredicateHasUniqueType(cls : StructureModelClass ): Promise<Boolean>{
+    var uniqueCim = false;
+
+    for (const [i, prop] of cls.properties.entries()) {
+        for (var dt of prop.dataTypes) {
+            if(dt.isAssociation() == true){
+              // create new NodeShape and tie this property to it if its not just an empty class
+              
+                const dtcasted = <StructureModelComplexType> dt;
+
+                if(isUniqueRecursive(dtcasted.dataType, dtcasted.dataType.cimIri, true) && dtcasted.dataType.instancesSpecifyTypes === "ALWAYS"){
+                    console.log("hasUniquePredicatesProperty(" + dtcasted.dataType.cimIri + ", " + dtcasted.dataType.cimIri + ", " + true + " will return FALSE. ");
+                    uniqueCim = true;
+                }   
+                
+            }
+
+        }
+    }
+
+    return uniqueCim;
+
+} 
+
+export async function anyPredicateHasUniquePredicates(cls : StructureModelClass ): Promise<Boolean>{
+    var uniqueCim = false;
+
+    for (const [i, prop] of cls.properties.entries()) {
+        for (var dt of prop.dataTypes) {
+            if(dt.isAssociation() == true){
+              // create new NodeShape and tie this property to it if its not just an empty class
+              
+                const dtcasted = <StructureModelComplexType> dt;
+
+                if(hasUniquePredicates(dtcasted.dataType) == true ){
+                    console.log("hasUniquePredicatesProperty(" + dtcasted.dataType.cimIri + ", " + dtcasted.dataType.cimIri + ", " + true + " will return TRUE. ");
+                    return true;
+                }   
+                
+            }
+
+        }
+    }
+
+    return uniqueCim;
+
+} 
+
+export function getAnyPredicateUniqueType(cls: StructureModelClass): StructureModelClass {
+    var uniqueClass = null;
+
+    for (const [i, prop] of cls.properties.entries()) {
+
+        for (var dt of prop.dataTypes) {
+            if(dt.isAssociation() == true){
+              // create new NodeShape and tie this property to it if its not just an empty class
+              
+                const dtcasted = <StructureModelComplexType> dt;
+
+            
+            
+                            if(isUniqueClass(dtcasted.dataType) && dtcasted.dataType.instancesSpecifyTypes == "ALWAYS"){
+                                console.log("UNIQUE classType in predicates is " + dtcasted.dataType.cimIri);
+                                return dtcasted.dataType;                          
+                            }  
+                            
+                
+            }
+
+        }  
+    }
+
+    return uniqueClass;
+}
+
+export function getAnyPredicateUniquePredicate(cls: StructureModelClass): StructureModelProperty {
+    var uniqueProperty = null;
+
+    for (const [i, prop] of cls.properties.entries()) {
+
+        for (var dt of prop.dataTypes) {
+            if(dt.isAssociation() == true){
+              // create new NodeShape and tie this property to it if its not just an empty class
+              
+                const dtcasted = <StructureModelComplexType> dt;
+
+                for (const [i, propInside] of dtcasted.dataType.properties.entries()) {
+
+                    for (var dtInside of propInside.dataTypes) {
+                        if(dtInside.isAssociation() == true){
+                          // create new NodeShape and tie this property to it if its not just an empty class
+                          
+                            const dtcastedInside = <StructureModelComplexType> dt;
+            
+                            if(hasUniquePredicatesProperty(propInside, propInside.cimIri, true) && propInside.cardinalityMin > 0){
+                                console.log("UNIQUE property of predicates cim is " + propInside.cimIri);
+                                return propInside;                          
+                            }  
+                            
+                        }
+            
+                    }
+                    
+                }
+                
+            }
+
+        }  
+    }
+
+    return uniqueProperty;
+}
+
+export function getUniquePredicate(cls : StructureModelClass ): String{
+    var uniqueCim = "";
+    for (const [i, prop] of cls.properties.entries()) {
+        if(hasUniquePredicatesProperty(prop, prop.cimIri, true)){
+            uniqueCim = prop.cimIri;
+            console.log("UNIQUE PREDICATE cim is " + prop.cimIri);
+            break;
+        }
+    }
+    return uniqueCim;
+
+} 
+
+export function hasUniquePredicates(cls : StructureModelClass ): Boolean{
+    var hasUnique = false;
+    for (const [i, prop] of cls.properties.entries()) {
+        if(hasUniquePredicatesSearchInClass(cls, prop.cimIri) && prop.cardinalityMin > 0){
+            console.log(" hasUniquePredicates This is UNIQUE: " + getLabel(prop.humanLabel) );
+            hasUnique = true;
+        }
+    }
+
+    return hasUnique;
+
+} 
+
+function hasUniquePredicatesSearchInClass(cls : StructureModelClass , cimIri : string): boolean{
+    var hasUnique = true;
+    for (const [i, prop] of cls.properties.entries()) {
+        if(hasUniquePredicatesProperty(prop, cimIri, true) == false){
+            console.log(" hasUniquePredicatesSearchInClass This is UNIQUE: " + getLabel(prop.humanLabel) );
+            hasUnique = false;
+        }
+    }
+
+    return hasUnique;
+}
+
+function hasUniquePredicatesProperty(prop: StructureModelProperty, cimIri : String, firstClass : boolean): boolean {
+    if(!firstClass && (prop.cimIri === cimIri)){
+        console.log("hasUniquePredicatesProperty(" + getLabel(prop.humanLabel) + " === " + cimIri);
+        return false;
+    } else{
+        // The cimIri of this class is not the same, check other classes, for each property check associations
+        for (var dt of prop.dataTypes) {
+            console.log("hasUniquePredicatesProperty( Going through datatypes of " + prop.cimIri + ", " + cimIri + ", "  );
+            if(dt.isAssociation() == true){
+              // create new NodeShape and tie this property to it if its not just an empty class
+              
+                const dtcasted = <StructureModelComplexType> dt;
+
+                for (const [i, propInside] of dtcasted.dataType.properties.entries()) {
+                    console.log("hasUniquePredicatesProperty( Testing associations " + prop.cimIri + ", " + cimIri + ", " + propInside.cimIri + " with propInside  ");
+                    if(hasUniquePredicatesProperty(propInside, cimIri, false) == false){
+                        console.log("hasUniquePredicatesProperty(" + prop.cimIri + ", " + cimIri + ", " + firstClass + " will return FALSE.  ");
+                        return false;
+                    }   
+                }
+            }
+
+        }
+        
+        console.log("hasUniquePredicatesProperty(" + prop.cimIri + ", " + cimIri + ", " + firstClass + " will return true. ");
+        return true;
+    }
+}
+
+export function isUniqueClass(cls : StructureModelClass ): Boolean{
+
+    return isUniqueRecursive(cls, cls.cimIri, true);
+
+} 
+
+function isUniqueRecursive(cls: StructureModelClass, cimIri : String, firstClass : boolean): boolean{
+    if(!firstClass && (cls.cimIri === cimIri)){
+        return false;
+    } else{
+        // The cimIri of this class is not the same, check other classes, for each property check associations
+        for (const [i, prop] of cls.properties.entries()) {
+            for (var dt of prop.dataTypes) {
+                if(dt.isAssociation() == true){
+                  // create new NodeShape and tie this property to it if its not just an empty class
+                  
+                    const dtcasted = <StructureModelComplexType> dt;
+
+                    if(isUniqueRecursive(dtcasted.dataType, cimIri, false) == false){
+                        console.log("isUniqueRecursive(" + cls.cimIri + ", " + cimIri + ", " + firstClass + " will return FALSE. ");
+                        return false;
+                    }
+                  
+                }
+            }
+        }
+        console.log("isUniqueRecursive(" + cls.cimIri + ", " + cimIri + ", " + firstClass + " will return true. ");
+        return true;
     }
 }
 
@@ -211,9 +423,6 @@ function prefixifyString(data : string, prefixes: Record<string, string>): strin
     
     for(var key in prefixes){
         prefixifiedString = prefixifiedString.replaceAll(/<[^<>]+>/g,function(match,offset,param2) {
-            //console.log("match = " + match);
-            //console.log("offset = " + offset);
-            //console.log("allString = " + param2); 
             var prefixified = "";
             if(match.search(prefixes[key]) != -1){
                 prefixes[key].length
@@ -229,11 +438,20 @@ function prefixifyString(data : string, prefixes: Record<string, string>): strin
     return prefixifiedString;
 }
 
+export function getLabel(ld: LanguageString): string {
+    var label = "";
+        for (const languageTag in ld) {
+            label = ld[languageTag];   
+            break;     
+        }
+       
+    return label;
+}
+
 export async function fixTurtleFileWithBase(file: String, base: String): Promise<String> {
     var fixedFile = file;
 
     const regex = /\.\n{2}/i;
-    console.log(file.replace(regex, '.\n\nferret'));
     fixedFile = file.replace(regex, '.\n@base <' + base + '>.\n\n');
 
     return fixedFile;

@@ -3,7 +3,7 @@
 @base <https://example.org/>.
 
 <a7d8437802b71e962b305002b0c40e20adresaShape> a sh:NodeShape;
-    sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:targetSubjectsOf <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popisek"@cs;
     sh:name "Adresa"@cs.

@@ -1,0 +1,53 @@
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@base <https://example.org/>.
+
+<a7d8437802b71e962b305002b0c40e20adresaShape> a sh:NodeShape;
+    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:description "Adresa popisek první úroveň"@cs;
+    sh:name "Adresa jméno první úroveň"@cs.
+<63834db1e4e7941daebb042dcc13a765prvek-ruianShape> a sh:PropertyShape;
+    sh:description "Popis prvku rúian predikát z první úrovně"@cs;
+    sh:name "Prvek rúian predikát z první úrovně"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<a7d8437802b71e962b305002b0c40e20adresaShape> sh:property <63834db1e4e7941daebb042dcc13a765prvek-ruianShape>.
+<32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape> a sh:PropertyShape;
+    sh:description "Link na entitu má přiřazené území predikát z první úrovně"@cs;
+    sh:name "Má přiřazené území predikát z první úrovně"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> a sh:NodeShape;
+    sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:description "Popis území městského obvodu popis druhá úroveň"@cs;
+    sh:name "Území městského obvodu jméno druhá úroveň"@cs.
+<64ea34c525bfeea03c5ce50a4b624894ulice-popisekShape> a sh:PropertyShape;
+    sh:description "Prvek ruián úredikát z druhé úrovně"@cs, "Street of the address"@en;
+    sh:name "Prvek ruián predikát z druhé úrovně"@cs, "Street"@en;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> sh:property <64ea34c525bfeea03c5ce50a4b624894ulice-popisekShape>.
+<2901493e9bf617003ee2dc69ad6113dccislo-popisne-popisekShape> a sh:PropertyShape;
+    sh:description "má-přiřazené-území-městského-obvodu predikát z druhé úrovně"@cs;
+    sh:name "má-přiřazené-území-městského-obvodu predikát z druhé úrovně"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> sh:property <2901493e9bf617003ee2dc69ad6113dccislo-popisne-popisekShape>.
+<ef9e6c360d297cb3a4032193db5833c3unikatni-predikatShape> a sh:PropertyShape;
+    sh:description "Popis unikatni predikat predikát z druhé úrovně"@cs;
+    sh:name "Prvek unikatni predikát z druhé úrovně"@cs;
+    sh:minCount 1;
+    sh:path <http://www.example.org/unikatniPredikat>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> sh:property <ef9e6c360d297cb3a4032193db5833c3unikatni-predikatShape>, [
+  sh:path [ sh:inversePath <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa> ];
+  sh:node <a7d8437802b71e962b305002b0c40e20adresaShape>
+].
+<32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape> sh:node <ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape>.
+<a7d8437802b71e962b305002b0c40e20adresaShape> sh:property <32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape>.

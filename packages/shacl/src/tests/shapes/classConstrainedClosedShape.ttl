@@ -2,63 +2,61 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03osobaShape> a sh:NodeShape;
+<a7d8437802b71e962b305002b0c40e20osobaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popisek"@cs;
     sh:name "Adresa"@cs.
-<https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> a sh:PropertyShape;
+<607bb6f1ae807de259757d498766e2ffje-adresou-stavebniho-objektuShape> a sh:PropertyShape;
     sh:description "Je adresou stavebního objektu popisek"@cs;
     sh:name "Je adresou stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> a sh:NodeShape;
-    sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu>;
+<4f2532ec70dc9a732286e1c4ef0d0d12stavebni-objektShape> a sh:NodeShape;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Stavební objekt popisek"@cs;
     sh:name "Stavební objekt"@cs, "Construction site"@en.
-<https://example.org/ace7fdeb0cbcbe3162b148e66e054840typ-ochrany-stavebniho-objektuShape> a sh:PropertyShape;
+<d44740d0300a9ac07523baaff0fd4918typ-ochrany-stavebniho-objektuShape> a sh:PropertyShape;
     sh:description "Typ ochrany stavebního objektu popis"@cs;
     sh:name "Typ ochrany stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <https://example.org/ace7fdeb0cbcbe3162b148e66e054840typ-ochrany-stavebniho-objektuShape>.
-<https://example.org/fe8a0dadcb1018dcc961c8ca4a25cc91typ-stavebniho-objektuShape> a sh:PropertyShape;
+<4f2532ec70dc9a732286e1c4ef0d0d12stavebni-objektShape> sh:property <d44740d0300a9ac07523baaff0fd4918typ-ochrany-stavebniho-objektuShape>.
+<aac42a9a0596f5c85db0254503ac235dtyp-stavebniho-objektuShape> a sh:PropertyShape;
     sh:description "Typ stavebního objektu popis"@cs;
     sh:name "Typ stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-stavebního-objektu>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape> sh:property <https://example.org/fe8a0dadcb1018dcc961c8ca4a25cc91typ-stavebniho-objektuShape>.
-<https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape> sh:node <https://example.org/a891b83f8dd5f889d2662697e179ba43stavebni-objektShape>.
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03osobaShape> sh:property <https://example.org/550640b9ceec5fea9f176c5292241cc7je-adresou-stavebniho-objektuShape>.
-<https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> a sh:PropertyShape;
+<4f2532ec70dc9a732286e1c4ef0d0d12stavebni-objektShape> sh:property <aac42a9a0596f5c85db0254503ac235dtyp-stavebniho-objektuShape>.
+<607bb6f1ae807de259757d498766e2ffje-adresou-stavebniho-objektuShape> sh:node <4f2532ec70dc9a732286e1c4ef0d0d12stavebni-objektShape>.
+<a7d8437802b71e962b305002b0c40e20osobaShape> sh:property <607bb6f1ae807de259757d498766e2ffje-adresou-stavebniho-objektuShape>.
+<32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape> a sh:PropertyShape;
     sh:description "Má přiřazené území městského obvodu v hlavním městě Praze popis"@cs;
     sh:name "Má přiřazené území městského obvodu v hlavním městě Praze"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> a sh:NodeShape;
-    sh:targetObjectsOf <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> a sh:NodeShape;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Území městského obvodu v hlavním městě Praze popis"@cs;
     sh:name "Území městského obvodu v hlavním městě Praze"@cs.
-<https://example.org/f70066e25d40941727411fcfcb652070datum-vzniku-obvoduShape> a sh:PropertyShape;
+<6163e6885b06ca2ca2f7be60eed7deb5datum-vzniku-obvoduShape> a sh:PropertyShape;
     sh:description "Datum vzniku území obvodu popis"@cs;
     sh:name "Datum vzniku území obvodu "@cs;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape> sh:property <https://example.org/f70066e25d40941727411fcfcb652070datum-vzniku-obvoduShape>.
-<https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape> sh:node <https://example.org/fe735b834144ace6d68550def556ef07uzemi-mestskeho-obvoduShape>.
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03osobaShape> sh:property <https://example.org/f7ea2c845acb6739520592fd82789acema-prirazene-uzemiShape>.
+<ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape> sh:property <6163e6885b06ca2ca2f7be60eed7deb5datum-vzniku-obvoduShape>.
+<32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape> sh:node <ee29ca746226ac71db1d5d474dee5894uzemi-mestskeho-obvoduShape>.
+<a7d8437802b71e962b305002b0c40e20osobaShape> sh:property <32f076fadbb5ddcfc3c6da8bc165efacma-prirazene-uzemiShape>.

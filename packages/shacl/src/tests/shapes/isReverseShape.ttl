@@ -2,15 +2,15 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> a sh:NodeShape;
+<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekclass1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popis"@cs;
     sh:name "Adresa"@cs.
-<https://example.org/740f084d956304c0dac4cae38cfaf031má_adresuShape> a sh:PropertyShape;
+<9a9d714c726b849642ecf97e21cfc8afmá_adresuShape> a sh:PropertyShape;
     sh:description "Text má adresu popis"@cs;
     sh:name "Má adresu"@cs;
     sh:minCount 1;
     sh:path [ sh:inversePath <https://slovník.gov.cz/generický/umístění/pojem/má-adresu> ];
     sh:nodeKind sh:BlankNodeOrIRI.
-<https://example.org/bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> sh:property <https://example.org/740f084d956304c0dac4cae38cfaf031má_adresuShape>.
+<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekclass1Shape> sh:property <9a9d714c726b849642ecf97e21cfc8afmá_adresuShape>.
