@@ -2,15 +2,16 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
-import { SemanticModelClassWithOrigin, useClassesContext } from "../context/classes-context";
-import { colorForModel, shortenSemanticModelId } from "../util/utils";
+import { useClassesContext } from "../context/classes-context";
+import { shortenSemanticModelId } from "../util/utils";
 import { ExpandableRow, ModifiableRow, NonExpandableRow } from "./entity-catalog-rows";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useAddModelDialog } from "../dialogs/add-model-dialog";
 import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useModifyEntityDialog } from "../dialogs/modify-entity-dialog";
+import { ColorPicker } from "../util/color-picker";
+import { tailwindColorToHex } from "~/app/utils/color-utils";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, allowedClasses, setAllowedClasses } = useClassesContext();
@@ -21,9 +22,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const [isOpen, setIsOpen] = useState(true);
     const { model } = props;
     const activeVisualModel = aggregatorView.getActiveVisualModel();
-    const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#db0000");
+    const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#db6969");
 
     useEffect(() => {
+        console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
         setBackgroundColor(activeVisualModel?.getColor(model.getId()) ?? "#ff6969");
     }, [activeVisualModel]);
 
@@ -131,19 +133,16 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
 
     return (
         <>
-            <li key={modelId} style={{ backgroundColor: backgroundColor }}>
+            <li key={modelId} style={{ backgroundColor: tailwindColorToHex(backgroundColor) }}>
                 <div className="flex flex-row justify-between">
                     <h4>Ⓜ {shortenSemanticModelId(modelId)}</h4>
-                    <div>
-                        <input
-                            type="color"
-                            value={backgroundColor}
-                            onChange={(e) => {
-                                setBackgroundColor(e.target.value);
-                            }}
-                            onBlur={(e) => {
-                                setBackgroundColor(e.target.value);
-                                activeVisualModel?.setColor(modelId, e.target.value);
+                    <div className="flex flex-row">
+                        <ColorPicker
+                            currentColor={backgroundColor}
+                            saveColor={(color) => {
+                                console.log(color, activeVisualModel);
+                                setBackgroundColor(color);
+                                activeVisualModel?.setColor(modelId, color);
                             }}
                         />
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>

@@ -17,7 +17,8 @@ import {
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
 } from "./reactflow/simple-floating-edge";
-import { isAttribute, tailwindColorToHex } from "./util/utils";
+import { isAttribute } from "./util/utils";
+import { tailwindColorToHex } from "../utils/color-utils";
 
 import "reactflow/dist/style.css";
 import { useCreateConnectionDialog } from "./dialogs/create-connection-dialog";
@@ -278,5 +279,5 @@ export const Visualization = () => {
 };
 
 const miniMapNodeColor = (node: Node) => {
-    return tailwindColorToHex.get(node.data?.color) ?? "#e9e9e9";
+    return tailwindColorToHex(node.data?.color);
 };

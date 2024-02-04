@@ -39,13 +39,6 @@ export const colorForModel = new Map([
     [UNKNOWN_MODEL_ID, "bg-red-600"],
 ]); // FIXME: udelej poradne
 
-export const tailwindColorToHex = new Map([
-    ["bg-orange-300", "#fdba74"],
-    ["bg-emerald-300", "#6ee7b7"],
-    ["bg-rose-300", "#fda4af"],
-    ["bg-red-600", "#dc2626"],
-]);
-
 // --- react flow --- --- ---
 
 export const getRandomPosition = () => {

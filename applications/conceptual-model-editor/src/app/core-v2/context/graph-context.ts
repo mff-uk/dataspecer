@@ -42,6 +42,13 @@ export const useModelGraphContext = () => {
         }
     };
 
+    const addVisualModelToGraph = (...models: VisualEntityModel[]) => {
+        for (const model of models) {
+            aggregator.addModel(model);
+            setVisualModels((previous) => previous.set(model.getId(), model));
+        }
+    };
+
     // FIXME: zas to vymysli nejak lip
     const addClassToModel = (
         model: InMemorySemanticModel,
@@ -98,6 +105,7 @@ export const useModelGraphContext = () => {
         cleanModels,
         removeModelFromModels,
         visualModels,
+        addVisualModelToGraph,
         setVisualModels,
     };
 };

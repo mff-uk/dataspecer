@@ -20,7 +20,7 @@ export const ExportManagement = () => {
         addModelToGraph,
         visualModels,
         setAggregatorView,
-        setVisualModels,
+        addVisualModelToGraph,
         cleanModels,
     } = useModelGraphContext();
     const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
@@ -85,8 +85,7 @@ export const ExportManagement = () => {
                             );
 
                             for (const model of visualModels) {
-                                aggregator.addModel(model);
-                                setVisualModels((prev) => prev.set(model.getId(), model));
+                                addVisualModelToGraph(model);
                             }
                             for (const model of entityModels) {
                                 addModelToGraph(model);
