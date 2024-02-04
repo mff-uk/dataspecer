@@ -672,7 +672,7 @@ export class ShaclAdapter {
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetSubjectsOf'),
-        namedNode( cimOfUniquePredicate)
+        namedNode( cimOfUniquePredicate.toString())
       );
   
     } else if(anyPredicateHasUniqueType(cls)){
