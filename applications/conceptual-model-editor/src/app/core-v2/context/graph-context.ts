@@ -10,7 +10,8 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "../util/constants";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const bob = new SemanticModelAggregator();
 
@@ -36,16 +37,26 @@ export const useModelGraphContext = () => {
         useContext(ModelGraphContext);
 
     const addModelToGraph = (...models: EntityModel[]) => {
+        // make sure there is a view
+        if (!visualModels.size) {
+            addVisualModelToGraph(new VisualEntityModelImpl(undefined));
+        }
+
         for (const model of models) {
             aggregator.addModel(model);
             setModels((previous) => previous.set(model.getId(), model));
+
+            for (const [_, visualModel] of visualModels) {
+                console.log("setting color for model", model.getId());
+                visualModel.setColor(model.getId(), randomColorFromPalette());
+            }
         }
     };
 
-    const addVisualModelToGraph = (...models: VisualEntityModel[]) => {
-        for (const model of models) {
-            aggregator.addModel(model);
-            setVisualModels((previous) => previous.set(model.getId(), model));
+    const addVisualModelToGraph = (...visModels: VisualEntityModel[]) => {
+        for (const visModel of visModels) {
+            aggregator.addModel(visModel);
+            setVisualModels((previous) => previous.set(visModel.getId(), visModel));
         }
     };
 

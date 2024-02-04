@@ -98,7 +98,6 @@ export const Visualization = () => {
             const getNode = (cls: SemanticModelClass, visualEntity: VisualEntity | null) => {
                 const pos = visualEntity?.position;
                 const visible = visualEntity?.visible;
-                console.log("callback2: getNode", cls, visualEntity, pos, visible);
                 if (!cls || !pos) {
                     return;
                 }
@@ -171,14 +170,14 @@ export const Visualization = () => {
                         }
                         continue;
                     }
-                    const sourceModel = [...localModels.values()].find((m) =>
-                        [...Object.entries(m.getEntities())].find((e) => e[1].id == entity.id)
-                    );
-                    if (!sourceModel?.getId()) {
-                        console.error("didnt find model that has entity", entity, sourceModel, localClasses);
-                        continue;
-                    }
-                    const e = getEdge(entity, localActiveVisualModel?.getColor(sourceModel.getId()));
+                    // const sourceModel = [...localModels.values()].find((m) =>
+                    //     [...Object.entries(m.getEntities())].find((e) => e[1].id == entity.id)
+                    // );
+                    // if (!sourceModel?.getId()) {
+                    //     console.error("didnt find model that has entity", entity, sourceModel, localClasses);
+                    //     continue;
+                    // }
+                    // const e = getEdge(entity, localActiveVisualModel?.getColor(sourceModel.getId()));
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");

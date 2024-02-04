@@ -39,7 +39,12 @@ export const ModelCatalog = () => {
 
     const AddModelDialogButton = () => (
         <button
-            onClick={() => openAddModelDialog()}
+            onClick={() =>
+                openAddModelDialog(() => {
+                    const aggregatedView = aggregator.getView();
+                    setAggregatorView(aggregatedView);
+                })
+            }
             disabled={isAddModelDialogOpen}
             type="button"
             className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"

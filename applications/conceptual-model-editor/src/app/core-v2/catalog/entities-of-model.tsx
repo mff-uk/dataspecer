@@ -4,14 +4,14 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { useEffect, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
 import { shortenSemanticModelId } from "../util/utils";
-import { ExpandableRow, ModifiableRow, NonExpandableRow } from "./entity-catalog-rows";
+import { EntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useModifyEntityDialog } from "../dialogs/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
-import { tailwindColorToHex } from "~/app/utils/color-utils";
+import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, allowedClasses, setAllowedClasses } = useClassesContext();
@@ -22,11 +22,18 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const [isOpen, setIsOpen] = useState(true);
     const { model } = props;
     const activeVisualModel = aggregatorView.getActiveVisualModel();
-    const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#db6969");
+    const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#000001");
 
     useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
-        setBackgroundColor(activeVisualModel?.getColor(model.getId()) ?? "#ff6969");
+        // fixme: move it elsewhere
+        let color = activeVisualModel?.getColor(model.getId());
+        if (!color) {
+            color = randomColorFromPalette();
+            activeVisualModel?.setColor(model.getId(), color);
+        }
+        //
+        setBackgroundColor(color ?? "#ff00ff");
     }, [activeVisualModel]);
 
     const modelId = model.getId();
@@ -73,16 +80,21 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         openModifyEntityDialog(model, cls);
     };
 
+    const classesLength = classes.size;
     if (model instanceof ExternalSemanticModel) {
         clses = [...classes.entries()]
             .filter(([_, cwo]) => cwo.origin == modelId)
             .map(([clsId, cwo]) => (
-                <ExpandableRow
+                // expandable-row, e.g. slovník.gov.cz
+                <EntityRow
                     cls={cwo}
-                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
-                    toggleHandler={() => toggleAllow(model, clsId)}
-                    expanded={() => allowedClasses.includes(clsId)}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    expandable={{
+                        toggleHandler: () => toggleAllow(model, clsId),
+                        expanded: () => allowedClasses.includes(clsId),
+                    }}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
+                    modifiable={null}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
                     isVisibleOnCanvas={() =>
@@ -94,11 +106,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         clses = [...classes.entries()]
             .filter(([_, cwo]) => cwo.origin == model.getId())
             .map(([clsId, cwo]) => (
-                <ModifiableRow
+                // modifiable-row, e.g. local
+                <EntityRow
                     cls={cwo}
-                    key={clsId + aggregatorView.getActiveVisualModel()?.getId()}
+                    key={clsId + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    expandable={null}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
-                    openModificationHandler={() => handleOpenModification(model, cwo.cls)}
+                    modifiable={{ openModificationHandler: () => handleOpenModification(model, cwo.cls) }}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
                     isVisibleOnCanvas={() =>
@@ -118,10 +132,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         clses = [...classes.values()]
             .filter((v) => v.origin == model.getId())
             .map((v) => (
-                <NonExpandableRow
+                // non-expandable, e.g. dcat
+                <EntityRow
                     cls={v}
-                    key={v.cls.id + aggregatorView.getActiveVisualModel()?.getId()}
+                    key={v.cls.id + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    expandable={null}
                     openDetailHandler={() => openEntityDetailDialog(v.cls)}
+                    modifiable={null}
                     addToViewHandler={() => handleAddClassToActiveView(v.cls.id)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
                     isVisibleOnCanvas={() =>

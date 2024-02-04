@@ -2,11 +2,13 @@ import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
 import { useModelGraphContext } from "../context/graph-context";
+import { clickedInside } from "../util/utils";
 
 export const useAddModelDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
     const { addModelToGraph } = useModelGraphContext();
+    const [onSaveCallback, setOnSaveCallback] = useState<null | (() => void)>();
 
     useEffect(() => {
         const { current: el } = addModelDialogRef;
@@ -15,16 +17,18 @@ export const useAddModelDialog = () => {
 
     const close = () => {
         setIsOpen(false);
+        onSaveCallback?.();
+        setOnSaveCallback(null);
     };
-    const open = () => {
+    const open = (onSaveCallback: () => void) => {
         setIsOpen(true);
+        setOnSaveCallback(() => onSaveCallback);
     };
-    const save = (modelTtlFiles: string[]) => {
-        const createModel = async () => {
-            const model = await createRdfsModel(modelTtlFiles, httpFetch);
-            return model;
-        };
-        createModel().then((m) => addModelToGraph(m));
+    const save = async (modelTtlFiles: string[]) => {
+        const model = await createRdfsModel(modelTtlFiles, httpFetch);
+        model.fetchFromPimStore();
+        addModelToGraph(model);
+        onSaveCallback?.();
         close();
     };
 
@@ -37,12 +41,17 @@ export const useAddModelDialog = () => {
             <dialog
                 ref={addModelDialogRef}
                 className="flex h-96 w-96 flex-col justify-between"
-                onCancel={
-                    (e) => {
-                        e.preventDefault();
+                onCancel={(e) => {
+                    e.preventDefault();
+                    close();
+                }}
+                onClick={(e) => {
+                    const rect = addModelDialogRef.current.getBoundingClientRect();
+                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
+                    if (!clickedInRect) {
                         close();
-                    } /* TODO: rather close the dialog close() */
-                }
+                    }
+                }}
             >
                 <div>
                     <h5>Add Semantic Model</h5>

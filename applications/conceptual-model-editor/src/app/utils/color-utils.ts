@@ -220,6 +220,15 @@ export const ColorPalette = {
     },
 };
 
+export const randomColorFromPalette = (colorPalette: ColorPaletteType = ColorPalette) => {
+    const colors = Object.keys(colorPalette);
+    let key: string | undefined = undefined;
+    while (!key) {
+        key = colors.at(Math.floor(colors.length * Math.random()));
+    }
+    return tailwindColorToHex(key, colorPalette);
+};
+
 export const tailwindColorToHex = (color: string, colorPalette: ColorPaletteType = ColorPalette) => {
     if (color.startsWith("#")) {
         return color;

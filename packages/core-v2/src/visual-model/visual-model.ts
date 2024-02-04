@@ -12,7 +12,7 @@ export interface VisualEntityModel {
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
     deserializeModel(data: object): VisualEntityModel;
 
-    getColor(semModelId: string): string;
+    getColor(semModelId: string): string | undefined;
     setColor(semModelId: string, hexColor: string): void;
 }
 
@@ -136,20 +136,13 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     }
 
     getColor(modelId: string) {
-        const color = this.modelColors.get(modelId);
-        if (color) {
-            return color;
-        }
-
-        const defaultColor = "#db0000";
-        this.setColor(modelId, defaultColor);
-        return defaultColor;
+        return this.modelColors.get(modelId);
     }
 
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-                this.change(
+        this.change(
             Object.fromEntries(
                 [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
                     entity.id,

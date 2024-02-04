@@ -1,6 +1,6 @@
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { getNameOf, getDescriptionOf } from "../util/utils";
+import { getNameOf, getDescriptionOf, clickedInside } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
 
 export const useEntityDetailDialog = () => {
@@ -38,6 +38,13 @@ export const useEntityDetailDialog = () => {
                 onCancel={(e) => {
                     e.preventDefault();
                     close();
+                }}
+                onClick={(e) => {
+                    const rect = editDialogRef.current.getBoundingClientRect();
+                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
+                    if (!clickedInRect) {
+                        close();
+                    }
                 }}
             >
                 <div>

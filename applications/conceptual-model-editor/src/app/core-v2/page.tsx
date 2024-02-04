@@ -11,11 +11,11 @@ import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualizationContext } from "./context/visualization-context";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
-import { ViewContext, ViewLayout } from "./context/view-context";
 import { EntityCatalog } from "./catalog/entity-catalog";
 import { Position } from "./visualization/position";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { ModelCatalog } from "./catalog/model-catalog";
+import { randomColorFromPalette } from "../utils/color-utils";
 
 const Page = () => {
     const { aggregator } = useMemo(() => {
@@ -31,8 +31,6 @@ const Page = () => {
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [hideOwlThing, setHideOwlThing] = useState(false);
     const [classPositionMap, setClassPositionMap] = useState(new Map<string, Position>());
-    const [activeViewId, setActiveViewId] = useState("");
-    const [viewLayouts, setViewLayouts] = useState([] as ViewLayout[]);
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
 
     const { packageId, setPackage } = usePackageSearch();
@@ -69,7 +67,11 @@ const Page = () => {
                     console.log("no modelId.");
                     return;
                 }
-                activeVisModel?.setColor(modelId, activeVisModel.getColor(modelId));
+                let modelColor = activeVisModel?.getColor(modelId);
+                if (!modelColor) {
+                    modelColor = randomColorFromPalette();
+                }
+                activeVisModel?.setColor(modelId, modelColor);
             })
             .catch((reason) => {
                 alert("there was an error getting models from backend, see console");
@@ -106,22 +108,20 @@ const Page = () => {
                         setGeneralizations,
                     }}
                 >
-                    <ViewContext.Provider value={{ activeViewId, setActiveViewId, viewLayouts, setViewLayouts }}>
-                        <VisualizationContext.Provider
-                            value={{ hideOwlThing, setHideOwlThing, classPositionMap, setClassPositionMap }}
-                        >
-                            <Header />
-                            <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                                <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                                    <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
-                                        <ModelCatalog />
-                                        <EntityCatalog />
-                                    </div>
-                                    <Visualization />
+                    <VisualizationContext.Provider
+                        value={{ hideOwlThing, setHideOwlThing, classPositionMap, setClassPositionMap }}
+                    >
+                        <Header />
+                        <main className="h-[calc(100%-48px)] w-full bg-teal-50">
+                            <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                                <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
+                                    <ModelCatalog />
+                                    <EntityCatalog />
                                 </div>
-                            </main>
-                        </VisualizationContext.Provider>
-                    </ViewContext.Provider>
+                                <Visualization />
+                            </div>
+                        </main>
+                    </VisualizationContext.Provider>
                 </ClassesContext.Provider>
             </ModelGraphContext.Provider>
         </>

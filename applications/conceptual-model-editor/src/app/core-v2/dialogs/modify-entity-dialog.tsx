@@ -5,11 +5,12 @@ import {
     SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
-import { getNameOf, getDescriptionOf } from "../util/utils";
+import { getNameOf, getDescriptionOf, clickedInside } from "../util/utils";
 import { useModelGraphContext } from "../context/graph-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
+import { EntityModel } from "@dataspecer/core-v2/entity-model";
 
 const AddAttributesComponent = (props: {
     modifiedClassId: string;
@@ -77,11 +78,20 @@ export const useModifyEntityDialog = () => {
         setModel(model);
     };
 
+    const filterInMemoryModels = (models: Map<string, EntityModel>) => {
+        return [...models.entries()].filter(([mId, m]) => m instanceof InMemorySemanticModel).map(([mId, _]) => mId);
+    };
+
     const ModifyEntityDialog = () => {
         const [newName, setNewName] = useState(getNameOf(modifiedClass).t);
         const [newDescription, setNewDescription] = useState(getDescriptionOf(modifiedClass).t); // FIXME: sanitize
         const [newIri, setNewIri] = useState(modifiedClass.iri ?? ""); // FIXME: sanitize
         const { modifyClassInAModel } = useModelGraphContext();
+
+        // prepare for modifying entities from non-local models. https://github.com/mff-uk/dataspecer/issues/397
+        const { models } = useModelGraphContext();
+        const inMemoryModels = filterInMemoryModels(models);
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
 
         const { attributes: a } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == modifiedClass.id);
@@ -97,6 +107,13 @@ export const useModifyEntityDialog = () => {
                     e.preventDefault();
                     close();
                 }}
+                onClick={(e) => {
+                    const rect = modifyDialogRef.current.getBoundingClientRect();
+                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
+                    if (!clickedInRect) {
+                        close();
+                    }
+                }}
             >
                 <div>
                     <h4>Entity modification</h4>
@@ -104,6 +121,7 @@ export const useModifyEntityDialog = () => {
                         Detail of: <input value={newName} onChange={(e) => setNewName(e.target.value)} />@
                         {getNameOf(modifiedClass).l}
                     </h5>
+
                     <p className="text-gray-500">
                         <input value={newIri} onChange={(e) => setNewIri(e.target.value)} />
                     </p>
@@ -143,10 +161,26 @@ export const useModifyEntityDialog = () => {
                                 iri: newIri,
                                 description: { cs: newDescription }, // TODO: localization
                             });
+
                             if (wantsToAddNewAttributes) {
                                 const res = addAttribute(model, newAttribute);
                                 console.log(res);
                             }
+
+                            // const saveModel = models.get(activeModel);
+                            // if (saveModel && saveModel instanceof InMemorySemanticModel) {
+                            //     modifyClassInAModel(saveModel, modifiedClass.id, {
+                            //         name: { cs: newName }, // TODO: localization
+                            //         iri: newIri,
+                            //         description: { cs: newDescription }, // TODO: localization
+                            //     });
+                            //     if (wantsToAddNewAttributes) {
+                            //         const res = addAttribute(saveModel, newAttribute);
+                            //         console.log(res);
+                            //     }
+                            // } else {
+                            //     alert(`create-conn-dialog: unknown active model '${activeModel}'`);
+                            // }
                             close();
                         }}
                     >

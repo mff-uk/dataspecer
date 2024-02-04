@@ -19,7 +19,6 @@ export const getOneNameFromLanguageString = (ls: LanguageString) => {
 export const isOwlThing = (classId: string) => classId == "http://www.w3.org/2002/07/owl#Thing"; // FIXME: do this properly
 
 export const isAttribute = (relationship: SemanticModelRelationship) => {
-    console.log("utils: is-attribute", relationship);
     return (
         (relationship.ends[1] && relationship.ends[1]?.concept == null) ||
         (relationship.ends[1] && relationship.ends[1].concept == "") // FIXME: tadyto se deje, protoze neumim vytvorit atribut, ktery by mel jako concept null
@@ -29,6 +28,12 @@ export const isAttribute = (relationship: SemanticModelRelationship) => {
 export const shortenSemanticModelId = (modelId: string) => {
     const modelName = modelId.length > 20 ? `...${modelId.substring(modelId.length - 15)}` : modelId;
     return modelName;
+};
+
+// --- dialogs --- --- ---
+
+export const clickedInside = (rect: DOMRect, cliX: number, cliY: number) => {
+    return rect.top <= cliY && cliY <= rect.top + rect.height && rect.left <= cliX && cliX <= rect.left + rect.width;
 };
 
 // --- coloring --- --- ---
