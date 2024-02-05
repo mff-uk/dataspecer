@@ -31,7 +31,7 @@ export const PackageManagement = () => {
             <div className="flex flex-col [&]:text-[15px]">
                 <div className="flex flex-row">
                     <div>
-                        pkg:<span className="ml-2 font-mono">{packageId}</span>
+                        pkg:<span className="ml-2 font-mono">{packageId ?? "---"}</span>
                     </div>
                     <button className="white ml-2" title="change package" onClick={toggleDropdown}>
                         {dropdownOpen ? "🔼" : "🔽"}
@@ -85,7 +85,7 @@ export const PackageManagement = () => {
                         {packages.map((pkg) => (
                             <li key={pkg.id} className="w-full">
                                 <button onClick={() => handlePackageSelected(pkg.id)}>
-                                    {getOneNameFromLanguageString(pkg.name).t}
+                                    {getOneNameFromLanguageString(pkg.name)?.t ?? pkg.id}
                                 </button>
                             </li>
                         ))}

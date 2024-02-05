@@ -3,7 +3,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
-import { shortenSemanticModelId } from "../util/utils";
+import { shortenStringTo } from "../util/utils";
 import { EntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -152,7 +152,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         <>
             <li key={modelId} style={{ backgroundColor: tailwindColorToHex(backgroundColor) }}>
                 <div className="flex flex-row justify-between">
-                    <h4>Ⓜ {shortenSemanticModelId(modelId)}</h4>
+                    <h4>Ⓜ {shortenStringTo(modelId)}</h4>
                     <div className="flex flex-row">
                         <ColorPicker
                             currentColor={backgroundColor}

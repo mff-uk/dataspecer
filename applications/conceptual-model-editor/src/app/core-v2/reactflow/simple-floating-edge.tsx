@@ -117,7 +117,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow },
         type: "floating",
         data: {
-            label: getNameOf(rel).t,
+            label: getNameOf(rel)?.t ?? rel.iri ?? "no-name-or-iri",
             type: "r",
             cardinalitySource: rel.ends[0]?.cardinality?.toString(),
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),

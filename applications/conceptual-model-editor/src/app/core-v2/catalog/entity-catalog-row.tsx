@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SemanticModelClassWithOrigin } from "../context/classes-context";
-import { getNameOf } from "../util/utils";
+import { getNameOf, shortenStringTo } from "../util/utils";
 
 export const EntityRow = (props: {
     cls: SemanticModelClassWithOrigin;
@@ -19,13 +19,16 @@ export const EntityRow = (props: {
 
     const cls = props.cls.cls;
     const iri = props.cls.cls.iri;
+    const nameOrNull = getNameOf(cls);
+    const name = nameOrNull ? nameOrNull.t : shortenStringTo(iri, 30);
+
     return (
         <div className="flex flex-row justify-between whitespace-nowrap">
-            <span>
+            <span title={iri ?? ""}>
                 <a href={iri ? iri : "#"} target="_blank">
                     📑
                 </a>
-                {getNameOf(cls).t}
+                {name}
             </span>
             <div className="ml-2 flex flex-row bg-teal-300 px-1">
                 {props.expandable && (

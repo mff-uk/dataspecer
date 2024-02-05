@@ -49,7 +49,8 @@ export const useEntityDetailDialog = () => {
             >
                 <div>
                     <h5>
-                        Detail of: {clsName.t}@{clsName.l}
+                        Detail of: {clsName?.t ?? "unknown name"}
+                        {clsName?.l ? "@" + clsName.l : ""}
                     </h5>
                     <p className=" text-gray-500">{viewedClass.iri}</p>
                 </div>

@@ -1,5 +1,5 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
-import { getDescriptionOf, getNameOf } from "../util/utils";
+import { getDescriptionOf, getNameOf, shortenStringTo } from "../util/utils";
 import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
 
@@ -17,19 +17,17 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     const clr = props.data.color ?? "#ffffff";
     const attributes = props.data.attributes;
-    const clsName = getNameOf(cls);
-
+    const nameOrNull = getNameOf(cls);
+    const { t: name, l: lang } = nameOrNull ? nameOrNull : { t: shortenStringTo(iri) ?? "no-name", l: "unk" };
     return (
         <>
             <div className={`m-1 border border-black [&]:text-sm`} style={{ backgroundColor: clr }}>
-                <h1 className=" overflow-x-hidden whitespace-nowrap border border-b-black">
-                    {`${clsName.t}@${clsName.l}`}
-                </h1>
+                <h1 className=" overflow-x-hidden whitespace-nowrap border border-b-black">{`${name}@${lang}`}</h1>
 
                 <p className="overflow-x-clip">{iri}</p>
 
                 {attributes?.map((attr) => {
-                    const { t: nt, l: nl } = getNameOf(attr);
+                    const { t: nt, l: nl } = getNameOf(attr) ?? { t: "no-name", l: "unk" };
                     const { t: dt } = getDescriptionOf(attr);
                     return (
                         <p key={`${nt}.${attr.concept}`} title={dt}>

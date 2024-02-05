@@ -4,8 +4,7 @@ import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/graph-context";
 import { useAddModelDialog } from "../dialogs/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
-import { useState } from "react";
-import { shortenSemanticModelId } from "../util/utils";
+import { shortenStringTo } from "../util/utils";
 
 export const ModelCatalog = () => {
     const { aggregator, aggregatorView, setAggregatorView, addModelToGraph, models, removeModelFromModels } =
@@ -68,7 +67,7 @@ export const ModelCatalog = () => {
         const model = models.get(props.modelId);
         return (
             <div className={`m-2 flex flex-row justify-between`}>
-                <h4 onClick={() => console.log(model)}>Ⓜ {shortenSemanticModelId(props.modelId)}</h4>
+                <h4 onClick={() => console.log(model)}>Ⓜ {shortenStringTo(props.modelId)}</h4>
                 <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
                     🗑️
                 </button>

@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useModelGraphContext } from "./context/graph-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { useViewParam } from "./util/view-param";
 
 export const ViewManagement = () => {
     const { aggregatorView, aggregator, setAggregatorView, addVisualModelToGraph } = useModelGraphContext();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { viewId, setViedIdSearchParam } = useViewParam();
 
     const activeViewId = aggregatorView.getActiveViewId();
     const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+
+    useEffect(() => {
+        setViedIdSearchParam(activeViewId ?? null);
+    }, [activeViewId]);
 
     const setActiveViewId = (modelId: string) => {
         aggregatorView.changeActiveVisualModel(modelId);
@@ -34,7 +40,7 @@ export const ViewManagement = () => {
             <div className="flex flex-col text-[15px]">
                 <div className="flex flex-row">
                     <div>
-                        view:<span className="ml-2 font-mono">{activeViewId}</span>
+                        view:<span className="ml-2 font-mono">{viewId ?? "---"}</span>
                     </div>
                     <button className="white ml-2 text-[15px]" title="change view" onClick={toggleDropdown}>
                         🗃️
@@ -45,9 +51,9 @@ export const ViewManagement = () => {
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
-                        {availableVisualModelIds.map((viewId) => (
-                            <li key={viewId} className="w-full">
-                                <button onClick={() => handleViewSelected(viewId)}>{viewId}</button>
+                        {availableVisualModelIds.map((vId) => (
+                            <li key={vId} className="w-full">
+                                <button onClick={() => handleViewSelected(vId)}>{vId}</button>
                             </li>
                         ))}
                     </ul>
