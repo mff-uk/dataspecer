@@ -4,12 +4,12 @@ import  MaxMinCardinalityModelCreator from "./support/MaxMinCardinalityModelCrea
 const testType = "maxMinCardinality";
 const modelCreator = new MaxMinCardinalityModelCreator();
 
-test.skip('Test SHACL against data - cardinality POSITIVE ', async () => {
+test('Test SHACL against data - cardinality POSITIVE ', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });
 
-test.skip('Shape conforms to SHACL standard - cardinality shape', async () => {
+test('Shape conforms to SHACL standard - cardinality shape', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);
 });

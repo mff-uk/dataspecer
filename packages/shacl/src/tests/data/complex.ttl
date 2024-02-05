@@ -20,7 +20,7 @@ base:adresa a <http://example.com/class2/adresa>;
     ex:Ulice "";
     ex:CisloPopisne 23;
     ex:Mesto "Praha";
-    ex:PSC "15500";
+    ex:PSC 15500;
     ex:Stat "Česká republika";
     ex:Rozloha 1.5;
     ex:Jmeno_A_Prijmeni base:celeJmeno.

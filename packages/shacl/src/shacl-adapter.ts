@@ -124,7 +124,7 @@ export class ShaclAdapter {
   protected baseURL: string = "";
   protected uniquePredicateClass = null;
   protected uniquePredicatePredicate = null;
-  protected root = null;
+  protected root : StructureModelClass = null;
   protected rootName = null;
 
   constructor(
@@ -659,7 +659,7 @@ export class ShaclAdapter {
 
     if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
       // USE CASE #1
-      console.log("DOING USE CASE 1 " + this.rootName);
+      //console.log("DOING USE CASE 1 " + this.rootName);
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetClass'),
@@ -667,7 +667,7 @@ export class ShaclAdapter {
       );
     } else if(hasUniquePredicates(cls)){
       // USE CASE #2
-      console.log("DOING USE CASE 2 " + this.rootName);
+      //console.log("DOING USE CASE 2 " + this.rootName);
       const cimOfUniquePredicate = getUniquePredicate(cls);
       this.writer.addQuad(
         namedNode( classNameIri),
@@ -675,19 +675,21 @@ export class ShaclAdapter {
         namedNode( cimOfUniquePredicate.toString())
       );
   
-    } else if(anyPredicateHasUniqueType(cls)){
+    } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
       // USE CASE #3
-      console.log("DOING USE CASE 3 " + this.rootName);
-      this.uniquePredicateClass = getAnyPredicateUniqueType(cls);    
+      //console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
+      this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
+      //console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
     } else if(anyPredicateHasUniquePredicates(cls)){
       // USE CASE #4
-      console.log("DOING USE CASE 4 " + this.rootName);
+      //console.log("DOING USE CASE 4 " + this.rootName);
       this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
     } else{
-      console.log("DOING USE CASE 5 " + this.rootName);
+      //console.log("DOING USE CASE 5 " + this.rootName);
       // CANNOT TARGET THE SHAPE, fail to generate the artifact
+
+      throw new Error('Unable to target the Data structure defined with SHACL shape. Either define at least one unique type of class with instance typing mandatory or define at least one unique attribute going from the root or its associations with cardinality bigger than 0.');
       // TODO Use a mechanism that dataspecer provides in case an artifact cant be generated
-      console.log("Cannot make shape USE CASE #5");
     }
   }
 
