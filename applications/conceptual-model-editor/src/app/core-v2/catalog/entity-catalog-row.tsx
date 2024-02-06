@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SemanticModelClassWithOrigin } from "../context/classes-context";
 import { getNameOf, shortenStringTo } from "../util/utils";
+import { getNameOfThingInLang } from "../util/language-utils";
 
 export const EntityRow = (props: {
     cls: SemanticModelClassWithOrigin;
@@ -22,8 +23,13 @@ export const EntityRow = (props: {
     const nameOrNull = getNameOf(cls);
     const name = nameOrNull ? nameOrNull.t : shortenStringTo(iri, 30);
 
+    // const [name, lang, is] = getNameOfThingInLang(cls, "en")
+
+    // const nameOrNull = getNameOf(cls);
+    // const name = nameOrNull ? nameOrNull.t : shortenStringTo(iri, 30);
+
     return (
-        <div className="flex flex-row justify-between whitespace-nowrap">
+        <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
             <span title={iri ?? ""}>
                 <a href={iri ? iri : "#"} target="_blank">
                     📑

@@ -2,6 +2,7 @@ import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts"
 import { useRef, useEffect, useState } from "react";
 import { getNameOf, getDescriptionOf, clickedInside } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
+import { getNameOfThingInLang } from "../util/language-utils";
 
 export const useEntityDetailDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,12 @@ export const useEntityDetailDialog = () => {
     const EntityDetailDialog = () => {
         const clsName = getNameOf(viewedClass);
 
+        // const [currentLang, setCurrentLang] = useState("en");
+        // const clsNameOrFallback = getNameOfThingInLang(viewedClass, currentLang);
+        // const clsName = typeof clsNameOrFallback == "string" ? clsNameOrFallback : null;
+        // const fallbackName = clsNameOrFallback == null ? null : (clsNameOrFallback as { name: string; lang: string });
+        // const fallback = viewedClass.iri ?? viewedClass.id;
+
         const { attributes: a } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedClass.id);
 
@@ -51,6 +58,8 @@ export const useEntityDetailDialog = () => {
                     <h5>
                         Detail of: {clsName?.t ?? "unknown name"}
                         {clsName?.l ? "@" + clsName.l : ""}
+                        {/* Detail of: {clsName ?? fallback}
+                        {clsName ?? fallbackName?.name ?? fallback} */}
                     </h5>
                     <p className=" text-gray-500">{viewedClass.iri}</p>
                 </div>
@@ -65,8 +74,8 @@ export const useEntityDetailDialog = () => {
                         const name = getNameOf(attr);
                         const description = getDescriptionOf(attr);
                         return (
-                            <div title={description.t}>
-                                {name.t}@{name.l}
+                            <div title={description?.t}>
+                                {name?.t}@{name?.l}
                             </div>
                         );
                     })}

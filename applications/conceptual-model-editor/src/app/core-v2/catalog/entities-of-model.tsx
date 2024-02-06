@@ -12,12 +12,14 @@ import { getRandomName } from "~/app/utils/random-gen";
 import { useModifyEntityDialog } from "../dialogs/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
+import { useCreateClassDialog } from "../dialogs/create-class-dialog";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, allowedClasses, setAllowedClasses } = useClassesContext();
     const { aggregatorView, addClassToModel } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
+    const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
 
     const [isOpen, setIsOpen] = useState(true);
     const { model } = props;
@@ -59,10 +61,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const handleAddConcept = (model: InMemorySemanticModel) => {
-        const resultSuccess = addClassToModel(model, { cs: getRandomName(5), en: getRandomName(5) }, undefined);
-        if (!resultSuccess) {
-            alert("FIXME: something went wrong, class not added to local model");
-        }
+        openCreateClassDialog(model);
     };
 
     const handleAddClassToActiveView = (classId: string) => {
@@ -169,6 +168,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
+            {isCreateClassDialogOpen && <CreateClassDialog />}
         </>
     );
 };

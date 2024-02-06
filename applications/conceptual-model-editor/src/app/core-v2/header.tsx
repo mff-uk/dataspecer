@@ -17,9 +17,11 @@ const Header = () => {
     return (
         <>
             <header className="grid h-12 w-full grid-cols-3 grid-rows-1 justify-between bg-[#5438dc] text-white">
-                <Link href={"/"} className="my-auto ml-4">
-                    <Logo />
-                </Link>
+                <div className="my-auto ml-4 flex flex-row">
+                    <Link href={"/"}>
+                        <Logo />
+                    </Link>
+                </div>
                 <div className="flex flex-row justify-center">
                     <PackageManagement />
                     <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />

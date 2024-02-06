@@ -12,7 +12,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
 import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/connection";
-import { useModelGraphContext } from "./graph-context";
 import { LOCAL_MODEL_ID } from "../util/constants";
 
 export type ClassesContextType = {
@@ -78,13 +77,9 @@ export const useClassesContext = () => {
         return result.success;
     };
 
-    const customSetClasses = (st: Map<string, SemanticModelClassWithOrigin>) => {
-        setClasses(st);
-    };
-
     return {
         classes,
-        setClasses: customSetClasses,
+        setClasses,
         allowedClasses,
         setAllowedClasses,
         relationships,
