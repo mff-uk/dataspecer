@@ -134,7 +134,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
                 // if the property points to an external class, we need link to bs documentation
 
                 const externalSpecification = context.specifications[target.specification];
-                const externalArtefact = externalSpecification.artefacts.find(a => a.generator == BIKESHED.Generator + "/html-output");
+                const externalArtefact = externalSpecification.artefacts.find(a => a.generator == "https://schemas.dataspecer.com/generator/template-artifact");
 
                 // @ts-ignore
                 dt.externalDocumentation = pathRelative(
@@ -171,6 +171,106 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
             }
 
             let infoText2 = configuration.jsonRootCardinality === "object-with-array" ? ` Prvky jsou uvedeny v poli \`${configuration.jsonRootCardinalityObjectKey}\`.` : "";
+
+            // @ts-ignore
+            if (documentationArtefact.templateType === "respec") {
+              return render(`<section>
+<h3>Přehled JSON struktury</h3>
+<p>JSON Schéma zachycující stukturu pro <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i> je definováno v souboru <a href="{{{artifact.json-schema.relativePath}}}"><code>{{artifact.json-schema.relativePath}}</code></a>. ${infoText} <i>{{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}</i>.${infoText2}</p>
+
+<ul>
+{{#classes}}{{#inThisSchema}}
+<li id="json-schema-overview-{{#humanLabel}}{{#translate}}{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+  <a href="{{#pimClass}}#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}{{/pimClass}}">
+    {{#humanLabel}}{{translate}}{{/humanLabel}}
+  </a>
+<ul>
+{{#properties}}
+<li>
+    <code>{{technicalLabel}}</code>:
+    {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}
+    {{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}}
+    ({{cardinalityRange}}) položka typu {{#dataTypes}}
+      {{#isAssociation}}<strong><a href="#json-schema-overview-{{#dataType.humanLabel}}{{#translate}}{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a></strong>{{/isAssociation}}
+      {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
+    {{/dataTypes}}
+</li>
+{{/properties}}
+</ul>
+</li>
+{{/inThisSchema}}{{/classes}}
+</ul>
+
+<h3>Detailní specifikace prvků JSON struktury</h3>
+
+{{#classes}}{{#inThisSchema}}
+<section id="{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<h4>Objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
+<dl>
+{{#humanDescription}}{{#translate}}
+<dt>Popis</dt>
+<dd>{{.}}</dd>
+{{/translate}}{{/humanDescription}}
+<dt>Interpretace</dt>
+{{#pimClass}}
+<dd>
+  <a href="#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+</dd>
+{{/pimClass}}
+</dl>
+
+{{#properties}}
+<section id="{{#humanLabel}}{{#translate}}json-structure-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<h5>Vlastnost <code>{{technicalLabel}}</code></h5>
+<dl>
+<dt>Klíč</dt>
+<dd>\`{{technicalLabel}}\`</dd
+<dt>Jméno</dt>
+<dd>{{#humanLabel}}{{translate}}{{/humanLabel}}</dd
+{{#humanDescription}}{{#translate}}
+<dt>Popis</dt>
+<dd>{{.}}</dd
+{{/translate}}{{/humanDescription}}
+<dt>Povinnost</dt>
+<dd>{{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}</dd
+<dt>Kardinalita</dt>
+<dd>{{cardinalityRange}}</dd
+<dt>Typ</dt>
+{{#dataTypes}}
+
+{{#isAssociation}}
+<dd>
+  <a href="{{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a>
+</dd>
+{{/isAssociation}}
+
+{{#isAttribute}}
+<dd>
+{{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}
+</dd>
+{{/isAttribute}}
+
+{{/dataTypes}}
+
+{{#dataTypes}}{{#isAttribute}}{{#example}}
+<dt>Příklad</dt>
+<dd><div>{{.}}</div></dd>
+{{/example}}{{/isAttribute}}{{/dataTypes}}
+
+<dt>Interpretace</dt>
+{{#pimAssociation}} 
+<dd>
+<a href="#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+</dd>
+{{/pimAssociation}}
+</dl>
+</section>
+{{/properties}}
+
+</section>
+{{/inThisSchema}}{{/classes}}
+</section>`);
+            }
 
             return render(`## Přehled JSON struktury
 ${infoText} {{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}.${infoText2}

@@ -2,8 +2,10 @@
  * Returns the relative path between files from {@param from} to {@param to}
  */
 export function pathRelative(from: string, to: string): string {
-    // Absolute filesystem paths
-    if (from.startsWith("/") && to.startsWith("/")) {
+    // Absolute filesystem paths or URLs with same domain
+    if ((from.startsWith("/") && to.startsWith("/")) ||
+        (from.match(/^https?:\/\//) && to.match(/^https?:\/\//) && from.split("/")[2] === to.split("/")[2])
+    ) {
         const fromParts = from.split("/");
         const toParts = to.split("/");
 

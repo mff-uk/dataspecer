@@ -31,7 +31,7 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
                 <Tab label="JSON" />
                 <Tab label="CSV" />
                 <Tab label="XSD" />
-                <Tab label="Bikeshed" />
+                <Tab label="Documentation" />
             </Tabs>
         </Box>
         {currentTab === 0 &&

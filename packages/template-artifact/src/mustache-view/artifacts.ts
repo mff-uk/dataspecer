@@ -1,11 +1,7 @@
-import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
-import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
-import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model/data-specification-artefact";
-import { DataSpecificationDocumentation } from "@dataspecer/core/data-specification/model";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import { PackageContext } from "./views";
 import { TemplateArtifactGenerator } from "..";
+import { PackageContext } from "./views";
 
 // TODO: This is temporary workaroud for mapping artefacts to text.
 
@@ -13,6 +9,10 @@ const artefactTitle = {
     "http://example.com/generator/json-schema": {
         cs: "JSON schéma",
         en: "JSON schema",
+    },
+    "https://schemas.dataspecer.com/generator/json-example": {
+        cs: "Příklad JSONu",
+        en: "JSON example",
     },
     "http://dataspecer.com/generator/json-ld": {
         cs: "JSON-LD kontext",
@@ -46,6 +46,18 @@ const artefactTitle = {
         cs: "SPARQL",
         en: "SPARQL",
     },
+    "https://schemas.dataspecer.com/generator/shacl": {
+        cs: "SHACL",
+        en: "SHACL",
+    },
+    "https://schemas.dataspecer.com/generator/openapi": {
+        cs: "OpenAPI",
+        en: "OpenAPI",
+    },
+    "https://schemas.dataspecer.com/generator/shex": {
+        cs: "ShEx",
+        en: "ShEx",
+    },
     "plant-uml": {
         cs: "PlantUML diagram",
         en: "PlantUML diagram",
@@ -61,7 +73,12 @@ const artefactTitle = {
     "http://example.com/generator/bikeshed/html-output": {
         cs: "Bikeshed dokumentace",
         en: "Bikeshed documentation",
-    }
+    },
+    // todo: do not identify artifacts by generator
+    "https://schemas.dataspecer.com/generator/template-artifact": {
+        cs: "Dokumentace",
+        en: "Documentation",
+    },
 };
 
 export function prepareArtifacts(

@@ -6,6 +6,7 @@ import {BikeshedHtmlGenerator, ExtendsArtefact} from "./artifacts/bikeshed-html-
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { DefaultTemplateArtifactConfiguration } from "@dataspecer/template-artifact/configuration";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {
   public async generateFor(
@@ -54,27 +55,41 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     }
 
     // New bikeshed by mustache-template - default off
-    if (dataSpecificationConfiguration.useGenerators?.["bikeshed"] !== false) {
-      // Bikeshed source
-      const bikeshed = new DataSpecificationDocumentation();
-      bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
-      bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
-      bikeshed.publicUrl = `${this.baseURL}/documentation.bs`;
-      bikeshed.generator = "https://schemas.dataspecer.com/generator/template-artifact";
-      bikeshed.artefacts = currentSchemaArtefacts;
-      bikeshed.configuration = configuration;
-      artifacts.push(bikeshed);
+    if (dataSpecificationConfiguration.useGenerators?.["respec"] !== false) {
+      // // Bikeshed source
+      // const bikeshed = new DataSpecificationDocumentation();
+      // bikeshed.iri = `${dataSpecificationIri}#bikeshed`;
+      // bikeshed.outputPath = `${dataSpecificationName}/documentation.bs`;
+      // bikeshed.publicUrl = `${this.baseURL}/documentation.bs`;
+      // bikeshed.generator = "https://schemas.dataspecer.com/generator/template-artifact";
+      // bikeshed.artefacts = currentSchemaArtefacts;
+      // bikeshed.configuration = configuration;
+      // artifacts.push(bikeshed);
 
-      // Bikeshed HTML
-      const bikeshedHtml: DataSpecificationDocumentation & ExtendsArtefact = new DataSpecificationDocumentation();
-      bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
-      bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
-      bikeshedHtml.publicUrl = `${this.baseURL}/documentation.html`;
-      bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
-      bikeshedHtml.artefacts = currentSchemaArtefacts;
-      bikeshedHtml.configuration = configuration;
-      bikeshedHtml.extends = "https://schemas.dataspecer.com/generator/template-artifact";
-      artifacts.push(bikeshedHtml);
+      // // Bikeshed HTML
+      // const bikeshedHtml: DataSpecificationDocumentation & ExtendsArtefact = new DataSpecificationDocumentation();
+      // bikeshedHtml.iri = `${dataSpecificationIri}#bikeshedHtml`;
+      // bikeshedHtml.outputPath = `${dataSpecificationName}/documentation.html`;
+      // bikeshedHtml.publicUrl = `${this.baseURL}/documentation.html`;
+      // bikeshedHtml.generator = BikeshedHtmlGenerator.IDENTIFIER;
+      // bikeshedHtml.artefacts = currentSchemaArtefacts;
+      // bikeshedHtml.configuration = configuration;
+      // bikeshedHtml.extends = "https://schemas.dataspecer.com/generator/template-artifact";
+      // artifacts.push(bikeshedHtml);
+
+      // Respec
+      const respec = new DataSpecificationDocumentation();
+      respec.iri = `${dataSpecificationIri}#respec`;
+      respec.outputPath = `${dataSpecificationName}/documentation.html`;
+      respec.publicUrl = `${this.baseURL}/documentation.html`;
+      respec.generator = "https://schemas.dataspecer.com/generator/template-artifact";
+      respec.artefacts = artifacts.map(a => a.iri);
+      // @ts-ignore
+      respec.templateType = "respec";
+      respec.configuration = {...configuration,
+          "template-artifact": DefaultTemplateArtifactConfiguration
+      };
+      artifacts.push(respec);
     }
 
     if (dataSpecificationConfiguration.useGenerators?.["bikeshed@1"] === true) {
