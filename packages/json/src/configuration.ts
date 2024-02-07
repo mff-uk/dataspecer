@@ -60,6 +60,8 @@ export const DefaultJsonConfiguration =  {
     dereferenceSchema: false as boolean,
 
     dereferenceContext: false as boolean,
+
+    includeContextInExample: true as boolean,
 }
 
 export type JsonConfiguration = typeof DefaultJsonConfiguration;

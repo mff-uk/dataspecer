@@ -96,7 +96,7 @@ export const Json: FC<{
           />
         </Grid>
         <Grid item xs={6}>
-          <Collapse in={input.jsonDefaultTypeKeyMapping === "human-label"} appear={false} orientation="horizontal">
+          {input.jsonDefaultTypeKeyMapping === "human-label" &&
             <TextFieldWithDefault
                 label="Preffered language"
                 current={input ?? {}}
@@ -104,7 +104,7 @@ export const Json: FC<{
                 onChange={onChange}
                 default={defaultObject}
             />
-          </Collapse>
+          }
         </Grid>
       </Grid>
       <Typography variant="body2" sx={{mt: 1}}>
@@ -136,5 +136,15 @@ export const Json: FC<{
       <Typography variant="body2" sx={{mt: 1}}>
         Resolves all <code>$ref</code>/<code>@context</code> references in the generated files.
       </Typography>
+
+      <Typography variant="h6" sx={{mt: 6}}>JSON example</Typography>
+      <SwitchWithDefault
+        current={input ?? {}}
+        itemKey="includeContextInExample"
+        onChange={onChange}
+        default={defaultObject}
+        label={"Include JSON-LD context in the example JSON"}
+      />
+
     </FormGroup>;
   };
