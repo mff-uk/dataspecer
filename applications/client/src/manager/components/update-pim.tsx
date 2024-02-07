@@ -22,7 +22,7 @@ export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: s
         const storeDescriptor = specification.pimStores[0];
         const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
         await store.load();
-        const allResources = await Promise.all((await store.listResources()).map(iri => store.readResource(iri))) as PimResource[];
+        //const allResources = await Promise.all((await store.listResources()).map(iri => store.readResource(iri))) as PimResource[];
 
         const {cimAdapter} = getAdapter(specification.cimAdapters);
 
