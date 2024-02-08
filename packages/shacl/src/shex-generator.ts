@@ -4,7 +4,7 @@ import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js"
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {ShexAdapter} from "./shex-adapter.js";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
-import {transformStructureModel} from "@dataspecer/core/structure-model/transformation";
+import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
 
 interface ShexGeneratorObject {
   data: string;
@@ -52,6 +52,8 @@ export class ShexGenerator implements ArtefactGenerator {
         model
     );
     
+    model = structureModelAddDefaultValues(model, globalConfiguration);
+
     artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
 
     const adapter = new ShexAdapter(model, context, artefact);

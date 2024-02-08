@@ -181,7 +181,7 @@ export class ShexAdapter {
       break;
       case "OPTIONAL": newResult = newResult.concat(" NonLiteral");
       break;
-      default: newResult = newResult.concat(" IRI");
+      default: newResult = newResult.concat(" NonLiteral");
     }
 
     if(root.regex != null && root.regex != undefined && root.regex != ""){
