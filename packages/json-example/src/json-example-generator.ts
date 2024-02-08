@@ -2,14 +2,14 @@ import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationSchema,
-} from "@dataspecer/core/data-specification/model/index.js";
+} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
 import {JsonExampleAdapter} from "./json-example-adapter.js";
-import {JsonLdAdapter} from "../../json/src/json-ld/json-ld-adapter.js";
-import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../../json/src/configuration";
+import {JSON_LD_GENERATOR, JsonLdGenerator} from "@dataspecer/json/json-ld";
+import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {JSON_SCHEMA, JsonSchemaGenerator} from "@dataspecer/json/json-schema";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary.js";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
@@ -43,34 +43,13 @@ export class JsonExampleGenerator implements ArtefactGenerator {
         ) as JsonConfiguration;
 
         if(configuration.includeContextInExample){
-            if (!DataSpecificationSchema.is(artefact)) {
-                assertFailed("Invalid artefact type.");
-            }
-
-            const conceptualModel = context.conceptualModels[specification.pim];
-            assertNot(
-                conceptualModel === undefined,
-                `Missing conceptual model ${specification.pim}.`
-            );
-            let model = context.structureModels[schemaArtefact.psm];
-            assertNot(
-                model === undefined,
-                `Missing structure model ${schemaArtefact.psm}.`
-            );
-
-            // Global options for the data specification
-            const globalConfiguration = DataSpecificationConfigurator.merge(
-                DefaultDataSpecificationConfiguration,
-                DataSpecificationConfigurator.getFromObject(schemaArtefact.configuration)
-            ) as DataSpecificationConfiguration;
-        
-            const mergedConceptualModel = {...conceptualModel};
-            mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
-            model = transformStructureModel(mergedConceptualModel, model, Object.values(context.specifications));
-            model = structureModelAddDefaultValues(model, globalConfiguration);
-        
-            const jsonldadapter = new JsonLdAdapter(model, context, artefact);
-            jsonld = jsonldadapter.generate();
+            const jsonldgenerator = new JsonLdGenerator();
+            const streamDictionary = new MemoryStreamDictionary();
+            const jsonSchema = new DataSpecificationSchema();
+            jsonSchema.outputPath = `jsonld.json`;
+            const artoutpath = (artefact.outputPath == null) ? `jsonld.json` : artefact.outputPath;
+            await jsonldgenerator.generateToStream(context, artefact, specification, streamDictionary);
+            jsonld = await streamDictionary.readPath(artoutpath).read();
         }
 
 
