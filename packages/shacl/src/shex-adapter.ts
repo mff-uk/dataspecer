@@ -415,7 +415,7 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    var md5String = md5(root.cimIri);
+    var md5String = md5(root.psmIri);
     const technicalName = this.irify(root);
     const nodeOrProperty = "Shape";
 

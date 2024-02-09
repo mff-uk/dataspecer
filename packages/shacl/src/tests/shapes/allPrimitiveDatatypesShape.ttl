@@ -2,70 +2,70 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> a sh:NodeShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Věc 1 Popisek 1"@cs;
     sh:name "Věc 1 Label 1"@cs.
-<19e00736e76953ff8f9ac7b0482a29fbvek-popisekShape> a sh:PropertyShape;
+<49c3ca40cabd34a07f73aed81e6b042fvek-popisekShape> a sh:PropertyShape;
     sh:description "Vek"@cs;
     sh:name "vek"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <19e00736e76953ff8f9ac7b0482a29fbvek-popisekShape>.
-<3f58776b53a88036fc9c54187b323b52studujici-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <49c3ca40cabd34a07f73aed81e6b042fvek-popisekShape>.
+<ce8ec9714757ae585b74ec03f314104cstudujici-popisekShape> a sh:PropertyShape;
     sh:description "Studujici"@cs;
     sh:name "studujici"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <3f58776b53a88036fc9c54187b323b52studujici-popisekShape>.
-<ef46eb0cf09780469041ca72d037cce7prumerna-znamka-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <ce8ec9714757ae585b74ec03f314104cstudujici-popisekShape>.
+<df410bf17e678bca431907e1b53e8155prumerna-znamka-popisekShape> a sh:PropertyShape;
     sh:description "Průměrná známka"@cs;
     sh:name "průměrná známka od data nástupu"@cs;
     sh:minCount 1;
     sh:maxCount 3;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/typ-čísla-domovního>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <ef46eb0cf09780469041ca72d037cce7prumerna-znamka-popisekShape>.
-<acdd4d31fdfd55c4582dff7d76dba4e3darum-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <df410bf17e678bca431907e1b53e8155prumerna-znamka-popisekShape>.
+<7135d446f30f976d7cab231dbff06756darum-popisekShape> a sh:PropertyShape;
     sh:description "Datum nástupu"@cs;
     sh:name "Nástup"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/znak-čísla-orientačního>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <acdd4d31fdfd55c4582dff7d76dba4e3darum-popisekShape>.
-<4ae875440ef67dd0e9f84af636f97927cas-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <7135d446f30f976d7cab231dbff06756darum-popisekShape>.
+<1f78c49c56500692f4c861fdaef4ba97cas-popisekShape> a sh:PropertyShape;
     sh:description "Začátek výuky (hod)"@cs;
     sh:name "Počáteční hodina výuky"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-katastrálního-území>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <4ae875440ef67dd0e9f84af636f97927cas-popisekShape>.
-<3b22ac3b109838d8c159921a2ea170fecasova-znacka-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <1f78c49c56500692f4c861fdaef4ba97cas-popisekShape>.
+<dcb3aec7b02ecfe3c7bac6bc1702c0d5casova-znacka-popisekShape> a sh:PropertyShape;
     sh:description "časová známka založení účtu"@cs;
     sh:name "Datum a čas založení účtu"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-okresu>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#dateTimeStamp>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <3b22ac3b109838d8c159921a2ea170fecasova-znacka-popisekShape>.
-<957e12718b087259919d058a9ee5105aprofil-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <dcb3aec7b02ecfe3c7bac6bc1702c0d5casova-znacka-popisekShape>.
+<977d84b66804a75e36647e66df543bd6profil-popisekShape> a sh:PropertyShape;
     sh:description "Odkaz na profil studenta"@cs;
     sh:name "Profil studenta"@cs;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/text-adresy>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#anyURI>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <957e12718b087259919d058a9ee5105aprofil-popisekShape>.
-<43d58427d008bc878073f70b22ba58e6poznamky-popisekShape> a sh:PropertyShape;
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <977d84b66804a75e36647e66df543bd6profil-popisekShape>.
+<c88a53c4be9899c48fc95ff5eae22e1dpoznamky-popisekShape> a sh:PropertyShape;
     sh:description "Poznámky k hodnocení studenta"@cs;
     sh:name "Slovní hodnocení"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/název-městského-obvodu-městské-části>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<2094b2cecd69c6ae5ab71335e44ddc65Technickýpopisekvěci1Shape> sh:property <43d58427d008bc878073f70b22ba58e6poznamky-popisekShape>.
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <c88a53c4be9899c48fc95ff5eae22e1dpoznamky-popisekShape>.

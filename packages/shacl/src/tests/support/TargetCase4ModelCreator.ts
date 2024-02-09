@@ -121,7 +121,7 @@ createModel(): StructureModel{
 
     var uzemiMO : StructureModelClass;
     uzemiMO = new StructureModelClass();
-    uzemiMO.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praz";
+    uzemiMO.cimIri = "https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze";
     uzemiMO.codelistUrl = ["https://example.com/class1/codelistIri"];
     uzemiMO.example = null;
     uzemiMO.humanDescription = {["cs"]: "Popis prvku obsaženého v rúian třetí úroveň"};

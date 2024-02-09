@@ -103,7 +103,7 @@ export function getAnyPredicateUniqueType(cls: StructureModelClass, rootClass : 
     return uniqueClass;
 }
 
-export function getAnyPredicateUniquePredicate(cls: StructureModelClass): StructureModelProperty {
+export function getAnyPredicateUniquePredicate(cls: StructureModelClass): { [key: string]: any} {
     var uniqueProperty = null;
 
     for (const [i, prop] of cls.properties.entries()) {
@@ -124,7 +124,7 @@ export function getAnyPredicateUniquePredicate(cls: StructureModelClass): Struct
             
                             if(hasUniquePredicatesProperty(propInside, propInside.cimIri, true) && propInside.cardinalityMin > 0){
                                 //console.log("UNIQUE property of predicates cim is " + propInside.cimIri);
-                                return propInside;                          
+                                return { uniquepropclass: dtcasted.dataType, predicate: propInside};                          
                             }  
                             
                         }

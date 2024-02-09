@@ -2,156 +2,156 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
-<320d3b0c275524a41ebfa92395ee8d2cosobaShape> a sh:NodeShape;
+<2da40eef3feaff877bb3b51ed1214374osobaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Věc>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Class 1 Popisek 1"@cs;
     sh:name "Class 1 Label 1"@cs.
-<2a31d13d884e767122cac924558f0fcfadresa-popisekShape> a sh:PropertyShape;
+<b15bb696c6af8c644bb05cbbc9bd2a66adresa-popisekShape> a sh:PropertyShape;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Adresa>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> a sh:NodeShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> a sh:NodeShape;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa bydliště dané osoby"@cs;
     sh:name "Adresa"@cs, "Adres"@pl.
-<4075ab9e86271a8989c222d60f55eb5dulice-popisekShape> a sh:PropertyShape;
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> a sh:PropertyShape;
     sh:description "Ulice bydliště"@cs;
     sh:name "ulice"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Ulice>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <4075ab9e86271a8989c222d60f55eb5dulice-popisekShape>.
-<abff4b1b901b85bc0073607515cff612cislo-popisne-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape>.
+<cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
     sh:name "Číslo popisné"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/CisloPopisne>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <abff4b1b901b85bc0073607515cff612cislo-popisne-popisekShape>.
-<0dca8d61aca628b6080b47ec416f300fmesto-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape>.
+<d10c659ee236c2fe0cc8345d9531a0eamesto-popisekShape> a sh:PropertyShape;
     sh:description "Město, ve kterém se nachází budova"@cs;
     sh:name "Město"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Mesto>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <0dca8d61aca628b6080b47ec416f300fmesto-popisekShape>.
-<e995a668b65261b41f445ba72ddc5258psc-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <d10c659ee236c2fe0cc8345d9531a0eamesto-popisekShape>.
+<bd55148718bc1da1d49f0381fa1b8831psc-popisekShape> a sh:PropertyShape;
     sh:description "Poštovní směrovací číslo"@cs;
     sh:name "PSČ"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/PSC>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <e995a668b65261b41f445ba72ddc5258psc-popisekShape>.
-<10c42605f3bf031c721c47eeac2d6ef1stat-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <bd55148718bc1da1d49f0381fa1b8831psc-popisekShape>.
+<47a29c86c5f445146aef364f0619cfb8stat-popisekShape> a sh:PropertyShape;
     sh:description "Stát - země, ve které se objekt nachází"@cs;
     sh:name "Stát"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Stat>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <10c42605f3bf031c721c47eeac2d6ef1stat-popisekShape>.
-<5a77fbab1d9a5d3af64d89180ea2ff24rozloha-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <47a29c86c5f445146aef364f0619cfb8stat-popisekShape>.
+<47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape> a sh:PropertyShape;
     sh:description "Rozloha pozemku"@cs;
     sh:name "Rozloha pozemku v kmxkm."@cs;
     sh:minCount 1;
     sh:path <https://example.com/Rozloha>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <5a77fbab1d9a5d3af64d89180ea2ff24rozloha-popisekShape>.
-<be80da5a00a9e97f2737989af61a5f69jmeno-a-prijmeni-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape> a sh:PropertyShape;
     sh:description "Jméno a příjmení dané osoby"@cs;
     sh:name "Jméno a příjmení"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Jmeno_A_Prijmeni>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<871b2b183ae8e32e58dbd987512222c4jmeno-a-prijmeniShape> a sh:NodeShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape> a sh:NodeShape;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Jméno a příjmení dané osoby"@cs;
     sh:name "Jméno a příjmení"@cs, "First and last name"@en.
-<51b0323d2e5c893e737d7abf76821fd4jmeno-popisekShape> a sh:PropertyShape;
+<47a29c86c5f445146aef364f0619cfb8jmeno-popisekShape> a sh:PropertyShape;
     sh:description "Jméno osoby"@cs;
     sh:name "Jméno"@cs;
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://example.com/Jmeno>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<871b2b183ae8e32e58dbd987512222c4jmeno-a-prijmeniShape> sh:property <51b0323d2e5c893e737d7abf76821fd4jmeno-popisekShape>.
-<4452e2f291508a8b5fdb47965e605850prijmeni-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape> sh:property <47a29c86c5f445146aef364f0619cfb8jmeno-popisekShape>.
+<bd55148718bc1da1d49f0381fa1b8831prijmeni-popisekShape> a sh:PropertyShape;
     sh:description "Příjmení"@cs;
     sh:name "Příjmení"@cs;
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://example.com/Prijmeni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
-<871b2b183ae8e32e58dbd987512222c4jmeno-a-prijmeniShape> sh:property <4452e2f291508a8b5fdb47965e605850prijmeni-popisekShape>.
-<be80da5a00a9e97f2737989af61a5f69jmeno-a-prijmeni-popisekShape> sh:node <871b2b183ae8e32e58dbd987512222c4jmeno-a-prijmeniShape>.
-<ed1fa730a66a2cb9b5a4d900c66eba82adresaShape> sh:property <be80da5a00a9e97f2737989af61a5f69jmeno-a-prijmeni-popisekShape>.
-<2a31d13d884e767122cac924558f0fcfadresa-popisekShape> sh:node <ed1fa730a66a2cb9b5a4d900c66eba82adresaShape>.
-<320d3b0c275524a41ebfa92395ee8d2cosobaShape> sh:property <2a31d13d884e767122cac924558f0fcfadresa-popisekShape>.
-<0c9c3b835323c602b6f3f9c96b8b30a4narozeni-a-umrti-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape> sh:property <bd55148718bc1da1d49f0381fa1b8831prijmeni-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape>.
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66adresa-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape>.
+<2da40eef3feaff877bb3b51ed1214374osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66adresa-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66narozeni-a-umrti-popisekShape> a sh:PropertyShape;
     sh:description "Datum narození a úmrtí dané osoby"@cs;
     sh:name "Datum narození a úmrtí"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni_a_umrti>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<84a69554054c146bd1e6e68809b16069narozeni-a-umrtiShape> a sh:NodeShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape> a sh:NodeShape;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Datum narození a úmrtí dané osoby"@cs;
     sh:name "Datum narození a úmrtí"@cs, "Date of birth and death"@en.
-<7efd6b3ddbd5d722ab05a91ec5399c1cnarozeni-popisekShape> a sh:PropertyShape;
+<bd55148718bc1da1d49f0381fa1b8831narozeni-popisekShape> a sh:PropertyShape;
     sh:description "Datum narození dané osoby"@cs;
     sh:name "Datum narození"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<84a69554054c146bd1e6e68809b16069narozeni-a-umrtiShape> sh:property <7efd6b3ddbd5d722ab05a91ec5399c1cnarozeni-popisekShape>.
-<27e8b39734e3311f09585ad8655048a5umrti-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape> sh:property <bd55148718bc1da1d49f0381fa1b8831narozeni-popisekShape>.
+<47a29c86c5f445146aef364f0619cfb8umrti-popisekShape> a sh:PropertyShape;
     sh:description "Datum úmrtí osoby"@cs;
     sh:name "Datum úmrtí"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Umrti>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
-<84a69554054c146bd1e6e68809b16069narozeni-a-umrtiShape> sh:property <27e8b39734e3311f09585ad8655048a5umrti-popisekShape>.
-<0c9c3b835323c602b6f3f9c96b8b30a4narozeni-a-umrti-popisekShape> sh:node <84a69554054c146bd1e6e68809b16069narozeni-a-umrtiShape>.
-<320d3b0c275524a41ebfa92395ee8d2cosobaShape> sh:property <0c9c3b835323c602b6f3f9c96b8b30a4narozeni-a-umrti-popisekShape>.
-<7062b5dfd8a24c0c3bb9dbd9bbbc4179vyucovaci-hodina-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape> sh:property <47a29c86c5f445146aef364f0619cfb8umrti-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66narozeni-a-umrti-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape>.
+<2da40eef3feaff877bb3b51ed1214374osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66narozeni-a-umrti-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66vyucovaci-hodina-popisekShape> a sh:PropertyShape;
     sh:description "Vyučovací hodina dané osoby"@cs;
     sh:name "Vyučovací hodina a její detaily"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Vyucovaci_hodina>;
     sh:nodeKind sh:BlankNodeOrIRI.
-<92165121ede44fc75ab253471433bc8evyucovaci-hodinaShape> a sh:NodeShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape> a sh:NodeShape;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Vyučovací hodina dané osoby"@cs;
     sh:name "Vyučovací hodina"@cs, "Lesson"@en.
-<4884b34a1ef75d6b7cd2ad10d7225735casovy-zacatek-popisekShape> a sh:PropertyShape;
+<47a29c86c5f445146aef364f0619cfb8casovy-zacatek-popisekShape> a sh:PropertyShape;
     sh:description "Začátek"@cs;
     sh:name "Začátek uveden v čase"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Zacatek_cas>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
-<92165121ede44fc75ab253471433bc8evyucovaci-hodinaShape> sh:property <4884b34a1ef75d6b7cd2ad10d7225735casovy-zacatek-popisekShape>.
-<b49fc435a9dcb5bc2c9a3b2b3362fa9akonec-cas-popisekShape> a sh:PropertyShape;
+<cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape> sh:property <47a29c86c5f445146aef364f0619cfb8casovy-zacatek-popisekShape>.
+<bd55148718bc1da1d49f0381fa1b8831konec-cas-popisekShape> a sh:PropertyShape;
     sh:description "Konec"@cs;
     sh:name "Konec v čase"@cs;
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Konec_cas>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
-<92165121ede44fc75ab253471433bc8evyucovaci-hodinaShape> sh:property <b49fc435a9dcb5bc2c9a3b2b3362fa9akonec-cas-popisekShape>.
-<7062b5dfd8a24c0c3bb9dbd9bbbc4179vyucovaci-hodina-popisekShape> sh:node <92165121ede44fc75ab253471433bc8evyucovaci-hodinaShape>.
-<320d3b0c275524a41ebfa92395ee8d2cosobaShape> sh:property <7062b5dfd8a24c0c3bb9dbd9bbbc4179vyucovaci-hodina-popisekShape>.
+<cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape> sh:property <bd55148718bc1da1d49f0381fa1b8831konec-cas-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66vyucovaci-hodina-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape>.
+<2da40eef3feaff877bb3b51ed1214374osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66vyucovaci-hodina-popisekShape>.

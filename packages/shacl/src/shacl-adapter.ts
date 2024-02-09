@@ -123,7 +123,7 @@ export class ShaclAdapter {
   protected insidesString: string = "";
   protected baseURL: string = "";
   protected uniquePredicateClass = null;
-  protected uniquePredicatePredicate = null;
+  protected uniquePredicatePredicate  = null;
   protected root : StructureModelClass = null;
   protected rootName = null;
 
@@ -212,18 +212,18 @@ export class ShaclAdapter {
       namedNode('http://www.w3.org/ns/shacl#NodeShape')
     );
     // FOR TARGETTING in lower level
-    if(root == this.uniquePredicateClass){
+    if((this.uniquePredicateClass) && root == this.uniquePredicateClass){
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetClass'),
         namedNode( root.cimIri)
       );
     }
-    if(root == this.uniquePredicatePredicate){
+    if((this.uniquePredicatePredicate) && root == this.uniquePredicatePredicate.uniquepropclass){
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetSubjectsOf'),
-        namedNode( this.uniquePredicatePredicate.cimIri)
+        namedNode( this.uniquePredicatePredicate.predicate.cimIri)
       );
     }
     switch(root.instancesSpecifyTypes){
@@ -499,7 +499,7 @@ export class ShaclAdapter {
 
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
-    var md5String = md5(root.cimIri+root.psmIri);
+    var md5String = md5(root.psmIri);
     const technicalName = this.irify(root);
 
     // UNCOMMENT WHEN N3 library supports @base
@@ -659,7 +659,7 @@ export class ShaclAdapter {
 
     if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
       // USE CASE #1
-      //console.log("DOING USE CASE 1 " + this.rootName);
+      console.log("DOING USE CASE 1 " + this.rootName);
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetClass'),
@@ -667,7 +667,7 @@ export class ShaclAdapter {
       );
     } else if(hasUniquePredicates(cls)){
       // USE CASE #2
-      //console.log("DOING USE CASE 2 " + this.rootName);
+      console.log("DOING USE CASE 2 " + this.rootName);
       const cimOfUniquePredicate = getUniquePredicate(cls);
       this.writer.addQuad(
         namedNode( classNameIri),
@@ -677,13 +677,15 @@ export class ShaclAdapter {
   
     } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
       // USE CASE #3
-      //console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
+      console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
       this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
-      //console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
+      console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
     } else if(anyPredicateHasUniquePredicates(cls)){
       // USE CASE #4
-      //console.log("DOING USE CASE 4 " + this.rootName);
+      console.log("DOING USE CASE 4 " + this.rootName);
       this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
+      const predicate = this.uniquePredicatePredicate as StructureModelProperty;
+      console.log("DOING USE CASE 4 unique predicate from predicate: " + predicate.cimIri);
     } else{
       //console.log("DOING USE CASE 5 " + this.rootName);
       // CANNOT TARGET THE SHAPE, fail to generate the artifact
