@@ -1,0 +1,14 @@
+@prefix : <http://example.com/>.
+@prefix schema: <http://schema.org/>.
+
+:alice schema:name           "Alice" ;            #  Passes as a :User
+       schema:gender         schema:Female ;
+       schema:knows          :bob .
+
+:bob   schema:gender         schema:Male ;        #  Passes as a :User
+       schema:name           "Robert";
+       schema:birthDate      "1980-03-10"^^xsd:date .
+
+:carol schema:name           "Carol" ;            #  Passes as a :User
+       schema:gender         "unspecified" ;
+       foaf:name             "Carol" .
