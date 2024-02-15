@@ -29,7 +29,7 @@ import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
 import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
+import {ShaclGenerator, ShexGenerator, ShexMapGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
 
@@ -282,6 +282,13 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(ShexGenerator.IDENTIFIER)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: ShexGenerator.IDENTIFIER})}
                     setLive={v => (v ? add : del)(ShexGenerator.IDENTIFIER)}
+                />
+                <GeneratedArtifactItem
+                    title={"ShEx Map"}
+                    generator={ShexMapGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(ShexMapGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: ShexMapGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(ShexMapGenerator.IDENTIFIER)}
                 />
                 <Divider />
                 <GeneratedArtifactItem

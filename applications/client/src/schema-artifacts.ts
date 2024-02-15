@@ -160,6 +160,17 @@ export function getSchemaArtifacts(
         artifacts.push(shex);
     }
 
+    const shexMap = new DataSpecificationSchema();
+    shexMap.iri = `${psmSchemaIri}#shex-map`;
+    shexMap.outputPath = `${basePath}/validation.shexmap`;
+    shexMap.publicUrl = `${baseUrl}/validation.shexmap`;
+    shexMap.generator = "https://schemas.dataspecer.com/generator/shex-map";
+    shexMap.psm = psmSchemaIri;
+    shexMap.configuration = configuration;
+    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+        artifacts.push(shexMap);
+    }
+
     const openapi = new DataSpecificationSchema();
     openapi.iri = `${psmSchemaIri}#openapi`;
     openapi.outputPath = `${basePath}/openapi-specification.yaml`;

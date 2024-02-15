@@ -10,7 +10,7 @@ import {XmlCommonSchemaGenerator} from "@dataspecer/xml/xml-common-schema";
 import {XsltLiftingGenerator, XsltLoweringGenerator} from "@dataspecer/xml/xml-transformations";
 import {CsvSchemaGenerator} from "@dataspecer/csv/csv-schema";
 import {RdfToCsvGenerator} from "@dataspecer/csv/rdf-to-csv";
-import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
+import {ShaclGenerator, ShexGenerator, ShexMapGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
 import {TemplateArtifactGenerator} from "@dataspecer/template-artifact";
@@ -40,6 +40,7 @@ export function getArtefactGenerators() {
 
         // Generators that need backend support
         new ShexGenerator(),
+        new ShexMapGenerator(),
 
         // Generators that need backend support
         new PlantUmlImageGenerator(),
