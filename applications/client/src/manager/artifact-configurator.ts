@@ -6,7 +6,6 @@ import {BikeshedHtmlGenerator, ExtendsArtefact} from "./artifacts/bikeshed-html-
 import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import { DefaultTemplateArtifactConfiguration } from "@dataspecer/template-artifact/configuration";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {
   public async generateFor(
