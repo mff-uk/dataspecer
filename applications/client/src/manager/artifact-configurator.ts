@@ -86,9 +86,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       respec.artefacts = artifacts.map(a => a.iri);
       // @ts-ignore
       respec.templateType = "respec";
-      respec.configuration = {...configuration,
-          "template-artifact": DefaultTemplateArtifactConfiguration
-      };
+      respec.configuration = configuration;
       artifacts.push(respec);
     }
 
