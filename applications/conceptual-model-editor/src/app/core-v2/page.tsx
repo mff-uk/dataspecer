@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+    SemanticModelRelationship,
+    SemanticModelGeneralization,
+    isSemanticModelClass,
+    isSemanticModelGeneralization,
+    isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { ModelGraphContext } from "./context/graph-context";
 import Header from "./header";
 import { Visualization } from "./visualization";
 import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { VisualizationContext } from "./context/visualization-context";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
 import { EntityCatalog } from "./catalog/entity-catalog";
-import { Position } from "./visualization/position";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { ModelCatalog } from "./catalog/model-catalog";
 import { randomColorFromPalette } from "../utils/color-utils";
@@ -29,8 +33,6 @@ const Page = () => {
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [attributes, setAttributes] = useState<SemanticModelRelationship[]>([]); // useState(new Map<string, SemanticModelRelationship[]>()); // conceptId -> relationship[]
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
-    const [hideOwlThing, setHideOwlThing] = useState(false);
-    const [classPositionMap, setClassPositionMap] = useState(new Map<string, Position>());
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
 
     const { packageId, setPackage } = usePackageSearch();
@@ -81,6 +83,54 @@ const Page = () => {
         return () => setModels(new Map<string, EntityModel>());
     }, [packageId]);
 
+    useEffect(() => {
+        const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
+            const clsses = new Map(
+                [...models.keys()]
+                    .map((modelId) =>
+                        Object.values(models.get(modelId)!.getEntities())
+                            .filter(isSemanticModelClass)
+                            .map((c) => ({ cls: c, origin: modelId }))
+                    )
+                    .flat()
+                    .map((cls) => [cls.cls.id, cls])
+            );
+            const { rels, atts } = [...models.keys()]
+                .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
+                .flat()
+                .reduce(
+                    ({ rels, atts }, curr, i, arr) => {
+                        if (
+                            curr.ends[1]?.concept == null ||
+                            /* TODO: tohle vykuchej, az zjistis, jak to pridat spravne */ curr.ends[1]?.concept == ""
+                        ) {
+                            return { rels, atts: atts.concat(curr) };
+                        }
+                        return { rels: rels.concat(curr), atts };
+                    },
+                    { rels: [] as SemanticModelRelationship[], atts: [] as SemanticModelRelationship[] }
+                );
+            setClasses(clsses);
+            setRelationships(rels);
+            setAttributes(atts);
+            setGeneralizations(
+                [...models.keys()]
+                    .map((modelId) =>
+                        Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelGeneralization)
+                    )
+                    .flat()
+            );
+        };
+        // TODO: tady udelej nejakej chytrejsi callback
+        // staci, aby se pridaly a odebraly tridy, neni potreba
+        const callToUnsubscribe = aggregatorView?.subscribeToChanges(callback);
+
+        callback([], []);
+        return () => {
+            callToUnsubscribe();
+        };
+    }, [models, aggregatorView]);
+
     return (
         <>
             <ModelGraphContext.Provider
@@ -108,20 +158,16 @@ const Page = () => {
                         setGeneralizations,
                     }}
                 >
-                    <VisualizationContext.Provider
-                        value={{ hideOwlThing, setHideOwlThing, classPositionMap, setClassPositionMap }}
-                    >
-                        <Header />
-                        <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                            <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                                <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
-                                    <ModelCatalog />
-                                    <EntityCatalog />
-                                </div>
-                                <Visualization />
+                    <Header />
+                    <main className="h-[calc(100%-48px)] w-full bg-teal-50">
+                        <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                            <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
+                                <ModelCatalog />
+                                <EntityCatalog />
                             </div>
-                        </main>
-                    </VisualizationContext.Provider>
+                            <Visualization />
+                        </div>
+                    </main>
                 </ClassesContext.Provider>
             </ModelGraphContext.Provider>
         </>

@@ -2,7 +2,6 @@ import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { BackendPackageService, PackageEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
-import { getOneNameFromLanguageString } from "./util/utils";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
@@ -37,7 +36,7 @@ export const useBackendConnection = () => {
             tags: [],
         } as PackageEditable);
         console.log(pkg);
-        alert(`package ${pkg.id}-${getOneNameFromLanguageString(pkg.name).t} logged to console`);
+        alert(`package ${pkg.id}-${packageNameCs} logged to console`);
         return pkg;
     };
 

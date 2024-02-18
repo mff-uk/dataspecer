@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useModelGraphContext } from "./context/graph-context";
+import { useModelGraphContext } from "../context/graph-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { useViewParam } from "./util/view-param";
+import { useViewParam } from "../util/view-param";
 
 export const ViewManagement = () => {
     const { aggregatorView, aggregator, setAggregatorView, addVisualModelToGraph } = useModelGraphContext();

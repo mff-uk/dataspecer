@@ -5,7 +5,7 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
-import { AssociationConnectionType, GeneralizationConnectionType } from "../util/connection";
+import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/graph-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";

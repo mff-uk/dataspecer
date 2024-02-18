@@ -1,8 +1,8 @@
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { getNameOf, getDescriptionOf, clickedInside } from "../util/utils";
+import { clickedInside } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
-import { getNameOfThingInLang } from "../util/language-utils";
+import { getDescriptionOfThingInLang, getLanguagesForNamedThing, getNameOfThingInLang } from "../util/language-utils";
 
 export const useEntityDetailDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -27,13 +27,18 @@ export const useEntityDetailDialog = () => {
     };
 
     const EntityDetailDialog = () => {
-        const clsName = getNameOf(viewedClass);
+        const [currentLang, setCurrentLang] = useState("en");
 
-        // const [currentLang, setCurrentLang] = useState("en");
-        // const clsNameOrFallback = getNameOfThingInLang(viewedClass, currentLang);
-        // const clsName = typeof clsNameOrFallback == "string" ? clsNameOrFallback : null;
-        // const fallbackName = clsNameOrFallback == null ? null : (clsNameOrFallback as { name: string; lang: string });
-        // const fallback = viewedClass.iri ?? viewedClass.id;
+        const langs = getLanguagesForNamedThing(viewedClass);
+        const [name, fallbackLang] = getNameOfThingInLang(viewedClass, currentLang);
+        const [description, fallbackDescriptionLang] = getDescriptionOfThingInLang(viewedClass, currentLang);
+
+        let displayDescription = "no description";
+        if (description && !fallbackDescriptionLang) {
+            displayDescription = description;
+        } else if (description && fallbackDescriptionLang) {
+            displayDescription = `${description}@${fallbackDescriptionLang}`;
+        }
 
         const { attributes: a } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedClass.id);
@@ -55,27 +60,43 @@ export const useEntityDetailDialog = () => {
                 }}
             >
                 <div>
-                    <h5>
-                        Detail of: {clsName?.t ?? "unknown name"}
-                        {clsName?.l ? "@" + clsName.l : ""}
-                        {/* Detail of: {clsName ?? fallback}
-                        {clsName ?? fallbackName?.name ?? fallback} */}
-                    </h5>
-                    <p className=" text-gray-500">{viewedClass.iri}</p>
+                    <h5>Detail of: {name + (fallbackLang ? `@${fallbackLang}` : "")}</h5>
+                    <div className="grid grid-cols-[80%_20%] grid-rows-1">
+                        <p className=" text-gray-500">{viewedClass.iri}</p>
+                        <div>
+                            <select
+                                name="models"
+                                id="models"
+                                onChange={(e) => setCurrentLang(e.target.value)}
+                                defaultValue={currentLang}
+                            >
+                                {langs.map((lang) => (
+                                    <option value={lang}>{lang}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <p>type: {viewedClass.type}</p>
-                <p>
-                    {getDescriptionOf(viewedClass).t}@{getDescriptionOf(viewedClass).l}
-                </p>
+                <p>{displayDescription}</p>
                 <p>
                     attributes:
                     {attributes.map((v) => {
                         const attr = v.ends.at(1)!;
-                        const name = getNameOf(attr);
-                        const description = getDescriptionOf(attr);
+                        const [name, fallbackLang] = getNameOfThingInLang(attr, currentLang);
+                        const [attributeDescription, fallbackAttributeDescriptionLang] =
+                            getDescriptionOfThingInLang(attr);
+
+                        let descr = "";
+                        if (attributeDescription && !fallbackAttributeDescriptionLang) {
+                            descr = attributeDescription;
+                        } else if (attributeDescription && fallbackAttributeDescriptionLang) {
+                            descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
+                        }
+
                         return (
-                            <div title={description?.t}>
-                                {name?.t}@{name?.l}
+                            <div title={descr}>
+                                {name}@{fallbackLang}
                             </div>
                         );
                     })}

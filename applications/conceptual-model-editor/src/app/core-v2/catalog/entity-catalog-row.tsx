@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SemanticModelClassWithOrigin } from "../context/classes-context";
-import { getNameOf, shortenStringTo } from "../util/utils";
+import { shortenStringTo } from "../util/utils";
 import { getNameOfThingInLang } from "../util/language-utils";
 
 export const EntityRow = (props: {
@@ -14,27 +14,34 @@ export const EntityRow = (props: {
     addToViewHandler: () => void;
     removeFromViewHandler: () => void;
     isVisibleOnCanvas: () => boolean;
+    removable: null | {
+        remove: () => void;
+    };
 }) => {
     const [isVisible, setIsVisible] = useState(props.isVisibleOnCanvas());
     const [isExpanded, setIsExpanded] = useState(props.expandable?.expanded());
 
     const cls = props.cls.cls;
     const iri = props.cls.cls.iri;
-    const nameOrNull = getNameOf(cls);
-    const name = nameOrNull ? nameOrNull.t : shortenStringTo(iri, 30);
 
-    // const [name, lang, is] = getNameOfThingInLang(cls, "en")
+    const [name, fallbackLang] = getNameOfThingInLang(cls, "en");
 
-    // const nameOrNull = getNameOf(cls);
-    // const name = nameOrNull ? nameOrNull.t : shortenStringTo(iri, 30);
+    let displayName: string;
+    if (name && !fallbackLang) {
+        displayName = name;
+    } else if (name && fallbackLang) {
+        displayName = `${name}@${fallbackLang}`;
+    } else {
+        displayName = shortenStringTo(iri, 30) || "no-name";
+    }
 
     return (
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
-            <span title={iri ?? ""}>
+            <span className="overflow-x-clip" title={iri ?? ""}>
                 <a href={iri ? iri : "#"} target="_blank">
                     📑
                 </a>
-                {name}
+                {displayName}
             </span>
             <div className="ml-2 flex flex-row bg-teal-300 px-1">
                 {props.expandable && (
@@ -48,8 +55,13 @@ export const EntityRow = (props: {
                             setIsExpanded(props.expandable.expanded());
                         }}
                     >
-                        {isExpanded ? "❌ " : "✅ "}
+                        {!isExpanded ? "❌ " : "✅ "}
                         Expand
+                    </button>
+                )}
+                {props.removable && (
+                    <button className="ml-0.5" onClick={props.removable.remove}>
+                        🗑
                     </button>
                 )}
                 {props.modifiable && (

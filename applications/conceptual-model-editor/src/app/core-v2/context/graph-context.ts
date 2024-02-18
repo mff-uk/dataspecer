@@ -1,14 +1,9 @@
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { LanguageString } from "@dataspecer/core/core";
-
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createClass, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
-import { getOneNameFromLanguageString } from "../util/utils";
-import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
-import { DCTERMS_MODEL_ID, LOCAL_MODEL_ID, SGOV_MODEL_ID } from "../util/constants";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
@@ -64,12 +59,13 @@ export const useModelGraphContext = () => {
     const addClassToModel = (
         model: InMemorySemanticModel,
         name: LanguageString,
+        iri: string,
         description: LanguageString | undefined
     ) => {
         const result = model.executeOperation(
             createClass({
                 name: name,
-                iri: "https://my-fake.iri.com/" + getOneNameFromLanguageString(name).t,
+                iri: iri,
                 description: description,
             })
         );

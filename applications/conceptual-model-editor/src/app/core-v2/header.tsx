@@ -1,8 +1,8 @@
 import Link from "next/link";
 import React, { Children } from "react";
-import { PackageManagement } from "./package-management";
-import { ViewManagement } from "./view-management";
-import { ExportManagement } from "./export-management";
+import { PackageManagement } from "./management/package-management";
+import { ViewManagement } from "./management/view-management";
+import { ExportManagement } from "./management/export-management";
 
 const Logo = () => {
     return (

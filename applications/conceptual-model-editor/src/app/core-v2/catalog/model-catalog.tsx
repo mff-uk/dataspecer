@@ -2,7 +2,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/graph-context";
-import { useAddModelDialog } from "../dialogs/add-model-dialog";
+import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { shortenStringTo } from "../util/utils";
 
@@ -48,7 +48,7 @@ export const ModelCatalog = () => {
             type="button"
             className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
-            + <span className=" font-mono">Model</span>
+            + <span className="font-mono">Model</span>
         </button>
     );
 
@@ -59,7 +59,7 @@ export const ModelCatalog = () => {
             type="button"
             className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
-            + <span className=" font-mono">{props.modelType}</span>
+            + <span className="font-mono">{props.modelType}</span>
         </button>
     );
 
@@ -77,8 +77,8 @@ export const ModelCatalog = () => {
 
     return (
         <>
-            <div className="overflow-y-scroll bg-teal-100">
-                <h3 className=" font-semibold">Add Model Section</h3>
+            <div className="min-w-24 overflow-y-scroll bg-teal-100">
+                <h3 className="font-semibold">Add Model Section</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index}>

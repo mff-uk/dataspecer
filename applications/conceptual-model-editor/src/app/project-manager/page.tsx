@@ -28,7 +28,7 @@ const Page = () => {
             tags: [],
         } as PackageEditable);
         console.log(pkg);
-        alert(`package ${pkg.id}-${getOneNameFromLanguageString(pkg.name).t} logged to console`);
+        alert(`package ${pkg.id}-${packageNameCs} logged to console`);
         return pkg;
     };
 

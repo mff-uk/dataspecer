@@ -7,11 +7,13 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import {
     createGeneralization,
     createRelationship,
+    deleteEntity,
+    modifyClass,
     modifyGeneralization,
     modifyRelation,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
-import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/connection";
+import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { LOCAL_MODEL_ID } from "../util/constants";
 
 export type ClassesContextType = {
@@ -77,6 +79,11 @@ export const useClassesContext = () => {
         return result.success;
     };
 
+    const deleteEntityFromModel = (model: InMemorySemanticModel, entityId: string) => {
+        const result = model.executeOperation(deleteEntity(entityId));
+        return result.success;
+    };
+
     return {
         classes,
         setClasses,
@@ -90,5 +97,6 @@ export const useClassesContext = () => {
         setGeneralizations,
         createConnection,
         addAttribute,
+        deleteEntityFromModel,
     };
 };

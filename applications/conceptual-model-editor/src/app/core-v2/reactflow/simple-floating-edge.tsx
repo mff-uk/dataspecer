@@ -9,9 +9,10 @@ import {
     MarkerType,
 } from "reactflow";
 
-import { getEdgeParams } from "./utils";
+import { getEdgeParams, getLoopPath } from "./utils";
 import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getNameOf } from "../util/utils";
+import { getNameOfThingInLangOrIri } from "../util/language-utils";
+import { number, string } from "zod";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -50,23 +51,28 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 
     const { sx, sy, tx, ty, sourcePos, targetPos } = getEdgeParams(sourceNode, targetNode);
 
-    const [edgePath, labelX, labelY] =
-        d.type == "r"
-            ? getSimpleBezierPath({
-                  sourceX: sx,
-                  sourceY: sy,
-                  sourcePosition: sourcePos,
-                  targetPosition: targetPos,
-                  targetX: tx,
-                  targetY: ty,
-              })
-            : getStraightPath({
-                  sourceX: sx,
-                  sourceY: sy,
-                  targetX: tx,
-                  targetY: ty,
-              });
+    let edgePath: string, labelX: number, labelY: number;
 
+    if (sourceNode.id == targetNode.id) {
+        [edgePath, labelX, labelY] = getLoopPath(sourceNode, targetNode, d.type == "r" ? "rel" : "gen");
+    } else {
+        [edgePath, labelX, labelY] =
+            d.type == "r"
+                ? getSimpleBezierPath({
+                      sourceX: sx,
+                      sourceY: sy,
+                      sourcePosition: sourcePos,
+                      targetPosition: targetPos,
+                      targetX: tx,
+                      targetY: ty,
+                  })
+                : getStraightPath({
+                      sourceX: sx,
+                      sourceY: sy,
+                      targetX: tx,
+                      targetY: ty,
+                  });
+    }
     return (
         <>
             <path
@@ -109,22 +115,24 @@ export const semanticModelRelationshipToReactFlowEdge = (
     rel: SemanticModelRelationship,
     color: string | undefined,
     index: number = 6.9
-) =>
-    ({
+) => {
+    const [name] = getNameOfThingInLangOrIri(rel, rel.iri ?? "no-iri");
+    return {
         id: rel.id,
         source: rel.ends[0]!.concept,
         target: rel.ends[1]!.concept,
-        markerEnd: { type: MarkerType.Arrow },
+        markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: getNameOf(rel)?.t ?? rel.iri ?? "no-name-or-iri",
+            label: name,
             type: "r",
             cardinalitySource: rel.ends[0]?.cardinality?.toString(),
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
             bgColor: color,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 2, stroke: color },
-    } as Edge);
+    } as Edge;
+};
 
 export const semanticModelGeneralizationToReactFlowEdge = (
     gen: SemanticModelGeneralization,
@@ -135,8 +143,8 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         id: gen.id,
         source: gen.child,
         target: gen.parent,
-        markerEnd: { type: MarkerType.ArrowClosed, color: color || "maroon" },
+        markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: color || "maroon" },
         type: "floating",
-        data: { label: "generalization", type: "g" } satisfies SimpleFloatingEdgeDataType,
+        data: { label: "", type: "g" } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
     } as Edge);

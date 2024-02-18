@@ -21,7 +21,7 @@ import { isAttribute } from "./util/utils";
 import { tailwindColorToHex } from "../utils/color-utils";
 
 import "reactflow/dist/style.css";
-import { useCreateConnectionDialog } from "./dialogs/create-connection-dialog";
+import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
 import { useModelGraphContext } from "./context/graph-context";
 import {
     SemanticModelClass,
@@ -35,14 +35,17 @@ import { Entity } from "@dataspecer/core-v2/entity-model";
 import { useClassesContext } from "./context/classes-context";
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 
-import { useEntityDetailDialog } from "./dialogs/entity-detail-dialog";
-import { AggregatedEntityWrapper } from "node_modules/@dataspecer/core-v2/lib/src/semantic-model/aggregator/aggregator";
+import { useEntityDetailDialog } from "./dialog/entity-detail-dialog";
+import { useModifyEntityDialog } from "./dialog/modify-entity-dialog";
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
     const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
+    const { ModifyEntityDialog, isModifyEntityDialogOpen, openModifyEntityDialog } = useModifyEntityDialog();
+
     const { classes, relationships, attributes, generalizations } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
@@ -80,7 +83,7 @@ export const Visualization = () => {
         if (!modelId) {
             return;
         }
-        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)); // fixme: jak lip vyvolat change na vsech entitach? 😅
+        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId)!); // fixme: jak lip vyvolat change na vsech entitach? 😅
     };
 
     useEffect(() => {
@@ -123,7 +126,8 @@ export const Visualization = () => {
                     pos,
                     originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
                     localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id).map((attr) => attr.ends[1]!),
-                    openEntityDetailDialog
+                    openEntityDetailDialog,
+                    (cls: SemanticModelClass) => openModifyEntityDialog(cls)
                 );
             };
 
@@ -137,6 +141,7 @@ export const Visualization = () => {
             for (const r in removed) {
                 // todo
             }
+            console.log(removed);
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null; // FIXME: tohle je debilni, v updated by uz mohla behat visual informace
@@ -170,14 +175,6 @@ export const Visualization = () => {
                         }
                         continue;
                     }
-                    // const sourceModel = [...localModels.values()].find((m) =>
-                    //     [...Object.entries(m.getEntities())].find((e) => e[1].id == entity.id)
-                    // );
-                    // if (!sourceModel?.getId()) {
-                    //     console.error("didnt find model that has entity", entity, sourceModel, localClasses);
-                    //     continue;
-                    // }
-                    // const e = getEdge(entity, localActiveVisualModel?.getColor(sourceModel.getId()));
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");
@@ -247,6 +244,7 @@ export const Visualization = () => {
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
+            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
 
             <div className="h-full w-full">
                 <ReactFlow

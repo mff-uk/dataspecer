@@ -7,16 +7,15 @@ import { shortenStringTo } from "../util/utils";
 import { EntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/graph-context";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useEntityDetailDialog } from "../dialogs/entity-detail-dialog";
-import { getRandomName } from "~/app/utils/random-gen";
-import { useModifyEntityDialog } from "../dialogs/modify-entity-dialog";
+import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
+import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
-import { useCreateClassDialog } from "../dialogs/create-class-dialog";
+import { useCreateClassDialog } from "../dialog/create-class-dialog";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
-    const { classes, allowedClasses, setAllowedClasses } = useClassesContext();
-    const { aggregatorView, addClassToModel } = useModelGraphContext();
+    const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
+    const { aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
@@ -67,16 +66,16 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const handleAddClassToActiveView = (classId: string) => {
         const updateStatus = activeVisualModel?.updateEntity(classId, { visible: true });
         if (!updateStatus) {
-            aggregatorView?.getActiveVisualModel()?.addEntity({ sourceEntityId: classId });
+            activeVisualModel?.addEntity({ sourceEntityId: classId });
         }
     };
 
     const handleRemoveClassFromActiveView = (classId: string) => {
-        aggregatorView?.getActiveVisualModel()?.updateEntity(classId, { visible: false });
+        activeVisualModel?.updateEntity(classId, { visible: false });
     };
 
     const handleOpenModification = (model: InMemorySemanticModel, cls: SemanticModelClass) => {
-        openModifyEntityDialog(model, cls);
+        openModifyEntityDialog(cls, model);
     };
 
     const classesLength = classes.size;
@@ -87,7 +86,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 // expandable-row, e.g. slovník.gov.cz
                 <EntityRow
                     cls={cwo}
-                    key={clsId + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    key={clsId + activeVisualModel?.getId() + classesLength}
                     expandable={{
                         toggleHandler: () => toggleAllow(model, clsId),
                         expanded: () => allowedClasses.includes(clsId),
@@ -96,9 +95,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     modifiable={null}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
-                    isVisibleOnCanvas={() =>
-                        aggregatorView.getActiveVisualModel()?.getVisualEntity(clsId)?.visible ?? false
-                    }
+                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false}
+                    removable={null}
                 />
             ));
     } else if (model instanceof InMemorySemanticModel) {
@@ -108,15 +106,18 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 // modifiable-row, e.g. local
                 <EntityRow
                     cls={cwo}
-                    key={clsId + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    key={clsId + activeVisualModel?.getId() + classesLength}
                     expandable={null}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
                     modifiable={{ openModificationHandler: () => handleOpenModification(model, cwo.cls) }}
                     addToViewHandler={() => handleAddClassToActiveView(clsId)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
-                    isVisibleOnCanvas={() =>
-                        aggregatorView.getActiveVisualModel()?.getVisualEntity(clsId)?.visible ?? false
-                    }
+                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false}
+                    removable={{
+                        remove: () => {
+                            deleteEntityFromModel(model, clsId);
+                        },
+                    }}
                 />
             ))
             .concat(
@@ -134,15 +135,14 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 // non-expandable, e.g. dcat
                 <EntityRow
                     cls={v}
-                    key={v.cls.id + aggregatorView.getActiveVisualModel()?.getId() + classesLength}
+                    key={v.cls.id + activeVisualModel?.getId() + classesLength}
                     expandable={null}
                     openDetailHandler={() => openEntityDetailDialog(v.cls)}
                     modifiable={null}
                     addToViewHandler={() => handleAddClassToActiveView(v.cls.id)}
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
-                    isVisibleOnCanvas={() =>
-                        aggregatorView.getActiveVisualModel()?.getVisualEntity(v.cls.id)?.visible ?? false
-                    }
+                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(v.cls.id)?.visible ?? false}
+                    removable={null}
                 />
             ));
     }
