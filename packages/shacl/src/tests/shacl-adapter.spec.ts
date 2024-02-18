@@ -4,7 +4,8 @@ import * as Support from "./support/testSupport";
 const testType = "allPrimitiveDatatypesNegative";
 const modelCreator = new AllPrimitiveTypesModelCreator();
 
-test.skip('Test SHACL ', async () => {
-  const validation = await Support.testPositive(testType, modelCreator); expect(validation.conforms).toBe(true);
+test('Test SHACL against data - all primitive types NEGATIVE', async () => {
+  const validation = await Support.testFromData(testType, modelCreator);
+  expect(validation.conforms).toBe(false);
 });
 

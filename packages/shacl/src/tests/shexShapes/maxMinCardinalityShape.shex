@@ -1,0 +1,12 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> NonLiteral{
+	a [<https://slovník.gov.cz/datový/události/pojem/událost>] ;
+	<https://slovník.gov.cz/datový/události/pojem/dlouhý-popis> xsd:string +
+		// rdfs:label	"Dlouhý popis"
+		// rdfs:comment	"Dlouhý popis události" ;
+	<https://slovník.gov.cz/datový/události/pojem/registrace> xsd:boolean
+		// rdfs:label	"Registrace"
+		// rdfs:comment	"Zda je nutná registrace"
+}

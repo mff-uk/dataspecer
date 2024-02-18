@@ -1,10 +1,10 @@
 import * as Support from "./support/testSupport";
-import  IsReverse from "./support/IsReverseModelCreator";
+import NestedClosedShapeModelCreator from "./support/NestedClosedModelCreator";
 
-const testType = "isReverseNegative";
-const modelCreator = new IsReverse();
+const testType = "nestedClosedNegative";
+const modelCreator = new NestedClosedShapeModelCreator();
 
-test('Shape conforms to SxEx standard - isReverseNegative', async () => {
+test('Shape conforms to SxEx standard - nestedClosedNegative', async () => {
 
   //const validationReportStatus = Support.testShexShape(testType, modelCreator);
   const shexTester = new Support.TestResults();
@@ -12,3 +12,4 @@ test('Shape conforms to SxEx standard - isReverseNegative', async () => {
   const parsed = JSON.parse(report.toString());
   expect(parsed[0].status).toBe("nonconformant");
 });
+

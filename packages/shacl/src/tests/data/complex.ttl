@@ -16,7 +16,7 @@ base:narozeniAUmrti a ex:Narozeni_a_umrti_class;
     ex:Umrti "1995-05-24"^^xsd:date;
     ex:znameni "Střelec".
 
-base:adresa a <http://example.com/class2/adresa>;
+base:adresa a <https://example.com/class2/adresa>;
     ex:Ulice "";
     ex:CisloPopisne 23;
     ex:Mesto "Praha";

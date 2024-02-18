@@ -1,0 +1,27 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape> NonLiteral CLOSED{
+	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/stavební-objekt>] ;
+	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu> xsd:string {1,2}
+		// rdfs:label	"Typ ochrany stavebního objektu"
+		// rdfs:comment	"Typ ochrany stavebního objektu popis" ;
+	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-stavebního-objektu> xsd:string {1,2}
+		// rdfs:label	"Typ stavebního objektu"
+		// rdfs:comment	"Typ stavebního objektu popis"
+}
+<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> NonLiteral{
+	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze>] ;
+	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze> xsd:date ?
+		// rdfs:label	"Datum vzniku území obvodu "
+		// rdfs:comment	"Datum vzniku území obvodu popis"
+}
+<5612c1873ed3a1d5024b30ff367ed370osobaShape> NonLiteral CLOSED{
+	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>] ;
+	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/je-adresou-stavebního-objektu> @<cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape>
+		// rdfs:label	"Je adresou stavebního objektu"
+		// rdfs:comment	"Je adresou stavebního objektu popisek" ;
+	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze> @<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape>
+		// rdfs:label	"Má přiřazené území městského obvodu v hlavním městě Praze"
+		// rdfs:comment	"Má přiřazené území městského obvodu v hlavním městě Praze popis"
+}

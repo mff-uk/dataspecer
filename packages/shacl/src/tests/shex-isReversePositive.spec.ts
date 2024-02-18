@@ -4,12 +4,11 @@ import  IsReverseModelCreator from "./support/IsReverseModelCreator";
 const testType = "isReverse";
 const modelCreator = new IsReverseModelCreator();
 
-test.skip('Test ShEx against data - isReverse feature POSITIVE', async () => {
-  //const validation = await Support.testShexPositive(testType, modelCreator);
-  expect(true).toBe(true);
-});
+test('Shape conforms to SxEx standard - isReverse', async () => {
 
-test.skip('Shape conforms to ShEx standard - isReverse feature', async () => {
-  const validation = await Support.testShexShape(testType, modelCreator);
-  expect(true).toBe(true);
+  //const validationReportStatus = Support.testShexShape(testType, modelCreator);
+  const shexTester = new Support.TestResults();
+  const report = await shexTester.testShexShape(testType, modelCreator);
+  const parsed = JSON.parse(report.toString());
+  expect(parsed[0].status).toBe("conformant");
 });

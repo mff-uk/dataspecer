@@ -62,7 +62,7 @@
 <47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape> a sh:PropertyShape;
     sh:description "Rozloha pozemku"@cs;
     sh:name "Rozloha pozemku v kmxkm."@cs;
-    sh:minCount 1;
+    sh:maxCount 1;
     sh:path <https://example.com/Rozloha>;
     sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape>.

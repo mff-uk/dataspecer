@@ -1,10 +1,10 @@
 import * as Support from "./support/testSupport";
-import  IsReverse from "./support/IsReverseModelCreator";
+import  MaxMinCardinalityModelCreator from "./support/MaxMinCardinalityModelCreator";
 
-const testType = "isReverseNegative";
-const modelCreator = new IsReverse();
+const testType = "maxMinCardinalityNegative";
+const modelCreator = new MaxMinCardinalityModelCreator();
 
-test('Shape conforms to SxEx standard - isReverseNegative', async () => {
+test('Shape conforms to SxEx standard - maxMinCardinalityNegative', async () => {
 
   //const validationReportStatus = Support.testShexShape(testType, modelCreator);
   const shexTester = new Support.TestResults();

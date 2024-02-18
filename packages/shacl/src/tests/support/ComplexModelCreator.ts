@@ -71,6 +71,7 @@ class ComplexModelCreator  implements ModelCreator{
 
       var street : StructureModelProperty;
       street = new StructureModelProperty();
+      street.cardinalityMin = 0;
       street.cardinalityMax = 1;
       street.cimIri = "https://example.com/Ulice";
       street.dataTypes = [stringType];
@@ -140,8 +141,8 @@ class ComplexModelCreator  implements ModelCreator{
 
       var area : StructureModelProperty;
       area = new StructureModelProperty();
-      area.cardinalityMax = 0;
-      area.cardinalityMin = 1;
+      area.cardinalityMax = 1;
+      area.cardinalityMin = 0;
       area.cimIri = "https://example.com/Rozloha";
       area.dataTypes = [decimalType];
       area.dematerialize = false;

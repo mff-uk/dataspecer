@@ -1,10 +1,10 @@
 import * as Support from "./support/testSupport";
-import  IsReverse from "./support/IsReverseModelCreator";
+import AllPrimitiveTypesModelCreator from "./support/AllPrimitiveTypesModelCreator";
 
-const testType = "isReverseNegative";
-const modelCreator = new IsReverse();
+const testType = "allPrimitiveDatatypesNegative";
+const modelCreator = new AllPrimitiveTypesModelCreator();
 
-test('Shape conforms to SxEx standard - isReverseNegative', async () => {
+test('Shape conforms to SxEx standard - allPrimitiveDatatypesNegative object', async () => {
 
   //const validationReportStatus = Support.testShexShape(testType, modelCreator);
   const shexTester = new Support.TestResults();

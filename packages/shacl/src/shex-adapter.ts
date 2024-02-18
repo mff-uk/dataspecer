@@ -200,13 +200,13 @@ export class ShexAdapter {
     var newResult = "";
 
     switch(root.instancesSpecifyTypes){
-      case "ALWAYS":  newResult = newResult.concat("\ta <" + root.cimIri + ">" );     
+      case "ALWAYS":  newResult = newResult.concat("\ta [<" + root.cimIri + ">]" );     
         break;
-      case "OPTIONAL":  newResult = newResult.concat("\ta <" + root.cimIri + "> ?" );
+      case "OPTIONAL":  newResult = newResult.concat("\ta [<" + root.cimIri + ">] ?" );
       break;
       case "NEVER": {}
       break;
-        default: newResult = newResult.concat("\ta <" + root.cimIri + ">" );
+        default: newResult = newResult.concat("\ta [<" + root.cimIri + ">]" );
     }
     
     return newResult;
@@ -374,13 +374,13 @@ export class ShexAdapter {
     }
 
     switch(cls.instancesSpecifyTypes){
-      case "ALWAYS": newResult = newResult.concat(" { a <" + cls.cimIri + "> }");
+      case "ALWAYS": newResult = newResult.concat(" { a [<" + cls.cimIri + ">] }");
       break;
-      case "OPTIONAL": newResult = newResult.concat(" { a <" + cls.cimIri + "> ? }");
+      case "OPTIONAL": newResult = newResult.concat(" { a [<" + cls.cimIri + ">] ? }");
       break;
       case "NEVER": newResult = newResult.concat(" .");
         break;
-        default: newResult = newResult.concat(" { a <" + cls.cimIri + "> }");
+        default: newResult = newResult.concat(" { a [<" + cls.cimIri + ">] }");
     }
 
     return newResult;

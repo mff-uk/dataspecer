@@ -1,15 +1,15 @@
 import * as Support from "./support/testSupport";
 import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
 
-const testType = "simpleObject";
+const testType = "simpleObjectNegative";
 const modelCreator = new SimpleObjectModelCreator();
 
-test('Shape conforms to SxEx standard - simple object', async () => {
+test('Shape conforms to SxEx standard - simpleObjectNegative', async () => {
 
   //const validationReportStatus = Support.testShexShape(testType, modelCreator);
   const shexTester = new Support.TestResults();
   const report = await shexTester.testShexShape(testType, modelCreator);
   const parsed = JSON.parse(report.toString());
-  console.log(report);
-  expect(parsed[0].status).toBe("conformant");
+  expect(parsed[0].status).toBe("nonconformant");
 });
+

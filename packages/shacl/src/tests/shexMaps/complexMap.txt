@@ -1,0 +1,1 @@
+{ "node": "http://www.example.org/vec", "shape": "https://example.org/2da40eef3feaff877bb3b51ed1214374osobaShape" }

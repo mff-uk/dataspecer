@@ -659,7 +659,7 @@ export class ShaclAdapter {
 
     if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
       // USE CASE #1
-      console.log("DOING USE CASE 1 " + this.rootName);
+      //console.log("DOING USE CASE 1 " + this.rootName);
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetClass'),
@@ -667,7 +667,7 @@ export class ShaclAdapter {
       );
     } else if(hasUniquePredicates(cls)){
       // USE CASE #2
-      console.log("DOING USE CASE 2 " + this.rootName);
+      //console.log("DOING USE CASE 2 " + this.rootName);
       const cimOfUniquePredicate = getUniquePredicate(cls);
       this.writer.addQuad(
         namedNode( classNameIri),
@@ -677,15 +677,15 @@ export class ShaclAdapter {
   
     } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
       // USE CASE #3
-      console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
+      //console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
       this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
-      console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
+      //console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
     } else if(anyPredicateHasUniquePredicates(cls)){
       // USE CASE #4
-      console.log("DOING USE CASE 4 " + this.rootName);
+      //console.log("DOING USE CASE 4 " + this.rootName);
       this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
       const predicate = this.uniquePredicatePredicate as StructureModelProperty;
-      console.log("DOING USE CASE 4 unique predicate from predicate: " + predicate.cimIri);
+      //console.log("DOING USE CASE 4 unique predicate from predicate: " + predicate.cimIri);
     } else{
       //console.log("DOING USE CASE 5 " + this.rootName);
       // CANNOT TARGET THE SHAPE, fail to generate the artifact
