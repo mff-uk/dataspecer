@@ -1,0 +1,1 @@
+{ FOCUS rdf:type <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/území-městského-obvodu-v-hlavním-městě-praze>}@<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape>

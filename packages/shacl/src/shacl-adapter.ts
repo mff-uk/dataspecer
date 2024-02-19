@@ -451,10 +451,7 @@ export class ShaclAdapter {
         }])}, {
           predicate: namedNode('http://www.w3.org/ns/shacl#node'),
           object: namedNode( this.rootName ),
-        }
-        
-        
-        
+        } 
       ])
       );
     }

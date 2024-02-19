@@ -9,4 +9,4 @@ base:uzemi a legsb:území-městského-obvodu-v-hlavním-městě-praze;
             <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> "Prvek ruian";
             legsb:má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze "Uzemi mestskeho obvodu";
             base:unikatniPredikat base:uzemiMO.
-base:uzemiMO a legsb:má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze.
+base:uzemiMO a legsb:území-městského-obvodu-v-hlavním-městě-praze.

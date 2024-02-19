@@ -12,7 +12,8 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {isTheSameEntity} from "./shacl-support.js";
+import {isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
+  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
 //import { DataFactory as DataFactoryN3 } from 'n3';
@@ -33,8 +34,8 @@ Shapes and Constraints
 Focus Nodes - focus nodes are generated as the root classes of the structure
   = Shape maps TODO == TARGETS
 
-Properties  - primitive datatypes available in the shape TODO
-            - associations available through referencing other shapes TODO
+Properties  - primitive datatypes available in the shape DONE
+            - associations available through referencing other shapes DONE
 
 Core Constraint Components
 
@@ -51,10 +52,10 @@ Core Constraint Components
       - the shape itself
       - reference a property corresponding to different shape after path 
     Nested Shapes - It is possible to avoid defining two shapes when one of them is just an auxiliary shape that is not needed elsewhere TODO
-    Other Constraint Components -- Closed property TODO
+    Other Constraint Components -- Closed property DONE
 
-    TODO: tests being sourced locally
-    TODO: typed/untyped instances in SHACL - can't rely on sh:targetClass, needs to use nested shapes.
+    DONE: Tests being sourced locally
+    TODO: typed/untyped instances in Shex - targetting with Shex
 
 */
 
@@ -91,6 +92,12 @@ export class ShexAdapter {
   protected prefixesString: string = "";
   protected insidesString: string = "";
   protected baseURL: string = "";
+  protected uniquePredicateClass = null;
+  protected uniquePredicatePredicate  = null;
+  protected pathToUniquePredicate = null;
+  protected root : StructureModelClass = null;
+  protected rootName = null;
+  protected rootShapeName = null;
 
   constructor(
     model: StructureModel,
@@ -114,7 +121,10 @@ export class ShexAdapter {
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
       this.registerClasses(root);
-      
+      this.rootShapeName = this.getIRIforShape(root);      
+      this.root = root;
+      this.decideHowToTarget(root, root.cimIri);
+
       this.generateClassConstraints(root, null);
     }
 
@@ -283,32 +293,32 @@ export class ShexAdapter {
 
           if(dt.isAttribute() == true){
             // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
-        const dtcasted = <StructureModelPrimitiveType> dt;
-        if(dtcasted != null){
-          const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
-          var datatypeString = "";
-          
-          if(datatypeFromMap != undefined){
-            datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
-            if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
-              this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
-            }
-              newResult = newResult.concat(" <" + simpleTypeMapIRI[dtcasted.dataType] + ">"); 
-            if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
-              if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
-                newResult = newResult.concat(" /" + dtcasted.regex.toString() + "/" ); 
+            const dtcasted = <StructureModelPrimitiveType> dt;
+            if(dtcasted != null){
+              const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
+              var datatypeString = "";
+              
+              if(datatypeFromMap != undefined){
+                datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
+                if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
+                  this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
+                }
+                  newResult = newResult.concat(" <" + simpleTypeMapIRI[dtcasted.dataType] + ">"); 
+                if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
+                  if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
+                    newResult = newResult.concat(" /" + dtcasted.regex.toString() + "/" ); 
+                  }
+                }
+              } else{
+                if(dtcasted.dataType != null){
+                  newResult = newResult.concat(" <" + dtcasted.dataType + ">" ); 
+                } else{
+                  // Arbitrary datatype, datatype is not enforced by user
+                  newResult = newResult.concat(" ." ); 
+                }
               }
+            
             }
-          } else{
-            if(dtcasted.dataType != null){
-              newResult = newResult.concat(" <" + dtcasted.dataType + ">" ); 
-            } else{
-              // Arbitrary datatype, datatype is not enforced by user
-              newResult = newResult.concat(" ." ); 
-            }
-          }
-        
-        }
           } else{
             for (var dt of datatypes) {
               // create new Shape and tie this property to it     
@@ -316,6 +326,11 @@ export class ShexAdapter {
               //Create Property Shape to connect to
               const nodeIRI = this.getIRIforShape(prop);
 
+              if(dtcasted.dataType == this.uniquePredicateClass){                
+                this.pathToUniquePredicate = cimiri;
+              } else if(this.uniquePredicatePredicate != null && (dtcasted.dataType == this.uniquePredicatePredicate.uniquepropclass)){
+                this.pathToUniquePredicate = cimiri;
+              }
               if(dtcasted.dataType.properties == null || dtcasted.dataType.properties.length == 0){
                 // create inner constraint just for the nodeType and Type
                 newResult = newResult.concat(this.createInnerShortConstraint(dtcasted.dataType));
@@ -357,7 +372,29 @@ export class ShexAdapter {
       }
     }
     
+    // FOR TARGETTING in lower levels
+    if(root == this.uniquePredicateClass || (this.uniquePredicatePredicate != null && (root == this.uniquePredicatePredicate.uniquepropclass))){
+      newResult = newResult.concat(";\n\t\u005E<" + this.pathToUniquePredicate + ">" + " @<" + this.rootShapeName + ">");     
+    }
+    
     return newResult;
+  }
+
+  anyPredicateMatches(cls : StructureModelClass): boolean{
+    if (cls.properties != null && cls.properties.length != 0) {
+      for (const [i, prop] of cls.properties.entries()) {
+        const datatypes = prop.dataTypes;
+        for (var dt of datatypes) {
+          if(dt.isAssociation() == true){
+            const dtcasted = <StructureModelComplexType> dt;
+            if(this.uniquePredicatePredicate != null && (dtcasted.dataType == this.uniquePredicatePredicate.uniquepropclass)){
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
   }
 
   createInnerShortConstraint(cls : StructureModelClass){
@@ -465,6 +502,22 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
     return qname;
   }
 
+  protected decideHowToTarget(cls : StructureModelClass, classNameIri : string): void {
+
+    if((cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))) || hasUniquePredicates(cls)){
+      // USE CASE #1 & #2 nothing needs to be done
+      
+    }  else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
+      // USE CASE #3
+      this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
+    } else if(anyPredicateHasUniquePredicates(cls)){
+      // USE CASE #4
+      this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
+    } else{
+      // CANNOT TARGET THE SHAPE, fail to generate the artifact  
+      throw new Error('Unable to create ShEx shape due to possible SHACL incompatibility. Either define at least one unique type of class with instance typing mandatory or define at least one unique attribute going from the root or its associations with cardinality bigger than 0.');
+    }
+  }
 
   protected registerClasses(root: StructureModelClass): void {
     // if the class is not in the list, add it

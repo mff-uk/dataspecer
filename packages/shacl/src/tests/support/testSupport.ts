@@ -27,6 +27,7 @@ export class TestResults{
     this.globalTestStatus = value;
   }
 
+
   async testShexShape(testType : string, modelCreator : ModelCreator): Promise<String>{
     await Support.prepareShexShape(modelCreator, '../shexShapes/' + testType + 'Shape.shex');
     
@@ -37,13 +38,13 @@ export class TestResults{
   
     const shapeFileName = "../shexShapes/" + testType + "Shape.shex";
     const shexc = readFileSync(join(__dirname, shapeFileName), 'utf-8');
-    console.log(shexc);
+    //console.log(shexc);
     const dataFileName = "../data/" + testType + ".ttl";
     const turtle = readFileSync(join(__dirname, dataFileName), 'utf-8');
-    console.log(turtle);
+    //console.log(turtle);
     const mapFileName = "../shexMaps/" + testType + "Map.txt";
     const shexMap = readFileSync(join(__dirname, mapFileName), 'utf-8');
-    console.log(shexMap);
+    //console.log(shexMap);
   
     const shexMapObjectFromFile = JSON.parse(shexMap) ;
     const shexMapObject = [shexMapObjectFromFile];
@@ -55,7 +56,7 @@ export class TestResults{
       new N3Parser({baseIRI: base}).parse(turtle, (error, quad, prefixes) => {
         if (quad){
           g.addQuad(quad);
-          console.log("adding quad");
+          //console.log("adding quad");
         }
         else {
           resolve(JSON.stringify(
@@ -81,6 +82,14 @@ export class TestResults{
 
 }
 
+
+export async function shexMapTest(modelCreator : ModelCreator): Promise<String>{
+  const sm = await modelCreator.createModel();
+  var sc = new ShapeCreator();
+  const shape = await sc.createShexMap(sm);
+
+  return shape;
+}
 
 export async function prepareShexShape(mc : ModelCreator, shapeFileName : string): Promise<boolean> {
   const sm = await mc.createModel();
@@ -149,102 +158,6 @@ export async function testShape(testType : string, modelCreator : ModelCreator):
   await Support.prepareShape(modelCreator, '../shapes/' + testType + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/shapes/" + testType + "Shape.ttl", Support.shapeToValidateShapesFile);
   return validation;
-}
-
-function validateShex(shapeFileName : string, mapFileName: string, dataFileName: string): String{
-  var validationReport : String = "";
-
-  const ShExParser = require('@shexjs/parser');
-  const { ctor: RdfJsDb } = require('@shexjs/neighborhood-rdfjs');
-  const {Parser: N3Parser, Store: N3Store} = require('n3');
-  const base = 'https://example.org/';
-
-  //const filename = "data/shexShape.shex";
-  const shexc = readFileSync(join(__dirname, shapeFileName), 'utf-8');
-  console.log(shexc);
-  //const filenameTurtle = "data/shexData.ttl";
-  const turtle = readFileSync(join(__dirname, dataFileName), 'utf-8');
-  console.log(turtle);
-  //const filenameMap = "data/shexMap.txt";
-  const shexMap = readFileSync(join(__dirname, mapFileName), 'utf-8');
-  console.log(shexMap);
-
-    //const shexMapObjectFromFile = JSON.parse(shexMap) ;
-
-  //const shexMapObject = [shexMapObjectFromFile];
-  const schema = ShExParser.construct(base)
-        .parse(shexc);
-  const g = new N3Store();
-  new N3Parser({baseIRI: base}).parse(turtle, (error, quad, prefixes) => {
-    if (quad){
-      g.addQuad(quad);
-      console.log("adding quad");
-    }
-    else {
-      shexValidationReport = JSON.stringify(
-        new ShExValidator(schema, RdfJsDb(g))
-          .validateShapeMap([{ node : 'https://example.org/n1', shape: 'https://example.org/S1' }]),
-        null, 2 
-      );
-      console.log(shexValidationReport);
-    }
-  });
-
-  console.log("validationReport: \n" + shexValidationReport);
-
-  return shexValidationReport;
-}
-
-function validateWithShexValidator(schema : any, shexMap : any, g : any): String{
-  return "";
-}
-
-export function testShexShape(testType : string, modelCreator : ModelCreator){
-  //await Support.prepareShexShape(modelCreator, '../shexShapes/' + testType + 'Shape.shex');
-  
-  const ShExParser = require('@shexjs/parser');
-  const { ctor: RdfJsDb } = require('@shexjs/neighborhood-rdfjs');
-  const {Parser: N3Parser, Store: N3Store} = require('n3');
-  const base = 'https://example.org/';
-
-  const shapeFileName = "../shexShapes/" + testType + "Shape.shex";
-  const shexc = readFileSync(join(__dirname, shapeFileName), 'utf-8');
-  console.log(shexc);
-  const dataFileName = "../data/" + testType + ".ttl";
-  const turtle = readFileSync(join(__dirname, dataFileName), 'utf-8');
-  console.log(turtle);
-  const mapFileName = "../shexMaps/" + testType + "Map.txt";
-  const shexMap = readFileSync(join(__dirname, mapFileName), 'utf-8');
-  console.log(shexMap);
-
-  //const shexMapObjectFromFile = JSON.parse(shexMap) ;
-  //const shexMapObject = [shexMapObjectFromFile];
-  const schema = ShExParser.construct(base)
-        .parse(shexc);
-  const g = new N3Store();
-  new N3Parser({baseIRI: base}).parse(turtle, (error, quad, prefixes) => {
-    if (quad){
-      g.addQuad(quad);
-      console.log("adding quad");
-    }
-    else {
-      shexValidationReport = JSON.stringify(
-        new ShExValidator(schema, RdfJsDb(g))
-          .validateShapeMap([{ node : 'https://example.org/n1', shape: 'https://example.org/S1' }]),
-        null, 2 
-      );
-      console.log(shexValidationReport);
-    }
-  });
-/*
-  const validationReport =  validateShex("../shexShapes/" + testType + "Shape.shex", 
-    "../shexMaps/" + testType + "Map.txt",
-    "../data/" + testType + ".ttl");
-*/
-  console.log(shexValidationReport);
-  const parsed = JSON.parse(shexValidationReport.toString());
-  const testStatus = parsed[0].status;
-  //return testStatus;
 }
 
 export async function validateDataAgainstShape( dataFileName : string, shapeFileName : string ) : Promise<ValidationReport<typeof factory>>{

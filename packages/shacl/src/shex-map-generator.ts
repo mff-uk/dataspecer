@@ -2,6 +2,7 @@ import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/gene
 import {DataSpecification, DataSpecificationArtefact,DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
+import {ShexMapAdapter} from "./shex-map-adapter.js";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
 import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
 
@@ -55,8 +56,8 @@ export class ShexMapGenerator implements ArtefactGenerator {
 
     artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
 
-    // const adapter = new ShexAdapter(model, context, artefact);
-    // return adapter.generate();
+    const adapter = new ShexMapAdapter(model, context, artefact);
+    return adapter.generate();
 
     return Promise.resolve({data: "todo"});
   }
