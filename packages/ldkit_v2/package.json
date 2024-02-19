@@ -1,0 +1,28 @@
+{
+  "name": "@dataspecer/ldkit_v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "npm run build && node ./lib/main.js",
+    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+  },
+  "author": "Viktor Bujko",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@dataspecer/backend-utils": "*",
+    "@dataspecer/core": "*",
+    "@dataspecer/core-v2": "*",
+    "@dataspecer/json": "*",
+    "jest": "^29.7.0",
+    "ts-morph": "^21.0.1"
+  }
+}

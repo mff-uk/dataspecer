@@ -1,0 +1,1 @@
+export { LdkitArtefactGenerator } from "./ldkit-generator";

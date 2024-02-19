@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node16",
+    "module": "Node16",
+    "outDir": "./lib",
+    "sourceMap": true,
+    "target": "ESNext",
+    "types": ["@types/jest"],
+  },
+  "include": [
+    "src/**/*", "src/tests/support/jsonLdCreator.ts", "node_modules/stream-chunks/chunks.js"
+  ],
+  "exclude": [
+    "src/tests/","node_modules/*","src/tests"
+  ]
+}
