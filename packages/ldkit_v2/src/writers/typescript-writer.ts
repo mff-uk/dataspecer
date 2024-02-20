@@ -1,5 +1,5 @@
-import { NewLineKind, printNode } from "ts-morph";
-import ts, { 
+import { printNode, Project, SourceFileCreateOptions } from "ts-morph";
+import ts, {
     factory,
     createPrinter,
     createSourceFile,
@@ -24,38 +24,48 @@ export class TypescriptWriter implements SourceCodeWriter {
     fileExtension: string = "ts";
 
     generateSourceFilePath(outputFileName: string) {
-        const kebabCaseOutputFileName = convertToKebabCase(outputFileName);
+        const kebabCaseOutputFileName = convertToKebabCase(`${outputFileName} ldkitschema`);
 
-        const finalOutputFilePath: string = "../../generated/" + [kebabCaseOutputFileName, this.fileExtension].join(".");
+        const finalOutputFilePath: string = "./generated/" + [kebabCaseOutputFileName, this.fileExtension].join(".");
         console.log(`Output filepath: ${finalOutputFilePath}`);
 
         return finalOutputFilePath;
     }
 
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string {
-        const printer = createPrinter({
-            newLine: NewLineKind.CarriageReturnLineFeed,
-            omitTrailingSemicolon: false,
-            removeComments: false
-        });
-    
+        // const printer = createPrinter({
+        //     newLine: NewLineKind.CarriageReturnLineFeed,
+        //     omitTrailingSemicolon: false,
+        //     removeComments: false
+        // });
+
         const ldkitSchemaSourceFile = createSourceFile(
             this.generateSourceFilePath(aggregateMetadata.aggregateName),
-            printNode(this.getLdkitSchemaNode(aggregateMetadata)),
+            printNode(this.getLdkitSchemaRootNode(aggregateMetadata)),
             ScriptTarget.Latest,
             false, /*setParentNodes*/
             ScriptKind.TS
         );
     
-        console.log(ldkitSchemaSourceFile.getFullText()); //getText(ldkitSchemaSourceFile));
+        const project = new Project();
+        console.log(ldkitSchemaSourceFile.getFullText());
+
+        project.createSourceFile(
+            this.generateSourceFilePath(aggregateMetadata.aggregateName),
+            printNode(this.getLdkitSchemaRootNode(aggregateMetadata)),
+            { scriptKind: ts.ScriptKind.TS, overwrite: true } as SourceFileCreateOptions
+
+        );
+        const sourceFileSaver: Promise<void> = project.save();
+        sourceFileSaver.then(() => console.log("Saved"))
 
         //console.log(printNode(this.getLdkitSchemaNode(aggregateMetadata), ldkitSchemaSourceFile, {emitHint: ts.EmitHint.SourceFile}));
 
-        return printNode(this.getLdkitSchemaNode(aggregateMetadata));
+        return printNode(this.getLdkitSchemaRootNode(aggregateMetadata));
     }
 
-    private getLdkitSchemaNode(metadata: AggregateMetadata): Node {
-        
+    private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
+
         const convertedAggregateSchemaName: string = convertToPascalCase(metadata.aggregateName);
         const ldkitSchemaDeclaration = factory.createVariableDeclaration(
             `${convertedAggregateSchemaName}Schema`,
@@ -101,26 +111,40 @@ export class TypescriptWriter implements SourceCodeWriter {
         const properties: ObjectLiteralElementLike[] = [];
         
         Object.entries(targetObject).map(attr => {
-            console.log("Attribute: ", attr);
+            //console.log("Attribute: ", attr);
             const [propName, prop] = attr;
             const propertyValueNode: Expression = this.getPropertyValueExpression(prop);
+            const propertyNameNode: string | ts.PropertyName = this.getPropertyNameNode(propName);
 
             properties.push(
-                factory.createPropertyAssignment(
-                    propName,
-                    propertyValueNode
-                )
+                factory.createPropertyAssignment(propertyNameNode, propertyValueNode)
             );
         });
 
         return properties;
     }
 
+    private getPropertyNameNode(name: string): string | ts.PropertyName {
+        //factory.createStringLiteral(propName), //factory.createComputedPropertyName(
+        if (!name) {
+            throw new Error("Attepmting to use non-valid string as property name");
+        }
+
+        name = name.normalize("NFD")
+            .replace(" ", "_")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        if (!name.match(/^[a-z0-9_]+$/i)) {
+            return factory.createComputedPropertyName(factory.createStringLiteral(name));
+        }
+        
+        return name;
+    }
+
     private getPropertyValueExpression(propertyValue: LdkitSchemaProperty | string | readonly string[] | any): Expression {
         
         switch (typeof propertyValue) {
             case "string":
-                //console.log(`Found string: "${propertyValue}"`);
                 const prefixMatch = undefined; //tryGetKnownDictionaryPrefix(propertyValue);
 
                 if (!prefixMatch) {
@@ -130,12 +154,10 @@ export class TypescriptWriter implements SourceCodeWriter {
                 const [prefix, entity] = prefixMatch;
                 return this.getObjectAccessExpression(prefix, entity);
             case "boolean":
-                //console.log(`Found boolean: "${propertyValue}"`);
                 return propertyValue
                     ? factory.createTrue()
                     : factory.createFalse();
             case "object":
-                //console.log("Found object: ", propertyValue);
                 return factory.createObjectLiteralExpression(this.getObjectLiteral(propertyValue), true);
             default:
                 console.log("Not supported yet: ", propertyValue);
