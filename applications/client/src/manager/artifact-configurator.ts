@@ -112,6 +112,16 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       artifacts.push(bikeshedHtml);
     }
 
+    {
+      const artifact: DataSpecificationArtefact = new DataSpecificationArtefact();
+      artifact.iri = `${dataSpecificationIri}#LDkit`;
+      artifact.outputPath = `${dataSpecificationName}/LDkit/`;
+      artifact.publicUrl = `${this.baseURL}/LDkit/`;
+      artifact.generator = "https://schemas.dataspecer.com/generator/LDkit";
+      //artifact.configuration = configuration;
+      artifacts.push(artifact);
+    }
+
 
     return artifacts;
   }

@@ -11,6 +11,7 @@
     "@dataspecer/federated-observable-store-react": "*",
     "@dataspecer/json": "*",
     "@dataspecer/json-example": "*",
+    "@dataspecer/ldkit": "*",
     "@dataspecer/openapi": "*",
     "@dataspecer/plant-uml": "*",
     "@dataspecer/rdfs-adapter": "*",

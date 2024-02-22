@@ -1,0 +1,19 @@
+{
+  "name": "@dataspecer/ldkit",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prebuild": "rimraf lib"
+  },
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "dependencies": {
+    "@dataspecer/core": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "~5.3.3"
+  }
+}
