@@ -7,6 +7,8 @@ import React, { useContext } from "react";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
+import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const bob = new SemanticModelAggregator();
 
@@ -85,6 +87,33 @@ export const useModelGraphContext = () => {
         return result.success;
     };
 
+    const createEntityUsage = (
+        model: InMemorySemanticModel,
+        entityId: string,
+        usageNote: LanguageString | null,
+        entityType: "class" | "relationship",
+        entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
+    ) => {
+        if (entityType == "class") {
+            const result = model.executeOperation(
+                createClassUsage({
+                    usageOf: entityId,
+                    usageNote: usageNote,
+                    description: "description",
+                    id: "6969420",
+                    name: "name",
+                })
+            );
+            console.log(result);
+        } else if (entityType == "relationship") {
+            const result = model.executeOperation(createRelationshipUsage({ usageOf: entityId, usageNote: usageNote }));
+            console.log(result);
+        } else {
+            console.error(model, entityId, entityType, usageNote);
+            throw new Error(`unexpected entityType ${entityType}`);
+        }
+    };
+
     const cleanModels = () => {
         setModels(new Map<string, EntityModel>());
         setVisualModels(new Map<string, VisualEntityModel>());
@@ -109,6 +138,7 @@ export const useModelGraphContext = () => {
         setAggregatorView,
         addClassToModel,
         modifyClassInAModel,
+        createEntityUsage,
         cleanModels,
         removeModelFromModels,
         visualModels,

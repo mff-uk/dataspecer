@@ -5,15 +5,11 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { clickedInside } from "../util/utils";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import {
-    getAvailableLanguagesForLanguageString,
-    getDescriptionOfThingInLang,
-    getNameOfThingInLang,
-} from "../util/language-utils";
+import { getAvailableLanguagesForLanguageString, getNameOrIriAndDescription } from "../util/language-utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 
 const AddAttributesComponent = (props: {
@@ -25,6 +21,7 @@ const AddAttributesComponent = (props: {
     const [description, setDescription] = useState({} as LanguageString);
     const [cardinality, setCardinality] = useState("");
     const [iri, setIri] = useState("https://fake-attribute-iri.xyz");
+    const { attributes } = useClassesContext();
 
     useEffect(() => {
         setNewAttribute({
@@ -66,7 +63,15 @@ const AddAttributesComponent = (props: {
                 </div>
                 <div>subpropOf:</div>
                 <select>
-                    <option value="bob">bob</option>
+                    <option>---</option>
+                    {attributes.map((a) => {
+                        const [name, descr] = getNameOrIriAndDescription(a.ends.at(1), a.iri || a.id);
+                        return (
+                            <option title={descr ?? ""} value={a.id}>
+                                {name}
+                            </option>
+                        );
+                    })}
                 </select>
             </div>
             <div className="flex flex-row justify-center">
@@ -111,7 +116,10 @@ export const useModifyEntityDialog = () => {
     };
 
     const ModifyEntityDialog = () => {
-        const [currentName, fallbackLangOfCurrentName] = getNameOfThingInLang(modifiedClass);
+        const [currentName, description] = getNameOrIriAndDescription(
+            modifiedClass,
+            modifiedClass.iri || modifiedClass.id
+        );
         const [newIri, setNewIri] = useState(modifiedClass.iri ?? ""); // FIXME: sanitize
         const { modifyClassInAModel } = useModelGraphContext();
         const [name2, setName2] = useState(modifiedClass.name);
@@ -121,11 +129,12 @@ export const useModifyEntityDialog = () => {
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
 
-        const { attributes: a } = useClassesContext();
+        const { attributes: a, deleteEntityFromModel } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == modifiedClass.id);
 
         const [wantsToAddNewAttributes, setWantsToAddNewAttributes] = useState(false);
         const [newAttributes, setNewAttributes] = useState<Partial<Omit<SemanticModelRelationship, "type">>[]>([]);
+        const [toBeRemovedAttributes, setToBeRemovedAttributes] = useState<string[]>([]);
 
         return (
             <dialog
@@ -147,14 +156,8 @@ export const useModifyEntityDialog = () => {
                 <div>
                     <div className="grid grid-cols-[25%_75%]">
                         <div>Detail of:</div>
-                        <h5
-                            className=" overflow-x-clip"
-                            title={`${currentName}@${fallbackLangOfCurrentName} (${modifiedClass.id})`}
-                        >
-                            <span className="font-semibold">
-                                {currentName}@{fallbackLangOfCurrentName}
-                            </span>{" "}
-                            ({modifiedClass.id})
+                        <h5 className=" overflow-x-clip" title={`${currentName} (${modifiedClass.id})`}>
+                            <span className="font-semibold">{currentName}</span> ({modifiedClass.id})
                         </h5>
                         <div className="font-semibold">iri:</div>
                         <input className="w-[96%]" value={newIri} onChange={(e) => setNewIri(e.target.value)} />
@@ -179,25 +182,52 @@ export const useModifyEntityDialog = () => {
                         defaultLang={getAvailableLanguagesForLanguageString(description2)[0] ?? "en"}
                     />
                     <div className="font-semibold">attributes:</div>
-                    {[...attributes, ...newAttributes].map((v) => {
-                        const attr = v?.ends?.at(1)!;
-                        const [name, fallbackLang] = getNameOfThingInLang(attr);
-                        const [attributeDescription, fallbackAttributeDescriptionLang] =
-                            getDescriptionOfThingInLang(attr);
+                    <div className="flex flex-col">
+                        <>
+                            {[...attributes].map((v) => {
+                                const attr = v.ends.at(1)!;
 
-                        let descr = "";
-                        if (attributeDescription && !fallbackAttributeDescriptionLang) {
-                            descr = attributeDescription;
-                        } else if (attributeDescription && fallbackAttributeDescriptionLang) {
-                            descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
-                        }
+                                const [name, descr] = getNameOrIriAndDescription(attr, v.iri ?? v.id);
 
-                        return (
-                            <div title={descr}>
-                                {name}@{fallbackLang}
-                            </div>
-                        );
-                    })}
+                                return (
+                                    <div
+                                        className={`flex flex-row ${
+                                            toBeRemovedAttributes.includes(v.id) ? "line-through" : ""
+                                        }`}
+                                        title={descr ?? ""}
+                                    >
+                                        {name}
+                                        <button
+                                            onClick={() => {
+                                                setToBeRemovedAttributes((prev) => prev.concat(v.id));
+                                            }}
+                                        >
+                                            🗑
+                                        </button>
+                                    </div>
+                                );
+                            })}
+
+                            {[...newAttributes].map((v) => {
+                                const attr = v?.ends?.at(1)!;
+                                // const [name, fallbackLang, descr] = getNameFallbackLangAndDescription(attr);
+
+                                const [name, descr] = getNameOrIriAndDescription(attr, v.iri ?? v.id ?? "no-iri");
+                                return (
+                                    <div className="flex flex-row" title={descr ?? ""}>
+                                        {name}
+                                        <button
+                                            onClick={() => {
+                                                setNewAttributes((prev) => prev.filter((v1) => v1 != v));
+                                            }}
+                                        >
+                                            🗑
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </>
+                    </div>
                 </div>
                 <p className="bg-slate-100">
                     <div className="flex flex-row justify-between">
@@ -224,7 +254,7 @@ export const useModifyEntityDialog = () => {
                         className=" hover:disabled:cursor-not-allowed"
                         title={wantsToAddNewAttributes ? "first save the attribute or cancel the action" : ""}
                         onClick={() => {
-                            console.log(name2, newIri, description2);
+                            console.log(name2, newIri, description2, newAttributes);
                             if (!model) {
                                 alert(`model is null`);
                                 close();
@@ -236,14 +266,18 @@ export const useModifyEntityDialog = () => {
                                 description: description2,
                             });
 
-                            // console.log(result);
+                            console.log(result);
 
-                            if (wantsToAddNewAttributes) {
-                                for (const attribute of newAttributes) {
-                                    const res = addAttribute(model, attribute);
-                                    console.log(res);
-                                }
+                            for (const attribute of newAttributes) {
+                                const res = addAttribute(model, attribute);
+                                console.log(res);
                             }
+
+                            for (const rem in toBeRemovedAttributes) {
+                                const res = deleteEntityFromModel(model, rem);
+                                console.log(res);
+                            }
+
                             close();
                         }}
                     >

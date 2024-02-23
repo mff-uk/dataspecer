@@ -7,7 +7,7 @@ import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { useClassesContext } from "../context/classes-context";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { clickedInside } from "../util/utils";

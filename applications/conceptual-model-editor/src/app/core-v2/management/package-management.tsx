@@ -3,7 +3,7 @@ import { useBackendConnection } from "../backend-connection";
 import { usePackageSearch } from "../util/package-search";
 import { Package } from "@dataspecer/core-v2/project";
 import { getOneNameFromLanguageString } from "../util/utils";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { getRandomName } from "../../utils/random-gen";
 
 export const PackageManagement = () => {

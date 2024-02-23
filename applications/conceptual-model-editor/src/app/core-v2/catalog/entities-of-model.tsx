@@ -4,21 +4,23 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { useEffect, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
 import { shortenStringTo } from "../util/utils";
-import { EntityRow } from "./entity-catalog-row";
-import { useModelGraphContext } from "../context/graph-context";
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { EntityRow, InputEntityRow } from "./entity-catalog-row";
+import { useModelGraphContext } from "../context/model-context";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
+import { useCreateUsageDialog } from "../dialog/create-usage-dialog";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
-    const { aggregatorView } = useModelGraphContext();
+    const { aggregatorView, createEntityUsage } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
+    const { isCreateUsageDialogOpen, CreateUsageDialog, openCreateUsageDialog } = useCreateUsageDialog();
 
     const [isOpen, setIsOpen] = useState(true);
     const { model } = props;
@@ -78,6 +80,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         openModifyEntityDialog(cls, model);
     };
 
+    const handleCreateUsage = (entity: SemanticModelClass | SemanticModelRelationship) => {
+        openCreateUsageDialog(entity);
+    };
+
     const classesLength = classes.size;
     if (model instanceof ExternalSemanticModel) {
         clses = [...classes.entries()]
@@ -97,8 +103,27 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
                     isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false}
                     removable={null}
+                    usage={{
+                        createUsageHandler: () => {
+                            handleCreateUsage(cwo.cls);
+                        },
+                    }}
                 />
-            ));
+            ))
+            .concat(
+                <InputEntityRow
+                    onClickHandler={(search: string) => {
+                        const callback = async () => {
+                            const result = await model.search(search);
+                            for (const cls of result) {
+                                await model.allowClass(cls.iri!);
+                            }
+                            console.log(result);
+                        };
+                        callback();
+                    }}
+                />
+            );
     } else if (model instanceof InMemorySemanticModel) {
         clses = [...classes.entries()]
             .filter(([_, cwo]) => cwo.origin == model.getId())
@@ -116,6 +141,11 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     removable={{
                         remove: () => {
                             deleteEntityFromModel(model, clsId);
+                        },
+                    }}
+                    usage={{
+                        createUsageHandler: () => {
+                            handleCreateUsage(cwo.cls);
                         },
                     }}
                 />
@@ -143,6 +173,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
                     isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(v.cls.id)?.visible ?? false}
                     removable={null}
+                    usage={null}
                 />
             ));
     }
@@ -169,6 +200,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateClassDialogOpen && <CreateClassDialog />}
+            {isCreateUsageDialogOpen && <CreateUsageDialog />}
         </>
     );
 };

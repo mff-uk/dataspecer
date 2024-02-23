@@ -22,7 +22,7 @@ import { tailwindColorToHex } from "../utils/color-utils";
 
 import "reactflow/dist/style.css";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
-import { useModelGraphContext } from "./context/graph-context";
+import { useModelGraphContext } from "./context/model-context";
 import {
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -38,6 +38,10 @@ import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { useEntityDetailDialog } from "./dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "./dialog/modify-entity-dialog";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -175,6 +179,9 @@ export const Visualization = () => {
                         }
                         continue;
                     }
+                } else if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
+                    console.log("got usage, skipping", entity);
+                    continue;
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");

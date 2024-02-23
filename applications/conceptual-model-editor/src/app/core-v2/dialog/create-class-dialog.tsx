@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useBaseDialog } from "./base-dialog";
 import { generateName } from "../util/name-utils";

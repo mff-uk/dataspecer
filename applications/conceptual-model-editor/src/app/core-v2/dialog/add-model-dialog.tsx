@@ -1,7 +1,7 @@
 import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { clickedInside } from "../util/utils";
 import { useBaseDialog } from "./base-dialog";
 

@@ -1,5 +1,5 @@
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getRandomName } from "../../utils/random-gen";
 import { BackendPackageService } from "@dataspecer/core-v2/project";

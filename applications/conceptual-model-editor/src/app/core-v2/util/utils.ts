@@ -1,5 +1,7 @@
+import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { LanguageString } from "@dataspecer/core/core";
+import { InMemorySemanticModel } from "../../../../../../packages/core-v2/lib/semantic-model/in-memory/in-memory-semantic-model";
 
 export const getOneNameFromLanguageString = (ls: LanguageString) => {
     const key = Object.keys(ls).at(0);
@@ -17,13 +19,22 @@ export const isAttribute = (relationship: SemanticModelRelationship) => {
         (relationship.ends[1] && relationship.ends[1].concept == "") // FIXME: tadyto se deje, protoze neumim vytvorit atribut, ktery by mel jako concept null
     );
 };
-
+export const filterInMemoryModels = (models: EntityModel[]) => {
+    return models.filter((m): m is InMemorySemanticModel => m instanceof InMemorySemanticModel);
+};
 export const shortenStringTo = (modelId: string | null, length: number = 20) => {
     if (!modelId) {
         return modelId;
     }
     const modelName = modelId.length > length ? `...${modelId.substring(modelId.length - (length - 3))}` : modelId;
     return modelName;
+};
+
+export const cardinalityToString = (cardinality: [number, number | null] | undefined) => {
+    if (!cardinality) {
+        return null;
+    }
+    return `[${cardinality[0] || "*"}..${cardinality[1] || "*"}]`;
 };
 
 // --- dialogs --- --- ---

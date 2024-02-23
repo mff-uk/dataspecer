@@ -15,6 +15,10 @@ import {
 import React, { useContext } from "react";
 import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { LOCAL_MODEL_ID } from "../util/constants";
+import type {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -27,6 +31,8 @@ export type ClassesContextType = {
     setAttributes: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>; // React.Dispatch<React.SetStateAction<Map<string, SemanticModelRelationship[]>>>;
     generalizations: SemanticModelGeneralization[];
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
+    usages: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
+    setUsages: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
 };
 
 export type SemanticModelClassWithOrigin = {
@@ -48,6 +54,8 @@ export const useClassesContext = () => {
         setAttributes,
         generalizations,
         setGeneralizations,
+        usages,
+        setUsages,
     } = useContext(ClassesContext);
 
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
@@ -98,5 +106,7 @@ export const useClassesContext = () => {
         createConnection,
         addAttribute,
         deleteEntityFromModel,
+        usages,
+        setUsages,
     };
 };

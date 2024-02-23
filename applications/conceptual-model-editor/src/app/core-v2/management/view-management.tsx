@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { useViewParam } from "../util/view-param";
 

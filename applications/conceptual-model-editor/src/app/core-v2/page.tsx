@@ -9,17 +9,22 @@ import {
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ModelGraphContext } from "./context/graph-context";
+import { ModelGraphContext } from "./context/model-context";
 import Header from "./header";
 import { Visualization } from "./visualization";
 import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
-import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
-import { EntityCatalog } from "./catalog/entity-catalog";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { ModelCatalog } from "./catalog/model-catalog";
 import { randomColorFromPalette } from "../utils/color-utils";
+import { Catalog } from "./catalog/catalog";
+import {
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const Page = () => {
     const { aggregator } = useMemo(() => {
@@ -33,6 +38,7 @@ const Page = () => {
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [attributes, setAttributes] = useState<SemanticModelRelationship[]>([]); // useState(new Map<string, SemanticModelRelationship[]>()); // conceptId -> relationship[]
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
+    const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
 
     const { packageId, setPackage } = usePackageSearch();
@@ -110,6 +116,18 @@ const Page = () => {
                     },
                     { rels: [] as SemanticModelRelationship[], atts: [] as SemanticModelRelationship[] }
                 );
+            const usges = [...models.values()]
+                .map((model) => Object.values(model.getEntities()))
+                .map((entities) =>
+                    (
+                        entities.filter(isSemanticModelClassUsage) as (
+                            | SemanticModelClassUsage
+                            | SemanticModelRelationshipUsage
+                        )[]
+                    ).concat(entities.filter(isSemanticModelRelationshipUsage))
+                )
+                .flat();
+            console.log(usges);
             setClasses(clsses);
             setRelationships(rels);
             setAttributes(atts);
@@ -120,6 +138,7 @@ const Page = () => {
                     )
                     .flat()
             );
+            setUsages(usges);
         };
         // TODO: tady udelej nejakej chytrejsi callback
         // staci, aby se pridaly a odebraly tridy, neni potreba
@@ -156,15 +175,14 @@ const Page = () => {
                         setAttributes,
                         generalizations,
                         setGeneralizations,
+                        usages,
+                        setUsages,
                     }}
                 >
                     <Header />
                     <main className="h-[calc(100%-48px)] w-full bg-teal-50">
                         <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                            <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
-                                <ModelCatalog />
-                                <EntityCatalog />
-                            </div>
+                            <Catalog />
                             <Visualization />
                         </div>
                     </main>

@@ -1,7 +1,36 @@
 import { LanguageString, NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
+import { shortenStringTo } from "./utils";
+import { SemanticModelUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+
+export const getNameOrIriAndDescription = (thing: NamedThing | undefined | null, iri: string, lang: string = "en") => {
+    if (!thing) {
+        return [null, null] as const;
+    }
+
+    const [name, fallbackLang] = getStringFromLanguageStringInLang(thing.name, lang);
+    const [description, fallbackDescriptionLang] = getStringFromLanguageStringInLang(thing.description, lang);
+
+    let displayName: string;
+    if (name && !fallbackLang) {
+        displayName = name;
+    } else if (name && fallbackLang) {
+        displayName = `${name}@${fallbackLang}`;
+    } else {
+        displayName = shortenStringTo(iri, 30) || "no-name";
+    }
+
+    let descr = "";
+
+    if (description && !fallbackDescriptionLang) {
+        descr = description;
+    } else if (description && fallbackDescriptionLang) {
+        descr = `${description}@${fallbackDescriptionLang}`;
+    }
+    return [displayName, descr] as const;
+};
 
 export const getNameOfThingInLangOrIri = (thing: NamedThing, iri: string, lang: string = "en") => {
-    const [name, fallbackNameLang] = getFieldOfNamedThingInLang("name", thing, lang);
+    const [name, fallbackNameLang] = getStringFromLanguageStringInLang("name", thing, lang);
 
     if (!name && !fallbackNameLang) {
         return [iri, null] as const;
@@ -10,30 +39,50 @@ export const getNameOfThingInLangOrIri = (thing: NamedThing, iri: string, lang: 
     }
 };
 
-export const getNameOfThingInLang = (thing: NamedThing, lang: string = "en") => {
-    return getFieldOfNamedThingInLang("name", thing, lang);
+export const getUsageNote = (thing: SemanticModelUsage, lang: string = "en") => {
+    if (!thing.usageNote) {
+        return null;
+    }
+    const [note, fallbackLang] = getStringFromLanguageStringInLang(thing.usageNote, lang);
+    if (note && !fallbackLang) {
+        return note;
+    } else if (note && fallbackLang) {
+        return `${note}@${fallbackLang}`;
+    } else {
+        return null;
+    }
 };
 
-export const getDescriptionOfThingInLang = (thing: NamedThing, lang: string = "en") => {
-    return getFieldOfNamedThingInLang("description", thing, lang);
-};
+export const getStringFromLanguageStringInLang = (languageString: LanguageString, lang: string = "en") => {
+    if (!languageString) {
+        return [null, null] as const;
+    }
 
-const getFieldOfNamedThingInLang = (field: "name" | "description", thing: NamedThing, lang: string = "en") => {
-    const result = thing[field]?.[lang];
+    const result = languageString?.[lang];
     if (result) {
         return [result, null] as const;
     }
 
+    // get lang from lang hierarchy
     let nextLanguages = nextLanguageInHierarchy(lang);
     while (nextLanguages.length > 0) {
         const nextLang = nextLanguages.at(0)!;
         nextLanguages = nextLanguages.slice(1);
-        const possibleResult = thing[field]?.[nextLang];
+        const possibleResult = languageString?.[nextLang];
         if (possibleResult) {
             return [possibleResult, nextLang] as const;
         }
         nextLanguages.push(...nextLanguageInHierarchy(nextLang));
     }
+
+    // get any lang
+    const languages = getAvailableLanguagesForLanguageString(languageString);
+    if (languages.length > 0) {
+        const l = languages.at(0)!;
+        const res = languageString?.[l]!;
+        return [res, l] as const;
+    }
+
     return [null, null] as const;
 };
 

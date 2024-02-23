@@ -21,7 +21,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     return (
         <>
-            <div className={`m-1 border border-black  [&]:text-sm`}>
+            <div className={`m-1 border border-black bg-white [&]:text-sm`}>
                 <h1
                     className="overflow-x-hidden whitespace-nowrap border border-b-black"
                     style={{ backgroundColor: clr }}
