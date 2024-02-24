@@ -36,7 +36,7 @@ export class LdkitArtefactGenerator {
         return Promise.resolve(result);
     }
 
-    generateToStream(metadata: AggregateMetadata) {
+    generateToSourceFile(metadata: AggregateMetadata) {
         this.writer.getSourceCodeFromMetadata(metadata);
     }
 }

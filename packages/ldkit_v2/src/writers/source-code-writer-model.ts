@@ -7,6 +7,6 @@ export type SourceCodeLanguageIdentifier = "ts";
 
 export interface SourceCodeWriter {
     fileExtension: string,
-    generateSourceFilePath(outputFileName: string): string;
+    generateSourceFilePath(directoryPath: string, outputFileName: string): string;
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string;
 }

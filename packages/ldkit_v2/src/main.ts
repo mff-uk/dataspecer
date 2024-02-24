@@ -3,81 +3,79 @@ import { dbo, rdfs, xsd, dcterms, createNamespace } from "ldkit/namespaces";
 import { type Context, setDefaultContext } from "ldkit";
 import { AggregateMetadata } from "./readers/aggregate-data-provider-model";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
-//import { LdkitSchemaProperty, LdkitSchema } from "./interfaces/ldkit-schema-model";
+import { ConjuntoDeDatosSchema } from "../generated/conjunto-de-datos-ldkitschema";
+import { CatalogSchema } from "../generated/catalog-ldkitschema";
 
-async function catalog() {
+//const aggregate: string = "catalog";
+const aggregate: string = "dataset";
 
-    const dcat = createNamespace({
-        iri: "http://www.w3.org/ns/dcat#",
-        prefix: "dcat:",
-        terms: ["Catalog", "Dataset", "keyword", "Distribution", "distribution", "downloadURL"]
-    } as const);
+async function demo() {
 
-    // const PublisherSchema = {
-    //     "@type": "publisher",
-    //     title: dcterms.publisher
+    // const dcat = createNamespace({
+    //     iri: "http://www.w3.org/ns/dcat#",
+    //     prefix: "dcat:",
+    //     terms: ["Catalog", "Dataset", "keyword", "Distribution", "distribution", "downloadURL"]
+    // } as const);
+
+    // const DatasetSchema = {
+    //     "@type": "http://www.w3.org/ns/dcat#Dataset", //dcat.Dataset,
+    //     title: {
+    //         "@id": "http://purl.org/dc/terms/title", //dcterms.title,
+    //         "@multilang": true
+    //     },
+    //     keyword: "http://www.w3.org/ns/dcat#keyword"
     // } as const;
 
-    const DistributionSchema = {
-        "@type": dcat.Distribution,
-        title: {
-            "@id": dcterms.title,
-            "@multilang": true
-        },
-        //downloadURL: dcat.downloadURL
-    } as const;
-
-    const DatasetSchema = {
-        "@type": "http://www.w3.org/ns/dcat#Dataset", //dcat.Dataset,
-        title: {
-            "@id": "http://purl.org/dc/terms/title", //dcterms.title,
-            "@multilang": true
-        },
-        keyword: dcat.keyword,
-        klíčové_slovo: "",
-        distribution: {
-            "@id": dcat.distribution,
-            "@schema": DistributionSchema
-        }
-    } as const;
-
-    const CatalogSchema = {
-        "@type": dcat.Catalog, // z json-ldContext["@context"].<EntityTitle>["@id"]
-        title: {
-            "@id": dcterms.title,
-            "@multilang": true
-        },
-        provider: dcterms.publisher,
-        dataset: {
-            "@id": dcat.Dataset,
-            "@array": true,
-            "@context": DatasetSchema
-        }
-    } as const;
-
-    ////////////////////////////////////////////
-    ///////// Ldkit specific data part /////////
+    // const CatalogSchema = {
+    //     "@type": "http://www.w3.org/ns/dcat#Catalog",
+    //     // title: {
+    //     //     "@id": dcterms.title,
+    //     //     "@multilang": true
+    //     // },
+    //     //provider: dcterms.publisher,
+    //     dataset: "http://www.w3.org/ns/dcat#Dataset"
+    // } as const;
 
     const context: Context = {
-        sources: ["https://data.cssz.cz/sparql"],
-        explain: "logical"
+        sources: ["https://data.cssz.cz/sparql"]
     }
     setDefaultContext(context);
 
-    //const Catalogs = createLens(CatalogSchema);
-    const Datasets = createLens(DatasetSchema);
+    const Schema = aggregate === "catalog"
+        ? CatalogSchema
+        : ConjuntoDeDatosSchema;
 
-    //const cssz = await Catalogs.findByIri("https://data.cssz.cz/web/otevrena-data/katalog-otevrenych-dat");
-    const datasets = await Datasets.find();
+    const Lens = createLens(Schema);
 
-    ////////////////////////////////////////////
+    let results;
 
-    //console.log(cssz);
-    datasets.map((dataset, idx) => console.log(`Dataset Title ${idx}: `, dataset));
-    ////////////////////////////////////////////
+    const objectsPromise = Lens.find();
+
+    await objectsPromise
+        .then(result => results = result)
+        .catch(err => {
+            console.error("Error: ", err);
+            throw new Error(err);
+        });
+
+    console.log(`Number of results: ${results.length}`)
+    results.map((res, idx) => console.log(`${aggregate === "catalog" ? "Catalog" : "Dataset"} ${idx}: `, res));
+    
+    let instanceIri: string;
+    if (aggregate === "catalog") {
+        instanceIri = "https://data.cssz.cz/web/otevrena-data/katalog-otevrenych-dat";
+    } else {
+        instanceIri = "https://data.cssz.cz/resource/dataset/ukazatele-pracovni-neschopnosti-podle-pohlavi-a-diagnozy";
+    }
+
+    const instancePromise = Lens.findByIri(instanceIri);
+
+    await instancePromise
+        .then(instance => console.log("Instance: ", instance))
+        .catch(err => console.error("No matching instance: ", err));
 }
 
-async function demo() {
+async function ldkitDemo() {
     const PersonSchema = {
         "@type": dbo.Person,
         name: rdfs.label,
@@ -95,7 +93,7 @@ async function demo() {
     setDefaultContext(context);
 
     const Persons = createLens(PersonSchema);
-    
+
     const adaIri = "http://dbpedia.org/resource/Ada_Lovelace";
     const ada = await Persons.findByIri(adaIri);
 
@@ -105,9 +103,8 @@ async function demo() {
 }
 
 async function main() {
-    //await catalog();
 
-    console.log(createLdkitQueryFileContent());
+    //console.log(createLdkitQueryFileContent());
 
     // const dcat = createNamespace({
     //     iri: "http://www.w3.org/ns/dcat#",
@@ -117,25 +114,12 @@ async function main() {
 
     const generator = new LdkitArtefactGenerator();
 
-    generator
-        .generateToObject("dataset")
-        .then((result: AggregateMetadata) => {
-            generator.generateToStream(result);
-        })
+    const datasetAggregateMetadata = await generator.generateToObject(aggregate); // dataset | catalog
+    console.log(datasetAggregateMetadata);
 
-    // // const schema = {
-    // //     "@type": dcat.Dataset,
-    // //     title: dcat.title,
-    // //     publisher: {
-    // //         "@id": dcterms.title,
-    // //         "@array": true
-    // //     }
-    // // };
+    generator.generateToSourceFile(datasetAggregateMetadata);
 
-    // // const startTime = performance.now();
-    // // generator.generateToStream(aggregateMetadata);
-    // // const endTime = performance.now();
-    // // console.log("Run time (in milliseconds): ", endTime - startTime)
+    await demo();
 }
 
 function createLdkitQueryFileContent() {
@@ -153,7 +137,7 @@ function createLdkitQueryFileContent() {
         }
         setDefaultContext(context);
     
-        const EntityLens = createLens(context);
+        const EntityLens = createLens(${generatedSchemaNamePlaceholder});
         const fetchedEntities = await EntityLens.find();
 
         return fetchedEntities;
@@ -162,4 +146,4 @@ function createLdkitQueryFileContent() {
     `;
 }
 
-main().then(_ => console.log("Complete"));
+main();

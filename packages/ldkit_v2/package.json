@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --outDir ./dist",
     "build:watch": "tsc --watch",
-    "start": "npm run build && node ./lib/main.js",
+    "start": "npm run build && node ./dist/src/main.js",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "author": "Viktor Bujko",

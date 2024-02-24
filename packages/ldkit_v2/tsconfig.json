@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "moduleResolution": "Node16",
     "module": "Node16",
-    "outDir": "./lib",
+    "outDir": "./dist",
     "sourceMap": true,
     "target": "ESNext",
     "types": ["@types/jest"],
@@ -15,6 +15,6 @@
     "src/**/*", "src/tests/support/jsonLdCreator.ts", "node_modules/stream-chunks/chunks.js"
   ],
   "exclude": [
-    "src/tests/","node_modules/*","src/tests"
+    "src/tests/","node_modules/*","src/tests", "./generated/*"
   ]
 }

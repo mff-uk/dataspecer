@@ -23,10 +23,10 @@ export class TypescriptWriter implements SourceCodeWriter {
 
     fileExtension: string = "ts";
 
-    generateSourceFilePath(outputFileName: string) {
+    generateSourceFilePath(directoryPath: string, outputFileName: string) {
         const kebabCaseOutputFileName = convertToKebabCase(`${outputFileName} ldkitschema`);
 
-        const finalOutputFilePath: string = "./generated/" + [kebabCaseOutputFileName, this.fileExtension].join(".");
+        const finalOutputFilePath: string = directoryPath + [kebabCaseOutputFileName, this.fileExtension].join(".");
         console.log(`Output filepath: ${finalOutputFilePath}`);
 
         return finalOutputFilePath;
@@ -39,11 +39,15 @@ export class TypescriptWriter implements SourceCodeWriter {
         //     removeComments: false
         // });
 
+        const filePath: string = this.generateSourceFilePath("./generated/", aggregateMetadata.aggregateName);
+        const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
+        const printed: string = printNode(ldkitSchemaRootNode);
+
         const ldkitSchemaSourceFile = createSourceFile(
-            this.generateSourceFilePath(aggregateMetadata.aggregateName),
-            printNode(this.getLdkitSchemaRootNode(aggregateMetadata)),
+            filePath,
+            printed,
             ScriptTarget.Latest,
-            false, /*setParentNodes*/
+            false,
             ScriptKind.TS
         );
     
@@ -51,17 +55,15 @@ export class TypescriptWriter implements SourceCodeWriter {
         console.log(ldkitSchemaSourceFile.getFullText());
 
         project.createSourceFile(
-            this.generateSourceFilePath(aggregateMetadata.aggregateName),
-            printNode(this.getLdkitSchemaRootNode(aggregateMetadata)),
+            filePath,
+            printed,
             { scriptKind: ts.ScriptKind.TS, overwrite: true } as SourceFileCreateOptions
-
         );
         const sourceFileSaver: Promise<void> = project.save();
         sourceFileSaver.then(() => console.log("Saved"))
 
         //console.log(printNode(this.getLdkitSchemaNode(aggregateMetadata), ldkitSchemaSourceFile, {emitHint: ts.EmitHint.SourceFile}));
-
-        return printNode(this.getLdkitSchemaRootNode(aggregateMetadata));
+        return printed;
     }
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
