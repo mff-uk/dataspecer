@@ -622,3 +622,164 @@ WHERE {
   ?v1 ns1:kontakt ?v2 .
 }
 ```
+## SHACL
+[SHACL](https://www.w3.org/TR/shacl/) is a language used for validating RDF data. To use SHACL validators, you have to have 2 inputs: SHACL Shape describing the data specification constraints and RDF data that you want validated. Dataspecer provides the user with generated SHACL Shape for the created data specification.
+
+This tutorial on how to generate and use the SHACL artifacts generator is using this data specification as an example:
+
+{{% tutorial-image "images/tutorial/shacl-shex-specific/example-data-specification.png" %}}
+
+Example of generated SHACL Shape for the data specification shown above:
+```turtle
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@base <https://myexample.com/>.
+
+<d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape> a sh:NodeShape;
+    sh:targetClass <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    sh:nodeKind sh:IRI;
+    sh:description "Samostatný turistický cíl."@cs, "A separate tourist destination"@en;
+    sh:name "Tourist destination"@en, "Turistický cíl"@cs.
+<ad078e41eecf74b8c1e6a29a453cb1f2kapacitaShape> a sh:PropertyShape;
+    sh:name "kapacita"@cs;
+    sh:path <https://slovník.gov.cz/datový/sportoviště/pojem/kapacita>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+<d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape> sh:property <ad078e41eecf74b8c1e6a29a453cb1f2kapacitaShape>.
+<1403f7adf349b6faf375941eb2c23517kouření_povolenoShape> a sh:PropertyShape;
+    sh:description "Determines whether it is possible to smoke tobacco products in the tourist destination."@en, "Určuje, zda je možné v turistickém cíli kouření tabákových výrobků."@cs;
+    sh:name "smoking allowed"@en, "kouření povoleno"@cs;
+    sh:maxCount 1;
+    sh:path <https://slovník.gov.cz/datový/turistické-cíle/pojem/kouření-povoleno>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
+<d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape> sh:property <1403f7adf349b6faf375941eb2c23517kouření_povolenoShape>.
+<aa7de934a3ecd61f062989b47fe07237kontaktShape> a sh:PropertyShape;
+    sh:name "kontakt"@cs;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:path <https://slovník.gov.cz/datový/turistické-cíle/pojem/kontakt>;
+    sh:nodeKind sh:IRI.
+<217547b71513ecc5b06d7da60879e65akontaktShape> a sh:NodeShape;
+    sh:class <https://slovník.gov.cz/generický/kontakty/pojem/kontakt>;
+    sh:nodeKind sh:IRI;
+    sh:description "Kontaktní údaje, např. na člověka, společnost, apod."@cs;
+    sh:name "Contact"@en, "Kontakt"@cs.
+<5cea7c188264a85165deeb269967e2c6má_urlShape> a sh:PropertyShape;
+    sh:description "Webová kontaktní adresa: webová stránka či WebID."@cs;
+    sh:name "má URL"@cs, "URL"@en;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/generický/kontakty/pojem/má-url>;
+    sh:datatype <http://www.w3.org/2001/XMLSchema#anyURI>.
+<217547b71513ecc5b06d7da60879e65akontaktShape> sh:property <5cea7c188264a85165deeb269967e2c6má_urlShape>.
+<aa7de934a3ecd61f062989b47fe07237kontaktShape> sh:node <217547b71513ecc5b06d7da60879e65akontaktShape>.
+<d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape> sh:property <aa7de934a3ecd61f062989b47fe07237kontaktShape>.
+```
+
+### Configuration settings
+
+There is artifacts configuration option available to Dataspecer users. This picture highlights the settings that are relevant to SHACL:
+
+{{% tutorial-shacl-shex-configuration "images/tutorial/shacl-shex-specific/relevant-configuration-settings.png" %}}
+
+The highlighted settings have an impact on how the SHACL Shape is generated or whether the Shape is generated at all in case of generating the artifact to a .zip file. This is a breakdown on how they impact the process:
+
+1. Base URL - is used in prefixes and in generated Shape names. Generated shape names consist of the base URL + unique id for the given shape based on the internal Dataspecer representation and the technical label.
+2. Class instance identification - Has 3 options: ALWAYS, OPTIONAL, NEVER.
+   1. ALWAYS - will generate parts describing that the data node of this class is always an IRI.
+   2. OPTIONAL - will generate parts describing that the data node of this class can be an IRI or Blank Node.
+   3. NEVER - will generate parts describing that the data node of this class is always a Blank Node.
+3. Explicit instance typing* -  Has 3 options: ALWAYS, OPTIONAL, NEVER.
+   1. ALWAYS - will generate parts describing that the data node of this class always specifies its type = the Shape generates constraint checking the presence of the rdf:type in the data tied to this class.
+   2. OPTIONAL - does not generate any constraints as it does not order any specific constraint to be fulfulled.
+   3. NEVER - will generate parts describing that the data node of this class will never have a predicate rdf:type tied to the node representing this class. The Shape checks that the data does not contain rdf:type tied to this class data node.
+4. Additional class properties - Has 2 options: ALLOWED, DISALLOWED.
+   1. ALLOWED - The Shape does not prohibit any extra attributes to be present on the class other than those explicitly stated in the data specification.
+   2. DISALLOWED - The shape prohibits any extra attributes to be tied to the class other than those explicitly stated in the data specification. For our example data specification that would mean, that if we wanted the "Turistický cíl" or "Kontakt" class to have any other attribute than "má URL" in the data, the Shape would validate data containing extra attributes as INVALID.
+5. Generated artifacts (SHACL Shapes) - Has 2 options: Yes, No.
+   1. Yes - When clicking on "Generate to .zip file" button, the data specifications in our working space will have SHACL, Shex and Shex Query Map artifacts generated.
+   2. No - When clicking on "Generate to .zip file" button, the data specifications in our working space will not have SHACL, Shex and Shex Query Map artifacts generated in the .zip file.
+
+\* Explicit instance typing has an impact on the ability to correctly generate the SHACL, ShEx and ShEx Query Map artifacts. More on how it impacts the generation process here:  [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex) and how to fix the issue with generation here: [How to fix the generator failing](#how-to-fix-the-generator-failing)
+
+### Generator failure
+
+In certain situations described in [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex), the artifact cannot be generated due to lack of data structure specifics. The aforementioned link also contains section [SHACL and ShEx targetting failure](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#targetting-failure-and-how-to-fix-it) on how to fix the data specification in order to allow the generator to generate the shape. 
+
+### How to fix the generator failing
+In summary, make sure, that your data specification meets at least one criterion: 
+1. the root has unique data type in the whole data structure and the instance typing configuration is set to "ALWAYS" - in the example that would be "Turistický cíl" - OR 
+2. the root has a unique attribute name (the predicate) - in the example that would be "kontakt" - that has cardinality of 1 or more ([1..x]) OR
+3. the root has an attribute of cardinality 1 or more that has a unique type - in the example that would be "Kontakt" - and the instance typing configuration in that attribute class is set to "ALWAYS" OR 
+4. the root has an attribute of cardinality 1 or more that has a unique attribute of cardinality 1 or more - in the example that would be "má URL". 
+
+If the data specification is still not targettable, you have to target the data nodes yourself. 
+
+## ShEx
+[ShEx](https://shex.io/shex-primer/)  is a language for validating and describing RDF data. ShEx validators require two inputs to validate data: ShEx Shape describing the expected data structure and ShEx Map describing which data nodes are validated by which shape. 
+
+The ShEx shape generated by the generator is good to go. It contains all used prefixes in its header and for better readability, it contains rdfs:label and rdfs:comment sections describing the expression from the shape. 
+
+The ShEx map that is generated by the ShEx Query Map artifact is a query map, which means that it targets data nodes based on some data specification characteristics so that it can be used to validate data without knowing the node IRIs in the data. How the characteristics in the data specification are used to target the data nodes can be viewed in the use case study here: [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex) .
+
+This tutorial on how to generate and use the ShEx artifacts generator is using this data specification as an example:
+
+{{% tutorial-image "images/tutorial/shacl-shex-specific/example-data-specification.png" %}}
+
+For relevant artifact configuration settings for ShEx see [Relevant configuration settings](#configuration-settings). Configuration settings regarding the ShEx Query Map are following:
+
+- Explicit instance typing - can impact the ability to create the ShEx Query Map when ALWAYS is not set in the root class of the data specification or the classes associated to the root class. For further details on how it impacts the generation process, read more in [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex). How to fix issues regarding this setting and the data structure read here: [How to fix the generator failing](#how-to-fix-the-generator-failing).
+
+
+### ShEx Shapes
+
+ShEx Shapes is used to describe the data structure and constraints of the data specification that is created/edited/viewed by the user in Dataspecer. It contains Shapes and in them constraints how the data structure is supposed to look like and which attributes it can/must have. The generated ShEx Shape is using prefixes only for well-known prefixes and the base URL that the user can set in the configuration settings. 
+
+This generated ShEx Shape is used as the input of ShEx validators along with the ShEx Map and the RDF data. 
+
+Example of generated ShEx Shape for the data specification shown above:
+
+```
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix base: <https://myexample.com/>
+
+base:217547b71513ecc5b06d7da60879e65akontaktShape IRI{
+	a [<https://slovník.gov.cz/generický/kontakty/pojem/kontakt>] ;
+	<https://slovník.gov.cz/generický/kontakty/pojem/má-url> xsd:anyURI +
+		// rdfs:label	"má URL"
+		// rdfs:comment	"Webová kontaktní adresa: webová stránka či WebID."
+}
+base:d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape IRI{
+	a [<https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>] ;
+	<https://slovník.gov.cz/datový/sportoviště/pojem/kapacita> xsd:integer *
+		// rdfs:label	"kapacita" ;
+	<https://slovník.gov.cz/datový/turistické-cíle/pojem/kouření-povoleno> xsd:boolean ?
+		// rdfs:label	"smoking allowed"
+		// rdfs:comment	"Determines whether it is possible to smoke tobacco products in the tourist destination." ;
+	<https://slovník.gov.cz/datový/turistické-cíle/pojem/kontakt> @base:217547b71513ecc5b06d7da60879e65akontaktShape
+		// rdfs:label	"kontakt"
+}
+```
+
+#### Generator failure
+
+In certain situations described in [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex), the artifact cannot be generated due to lack of data structure specifics. The aforementioned link also contains section [SHACL and ShEx targetting failure](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#targetting-failure-and-how-to-fix-it) on how to fix the data specification in order to allow the generator to generate the shape. 
+
+Brief summary on how to fix the failure is here earlier in the document: [How to fix the generator failing](#how-to-fix-the-generator-failing).
+
+### ShEx Query Map
+
+ShEx Query Map represents the target data nodes that will be validated by generated ShEx Shape. To be as general as possible, the generated map uses SPARQL syntax for ShEx Query Map, that targets the data nodes by mapping on the given pattern. 
+
+Example of generated ShEx Query Map for the data specification shown above:
+```sparql
+{ FOCUS rdf:type <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>}@<https://myexample.com/https://myexample.com/d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape>
+```
+In the given example, the FOCUS data nodes are those who have a predicate of rdf:type going from them and having <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl> as object of this triple. Those data nodes that correspond to this pattern are validated against ShEx Shape with the IRI <https://myexample.com/https://myexample.com/d7528e03c25e75bf0abc589ed5545ad5turistický_cílShape>. It is the same IRI as for the root data class when generating ShEx Shape with the Dataspecer generators.
+
+Other possible variants of query map in Dataspecer can be viewed here: [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex).
+ 
+#### Generator failure
+
+In certain situations described in [SHACL and ShEx targetting](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#data-nodes-targetting-with-shacl-and-shex), the artifact cannot be generated due to lack of data structure specifics. The aforementioned link also contains section [SHACL and ShEx targetting failure](https://github.com/mff-uk/dataspecer/tree/main/packages/shacl#targetting-failure-and-how-to-fix-it) on how to fix the data specification in order to allow the generator to generate the shape.
+
+Brief summary on how to fix the failure is here earlier in the document: [How to fix the generator failing](#how-to-fix-the-generator-failing).
