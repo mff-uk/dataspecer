@@ -678,7 +678,7 @@ Example of generated SHACL Shape for the data specification shown above:
 
 There is artifacts configuration option available to Dataspecer users. This picture highlights the settings that are relevant to SHACL:
 
-{{% tutorial-shacl-shex-configuration "images/tutorial/shacl-shex-specific/relevant-configuration-settings.png" %}}
+{{% tutorial-image "images/tutorial/shacl-shex-specific/relevant-configuration-settings.png" %}}
 
 The highlighted settings have an impact on how the SHACL Shape is generated or whether the Shape is generated at all in case of generating the artifact to a .zip file. This is a breakdown on how they impact the process:
 
