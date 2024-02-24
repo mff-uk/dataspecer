@@ -1,4 +1,8 @@
 node_modules
 lib
+dist
+unused
+generated
 !.gitignore
 tsconfig.tsbuildinfo
+genapp-configurator
