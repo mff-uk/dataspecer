@@ -1,6 +1,5 @@
 import * as Support from "./support/testSupport";
 import TargetCase4ModelCreator from "./support/TargetCase4ModelCreator";
-import * as fs from "fs";
 
 
 const testType = "targetCase4";

@@ -229,7 +229,13 @@ export class ShaclAdapter {
     switch(root.instancesSpecifyTypes){
       // TODO make sure the class is unique in the structure
       case "ALWAYS": { 
-          if(objectOf == null){this.decideHowToTarget(root, classNameIri);} 
+          if(objectOf == null){
+            this.decideHowToTarget(root, classNameIri);
+            this.writer.addQuad(
+              namedNode( classNameIri ),
+              namedNode('http://www.w3.org/ns/shacl#class'),
+              namedNode( root.cimIri )
+            );} 
           else{
             this.writer.addQuad(
               namedNode( classNameIri ),

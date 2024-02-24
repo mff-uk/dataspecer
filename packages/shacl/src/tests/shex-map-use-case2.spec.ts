@@ -8,9 +8,7 @@ const modelCreator = new TargetCase2ModelCreator();
 
 test('Shex map creation test - targetCase2', async () => {
 
-  //const validationReportStatus = Support.testShexShape(testType, modelCreator);
   const shexMapOutput = await Support.shexMapTest(modelCreator);
-  console.log(shexMapOutput);
   const shexMapExpectedOutput = readFileSync(join(__dirname, "./shexMaps/" + testType + "ShexQueryMap.txt"), 'utf-8');
   expect(shexMapOutput).toBe(shexMapExpectedOutput);
 });

@@ -60,24 +60,24 @@ import {
 
         if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
           // USE CASE #1
-          this.resultString = "{ FOCUS rdf:type <" + cls.cimIri + ">}@<" + this.baseURL + this.shapeName + ">";
+          this.resultString = "{ FOCUS rdf:type <" + cls.cimIri + ">}@<" + this.shapeName + ">";
           
         } else if(hasUniquePredicates(cls)){
           // USE CASE #2
           const cimOfUniquePredicate = getUniquePredicate(cls);
-          this.resultString = "{ FOCUS <" + cimOfUniquePredicate.toString() + "> _}@<" + this.baseURL + this.shapeName + ">"; 
+          this.resultString = "{ FOCUS <" + cimOfUniquePredicate.toString() + "> _}@<" + this.shapeName + ">"; 
 
         } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
           // USE CASE #3
           this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
           const shapeNameForPredicate = this.getIRIforShape(this.uniquePredicateClass);
-          this.resultString = "{ FOCUS rdf:type <" + this.uniquePredicateClass.cimIri + ">}@<" + this.baseURL + shapeNameForPredicate + ">";
+          this.resultString = "{ FOCUS rdf:type <" + this.uniquePredicateClass.cimIri + ">}@<" + shapeNameForPredicate + ">";
         } else if(anyPredicateHasUniquePredicates(cls)){
           // USE CASE #4
           this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
           const shapeNameForPredicate = this.getIRIforShape(this.uniquePredicatePredicate.uniquepropclass);
           const predicate = this.uniquePredicatePredicate.predicate as StructureModelProperty;
-          this.resultString = "{ FOCUS <" + predicate.cimIri + "> _}@<" + this.baseURL + shapeNameForPredicate + ">";
+          this.resultString = "{ FOCUS <" + predicate.cimIri + "> _}@<" + shapeNameForPredicate + ">";
         } else{
           // CANNOT TARGET THE SHAPE, fail to generate the artifact  
           throw new Error('Unable to target the Data structure defined with ShEx query map due to possible SHACL incompatibility. Either define at least one unique type of class with instance typing mandatory or define at least one unique attribute going from the root or its associations with cardinality bigger than 0.');
@@ -101,7 +101,7 @@ import {
       var generatedIRI : string;
       var md5String = md5(root.psmIri);
       const technicalName = this.irify(root);
-      const nodeOrProperty = "Shape";
+      const nodeOrProperty = "ShExShape";
   
       generatedIRI = (this.baseURL != null) ? this.baseURL + md5String + technicalName + nodeOrProperty : md5String + technicalName + nodeOrProperty ;
   

@@ -1,1 +1,1 @@
-{ FOCUS <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> _}@<5612c1873ed3a1d5024b30ff367ed370adresaShape>
+{ FOCUS <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> _}@<5612c1873ed3a1d5024b30ff367ed370adresaShExShape>

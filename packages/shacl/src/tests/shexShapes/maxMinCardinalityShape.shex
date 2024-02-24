@@ -1,7 +1,7 @@
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
-<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> NonLiteral{
+<592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1ShExShape> NonLiteral{
 	a [<https://slovník.gov.cz/datový/události/pojem/událost>] ;
 	<https://slovník.gov.cz/datový/události/pojem/dlouhý-popis> xsd:string +
 		// rdfs:label	"Dlouhý popis"

@@ -1,1 +1,1 @@
-{ "node": "http://www.example.org/adresa", "shape": "https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShape" }
+{ "node": "http://www.example.org/adresa", "shape": "https://example.org/bfe55dedc512e9e184b5194b632c1c03adresaShExShape" }

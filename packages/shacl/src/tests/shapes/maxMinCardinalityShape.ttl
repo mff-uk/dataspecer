@@ -4,6 +4,7 @@
 
 <592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/datový/události/pojem/událost>;
+    sh:class <https://slovník.gov.cz/datový/události/pojem/událost>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Popis události"@cs;
     sh:name "Událost"@cs.

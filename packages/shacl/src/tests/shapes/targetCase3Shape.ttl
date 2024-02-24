@@ -3,6 +3,7 @@
 @base <https://example.org/>.
 
 <5612c1873ed3a1d5024b30ff367ed370adresaShape> a sh:NodeShape;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popisek první úroveň"@cs;
     sh:name "Adresa jméno první úroveň"@cs.

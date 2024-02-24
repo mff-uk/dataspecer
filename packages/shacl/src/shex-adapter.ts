@@ -214,7 +214,7 @@ export class ShexAdapter {
         break;
       case "OPTIONAL":  newResult = newResult.concat("\ta [<" + root.cimIri + ">] ?" );
       break;
-      case "NEVER": {}
+      case "NEVER": {newResult = newResult.concat("\ta . {0}" );}
       break;
         default: newResult = newResult.concat("\ta [<" + root.cimIri + ">]" );
     }
@@ -276,12 +276,10 @@ export class ShexAdapter {
         
         for (var dt of datatypes) {
 
-          if((root.instancesSpecifyTypes == "NEVER") && firstString){
-              console.log("root.instancesSpecifyTypes: " + root.instancesSpecifyTypes.toString() + " " + firstString);
-          } else {
-            newResult = newResult.concat(" ;");
-            newResult = newResult.concat("\n");
-          }
+
+          newResult = newResult.concat(" ;");
+          newResult = newResult.concat("\n");
+          
           firstString = false;
           newResult = newResult.concat("\t");
           if(isReverse){
@@ -454,7 +452,7 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
     var generatedIRI : string;
     var md5String = md5(root.psmIri);
     const technicalName = this.irify(root);
-    const nodeOrProperty = "Shape";
+    const nodeOrProperty = "ShExShape";
 
     generatedIRI = (this.baseURL != null) ? this.baseURL + md5String + technicalName + nodeOrProperty : md5String + technicalName + nodeOrProperty ;
 

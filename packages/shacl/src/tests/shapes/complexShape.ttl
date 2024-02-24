@@ -4,6 +4,7 @@
 
 <2da40eef3feaff877bb3b51ed1214374osobaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Věc>;
+    sh:class <https://example.com/Věc>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;

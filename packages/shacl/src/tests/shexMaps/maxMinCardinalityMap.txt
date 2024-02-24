@@ -1,1 +1,1 @@
-{ "node": "http://www.example.org/udalost", "shape": "https://example.org/592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1Shape" }
+{ "node": "http://www.example.org/udalost", "shape": "https://example.org/592c9b06370681009306e69d53f64a8bTechnickýpopisekclass1ShExShape" }
