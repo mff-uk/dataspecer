@@ -147,14 +147,14 @@ export class TypescriptWriter implements SourceCodeWriter {
         
         switch (typeof propertyValue) {
             case "string":
-                const prefixMatch = undefined; //tryGetKnownDictionaryPrefix(propertyValue);
+                //const prefixMatch = undefined; //tryGetKnownDictionaryPrefix(propertyValue);
 
-                if (!prefixMatch) {
-                    return factory.createStringLiteral(propertyValue);
-                }
+                //if (!prefixMatch) {
+                return factory.createStringLiteral(propertyValue);
+                //}
 
-                const [prefix, entity] = prefixMatch;
-                return this.getObjectAccessExpression(prefix, entity);
+                // const [prefix, entity] = prefixMatch;
+                // return this.getObjectAccessExpression(prefix, entity);
             case "boolean":
                 return propertyValue
                     ? factory.createTrue()

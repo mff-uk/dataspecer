@@ -6,16 +6,30 @@ import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-da
 import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model";
 //import { JsonSchemaArray, JsonSchemaDefinition, JsonSchemaObject, JsonSchemaString } from "@dataspecer/json/json-schema/";
 
+type SchemaObject = {
+    $schema: string;
+    title: string;
+    description: string;
+    type: string;
+    required: string[];
+    properties: object;
+}
+
+type ClassContext = {
+    "@id": string,
+    "@context": any
+}
+
 export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
 
-    private schemas;    //: { [key: string]: JsonSchemaDefinition };
-    private contexts;
+    private schemas: { [key: string]: SchemaObject };    //: { [key: string]: JsonSchemaDefinition };
+    private contexts: { [key: string]: { "@context": object } };
     private currentAggregate: string;
 
     constructor(aggregateSubjectName: string) {
         this.schemas = {
-            "catalog": CatalogSchema as unknown, // as JsonSchemaObject,
-            "dataset": DatasetSchema as unknown  //as JsonSchemaObject
+            "catalog": CatalogSchema as unknown as SchemaObject,
+            "dataset": DatasetSchema as unknown as SchemaObject
         }
 
         this.contexts = {
@@ -26,14 +40,14 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         this.currentAggregate = aggregateSubjectName;
     }
 
-    private assertAggregateExists(aggregateName: string, context): boolean {
+    private assertAggregateExists(aggregateName: string, context: object): boolean {
         if (!(aggregateName in context)) {
             throw new Error(`Schema for "${this.currentAggregate}" aggregate does not exist.`);
         }
         return true;
     }
 
-    private getClassContextObject(context) {
+    private getClassContextObject(context: object): ClassContext {
 
         const contextItems = Object.entries(context)
             // TODO: add others possible excluded -> goal is to only  leave the aggregate context
@@ -53,12 +67,16 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         this.assertAggregateExists(lowerCaseAggregateName, this.schemas);
         this.assertAggregateExists(lowerCaseAggregateName, this.contexts);
 
-        const aggregateName: string = this.schemas[lowerCaseAggregateName].title;
+        const aggregateName: string | undefined = this.schemas[lowerCaseAggregateName]?.title;
         //console.log(`Found name: "${aggregateName}"`);
+        
+        const matchingContextObject: { "@context": object; } | undefined = this.contexts[lowerCaseAggregateName];
+        if (!matchingContextObject || !aggregateName) {
+            throw new Error("");
+        }
 
-        const matchingContextObject = this.contexts[lowerCaseAggregateName];
-        const classContext = this.getClassContextObject(matchingContextObject["@context"]);
         //console.log("Found context: ", classContext);
+        const classContext: ClassContext = this.getClassContextObject(matchingContextObject["@context"]);
 
         return {
             name: aggregateName,
@@ -70,9 +88,12 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         const lowerCaseAggregateName: string = this.currentAggregate.toLowerCase();
         this.assertAggregateExists(lowerCaseAggregateName, this.schemas);
 
-        const matchingSchemaObject /*: JsonSchemaObject */ = this.schemas[lowerCaseAggregateName]// as JsonSchemaObject;
+        const matchingSchemaObject = this.schemas[lowerCaseAggregateName]
         const matchingContextObject = this.contexts[lowerCaseAggregateName];
-        const classContext = this.getClassContextObject(matchingContextObject["@context"]);
+        if (!matchingContextObject || !matchingSchemaObject) {
+            throw new Error("");
+        }
+        const classContext: ClassContext = this.getClassContextObject(matchingContextObject["@context"]);
 
         // if (!JsonSchemaObject.is(matchingDefinition)) {
         //     console.log(`This is not a JsonSchemaObject: `, matchingDefinition);
@@ -86,13 +107,13 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         return this.generateSchemaPropertyMap(propertiesStructures, propertiesContexts);
     }
 
-    generateSchemaPropertyMap(structures /*: { [name: string]: JsonSchemaDefinition; }*/, propertiesContexts): LdkitSchemaPropertyMap {
+    generateSchemaPropertyMap(structures: object, propertiesContexts: { [key: string]: string | object }): LdkitSchemaPropertyMap {
         const propertyMap = {} as LdkitSchemaPropertyMap;
 
         Object.entries(structures)
             .filter(([propertyName, _]) => !(["id", "type"].includes(propertyName)))
             .map(([propertyName, propertyValue]) => {
-                const propertyContext: string | object = propertiesContexts[propertyName];
+                const propertyContext: string | object | undefined = propertiesContexts[propertyName];
                 if (!propertyContext) {
                     throw new Error(`Context for property ${propertyName} does not exist!`);
                 }
@@ -103,7 +124,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
                 //     return;
                 // }
 
-                const generatedPropertyObject = this.generateSchemaPropertyObject([propertyName, propertyValue], propertyContext);
+                const generatedPropertyObject = this.generateSchemaPropertyObject(propertyContext);
                 
                 if (!generatedPropertyObject) {
                     return;
@@ -115,16 +136,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         return propertyMap;
     }
 
-    generateSchemaPropertyObject([propertyName, propertyStructure] /*: [string, JsonSchemaDefinition]*/, propertyContext): LdkitSchemaProperty | string | readonly string[] {
-        // TODO: propertyName a propertyValue su hodnoty zo strukturalneho modelu / z JSON schematu
-        // postavit ten LdkitSchemaProperty objekt na zaklade struktury ako aj kontextu
-        // - ak je kontext pre danu property iba string -> da sa vytvorit jednoduchy objekt, pripadne pozriet do struktury ci to je array
-        // - ak je kontext zlozitejsi, pravdepodobne pojde o zlozitejsi objekt -> mozno necham na neskor
-
-        // console.log(`Prop name: "${propertyName}"`);
-        // console.log("Property Value: ", propertyStructure);
-        // console.log("Property context: ", propertyContext);
-
+    generateSchemaPropertyObject(propertyContext: string | object): LdkitSchemaProperty | string | readonly string[] | null {
         switch (typeof propertyContext) {
             case "string":
                 return propertyContext;
@@ -136,7 +148,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
         }
     }
 
-    private convertPropertyContextToLdkitSchemaProperty(propertyContext: object): LdkitSchemaProperty {
+    private convertPropertyContextToLdkitSchemaProperty(propertyContext: any): LdkitSchemaProperty | null {
         
         if (!propertyContext["@id"]) {
             throw new Error("Property context without @id.");
@@ -148,7 +160,6 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
 
         const result: LdkitSchemaProperty = {
             "@id": propertyContext["@id"],
-            
         };
 
         if (propertyContext["@container"] && propertyContext["@container"] === "@language") {

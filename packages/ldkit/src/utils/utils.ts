@@ -2,7 +2,7 @@ import { SourceCodeWriter, SourceCodeLanguageIdentifier } from "../writers/sourc
 import { TypescriptWriter } from "../writers/typescript-writer";
 
 export function tryGetKnownDictionaryPrefix(iri: string) {
-    const knownPrefixes = {
+    const knownPrefixes: { [key: string]: string } = {
         "http://dbpedia.org/ontology/": "dbo",
         "http://purl.org/dc/elements/1.1/": "dc",
         "http://purl.org/dc/terms/": "dcterms",
@@ -20,9 +20,16 @@ export function tryGetKnownDictionaryPrefix(iri: string) {
 
     const matches = Object.keys(knownPrefixes).filter(key => iri.startsWith(key));
 
-    if (matches.length === 1) {
+    if (matches.length === 1 && matches[0] !== undefined) {
         //console.log(`Found match: ${iri}: ${matches[0]}`);
-        return [knownPrefixes[matches[0]], iri.replace(matches[0], "")];
+        if (knownPrefixes[matches[0]] === undefined) {
+            throw new Error();
+        }
+
+        const knownPrefix: string = knownPrefixes[matches[0]] as string;
+        const commonIri: string = iri.replace(matches[0], "");
+        
+        return [knownPrefix, commonIri];
     }
 
     if (!matches.length) {

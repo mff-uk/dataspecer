@@ -7,7 +7,7 @@ import { SourceCodeWriter } from "./writers/source-code-writer-model";
 export class LdkitArtefactGenerator {
 
     private writer: SourceCodeWriter;
-    private dataProvider: AggregateDefinitionProvider = null;
+    private dataProvider: AggregateDefinitionProvider | null = null;
 
     constructor() {
         this.writer = getSupportedWriter("ts");
