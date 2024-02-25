@@ -12,7 +12,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
+import {isUniqueClass, fixTurtleFileWithBaseShex, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
   getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
@@ -137,7 +137,11 @@ export class ShexAdapter {
     
     var recordOfDataAndPrefixes = Support.prefixifyFinalOutput(resultString, this.baseURL);
 
+
     resultString = (await Support.prependPrefixes(recordOfDataAndPrefixes)).toString();
+    if(this.baseURL != undefined && this.baseURL != null && this.baseURL != ""){
+      resultString = (await fixTurtleFileWithBaseShex(resultString, this.baseURL)).toString();
+    }
 
     return { data: resultString };
   };
@@ -454,7 +458,7 @@ generateLanguageString(languageDescription: LanguageString, classNameIri: string
     const technicalName = this.irify(root);
     const nodeOrProperty = "ShExShape";
 
-    generatedIRI = (this.baseURL != null) ? this.baseURL + md5String + technicalName + nodeOrProperty : md5String + technicalName + nodeOrProperty ;
+    generatedIRI =  md5String + technicalName + nodeOrProperty ;
 
     return generatedIRI;
   }

@@ -1,6 +1,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <5612c1873ed3a1d5024b30ff367ed370adresaShape> a sh:NodeShape;
     sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
@@ -30,15 +31,16 @@
     sh:description "Prvek ruián úredikát z druhé úrovně"@cs, "Street of the address"@en;
     sh:name "Prvek ruián predikát z druhé úrovně"@cs, "Street"@en;
     sh:minCount 1;
-    sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>.
+
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape>.
 <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "má-přiřazené-území-městského-obvodu predikát z druhé úrovně"@cs;
     sh:name "má-přiřazené-území-městského-obvodu predikát z druhé úrovně"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66unikatni-predikatShape> a sh:PropertyShape;
     sh:description "Popis unikatni predikat predikát z druhé úrovně"@cs;

@@ -1,6 +1,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <5612c1873ed3a1d5024b30ff367ed370adresaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
@@ -34,15 +35,16 @@
     sh:description "Ulice bydliště"@cs, "Street of the address"@en;
     sh:name "ulice"@cs, "Street"@en;
     sh:minCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>.
+
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape>.
 <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
     sh:name "Číslo popisné"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape>.
 <5612c1873ed3a1d5024b30ff367ed370adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape>.

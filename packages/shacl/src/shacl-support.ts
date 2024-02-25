@@ -418,9 +418,6 @@ export async function prependPrefixes(recordOfDataAndPrefixes : Record<string, R
 
 export function prefixifyFinalOutput(data : string, base: string): Record<string, Record<string, string>>{
     var prefixifiedString = data;
-    if(base != undefined && base != null && base != ""){
-        usualPrefixes["base"] = base;
-    }
 
     var prefixes = recognizeStandardPrefixes(data);
     
@@ -483,6 +480,27 @@ export async function fixTurtleFileWithBase(file: String, base: String): Promise
 
     const regex = /\.\n{2}/i;
     fixedFile = file.replace(regex, '.\n@base <' + base + '>.\n\n');
+
+    return fixedFile;
+}
+
+export async function fixTurtleFileWithBaseShex(file: String, base: String): Promise<String> {
+    var fixedFile = file;
+
+    const regex = /\n{2}/i;
+    fixedFile = fixedFile.replace(regex, '\nbase <' + base + '>\n\n');
+    return fixedFile;
+}
+
+export async function fixPrefixPosition(file: String, wrongPosition: String): Promise<String> {
+    const firstReplacement = wrongPosition + "\n";
+    var fixedFile = file;
+    // delete the prefix from the middle of the file
+    var updated = fixedFile.replace(firstReplacement.toString(),'');
+
+    // Add the prefix at the beginning of the file
+    const regex = /\.\n{2}/i;
+    fixedFile = updated.replace(regex, '.\n' + wrongPosition + '\n\n');
 
     return fixedFile;
 }

@@ -1,6 +1,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
@@ -13,8 +14,9 @@
     sh:name "vek"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+    sh:path <https://slovník.gov.cz/generický/adresy/pojem/poštovní-směrovací-číslo>.
+
+<49c3ca40cabd34a07f73aed81e6b042fvek-popisekShape> sh:datatype xsd:integer.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <49c3ca40cabd34a07f73aed81e6b042fvek-popisekShape>.
 <ce8ec9714757ae585b74ec03f314104cstudujici-popisekShape> a sh:PropertyShape;
     sh:description "Studujici"@cs;
@@ -22,7 +24,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#boolean>.
+    sh:datatype xsd:boolean.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <ce8ec9714757ae585b74ec03f314104cstudujici-popisekShape>.
 <df410bf17e678bca431907e1b53e8155prumerna-znamka-popisekShape> a sh:PropertyShape;
     sh:description "Průměrná známka"@cs;
@@ -30,7 +32,7 @@
     sh:minCount 1;
     sh:maxCount 3;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/typ-čísla-domovního>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
+    sh:datatype xsd:decimal.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <df410bf17e678bca431907e1b53e8155prumerna-znamka-popisekShape>.
 <7135d446f30f976d7cab231dbff06756darum-popisekShape> a sh:PropertyShape;
     sh:description "Datum nástupu"@cs;
@@ -38,7 +40,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/znak-čísla-orientačního>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
+    sh:datatype xsd:date.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <7135d446f30f976d7cab231dbff06756darum-popisekShape>.
 <1f78c49c56500692f4c861fdaef4ba97cas-popisekShape> a sh:PropertyShape;
     sh:description "Začátek výuky (hod)"@cs;
@@ -46,7 +48,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-katastrálního-území>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
+    sh:datatype xsd:time.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <1f78c49c56500692f4c861fdaef4ba97cas-popisekShape>.
 <dcb3aec7b02ecfe3c7bac6bc1702c0d5casova-znacka-popisekShape> a sh:PropertyShape;
     sh:description "časová známka založení účtu"@cs;
@@ -54,19 +56,19 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-název-okresu>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#dateTimeStamp>.
+    sh:datatype xsd:dateTimeStamp.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <dcb3aec7b02ecfe3c7bac6bc1702c0d5casova-znacka-popisekShape>.
 <977d84b66804a75e36647e66df543bd6profil-popisekShape> a sh:PropertyShape;
     sh:description "Odkaz na profil studenta"@cs;
     sh:name "Profil studenta"@cs;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/text-adresy>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#anyURI>.
+    sh:datatype xsd:anyURI.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <977d84b66804a75e36647e66df543bd6profil-popisekShape>.
 <c88a53c4be9899c48fc95ff5eae22e1dpoznamky-popisekShape> a sh:PropertyShape;
     sh:description "Poznámky k hodnocení studenta"@cs;
     sh:name "Slovní hodnocení"@cs;
     sh:minCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/název-městského-obvodu-městské-části>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> sh:property <c88a53c4be9899c48fc95ff5eae22e1dpoznamky-popisekShape>.

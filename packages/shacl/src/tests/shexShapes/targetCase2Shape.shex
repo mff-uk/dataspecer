@@ -1,5 +1,6 @@
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+base <https://example.org/>
 
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShExShape> NonLiteral{
 	a . {0} ;

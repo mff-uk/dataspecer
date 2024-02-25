@@ -1,6 +1,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <2da40eef3feaff877bb3b51ed1214374osobaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Věc>;
@@ -25,8 +26,9 @@
     sh:description "Ulice bydliště"@cs;
     sh:name "ulice"@cs;
     sh:maxCount 1;
-    sh:path <https://example.com/Ulice>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:path <https://example.com/Ulice>.
+
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape>.
 <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape> a sh:PropertyShape;
     sh:description "Číslo popisné dané budovy"@cs;
@@ -34,7 +36,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/CisloPopisne>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+    sh:datatype xsd:integer.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape>.
 <d10c659ee236c2fe0cc8345d9531a0eamesto-popisekShape> a sh:PropertyShape;
     sh:description "Město, ve kterém se nachází budova"@cs;
@@ -42,7 +44,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Mesto>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <d10c659ee236c2fe0cc8345d9531a0eamesto-popisekShape>.
 <bd55148718bc1da1d49f0381fa1b8831psc-popisekShape> a sh:PropertyShape;
     sh:description "Poštovní směrovací číslo"@cs;
@@ -50,7 +52,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/PSC>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#integer>.
+    sh:datatype xsd:integer.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <bd55148718bc1da1d49f0381fa1b8831psc-popisekShape>.
 <47a29c86c5f445146aef364f0619cfb8stat-popisekShape> a sh:PropertyShape;
     sh:description "Stát - země, ve které se objekt nachází"@cs;
@@ -58,14 +60,14 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Stat>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <47a29c86c5f445146aef364f0619cfb8stat-popisekShape>.
 <47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape> a sh:PropertyShape;
     sh:description "Rozloha pozemku"@cs;
     sh:name "Rozloha pozemku v kmxkm."@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Rozloha>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#decimal>.
+    sh:datatype xsd:decimal.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <47a29c86c5f445146aef364f0619cfb8rozloha-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape> a sh:PropertyShape;
     sh:description "Jméno a příjmení dané osoby"@cs;
@@ -86,7 +88,7 @@
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://example.com/Jmeno>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape> sh:property <47a29c86c5f445146aef364f0619cfb8jmeno-popisekShape>.
 <bd55148718bc1da1d49f0381fa1b8831prijmeni-popisekShape> a sh:PropertyShape;
     sh:description "Příjmení"@cs;
@@ -94,7 +96,7 @@
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://example.com/Prijmeni>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape> sh:property <bd55148718bc1da1d49f0381fa1b8831prijmeni-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShape>.
 <cb7b59f426ab7ddeb06a5fac76e9e517adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66jmeno-a-prijmeni-popisekShape>.
@@ -117,14 +119,14 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Narozeni>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
+    sh:datatype xsd:date.
 <cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape> sh:property <bd55148718bc1da1d49f0381fa1b8831narozeni-popisekShape>.
 <47a29c86c5f445146aef364f0619cfb8umrti-popisekShape> a sh:PropertyShape;
     sh:description "Datum úmrtí osoby"@cs;
     sh:name "Datum úmrtí"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Umrti>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
+    sh:datatype xsd:date.
 <cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape> sh:property <47a29c86c5f445146aef364f0619cfb8umrti-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66narozeni-a-umrti-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShape>.
 <2da40eef3feaff877bb3b51ed1214374osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66narozeni-a-umrti-popisekShape>.
@@ -144,7 +146,7 @@
     sh:name "Začátek uveden v čase"@cs;
     sh:maxCount 1;
     sh:path <https://example.com/Zacatek_cas>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
+    sh:datatype xsd:time.
 <cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape> sh:property <47a29c86c5f445146aef364f0619cfb8casovy-zacatek-popisekShape>.
 <bd55148718bc1da1d49f0381fa1b8831konec-cas-popisekShape> a sh:PropertyShape;
     sh:description "Konec"@cs;
@@ -152,7 +154,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://example.com/Konec_cas>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#time>.
+    sh:datatype xsd:time.
 <cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape> sh:property <bd55148718bc1da1d49f0381fa1b8831konec-cas-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66vyucovaci-hodina-popisekShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShape>.
 <2da40eef3feaff877bb3b51ed1214374osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66vyucovaci-hodina-popisekShape>.

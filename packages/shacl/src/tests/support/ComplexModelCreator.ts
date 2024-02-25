@@ -49,7 +49,7 @@ class ComplexModelCreator  implements ModelCreator{
       zipType = new StructureModelPrimitiveType();
       zipType.dataType = "http://www.w3.org/2001/XMLSchema#integer";
       zipType.example = null;
-      zipType.regex = "^\d{3}(?:[-\s]\d{2}){1}$";
+      zipType.regex = null;
 
       var integerType : StructureModelPrimitiveType;
       integerType = new StructureModelPrimitiveType();

@@ -1,4 +1,5 @@
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+base <https://example.org/>
 
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1ShExShape> NonLiteral{
 	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>] ? ;

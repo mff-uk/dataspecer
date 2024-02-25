@@ -12,7 +12,7 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import {isTheSameEntity, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
+import {isTheSameEntity, fixPrefixPosition, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
   getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
 //import { N3Deref } from 'n3';
@@ -126,6 +126,7 @@ export class ShaclAdapter {
   protected uniquePredicatePredicate  = null;
   protected root : StructureModelClass = null;
   protected rootName = null;
+  protected addedXSDPrefix = false;
 
   constructor(
     model: StructureModel,
@@ -164,6 +165,9 @@ export class ShaclAdapter {
 
     if(this.baseURL != null && this.baseURL != undefined){
       resultString = (await fixTurtleFileWithBase(resultString, this.baseURL)).toString();
+    }
+    if(this.addedXSDPrefix){
+      resultString = (await fixPrefixPosition(resultString, "@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.")).toString();
     }
 
     return { data: resultString };
@@ -560,8 +564,12 @@ export class ShaclAdapter {
         if(dtcasted != null){
           const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
           var datatypeString = "";
-          
+          console.log("Datatype from map consideration: " + dtcasted.dataType);
           if(datatypeFromMap != undefined){
+            console.log("adding prefix to prefixes");
+            if(!this.addedXSDPrefix){
+              this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
+            }
             datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
@@ -580,11 +588,22 @@ export class ShaclAdapter {
             }
           } else{
             if(dtcasted.dataType != null){
+              if(dtcasted.dataType.includes("http://www.w3.org/2001/XMLSchema#") && !this.addedXSDPrefix){
+                console.log("adding prefix to prefixes")
+                this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
+                this.addedXSDPrefix = true;
+              }
               this.writer.addQuad(
                 namedNode( propertyNodeIRI ),
                 namedNode('http://www.w3.org/ns/shacl#datatype'),
                 namedNode( dtcasted.dataType ));
-          } 
+            } 
+            if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
+              this.writer.addQuad(
+                namedNode( propertyNodeIRI ),
+                namedNode('http://www.w3.org/ns/shacl#pattern'),
+                literal(dtcasted.regex.toString()));
+            }
           }
         
         }

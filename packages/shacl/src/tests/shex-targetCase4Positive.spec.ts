@@ -11,7 +11,6 @@ test('Shape conforms to SxEx standard - targetCase4', async () => {
   const shexTester = new Support.TestResults();
   const report = await shexTester.testShexShape(testType, modelCreator);
   const parsed = JSON.parse(report.toString());
-  console.log(report);
   expect(parsed[0].status).toBe("conformant");
 });
 
