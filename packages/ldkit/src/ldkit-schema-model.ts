@@ -1,7 +1,7 @@
 export type LdkitSchemaProperty = {
     "@id": string;
     "@type"?: string | number | boolean | Date;
-    "@context"?: LdkitSchema;
+    "@schema"?: LdkitSchema;
     "@optional"?: true;
     "@array"?: true;
     "@multilang"?: true;

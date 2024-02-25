@@ -11,6 +11,7 @@ export interface AggregateDefinitionProvider {
 }
 
 export type AggregateMetadata = {
+    // TODO: ako mapovat nazvy fieldov na obrazovke? 
     aggregateName: string;
     dataSchema: LdkitSchema
 }
