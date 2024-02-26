@@ -4,7 +4,6 @@ import * as catalogContext from "../data/context/catalogContext.json";
 import * as datasetContext from "../data/context/datasetContext.json";
 import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-data-provider-model";
 import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model";
-//import { JsonSchemaArray, JsonSchemaDefinition, JsonSchemaObject, JsonSchemaString } from "@dataspecer/json/json-schema/";
 
 type SchemaObject = {
     $schema: string;
@@ -22,7 +21,7 @@ type ClassContext = {
 
 export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
 
-    private schemas: { [key: string]: SchemaObject };    //: { [key: string]: JsonSchemaDefinition };
+    private schemas: { [key: string]: SchemaObject };
     private contexts: { [key: string]: { "@context": object } };
     private currentAggregate: string;
 

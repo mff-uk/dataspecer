@@ -4,5 +4,6 @@ dist
 unused
 generated
 !.gitignore
+!src/data
 tsconfig.tsbuildinfo
 genapp-configurator
