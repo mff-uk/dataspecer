@@ -1,0 +1,22 @@
+{
+  "name": "@dataspecer/genapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prebuild": "rimraf lib",
+    "start": "echo \"Starting\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Viktor Bujko",
+  "license": "ISC",
+  "dependencies": {
+    "@dataspecer/core": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}
