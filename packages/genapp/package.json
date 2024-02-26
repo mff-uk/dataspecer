@@ -13,7 +13,8 @@
   "author": "Viktor Bujko",
   "license": "ISC",
   "dependencies": {
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "@dataspecer/ldkit": "*"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
