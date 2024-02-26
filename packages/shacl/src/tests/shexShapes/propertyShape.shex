@@ -13,7 +13,7 @@ base <https://example.org/>
 }
 <5612c1873ed3a1d5024b30ff367ed370adresaShExShape> NonLiteral{
 	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>] ;
-	<https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> IRI { a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian>] ? } +
+	<https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> IRI +
 		// rdfs:label	"Prvek rúian"
 		// rdfs:comment	"Popis prvku rúian" ;
 	<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze> @<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShExShape> +

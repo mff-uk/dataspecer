@@ -306,7 +306,7 @@ export class ShexAdapter {
                   this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
                 }
                   newResult = newResult.concat(" <" + simpleTypeMapIRI[dtcasted.dataType] + ">"); 
-                if(simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI"){
+                if((simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#anyURI") || (simpleTypeMapIRI[dtcasted.dataType] == "http://www.w3.org/2001/XMLSchema#string")){
                   if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
                     newResult = newResult.concat(" /" + dtcasted.regex.toString() + "/" ); 
                   }
@@ -412,6 +412,8 @@ export class ShexAdapter {
       default: newResult = newResult.concat(" IRI");
     }
 
+    // Code not used as of now the Dataspecer empty asscoiation is taken as a predicate followed by an IRI and no other constraints are demanded from it. Uncomment this section if the empty association should be at least of the correct type.
+    /*
     switch(cls.instancesSpecifyTypes){
       case "ALWAYS": newResult = newResult.concat(" { a [<" + cls.cimIri + ">] }");
       break;
@@ -421,7 +423,7 @@ export class ShexAdapter {
         break;
         default: newResult = newResult.concat(" { a [<" + cls.cimIri + ">] }");
     }
-
+    */
     return newResult;
   }  
 
