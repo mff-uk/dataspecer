@@ -1,14 +1,6 @@
-export type DatasourceConfig = { }
+import { ApplicationConfiguration } from "./application-config";
 
-export type CapabilityConfig = { }
-
-export type ApplicationConfiguration = {
-    targetLanguage: "ts",
-    datasources: DatasourceConfig[],
-    capabilities: CapabilityConfig[]
-}
-
-export interface ConfigurationReader<TConfiguration> {
+export interface ConfigurationReader<TConfiguration extends ApplicationConfiguration> {
     getAppConfiguration(): TConfiguration;
 }
 
@@ -16,8 +8,28 @@ export class GenAppConfigurationReader implements ConfigurationReader<Applicatio
 
     private appConfigInstance: ApplicationConfiguration = {
         targetLanguage: "ts",
-        datasources: [],
-        capabilities: []
+        datasources: {
+            "Catalog": [
+                {
+                    format: "rdf",
+                    endpointUri: "https://data.gov.cz/sparql"
+                }
+            ],
+            "Dataset": [
+                {
+                    format: "rdf",
+                    endpointUri: "https://data.gov.cz/sparql"
+                }
+            ]
+        },
+        capabilities: {
+            "Catalog": [
+                "Overview"
+            ],
+            "Dataset": [
+                "Overview"
+            ]
+        }
     };
 
     getAppConfiguration(): ApplicationConfiguration {

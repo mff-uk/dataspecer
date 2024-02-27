@@ -1,4 +1,5 @@
-import { ConfigurationReader, GenAppConfigurationReader, ApplicationConfiguration } from "../config-reader";
+import { ApplicationConfiguration } from "../application-config";
+import { ConfigurationReader, GenAppConfigurationReader } from "../config-reader";
 import { OverviewCapability } from "./overview-generator";
 
 export interface Capability {

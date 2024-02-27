@@ -1,4 +1,5 @@
-import { ConfigurationReader, ApplicationConfiguration } from "../config-reader";
+import { ApplicationConfiguration } from "../application-config";
+import { ConfigurationReader } from "../config-reader";
 import { Capability } from "./capability-definition";
 
 export class OverviewCapability implements Capability {
