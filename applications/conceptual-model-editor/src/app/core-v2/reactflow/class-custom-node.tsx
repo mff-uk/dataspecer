@@ -1,6 +1,6 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
 import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getDescriptionOfThingInLang, getNameOfThingInLangOrIri } from "../util/language-utils";
+import { getStringFromLanguageStringInLang, getNameOfThingInLangOrIri } from "../util/language-utils";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass;
@@ -33,7 +33,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 {attributes?.map((attr) => {
                     const [n, l] = getNameOfThingInLangOrIri(attr, "no-iri");
-                    const [d, dl] = getDescriptionOfThingInLang(attr);
+                    const [d, dl] = getStringFromLanguageStringInLang(attr.description);
 
                     return (
                         <p key={`${n}.${attr.concept}`} title={d ?? ""}>
