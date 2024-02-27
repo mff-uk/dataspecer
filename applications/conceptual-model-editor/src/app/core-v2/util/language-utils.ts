@@ -99,9 +99,14 @@ const nextLanguageInHierarchy = (lang: string) => {
     }
 };
 
-export const getLanguagesForNamedThing = (thing: NamedThing) => {
-    const langs = new Set<string>(Object.keys(thing.name));
-    Object.keys(thing.description).forEach((lang) => langs.add(lang));
+// TODO: export from concepts
+type Nullable<T> = {
+    [P in keyof T]: T[P] | null;
+};
+
+export const getLanguagesForNamedThing = (thing: Nullable<NamedThing>) => {
+    const langs = new Set<string>(Object.keys(thing?.name ?? {}));
+    Object.keys(thing?.description ?? {}).forEach((lang) => langs.add(lang));
     return [...langs];
 };
 

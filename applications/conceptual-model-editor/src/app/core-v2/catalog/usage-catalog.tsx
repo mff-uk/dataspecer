@@ -1,15 +1,20 @@
 import { useClassesContext } from "../context/classes-context";
-import { useModelGraphContext } from "../context/model-context";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { getNameOrIriAndDescription, getStringFromLanguageStringInLang, getUsageNote } from "../util/language-utils";
-import { shortenStringTo } from "../util/utils";
 
 export const UsageCatalog = () => {
     const { classes, relationships, attributes, usages } = useClassesContext();
+    const { openEntityDetailDialog, EntityDetailDialog, isEntityDetailDialogOpen } = useEntityDetailDialog();
+    console.log(usages);
     return (
         <>
+            {isEntityDetailDialogOpen && <EntityDetailDialog />}
             <ul>
                 {usages.map((u) => {
+                    const [usageName, usageNameFallbackLang] = getStringFromLanguageStringInLang(u.name ?? {});
+                    const [usageDescription, usageDescriptionFallbackLang] = getStringFromLanguageStringInLang(
+                        u.description ?? {}
+                    );
                     const note = getUsageNote(u);
                     const targetEntity =
                         classes.get(u.usageOf)?.cls ?? relationships.find((r) => r.id == u.usageOf) ?? null;
@@ -24,7 +29,13 @@ export const UsageCatalog = () => {
                                 title={targetDescription ?? ""}
                             >
                                 <div>
-                                    <span className="font-gray-500">{targetName}</span>: {note}
+                                    <span className="font-gray-500">{targetName}</span>:
+                                    <span title={usageDescription ?? ""}>
+                                        {usageName}@{usageNameFallbackLang}
+                                    </span>
+                                </div>
+                                <div>
+                                    <button onClick={() => openEntityDetailDialog(u)}>Detail</button>
                                 </div>
                             </div>
                         </li>

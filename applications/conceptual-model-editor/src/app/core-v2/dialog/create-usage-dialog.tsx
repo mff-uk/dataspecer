@@ -29,6 +29,8 @@ export const useCreateUsageDialog = () => {
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
+        const [name, setName] = useState<LanguageString>({});
+        const [description, setDescription] = useState<LanguageString>({});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
@@ -57,11 +59,29 @@ export const useCreateUsageDialog = () => {
                     />
                 </p>
 
+                <p className="bg-slate-50 p-2">
+                    name:
+                    <MultiLanguageInputForLanguageString ls={name} setLs={setName} defaultLang="en" inputType="text" />
+                </p>
+                <p className="bg-slate-50 p-2">
+                    description:
+                    <MultiLanguageInputForLanguageString
+                        ls={description}
+                        setLs={setDescription}
+                        defaultLang="en"
+                        inputType="textarea"
+                    />
+                </p>
                 <div className="flex flex-row justify-evenly">
                     {model && entity ? (
                         <button
                             onClick={() => {
-                                createEntityUsage(model, entity.id, usageNote, entity.type[0]);
+                                createEntityUsage(model, entity.type[0], {
+                                    usageOf: entity.id,
+                                    usageNote: usageNote,
+                                    description,
+                                    name,
+                                });
                                 localClose();
                             }}
                         >

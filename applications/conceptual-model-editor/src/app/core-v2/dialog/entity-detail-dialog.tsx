@@ -1,4 +1,5 @@
 import {
+    isSemanticModelClass,
     isSemanticModelRelationship,
     type SemanticModelClass,
     type SemanticModelRelationship,
@@ -12,8 +13,19 @@ import {
     getStringFromLanguageStringInLang,
 } from "../util/language-utils";
 import { IriLink } from "../catalog/entity-catalog-row";
+import {
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+    SemanticModelUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-type SupportedEntityType = SemanticModelClass | SemanticModelRelationship;
+type SupportedEntityType =
+    | SemanticModelClass
+    | SemanticModelRelationship
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage;
 
 export const useEntityDetailDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -41,12 +53,26 @@ export const useEntityDetailDialog = () => {
         const [currentLang, setCurrentLang] = useState("en");
 
         const langs = getLanguagesForNamedThing(viewedEntity);
+        let name = "",
+            description = "",
+            iri: null | string = null,
+            usageNote: null | string = null,
+            usageOf: null | string = null;
 
-        const [name, description] = getNameOrIriAndDescription(
-            viewedEntity,
-            viewedEntity.iri || viewedEntity.id,
-            currentLang
-        );
+        if (isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)) {
+            const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {});
+            const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {});
+            const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {});
+            [name, description, usageNote, usageOf] = [
+                (a ?? "no-name") + (b != null ? `@${b}` : ""),
+                c ?? "" + (d != null ? `@${d}` : ""),
+                e ?? "" + (f != null ? `@${f}` : ""),
+                viewedEntity.usageOf,
+            ];
+        } else if (isSemanticModelClass(viewedEntity) || isSemanticModelRelationship(viewedEntity)) {
+            const [a, b] = getNameOrIriAndDescription(viewedEntity, viewedEntity.iri || viewedEntity.id, currentLang);
+            [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
+        }
 
         const { classes: c, attributes: a } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
@@ -80,10 +106,11 @@ export const useEntityDetailDialog = () => {
                         Detail of: <span className="font-semibold">{name}</span>
                     </h5>
                     <div className="grid grid-cols-[80%_20%] grid-rows-1">
-                        <p className="flex flex-row text-gray-500" title={viewedEntity.iri ?? ""}>
-                            <IriLink iri={viewedEntity.iri} />
-                            {viewedEntity.iri}
+                        <p className="flex flex-row text-gray-500" title={iri ?? ""}>
+                            <IriLink iri={iri} />
+                            {iri}
                         </p>
+
                         <div>
                             <select
                                 name="langs"
@@ -96,10 +123,11 @@ export const useEntityDetailDialog = () => {
                                 ))}
                             </select>
                         </div>
+                        {usageOf && <p className="flex flex-row text-gray-500">usage of: {usageOf}</p>}
                     </div>
                 </div>
                 <p>type: {viewedEntity.type}</p>
-                <p>{description}</p>
+                <p>description: {description}</p>
                 {attributes.length > 0 && (
                     <p>
                         attributes:
@@ -124,6 +152,7 @@ export const useEntityDetailDialog = () => {
                         })}
                     </p>
                 )}
+                {usageNote && <p>usage note: {usageNote}</p>}
                 {domain && (
                     <p>
                         domain:

@@ -89,27 +89,17 @@ export const useModelGraphContext = () => {
 
     const createEntityUsage = (
         model: InMemorySemanticModel,
-        entityId: string,
-        usageNote: LanguageString | null,
         entityType: "class" | "relationship",
         entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
     ) => {
         if (entityType == "class") {
-            const result = model.executeOperation(
-                createClassUsage({
-                    usageOf: entityId,
-                    usageNote: usageNote,
-                    description: "description",
-                    id: "6969420",
-                    name: "name",
-                })
-            );
+            const result = model.executeOperation(createClassUsage(entity));
             console.log(result);
         } else if (entityType == "relationship") {
-            const result = model.executeOperation(createRelationshipUsage({ usageOf: entityId, usageNote: usageNote }));
+            const result = model.executeOperation(createRelationshipUsage(entity));
             console.log(result);
         } else {
-            console.error(model, entityId, entityType, usageNote);
+            console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
         }
     };

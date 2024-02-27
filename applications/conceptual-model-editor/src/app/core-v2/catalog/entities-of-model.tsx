@@ -173,7 +173,11 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
                     isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(v.cls.id)?.visible ?? false}
                     removable={null}
-                    usage={null}
+                    usage={{
+                        createUsageHandler: () => {
+                            handleCreateUsage(v.cls);
+                        },
+                    }}
                 />
             ));
     }
