@@ -1,6 +1,10 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
 import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getStringFromLanguageStringInLang, getNameOfThingInLangOrIri } from "../util/language-utils";
+import {
+    getStringFromLanguageStringInLang,
+    getNameOfThingInLangOrIri,
+    getNameOrIriAndDescription,
+} from "../util/language-utils";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass;
@@ -17,7 +21,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const clr = props.data.color ?? "#ffffff";
     const attributes = props.data.attributes;
 
-    const [name, lang] = getNameOfThingInLangOrIri(cls, iri ?? "no-iri");
+    const [name, description] = getNameOrIriAndDescription(cls, iri ?? id);
 
     return (
         <>
@@ -26,18 +30,16 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     className="overflow-x-hidden whitespace-nowrap border border-b-black"
                     style={{ backgroundColor: clr }}
                 >
-                    {name + (lang ? `@${lang}` : "")}
+                    {name}
                 </h1>
 
                 <p className="overflow-x-clip text-gray-500">{iri}</p>
 
                 {attributes?.map((attr) => {
-                    const [n, l] = getNameOfThingInLangOrIri(attr, "no-iri");
-                    const [d, dl] = getStringFromLanguageStringInLang(attr.description);
-
+                    const [n, d] = getNameOrIriAndDescription(attr, "no-iri");
                     return (
                         <p key={`${n}.${attr.concept}`} title={d ?? ""}>
-                            - {n}@{l}
+                            - {n}
                         </p>
                     );
                 })}

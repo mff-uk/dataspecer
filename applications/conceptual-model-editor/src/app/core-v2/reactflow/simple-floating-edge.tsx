@@ -11,7 +11,7 @@ import {
 
 import { getEdgeParams, getLoopPath } from "./utils";
 import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getNameOfThingInLangOrIri } from "../util/language-utils";
+import { getNameOfThingInLangOrIri, getNameOrIriAndDescription } from "../util/language-utils";
 import { number, string } from "zod";
 
 // this is a little helper component to render the actual edge label
@@ -116,7 +116,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
     color: string | undefined,
     index: number = 6.9
 ) => {
-    const [name] = getNameOfThingInLangOrIri(rel, rel.iri ?? "no-iri");
+    const [name, description] = getNameOrIriAndDescription(rel, rel.iri ?? rel.id);
     return {
         id: rel.id,
         source: rel.ends[0]!.concept,
