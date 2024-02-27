@@ -1,12 +1,8 @@
-export type DatasourceConfig = {
+export type DatasourceConfig = { }
 
-}
+export type CapabilityConfig = { }
 
-export type CapabilityConfig = {
-
-}
-
-export type GeneratedApplicationConfiguration = {
+export type ApplicationConfiguration = {
     targetLanguage: "ts",
     datasources: DatasourceConfig[],
     capabilities: CapabilityConfig[]
@@ -16,8 +12,15 @@ export interface ConfigurationReader<TConfiguration> {
     getAppConfiguration(): TConfiguration;
 }
 
-export class GenAppConfigurationReader implements ConfigurationReader<GeneratedApplicationConfiguration> {
-    getAppConfiguration(): GeneratedApplicationConfiguration {
-        throw new Error("Method not implemented.");
+export class GenAppConfigurationReader implements ConfigurationReader<ApplicationConfiguration> {
+
+    private appConfigInstance: ApplicationConfiguration = {
+        targetLanguage: "ts",
+        datasources: [],
+        capabilities: []
+    };
+
+    getAppConfiguration(): ApplicationConfiguration {
+        return this.appConfigInstance;
     }
 }

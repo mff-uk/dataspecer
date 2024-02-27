@@ -1,7 +1,6 @@
-import { GeneratedApplicationConfiguration } from "../config-reader";
+import { ApplicationConfiguration } from "../config-reader";
 
-class ApplicationGenerator<TApplicationConfiguration> {
-    generate(appConfig: GeneratedApplicationConfiguration) {
-
+class ApplicationGenerator {
+    generate() {
     }
 }
