@@ -8,10 +8,11 @@ import { UsageCatalog } from "./usage-catalog";
 export const Catalog = () => {
     const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "usage">("class");
     const { relationships, attributes, usages } = useClassesContext();
+
     return (
         <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
             <ModelCatalog />
-            <div className="h-full overflow-y-scroll pb-2">
+            <div className="h-full pb-2">
                 <div className="flex flex-row [&>*]:mx-2">
                     <button
                         disabled={entityView == "class"}
@@ -50,10 +51,12 @@ export const Catalog = () => {
                     )}
                 </div>
 
-                {entityView == "class" && <EntityCatalog />}
-                {entityView == "relationship" && <RelationshipCatalog />}
-                {entityView == "attribute" && <AttributeCatalog />}
-                {entityView == "usage" && <UsageCatalog />}
+                <div className="h-full overflow-y-scroll pb-2">
+                    {entityView == "class" && <EntityCatalog />}
+                    {entityView == "relationship" && <RelationshipCatalog />}
+                    {entityView == "attribute" && <AttributeCatalog />}
+                    {entityView == "usage" && <UsageCatalog />}
+                </div>
             </div>
         </div>
     );

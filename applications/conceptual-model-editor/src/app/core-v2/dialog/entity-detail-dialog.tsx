@@ -5,7 +5,7 @@ import {
     type SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { cardinalityToString, clickedInside, isAttribute } from "../util/utils";
+import { cardinalityToString } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
 import {
     getLanguagesForNamedThing,
@@ -18,8 +18,8 @@ import {
     isSemanticModelRelationshipUsage,
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
-    SemanticModelUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { useBaseDialog } from "./base-dialog";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -28,7 +28,7 @@ type SupportedEntityType =
     | SemanticModelRelationshipUsage;
 
 export const useEntityDetailDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const editDialogRef = useRef(null as unknown as HTMLDialogElement);
     const [viewedEntity, setViewedEntity] = useState(null as unknown as SupportedEntityType);
 
@@ -37,13 +37,13 @@ export const useEntityDetailDialog = () => {
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
-        setIsOpen(false);
+    const localClose = () => {
         setViewedEntity(null as unknown as SupportedEntityType);
+        close();
     };
-    const open = (entity: SupportedEntityType) => {
+    const localOpen = (entity: SupportedEntityType) => {
         setViewedEntity(entity);
-        setIsOpen(true);
+        open();
     };
     const save = () => {
         close();
@@ -86,21 +86,7 @@ export const useEntityDetailDialog = () => {
         console.log(ends, domain, viewedEntity);
 
         return (
-            <dialog
-                ref={editDialogRef}
-                className="flex h-96 w-96 flex-col justify-between"
-                onCancel={(e) => {
-                    e.preventDefault();
-                    close();
-                }}
-                onClick={(e) => {
-                    const rect = editDialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
-            >
+            <BaseDialog heading="Entity detail">
                 <div>
                     <h5>
                         Detail of: <span className="font-semibold">{name}</span>
@@ -169,14 +155,14 @@ export const useEntityDetailDialog = () => {
                     <button onClick={save}>confirm</button>
                     <button onClick={close}>close</button>
                 </div>
-            </dialog>
+            </BaseDialog>
         );
     };
 
     return {
         isEntityDetailDialogOpen: isOpen,
-        closeEntityDetailDialog: close,
-        openEntityDetailDialog: open,
+        closeEntityDetailDialog: localClose,
+        openEntityDetailDialog: localOpen,
         EntityDetailDialog,
     };
 };

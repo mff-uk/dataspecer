@@ -3,14 +3,14 @@ import {
     LanguageString,
     SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
-import { clickedInside } from "../util/utils";
+import { useRef, useEffect, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { getAvailableLanguagesForLanguageString, getNameOrIriAndDescription } from "../util/language-utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
+import { useBaseDialog } from "./base-dialog";
 
 const AddAttributesComponent = (props: {
     modifiedClassId: string;
@@ -88,7 +88,7 @@ const AddAttributesComponent = (props: {
 };
 
 export const useModifyEntityDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const modifyDialogRef = useRef(null as unknown as HTMLDialogElement);
     const [modifiedClass, setModifiedClass] = useState(null as unknown as SemanticModelClass);
     const [model, setModel] = useState<InMemorySemanticModel | null>(null);
@@ -100,15 +100,15 @@ export const useModifyEntityDialog = () => {
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
-        setIsOpen(false);
+    const localClose = () => {
         setModifiedClass(null as unknown as SemanticModelClass);
         setModel(null as unknown as InMemorySemanticModel);
+        close();
     };
-    const open = (cls: SemanticModelClass, model: InMemorySemanticModel | null = null) => {
-        setIsOpen(true);
+    const localOpen = (cls: SemanticModelClass, model: InMemorySemanticModel | null = null) => {
         setModifiedClass(cls);
         setModel(model);
+        open();
     };
 
     const filterInMemoryModels = (models: Map<string, EntityModel>) => {
@@ -137,22 +137,7 @@ export const useModifyEntityDialog = () => {
         const [toBeRemovedAttributes, setToBeRemovedAttributes] = useState<string[]>([]);
 
         return (
-            <dialog
-                ref={modifyDialogRef}
-                className="flex h-[90%] w-[80%] flex-col justify-between bg-slate-50 p-2"
-                onCancel={(e) => {
-                    e.preventDefault();
-                    close();
-                }}
-                onClick={(e) => {
-                    const rect = modifyDialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
-            >
-                <h4 className="mx-2 font-bold">Entity modification</h4>
+            <BaseDialog heading="Entity modification">
                 <div>
                     <div className="grid grid-cols-[25%_75%]">
                         <div>Detail of:</div>
@@ -285,14 +270,14 @@ export const useModifyEntityDialog = () => {
                     </button>
                     <button onClick={close}>close</button>
                 </div>
-            </dialog>
+            </BaseDialog>
         );
     };
 
     return {
         isModifyEntityDialogOpen: isOpen,
-        closeModifyEntityDialog: close,
-        openModifyEntityDialog: open,
+        closeModifyEntityDialog: localClose,
+        openModifyEntityDialog: localOpen,
         ModifyEntityDialog,
     };
 };

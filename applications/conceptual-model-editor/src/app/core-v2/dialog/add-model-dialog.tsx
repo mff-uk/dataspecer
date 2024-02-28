@@ -2,11 +2,10 @@ import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
-import { clickedInside } from "../util/utils";
 import { useBaseDialog } from "./base-dialog";
 
 export const useAddModelDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
     const { addModelToGraph } = useModelGraphContext();
     const [onSaveCallback, setOnSaveCallback] = useState<null | (() => void)>();
@@ -16,14 +15,14 @@ export const useAddModelDialog = () => {
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
-        setIsOpen(false);
+    const localClose = () => {
         onSaveCallback?.();
         setOnSaveCallback(null);
+        close();
     };
-    const open = (onSaveCallback: () => void) => {
-        setIsOpen(true);
+    const localOpen = (onSaveCallback: () => void) => {
         setOnSaveCallback(() => onSaveCallback);
+        open();
     };
     const save = async (modelTtlFiles: string[]) => {
         const model = await createRdfsModel(modelTtlFiles, httpFetch);
@@ -40,24 +39,7 @@ export const useAddModelDialog = () => {
         ]); // FIXME: sanitize
 
         return (
-            <dialog
-                ref={addModelDialogRef}
-                className="flex h-96 w-96 flex-col justify-between"
-                onCancel={(e) => {
-                    e.preventDefault();
-                    close();
-                }}
-                onClick={(e) => {
-                    const rect = addModelDialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
-            >
-                <div>
-                    <h5>Add Semantic Model</h5>
-                </div>
+            <BaseDialog heading="Add semantic model">
                 <label>Model .ttl file urls:</label>
                 <textarea
                     name="ttl-files"
@@ -86,46 +68,14 @@ export const useAddModelDialog = () => {
                     </button>
                     <button onClick={close}>close</button>
                 </div>
-            </dialog>
-        );
-    };
-
-    return {
-        isAddModelDialogOpen: isOpen,
-        closeAddModelDialog: close,
-        openAddModelDialog: open,
-        AddModelDialog,
-    };
-};
-
-export const useAddModelDialog2 = () => {
-    const { open, isOpen, close, BaseDialog } = useBaseDialog();
-
-    const AddModelDialog2 = () => {
-        const [modelTtlFiles, setModelTtlFiles] = useState([
-            "https://schema.org/version/latest/schemaorg-current-https.ttl",
-        ]); // FIXME: sanitize
-
-        return (
-            <BaseDialog heading="Add Semantic Model">
-                <>
-                    <label>Model .ttl file urls:</label>
-                    <textarea
-                        name="ttl-files"
-                        rows={4}
-                        cols={40}
-                        onChange={(e) => setModelTtlFiles(e.target.value.split("\n").map((s) => s.trim()))}
-                        value={modelTtlFiles.join("\n")}
-                    />
-                </>
             </BaseDialog>
         );
     };
 
     return {
         isAddModelDialogOpen: isOpen,
-        closeAddModelDialog: close,
-        openAddModelDialog: open,
-        AddModelDialog2,
+        closeAddModelDialog: localClose,
+        openAddModelDialog: localOpen,
+        AddModelDialog,
     };
 };

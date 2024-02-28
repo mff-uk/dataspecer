@@ -10,7 +10,7 @@ export const useCreateClassDialog = () => {
 
     const localOpen = (model: InMemorySemanticModel) => {
         setModel(model);
-        open(() => {});
+        open();
     };
 
     const CreateClassDialog = () => {

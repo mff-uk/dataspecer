@@ -10,7 +10,7 @@ import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { clickedInside } from "../util/utils";
+import { useBaseDialog } from "./base-dialog";
 
 const AssociationComponent = (props: {
     from: string;
@@ -106,7 +106,7 @@ const AssociationComponent = (props: {
 };
 
 export const useCreateConnectionDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
     const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
     const { createConnection } = useClassesContext();
@@ -116,15 +116,15 @@ export const useCreateConnectionDialog = () => {
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
+    const localClose = () => {
         setConnectionCreated(null as unknown as Connection);
         // todo: vyres connection mazani stavu // setConn({ connectionType: "association" } as ConnectionType);
         // setCardinality({ source: [0, null], target: [0, null] });
-        setIsOpen(false);
+        close();
     };
-    const open = (connection: Connection) => {
+    const localOpen = (connection: Connection) => {
         setConnectionCreated(connection);
-        setIsOpen(true);
+        open();
     };
 
     const filterInMemoryModels = (models: Map<string, EntityModel>) => {
@@ -154,21 +154,7 @@ export const useCreateConnectionDialog = () => {
         });
 
         return (
-            <dialog
-                ref={createConnectionDialogRef}
-                className="z-50 flex min-h-[400px] w-96 flex-col justify-between"
-                onCancel={(e) => {
-                    e.preventDefault();
-                    close();
-                }}
-                onClick={(e) => {
-                    const rect = createConnectionDialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
-            >
+            <BaseDialog heading="Create a connection">
                 <div>
                     <div>
                         <h5>Connection</h5>
@@ -257,14 +243,14 @@ export const useCreateConnectionDialog = () => {
                     </button>
                     <button onClick={() => close()}>close</button>
                 </div>
-            </dialog>
+            </BaseDialog>
         );
     };
 
     return {
         isCreateConnectionDialogOpen: isOpen,
-        closeCreateConnectionDialog: close,
-        openCreateConnectionDialog: open,
+        closeCreateConnectionDialog: localClose,
+        openCreateConnectionDialog: localOpen,
         CreateConnectionDialog,
     };
 };

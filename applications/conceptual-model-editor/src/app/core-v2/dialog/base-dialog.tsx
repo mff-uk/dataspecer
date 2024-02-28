@@ -30,12 +30,12 @@ export const useBaseDialog = () => {
         return (
             <dialog
                 ref={dialogRef}
-                className="flex h-96 w-96 flex-col justify-between"
+                className="flex h-[70%] w-[70%] flex-col justify-between p-4"
                 onCancel={(e) => {
                     e.preventDefault();
                     close();
                 }}
-                onClick={(e) => {
+                onMouseDown={(e) => {
                     const rect = dialogRef.current.getBoundingClientRect();
                     const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
                     if (!clickedInRect) {
