@@ -20,7 +20,7 @@ import { structureModelAddIdAndTypeProperties } from "./json-id-transformations"
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
 import {structureModelAddJsonProperties} from "../json-structure-model/add-json-properties";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
-import { StructureModel } from "@dataspecer/core/structure-model/model";
+import { StructureModel, StructureModelClass, StructureModelProperty } from "@dataspecer/core/structure-model/model";
 import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 
@@ -151,6 +151,21 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         jsonSchema,
         configuration,
         classes: await structureModel.getClasses(),
+        structureModelLinkId: function() {
+          function normalizeLabel(label: string) {
+            return label.replace(/ /g, "-").toLowerCase();
+          }
+
+          if (this instanceof StructureModelClass) {
+              const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
+              return `json-schéma-objekt-${normalizeLabel(label)}`;
+          } else if (this instanceof StructureModelProperty) {
+            const obj = structureModel.getClasses().find(c => c.properties.find(p => p.psmIri === this.psmIri))!;
+            const objLabel = obj.humanLabel?.cs ?? obj.humanLabel?.en ?? "";
+            //const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
+            return `json-schéma-vlastnost-${normalizeLabel(objLabel)}-${normalizeLabel(this.technicalLabel)}`;
+          }
+        },
         useTemplate: () => (template, render) => {
           if (template.trim() !== "") {
             return render(template);
@@ -180,8 +195,8 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 
 <ul>
 {{#classes}}{{#inThisSchema}}
-<li id="json-schema-overview-{{#humanLabel}}{{#translate}}{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
-  <a href="{{#pimClass}}#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}{{/pimClass}}">
+<li>
+  <a href="#{{structureModelLinkId}}">
     {{#humanLabel}}{{translate}}{{/humanLabel}}
   </a>
 <ul>
@@ -191,7 +206,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}
     {{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}}
     ({{cardinalityRange}}) položka typu {{#dataTypes}}
-      {{#isAssociation}}<strong><a href="#json-schema-overview-{{#dataType.humanLabel}}{{#translate}}{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a></strong>{{/isAssociation}}
+      {{#isAssociation}}<strong><a href="{{#dataType}}#{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a></strong>{{/isAssociation}}
       {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
     {{/dataTypes}}
 </li>
@@ -204,7 +219,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <h3>Detailní specifikace prvků JSON struktury</h3>
 
 {{#classes}}{{#inThisSchema}}
-<section id="{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<section id="{{structureModelLinkId}}">
 <h4>Objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
 <dl>
 {{#humanDescription}}{{#translate}}
@@ -214,13 +229,13 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Interpretace</dt>
 {{#pimClass}}
 <dd>
-  <a href="#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+  <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
 {{/pimClass}}
 </dl>
 
 {{#properties}}
-<section id="{{#humanLabel}}{{#translate}}json-structure-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<section id="{{structureModelLinkId}}">
 <h5>Vlastnost <code>{{technicalLabel}}</code></h5>
 <dl>
 <dt>Klíč</dt>
@@ -240,7 +255,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 
 {{#isAssociation}}
 <dd>
-  <a href="{{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a>
+  <a href="{{externalDocumentation}}#{{#dataType}}{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a>
 </dd>
 {{/isAssociation}}
 
@@ -260,7 +275,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Interpretace</dt>
 {{#pimAssociation}} 
 <dd>
-<a href="#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+<a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
 {{/pimAssociation}}
 </dl>

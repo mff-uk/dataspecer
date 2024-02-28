@@ -176,7 +176,7 @@ V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebn�
 
 {{#semanticModels}}
 {{#classes}}
-<section id="{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<section id="{{semanticModelLinkId}}">
 <h3>{{#humanLabel}}{{translate}}{{/humanLabel}}</h3>
 <dl>
 {{#humanDescription}}{{#translate}}
@@ -192,7 +192,7 @@ V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebn�
 </dl>
 
 {{#properties}}
-<section id="{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">
+<section id="{{semanticModelLinkId}}">
 <h4>{{#dataTypes}}{{#isAssociation}}Vztah (asociace): {{/isAssociation}}{{/dataTypes}}{{#humanLabel}}{{translate}}{{/humanLabel}}</h4>
 <dl>
 <dt>Jméno</dt>
@@ -207,7 +207,7 @@ V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebn�
 <dd>{{cardinalityRange}}</dd>
 {{#dataTypes}}{{#isAssociation}}
 <dt>Typ</dt>
-<dd>{{#class}}<a href="#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>{{/class}}</dd>
+<dd>{{#class}}<a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>{{/class}}</dd>
 {{/isAssociation}}{{/dataTypes}}
 <dt>Význam</dt>
 <dd>Koncept {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>.</dd>
