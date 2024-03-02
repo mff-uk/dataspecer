@@ -32,6 +32,7 @@ import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-d
 import {ShaclGenerator, ShexGenerator, ShexMapGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
+import { LDkitGenerator } from "../../../../../../packages/ldkit/lib/generator";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -297,6 +298,14 @@ export const GenerateArtifactsMenu: React.FC<{
                     live={artifactPreview.includes(OpenapiGenerator.IDENTIFIER)}
                     onPreview={() => ProvidedPreviewDialog.open({generatorId: OpenapiGenerator.IDENTIFIER})}
                     setLive={v => (v ? add : del)(OpenapiGenerator.IDENTIFIER)}
+                />
+                <Divider />
+                <GeneratedArtifactItem
+                    title={"LDkit schema"}
+                    generator={LDkitGenerator.IDENTIFIER}
+                    live={artifactPreview.includes(LDkitGenerator.IDENTIFIER)}
+                    onPreview={() => ProvidedPreviewDialog.open({generatorId: LDkitGenerator.IDENTIFIER})}
+                    setLive={v => (v ? add : del)(LDkitGenerator.IDENTIFIER)}
                 />
 
                 <MenuNote>
