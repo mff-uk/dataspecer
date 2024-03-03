@@ -64,7 +64,7 @@ async function main() {
     const datasetAggregateMetadata = await generator.generateToObject("dataset");
     console.log(datasetAggregateMetadata);
 
-    generator.generateToSourceFile(datasetAggregateMetadata);
+    generator.generateSourceFile(datasetAggregateMetadata);
 
     await demo();
 }

@@ -12,6 +12,7 @@ import { ConceptualModel } from "@dataspecer/core/conceptual-model/index";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
+import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
 
 export class LDkitGenerator implements ArtefactGenerator {
     static readonly IDENTIFIER = "https://schemas.dataspecer.com/generator/LDkit";
@@ -47,16 +48,11 @@ export class LDkitGenerator implements ArtefactGenerator {
         );
 
         const ldkitSchemaAdapter: StructureClassToSchemaAdapter = new LdkitSchemaAdapter();
-        let result: LdkitSchema = { "@type": "dummy" };
-        structureModel.getClasses().map(modelClass => {
-            console.log("-".repeat(50));
-            console.log(`Converting class: "${modelClass.humanLabel["en"]}"`);
-            const classLdkitSchema = ldkitSchemaAdapter.convertStructureModelClassToLdkitSchema(modelClass);
+        const classLdkitSchema = ldkitSchemaAdapter.convertStructureModelToLdkitSchema(structureModel);
 
-            console.log(`Ldkit schema for given class: `, classLdkitSchema);
-            result = classLdkitSchema;
-            console.log("-".repeat(50));
-        });
+        console.log(`Ldkit schema for given class: `, classLdkitSchema);
+        const result: LdkitSchema = classLdkitSchema;
+        console.log("-".repeat(50));
 
         return Promise.resolve<LdkitSchema>(result);
     }
@@ -67,40 +63,47 @@ export class LDkitGenerator implements ArtefactGenerator {
         specification: DataSpecification,
         output: StreamDictionary
     ): Promise<void> {
+        const conceptualModel = context.conceptualModels[specification.pim!];
+        const mergedConceptualModel = { ...conceptualModel! };
+        mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
 
-        const schema = await this.generateToObject(context, artefact, specification);
-        const stream = output.writePath(artefact.outputPath);
+        const structureModels = Object.fromEntries(
+            Object.entries(context.structureModels)
+                .map(([iri, structureModel]) => {
+                    if (!structureModel) {
+                        return [iri, null];
+                    }
 
-        const generator = new LdkitArtefactGenerator();
-        const sourcefile: string = generator.generateToSourceFile({
-            aggregateName: "Dummy Name",
-            dataSchema: schema
-        });
-        await stream.write(sourcefile);
-        await stream.close();
+                    let transformedModel = transformStructureModel(mergedConceptualModel, structureModel, Object.values(context.specifications));
+                    return [iri, transformedModel];
+                })
+        );
 
-        // const conceptualModel = context.conceptualModels[specification.pim!];
-        // let structureModel = context.structureModels;
+        if (!artefact.outputPath) {
+            return;
+        }
 
-        // const mergedConceptualModel = { ...conceptualModel! };
-        // mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
+        console.log(context, artefact, specification, output, structureModels);
 
-        // const structureModels = Object.fromEntries(Object.entries(context.structureModels).map(([iri, structureModel]) => {
-        //     let transformedModel = transformStructureModel(mergedConceptualModel, structureModel, Object.values(context.specifications));
-        //     return [iri, transformedModel];
-        //         })
-        // );
+        // Example code, write file for every structure model
+        for (const [iri, structureModel] of Object.entries(structureModels)) {
+            if (!structureModel) {
+                continue;
+            }
 
-        // if (!artefact.outputPath) {
-        //     return;
-        // }
+            const ldkitSchemaAdapter: StructureClassToSchemaAdapter = new LdkitSchemaAdapter();
+            const schema: LdkitSchema = ldkitSchemaAdapter.convertStructureModelToLdkitSchema(structureModel);
+            console.log("Schema: ", schema);
+            const stream = output.writePath(artefact.outputPath);
 
-        // // Example code, write file for every structure model
-        // for (const [iri, structureModel] of Object.entries(structureModels)) {
-        //     const lastChunk = iri.split("/").pop();
-        //     const stream = output.writePath(artefact.outputPath! + lastChunk + ".txt");
-        //     await stream.write(JSON.stringify(structureModel));
-        //     await stream.close();
-        // }
+            const generator = new LdkitArtefactGenerator();
+            const sourcefileContent: string = generator.generateSourceFile({
+                aggregateName: structureModel.humanLabel["en"] ?? "DummyName",
+                dataSchema: schema
+            });
+
+            await stream.write(sourcefileContent);
+            await stream.close();
+        }
     }
 }

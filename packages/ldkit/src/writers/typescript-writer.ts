@@ -43,24 +43,24 @@ export class TypescriptWriter implements SourceCodeWriter {
         const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
         const printed: string = printNode(ldkitSchemaRootNode);
 
-        const ldkitSchemaSourceFile = createSourceFile(
-            filePath,
-            printed,
-            ScriptTarget.Latest,
-            false,
-            ScriptKind.TS
-        );
+        // const ldkitSchemaSourceFile = createSourceFile(
+        //     filePath,
+        //     printed,
+        //     ScriptTarget.Latest,
+        //     false,
+        //     ScriptKind.TS
+        // );
     
-        const project = new Project();
-        console.log(ldkitSchemaSourceFile.getFullText());
+        // const project = new Project();
+        // console.log(ldkitSchemaSourceFile.getFullText());
 
-        project.createSourceFile(
-            filePath,
-            printed,
-            { scriptKind: ts.ScriptKind.TS, overwrite: true } as SourceFileCreateOptions
-        );
-        const sourceFileSaver: Promise<void> = project.save();
-        sourceFileSaver.then(() => console.log("Saved"))
+        // project.createSourceFile(
+        //     filePath,
+        //     printed,
+        //     { scriptKind: ts.ScriptKind.TS, overwrite: true } as SourceFileCreateOptions
+        // );
+        // const sourceFileSaver: Promise<void> = project.save();
+        // sourceFileSaver.then(() => console.log("Saved"))
 
         //console.log(printNode(this.getLdkitSchemaNode(aggregateMetadata), ldkitSchemaSourceFile, {emitHint: ts.EmitHint.SourceFile}));
         return printed;
