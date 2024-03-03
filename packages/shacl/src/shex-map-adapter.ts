@@ -13,9 +13,7 @@ import {
 
   type StructureModelClassOrProperty = StructureModelClass | StructureModelProperty;
 
-  export class ShexMapAdapter {
-    
-    
+  export class ShexMapAdapter {   
     protected model: StructureModel;
     protected context: ArtefactGeneratorContext;
     protected artefact: DataSpecificationArtefact;
@@ -39,6 +37,9 @@ import {
       this.baseURL = this.artefact.configuration["publicBaseUrl"];
     }
   
+    /**
+    * Function accessed from the frontend applications for generating the SHACL artifact.
+    */
     public generate = async () => {
       
       if (this.model.roots.length > 1) {
@@ -56,7 +57,12 @@ import {
       return { data: this.resultString };
     };
 
-    protected decideHowToTarget(cls : StructureModelClass, classNameIri : string): void {
+  /**
+  * Decides how the Shape is going to target the data that need to be supplied for SHACL validator.
+  * @param cls Class object of the root class of the data structure.
+  * @param classNameIri IRI for the shape of the root class.
+  */
+  protected decideHowToTarget(cls : StructureModelClass, classNameIri : string): void {
 
         if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
           // USE CASE #1
@@ -84,6 +90,11 @@ import {
         }
       }
   
+  /**
+   * Takes Technical name of an entity and deletes all blank characters that do not belong to an IRI.
+   * @param root The class or Property to edit the technical label for.
+   * @returns Technical name of the supplied entity strapped of blank characters.
+   */  
     protected irify(root: StructureModelClassOrProperty) : string{
       var irifiedString : string;
   
@@ -92,11 +103,15 @@ import {
       } else{
         irifiedString = "";
       }
-      
-  
       return irifiedString;
     }
   
+
+    /**
+   * Generate an IRI for the shape of supplied class.
+   * @param root Class or Property to generate the Shape name for
+   * @returns IRI of a corresponding ShEx Shape
+   */
     protected getIRIforShape(root: StructureModelClassOrProperty): string{
       var generatedIRI : string;
       var md5String = md5(root.psmIri);
@@ -106,6 +121,5 @@ import {
       generatedIRI = (this.baseURL != null) ? this.baseURL + md5String + technicalName + nodeOrProperty : md5String + technicalName + nodeOrProperty ;
   
       return generatedIRI;
-    }
-  
+    }  
   }

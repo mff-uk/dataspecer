@@ -58,8 +58,6 @@ export class ShexMapGenerator implements ArtefactGenerator {
 
     const adapter = new ShexMapAdapter(model, context, artefact);
     return adapter.generate();
-
-    return Promise.resolve({data: "todo"});
   }
 
   async generateToStream(
