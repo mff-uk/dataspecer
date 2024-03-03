@@ -32,7 +32,8 @@ import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-d
 import {ShaclGenerator, ShexGenerator, ShexMapGenerator} from "@dataspecer/shacl";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
-import { LDkitGenerator } from "../../../../../../packages/ldkit/lib/generator";
+import { LDkitGenerator } from "@dataspecer/ldkit";
+
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
