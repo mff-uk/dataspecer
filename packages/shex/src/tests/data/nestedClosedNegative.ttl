@@ -1,0 +1,24 @@
+@prefix legsb: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix genadr: <https://slovník.gov.cz/generický/adresy/pojem/> .
+@prefix base: <http://www.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+base:adresa a legsb:adresa;
+    genadr:má-kód-adresního-místa "73532";
+    legsb:je-adresou-stavebního-objektu base:stavebniObjekt;
+    legsb:má-přiřazené-území-obce base:uzemiObce;
+    base:additional "Additional info not in the structure"@en.
+
+base:stavebniObjekt a legsb:stavební-objekt;  
+    legsb:typ-ochrany-stavebního-objektu "Chráněné";
+    legsb:má-identifikační-údaje-stavebního-objektu base:identifikacniUdaje;
+    base:prohibitedAdditional "Prohibited attribute in stavebniObjekt"@en.
+
+
+base:uzemiObce a legsb:území-obce;
+    legsb:datum-vzniku-obce "1938-05-24"^^xsd:date;
+    base:name "Malvazinky".
+
+base:identifikacniUdaje a legsb:identifikační-údaje-stavebního-objektu;
+    legsb:číslo-popisné-nebo-evidenční "č.p. 28";
+    base:prohibitedAdditional "Prohibited attribute in identifikacniUdaje"@en.

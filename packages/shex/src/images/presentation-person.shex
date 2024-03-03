@@ -1,0 +1,24 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+base <https://myexample.com/>
+
+<aec2db2a67ade8d68945158048f1088apersonShExShape> IRI{
+	a [<https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba>] ;
+	<https://slovník.gov.cz/veřejný-sektor/pojem/je-studentem> xsd:boolean
+		// rdfs:label	"is Student"
+		// rdfs:comment	"Information whether subject is currently studying" ;
+	<https://slovník.gov.cz/veřejný-sektor/pojem/příjmení> xsd:anyURI /^[A-Z][a-z]*$/ +
+		// rdfs:label	"Surname"
+		// rdfs:comment	"Surname of a person" ;
+	<https://slovník.gov.cz/veřejný-sektor/pojem/věk> xsd:integer
+		// rdfs:label	"Age"
+		// rdfs:comment	"Age of the subject in years" ;
+	<https://slovník.gov.cz/veřejný-sektor/pojem/zná> IRI *
+		// rdfs:label	"Knows"
+		// rdfs:comment	"Other people the subject knows"
+}
+
+{ FOCUS rdf:type <https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba>}@<https://myexample.com/aec2db2a67ade8d68945158048f1088apersonShExShape>
+
+
+
