@@ -137,7 +137,8 @@ export class TypescriptWriter implements SourceCodeWriter {
             .replace(/[\u0300-\u036f]/g, "");
 
         if (!name.match(/^[a-z0-9_]+$/i)) {
-            return factory.createComputedPropertyName(factory.createStringLiteral(name));
+            //return factory.createComputedPropertyName(factory.createStringLiteral(name));
+            return factory.createStringLiteral(name);
         }
         
         return name;
