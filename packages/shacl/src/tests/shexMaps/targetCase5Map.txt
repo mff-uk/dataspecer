@@ -1,1 +1,0 @@
-{ "node": "http://www.example.org/uzemi", "shape": "https://example.org/" }

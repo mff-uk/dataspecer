@@ -1,1 +1,0 @@
-{ "node": "http://www.example.org/simpleObjectadresa", "shape": "https://example.org/5612c1873ed3a1d5024b30ff367ed370adresaShExShape" }

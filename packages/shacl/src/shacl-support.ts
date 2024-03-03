@@ -338,20 +338,6 @@ export async function fixTurtleFileWithBase(file: String, base: String): Promise
 }
 
 /**
- * String will have base URL declaration in ShExC format added at the beginning of it.
- * @param file String of data in ShExC to be modified.
- * @param base Base URL to add at the beginning of the String of data.
- * @returns String with added base URL declaration.
- */
-export async function fixTurtleFileWithBaseShex(file: String, base: String): Promise<String> {
-    var fixedFile = file;
-
-    const regex = /\n{2}/i;
-    fixedFile = fixedFile.replace(regex, '\nbase <' + base + '>\n\n');
-    return fixedFile;
-}
-
-/**
  * Deletes given parameter from the file and puts it at the beginning
  * @param file String That needs adjustments
  * @param wrongPosition Which prefix is in wrong position
