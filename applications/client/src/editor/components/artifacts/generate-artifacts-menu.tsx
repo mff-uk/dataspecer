@@ -29,7 +29,8 @@ import {SPARQL} from "@dataspecer/sparql-query";
 import {DefaultConfigurationContext} from "../../../application";
 import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {ShaclGenerator, ShexGenerator, ShexMapGenerator} from "@dataspecer/shacl";
+import {ShaclGenerator} from "@dataspecer/shacl";
+import {ShexGenerator, ShexMapGenerator} from "@dataspecer/shex";
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
 

@@ -17,6 +17,7 @@
     "@dataspecer/rdfs-adapter": "*",
     "@dataspecer/sgov-adapter": "*",
     "@dataspecer/shacl": "*",
+    "@dataspecer/shex": "*",
     "@dataspecer/sparql-query": "*",
     "@dataspecer/template-artifact": "*",
     "@dataspecer/wikidata-experimental-adapter": "*",
