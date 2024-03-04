@@ -9,7 +9,7 @@ import {
   } from "@dataspecer/core/data-specification/model";
   import md5 from "md5";
   import {isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
-    getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
+    getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shex-support";
 
   type StructureModelClassOrProperty = StructureModelClass | StructureModelProperty;
 

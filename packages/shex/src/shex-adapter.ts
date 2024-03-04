@@ -8,9 +8,9 @@ import {
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
 import {isUniqueClass, fixTurtleFileWithBaseShex, hasUniquePredicates, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
-  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
+  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shex-support";
 import { OFN } from "@dataspecer/core/well-known";
-import * as Support from "./shacl-support";
+import * as Support from "./shex-support";
 import { LanguageString } from "@dataspecer/core/core";
 import md5 from "md5";
 

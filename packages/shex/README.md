@@ -1,5 +1,7 @@
 # SHACL and ShEx artifacts
 
+This documentation was created for both SHACL and ShEx artifacts in one place. If you are interested in only one of the artifact generators, kindly skip the parts that concern the other generator.
+
 ## How to generate artifacts and use the generated artifacts
 
 The user can generate SHACL and ShEx validating schemas using the Dataspecer tool available on the website: [Dataspecer](https://tool.dataspecer.com/).
