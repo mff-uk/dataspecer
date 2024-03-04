@@ -82,17 +82,22 @@ export function getAnyPredicateUniqueType(cls: StructureModelClass, rootClass : 
 export function getAnyPredicateUniquePredicate(cls: StructureModelClass): { [key: string]: any} {
     var uniqueProperty = null;
 
+    var propertiesIris = [];
+    for (const [i, prop] of cls.properties.entries()) {
+        propertiesIris.push(prop.cimIri);
+    }
+
     for (const [i, prop] of cls.properties.entries()) {
         for (var dt of prop.dataTypes) {
             if(dt.isAssociation() == true){        
                 const dtcasted = <StructureModelComplexType> dt;
                 for (const [i, propInside] of dtcasted.dataType.properties.entries()) {
                     for (var dtInside of propInside.dataTypes) {
-                        if(dtInside.isAssociation() == true){          
-                            if(hasUniquePredicatesProperty(propInside, propInside.cimIri, true) && propInside.cardinalityMin > 0){
+                        //if(dtInside.isAssociation() == true){          
+                            if(hasUniquePredicatesProperty(propInside, propInside.cimIri, true) && propInside.cardinalityMin > 0 && !(propertiesIris.includes(propInside.cimIri))){
                                 return { uniquepropclass: dtcasted.dataType, predicate: propInside};                          
                             }                             
-                        }           
+                        //}           
                     }                   
                 }               
             }
