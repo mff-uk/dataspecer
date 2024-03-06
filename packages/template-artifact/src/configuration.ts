@@ -187,7 +187,7 @@ V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebn�
 <dd>Koncept {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>.</dd>
 {{#extends}}
 <dt>Nadřazený typ</dt>
-<dd><a href="#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></dd>
+<dd><a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></dd>
 {{/extends}}
 </dl>
 
