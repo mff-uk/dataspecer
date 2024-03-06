@@ -94,7 +94,7 @@ export class DefaultArtifactConfigurator {
 
   protected normalizeName(name: string): string {
     return name
-        .replace(/[\s\/<>:"\\|?*]+/g, "-") // Windows and Linux forbidden characters
+        .replace(/[\s/<>:"\\|?*]+/g, "-") // Windows and Linux forbidden characters
         .toLowerCase();
   }
 
