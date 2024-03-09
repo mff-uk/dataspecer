@@ -1,4 +1,5 @@
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
+import { exportEntitiesAsDataSpecificationTrig } from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { useModelGraphContext } from "./context/graph-context";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getRandomName } from "../utils/random-gen";
@@ -64,6 +65,14 @@ export const ExportManagement = () => {
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
+    };
+
+    const downloadDataSpecification = async () => {
+        const entities = Object.values(aggregatorView.getEntities())
+            .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
+            .filter(entity => entity !== null);
+        const stringContent = await exportEntitiesAsDataSpecificationTrig(entities);
+        download(stringContent, `dscme-dsv-${getRandomName(8)}.ttl`, "text/plain");
     };
 
     return (
@@ -149,6 +158,15 @@ export const ExportManagement = () => {
                     }}
                 >
                     💾 lw ontology
+                </button>
+            </div>
+            <div className="ml-1">
+                <button
+                    className="bg-[#c7556f] px-1"
+                    title="generate lightweight ontology"
+                    onClick={downloadDataSpecification}
+                >
+                    💾 ds ontology
                 </button>
             </div>
         </div>
