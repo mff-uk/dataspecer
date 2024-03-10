@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
-    console.log(process.env);
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
 
     const getPackageFromBackend = async (packageId: string) => {

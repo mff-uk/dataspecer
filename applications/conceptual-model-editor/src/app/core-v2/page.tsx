@@ -8,6 +8,7 @@ import {
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
+    LanguageString,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ModelGraphContext } from "./context/model-context";
 import Header from "./header";
@@ -25,6 +26,9 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { useLocalStorage } from "./util/export-utils";
+import { useViewParam } from "./util/view-param";
+import { MultiLanguageInputForLanguageString } from "./dialog/multi-language-input-4-language-string";
 
 const Page = () => {
     const { aggregator } = useMemo(() => {
@@ -42,7 +46,37 @@ const Page = () => {
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
 
     const { packageId, setPackage } = usePackageSearch();
+    const { viewId: viewIdFromURLParams } = useViewParam();
     const { getModelsFromBackend } = useBackendConnection();
+    const { getWorkspaceState, saveWorkspaceState } = useLocalStorage();
+
+    // const [ls, setLs] = useState({} as LanguageString);
+
+    useEffect(() => {
+        const callback = async () => {
+            const result = await getWorkspaceState();
+            if (!result) {
+                return;
+            }
+            const { packageId, entityModels, visualModels } = result;
+
+            for (const visModel of visualModels) {
+                aggregator.addModel(visModel);
+                setVisualModels((previous) => previous.set(visModel.getId(), visModel));
+            }
+
+            for (const model of entityModels) {
+                aggregator.addModel(model);
+                setModels((previous) => previous.set(model.getId(), model));
+            }
+
+            setAggregatorView(aggregator.getView());
+        };
+        // callback();
+        setInterval(() => {
+            saveWorkspaceState(models, visualModels);
+        }, 30000);
+    }, []);
 
     useEffect(() => {
         console.log(
@@ -68,18 +102,16 @@ const Page = () => {
                 setAggregatorView(aggregator.getView());
             })
             .then(() => {
-                const activeVisModel = aggregatorView.getActiveVisualModel();
-                const modelId = [...models.keys()].at(0);
-                console.log("no modelId?", modelId, activeVisModel);
-                if (!modelId) {
-                    console.log("no modelId.");
-                    return;
+                const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+                if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
+                    aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
+                } else {
+                    // choose the first available model
+                    const modelId = [...visualModels.keys()].at(0);
+                    if (modelId) {
+                        aggregatorView.changeActiveVisualModel(modelId);
+                    }
                 }
-                let modelColor = activeVisModel?.getColor(modelId);
-                if (!modelColor) {
-                    modelColor = randomColorFromPalette();
-                }
-                activeVisModel?.setColor(modelId, modelColor);
             })
             .catch((reason) => {
                 alert("there was an error getting models from backend, see console");
@@ -180,6 +212,7 @@ const Page = () => {
                     }}
                 >
                     <Header />
+                    {/* <MultiLanguageInputForLanguageString ls={ls} setLs={setLs} defaultLang="en" inputType="textarea" /> */}
                     <main className="h-[calc(100%-48px)] w-full bg-teal-50">
                         <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
                             <Catalog />

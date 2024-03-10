@@ -2,6 +2,7 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { LanguageString } from "@dataspecer/core/core";
 import { InMemorySemanticModel } from "../../../../../../packages/core-v2/lib/semantic-model/in-memory/in-memory-semantic-model";
+import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const getOneNameFromLanguageString = (ls: LanguageString) => {
     const key = Object.keys(ls).at(0);

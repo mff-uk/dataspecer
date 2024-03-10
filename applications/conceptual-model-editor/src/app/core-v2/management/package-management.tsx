@@ -28,6 +28,8 @@ export const PackageManagement = () => {
 
     return (
         <div className="my-auto">
+            {/* 
+        <div className="my-auto">
             <div className="flex flex-col [&]:text-[15px]">
                 <div className="flex flex-row">
                     <div>
@@ -60,25 +62,23 @@ export const PackageManagement = () => {
                         }}
                     >
                         ➕pkg
-                    </button>
-                    <button
-                        className="bg-green-600 px-1"
-                        disabled={!packageId}
-                        title="save package to backend"
-                        onClick={async () => {
-                            if (!packageId) {
-                                return;
-                            }
+                    </button> 
+        */}
+            <button
+                className="bg-green-600 px-1"
+                disabled={!packageId}
+                title="save package to backend"
+                onClick={async () => {
+                    if (!packageId) {
+                        return;
+                    }
 
-                            updateSemanticModelPackageModels(
-                                packageId,
-                                [...models.values()],
-                                [...visualModels.values()]
-                            );
-                        }}
-                    >
-                        💾pkg
-                    </button>
+                    updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
+                }}
+            >
+                💾pkg
+            </button>
+            {/* 
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
@@ -92,6 +92,8 @@ export const PackageManagement = () => {
                     </ul>
                 )}
             </div>
+        </div> 
+        */}
         </div>
     );
 };

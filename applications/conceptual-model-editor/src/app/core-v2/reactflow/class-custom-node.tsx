@@ -1,45 +1,79 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
-import { SemanticModelClass, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClass,
+    SemanticModelRelationship,
+    SemanticModelRelationshipEnd,
+    isSemanticModelClass,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     getStringFromLanguageStringInLang,
     getNameOfThingInLangOrIri,
     getNameOrIriAndDescription,
 } from "../util/language-utils";
+import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 type ClassCustomNodeDataType = {
-    cls: SemanticModelClass;
+    cls: SemanticModelClass | SemanticModelClassUsage;
     color: string | undefined;
-    attributes: SemanticModelRelationshipEnd[];
-    openDialog: (cls: SemanticModelClass) => void;
+    attributes: SemanticModelRelationship[];
+    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void;
     openModifyDialog: (cls: SemanticModelClass) => void;
+    usagesOfAttributes: SemanticModelClassUsage[];
 };
 
 export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const cls = props.data.cls;
-    const { id, iri } = cls;
+    const { id } = cls;
 
     const clr = props.data.color ?? "#ffffff";
     const attributes = props.data.attributes;
 
-    const [name, description] = getNameOrIriAndDescription(cls, iri ?? id);
+    let name: null | string = null,
+        description: null | string = null,
+        iri: null | string = null,
+        isUsage = false;
+
+    if (isSemanticModelClass(cls)) {
+        [name, description] = getNameOrIriAndDescription(cls, cls.iri ?? id);
+    } else if (isSemanticModelClassUsage(cls)) {
+        const [a, b] = getStringFromLanguageStringInLang(cls.name ?? {});
+        const [c, d] = getStringFromLanguageStringInLang(cls.description ?? cls.usageNote ?? {});
+        [name, description, isUsage] = [
+            (a ?? cls.id) + (b != null ? `@${b}` : ""),
+            c ?? "" + (d != null ? `@${d}` : ""),
+            true,
+        ];
+    }
 
     return (
         <>
-            <div className={`m-1 border border-black bg-white [&]:text-sm`}>
+            <div className={`m-1 min-w-56 border border-black bg-white [&]:text-sm`}>
                 <h1
-                    className="overflow-x-hidden whitespace-nowrap border border-b-black"
+                    className="flex flex-col overflow-x-hidden whitespace-nowrap border border-b-black"
                     style={{ backgroundColor: clr }}
+                    title={description ?? ""}
                 >
-                    {name}
+                    {isUsage && <span className="text-center">profile</span>}
+                    <span>{name}</span>
                 </h1>
 
                 <p className="overflow-x-clip text-gray-500">{iri}</p>
 
                 {attributes?.map((attr) => {
-                    const [n, d] = getNameOrIriAndDescription(attr, "no-iri");
+                    const end = attr.ends[1]!;
+                    const [n, d] = getNameOrIriAndDescription(end, "no-iri");
+
+                    const usage = props.data.usagesOfAttributes.find((u) => u.usageOf == attr.id);
+                    const [usageNote, l] = getStringFromLanguageStringInLang(usage?.usageNote ?? {});
+
                     return (
-                        <p key={`${n}.${attr.concept}`} title={d ?? ""}>
-                            - {n}
+                        <p key={`${n}.${attr.id}`} title={d ?? ""} className="flex flex-row">
+                            <span>- {n} </span>
+                            {usage && (
+                                <div className="ml-2 rounded-sm bg-blue-300" title={usageNote ?? ""}>
+                                    usage info
+                                </div>
+                            )}
                         </p>
                     );
                 })}
@@ -48,8 +82,6 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     <button
                         className="text-slate-500"
                         onClick={() => {
-                            // props.data.openModifyDialog(cls);
-                            // console.log("edited class id: ", id);
                             alert("FIXME: editing class");
                         }}
                     >
@@ -58,7 +90,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     <button
                         className="text-slate-500"
                         onClick={() => {
-                            props.data.openDialog(cls);
+                            props.data.openEntityDetailDialog(cls);
                         }}
                     >
                         detail
@@ -94,16 +126,24 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
  */
 export const semanticModelClassToReactFlowNode = (
     id: string,
-    cls: SemanticModelClass,
+    cls: SemanticModelClass | SemanticModelClassUsage,
     position: XYPosition,
     color: string | undefined, // FIXME: vymysli lip
-    attributes: SemanticModelRelationshipEnd[],
-    openDialog: (cls: SemanticModelClass) => void,
-    openModifyDialog: (cls: SemanticModelClass) => void
+    attributes: SemanticModelRelationship[],
+    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void,
+    openModifyDialog: (cls: SemanticModelClass) => void,
+    usagesOfAttributes: SemanticModelClassUsage[]
 ) =>
     ({
         id: id,
         position: position ?? { x: 69, y: 420 },
-        data: { cls, color /*FIXME: */, attributes, openDialog, openModifyDialog } satisfies ClassCustomNodeDataType,
+        data: {
+            cls,
+            color /*FIXME: */,
+            attributes,
+            openEntityDetailDialog,
+            openModifyDialog,
+            usagesOfAttributes,
+        } satisfies ClassCustomNodeDataType,
         type: "classCustomNode",
     } as Node);

@@ -12,7 +12,7 @@ export const Catalog = () => {
     return (
         <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
             <ModelCatalog />
-            <div className="h-full pb-2">
+            <div className="grid h-full grid-rows-[auto_1fr]">
                 <div className="flex flex-row [&>*]:mx-2">
                     <button
                         disabled={entityView == "class"}
@@ -51,7 +51,7 @@ export const Catalog = () => {
                     )}
                 </div>
 
-                <div className="h-full overflow-y-scroll pb-2">
+                <div className="my-0 overflow-y-scroll pb-2">
                     {entityView == "class" && <EntityCatalog />}
                     {entityView == "relationship" && <RelationshipCatalog />}
                     {entityView == "attribute" && <AttributeCatalog />}

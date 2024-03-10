@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { CSSProperties, useCallback } from "react";
 import {
     useStore,
     EdgeProps,
@@ -11,8 +11,16 @@ import {
 
 import { getEdgeParams, getLoopPath } from "./utils";
 import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getNameOfThingInLangOrIri, getNameOrIriAndDescription } from "../util/language-utils";
+import {
+    getNameOfThingInLangOrIri,
+    getNameOrIriAndDescription,
+    getStringFromLanguageStringInLang,
+} from "../util/language-utils";
 import { number, string } from "zod";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -37,6 +45,7 @@ type SimpleFloatingEdgeDataType = {
     cardinalitySource?: string;
     cardinalityTarget?: string;
     bgColor?: string;
+    usages?: SemanticModelRelationshipUsage[];
 };
 
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
@@ -85,12 +94,15 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
             />
             <EdgeLabelRenderer>
                 <div
-                    className="nodrag nopan absolute p-2"
+                    className="nodrag nopan absolute flex flex-col p-2"
                     style={{
                         transform: `translate(${labelX}px,${labelY}px) translate(-50%, -50%)`,
                     }}
                 >
-                    {d.label}
+                    <div>{d.label}</div>
+                    {d.usages?.map((u) => (
+                        <div className="bg-blue-200">{getStringFromLanguageStringInLang(u.usageNote ?? {})[0]}</div>
+                    ))}
                 </div>
                 {d.cardinalitySource && (
                     <CardinalityEdgeLabel
@@ -114,7 +126,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 export const semanticModelRelationshipToReactFlowEdge = (
     rel: SemanticModelRelationship,
     color: string | undefined,
-    index: number = 6.9
+    usages: SemanticModelRelationshipUsage[]
 ) => {
     const [name, description] = getNameOrIriAndDescription(rel, rel.iri ?? rel.id);
     return {
@@ -124,11 +136,12 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: name,
+            label: name ?? "",
             type: "r",
             cardinalitySource: rel.ends[0]?.cardinality?.toString(),
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
             bgColor: color,
+            usages,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 2, stroke: color },
     } as Edge;
@@ -136,15 +149,36 @@ export const semanticModelRelationshipToReactFlowEdge = (
 
 export const semanticModelGeneralizationToReactFlowEdge = (
     gen: SemanticModelGeneralization,
-    color: string | undefined,
-    index: number = 6.9
+    color: string | undefined
 ) =>
     ({
         id: gen.id,
         source: gen.child,
         target: gen.parent,
-        markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: color || "maroon" },
+        markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            strokeWidth: 2,
+        },
         type: "floating",
         data: { label: "", type: "g" } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
+    } as Edge);
+
+export const semanticModelClassUsageToReactFlowEdge = (
+    classUsage: SemanticModelClassUsage,
+    color: string | undefined
+) =>
+    ({
+        id: classUsage.id,
+        source: classUsage.id,
+        target: classUsage.usageOf,
+        markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: color || "azure" },
+        type: "floating",
+        data: {
+            label: "",
+            type: "r",
+        } satisfies SimpleFloatingEdgeDataType,
+        style: { stroke: color || "azure", strokeWidth: 2, strokeDasharray: 5 },
     } as Edge);

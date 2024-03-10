@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { SemanticModelClassWithOrigin } from "../context/classes-context";
-import { getNameOrIriAndDescription } from "../util/language-utils";
+import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    LanguageString,
+    NamedThing,
+    SemanticModelClass,
+    isSemanticModelClass,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
     return (
@@ -11,35 +22,46 @@ export const IriLink = (props: { iri: string | undefined | null }) => {
 };
 
 export const EntityRow = (props: {
-    cls: SemanticModelClassWithOrigin;
+    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
     expandable: null | {
         toggleHandler: () => void;
         expanded: () => boolean;
     };
     openDetailHandler: () => void;
     modifiable: null | { openModificationHandler: () => void };
-    addToViewHandler: () => void;
-    removeFromViewHandler: () => void;
-    isVisibleOnCanvas: () => boolean;
+    drawable: null | {
+        addToViewHandler: () => void;
+        removeFromViewHandler: () => void;
+        isVisibleOnCanvas: () => boolean;
+    };
     removable: null | {
         remove: () => void;
     };
     usage: null | {
         createUsageHandler: () => void;
     };
+    offset?: number;
 }) => {
-    const [isVisible, setIsVisible] = useState(props.isVisibleOnCanvas());
+    const [isVisible, setIsVisible] = useState(props.drawable?.isVisibleOnCanvas());
     const [isExpanded, setIsExpanded] = useState(props.expandable?.expanded());
 
-    const cls = props.cls.cls;
-    const iri = props.cls.cls.iri;
+    const entity = props.entity;
+    let iri: string | null = null;
 
-    const [name, description] = getNameOrIriAndDescription(cls, iri ?? "no-name", "en");
+    if (isSemanticModelClass(entity)) {
+        iri = entity.iri;
+    }
+
+    const [name, description] = getNameOrIriAndDescription(
+        { ...entity, name: entity.name ?? {}, description: {} } satisfies NamedThing,
+        iri ?? entity.id
+    );
 
     return (
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />
+                {"-".repeat((props.offset ?? 0) * 2)}
                 {name}
             </span>
             <div className="ml-2 flex flex-row bg-teal-300 px-1">
@@ -71,14 +93,16 @@ export const EntityRow = (props: {
                 <button className="ml-2" onClick={props.openDetailHandler}>
                     Detail
                 </button>
-                <button
-                    onClick={() => {
-                        isVisible ? props.removeFromViewHandler() : props.addToViewHandler();
-                        setIsVisible(props.isVisibleOnCanvas());
-                    }}
-                >
-                    {isVisible ? "👁️" : "🕶"}
-                </button>
+                {props.drawable && (
+                    <button
+                        onClick={() => {
+                            isVisible ? props.drawable?.removeFromViewHandler() : props.drawable?.addToViewHandler();
+                            setIsVisible(props.drawable?.isVisibleOnCanvas());
+                        }}
+                    >
+                        {isVisible ? "👁️" : "🕶"}
+                    </button>
+                )}
                 <button onClick={props.usage?.createUsageHandler}>🥑</button>
             </div>
         </div>

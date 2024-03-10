@@ -7,6 +7,8 @@ import ReactFlow, {
     MiniMap,
     Node,
     NodeChange,
+    Panel,
+    Position,
     useEdgesState,
     useNodesState,
 } from "reactflow";
@@ -14,6 +16,7 @@ import { useMemo, useCallback, useEffect } from "react";
 import { ClassCustomNode, semanticModelClassToReactFlowNode } from "./reactflow/class-custom-node";
 import {
     SimpleFloatingEdge,
+    semanticModelClassUsageToReactFlowEdge,
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
 } from "./reactflow/simple-floating-edge";
@@ -39,9 +42,54 @@ import { useEntityDetailDialog } from "./dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "./dialog/modify-entity-dialog";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { layout, graphlib } from "@dagrejs/dagre";
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
+    const dagreGraph = new graphlib.Graph();
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: direction });
+
+    const fallbackNodeWidth = 150,
+        fallbackNodeHeight = 100;
+
+    nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, {
+            width: node.width ?? fallbackNodeWidth,
+            height: node.height ?? fallbackNodeHeight,
+        });
+    });
+
+    edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    console.log(dagreGraph);
+    layout(dagreGraph);
+
+    nodes.forEach((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+        node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+
+        // We are shifting the dagre node position (anchor=center center) to the top left
+        // so it matches the React Flow node anchor point (top left).
+        node.position = {
+            x: nodeWithPosition.x - (node.width ?? fallbackNodeWidth) / 2,
+            y: nodeWithPosition.y - (node.height ?? fallbackNodeHeight) / 2,
+        };
+
+        return node;
+    });
+
+    console.log(nodes);
+
+    return { nodes, edges };
+};
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -50,7 +98,7 @@ export const Visualization = () => {
     const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
     const { ModifyEntityDialog, isModifyEntityDialogOpen, openModifyEntityDialog } = useModifyEntityDialog();
 
-    const { classes, relationships, attributes, generalizations } = useClassesContext();
+    const { classes, relationships, attributes, generalizations, usages } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -71,15 +119,23 @@ export const Visualization = () => {
         color: string | undefined
     ): Edge | undefined => {
         if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(entity as SemanticModelRelationship, color) as Edge;
-        } else if (isSemanticModelGeneralization(entity)) {
-            return semanticModelGeneralizationToReactFlowEdge(
-                entity as SemanticModelGeneralization,
+            const edgeUsages = usages
+                .filter((u) => u.usageOf == entity.id)
+                .filter((u): u is SemanticModelRelationshipUsage => isSemanticModelRelationshipUsage(u));
+
+            return semanticModelRelationshipToReactFlowEdge(
+                entity as SemanticModelRelationship,
                 color,
-                undefined
+                edgeUsages
             ) as Edge;
+        } else if (isSemanticModelGeneralization(entity)) {
+            return semanticModelGeneralizationToReactFlowEdge(entity as SemanticModelGeneralization, color) as Edge;
         }
         return;
+    };
+    const classUsageToEdgeType = (entity: SemanticModelClassUsage, color: string | undefined): Edge => {
+        const res = semanticModelClassUsageToReactFlowEdge(entity, color);
+        return res;
     };
 
     const rerenderEverythingOnCanvas = () => {
@@ -102,7 +158,9 @@ export const Visualization = () => {
                 models,
             ];
 
-            const getNode = (cls: SemanticModelClass, visualEntity: VisualEntity | null) => {
+            const nodesOnCanvas = new Set<string>(nodes.map((n) => n.id));
+
+            const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 const pos = visualEntity?.position;
                 const visible = visualEntity?.visible;
                 if (!cls || !pos) {
@@ -124,14 +182,23 @@ export const Visualization = () => {
                         originModelId = modelId;
                     }
                 }
+
+                const attributes = localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id);
+                const idsOfAttributes = attributes.map((a) => a.id);
+                const usagesOfAttributes = usages
+                    .filter((u) => idsOfAttributes.includes(u.usageOf))
+                    .filter((u): u is SemanticModelClassUsage => isSemanticModelRelationshipUsage(u));
+
+                // const usagesOfAttributes = attributes.map()
                 return semanticModelClassToReactFlowNode(
                     cls.id,
                     cls,
                     pos,
                     originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
-                    localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id).map((attr) => attr.ends[1]!),
+                    attributes,
                     openEntityDetailDialog,
-                    (cls: SemanticModelClass) => openModifyEntityDialog(cls)
+                    (cls: SemanticModelClass) => openModifyEntityDialog(cls),
+                    usagesOfAttributes
                 );
             };
 
@@ -144,17 +211,22 @@ export const Visualization = () => {
 
             for (const r in removed) {
                 // todo
+                nodesOnCanvas.delete(r);
             }
             console.log(removed);
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null; // FIXME: tohle je debilni, v updated by uz mohla behat visual informace
-                if (isSemanticModelClass(entity)) {
+                if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
+                        console.log("hiding node", n);
                         setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
+                        nodesOnCanvas.delete(id);
                     } else if (n) {
+                        console.log("adding node", n);
                         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
+                        nodesOnCanvas.add(id);
                     }
                 } else if (isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
                     if (isSemanticModelRelationship(entity) && isAttribute(entity)) {
@@ -167,6 +239,7 @@ export const Visualization = () => {
                             const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
                             const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                             if (n && n != "hide-it!") {
+                                console.log("adding node due to attribute", n);
                                 setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                             }
                         } else {
@@ -179,9 +252,11 @@ export const Visualization = () => {
                         }
                         continue;
                     }
-                } else if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
-                    console.log("got usage, skipping", entity);
-                    continue;
+                    // } else if (isSemanticModelClassUsage(entity)) {
+                    // console.log("got usage, skipping", entity);
+                    // setEdges((prev) => prev.)
+                } else if (isSemanticModelRelationshipUsage(entity)) {
+                    console.log("got relationship usage, skipping", entity);
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");
@@ -200,7 +275,17 @@ export const Visualization = () => {
                     .map((relOrGen) =>
                         getEdge(relOrGen, localActiveVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
                     )
-                    .filter((e): e is Edge => e?.id != undefined);
+                    .filter((e): e is Edge => {
+                        return e?.id != undefined;
+                    })
+                    .filter((e) => nodesOnCanvas.has(e.source) && nodesOnCanvas.has(e.target))
+                    .concat(
+                        [...usages]
+                            .filter(isSemanticModelClassUsage)
+                            .map((u) =>
+                                classUsageToEdgeType(u, localActiveVisualModel?.getColor(relOrGenToModel.get(u.id)!))
+                            )
+                    );
                 setEdges(es);
             };
             rerenderAllEdges();
@@ -275,6 +360,22 @@ export const Visualization = () => {
                         nodeColor={miniMapNodeColor}
                         style={{ borderStyle: "solid", borderColor: "#5438dc", borderWidth: "2px" }}
                     />
+                    <Panel position="top-right">
+                        <button
+                            onClick={() => {
+                                const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+                                    nodes,
+                                    edges,
+                                    "LR"
+                                );
+
+                                setNodes([...layoutedNodes]);
+                                setEdges([...layoutedEdges]);
+                            }}
+                        >
+                            layout
+                        </button>
+                    </Panel>
                     <Background gap={12} size={1} />
                 </ReactFlow>
             </div>

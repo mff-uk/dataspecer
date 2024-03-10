@@ -59,7 +59,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                 console.log("visual-model", model.getId(), "updated&removed", updated, removed);
             });
             this.models.set(model, unsubscribe);
-            this.activeVisualModel = model;
+            // this.activeVisualModel = model;
             return;
         }
 
@@ -93,9 +93,11 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         this.models.delete(model);
 
         if (isVisualModel(model)) {
-            this.setActiveVisualModel(
-                ([...this.models.keys()].find((m) => isVisualModel(m)) as VisualEntityModel) ?? null
-            );
+            if (this.activeVisualModel?.getId() == model.getId()) {
+                this.setActiveVisualModel(
+                    ([...this.models.keys()].find((m) => isVisualModel(m)) as VisualEntityModel) ?? null
+                );
+            }
             return;
         }
 
@@ -202,7 +204,7 @@ export class SemanticModelAggregatorView {
             .map((m) => (m as VisualEntityModel).getId());
     }
 
-    changeActiveVisualModel(toModel: string) {
+    changeActiveVisualModel(toModel: string | null) {
         this.aggregator.setActiveVisualModel(toModel);
     }
 }

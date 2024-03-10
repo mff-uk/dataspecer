@@ -35,8 +35,10 @@ export const useModelGraphContext = () => {
 
     const addModelToGraph = (...models: EntityModel[]) => {
         // make sure there is a view
-        if (!visualModels.size) {
-            addVisualModelToGraph(new VisualEntityModelImpl(undefined));
+        if (!aggregatorView.getActiveVisualModel()) {
+            const defaultVisualModel = new VisualEntityModelImpl(undefined);
+            addVisualModelToGraph(defaultVisualModel);
+            aggregatorView.changeActiveVisualModel(defaultVisualModel.getId());
         }
 
         for (const model of models) {
@@ -89,13 +91,13 @@ export const useModelGraphContext = () => {
 
     const createEntityUsage = (
         model: InMemorySemanticModel,
-        entityType: "class" | "relationship",
+        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
         entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
     ) => {
-        if (entityType == "class") {
+        if (entityType == "class" || entityType == "class-usage") {
             const result = model.executeOperation(createClassUsage(entity));
             console.log(result);
-        } else if (entityType == "relationship") {
+        } else if (entityType == "relationship" || entityType == "relationship-usage") {
             const result = model.executeOperation(createRelationshipUsage(entity));
             console.log(result);
         } else {

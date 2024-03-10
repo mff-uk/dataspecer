@@ -25,6 +25,8 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
 
     constructor(modelId: string | undefined) {
+        console.log("visual model being created");
+        console.trace();
         this.id = modelId ?? createId();
     }
 

@@ -9,6 +9,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "@dagrejs/dagre": "^1.0.4",
         "@dataspecer/core": "*",
         "@dataspecer/core-v2": "^0.0.0",
         "@dataspecer/rdfs-adapter": "*",

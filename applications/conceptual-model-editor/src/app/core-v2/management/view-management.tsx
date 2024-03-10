@@ -5,6 +5,7 @@ import { useViewParam } from "../util/view-param";
 
 export const ViewManagement = () => {
     const { aggregatorView, aggregator, setAggregatorView, addVisualModelToGraph } = useModelGraphContext();
+    const { visualModels } = useModelGraphContext();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { viewId, setViedIdSearchParam } = useViewParam();
 
@@ -28,6 +29,17 @@ export const ViewManagement = () => {
     const handleCreateNewView = () => {
         const model = new VisualEntityModelImpl(undefined);
         addVisualModelToGraph(model);
+        aggregatorView.changeActiveVisualModel(model.getId());
+        setAggregatorView(aggregator.getView());
+    };
+
+    const handleViewDeleted = (viewId: string) => {
+        const visualModel = visualModels.get(viewId);
+        if (!visualModel) {
+            return;
+        }
+        aggregator.deleteModel(visualModel);
+        toggleDropdown();
         setAggregatorView(aggregator.getView());
     };
 
@@ -52,8 +64,15 @@ export const ViewManagement = () => {
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
                         {availableVisualModelIds.map((vId) => (
-                            <li key={vId} className="w-full">
+                            <li key={vId} className="flex w-full flex-row justify-between">
                                 <button onClick={() => handleViewSelected(vId)}>{vId}</button>
+                                <button
+                                    onClick={() => {
+                                        handleViewDeleted(vId);
+                                    }}
+                                >
+                                    🗑
+                                </button>
                             </li>
                         ))}
                     </ul>

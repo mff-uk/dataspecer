@@ -9,12 +9,22 @@ import {
     SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+
+export type UsageDialogSupportedTypes =
+    | SemanticModelClass
+    | SemanticModelRelationship
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage;
 
 export const useCreateUsageDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [entity, setEntity] = useState<SemanticModelClass | SemanticModelRelationship | null>(null);
+    const [entity, setEntity] = useState<UsageDialogSupportedTypes | null>(null);
 
-    const localOpen = (entity: SemanticModelClass | SemanticModelRelationship) => {
+    const localOpen = (entity: UsageDialogSupportedTypes) => {
         setEntity(entity);
         open();
     };
@@ -34,11 +44,17 @@ export const useCreateUsageDialog = () => {
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
-        const [entityName] = getNameOrIriAndDescription(entity, entity?.iri || entity?.id || "");
+        // const [entityName] = getNameOrIriAndDesscription(entity, entity?.iri || entity?.id || "");
+        const entityName2 = getStringFromLanguageStringInLang(entity?.name ?? {}) ?? entity?.id;
 
+        if (inMemoryModels.length == 0) {
+            alert("Create a local model first, pls");
+            localClose();
+            return;
+        }
         console.log(model, entity);
         return (
-            <BaseDialog heading={`Create a usage${entityName ? " of " + entityName : ""}`}>
+            <BaseDialog heading={`Create a usage${entityName2 ? " of " + entityName2 : ""}`}>
                 <p>
                     active model:
                     <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>

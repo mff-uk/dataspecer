@@ -6,16 +6,21 @@ import { useClassesContext } from "../context/classes-context";
 import { shortenStringTo } from "../util/utils";
 import { EntityRow, InputEntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/model-context";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClass,
+    SemanticModelRelationship,
+    isSemanticModelClass,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
-import { useCreateUsageDialog } from "../dialog/create-usage-dialog";
+import { useCreateUsageDialog, UsageDialogSupportedTypes } from "../dialog/create-usage-dialog";
+import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
-    const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
+    const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel, usages } = useClassesContext();
     const { aggregatorView, createEntityUsage } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
@@ -57,7 +62,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         }
     };
 
-    const handleOpenDetail = (cls: SemanticModelClass) => {
+    const handleOpenDetail = (cls: SemanticModelClass | SemanticModelClassUsage) => {
         openEntityDetailDialog(cls);
     };
 
@@ -80,8 +85,49 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         openModifyEntityDialog(cls, model);
     };
 
-    const handleCreateUsage = (entity: SemanticModelClass | SemanticModelRelationship) => {
+    const handleCreateUsage = (entity: UsageDialogSupportedTypes) => {
         openCreateUsageDialog(entity);
+    };
+
+    const RowHierarchy = (props: { entity: SemanticModelClass | SemanticModelClassUsage; indent: number }) => {
+        return (
+            <>
+                <EntityRow
+                    offset={props.indent}
+                    entity={props.entity}
+                    key={props.entity.id + activeVisualModel?.getId() + classesLength}
+                    expandable={null}
+                    openDetailHandler={() => handleOpenDetail(props.entity)}
+                    modifiable={null} //{{ openModificationHandler: () => handleOpenModification(model, entity) }}
+                    drawable={{
+                        addToViewHandler: () => handleAddClassToActiveView(props.entity.id),
+                        removeFromViewHandler: () => handleRemoveClassFromActiveView(props.entity.id),
+                        isVisibleOnCanvas: () => activeVisualModel?.getVisualEntity(props.entity.id)?.visible ?? false,
+                    }}
+                    removable={null}
+                    // {{
+                    //     remove: () => {
+                    //         deleteEntityFromModel(model, clsId);
+                    //     },
+                    // }}
+                    usage={
+                        isSemanticModelClass(props.entity)
+                            ? {
+                                  createUsageHandler: () => {
+                                      handleCreateUsage(props.entity);
+                                  },
+                              }
+                            : null
+                    }
+                />
+                {usages
+                    .filter((u) => u.usageOf == props.entity.id)
+                    .filter((u): u is SemanticModelClassUsage => isSemanticModelClassUsage(u))
+                    .map((u) => (
+                        <RowHierarchy entity={u} indent={props.indent + 1} />
+                    ))}
+            </>
+        );
     };
 
     const classesLength = classes.size;
@@ -91,7 +137,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .map(([clsId, cwo]) => (
                 // expandable-row, e.g. slovník.gov.cz
                 <EntityRow
-                    cls={cwo}
+                    entity={cwo.cls}
                     key={clsId + activeVisualModel?.getId() + classesLength}
                     expandable={{
                         toggleHandler: () => toggleAllow(model, clsId),
@@ -99,9 +145,11 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     }}
                     openDetailHandler={() => handleOpenDetail(cwo.cls)}
                     modifiable={null}
-                    addToViewHandler={() => handleAddClassToActiveView(clsId)}
-                    removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
-                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false}
+                    drawable={{
+                        addToViewHandler: () => handleAddClassToActiveView(clsId),
+                        removeFromViewHandler: () => handleRemoveClassFromActiveView(clsId),
+                        isVisibleOnCanvas: () => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false,
+                    }}
                     removable={null}
                     usage={{
                         createUsageHandler: () => {
@@ -129,27 +177,31 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .filter(([_, cwo]) => cwo.origin == model.getId())
             .map(([clsId, cwo]) => (
                 // modifiable-row, e.g. local
-                <EntityRow
-                    cls={cwo}
-                    key={clsId + activeVisualModel?.getId() + classesLength}
-                    expandable={null}
-                    openDetailHandler={() => handleOpenDetail(cwo.cls)}
-                    modifiable={{ openModificationHandler: () => handleOpenModification(model, cwo.cls) }}
-                    addToViewHandler={() => handleAddClassToActiveView(clsId)}
-                    removeFromViewHandler={() => handleRemoveClassFromActiveView(clsId)}
-                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false}
-                    removable={{
-                        remove: () => {
-                            deleteEntityFromModel(model, clsId);
-                        },
-                    }}
-                    usage={{
-                        createUsageHandler: () => {
-                            handleCreateUsage(cwo.cls);
-                        },
-                    }}
-                />
+                <RowHierarchy entity={cwo.cls} indent={0} />
             ))
+            // <EntityRow
+            //     entity={cwo.cls}
+            //     key={clsId + activeVisualModel?.getId() + classesLength}
+            //     expandable={null}
+            //     openDetailHandler={() => handleOpenDetail(cwo.cls)}
+            //     modifiable={{ openModificationHandler: () => handleOpenModification(model, cwo.cls) }}
+            //     drawable={{
+            //         addToViewHandler: () => handleAddClassToActiveView(clsId),
+            //         removeFromViewHandler: () => handleRemoveClassFromActiveView(clsId),
+            //         isVisibleOnCanvas: () => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false,
+            //     }}
+            //     removable={{
+            //         remove: () => {
+            //             deleteEntityFromModel(model, clsId);
+            //         },
+            //     }}
+            //     usage={{
+            //         createUsageHandler: () => {
+            //             handleCreateUsage(cwo.cls);
+            //         },
+            //     }}
+            // />
+
             .concat(
                 <div key="add-a-concept-" className="flex flex-row justify-between whitespace-nowrap">
                     Add a concept
@@ -164,14 +216,16 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
             .map((v) => (
                 // non-expandable, e.g. dcat
                 <EntityRow
-                    cls={v}
+                    entity={v.cls}
                     key={v.cls.id + activeVisualModel?.getId() + classesLength}
                     expandable={null}
                     openDetailHandler={() => openEntityDetailDialog(v.cls)}
                     modifiable={null}
-                    addToViewHandler={() => handleAddClassToActiveView(v.cls.id)}
-                    removeFromViewHandler={() => handleRemoveClassFromActiveView(v.cls.id)}
-                    isVisibleOnCanvas={() => activeVisualModel?.getVisualEntity(v.cls.id)?.visible ?? false}
+                    drawable={{
+                        addToViewHandler: () => handleAddClassToActiveView(v.cls.id),
+                        removeFromViewHandler: () => handleRemoveClassFromActiveView(v.cls.id),
+                        isVisibleOnCanvas: () => activeVisualModel?.getVisualEntity(v.cls.id)?.visible ?? false,
+                    }}
                     removable={null}
                     usage={{
                         createUsageHandler: () => {

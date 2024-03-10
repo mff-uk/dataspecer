@@ -26,6 +26,10 @@ export const MultiLanguageInputForLanguageString = (props: {
                         size={4}
                         onFocus={(e) => e.target.select()}
                         onChange={(e) => setL(e.target.value)}
+                        onBlur={() => {
+                            props.onEnterCallback(l);
+                            reset();
+                        }}
                         onKeyUp={(e) => {
                             if (e.key === "Enter") {
                                 props.onEnterCallback(l);
@@ -47,11 +51,15 @@ export const MultiLanguageInputForLanguageString = (props: {
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(defaultLang || languages.at(0) || "en");
 
+    if (!languages.includes(currentLang) && languages.length) {
+        setCurrentLang(languages.at(0)!);
+    }
+
     return (
         <div>
             <ul className="flex flex-row [&>*]:mx-1">
                 {languages
-                    .map((lang) => (
+                    .map((lang, i) => (
                         <li
                             onClick={() => {
                                 setCurrentLang(lang);
@@ -59,6 +67,20 @@ export const MultiLanguageInputForLanguageString = (props: {
                             className={lang == currentLang ? "font-bold" : ""}
                         >
                             {lang}
+                            {lang == currentLang && (
+                                <button
+                                    className="text-xs"
+                                    onClick={() => {
+                                        setLs((prev) =>
+                                            Object.fromEntries(
+                                                Object.entries(prev).filter(([l, _]) => l != currentLang)
+                                            )
+                                        );
+                                    }}
+                                >
+                                    🗑
+                                </button>
+                            )}
                         </li>
                     ))
                     .concat(

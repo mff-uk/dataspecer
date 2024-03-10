@@ -98,6 +98,7 @@ export const useEntityDetailDialog = () => {
                         </p>
 
                         <div>
+                            lang:
                             <select
                                 name="langs"
                                 id="langs"
