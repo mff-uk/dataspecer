@@ -1,8 +1,8 @@
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {Entity} from "../../entity-model/entity";
-import {InMemoryEntityModel} from "../../entity-model/in-memory-entity-model";
+import { CoreResourceReader } from "@dataspecer/core/core";
+import { Entity } from "../../entity-model/entity";
+import { InMemoryEntityModel } from "../../entity-model/in-memory-entity-model";
 
-import {transformCoreResources} from "./transform-core-resources";
+import { transformCoreResources } from "./transform-core-resources";
 
 function deepEqual(a: any, b: any): boolean {
     if (a === b) {
@@ -30,8 +30,8 @@ function deepEqual(a: any, b: any): boolean {
 export class PimStoreWrapper extends InMemoryEntityModel {
     private pimStore: CoreResourceReader;
 
-    constructor(pimStore: CoreResourceReader) {
-        super();
+    constructor(pimStore: CoreResourceReader, id?: string) {
+        super(id);
         this.pimStore = pimStore;
     }
 
@@ -60,5 +60,14 @@ export class PimStoreWrapper extends InMemoryEntityModel {
         }
 
         this.change(updated, deleted);
+    }
+
+    serializeModel() {
+        return {
+            // todo fix
+            type: "https://dataspecer.com/core/model-descriptor/pim-store-wrapper",
+            id: this.id,
+            pimStore: this.pimStore,
+        };
     }
 }
