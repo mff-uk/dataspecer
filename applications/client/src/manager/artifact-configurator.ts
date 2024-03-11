@@ -10,9 +10,6 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     dataSpecificationIri: string,
   ): Promise<DataSpecificationArtefact[]> {
     const artifacts = await super.generateFor(dataSpecificationIri);
-    const currentSchemaArtefacts = artifacts
-        .filter(artifact => DataSpecificationSchema.is(artifact))
-        .map(artifact => artifact.iri as string);
 
     const dataSpecification = this.dataSpecifications.find(
         dataSpecification => dataSpecification.iri === dataSpecificationIri,
