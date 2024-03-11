@@ -1,6 +1,6 @@
 import { mergeConfigurations } from "@dataspecer/core/configuration/utils";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import { DataSpecificationArtefact, DataSpecificationDocumentation, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
+import { DataSpecificationArtefact, DataSpecificationDocumentation } from "@dataspecer/core/data-specification/model";
 import { PlantUmlGenerator } from "@dataspecer/plant-uml";
 import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
 import { PlantUmlImageGenerator } from "./artifacts/plant-uml-image-generator";
