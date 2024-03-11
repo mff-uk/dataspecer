@@ -24,6 +24,12 @@ export const DefaultDataSpecificationConfiguration =  {
     instancesSpecifyTypes: "ALWAYS" as "ALWAYS" | "NEVER" | "OPTIONAL",
 
     dataPsmIsClosed: "OPEN" as "OPEN" | "CLOSED",
+
+    /**
+     * Whether generators that are not specified are enabled by default.
+     * Use false for instances where a specific set of generators is required.
+     */
+    generatorsEnabledByDefault: true,
 }
 
 export type DataSpecificationConfiguration = typeof DefaultDataSpecificationConfiguration;

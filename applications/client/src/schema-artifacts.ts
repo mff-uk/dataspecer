@@ -1,16 +1,16 @@
+import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model/data-specification-artefact";
 import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model/data-specification-schema";
-import { XML_SCHEMA } from "@dataspecer/xml/xml-schema";
-import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
-import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
-import { XSLT_LIFTING, XSLT_LOWERING } from "@dataspecer/xml/xml-transformations";
-import { SPARQL } from "@dataspecer/sparql-query";
 import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
+import { RDF_TO_CSV } from "@dataspecer/csv/rdf-to-csv";
+import { JsonExampleGenerator } from "@dataspecer/json-example";
+import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
+import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
+import { SPARQL } from "@dataspecer/sparql-query";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "@dataspecer/xml/xml-common-schema";
-import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
-import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import {JsonExampleGenerator} from "@dataspecer/json-example";
+import { XML_SCHEMA } from "@dataspecer/xml/xml-schema";
+import { XSLT_LIFTING, XSLT_LOWERING } from "@dataspecer/xml/xml-transformations";
 
 /**
  * This is the place to register your own artefacts if you need to.
@@ -24,6 +24,7 @@ export function getSchemaArtifacts(
     configuration: object
 ) {
     const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
+    const generatorsEnabledByDefault = dataSpecificationConfiguration.generatorsEnabledByDefault!;
 
     const artifacts: DataSpecificationArtefact[] = [];
 
@@ -34,7 +35,7 @@ export function getSchemaArtifacts(
     jsonSchema.generator = JSON_SCHEMA.Generator;
     jsonSchema.psm = psmSchemaIri;
     jsonSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(jsonSchema);
     }
 
@@ -45,7 +46,7 @@ export function getSchemaArtifacts(
     jsonExample.generator = JsonExampleGenerator.IDENTIFIER;
     jsonExample.psm = psmSchemaIri;
     jsonExample.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["jsonExample"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(jsonExample);
     }
 
@@ -56,7 +57,7 @@ export function getSchemaArtifacts(
     jsonLd.generator = JSON_LD_GENERATOR;
     jsonLd.psm = psmSchemaIri;
     jsonLd.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["json"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(jsonLd);
     }
 
@@ -68,7 +69,7 @@ export function getSchemaArtifacts(
     xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;
     xsdCoreSchema.psm = psmSchemaIri;
     xsdCoreSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["xml"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(xsdCoreSchema);
     }
 
@@ -79,7 +80,7 @@ export function getSchemaArtifacts(
     xmlSchema.generator = XML_SCHEMA.Generator;
     xmlSchema.psm = psmSchemaIri;
     xmlSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["xml"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(xmlSchema);
     }
 
@@ -90,7 +91,7 @@ export function getSchemaArtifacts(
     xsltLifting.generator = XSLT_LIFTING.Generator;
     xsltLifting.psm = psmSchemaIri;
     xsltLifting.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["xml"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(xsltLifting);
     }
 
@@ -101,7 +102,7 @@ export function getSchemaArtifacts(
     xsltLowering.generator = XSLT_LOWERING.Generator;
     xsltLowering.psm = psmSchemaIri;
     xsltLowering.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["xml"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(xsltLowering);
     }
 
@@ -112,7 +113,7 @@ export function getSchemaArtifacts(
     csvSchema.generator = CSV_SCHEMA.Generator;
     csvSchema.psm = psmSchemaIri;
     csvSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["csv"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["csv"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(csvSchema);
     }
 
@@ -123,7 +124,7 @@ export function getSchemaArtifacts(
     rdfToCsv.generator = RDF_TO_CSV.Generator;
     rdfToCsv.psm = psmSchemaIri;
     rdfToCsv.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["csv"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["csv"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(rdfToCsv);
     }
 
@@ -134,7 +135,7 @@ export function getSchemaArtifacts(
     sparqlSchema.generator = SPARQL.Generator;
     sparqlSchema.psm = psmSchemaIri;
     sparqlSchema.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["sparql"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["sparql"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(sparqlSchema);
     }
 
@@ -145,7 +146,7 @@ export function getSchemaArtifacts(
     shacl.generator = "https://schemas.dataspecer.com/generator/shacl";
     shacl.psm = psmSchemaIri;
     shacl.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["shacl"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(shacl);
     }
 
@@ -156,7 +157,7 @@ export function getSchemaArtifacts(
     shex.generator = "https://schemas.dataspecer.com/generator/shex";
     shex.psm = psmSchemaIri;
     shex.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["shex"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(shex);
     }
 
@@ -167,7 +168,7 @@ export function getSchemaArtifacts(
     shexMap.generator = "https://schemas.dataspecer.com/generator/shex-map";
     shexMap.psm = psmSchemaIri;
     shexMap.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["shacl"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["shex"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(shexMap);
     }
 
@@ -178,7 +179,7 @@ export function getSchemaArtifacts(
     openapi.generator = "https://schemas.dataspecer.com/generator/openapi";
     openapi.psm = psmSchemaIri;
     openapi.configuration = configuration;
-    if (dataSpecificationConfiguration.useGenerators?.["openapi"] !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["openapi"] ?? generatorsEnabledByDefault) !== false) {
         artifacts.push(openapi);
     }
 
