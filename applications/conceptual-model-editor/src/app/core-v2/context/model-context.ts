@@ -7,8 +7,15 @@ import React, { useContext } from "react";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
-import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    createClassUsage,
+    createRelationshipUsage,
+    modifyRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/operations";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const bob = new SemanticModelAggregator();
 
@@ -89,20 +96,48 @@ export const useModelGraphContext = () => {
         return result.success;
     };
 
-    const createEntityUsage = (
+    const createClassEntityUsage = (
         model: InMemorySemanticModel,
-        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
+        entityType: "class" | "class-usage",
         entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
     ) => {
         if (entityType == "class" || entityType == "class-usage") {
             const result = model.executeOperation(createClassUsage(entity));
             console.log(result);
-        } else if (entityType == "relationship" || entityType == "relationship-usage") {
-            const result = model.executeOperation(createRelationshipUsage(entity));
-            console.log(result);
+            return result.success;
         } else {
             console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
+        }
+        return false;
+    };
+
+    const createRelationshipEntityUsage = (
+        model: InMemorySemanticModel,
+        entityType: "relationship" | "relationship-usage",
+        entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
+    ) => {
+        if (entityType == "relationship" || entityType == "relationship-usage") {
+            const result = model.executeOperation(createRelationshipUsage(entity));
+            console.log(result);
+            return result.success;
+        } else {
+            console.error(model, entityType, entity);
+            throw new Error(`unexpected entityType ${entityType}`);
+        }
+        return false;
+    };
+
+    const updateEntityUsage = (
+        model: InMemorySemanticModel,
+        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
+        id: string,
+        entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
+    ) => {
+        if (entityType == "relationship-usage") {
+            console.log("about to modify relationshipusage", id, entity);
+            const result = model.executeOperation(modifyRelationshipUsage(id, entity));
+            return result.success;
         }
     };
 
@@ -130,7 +165,9 @@ export const useModelGraphContext = () => {
         setAggregatorView,
         addClassToModel,
         modifyClassInAModel,
-        createEntityUsage,
+        createClassEntityUsage,
+        createRelationshipEntityUsage,
+        updateEntityUsage,
         cleanModels,
         removeModelFromModels,
         visualModels,

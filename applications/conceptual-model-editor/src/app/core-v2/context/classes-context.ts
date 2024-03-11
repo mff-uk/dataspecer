@@ -2,6 +2,7 @@ import {
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
@@ -19,6 +20,8 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { InMemoryEntityModel } from "@dataspecer/core-v2/entity-model";
+import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -87,8 +90,27 @@ export const useClassesContext = () => {
         return result.success;
     };
 
+    const updateAttribute = (
+        model: InMemorySemanticModel,
+        attributeId: string,
+        updatedAttribute: Partial<Omit<SemanticModelRelationship, "type" | "id">>
+    ) => {
+        const result = model.executeOperation(modifyRelation(attributeId, updatedAttribute));
+        return result.success;
+    };
+
+    const updateAttributeUsage = (
+        model: InMemorySemanticModel,
+        attributeId: string,
+        updatedAttribute: Partial<Omit<SemanticModelRelationshipUsage, "type" | "id">>
+    ) => {
+        const result = model.executeOperation(modifyRelationshipUsage(attributeId, updatedAttribute));
+        return result.success;
+    };
+
     const deleteEntityFromModel = (model: InMemorySemanticModel, entityId: string) => {
         const result = model.executeOperation(deleteEntity(entityId));
+        console.log(result, model, entityId);
         return result.success;
     };
 
@@ -105,6 +127,8 @@ export const useClassesContext = () => {
         setGeneralizations,
         createConnection,
         addAttribute,
+        updateAttribute,
+        updateAttributeUsage,
         deleteEntityFromModel,
         usages,
         setUsages,

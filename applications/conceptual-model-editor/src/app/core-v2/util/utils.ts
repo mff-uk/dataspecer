@@ -14,9 +14,9 @@ export const getOneNameFromLanguageString = (ls: LanguageString) => {
     }
 };
 
-export const isAttribute = (relationship: SemanticModelRelationship) => {
+export const isAttribute = (relationship: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
     return (
-        (relationship.ends[1] && relationship.ends[1]?.concept == null) ||
+        (relationship.ends[1] && relationship.ends[1].concept == null) ||
         (relationship.ends[1] && relationship.ends[1].concept == "") // FIXME: tadyto se deje, protoze neumim vytvorit atribut, ktery by mel jako concept null
     );
 };

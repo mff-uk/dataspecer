@@ -1,8 +1,13 @@
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/model-context";
 import { useCreateUsageDialog } from "../dialog/create-usage-dialog";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { getNameOrIriAndDescription } from "../util/language-utils";
+import { sourceModelOfEntity } from "../util/model-utils";
+import { EntityRow } from "./entity-catalog-row";
+import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
+import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 const AttributeOrRelationshipRow = (props: {
     name: string;
@@ -31,9 +36,13 @@ const AttributeOrRelationshipRow = (props: {
 };
 
 export const AttributeCatalog = () => {
-    const { attributes } = useClassesContext();
+    const { attributes, deleteEntityFromModel } = useClassesContext();
+    const { models: m } = useModelGraphContext();
     const { isEntityDetailDialogOpen, openEntityDetailDialog, EntityDetailDialog } = useEntityDetailDialog();
     const { isCreateUsageDialogOpen, openCreateUsageDialog, CreateUsageDialog } = useCreateUsageDialog();
+    const { isModifyEntityDialogOpen, openModifyEntityDialog, ModifyEntityDialog } = useModifyEntityDialog();
+
+    const models = [...m.values()];
 
     return (
         <>
@@ -41,7 +50,38 @@ export const AttributeCatalog = () => {
                 {attributes.map((v) => {
                     const attr = v.ends.at(1)!;
                     const [name, description] = getNameOrIriAndDescription(attr, v.iri ?? "no-name");
+
+                    const model = sourceModelOfEntity(v.id, models);
+                    let removeHandler: { remove: () => void } | null = null;
+                    let modifyHandler: { openModificationHandler: () => void } | null = null;
+                    if (model instanceof InMemorySemanticModel) {
+                        removeHandler = {
+                            remove: () => {
+                                deleteEntityFromModel(model, v.id);
+                            },
+                        };
+                        if (isSemanticModelClass(v)) {
+                            modifyHandler = {
+                                openModificationHandler: () => {
+                                    openModifyEntityDialog(v, model);
+                                },
+                            };
+                        }
+                    }
+
                     return (
+                        // <div>
+                        //     <EntityRow
+                        //         entity={v}
+                        //         expandable={null}
+                        //         openDetailHandler={() => openEntityDetailDialog(v)}
+                        //         modifiable={modifyHandler}
+                        //         drawable={null}
+                        //         removable={removeHandler}
+                        //         usage={{ createUsageHandler: () => openCreateUsageDialog(v) }}
+                        //     />
+                        // </div>
+
                         <AttributeOrRelationshipRow
                             liKey={v.id}
                             liTitle={description || ""}
@@ -55,6 +95,7 @@ export const AttributeCatalog = () => {
             </ul>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isCreateUsageDialogOpen && <CreateUsageDialog />}
+            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
         </>
     );
 };

@@ -20,6 +20,7 @@ import {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "./base-dialog";
+import { getIri } from "../util/model-utils";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -74,14 +75,25 @@ export const useEntityDetailDialog = () => {
             [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
         }
 
-        const { classes: c, attributes: a } = useClassesContext();
+        const { classes: c, attributes: a, usages: u } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+        const attributeUsages = u
+            .filter(isSemanticModelRelationshipUsage)
+            .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
 
-        const ends = isSemanticModelRelationship(viewedEntity) ? viewedEntity.ends : null;
-        const domain = c.get(ends?.at(0)?.concept || "dfjkn23jb21828532923891")?.cls;
-        const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality);
-        const range = c.get(ends?.at(1)?.concept || "tnrkemlf83904349820402")?.cls;
-        const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality);
+        const ends =
+            isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
+                ? viewedEntity.ends
+                : null;
+        const domain =
+            c.get(ends?.at(0)?.concept || "dfjkn23jb21828532923891")?.cls ??
+            u.find((v) => v.id == ends?.at(0)?.concept);
+        const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality ?? [0, null]);
+        const domainIri = getIri(domain ?? null);
+        const range =
+            c.get(ends?.at(1)?.concept || "tnrkemlf83904349820402")?.cls ?? u.find((v) => v.id == ends?.at(0)?.concept);
+        const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality ?? [0, null]);
+        const rangeIri = getIri(range ?? null);
 
         console.log(ends, domain, viewedEntity);
 
@@ -139,18 +151,50 @@ export const useEntityDetailDialog = () => {
                         })}
                     </p>
                 )}
+                {attributeUsages.length > 0 && (
+                    <p>
+                        attribute usages:
+                        {attributeUsages.map((v) => {
+                            const attr = v.ends.at(1)!;
+                            const [name, fallbackLang] = getStringFromLanguageStringInLang(
+                                attr.name ?? {},
+                                currentLang
+                            );
+                            const [attributeDescription, fallbackAttributeDescriptionLang] =
+                                getStringFromLanguageStringInLang(attr.description ?? {});
+
+                            let descr = "";
+                            if (attributeDescription && !fallbackAttributeDescriptionLang) {
+                                descr = attributeDescription;
+                            } else if (attributeDescription && fallbackAttributeDescriptionLang) {
+                                descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
+                            }
+
+                            return (
+                                <div title={descr}>
+                                    {name ?? v.id}@{fallbackLang}
+                                </div>
+                            );
+                        })}
+                    </p>
+                )}
                 {usageNote && <p>usage note: {usageNote}</p>}
                 {domain && (
                     <p>
-                        domain:
-                        {getNameOrIriAndDescription(domain, domain?.iri || "domain-no-iri")[0]}: {domainCardinality}
+                        domain: {getStringFromLanguageStringInLang(domain.name ?? {}) ?? domainIri ?? domain.id}:{" "}
+                        {domainCardinality}
                     </p>
                 )}
                 {range && (
                     <p>
-                        range: {getNameOrIriAndDescription(range, range?.iri || "range-no-iri")[0]},{rangeCardinality}
+                        range:
+                        {getStringFromLanguageStringInLang(range.name ?? {}) ?? rangeIri ?? range.id}:{" "}
+                        {rangeCardinality}
                     </p>
                 )}
+                <p>
+                    domain: {domain ? "present" : "null"}, range: {range ? "present" : "null"}
+                </p>
 
                 <div className="flex flex-row justify-evenly">
                     <button onClick={save}>confirm</button>

@@ -118,18 +118,13 @@ export const Visualization = () => {
         entity: Entity | null,
         color: string | undefined
     ): Edge | undefined => {
-        if (isSemanticModelRelationship(entity)) {
-            const edgeUsages = usages
-                .filter((u) => u.usageOf == entity.id)
-                .filter((u): u is SemanticModelRelationshipUsage => isSemanticModelRelationshipUsage(u));
-
-            return semanticModelRelationshipToReactFlowEdge(
-                entity as SemanticModelRelationship,
-                color,
-                edgeUsages
-            ) as Edge;
+        if (isSemanticModelRelationshipUsage(entity)) {
+            const usageNotes = entity.usageNote ? [entity.usageNote] : [];
+            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes) as Edge;
+        } else if (isSemanticModelRelationship(entity)) {
+            return semanticModelRelationshipToReactFlowEdge(entity, color, []) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            return semanticModelGeneralizationToReactFlowEdge(entity as SemanticModelGeneralization, color) as Edge;
+            return semanticModelGeneralizationToReactFlowEdge(entity, color) as Edge;
         }
         return;
     };
@@ -188,6 +183,9 @@ export const Visualization = () => {
                 const usagesOfAttributes = usages
                     .filter((u) => idsOfAttributes.includes(u.usageOf))
                     .filter((u): u is SemanticModelClassUsage => isSemanticModelRelationshipUsage(u));
+                const attributeUsages = usages
+                    .filter(isSemanticModelRelationshipUsage)
+                    .filter((attr) => attr.ends[0]?.concept == cls.id && !attr.ends[1]?.concept);
 
                 // const usagesOfAttributes = attributes.map()
                 return semanticModelClassToReactFlowNode(
@@ -198,12 +196,13 @@ export const Visualization = () => {
                     attributes,
                     openEntityDetailDialog,
                     (cls: SemanticModelClass) => openModifyEntityDialog(cls),
-                    usagesOfAttributes
+                    usagesOfAttributes,
+                    attributeUsages
                 );
             };
 
             const getEdge = (
-                relOrGen: SemanticModelRelationship | SemanticModelGeneralization,
+                relOrGen: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage,
                 color: string | undefined
             ) => {
                 return relationshipOrGeneralizationToEdgeType(relOrGen, color);
@@ -228,12 +227,22 @@ export const Visualization = () => {
                         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                         nodesOnCanvas.add(id);
                     }
-                } else if (isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
-                    if (isSemanticModelRelationship(entity) && isAttribute(entity)) {
+                } else if (
+                    isSemanticModelRelationship(entity) ||
+                    isSemanticModelGeneralization(entity) ||
+                    isSemanticModelRelationshipUsage(entity)
+                ) {
+                    if (
+                        (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
+                        isAttribute(entity)
+                    ) {
                         // it is an attribute, rerender the node that the attribute comes form
                         const aggrEntityOfAttributesNode =
                             entities[entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
-                        if (isSemanticModelClass(aggrEntityOfAttributesNode)) {
+                        if (
+                            isSemanticModelClass(aggrEntityOfAttributesNode) ||
+                            isSemanticModelClassUsage(aggrEntityOfAttributesNode)
+                        ) {
                             // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
                             localAttributes.push(entity);
                             const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
@@ -252,11 +261,6 @@ export const Visualization = () => {
                         }
                         continue;
                     }
-                    // } else if (isSemanticModelClassUsage(entity)) {
-                    // console.log("got usage, skipping", entity);
-                    // setEdges((prev) => prev.)
-                } else if (isSemanticModelRelationshipUsage(entity)) {
-                    console.log("got relationship usage, skipping", entity);
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
                     throw new Error("unknown entity type");
@@ -271,7 +275,11 @@ export const Visualization = () => {
                     }
                 }
 
-                const es = [...localRelationships, ...localGeneralizations]
+                const es = [
+                    ...localRelationships,
+                    ...localGeneralizations,
+                    ...usages.filter(isSemanticModelRelationshipUsage),
+                ]
                     .map((relOrGen) =>
                         getEdge(relOrGen, localActiveVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
                     )

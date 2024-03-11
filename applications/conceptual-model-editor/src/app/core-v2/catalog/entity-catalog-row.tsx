@@ -10,6 +10,7 @@ import {
     LanguageString,
     NamedThing,
     SemanticModelClass,
+    SemanticModelRelationship,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
@@ -22,7 +23,7 @@ export const IriLink = (props: { iri: string | undefined | null }) => {
 };
 
 export const EntityRow = (props: {
-    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+    entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
     expandable: null | {
         toggleHandler: () => void;
         expanded: () => boolean;

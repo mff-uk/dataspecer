@@ -10,7 +10,11 @@ import {
 } from "reactflow";
 
 import { getEdgeParams, getLoopPath } from "./utils";
-import { SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelRelationship,
+    SemanticModelGeneralization,
+    LanguageString,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     getNameOfThingInLangOrIri,
     getNameOrIriAndDescription,
@@ -20,6 +24,7 @@ import { number, string } from "zod";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 // this is a little helper component to render the actual edge label
@@ -45,7 +50,7 @@ type SimpleFloatingEdgeDataType = {
     cardinalitySource?: string;
     cardinalityTarget?: string;
     bgColor?: string;
-    usages?: SemanticModelRelationshipUsage[];
+    usageNotes?: LanguageString[];
 };
 
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
@@ -100,8 +105,8 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                     }}
                 >
                     <div>{d.label}</div>
-                    {d.usages?.map((u) => (
-                        <div className="bg-blue-200">{getStringFromLanguageStringInLang(u.usageNote ?? {})[0]}</div>
+                    {d.usageNotes?.map((u) => (
+                        <div className="bg-blue-200">{getStringFromLanguageStringInLang(u)[0] ?? "no usage"}</div>
                     ))}
                 </div>
                 {d.cardinalitySource && (
@@ -124,11 +129,11 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 };
 
 export const semanticModelRelationshipToReactFlowEdge = (
-    rel: SemanticModelRelationship,
+    rel: SemanticModelRelationship | SemanticModelRelationshipUsage,
     color: string | undefined,
-    usages: SemanticModelRelationshipUsage[]
+    usageNotes: LanguageString[]
 ) => {
-    const [name, description] = getNameOrIriAndDescription(rel, rel.iri ?? rel.id);
+    const name = getStringFromLanguageStringInLang(rel.name ?? {})[0] ?? rel.id;
     return {
         id: rel.id,
         source: rel.ends[0]!.concept,
@@ -136,12 +141,12 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: name ?? "",
+            label: `${isSemanticModelRelationshipUsage(rel) && "<<profile>> "}${name}`,
             type: "r",
             cardinalitySource: rel.ends[0]?.cardinality?.toString(),
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
             bgColor: color,
-            usages,
+            usageNotes,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 2, stroke: color },
     } as Edge;

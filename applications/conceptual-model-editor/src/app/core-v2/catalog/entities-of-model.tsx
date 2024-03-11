@@ -18,6 +18,7 @@ import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-ut
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
 import { useCreateUsageDialog, UsageDialogSupportedTypes } from "../dialog/create-usage-dialog";
 import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { sourceModelOfEntity } from "../util/model-utils";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel, usages } = useClassesContext();
@@ -90,6 +91,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     const RowHierarchy = (props: { entity: SemanticModelClass | SemanticModelClassUsage; indent: number }) => {
+        const modificationHandler =
+            model instanceof InMemorySemanticModel
+                ? { openModificationHandler: () => handleOpenModification(model, props.entity) }
+                : null;
         return (
             <>
                 <EntityRow
@@ -98,7 +103,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                     key={props.entity.id + activeVisualModel?.getId() + classesLength}
                     expandable={null}
                     openDetailHandler={() => handleOpenDetail(props.entity)}
-                    modifiable={null} //{{ openModificationHandler: () => handleOpenModification(model, entity) }}
+                    modifiable={modificationHandler}
                     drawable={{
                         addToViewHandler: () => handleAddClassToActiveView(props.entity.id),
                         removeFromViewHandler: () => handleRemoveClassFromActiveView(props.entity.id),

@@ -5,17 +5,25 @@ import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { getNameOrIriAndDescription, getStringFromLanguageStringInLang, getUsageNote } from "../util/language-utils";
 import { EntityRow } from "./entity-catalog-row";
 import { useCreateUsageDialog } from "../dialog/create-usage-dialog";
+import { sourceModelOfEntity } from "../util/model-utils";
+import { InMemoryEntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 
 export const UsageCatalog = () => {
-    const { aggregatorView } = useModelGraphContext();
+    const { aggregatorView, models: m } = useModelGraphContext();
     const { classes, relationships, attributes, usages } = useClassesContext();
     const { openEntityDetailDialog, EntityDetailDialog, isEntityDetailDialogOpen } = useEntityDetailDialog();
     const { CreateUsageDialog, openCreateUsageDialog, isCreateUsageDialogOpen } = useCreateUsageDialog();
-    console.log(usages);
+    const { ModifyEntityDialog, openModifyEntityDialog, isModifyEntityDialogOpen } = useModifyEntityDialog();
+
+    const models = [...m.values()];
+
     return (
         <>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isCreateUsageDialogOpen && <CreateUsageDialog />}
+            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             <ul>
                 {usages.map((u) => {
                     const [usageName, usageNameFallbackLang] = getStringFromLanguageStringInLang(u.name ?? {});
@@ -29,6 +37,14 @@ export const UsageCatalog = () => {
                         targetEntity,
                         targetEntity?.iri ?? u.usageOf
                     );
+
+                    const sourceModel = sourceModelOfEntity(u.id, models);
+                    const modifiable =
+                        sourceModel instanceof InMemorySemanticModel
+                            ? {
+                                  openModificationHandler: () => openModifyEntityDialog(u, sourceModel),
+                              }
+                            : null;
 
                     const drawable = isSemanticModelClassUsage(u)
                         ? {
@@ -53,7 +69,7 @@ export const UsageCatalog = () => {
                             entity={u}
                             expandable={null}
                             openDetailHandler={() => openEntityDetailDialog(u)}
-                            modifiable={null}
+                            modifiable={modifiable}
                             drawable={drawable}
                             removable={null}
                             usage={{

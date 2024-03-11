@@ -10,7 +10,12 @@ import {
     getNameOfThingInLangOrIri,
     getNameOrIriAndDescription,
 } from "../util/language-utils";
-import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { shortenStringTo } from "../util/utils";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
@@ -19,6 +24,7 @@ type ClassCustomNodeDataType = {
     openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void;
     openModifyDialog: (cls: SemanticModelClass) => void;
     usagesOfAttributes: SemanticModelClassUsage[];
+    attributeUsages: SemanticModelRelationshipUsage[];
 };
 
 export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
@@ -78,6 +84,26 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     );
                 })}
 
+                {props.data.attributeUsages?.map((attr) => {
+                    const end = attr.ends[1]!;
+                    const n = getStringFromLanguageStringInLang(end.name ?? {}) ?? attr.id;
+                    const d = getStringFromLanguageStringInLang(end.description ?? {})[0] ?? "";
+
+                    const usageOf = attr.usageOf;
+                    const [usageNote, l] = getStringFromLanguageStringInLang(attr.usageNote ?? {});
+
+                    return (
+                        <p key={`${n}.${attr.id}`} title={d} className="flex flex-row">
+                            <span>
+                                - {n}, usage of: {shortenStringTo(usageOf, 8)}{" "}
+                            </span>
+                            <div className="ml-2 rounded-sm bg-blue-300" title={usageNote ?? "usage note missing"}>
+                                usage note
+                            </div>
+                        </p>
+                    );
+                })}
+
                 <div className="flex flex-row justify-between">
                     <button
                         className="text-slate-500"
@@ -132,7 +158,8 @@ export const semanticModelClassToReactFlowNode = (
     attributes: SemanticModelRelationship[],
     openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void,
     openModifyDialog: (cls: SemanticModelClass) => void,
-    usagesOfAttributes: SemanticModelClassUsage[]
+    usagesOfAttributes: SemanticModelClassUsage[],
+    attributeUsages: SemanticModelRelationshipUsage[]
 ) =>
     ({
         id: id,
@@ -144,6 +171,7 @@ export const semanticModelClassToReactFlowNode = (
             openEntityDetailDialog,
             openModifyDialog,
             usagesOfAttributes,
+            attributeUsages,
         } satisfies ClassCustomNodeDataType,
         type: "classCustomNode",
     } as Node);
