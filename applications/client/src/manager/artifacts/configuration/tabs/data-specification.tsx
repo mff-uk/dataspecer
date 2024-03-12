@@ -1,6 +1,6 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import { DataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
-import { FormGroup, Grid, Typography } from "@mui/material";
+import { Box, FormGroup, Grid, Typography } from "@mui/material";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { InfoHelp } from "../../../../components/info-help";
@@ -33,6 +33,17 @@ export const DataSpecification: FC<{
     <Typography variant="body2" sx={{mt: 1}}>
         For artifacts that will be published on the web.
     </Typography>
+
+    <Box sx={{mt:3, ml: "-5px"}}>
+      <SwitchWithDefault
+        label="Omit structure name in file path if only one structure"
+        current={input ?? {}}
+        itemKey="skipStructureNameIfOnlyOne"
+        onChange={onChange}
+        default={defaultObject}
+        undefinedIs={defaultObject.skipStructureNameIfOnlyOne}
+      />
+    </Box>
 
     <Typography variant="h6" sx={{ mt: 6 }}>Instance identification and typing</Typography>
     <Grid container spacing={2}>

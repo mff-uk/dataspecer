@@ -74,12 +74,16 @@ export class DefaultArtifactConfigurator {
     } else if (dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION) {
       const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
       for (const psmSchemaIri of dataSpecification.psms) {
-        const name = await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+        let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+
+        if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.psms.length === 1) {
+          subdirectory = "";
+        }
 
         currentSchemaArtefacts.push(...getSchemaArtifacts(
             psmSchemaIri,
-            `${this.baseURL}/${name}`,
-            `${dataSpecificationName}/${name}`,
+            `${this.baseURL}${subdirectory}`,
+            `${dataSpecificationName}${subdirectory}`,
             configuration
         ));
       }

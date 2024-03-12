@@ -30,6 +30,11 @@ export const DefaultDataSpecificationConfiguration =  {
      * Use false for instances where a specific set of generators is required.
      */
     generatorsEnabledByDefault: true,
+
+    /**
+     * Whether the file path should omit the structure name if there is only one structure in the specification.
+     */
+    skipStructureNameIfOnlyOne: true,
 }
 
 export type DataSpecificationConfiguration = typeof DefaultDataSpecificationConfiguration;
