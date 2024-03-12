@@ -7,11 +7,16 @@ import {
     LanguageString,
     SemanticModelClass,
     SemanticModelRelationship,
+    SemanticModelRelationshipEnd,
+    isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export type UsageDialogSupportedTypes =
@@ -35,16 +40,16 @@ export const useCreateUsageDialog = () => {
     };
 
     const CreateUsageDialog = () => {
-        const { models, createEntityUsage } = useModelGraphContext();
+        const { models, createClassEntityUsage, createRelationshipEntityUsage } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
         const [name, setName] = useState<LanguageString>({});
         const [description, setDescription] = useState<LanguageString>({});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
+        const [domain, setDomain] = useState<SemanticModelRelationshipEnd | null>(null);
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
-        // const [entityName] = getNameOrIriAndDesscription(entity, entity?.iri || entity?.id || "");
         const entityName2 = getStringFromLanguageStringInLang(entity?.name ?? {}) ?? entity?.id;
 
         if (inMemoryModels.length == 0) {
@@ -55,16 +60,19 @@ export const useCreateUsageDialog = () => {
         console.log(model, entity);
         return (
             <BaseDialog heading={`Create a usage${entityName2 ? " of " + entityName2 : ""}`}>
-                <p>
-                    active model:
-                    <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
-                        {inMemoryModels
-                            .map((m) => m.getId())
-                            .map((mId) => (
-                                <option value={mId}>{mId}</option>
-                            ))}
-                    </select>
-                </p>
+                <div className="flex flex-row justify-evenly bg-slate-50">
+                    <p>type: {entity?.type}</p>
+                    <p>
+                        active model:
+                        <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
+                            {inMemoryModels
+                                .map((m) => m.getId())
+                                .map((mId) => (
+                                    <option value={mId}>{mId}</option>
+                                ))}
+                        </select>
+                    </p>
+                </div>
                 <p className="bg-slate-50 p-2">
                     usage note:
                     <MultiLanguageInputForLanguageString
@@ -88,16 +96,29 @@ export const useCreateUsageDialog = () => {
                         inputType="textarea"
                     />
                 </p>
+                {(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && <p>domain: </p>}
                 <div className="flex flex-row justify-evenly">
                     {model && entity ? (
                         <button
                             onClick={() => {
-                                createEntityUsage(model, entity.type[0], {
-                                    usageOf: entity.id,
-                                    usageNote: usageNote,
-                                    description,
-                                    name,
-                                });
+                                if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+                                    createClassEntityUsage(model, entity.type[0], {
+                                        usageOf: entity.id,
+                                        usageNote: usageNote,
+                                        description,
+                                        name,
+                                    });
+                                } else if (
+                                    isSemanticModelRelationship(entity) ||
+                                    isSemanticModelRelationshipUsage(entity)
+                                ) {
+                                    createRelationshipEntityUsage(model, entity.type[0], {
+                                        usageOf: entity.id,
+                                        usageNote: usageNote,
+                                        description,
+                                        name,
+                                    });
+                                }
                                 localClose();
                             }}
                         >

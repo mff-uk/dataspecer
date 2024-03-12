@@ -141,7 +141,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: `${isSemanticModelRelationshipUsage(rel) && "<<profile>> "}${name}`,
+            label: `${isSemanticModelRelationshipUsage(rel) ? "<<profile>> " : ""}${name}`,
             type: "r",
             cardinalitySource: rel.ends[0]?.cardinality?.toString(),
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),

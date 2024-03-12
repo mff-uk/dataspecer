@@ -8,6 +8,11 @@ import { sourceModelOfEntity } from "../util/model-utils";
 import { EntityRow } from "./entity-catalog-row";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { tailwindColorToHex } from "~/app/utils/color-utils";
+import {
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const AttributeOrRelationshipRow = (props: {
     name: string;
@@ -37,7 +42,7 @@ const AttributeOrRelationshipRow = (props: {
 
 export const AttributeCatalog = () => {
     const { attributes, deleteEntityFromModel } = useClassesContext();
-    const { models: m } = useModelGraphContext();
+    const { models: m, aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, openEntityDetailDialog, EntityDetailDialog } = useEntityDetailDialog();
     const { isCreateUsageDialogOpen, openCreateUsageDialog, CreateUsageDialog } = useCreateUsageDialog();
     const { isModifyEntityDialogOpen, openModifyEntityDialog, ModifyEntityDialog } = useModifyEntityDialog();
@@ -60,7 +65,11 @@ export const AttributeCatalog = () => {
                                 deleteEntityFromModel(model, v.id);
                             },
                         };
-                        if (isSemanticModelClass(v)) {
+                        if (
+                            isSemanticModelClass(v) ||
+                            isSemanticModelClassUsage(v) ||
+                            isSemanticModelRelationshipUsage(v)
+                        ) {
                             modifyHandler = {
                                 openModificationHandler: () => {
                                     openModifyEntityDialog(v, model);
@@ -69,27 +78,32 @@ export const AttributeCatalog = () => {
                         }
                     }
 
-                    return (
-                        // <div>
-                        //     <EntityRow
-                        //         entity={v}
-                        //         expandable={null}
-                        //         openDetailHandler={() => openEntityDetailDialog(v)}
-                        //         modifiable={modifyHandler}
-                        //         drawable={null}
-                        //         removable={removeHandler}
-                        //         usage={{ createUsageHandler: () => openCreateUsageDialog(v) }}
-                        //     />
-                        // </div>
+                    const color =
+                        (model && aggregatorView.getActiveVisualModel()?.getColor(model.getId())) ?? "#ffffff";
 
-                        <AttributeOrRelationshipRow
-                            liKey={v.id}
-                            liTitle={description || ""}
-                            name={name ?? ""}
-                            entityHref={v.iri ?? "#"}
-                            detailHandler={() => openEntityDetailDialog(v)}
-                            usageHandler={() => openCreateUsageDialog(v)}
-                        />
+                    return (
+                        <div style={{ backgroundColor: tailwindColorToHex(color) }}>
+                            {/* <AttributeOrRelationshipRow
+                                liKey={v.id}
+                                liTitle={description || ""}
+                                name={name ?? ""}
+                                entityHref={v.iri ?? "#"}
+                                detailHandler={() => openEntityDetailDialog(v)}
+                                usageHandler={() => openCreateUsageDialog(v)}
+                            /> */}
+
+                            <EntityRow
+                                entity={v}
+                                expandable={null}
+                                openDetailHandler={() => openEntityDetailDialog(v)}
+                                modifiable={modifyHandler}
+                                drawable={null}
+                                removable={removeHandler}
+                                usage={{
+                                    createUsageHandler: () => openCreateUsageDialog(v),
+                                }}
+                            />
+                        </div>
                     );
                 })}
             </ul>
@@ -99,25 +113,43 @@ export const AttributeCatalog = () => {
         </>
     );
 };
-
+// useEffect(() => {
+//     console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
+//     // fixme: move it elsewhere
+//     let color = activeVisualModel?.getColor(model.getId());
+//     if (!color) {
+//         color = randomColorFromPalette();
+//         activeVisualModel?.setColor(model.getId(), color);
+//     }
+//     //
+//     setBackgroundColor(color ?? "#ff00ff");
+// }, [activeVisualModel]);
 export const RelationshipCatalog = () => {
     const { relationships } = useClassesContext();
+    const { models: m, aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, openEntityDetailDialog, EntityDetailDialog } = useEntityDetailDialog();
     const { isCreateUsageDialogOpen, openCreateUsageDialog, CreateUsageDialog } = useCreateUsageDialog();
+    const models = [...m.values()];
     return (
         <>
             <ul>
                 {relationships.map((r) => {
                     const [name, description] = getNameOrIriAndDescription(r, r.iri ?? "no-name");
+                    const sourceModel = sourceModelOfEntity(r.id, models);
+                    const color =
+                        (sourceModel && aggregatorView.getActiveVisualModel()?.getColor(sourceModel.getId())) ??
+                        "#ffffff";
                     return (
-                        <AttributeOrRelationshipRow
-                            liKey={r.id}
-                            liTitle={description || ""}
-                            name={name ?? ""}
-                            entityHref={r.iri ?? "#"}
-                            detailHandler={() => openEntityDetailDialog(r)}
-                            usageHandler={() => openCreateUsageDialog(r)}
-                        />
+                        <div style={{ backgroundColor: tailwindColorToHex(color) }}>
+                            <AttributeOrRelationshipRow
+                                liKey={r.id}
+                                liTitle={description || ""}
+                                name={name ?? ""}
+                                entityHref={r.iri ?? "#"}
+                                detailHandler={() => openEntityDetailDialog(r)}
+                                usageHandler={() => openCreateUsageDialog(r)}
+                            />
+                        </div>
                     );
                 })}
             </ul>

@@ -4,7 +4,7 @@ import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts
 import { getRandomName } from "../../utils/random-gen";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../util/export-utils";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
@@ -22,6 +22,41 @@ export const ExportManagement = () => {
     } = useModelGraphContext();
     const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
     const { getWorkspaceState, saveWorkspaceState } = useLocalStorage();
+    const [autosaveActive, setAutosaveActive] = useState(false);
+    const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        // const callback = async () => {
+        //     const result = await getWorkspaceState();
+        //     if (!result) {
+        //         return;
+        //     }
+        //     const { packageId, entityModels, visualModels } = result;
+
+        //     for (const visModel of visualModels) {
+        //         aggregator.addModel(visModel);
+        //         setVisualModels((previous) => previous.set(visModel.getId(), visModel));
+        //     }
+
+        //     for (const model of entityModels) {
+        //         aggregator.addModel(model);
+        //         setModels((previous) => previous.set(model.getId(), model));
+        //     }
+
+        //     setAggregatorView(aggregator.getView());
+        // };
+        // callback();
+        if (autosaveActive) {
+            saveWorkspaceState(models, visualModels, aggregatorView.getActiveViewId());
+            const res = setInterval(() => {
+                saveWorkspaceState(models, visualModels);
+            }, 30000);
+            setAutosaveInterval(res);
+        } else {
+            clearInterval(autosaveInterval!);
+            setAutosaveInterval(null);
+        }
+    }, [autosaveActive]);
 
     const uploadConfiguration = (contentType: string = "application/json") => {
         return new Promise<string | undefined>((resolve) => {
@@ -116,6 +151,15 @@ export const ExportManagement = () => {
                     }}
                 >
                     📥autosave
+                </button>
+            </div>
+            <div className="ml-1">
+                <button
+                    className="bg-[#c7556f] px-1"
+                    title={`${autosaveActive ? "stop" : "start"} autosave to local storage`}
+                    onClick={() => setAutosaveActive((prev) => !prev)}
+                >
+                    {autosaveActive ? "🟢" : "🔴"}autosave
                 </button>
             </div>
             <div className="ml-1">

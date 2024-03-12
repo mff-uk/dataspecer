@@ -125,77 +125,106 @@ export const useEntityDetailDialog = () => {
                         {usageOf && <p className="flex flex-row text-gray-500">usage of: {usageOf}</p>}
                     </div>
                 </div>
-                <p>type: {viewedEntity.type}</p>
-                <p>description: {description}</p>
-                {attributes.length > 0 && (
-                    <p>
-                        attributes:
-                        {attributes.map((v) => {
-                            const attr = v.ends.at(1)!;
-                            const [name, fallbackLang] = getStringFromLanguageStringInLang(attr.name, currentLang);
-                            const [attributeDescription, fallbackAttributeDescriptionLang] =
-                                getStringFromLanguageStringInLang(attr.description);
+                <div className="grid grid-cols-[20%_80%] gap-y-3">
+                    <div className="font-semibold">type:</div>
+                    <div>{viewedEntity.type}</div>
+                    <div className="font-semibold">description:</div>
+                    <div> {description}</div>
+                    {attributes.length > 0 && (
+                        <>
+                            <div className="font-semibold">attributes:</div>
+                            <div>
+                                {attributes.map((v) => {
+                                    const attr = v.ends.at(1)!;
+                                    const [name, fallbackLang] = getStringFromLanguageStringInLang(
+                                        attr.name,
+                                        currentLang
+                                    );
+                                    const [attributeDescription, fallbackAttributeDescriptionLang] =
+                                        getStringFromLanguageStringInLang(attr.description);
 
-                            let descr = "";
-                            if (attributeDescription && !fallbackAttributeDescriptionLang) {
-                                descr = attributeDescription;
-                            } else if (attributeDescription && fallbackAttributeDescriptionLang) {
-                                descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
-                            }
+                                    let descr = "";
+                                    if (attributeDescription && !fallbackAttributeDescriptionLang) {
+                                        descr = attributeDescription;
+                                    } else if (attributeDescription && fallbackAttributeDescriptionLang) {
+                                        descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
+                                    }
 
-                            return (
-                                <div title={descr}>
-                                    {name}@{fallbackLang}
-                                </div>
-                            );
-                        })}
-                    </p>
-                )}
-                {attributeUsages.length > 0 && (
-                    <p>
-                        attribute usages:
-                        {attributeUsages.map((v) => {
-                            const attr = v.ends.at(1)!;
-                            const [name, fallbackLang] = getStringFromLanguageStringInLang(
-                                attr.name ?? {},
-                                currentLang
-                            );
-                            const [attributeDescription, fallbackAttributeDescriptionLang] =
-                                getStringFromLanguageStringInLang(attr.description ?? {});
+                                    return (
+                                        <div title={descr}>
+                                            {name}@{fallbackLang}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
 
-                            let descr = "";
-                            if (attributeDescription && !fallbackAttributeDescriptionLang) {
-                                descr = attributeDescription;
-                            } else if (attributeDescription && fallbackAttributeDescriptionLang) {
-                                descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
-                            }
+                    {attributeUsages.length > 0 && (
+                        <>
+                            <div className="font-semibold">attribute usages:</div>
+                            <div>
+                                {attributeUsages.map((v) => {
+                                    const attr = v.ends.at(1)!;
+                                    const [name, fallbackLang] = getStringFromLanguageStringInLang(
+                                        attr.name ?? {},
+                                        currentLang
+                                    );
+                                    const [attributeDescription, fallbackAttributeDescriptionLang] =
+                                        getStringFromLanguageStringInLang(attr.description ?? {});
 
-                            return (
-                                <div title={descr}>
-                                    {name ?? v.id}@{fallbackLang}
-                                </div>
-                            );
-                        })}
-                    </p>
-                )}
-                {usageNote && <p>usage note: {usageNote}</p>}
-                {domain && (
-                    <p>
-                        domain: {getStringFromLanguageStringInLang(domain.name ?? {}) ?? domainIri ?? domain.id}:{" "}
-                        {domainCardinality}
-                    </p>
-                )}
-                {range && (
-                    <p>
-                        range:
-                        {getStringFromLanguageStringInLang(range.name ?? {}) ?? rangeIri ?? range.id}:{" "}
-                        {rangeCardinality}
-                    </p>
-                )}
+                                    let descr = "";
+                                    if (attributeDescription && !fallbackAttributeDescriptionLang) {
+                                        descr = attributeDescription;
+                                    } else if (attributeDescription && fallbackAttributeDescriptionLang) {
+                                        descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
+                                    }
+
+                                    const usageNote =
+                                        getStringFromLanguageStringInLang(v.usageNote ?? {})[0] ?? "no usage note";
+
+                                    return (
+                                        <div title={descr}>
+                                            {name ?? v.id}@{fallbackLang}
+                                            <span className="ml-2 bg-blue-200" title={usageNote}>
+                                                usage note
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
+                    {usageNote && (
+                        <>
+                            <div className="font-semibold">usage note:</div>
+                            <div>{usageNote}</div>
+                        </>
+                    )}
+                    {domain && (
+                        <>
+                            <div className="font-semibold">domain: </div>
+                            <div>
+                                {getStringFromLanguageStringInLang(domain.name ?? {}) ?? domainIri ?? domain.id}:
+                                {domainCardinality}
+                            </div>
+                        </>
+                    )}
+                    {range && (
+                        <>
+                            <div className="font-semibold">range: </div>
+
+                            <div>
+                                {" "}
+                                {getStringFromLanguageStringInLang(range.name ?? {}) ?? rangeIri ?? range.id}:
+                                {rangeCardinality}
+                            </div>
+                        </>
+                    )}
+                </div>
                 <p>
                     domain: {domain ? "present" : "null"}, range: {range ? "present" : "null"}
                 </p>
-
                 <div className="flex flex-row justify-evenly">
                     <button onClick={save}>confirm</button>
                     <button onClick={close}>close</button>

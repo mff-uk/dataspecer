@@ -9,6 +9,7 @@ import { sourceModelOfEntity } from "../util/model-utils";
 import { InMemoryEntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
+import { tailwindColorToHex } from "~/app/utils/color-utils";
 
 export const UsageCatalog = () => {
     const { aggregatorView, models: m } = useModelGraphContext();
@@ -64,18 +65,24 @@ export const UsageCatalog = () => {
                           }
                         : null;
 
+                    const color =
+                        (sourceModel && aggregatorView.getActiveVisualModel()?.getColor(sourceModel.getId())) ??
+                        "#ffffff";
+
                     return (
-                        <EntityRow
-                            entity={u}
-                            expandable={null}
-                            openDetailHandler={() => openEntityDetailDialog(u)}
-                            modifiable={modifiable}
-                            drawable={drawable}
-                            removable={null}
-                            usage={{
-                                createUsageHandler: () => openCreateUsageDialog(u),
-                            }}
-                        />
+                        <div style={{ backgroundColor: tailwindColorToHex(color) }}>
+                            <EntityRow
+                                entity={u}
+                                expandable={null}
+                                openDetailHandler={() => openEntityDetailDialog(u)}
+                                modifiable={modifiable}
+                                drawable={drawable}
+                                removable={null}
+                                usage={{
+                                    createUsageHandler: () => openCreateUsageDialog(u),
+                                }}
+                            />
+                        </div>
                     );
                 })}
             </ul>

@@ -24,6 +24,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { isAttribute } from "../util/utils";
 
 const AddAttributesComponent = (props: {
     modifiedClassId: string;
@@ -223,16 +224,16 @@ type SupportedTypes = SemanticModelClass | SemanticModelClassUsage | SemanticMod
 
 export const useModifyEntityDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const modifyDialogRef = useRef(null as unknown as HTMLDialogElement);
+    // const modifyDialogRef = useRef(null as unknown as HTMLDialogElement);
     const [modifiedEntity, setModifiedEntity] = useState(null as unknown as SupportedTypes);
     const [model, setModel] = useState<InMemorySemanticModel | null>(null);
 
     const { addAttribute } = useClassesContext();
 
-    useEffect(() => {
-        const { current: el } = modifyDialogRef;
-        if (isOpen && el !== null) el.showModal();
-    }, [isOpen]);
+    // useEffect(() => {
+    //     const { current: el } = modifyDialogRef;
+    //     if (isOpen && el !== null) el.showModal();
+    // }, [isOpen]);
 
     const localClose = () => {
         setModifiedEntity(null as unknown as SemanticModelClass);
@@ -265,13 +266,17 @@ export const useModifyEntityDialog = () => {
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
 
-        const { attributes: a, deleteEntityFromModel, usages } = useClassesContext();
+        const { attributes: a, deleteEntityFromModel, usages: u } = useClassesContext();
         const attributes = a.filter((v) => v.ends.at(0)?.concept == modifiedEntity.id);
+        const attributeUsages = u
+            .filter(isSemanticModelRelationshipUsage)
+            .filter(isAttribute)
+            .filter((v) => v.ends.at(0)?.concept == modifiedEntity.id);
 
         const [wantsToAddNewAttributes, setWantsToAddNewAttributes] = useState(false);
         const [newAttributes, setNewAttributes] = useState<Partial<Omit<SemanticModelRelationship, "type">>[]>([]);
         const [newAttributeUsages, setNewAttributeUsages] = useState<
-            Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">[]
+            (Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">)[]
         >([]);
         const [toBeRemovedAttributes, setToBeRemovedAttributes] = useState<string[]>([]);
 
@@ -296,7 +301,7 @@ export const useModifyEntityDialog = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-[25%_75%]">
-                    <div className=" font-semibold">new name:</div>
+                    <div className="font-semibold">new name:</div>
                     <div className="">
                         <MultiLanguageInputForLanguageString
                             inputType="text"
@@ -329,9 +334,16 @@ export const useModifyEntityDialog = () => {
                             <div className="font-semibold">attributes:</div>
                             <div className="flex flex-col">
                                 <>
-                                    {[...attributes].map((v) => {
+                                    {[...attributes, ...attributeUsages].map((v) => {
+                                        const nameField = isSemanticModelRelationship(v) ? v.ends.at(1)!.name : v.name;
+
                                         const attr = v.ends.at(1)!;
-                                        const [name, descr] = getNameOrIriAndDescription(attr, v.iri ?? v.id);
+                                        const name =
+                                            getStringFromLanguageStringInLang(nameField ?? {}, "en")[0] ??
+                                            v.id ??
+                                            "no id or iri";
+                                        const descr =
+                                            getStringFromLanguageStringInLang(attr.description ?? {}, "en")[0] ?? "";
 
                                         return (
                                             <div
@@ -341,6 +353,17 @@ export const useModifyEntityDialog = () => {
                                                 title={descr ?? ""}
                                             >
                                                 {name}
+                                                {isSemanticModelRelationshipUsage(v) && (
+                                                    <div
+                                                        className="ml-1 bg-blue-200"
+                                                        title={
+                                                            getStringFromLanguageStringInLang(v.usageNote ?? {})[0] ??
+                                                            "no usage note"
+                                                        }
+                                                    >
+                                                        usage note
+                                                    </div>
+                                                )}
                                                 <button
                                                     title="after save removes this entity from the attributes domain"
                                                     onClick={() => {
@@ -353,14 +376,20 @@ export const useModifyEntityDialog = () => {
                                         );
                                     })}
 
-                                    {[...newAttributes].map((v) => {
+                                    {[...newAttributes, ...newAttributeUsages].map((v) => {
                                         const attr = v?.ends?.at(1)!;
-                                        const [name, descr] = getNameOrIriAndDescription(
-                                            attr,
-                                            v.iri ?? v.id ?? "no-iri"
-                                        );
+                                        const name =
+                                            getStringFromLanguageStringInLang(attr.name ?? {}, "en")[0] ??
+                                            v.id ??
+                                            "no id or iri";
+                                        const descr =
+                                            getStringFromLanguageStringInLang(attr.description ?? {}, "en")[0] ?? "";
+                                        // const [name, descr] = getNameOrIriAndDescription(
+                                        //     attr,
+                                        //     v.iri ?? v.id ?? "no-iri"
+                                        // );
                                         return (
-                                            <div className="flex flex-row" title={descr ?? ""}>
+                                            <div className="flex flex-row" title={descr}>
                                                 {name}
                                                 <button
                                                     onClick={() => {
@@ -372,15 +401,6 @@ export const useModifyEntityDialog = () => {
                                             </div>
                                         );
                                     })}
-
-                                    {/* <AddExistingAttributeComponent
-                                        a={a}
-                                        usages={usages.filter((u): u is SemanticModelRelationshipUsage =>
-                                            isSemanticModelRelationshipUsage(u)
-                                        )}
-                                        model={model}
-                                        toClass={modifiedEntity}
-                                    /> */}
                                 </>
                             </div>
                         </>
@@ -390,7 +410,7 @@ export const useModifyEntityDialog = () => {
                     <p className="bg-slate-100">
                         <div className="flex flex-row justify-between">
                             <button
-                                className="bg-indigo-600"
+                                className="bg-slate-300"
                                 onClick={() => setWantsToAddNewAttributes((prev) => !prev)}
                             >
                                 {wantsToAddNewAttributes ? "cancel" : "add attribute"}

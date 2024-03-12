@@ -50,34 +50,6 @@ const Page = () => {
     const { getModelsFromBackend } = useBackendConnection();
     const { getWorkspaceState, saveWorkspaceState } = useLocalStorage();
 
-    // const [ls, setLs] = useState({} as LanguageString);
-
-    useEffect(() => {
-        const callback = async () => {
-            const result = await getWorkspaceState();
-            if (!result) {
-                return;
-            }
-            const { packageId, entityModels, visualModels } = result;
-
-            for (const visModel of visualModels) {
-                aggregator.addModel(visModel);
-                setVisualModels((previous) => previous.set(visModel.getId(), visModel));
-            }
-
-            for (const model of entityModels) {
-                aggregator.addModel(model);
-                setModels((previous) => previous.set(model.getId(), model));
-            }
-
-            setAggregatorView(aggregator.getView());
-        };
-        // callback();
-        setInterval(() => {
-            saveWorkspaceState(models, visualModels);
-        }, 30000);
-    }, []);
-
     useEffect(() => {
         console.log(
             "getModelsFromBackend is going to be called from useEffect in ModelsComponent, packageId:",
