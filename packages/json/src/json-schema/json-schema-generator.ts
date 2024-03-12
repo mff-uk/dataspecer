@@ -8,7 +8,7 @@ import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/ge
 import { JsonSchema } from "./json-schema-model";
 import { writeJsonSchema } from "./json-schema-writer";
 import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { assertFailed, assertNot } from "@dataspecer/core/core";
+import { assertFailed, assertNot, createStringSelector } from "@dataspecer/core/core";
 import {
   structureModelAddDefaultValues,
   transformStructureModel
@@ -85,7 +85,14 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     if (!skipIdAndTypeProperties) {
       structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration);
     }
-    const jsonSchema = structureModelToJsonSchema(context.specifications, specification, structureModel, configuration, artefact);
+    const jsonSchema = structureModelToJsonSchema(
+      context.specifications,
+      specification,
+      structureModel,
+      configuration,
+      artefact,
+      createStringSelector([configuration.jsonLabelLanguage])
+    );
 
     return {structureModel, jsonSchema, mergedConceptualModel, configuration, globalConfiguration}
   }
