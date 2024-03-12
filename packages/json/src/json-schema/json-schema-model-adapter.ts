@@ -84,6 +84,9 @@ export function structureModelToJsonSchema(
     artefact: artefact,
     configuration,
   };
+  if (artefact.publicUrl) {
+    result.id = artefact.publicUrl;
+  }
   if (model.roots[0].classes.length != 1) {
     const anyOf = new JsonSchemaAnyOf();
     anyOf.types = model.roots[0].classes.map((c) =>
