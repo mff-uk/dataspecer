@@ -11,6 +11,7 @@ export const OFN = {
   url: OFN_TYPE_PREFIX + "url",
   string: OFN_TYPE_PREFIX + "řetězec",
   text: OFN_TYPE_PREFIX + "text",
+  rdfLangString: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
 };
 
 export const OFN_LABELS = {
@@ -50,4 +51,8 @@ export const OFN_LABELS = {
     cs: "Text",
     en: "Text",
   },
+  [OFN.rdfLangString]: {
+    "cs": "Řetězec anotovaný jazykem",
+    "en": "Language tagged string"
+  }
 };

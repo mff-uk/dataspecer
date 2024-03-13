@@ -317,6 +317,10 @@ function structureModelPrimitiveToJsonDefinition(
       result = languageString();
       result.title = context.stringSelector(OFN_LABELS[OFN.text]);
       break;
+    case OFN.rdfLangString:
+      result = rdfLanguageString();
+      result.title = context.stringSelector(OFN_LABELS[OFN.rdfLangString]);
+      break;
     default:
       result = new JsonSchemaString(null);
       result.title = primitive.dataType;
@@ -342,6 +346,22 @@ function languageString(): JsonSchemaObject {
   const en = new JsonSchemaString(null);
   result.properties["en"] = en;
   en.title = "Hodnota v anglickém jazyce";
+
+  return result;
+}
+
+function rdfLanguageString(): JsonSchemaObject {
+  const result = new JsonSchemaObject();
+
+  result.required = ["@value", "@language"];
+
+  const value = new JsonSchemaString(null);
+  result.properties["@value"] = value;
+  value.title = "Text v daném jazyce";
+
+  const language = new JsonSchemaString(null);
+  result.properties["@language"] = language;
+  language.title = "Jazyk textu";
 
   return result;
 }
