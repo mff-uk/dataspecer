@@ -279,6 +279,11 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dd><div>{{.}}</div></dd>
 {{/example}}{{/isAttribute}}{{/dataTypes}}
 
+{{#dataTypes}}{{#isAttribute}}{{#regex}}
+<dt>Regulární výraz</dt>
+<dd><code>{{.}}</code></dd>
+{{/regex}}{{/isAttribute}}{{/dataTypes}}
+
 <dt>Interpretace</dt>
 {{#pimAssociation}} 
 <dd>
