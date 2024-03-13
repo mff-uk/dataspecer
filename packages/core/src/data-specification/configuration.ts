@@ -35,6 +35,12 @@ export const DefaultDataSpecificationConfiguration =  {
      * Whether the file path should omit the structure name if there is only one structure in the specification.
      */
     skipStructureNameIfOnlyOne: true,
+
+    /**
+     * Explicitly rename artifacts.
+     * Artifact generator: new file name
+     */
+    renameArtifacts: {} as Record<string, string | undefined>,
 }
 
 export type DataSpecificationConfiguration = typeof DefaultDataSpecificationConfiguration;
@@ -57,7 +63,7 @@ export class DataSpecificationConfigurator {
     static merge(...options: DeepPartial<DataSpecificationConfiguration>[]): DeepPartial<DataSpecificationConfiguration> {
         let result: DeepPartial<DataSpecificationConfiguration> = {};
         for (const option of options) {
-            result = {...result, ...option, useGenerators: {...result.useGenerators, ...option.useGenerators}};
+            result = {...result, ...option, useGenerators: {...result.useGenerators, ...option.useGenerators}, renameArtifacts: {...result.renameArtifacts, ...option.renameArtifacts}};
         }
 
         return result;

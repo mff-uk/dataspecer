@@ -30,9 +30,10 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     // PlantUML source
     const plantUml = new DataSpecificationDocumentation();
     plantUml.iri = `${dataSpecificationIri}#plantUml`;
-    plantUml.outputPath = `${dataSpecificationName}/conceptual-model.plantuml`;
-    plantUml.publicUrl = `${this.baseURL}/conceptual-model.plantuml`;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
+    const plantUmlFileName = dataSpecificationConfiguration.renameArtifacts?.[plantUml.generator] ?? "conceptual-model.plantuml";
+    plantUml.outputPath = `${dataSpecificationName}/${plantUmlFileName}`;
+    plantUml.publicUrl = `${this.baseURL}/${plantUmlFileName}`;
     plantUml.configuration = configuration;
     if ((dataSpecificationConfiguration.useGenerators?.["plantUML"] ?? generatorsEnabledByDefault) !== false) {
       artifacts.push(plantUml);
@@ -41,9 +42,10 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     // PlantUml image
     const plantUmlImage = new DataSpecificationDocumentation();
     plantUmlImage.iri = `${dataSpecificationIri}#plantUmlImage`;
-    plantUmlImage.outputPath = `${dataSpecificationName}/conceptual-model.svg`;
-    plantUmlImage.publicUrl = `${this.baseURL}/conceptual-model.svg`;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
+    const plantUmlImageFileName = dataSpecificationConfiguration.renameArtifacts?.[plantUmlImage.generator] ?? "conceptual-model.svg";
+    plantUmlImage.outputPath = `${dataSpecificationName}/${plantUmlImageFileName}`;
+    plantUmlImage.publicUrl = `${this.baseURL}/${plantUmlImageFileName}`;
     plantUmlImage.configuration = configuration;
     if ((dataSpecificationConfiguration.useGenerators?.["plantUML"] ?? generatorsEnabledByDefault) !== false) {
       artifacts.push(plantUmlImage);
@@ -54,9 +56,10 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       // Respec
       const respec = new DataSpecificationDocumentation();
       respec.iri = `${dataSpecificationIri}#respec`;
-      respec.outputPath = `${dataSpecificationName}/documentation.html`;
-      respec.publicUrl = `${this.baseURL}/documentation.html`;
       respec.generator = "https://schemas.dataspecer.com/generator/template-artifact";
+      const respecFileName = dataSpecificationConfiguration.renameArtifacts?.[respec.generator] ?? "documentation.html";
+      respec.outputPath = `${dataSpecificationName}/${respecFileName}`;
+      respec.publicUrl = `${this.baseURL}/${respecFileName}`;
       respec.artefacts = artifacts.map(a => a.iri);
       // @ts-ignore
       respec.templateType = "respec";
@@ -67,9 +70,10 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) === true) {
       const artifact: DataSpecificationArtefact = new DataSpecificationArtefact();
       artifact.iri = `${dataSpecificationIri}#LDkit`;
-      artifact.outputPath = `${dataSpecificationName}/LDkit/`;
-      artifact.publicUrl = `${this.baseURL}/LDkit/`;
       artifact.generator = "https://schemas.dataspecer.com/generator/LDkit";
+      const artifactFileName = dataSpecificationConfiguration.renameArtifacts?.[artifact.generator] ?? "LDkit/";
+      artifact.outputPath = `${dataSpecificationName}/${artifactFileName}`;
+      artifact.publicUrl = `${this.baseURL}/${artifactFileName}`;
       //artifact.configuration = configuration;
       artifacts.push(artifact);
     }

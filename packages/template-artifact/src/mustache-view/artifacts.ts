@@ -79,6 +79,14 @@ const artefactTitle = {
         cs: "Dokumentace",
         en: "Documentation",
     },
+    "https://schemas.dataspecer.com/generator/shex-map": {
+        cs: "ShEx Map",
+        en: "ShEx Map",
+    },
+    "https://schemas.dataspecer.com/generator/LDkit": {
+        cs: "LDkit ukázková aplikace",
+        en: "LDkit example application",
+    },
 };
 
 export function prepareArtifacts(
