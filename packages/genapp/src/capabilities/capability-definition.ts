@@ -1,19 +1,11 @@
-import { ApplicationConfiguration } from "../application-config";
-import { ConfigurationReader, GenAppConfigurationReader } from "../config-reader";
-import { OverviewCapability } from "./overview-generator";
-
 export interface Capability {
     identifier: string;
-    configReader: ConfigurationReader<ApplicationConfiguration>;
     generateCapability(): void;
+    // implementation template
+    // datasource required operations template
+    // i.e. - overview              requires data read
+    //      - new instance creation requires data write
+    //      - update                requires data write
+    //      - deletion              ~requires data write -> just id
+    //          - capability can be decorable by another capability?
 };
-
-export function getCapabilityGenerators(): Capability[] {
-
-    const configReader: ConfigurationReader<ApplicationConfiguration> = new GenAppConfigurationReader();
-
-    return [
-        new OverviewCapability(configReader),
-        // ... other capabilities .. 
-    ];
-}

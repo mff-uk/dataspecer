@@ -24,10 +24,10 @@ export class GenAppConfigurationReader implements ConfigurationReader<Applicatio
         },
         capabilities: {
             "Catalog": [
-                "Overview"
+                "overview"
             ],
             "Dataset": [
-                "Overview"
+                "overview"
             ]
         }
     };

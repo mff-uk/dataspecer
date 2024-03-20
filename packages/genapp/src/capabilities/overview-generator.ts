@@ -1,13 +1,14 @@
-import { ApplicationConfiguration } from "../application-config";
-import { ConfigurationReader } from "../config-reader";
+import { DatasourceConfig } from "../application-config";
+import { DalGeneratorFactory } from "../data-layer/dal-generator-factory";
 import { Capability } from "./capability-definition";
 
 export class OverviewCapability implements Capability {
     identifier: string = "";
-    configReader: ConfigurationReader<ApplicationConfiguration>;
+    //configReader: ConfigurationReader<ApplicationConfiguration>;
+    dalGenerator: any;
 
-    constructor(configReader: ConfigurationReader<ApplicationConfiguration>) {
-        this.configReader = configReader;
+    constructor(datasourceConfig: DatasourceConfig) {
+        this.dalGenerator = DalGeneratorFactory.getDalGenerator(datasourceConfig)
     }
     
     generateCapability(): void {
