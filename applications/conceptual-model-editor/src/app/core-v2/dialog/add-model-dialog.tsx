@@ -1,52 +1,45 @@
 import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
+import { useBaseDialog } from "./base-dialog";
 
 export const useAddModelDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
     const { addModelToGraph } = useModelGraphContext();
+    const [onSaveCallback, setOnSaveCallback] = useState<null | (() => void)>();
 
     useEffect(() => {
         const { current: el } = addModelDialogRef;
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
-        setIsOpen(false);
+    const localClose = () => {
+        onSaveCallback?.();
+        setOnSaveCallback(null);
+        close();
     };
-    const open = () => {
-        setIsOpen(true);
+    const localOpen = (onSaveCallback: () => void) => {
+        setOnSaveCallback(() => onSaveCallback);
+        open();
     };
-    const save = (modelTtlFiles: string[]) => {
-        const createModel = async () => {
-            const model = await createRdfsModel(modelTtlFiles, httpFetch);
-            return model;
-        };
-        createModel().then((m) => addModelToGraph(m));
+    const save = async (modelTtlFiles: string[]) => {
+        const model = await createRdfsModel(modelTtlFiles, httpFetch);
+        model.fetchFromPimStore();
+        addModelToGraph(model);
+        onSaveCallback?.();
         close();
     };
 
     const AddModelDialog = () => {
         const [modelTtlFiles, setModelTtlFiles] = useState([
+            "https://www.w3.org/ns/dcat.ttl",
             "https://schema.org/version/latest/schemaorg-current-https.ttl",
         ]); // FIXME: sanitize
 
         return (
-            <dialog
-                ref={addModelDialogRef}
-                className="flex h-96 w-96 flex-col justify-between"
-                onCancel={
-                    (e) => {
-                        e.preventDefault();
-                        close();
-                    } /* TODO: rather close the dialog close() */
-                }
-            >
-                <div>
-                    <h5>Add Semantic Model</h5>
-                </div>
+            <BaseDialog heading="Add semantic model">
                 <label>Model .ttl file urls:</label>
                 <textarea
                     name="ttl-files"
@@ -75,14 +68,14 @@ export const useAddModelDialog = () => {
                     </button>
                     <button onClick={close}>close</button>
                 </div>
-            </dialog>
+            </BaseDialog>
         );
     };
 
     return {
         isAddModelDialogOpen: isOpen,
-        closeAddModelDialog: close,
-        openAddModelDialog: open,
+        closeAddModelDialog: localClose,
+        openAddModelDialog: localOpen,
         AddModelDialog,
     };
 };

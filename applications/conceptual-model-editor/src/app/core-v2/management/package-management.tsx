@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useBackendConnection } from "./backend-connection";
-import { usePackageSearch } from "./util/package-search";
+import { useBackendConnection } from "../backend-connection";
+import { usePackageSearch } from "../util/package-search";
 import { Package } from "@dataspecer/core-v2/project";
-import { getOneNameFromLanguageString } from "./util/utils";
-import { useModelGraphContext } from "./context/graph-context";
-import { getRandomName } from "../utils/random-gen";
+import { getOneNameFromLanguageString } from "../util/utils";
+import { useModelGraphContext } from "../context/model-context";
+import { getRandomName } from "../../utils/random-gen";
 
 export const PackageManagement = () => {
     const { listPackages, createPackage, updateSemanticModelPackageModels } = useBackendConnection();
@@ -28,10 +28,12 @@ export const PackageManagement = () => {
 
     return (
         <div className="my-auto">
+            {/* 
+        <div className="my-auto">
             <div className="flex flex-col [&]:text-[15px]">
                 <div className="flex flex-row">
                     <div>
-                        pkg:<span className="ml-2 font-mono">{packageId}</span>
+                        pkg:<span className="ml-2 font-mono">{packageId ?? "---"}</span>
                     </div>
                     <button className="white ml-2" title="change package" onClick={toggleDropdown}>
                         {dropdownOpen ? "🔼" : "🔽"}
@@ -60,38 +62,38 @@ export const PackageManagement = () => {
                         }}
                     >
                         ➕pkg
-                    </button>
-                    <button
-                        className="bg-green-600 px-1"
-                        disabled={!packageId}
-                        title="save package to backend"
-                        onClick={async () => {
-                            if (!packageId) {
-                                return;
-                            }
+                    </button> 
+        */}
+            <button
+                className="bg-green-600 px-1"
+                disabled={!packageId}
+                title="save package to backend"
+                onClick={async () => {
+                    if (!packageId) {
+                        return;
+                    }
 
-                            updateSemanticModelPackageModels(
-                                packageId,
-                                [...models.values()],
-                                [...visualModels.values()]
-                            );
-                        }}
-                    >
-                        💾pkg
-                    </button>
+                    updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
+                }}
+            >
+                💾pkg
+            </button>
+            {/* 
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
                         {packages.map((pkg) => (
                             <li key={pkg.id} className="w-full">
                                 <button onClick={() => handlePackageSelected(pkg.id)}>
-                                    {getOneNameFromLanguageString(pkg.name).t}
+                                    {getOneNameFromLanguageString(pkg.name)?.t ?? pkg.id}
                                 </button>
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
+        </div> 
+        */}
         </div>
     );
 };

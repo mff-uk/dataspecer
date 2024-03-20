@@ -5,16 +5,22 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
-import { AssociationConnectionType, GeneralizationConnectionType } from "../util/connection";
+import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { useClassesContext } from "../context/classes-context";
-import { useModelGraphContext } from "../context/graph-context";
+import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
+import { useBaseDialog } from "./base-dialog";
+import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
+import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { string } from "zod";
 
 const AssociationComponent = (props: {
     from: string;
     to: string;
     setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
+    setAssociationIsUsageOf: Dispatch<SetStateAction<string | null>>;
 }) => {
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
@@ -24,6 +30,9 @@ const AssociationComponent = (props: {
     const [target, setTarget] = useState({
         concept: props.to,
     } as SemanticModelRelationshipEnd);
+
+    const { relationships: r, usages: u } = useClassesContext();
+    const relationshipsAndUsages = [...r, ...u.filter(isSemanticModelRelationshipUsage)];
 
     useEffect(() => {
         props.setAssociation({
@@ -71,17 +80,20 @@ const AssociationComponent = (props: {
     );
 
     return (
-        <>
-            <p>
-                {/* TODO: sanitize */}
-                <span className="font-bold">name:</span>
-                <input value={name.en!} onChange={(e) => setName({ en: e.target.value })} />
-            </p>
-            <p>
-                {/* TODO: sanitize */}
-                <span className="font-bold">description:</span>
-                <input value={description.en!} onChange={(e) => setDescription({ en: e.target.value })} />
-            </p>
+        <div className="grid grid-cols-[20%_80%] bg-slate-50">
+            {/* TODO: sanitize */}
+            <span className="font-bold">name:</span>
+            {/* <input value={name.en!} onChange={(e) => setName({ en: e.target.value })} /> */}
+            <MultiLanguageInputForLanguageString ls={name} setLs={setName} inputType="text" defaultLang="en" />
+            {/* TODO: sanitize */}
+            <span className="font-bold">description:</span>
+            {/* <input value={description.en!} onChange={(e) => setDescription({ en: e.target.value })} /> */}
+            <MultiLanguageInputForLanguageString
+                ls={description}
+                setLs={setDescription}
+                inputType="textarea"
+                defaultLang="en"
+            />
             <p>
                 cardinality-source:
                 <div className="flex flex-row [&]:font-mono">
@@ -100,30 +112,48 @@ const AssociationComponent = (props: {
                     <RadioField label="1..1" what="target" card={[1, 1]} />
                 </div>
             </p>
-        </>
+            <div>is usage of:</div>
+            <select
+                onChange={(e) => {
+                    props.setAssociationIsUsageOf(e.target.value);
+                }}
+            >
+                <option>---</option>
+                {relationshipsAndUsages.map((a) => {
+                    const name = getStringFromLanguageStringInLang(a.ends.at(1)?.name ?? {})[0] ?? a.id;
+                    const descr = getStringFromLanguageStringInLang(a.ends.at(1)?.description ?? {})[0] ?? "";
+                    return (
+                        <option title={descr} value={a.id}>
+                            {name}:{a.id}
+                        </option>
+                    );
+                })}
+            </select>
+        </div>
     );
 };
 
 export const useCreateConnectionDialog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
     const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
     const { createConnection } = useClassesContext();
+    const { createRelationshipEntityUsage } = useModelGraphContext();
 
     useEffect(() => {
         const { current: el } = createConnectionDialogRef;
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const close = () => {
+    const localClose = () => {
         setConnectionCreated(null as unknown as Connection);
         // todo: vyres connection mazani stavu // setConn({ connectionType: "association" } as ConnectionType);
         // setCardinality({ source: [0, null], target: [0, null] });
-        setIsOpen(false);
+        close();
     };
-    const open = (connection: Connection) => {
+    const localOpen = (connection: Connection) => {
         setConnectionCreated(connection);
-        setIsOpen(true);
+        open();
     };
 
     const filterInMemoryModels = (models: Map<string, EntityModel>) => {
@@ -132,12 +162,12 @@ export const useCreateConnectionDialog = () => {
 
     const CreateConnectionDialog = () => {
         if (!connectionCreated) {
-            close();
+            localClose();
             return <></>;
         }
         const { source, target } = connectionCreated;
         if (!source || !target) {
-            close();
+            localClose();
             return <></>;
         }
         const { models } = useModelGraphContext();
@@ -151,16 +181,10 @@ export const useCreateConnectionDialog = () => {
             description: {},
             ends: [],
         });
+        const [associationIsUsageOf, setAssociationIsUsageOf] = useState<string | null>(null);
 
         return (
-            <dialog
-                ref={createConnectionDialogRef}
-                className="z-50 flex min-h-[400px] w-96 flex-col justify-between"
-                onCancel={(e) => {
-                    e.preventDefault();
-                    close();
-                }}
-            >
+            <BaseDialog heading="Create a connection">
                 <div>
                     <div>
                         <h5>Connection</h5>
@@ -211,7 +235,13 @@ export const useCreateConnectionDialog = () => {
                         </span>
                     </p>
                     {connectionType == "association" && (
-                        <AssociationComponent from={source} to={target} setAssociation={setAssociation} key="sdasd" />
+                        <AssociationComponent
+                            from={source}
+                            to={target}
+                            setAssociation={setAssociation}
+                            key="sdasd"
+                            setAssociationIsUsageOf={setAssociationIsUsageOf}
+                        />
                     )}
                 </div>
                 <div className="flex flex-row justify-evenly font-bold">
@@ -219,23 +249,47 @@ export const useCreateConnectionDialog = () => {
                         onClick={() => {
                             const saveModel = models.get(activeModel);
                             if (saveModel && saveModel instanceof InMemorySemanticModel) {
-                                const result =
-                                    connectionType == "generalization"
-                                        ? createConnection(saveModel, {
-                                              type: "generalization",
-                                              child: source,
-                                              parent: target,
-                                              iri: iri,
-                                          } as GeneralizationConnectionType)
-                                        : createConnection(saveModel, {
-                                              type: "association",
-                                              iri,
-                                              name: association.name,
-                                              description: association.description,
-                                              ends: association.ends,
-                                          } as AssociationConnectionType);
-                                if (!result) {
-                                    alert("create-conn-dialog: create-connection failed");
+                                if (connectionType == "generalization") {
+                                    const result = createConnection(saveModel, {
+                                        type: "generalization",
+                                        child: source,
+                                        parent: target,
+                                        iri: iri,
+                                    } as GeneralizationConnectionType);
+                                    console.log("creating generalization ", result, target, source);
+                                } else if (connectionType == "association") {
+                                    if (associationIsUsageOf) {
+                                        createRelationshipEntityUsage(saveModel, "relationship", {
+                                            usageOf: associationIsUsageOf,
+                                            name: association.name,
+                                            description: association.description,
+                                            ends: [
+                                                {
+                                                    name: association.ends.at(0)?.name ?? null,
+                                                    description: association.ends.at(0)?.description ?? null,
+                                                    usageNote: {},
+                                                    concept: association.ends.at(0)?.concept ?? null,
+                                                    cardinality: association.ends.at(0)?.cardinality ?? null,
+                                                },
+                                                {
+                                                    name: association.ends.at(1)?.name ?? null,
+                                                    description: association.ends.at(1)?.description ?? null,
+                                                    usageNote: {},
+                                                    concept: association.ends.at(1)?.concept ?? null,
+                                                    cardinality: association.ends.at(1)?.cardinality ?? null,
+                                                },
+                                            ],
+                                        });
+                                    } else {
+                                        const result = createConnection(saveModel, {
+                                            type: "association",
+                                            iri,
+                                            name: association.name,
+                                            description: association.description,
+                                            ends: association.ends,
+                                        } as AssociationConnectionType);
+                                        console.log("creating association ", result, target, source);
+                                    }
                                 }
                                 console.log("create-connection-dialog: created successfully(?)");
                             } else {
@@ -249,14 +303,14 @@ export const useCreateConnectionDialog = () => {
                     </button>
                     <button onClick={() => close()}>close</button>
                 </div>
-            </dialog>
+            </BaseDialog>
         );
     };
 
     return {
         isCreateConnectionDialogOpen: isOpen,
-        closeCreateConnectionDialog: close,
-        openCreateConnectionDialog: open,
+        closeCreateConnectionDialog: localClose,
+        openCreateConnectionDialog: localOpen,
         CreateConnectionDialog,
     };
 };

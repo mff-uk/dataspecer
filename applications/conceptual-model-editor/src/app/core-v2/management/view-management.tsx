@@ -1,13 +1,20 @@
-import { useState } from "react";
-import { useModelGraphContext } from "./context/graph-context";
+import { useEffect, useState } from "react";
+import { useModelGraphContext } from "../context/model-context";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { useViewParam } from "../util/view-param";
 
 export const ViewManagement = () => {
-    const { aggregatorView, aggregator, setAggregatorView, setVisualModels } = useModelGraphContext();
+    const { aggregatorView, aggregator, setAggregatorView, addVisualModelToGraph } = useModelGraphContext();
+    const { visualModels } = useModelGraphContext();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { viewId, setViedIdSearchParam } = useViewParam();
 
     const activeViewId = aggregatorView.getActiveViewId();
     const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+
+    useEffect(() => {
+        setViedIdSearchParam(activeViewId ?? null);
+    }, [activeViewId]);
 
     const setActiveViewId = (modelId: string) => {
         aggregatorView.changeActiveVisualModel(modelId);
@@ -21,9 +28,19 @@ export const ViewManagement = () => {
 
     const handleCreateNewView = () => {
         const model = new VisualEntityModelImpl(undefined);
-        aggregator.addModel(model);
+        addVisualModelToGraph(model);
+        aggregatorView.changeActiveVisualModel(model.getId());
         setAggregatorView(aggregator.getView());
-        setVisualModels((prev) => new Map(prev.set(model.getId(), model)));
+    };
+
+    const handleViewDeleted = (viewId: string) => {
+        const visualModel = visualModels.get(viewId);
+        if (!visualModel) {
+            return;
+        }
+        aggregator.deleteModel(visualModel);
+        toggleDropdown();
+        setAggregatorView(aggregator.getView());
     };
 
     const toggleDropdown = () => {
@@ -35,7 +52,7 @@ export const ViewManagement = () => {
             <div className="flex flex-col text-[15px]">
                 <div className="flex flex-row">
                     <div>
-                        view:<span className="ml-2 font-mono">{activeViewId}</span>
+                        view:<span className="ml-2 font-mono">{viewId ?? "---"}</span>
                     </div>
                     <button className="white ml-2 text-[15px]" title="change view" onClick={toggleDropdown}>
                         🗃️
@@ -46,9 +63,16 @@ export const ViewManagement = () => {
                 </div>
                 {dropdownOpen && (
                     <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
-                        {availableVisualModelIds.map((viewId) => (
-                            <li key={viewId} className="w-full">
-                                <button onClick={() => handleViewSelected(viewId)}>{viewId}</button>
+                        {availableVisualModelIds.map((vId) => (
+                            <li key={vId} className="flex w-full flex-row justify-between">
+                                <button onClick={() => handleViewSelected(vId)}>{vId}</button>
+                                <button
+                                    onClick={() => {
+                                        handleViewDeleted(vId);
+                                    }}
+                                >
+                                    🗑
+                                </button>
                             </li>
                         ))}
                     </ul>

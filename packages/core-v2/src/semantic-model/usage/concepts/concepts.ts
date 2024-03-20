@@ -1,10 +1,10 @@
-import {Entity} from "../../../entity-model";
-import {LanguageString, NamedThing} from "../../concepts/concepts";
-import {SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE} from "./concepts-utils";
+import { Entity } from "../../../entity-model";
+import { LanguageString, NamedThing } from "../../concepts/concepts";
+import { SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE } from "./concepts-utils";
 
 type Nullable<T> = {
-    [P in keyof T]: P | null;
-}
+    [P in keyof T]: T[P] | null;
+};
 
 interface WithUsageNote {
     /**
@@ -35,7 +35,7 @@ interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>, WithUs
     /**
      * Must be stricter or equal to the corresponding cardinality of the used entity.
      */
-    cardinality: [number, number|null] | null;
+    cardinality: [number, number | null] | null;
 
     /**
      * Must be descendant or self of the corresponding concept of the used entity.
