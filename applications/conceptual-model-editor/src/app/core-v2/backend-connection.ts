@@ -10,8 +10,6 @@ export const useBackendConnection = () => {
     const getPackageFromBackend = async (packageId: string) => {
         const pkg = await service.getPackage(packageId);
         return pkg;
-        const pkg = await service.getPackage(packageId);
-        return pkg;
     };
 
     const getModelsFromBackend = async (packageId: string) => {
@@ -27,13 +25,10 @@ export const useBackendConnection = () => {
     ) => {
         const pkg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
         console.log(`updated models for package ${packageId}`, models, visualModels, pkg);
-        const pkg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
-        console.log(`updated models for package ${packageId}`, models, visualModels, pkg);
         alert(`package ${packageId} updated on backend and logged to console`);
     };
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
-        const pkg = await service.createPackage(".root", {
         const pkg = await service.createPackage(".root", {
             id: packageId,
             name: { cs: packageNameCs },
@@ -44,8 +39,6 @@ export const useBackendConnection = () => {
         return pkg;
     };
 
-    const listPackages = async () => {
-        return await service.listPackages();
     const listPackages = async () => {
         return await service.listPackages();
     };

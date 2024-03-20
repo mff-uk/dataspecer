@@ -21,8 +21,8 @@ import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/
 import { sourceModelOfEntity } from "../util/model-utils";
 
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
-    const { classes, allowedClasses, setAllowedClasses, deleteEntityFromModel, usages } = useClassesContext();
-    const { aggregatorView, createEntityUsage } = useModelGraphContext();
+    const { classes, allowedClasses, setAllowedClasses, usages } = useClassesContext();
+    const { aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
@@ -45,8 +45,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         setBackgroundColor(color ?? "#ff00ff");
     }, [activeVisualModel]);
 
-    const modelId = model.getId();
-    let clses: JSX.Element[];
     const modelId = model.getId();
     let clses: JSX.Element[];
 
@@ -84,7 +82,10 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         activeVisualModel?.updateEntity(classId, { visible: false });
     };
 
-    const handleOpenModification = (model: InMemorySemanticModel, cls: SemanticModelClass) => {
+    const handleOpenModification = (
+        model: InMemorySemanticModel,
+        cls: SemanticModelClass | SemanticModelClassUsage
+    ) => {
         openModifyEntityDialog(cls, model);
     };
 
@@ -187,29 +188,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 // modifiable-row, e.g. local
                 <RowHierarchy entity={cwo.cls} indent={0} />
             ))
-            // <EntityRow
-            //     entity={cwo.cls}
-            //     key={clsId + activeVisualModel?.getId() + classesLength}
-            //     expandable={null}
-            //     openDetailHandler={() => handleOpenDetail(cwo.cls)}
-            //     modifiable={{ openModificationHandler: () => handleOpenModification(model, cwo.cls) }}
-            //     drawable={{
-            //         addToViewHandler: () => handleAddClassToActiveView(clsId),
-            //         removeFromViewHandler: () => handleRemoveClassFromActiveView(clsId),
-            //         isVisibleOnCanvas: () => activeVisualModel?.getVisualEntity(clsId)?.visible ?? false,
-            //     }}
-            //     removable={{
-            //         remove: () => {
-            //             deleteEntityFromModel(model, clsId);
-            //         },
-            //     }}
-            //     usage={{
-            //         createUsageHandler: () => {
-            //             handleCreateUsage(cwo.cls);
-            //         },
-            //     }}
-            // />
-
             .concat(
                 <div key="add-a-concept-" className="flex flex-row justify-between whitespace-nowrap">
                     Add a concept
@@ -261,7 +239,6 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
                     </div>
                 </div>
-                {isOpen && <ul className="ml-1">{clses}</ul>}
                 {isOpen && <ul className="ml-1">{clses}</ul>}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
