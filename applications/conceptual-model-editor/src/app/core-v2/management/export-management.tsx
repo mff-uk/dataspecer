@@ -26,26 +26,6 @@ export const ExportManagement = () => {
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        // const callback = async () => {
-        //     const result = await getWorkspaceState();
-        //     if (!result) {
-        //         return;
-        //     }
-        //     const { packageId, entityModels, visualModels } = result;
-
-        //     for (const visModel of visualModels) {
-        //         aggregator.addModel(visModel);
-        //         setVisualModels((previous) => previous.set(visModel.getId(), visModel));
-        //     }
-
-        //     for (const model of entityModels) {
-        //         aggregator.addModel(model);
-        //         setModels((previous) => previous.set(model.getId(), model));
-        //     }
-
-        //     setAggregatorView(aggregator.getView());
-        // };
-        // callback();
         if (autosaveActive) {
             saveWorkspaceState(models, visualModels, aggregatorView.getActiveViewId());
             const res = setInterval(() => {
@@ -156,7 +136,9 @@ export const ExportManagement = () => {
             <div className="ml-1">
                 <button
                     className="bg-[#c7556f] px-1"
-                    title={`${autosaveActive ? "stop" : "start"} autosave to local storage`}
+                    title={`autosave: ${autosaveActive ? "active" : "inactive"}, ${
+                        autosaveActive ? "stop" : "start"
+                    } autosave to local storage`}
                     onClick={() => setAutosaveActive((prev) => !prev)}
                 >
                     {autosaveActive ? "🟢" : "🔴"}autosave
