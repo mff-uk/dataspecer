@@ -144,7 +144,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-        this.change(
+                this.change(
             Object.fromEntries(
                 [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
                     entity.id,

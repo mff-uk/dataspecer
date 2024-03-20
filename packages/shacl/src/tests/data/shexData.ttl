@@ -1,0 +1,2 @@
+<n1> <p1> 1 ; <p2> 2 . # missing p2
+<n2> <p4> 1 ; <p2> 2 . # missing p1

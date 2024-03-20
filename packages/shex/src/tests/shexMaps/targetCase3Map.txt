@@ -1,0 +1,1 @@
+{ "node": "http://www.example.org/uzemi", "shape": "https://example.org/cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShExShape" }

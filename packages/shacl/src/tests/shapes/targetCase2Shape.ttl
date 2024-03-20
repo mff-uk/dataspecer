@@ -1,0 +1,50 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@base <https://example.org/>.
+
+<5612c1873ed3a1d5024b30ff367ed370adresaShape> a sh:NodeShape;
+    sh:targetSubjectsOf <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:description "Adresa popisek"@cs;
+    sh:name "Adresa"@cs.
+<b15bb696c6af8c644bb05cbbc9bd2a66prvek-ruianShape> a sh:PropertyShape;
+    sh:description "Popis prvku rúian"@cs;
+    sh:name "Prvek rúian"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<5612c1873ed3a1d5024b30ff367ed370adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66prvek-ruianShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape> a sh:PropertyShape;
+    sh:description "Link na entitu má přiřazené území"@cs;
+    sh:name "Má přiřazené území"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:nodeKind sh:BlankNodeOrIRI.
+<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> a sh:NodeShape;
+    sh:not [
+  a sh:PropertyShape;
+  sh:path <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>;
+  sh:minCount 1
+];
+    sh:nodeKind sh:BlankNodeOrIRI;
+    sh:description "Popis území městského obvodu"@cs;
+    sh:name "Území městského obvodu"@cs.
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> a sh:PropertyShape;
+    sh:description "Ulice bydliště"@cs, "Street of the address"@en;
+    sh:name "ulice"@cs, "Street"@en;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze>.
+
+<ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape> sh:datatype xsd:string.
+<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <ebf9520ff0d7c2451463adc6d323df35ulice-popisekShape>.
+<cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape> a sh:PropertyShape;
+    sh:description "Číslo popisné dané budovy"@cs;
+    sh:name "Číslo popisné"@cs;
+    sh:minCount 1;
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
+    sh:datatype xsd:string.
+<cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <cef40358a93b64dbf63d1e50a332dad8cislo-popisne-popisekShape>.
+<b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape>.
+<5612c1873ed3a1d5024b30ff367ed370adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape>.

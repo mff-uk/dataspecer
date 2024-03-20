@@ -9,7 +9,6 @@ test('Test SHACL against data - closed shape POSITIVE ', async () => {
   expect(validation.conforms).toBe(true);
 });
 
-
 test('Shape conforms to SHACL standard - closed shape ', async () => {
   const validation = await Support.testShape(testType, modelCreator);
   expect(validation.conforms).toBe(true);

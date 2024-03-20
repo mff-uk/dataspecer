@@ -8,7 +8,7 @@ import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/ge
 import { JsonSchema } from "./json-schema-model";
 import { writeJsonSchema } from "./json-schema-writer";
 import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { assertFailed, assertNot } from "@dataspecer/core/core";
+import { assertFailed, assertNot, createStringSelector } from "@dataspecer/core/core";
 import {
   structureModelAddDefaultValues,
   transformStructureModel
@@ -20,7 +20,7 @@ import { structureModelAddIdAndTypeProperties } from "./json-id-transformations"
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
 import {structureModelAddJsonProperties} from "../json-structure-model/add-json-properties";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
-import { StructureModel } from "@dataspecer/core/structure-model/model";
+import { StructureModel, StructureModelClass, StructureModelProperty } from "@dataspecer/core/structure-model/model";
 import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 
@@ -85,7 +85,14 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     if (!skipIdAndTypeProperties) {
       structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration);
     }
-    const jsonSchema = structureModelToJsonSchema(context.specifications, specification, structureModel, configuration, artefact);
+    const jsonSchema = structureModelToJsonSchema(
+      context.specifications,
+      specification,
+      structureModel,
+      configuration,
+      artefact,
+      createStringSelector([configuration.jsonLabelLanguage])
+    );
 
     return {structureModel, jsonSchema, mergedConceptualModel, configuration, globalConfiguration}
   }
@@ -134,7 +141,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
                 // if the property points to an external class, we need link to bs documentation
 
                 const externalSpecification = context.specifications[target.specification];
-                const externalArtefact = externalSpecification.artefacts.find(a => a.generator == BIKESHED.Generator + "/html-output");
+                const externalArtefact = externalSpecification.artefacts.find(a => a.generator == "https://schemas.dataspecer.com/generator/template-artifact");
 
                 // @ts-ignore
                 dt.externalDocumentation = pathRelative(
@@ -151,6 +158,21 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         jsonSchema,
         configuration,
         classes: await structureModel.getClasses(),
+        structureModelLinkId: function() {
+          function normalizeLabel(label: string) {
+            return label.replace(/ /g, "-").toLowerCase();
+          }
+
+          if (this instanceof StructureModelClass) {
+              const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
+              return `json-schéma-objekt-${normalizeLabel(label)}`;
+          } else if (this instanceof StructureModelProperty) {
+            const obj = structureModel.getClasses().find(c => c.properties.find(p => p.psmIri === this.psmIri))!;
+            const objLabel = obj.humanLabel?.cs ?? obj.humanLabel?.en ?? "";
+            //const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
+            return `json-schéma-vlastnost-${normalizeLabel(objLabel)}-${normalizeLabel(this.technicalLabel)}`;
+          }
+        },
         useTemplate: () => (template, render) => {
           if (template.trim() !== "") {
             return render(template);
@@ -171,6 +193,111 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
             }
 
             let infoText2 = configuration.jsonRootCardinality === "object-with-array" ? ` Prvky jsou uvedeny v poli \`${configuration.jsonRootCardinalityObjectKey}\`.` : "";
+
+            // @ts-ignore
+            if (documentationArtefact.templateType === "respec") {
+              return render(`<section>
+<h3>Přehled JSON struktury</h3>
+<p>JSON Schéma zachycující strukturu pro <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i> je definováno v souboru <a href="{{{artifact.json-schema.relativePath}}}"><code>{{artifact.json-schema.relativePath}}</code></a>. ${infoText} <i>{{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}</i>.${infoText2}</p>
+
+<ul>
+{{#classes}}{{#inThisSchema}}
+<li>
+  <a href="#{{structureModelLinkId}}">
+    {{#humanLabel}}{{translate}}{{/humanLabel}}
+  </a>
+<ul>
+{{#properties}}
+<li>
+    <code>{{technicalLabel}}</code>:
+    {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}
+    {{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}}
+    ({{cardinalityRange}}) položka typu {{#dataTypes}}
+      {{#isAssociation}}<strong><a href="{{#dataType}}#{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a></strong>{{/isAssociation}}
+      {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
+    {{/dataTypes}}
+</li>
+{{/properties}}
+</ul>
+</li>
+{{/inThisSchema}}{{/classes}}
+</ul>
+
+<h3>Detailní specifikace prvků JSON struktury</h3>
+
+{{#classes}}{{#inThisSchema}}
+<section id="{{structureModelLinkId}}">
+<h4>Objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
+<dl>
+{{#humanDescription}}{{#translate}}
+<dt>Popis</dt>
+<dd>{{.}}</dd>
+{{/translate}}{{/humanDescription}}
+<dt>Interpretace</dt>
+{{#pimClass}}
+<dd>
+  <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+</dd>
+{{/pimClass}}
+</dl>
+
+{{#properties}}
+<section id="{{structureModelLinkId}}">
+<h5>Vlastnost <code>{{technicalLabel}}</code></h5>
+<dl>
+<dt>Klíč</dt>
+<dd>\`{{technicalLabel}}\`</dd
+<dt>Jméno</dt>
+<dd>{{#humanLabel}}{{translate}}{{/humanLabel}}</dd
+{{#humanDescription}}{{#translate}}
+<dt>Popis</dt>
+<dd>{{.}}</dd
+{{/translate}}{{/humanDescription}}
+<dt>Povinnost</dt>
+<dd>{{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}</dd
+<dt>Kardinalita</dt>
+<dd>{{cardinalityRange}}</dd
+<dt>Typ</dt>
+{{#dataTypes}}
+
+{{#isAssociation}}
+<dd>
+  <a href="{{externalDocumentation}}#{{#dataType}}{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a>
+</dd>
+{{/isAssociation}}
+
+{{#isAttribute}}
+<dd>
+{{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}
+</dd>
+{{/isAttribute}}
+
+{{/dataTypes}}
+
+{{#dataTypes}}{{#isAttribute}}{{#example}}
+<dt>Příklad</dt>
+<dd><div>{{.}}</div></dd>
+{{/example}}{{/isAttribute}}{{/dataTypes}}
+
+{{#dataTypes}}{{#isAttribute}}{{#regex}}
+<dt>Regulární výraz</dt>
+<dd><code>{{.}}</code></dd>
+{{/regex}}{{/isAttribute}}{{/dataTypes}}
+
+<dt>Interpretace</dt>
+{{#pimAssociation}} 
+<dd>
+<a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+</dd>
+{{/pimAssociation}}
+</dl>
+</section>
+{{/properties}}
+
+</section>
+{{/inThisSchema}}{{/classes}}
+</section>`);
+            }
 
             return render(`## Přehled JSON struktury
 ${infoText} {{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}.${infoText2}

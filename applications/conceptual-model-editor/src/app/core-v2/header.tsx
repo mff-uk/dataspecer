@@ -28,6 +28,7 @@ const Header = () => {
                     <ViewManagement />
                 </div>
                 <div className="my-auto flex flex-row justify-end">
+                <div className="my-auto flex flex-row justify-end">
                     <ExportManagement />
                 </div>
             </header>

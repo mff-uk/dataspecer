@@ -71,7 +71,7 @@
   "new schema label format": "{label}",
   "no schema text": "Začněte kliknutím na tlačítko <1>zvolit kořen</1> pro vyhledání třídy, která bude kořenem schématu.",
   "no title": "bez názvu",
-  "open data structure": "Otevřít datovou strukturu",
+  "open data structure": "Otevřít",
   "report a bug": "nahlásit chybu",
   "request a feature": "navrhnout úpravu",
   "return back button": "Jít zpět na {{toolName}}",

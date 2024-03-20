@@ -34,7 +34,7 @@
 
     async generateJsonData(schema : string) : Promise<String> {
       const json = JSON.parse(schema);
-      JSONSchemaFaker.option({requiredOnly: true});
+      JSONSchemaFaker.option({requiredOnly: true, useExamplesValue: true});
       const generatedJson = await JSONSchemaFaker.resolve(json);
       
       if(generatedJson == null){

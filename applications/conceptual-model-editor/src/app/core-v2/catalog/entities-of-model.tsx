@@ -47,6 +47,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
 
     const modelId = model.getId();
     let clses: JSX.Element[];
+    const modelId = model.getId();
+    let clses: JSX.Element[];
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
@@ -180,6 +182,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     } else if (model instanceof InMemorySemanticModel) {
         clses = [...classes.entries()]
             .filter(([_, cwo]) => cwo.origin == model.getId())
+            .filter(([_, cwo]) => cwo.origin == model.getId())
             .map(([clsId, cwo]) => (
                 // modifiable-row, e.g. local
                 <RowHierarchy entity={cwo.cls} indent={0} />
@@ -258,6 +261,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
                     </div>
                 </div>
+                {isOpen && <ul className="ml-1">{clses}</ul>}
                 {isOpen && <ul className="ml-1">{clses}</ul>}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}

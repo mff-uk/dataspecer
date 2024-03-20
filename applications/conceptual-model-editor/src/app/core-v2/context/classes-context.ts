@@ -116,7 +116,7 @@ export const useClassesContext = () => {
 
     return {
         classes,
-        setClasses,
+        setClasses: customSetClasses,
         allowedClasses,
         setAllowedClasses,
         relationships,

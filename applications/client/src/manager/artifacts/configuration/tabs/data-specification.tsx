@@ -1,10 +1,10 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import { DataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
-import { FormGroup, Grid, Typography } from "@mui/material";
-import React, { FC } from "react";
-import {SelectWithDefault, SwitchWithDefault, TextFieldWithDefault} from "../ui-components/index";
-import {InfoHelp} from "../../../../components/info-help";
-import {useTranslation} from "react-i18next";
+import { Box, FormGroup, Grid, Typography } from "@mui/material";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { InfoHelp } from "../../../../components/info-help";
+import { SelectWithDefault, SwitchWithDefault, TextFieldWithDefault } from "../ui-components/index";
 
 export const DataSpecification: FC<{
   input: DeepPartial<DataSpecificationConfiguration>,
@@ -12,6 +12,8 @@ export const DataSpecification: FC<{
   onChange: (options: DeepPartial<DataSpecificationConfiguration>) => void,
 }> = ({ input, onChange, defaultObject }) => {
   const {t} = useTranslation("detail");
+
+  const generatorsEnabledByDefault = (defaultObject ?? input).generatorsEnabledByDefault!;
 
   return <FormGroup>
 
@@ -31,6 +33,17 @@ export const DataSpecification: FC<{
     <Typography variant="body2" sx={{mt: 1}}>
         For artifacts that will be published on the web.
     </Typography>
+
+    <Box sx={{mt:3, ml: "-5px"}}>
+      <SwitchWithDefault
+        label="Omit structure name in file path if only one structure"
+        current={input ?? {}}
+        itemKey="skipStructureNameIfOnlyOne"
+        onChange={onChange}
+        default={defaultObject}
+        undefinedIs={defaultObject.skipStructureNameIfOnlyOne}
+      />
+    </Box>
 
     <Typography variant="h6" sx={{ mt: 6 }}>Instance identification and typing</Typography>
     <Grid container spacing={2}>
@@ -92,7 +105,17 @@ export const DataSpecification: FC<{
           itemKey="json"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
+          undefinedIs={generatorsEnabledByDefault}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+          label="JSON examples"
+          current={input.useGenerators ?? {}}
+          itemKey="jsonExample"
+          onChange={(value) => onChange({ ...input, useGenerators: value })}
+          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
@@ -102,7 +125,7 @@ export const DataSpecification: FC<{
           itemKey="xml"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
@@ -112,7 +135,7 @@ export const DataSpecification: FC<{
           itemKey="csv"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
@@ -122,7 +145,7 @@ export const DataSpecification: FC<{
           itemKey="sparql"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
@@ -132,17 +155,47 @@ export const DataSpecification: FC<{
             itemKey="shacl"
             onChange={(value) => onChange({ ...input, useGenerators: value })}
             default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-            undefinedIs={true}
+            undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
         <SwitchWithDefault
-          label="Bikeshed documentation"
+            label="ShEx"
+            current={input.useGenerators ?? {}}
+            itemKey="shex"
+            onChange={(value) => onChange({ ...input, useGenerators: value })}
+            default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+            undefinedIs={generatorsEnabledByDefault}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+            label="OpenAPI specification (experimental)"
+            current={input.useGenerators ?? {}}
+            itemKey="openapi"
+            onChange={(value) => onChange({ ...input, useGenerators: value })}
+            default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+            undefinedIs={generatorsEnabledByDefault}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+            label="LDkit application skeleton (experimental)"
+            current={input.useGenerators ?? {}}
+            itemKey="LDkit"
+            onChange={(value) => onChange({ ...input, useGenerators: value })}
+            default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
+            undefinedIs={generatorsEnabledByDefault}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SwitchWithDefault
+          label="Documentation"
           current={input.useGenerators ?? {}}
-          itemKey="bikeshed"
+          itemKey="respec"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
       <Grid item xs={12}>
@@ -152,17 +205,7 @@ export const DataSpecification: FC<{
           itemKey="plantUML"
           onChange={(value) => onChange({ ...input, useGenerators: value })}
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={true}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <SwitchWithDefault
-          label="Deprecated Bikeshed documentation"
-          current={input.useGenerators ?? {}}
-          itemKey="bikeshed@1"
-          onChange={(value) => onChange({ ...input, useGenerators: value })}
-          default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-          undefinedIs={false}
+          undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
     </Grid>

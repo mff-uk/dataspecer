@@ -10,7 +10,15 @@ export const Json: FC<{
     onChange: (options: DeepPartial<JsonConfiguration>) => void,
   }> = ({input, onChange, defaultObject}) => {
     return <FormGroup>
-      <Typography variant="h6">IRI and type property names</Typography>
+      <TextFieldWithDefault
+        label="Preferred language of labels and descriptions"
+        current={input ?? {}}
+        itemKey="jsonLabelLanguage"
+        onChange={onChange}
+        default={defaultObject}
+      />
+
+      <Typography variant="h6" sx={{mt: 3}}>IRI and type property names</Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <TextFieldWithDefault
@@ -36,7 +44,7 @@ export const Json: FC<{
       </Typography>
 
 
-      <Typography variant="h6" sx={{mt: 6}}>JSON-LD @base IRI</Typography>
+      <Typography variant="h6" sx={{mt: 3}}>JSON-LD @base IRI</Typography>
       <Grid container>
         <Grid item xs={12}>
           <TextFieldWithDefault
@@ -49,7 +57,7 @@ export const Json: FC<{
       </Grid>
 
 
-      <Typography variant="h6" sx={{mt: 6}}>Root cardinality</Typography>
+      <Typography variant="h6" sx={{mt: 3}}>Root cardinality</Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <SelectWithDefault
@@ -65,7 +73,7 @@ export const Json: FC<{
           />
         </Grid>
         <Grid item xs={6}>
-          <Collapse in={input.jsonRootCardinality === "object-with-array"} appear={false} orientation="horizontal">
+          <Collapse in={input.jsonRootCardinality === "object-with-array"} appear={false} orientation="vertical">
             <TextFieldWithDefault
                 label="Root key"
                 current={input ?? {}}
@@ -81,7 +89,7 @@ export const Json: FC<{
       </Typography>
 
 
-      <Typography variant="h6" sx={{mt: 6}}>@type key mapping</Typography>
+      <Typography variant="h6" sx={{mt: 3}}>@type key mapping</Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <SelectWithDefault
@@ -96,7 +104,7 @@ export const Json: FC<{
           />
         </Grid>
         <Grid item xs={6}>
-          <Collapse in={input.jsonDefaultTypeKeyMapping === "human-label"} appear={false} orientation="horizontal">
+          {input.jsonDefaultTypeKeyMapping === "human-label" &&
             <TextFieldWithDefault
                 label="Preffered language"
                 current={input ?? {}}
@@ -104,7 +112,7 @@ export const Json: FC<{
                 onChange={onChange}
                 default={defaultObject}
             />
-          </Collapse>
+          }
         </Grid>
       </Grid>
       <Typography variant="body2" sx={{mt: 1}}>
@@ -112,7 +120,7 @@ export const Json: FC<{
       </Typography>
 
 
-      <Typography variant="h6" sx={{mt: 6}}>References</Typography>
+      <Typography variant="h6" sx={{mt: 3}}>References</Typography>
       <Grid container rowGap={1}>
         <Grid item xs={12}>
           <SwitchWithDefault
@@ -136,5 +144,15 @@ export const Json: FC<{
       <Typography variant="body2" sx={{mt: 1}}>
         Resolves all <code>$ref</code>/<code>@context</code> references in the generated files.
       </Typography>
+
+      <Typography variant="h6" sx={{mt: 3}}>JSON example</Typography>
+      <SwitchWithDefault
+        current={input ?? {}}
+        itemKey="includeContextInExample"
+        onChange={onChange}
+        default={defaultObject}
+        label={"Include JSON-LD context in the example JSON"}
+      />
+
     </FormGroup>;
   };

@@ -18,6 +18,8 @@
     "@rdfjs/parser-jsonld": "^2.1.0",
     "@rdfjs/parser-n3": "^2.0.1",
     "@rdfjs/serializer-turtle": "^1.1.1",
+    "@shexjs/loader": "^1.0.0-alpha.28",
+    "node-fetch": "^3.3.2",
     "cuid": "^3.0.0",
     "faker": "^6.6.6",
     "fs": "^0.0.1-security",
@@ -28,20 +30,19 @@
     "path": "^0.12.7",
     "rdf-ext": "^2.2.0",
     "rdf-validate-shacl": "^0.4.5",
-    "shex": "^1.0.0-alpha.29",
     "turtle-validator": "^1.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
     "@babel/preset-env": "^7.22.9",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.12",
     "@types/n3": "^1.16.4",
     "@types/rdf-ext": "^2.0.1",
     "@types/rdf-validate-shacl": "^0.4.2",
     "babel-jest": "^29.6.1",
     "jest": "^29.5.0",
-    "rimraf": "^4.4.1",
-    "ts-jest": "^29.1.0",
-    "typescript": "~5.3.3"
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.2",
+    "typescript": "~5.4.2"
   }
 }

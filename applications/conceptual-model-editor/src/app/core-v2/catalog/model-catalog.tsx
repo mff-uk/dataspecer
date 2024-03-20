@@ -65,6 +65,7 @@ export const ModelCatalog = () => {
 
     const ModelItem = (props: { modelId: string }) => {
         const model = models.get(props.modelId);
+        const model = models.get(props.modelId);
         return (
             <div className={`m-2 flex flex-row justify-between`}>
                 <h4 onClick={() => console.log(model)}>Ⓜ {shortenStringTo(props.modelId)}</h4>
@@ -89,6 +90,7 @@ export const ModelCatalog = () => {
                 <AddModelDialogButton />
                 <AddModelButton disabled={models.has(SGOV_MODEL_ID)} modelType={SGOV_MODEL_ID} />
                 <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} />
+                <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
                 <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
             </div>
             {isAddModelDialogOpen && <AddModelDialog />}

@@ -144,6 +144,7 @@ export const Visualization = () => {
     useEffect(() => {
         const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
+            const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
             const [localClasses, localRelationships, localAttributes, localGeneralizations, localModels] = [
                 classes,
@@ -282,6 +283,7 @@ export const Visualization = () => {
                 ]
                     .map((relOrGen) =>
                         getEdge(relOrGen, localActiveVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
+                        getEdge(relOrGen, localActiveVisualModel?.getColor(relOrGenToModel.get(relOrGen.id)!))
                     )
                     .filter((e): e is Edge => {
                         return e?.id != undefined;
@@ -325,8 +327,10 @@ export const Visualization = () => {
 
     useEffect(() => {
         console.log("visualization: active visual model changed", activeVisualModel);
+        console.log("visualization: active visual model changed", activeVisualModel);
         setNodes([]);
         setEdges([]);
+        rerenderEverythingOnCanvas();
         rerenderEverythingOnCanvas();
     }, [activeVisualModel]);
 

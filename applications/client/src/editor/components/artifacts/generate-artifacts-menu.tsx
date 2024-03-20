@@ -1,37 +1,41 @@
-import React, {useCallback, useContext, useRef, useState} from "react";
-import {Button, CardContent, Checkbox, DialogActions, DialogContent, Divider, IconButton, ListItemText, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {useToggle} from "../../hooks/use-toggle";
-import {uniqueId} from "lodash";
-import {useTranslation} from "react-i18next";
-import {ConfigurationContext} from "../App";
-import FileSaver from "file-saver";
-import copy from "copy-to-clipboard";
-import {useSnackbar} from "notistack";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
+import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import { CSV_SCHEMA } from "@dataspecer/csv/csv-schema";
+import { RDF_TO_CSV } from "@dataspecer/csv/rdf-to-csv";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
+import { JsonExampleGenerator } from "@dataspecer/json-example";
+import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
+import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
+import { OpenapiGenerator } from "@dataspecer/openapi";
+import { ShaclGenerator } from "@dataspecer/shacl";
+import { ShexGenerator, ShexMapGenerator } from "@dataspecer/shex";
+import { SPARQL } from "@dataspecer/sparql-query";
+import { XML_SCHEMA } from "@dataspecer/xml/xml-schema";
+import { XSLT_LIFTING, XSLT_LOWERING } from "@dataspecer/xml/xml-transformations";
 import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
-import {dialog, useDialog} from "../../dialog";
-import {JSON_SCHEMA} from "@dataspecer/json/json-schema";
-import {styled} from "@mui/material/styles";
-import {XML_SCHEMA} from "@dataspecer/xml/xml-schema";
-import {JSON_LD_GENERATOR} from "@dataspecer/json/json-ld";
-import {XSLT_LIFTING, XSLT_LOWERING} from "@dataspecer/xml/xml-transformations";
-import {CSV_SCHEMA} from "@dataspecer/csv/csv-schema";
-import {getSingleArtifact} from "./get-single-artifact";
-import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
-import mime from "mime/lite";
-import {SingleArtifactPreview} from "./multiple-artifacts-preview";
 import PrintTwoToneIcon from '@mui/icons-material/PrintTwoTone';
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {SPARQL} from "@dataspecer/sparql-query";
-import {DefaultConfigurationContext} from "../../../application";
-import {RDF_TO_CSV} from "@dataspecer/csv/rdf-to-csv";
-import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {ShaclGenerator, ShexGenerator} from "@dataspecer/shacl";
-import {JsonExampleGenerator} from "@dataspecer/json-example";
-import {OpenapiGenerator} from "@dataspecer/openapi";
+import { Button, CardContent, Checkbox, DialogActions, DialogContent, Divider, IconButton, ListItemText, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import copy from "copy-to-clipboard";
+import FileSaver from "file-saver";
+import { uniqueId } from "lodash";
+import mime from "mime/lite";
+import { useSnackbar } from "notistack";
+import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { DefaultConfigurationContext } from "../../../application";
+import { getDefaultConfigurators } from "../../../configurators";
+import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
+import { dialog, useDialog } from "../../dialog";
+import { useAsyncMemo } from "../../hooks/use-async-memo";
+import { useToggle } from "../../hooks/use-toggle";
+import { ConfigurationContext } from "../App";
+import { getSingleArtifact } from "./get-single-artifact";
+import { SingleArtifactPreview } from "./multiple-artifacts-preview";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -166,6 +170,68 @@ const MenuNote = styled(CardContent)(({theme}) => ({
     overflow: "auto",
 }))
 
+const DIVIDER = null;
+const items = [
+    {
+        title: "JSON schema",
+        generator: JSON_SCHEMA.Generator,
+    },
+    {
+        title: "JSON-LD",
+        generator: JSON_LD_GENERATOR,
+    },
+    {
+        title: "JSON examples",
+        generator: JsonExampleGenerator.IDENTIFIER,
+    },
+    DIVIDER,
+    {
+        title: "XSD schema",
+        generator: XML_SCHEMA.Generator,
+    },
+    {
+        title: "Lifting XSLT",
+        generator: XSLT_LIFTING.Generator,
+    },
+    {
+        title: "Lowering XSLT",
+        generator: XSLT_LOWERING.Generator,
+    },
+    DIVIDER,
+    {
+        title: "CSV schema",
+        generator: CSV_SCHEMA.Generator,
+    },
+    {
+        title: "RDF-to-CSV",
+        generator: RDF_TO_CSV.Generator,
+    },
+    DIVIDER,
+    {
+        title: "SPARQL",
+        generator: SPARQL.Generator,
+    },
+    DIVIDER,
+    {
+        title: "SHACL",
+        generator: ShaclGenerator.IDENTIFIER,
+    },
+    {
+        title: "ShEx",
+        generator: ShexGenerator.IDENTIFIER,
+    },
+    {
+        title: "ShEx Map",
+        generator: ShexMapGenerator.IDENTIFIER,
+    },
+    DIVIDER,
+    {
+        title: "OpenAPI specification",
+        generator: OpenapiGenerator.IDENTIFIER,
+    },
+];
+
+
 export const GenerateArtifactsMenu: React.FC<{
     artifactPreview: string[],
     setArtifactPreview: (value: string[]) => void
@@ -184,6 +250,47 @@ export const GenerateArtifactsMenu: React.FC<{
     const {dataPsmSchemaIri} = useContext(ConfigurationContext);
     const {resource: root} = useResource<DataPsmSchema>(dataPsmSchemaIri);
 
+    const configuration = useContext(ConfigurationContext);
+    const defaultConfiguration = useContext(DefaultConfigurationContext);
+
+    const [artifactConfiguration] = useAsyncMemo(async () => {
+        if (configuration.dataSpecifications[configuration.dataSpecificationIri as string] === undefined) {
+            return null;
+        }
+        const defaultArtifactConfigurator = new DefaultArtifactConfigurator(
+            Object.values(configuration.dataSpecifications), configuration.store, defaultConfiguration, getDefaultConfigurators());
+        const artifacts = await defaultArtifactConfigurator.generateFor(configuration.dataSpecificationIri as string);
+        return artifacts;
+    }, [configuration, defaultConfiguration]);
+
+    const filteredItems = useMemo(() => {
+        if (!artifactConfiguration) {
+            return [];
+        }
+
+        const filtered = items.filter(item => item === DIVIDER || artifactConfiguration.find(a => a.generator === item.generator));
+        const filteredWithDividers = [];
+
+        let wasDivider = true;
+        for (const item of filtered) {
+            if (item === DIVIDER) {
+                if (!wasDivider) {
+                    filteredWithDividers.push(DIVIDER);
+                }
+                wasDivider = true;
+            } else {
+                filteredWithDividers.push(item);
+                wasDivider = false;
+            }
+        }
+
+        if (filteredWithDividers[filteredWithDividers.length - 1] === DIVIDER) {
+            filteredWithDividers.pop();
+        }
+
+        return filteredWithDividers;
+    }, [artifactConfiguration]);
+
     return (
         <>
             <Button aria-controls={id} aria-haspopup="true" variant="contained" onClick={open} ref={ref} disabled={!root || root.dataPsmParts.length === 0}>
@@ -201,96 +308,17 @@ export const GenerateArtifactsMenu: React.FC<{
                 <CardContent>
                     <Typography variant={"h5"} component={"div"}>{t("title generate artifacts")}</Typography>
                 </CardContent>
-                {/*<ArtifactItem title={"Store"} checked={false} setChecked={() => null}/>
-                <Divider />*/}
-                <GeneratedArtifactItem
-                    title={"JSON schema"}
-                    generator={JSON_SCHEMA.Generator}
-                    live={artifactPreview.includes(JSON_SCHEMA.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: JSON_SCHEMA.Generator})}
-                    setLive={v => (v ? add : del)(JSON_SCHEMA.Generator)}
-                />
-                <GeneratedArtifactItem
-                  title={"JSON-LD"}
-                  generator={JSON_LD_GENERATOR}
-                  live={artifactPreview.includes(JSON_LD_GENERATOR)}
-                  onPreview={() => ProvidedPreviewDialog.open({generatorId: JSON_LD_GENERATOR})}
-                  setLive={v => (v ? add : del)(JSON_LD_GENERATOR)}
-                />
-                <GeneratedArtifactItem
-                    title={"JSON examples"}
-                    generator={JsonExampleGenerator.IDENTIFIER}
-                    live={artifactPreview.includes(JsonExampleGenerator.IDENTIFIER)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: JsonExampleGenerator.IDENTIFIER})}
-                    setLive={v => (v ? add : del)(JsonExampleGenerator.IDENTIFIER)}
-                />
-                <Divider />
-                <GeneratedArtifactItem
-                    title={"XSD schema"}
-                    generator={XML_SCHEMA.Generator}
-                    live={artifactPreview.includes(XML_SCHEMA.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: XML_SCHEMA.Generator})}
-                    setLive={v => (v ? add : del)(XML_SCHEMA.Generator)}
-                />
-                <GeneratedArtifactItem
-                    title={"Lifting XSLT"}
-                    generator={XSLT_LIFTING.Generator}
-                    live={artifactPreview.includes(XSLT_LIFTING.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: XSLT_LIFTING.Generator})}
-                    setLive={v => (v ? add : del)(XSLT_LIFTING.Generator)}
-                />
-                <GeneratedArtifactItem
-                    title={"Lowering XSLT"}
-                    generator={XSLT_LOWERING.Generator}
-                    live={artifactPreview.includes(XSLT_LOWERING.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: XSLT_LOWERING.Generator})}
-                    setLive={v => (v ? add : del)(XSLT_LOWERING.Generator)}
-                />
-                <Divider />
-                <GeneratedArtifactItem
-                    title={"CSV schema"}
-                    generator={CSV_SCHEMA.Generator}
-                    live={artifactPreview.includes(CSV_SCHEMA.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: CSV_SCHEMA.Generator})}
-                    setLive={v => (v ? add : del)(CSV_SCHEMA.Generator)}
-                />
-                <GeneratedArtifactItem
-                    title={"RDF-to-CSV"}
-                    generator={RDF_TO_CSV.Generator}
-                    live={artifactPreview.includes(RDF_TO_CSV.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: RDF_TO_CSV.Generator})}
-                    setLive={v => (v ? add : del)(RDF_TO_CSV.Generator)}
-                />
-                <Divider />
-                <GeneratedArtifactItem
-                    title={"SPARQL"}
-                    generator={SPARQL.Generator}
-                    live={artifactPreview.includes(SPARQL.Generator)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: SPARQL.Generator})}
-                    setLive={v => (v ? add : del)(SPARQL.Generator)}
-                />
-                <GeneratedArtifactItem
-                    title={"SHACL"}
-                    generator={ShaclGenerator.IDENTIFIER}
-                    live={artifactPreview.includes(ShaclGenerator.IDENTIFIER)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: ShaclGenerator.IDENTIFIER})}
-                    setLive={v => (v ? add : del)(ShaclGenerator.IDENTIFIER)}
-                />
-                <GeneratedArtifactItem
-                    title={"ShEx"}
-                    generator={ShexGenerator.IDENTIFIER}
-                    live={artifactPreview.includes(ShexGenerator.IDENTIFIER)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: ShexGenerator.IDENTIFIER})}
-                    setLive={v => (v ? add : del)(ShexGenerator.IDENTIFIER)}
-                />
-                <Divider />
-                <GeneratedArtifactItem
-                    title={"OpenAPI specification"}
-                    generator={OpenapiGenerator.IDENTIFIER}
-                    live={artifactPreview.includes(OpenapiGenerator.IDENTIFIER)}
-                    onPreview={() => ProvidedPreviewDialog.open({generatorId: OpenapiGenerator.IDENTIFIER})}
-                    setLive={v => (v ? add : del)(OpenapiGenerator.IDENTIFIER)}
-                />
+
+                {filteredItems.map(item => item === DIVIDER ? <Divider key={uniqueId()}/> : (
+                    <GeneratedArtifactItem
+                        key={item.generator}
+                        title={item.title}
+                        generator={item.generator}
+                        live={artifactPreview.includes(item.generator)}
+                        onPreview={() => ProvidedPreviewDialog.open({generatorId: item.generator})}
+                        setLive={v => (v ? add : del)(item.generator)}
+                    />
+                ))}
 
                 <MenuNote>
                     <p style={{maxWidth: "10cm"}}>

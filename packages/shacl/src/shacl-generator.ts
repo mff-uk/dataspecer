@@ -58,6 +58,8 @@ export class ShaclGenerator implements ArtefactGenerator {
         model
     );
     
+    model = structureModelAddDefaultValues(model, globalConfiguration);
+
     artefact.configuration["publicBaseUrl"] = globalConfiguration.publicBaseUrl;
 
     const adapter = new ShaclAdapter(model, context, artefact);

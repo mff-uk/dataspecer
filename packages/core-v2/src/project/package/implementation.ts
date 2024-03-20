@@ -42,7 +42,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
-        return (await result.json()) as Package;
+                return (await result.json()) as Package;
     }
 
     async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {

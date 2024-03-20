@@ -67,6 +67,10 @@ const Page = () => {
                     aggregator.addModel(model);
                     setVisualModels((prev) => prev.set(model.getId(), model));
                 }
+                for (const model of visualModels) {
+                    aggregator.addModel(model);
+                    setVisualModels((prev) => prev.set(model.getId(), model));
+                }
                 for (const model of entityModels) {
                     aggregator.addModel(model);
                     setModels((previous) => previous.set(model.getId(), model));

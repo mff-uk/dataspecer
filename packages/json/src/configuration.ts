@@ -55,11 +55,18 @@ export const DefaultJsonConfiguration =  {
     jsonDefaultTypeKeyMappingHumanLabelLang: "cs" as string,
 
     /**
+     * Preferred language used for labels and descriptions.
+     */
+    jsonLabelLanguage: "cs" as string,
+
+    /**
      * Whether JSON schemas shall be dereferenced, meaning that all $ref will be resolved.
      */
     dereferenceSchema: false as boolean,
 
     dereferenceContext: false as boolean,
+
+    includeContextInExample: true as boolean,
 }
 
 export type JsonConfiguration = typeof DefaultJsonConfiguration;

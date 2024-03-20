@@ -1,8 +1,8 @@
 import * as Support from "./support/testSupport";
-import  IsReverse from "./support/IsReverseModelCreator";
+import  IsReverseModelCreator from "./support/IsReverseModelCreator";
 
 const testType = "isReverseNegative";
-const modelCreator = new IsReverse();
+const modelCreator = new IsReverseModelCreator();
 
 test('Test SHACL against data - isReverse NEGATIVE ', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
