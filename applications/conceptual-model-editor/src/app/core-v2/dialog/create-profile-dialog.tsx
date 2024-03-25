@@ -11,7 +11,7 @@ import {
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -19,17 +19,17 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-export type UsageDialogSupportedTypes =
+export type ProfileDialogSupportedTypes =
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage;
 
-export const useCreateUsageDialog = () => {
+export const useCreateProfileDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [entity, setEntity] = useState<UsageDialogSupportedTypes | null>(null);
+    const [entity, setEntity] = useState<ProfileDialogSupportedTypes | null>(null);
 
-    const localOpen = (entity: UsageDialogSupportedTypes) => {
+    const localOpen = (entity: ProfileDialogSupportedTypes) => {
         setEntity(entity);
         open();
     };
@@ -39,7 +39,7 @@ export const useCreateUsageDialog = () => {
         close();
     };
 
-    const CreateUsageDialog = () => {
+    const CreateProfileDialog = () => {
         const { models, createClassEntityUsage, createRelationshipEntityUsage } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
@@ -59,7 +59,7 @@ export const useCreateUsageDialog = () => {
         }
         console.log(model, entity);
         return (
-            <BaseDialog heading={`Create a usage${entityName2 ? " of " + entityName2 : ""}`}>
+            <BaseDialog heading={`Create a profile ${entityName2 ? "of " + entityName2 : ""}`}>
                 <div className="flex flex-row justify-evenly bg-slate-50">
                     <p>type: {entity?.type}</p>
                     <p>
@@ -74,7 +74,7 @@ export const useCreateUsageDialog = () => {
                     </p>
                 </div>
                 <p className="bg-slate-50 p-2">
-                    usage note:
+                    usage (profile?) note:
                     <MultiLanguageInputForLanguageString
                         ls={usageNote}
                         setLs={setUsageNote}
@@ -136,9 +136,9 @@ export const useCreateUsageDialog = () => {
     };
 
     return {
-        isCreateUsageDialogOpen: isOpen,
-        closeCreateUsageDialog: close,
-        openCreateUsageDialog: localOpen,
-        CreateUsageDialog,
+        isCreateProfileDialogOpen: isOpen,
+        closeCreateProfileDialog: close,
+        openCreateProfileDialog: localOpen,
+        CreateProfileDialog,
     };
 };

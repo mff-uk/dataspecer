@@ -20,7 +20,7 @@ const AssociationComponent = (props: {
     from: string;
     to: string;
     setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
-    setAssociationIsUsageOf: Dispatch<SetStateAction<string | null>>;
+    setAssociationIsProfileOf: Dispatch<SetStateAction<string | null>>;
 }) => {
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
@@ -31,8 +31,8 @@ const AssociationComponent = (props: {
         concept: props.to,
     } as SemanticModelRelationshipEnd);
 
-    const { relationships: r, usages: u } = useClassesContext();
-    const relationshipsAndUsages = [...r, ...u.filter(isSemanticModelRelationshipUsage)];
+    const { relationships: r, profiles: p } = useClassesContext();
+    const relationshipsAndProfiles = [...r, ...p.filter(isSemanticModelRelationshipUsage)];
 
     useEffect(() => {
         props.setAssociation({
@@ -112,14 +112,14 @@ const AssociationComponent = (props: {
                     <RadioField label="1..1" what="target" card={[1, 1]} />
                 </div>
             </p>
-            <div>is usage of:</div>
+            <div>is profile of:</div>
             <select
                 onChange={(e) => {
-                    props.setAssociationIsUsageOf(e.target.value);
+                    props.setAssociationIsProfileOf(e.target.value);
                 }}
             >
                 <option>---</option>
-                {relationshipsAndUsages.map((a) => {
+                {relationshipsAndProfiles.map((a) => {
                     const name = getStringFromLanguageStringInLang(a.ends.at(1)?.name ?? {})[0] ?? a.id;
                     const descr = getStringFromLanguageStringInLang(a.ends.at(1)?.description ?? {})[0] ?? "";
                     return (
@@ -181,7 +181,7 @@ export const useCreateConnectionDialog = () => {
             description: {},
             ends: [],
         });
-        const [associationIsUsageOf, setAssociationIsUsageOf] = useState<string | null>(null);
+        const [associationIsProfileOf, setAssociationIsProfileOf] = useState<string | null>(null);
 
         return (
             <BaseDialog heading="Create a connection">
@@ -240,7 +240,7 @@ export const useCreateConnectionDialog = () => {
                             to={target}
                             setAssociation={setAssociation}
                             key="sdasd"
-                            setAssociationIsUsageOf={setAssociationIsUsageOf}
+                            setAssociationIsProfileOf={setAssociationIsProfileOf}
                         />
                     )}
                 </div>
@@ -258,9 +258,9 @@ export const useCreateConnectionDialog = () => {
                                     } as GeneralizationConnectionType);
                                     console.log("creating generalization ", result, target, source);
                                 } else if (connectionType == "association") {
-                                    if (associationIsUsageOf) {
+                                    if (associationIsProfileOf) {
                                         createRelationshipEntityUsage(saveModel, "relationship", {
-                                            usageOf: associationIsUsageOf,
+                                            usageOf: associationIsProfileOf,
                                             name: association.name,
                                             description: association.description,
                                             ends: [

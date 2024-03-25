@@ -310,9 +310,8 @@ const nouns = [
 ];
 
 export const generateName = () => {
-    const name =
-        capFirst(adjectives[getRandomInt(0, adjectives.length)]!) +
-        " " +
-        capFirst(nouns[getRandomInt(0, nouns.length)]!);
+    const noun = nouns[getRandomInt(0, nouns.length) % nouns.length]!;
+    const adj = adjectives[getRandomInt(0, adjectives.length) % adjectives.length]!;
+    const name = capFirst(adj) + " " + capFirst(noun);
     return name;
 };

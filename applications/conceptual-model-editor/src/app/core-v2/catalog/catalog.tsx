@@ -3,11 +3,11 @@ import { EntityCatalog } from "./entity-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog, RelationshipCatalog } from "./attribute-relationship-catalog";
 import { useClassesContext } from "../context/classes-context";
-import { UsageCatalog } from "./usage-catalog";
+import { ProfileCatalog } from "./profile-catalog";
 
 export const Catalog = () => {
-    const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "usage">("class");
-    const { relationships, attributes, usages } = useClassesContext();
+    const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile">("class");
+    const { relationships, attributes, profiles } = useClassesContext();
 
     return (
         <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">
@@ -40,13 +40,13 @@ export const Catalog = () => {
                             attributes
                         </button>
                     )}
-                    {usages.length > 0 && (
+                    {profiles.length > 0 && (
                         <button
-                            disabled={entityView == "usage"}
-                            onClick={() => setEntityView("usage")}
-                            className={`${entityView == "usage" ? "font-bold" : ""}`}
+                            disabled={entityView == "profile"}
+                            onClick={() => setEntityView("profile")}
+                            className={`${entityView == "profile" ? "font-bold" : ""}`}
                         >
-                            usages
+                            profiles
                         </button>
                     )}
                 </div>
@@ -55,7 +55,7 @@ export const Catalog = () => {
                     {entityView == "class" && <EntityCatalog />}
                     {entityView == "relationship" && <RelationshipCatalog />}
                     {entityView == "attribute" && <AttributeCatalog />}
-                    {entityView == "usage" && <UsageCatalog />}
+                    {entityView == "profile" && <ProfileCatalog />}
                 </div>
             </div>
         </div>
