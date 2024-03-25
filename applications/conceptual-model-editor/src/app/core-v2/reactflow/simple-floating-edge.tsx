@@ -7,6 +7,7 @@ import {
     getStraightPath,
     Edge,
     MarkerType,
+    BaseEdge,
 } from "reactflow";
 
 import { getEdgeParams, getLoopPath } from "./utils";
@@ -51,6 +52,7 @@ type SimpleFloatingEdgeDataType = {
     cardinalityTarget?: string;
     bgColor?: string;
     usageNotes?: LanguageString[];
+    openEntityDetailDialog: () => void;
 };
 
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
@@ -89,6 +91,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     }
     return (
         <>
+            {/* <BaseEdge path={edgePath} id={id} style={style} markerEnd={markerEnd} /> */}
             <path
                 id={id}
                 className="react-flow__edge-path"
@@ -96,15 +99,19 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 strokeWidth={1}
                 markerEnd={markerEnd}
                 style={style}
+                onClick={d.openEntityDetailDialog}
             />
             <EdgeLabelRenderer>
                 <div
-                    className="nodrag nopan absolute flex flex-col p-2"
+                    className="  absolute flex flex-col p-2" // nopan nodrag
                     style={{
                         transform: `translate(${labelX}px,${labelY}px) translate(-50%, -50%)`,
                     }}
+                    // TODO
                 >
-                    <div>{d.label}</div>
+                    <div className="bg-slate-200" onClick={d.openEntityDetailDialog}>
+                        {d.label}
+                    </div>
                     {d.usageNotes?.map((u) => (
                         <div className="bg-blue-200">{getStringFromLanguageStringInLang(u)[0] ?? "no usage"}</div>
                     ))}
@@ -131,7 +138,8 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 export const semanticModelRelationshipToReactFlowEdge = (
     rel: SemanticModelRelationship | SemanticModelRelationshipUsage,
     color: string | undefined,
-    usageNotes: LanguageString[]
+    usageNotes: LanguageString[],
+    openEntityDetailDialog: () => void
 ) => {
     const name = getStringFromLanguageStringInLang(rel.name ?? {})[0] ?? rel.id;
     return {
@@ -147,6 +155,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
             cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
             bgColor: color,
             usageNotes,
+            openEntityDetailDialog,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 2, stroke: color },
     } as Edge;
@@ -154,7 +163,8 @@ export const semanticModelRelationshipToReactFlowEdge = (
 
 export const semanticModelGeneralizationToReactFlowEdge = (
     gen: SemanticModelGeneralization,
-    color: string | undefined
+    color: string | undefined,
+    openEntityDetailDialog: () => void
 ) =>
     ({
         id: gen.id,
@@ -167,13 +177,14 @@ export const semanticModelGeneralizationToReactFlowEdge = (
             strokeWidth: 2,
         },
         type: "floating",
-        data: { label: "", type: "g" } satisfies SimpleFloatingEdgeDataType,
+        data: { label: "", type: "g", openEntityDetailDialog } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
     } as Edge);
 
 export const semanticModelClassUsageToReactFlowEdge = (
     classUsage: SemanticModelClassUsage,
-    color: string | undefined
+    color: string | undefined,
+    openEntityDetailDialog: () => void
 ) =>
     ({
         id: classUsage.id,
@@ -184,6 +195,7 @@ export const semanticModelClassUsageToReactFlowEdge = (
         data: {
             label: "",
             type: "r",
+            openEntityDetailDialog,
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "azure", strokeWidth: 2, strokeDasharray: 5 },
     } as Edge);

@@ -2,15 +2,12 @@ import {
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
-    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
     createGeneralization,
     createRelationship,
     deleteEntity,
-    modifyClass,
-    modifyGeneralization,
     modifyRelation,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
@@ -20,12 +17,13 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { InMemoryEntityModel } from "@dataspecer/core-v2/entity-model";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
     setClasses: React.Dispatch<React.SetStateAction<Map<string, SemanticModelClassWithOrigin>>>;
+    classes2: SemanticModelClass[]; // was an array, [classId, classWithOrigin]
+    setClasses2: React.Dispatch<React.SetStateAction<SemanticModelClass[]>>;
     allowedClasses: string[];
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];
@@ -34,8 +32,10 @@ export type ClassesContextType = {
     setAttributes: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>; // React.Dispatch<React.SetStateAction<Map<string, SemanticModelRelationship[]>>>;
     generalizations: SemanticModelGeneralization[];
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
-    usages: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
-    setUsages: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
+    profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
+    setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
+    sourceModelOfEntityMap: Map<string, string>; // was an array, [classId, classWithOrigin]
+    setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
 };
 
 export type SemanticModelClassWithOrigin = {
@@ -49,6 +49,8 @@ export const useClassesContext = () => {
     const {
         classes,
         setClasses,
+        classes2,
+        setClasses2,
         allowedClasses,
         setAllowedClasses,
         relationships,
@@ -57,8 +59,10 @@ export const useClassesContext = () => {
         setAttributes,
         generalizations,
         setGeneralizations,
-        usages,
-        setUsages,
+        profiles,
+        setProfiles,
+        sourceModelOfEntityMap,
+        setSourceModelOfEntityMap,
     } = useContext(ClassesContext);
 
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
@@ -117,6 +121,8 @@ export const useClassesContext = () => {
     return {
         classes,
         setClasses,
+        classes2,
+        setClasses2,
         allowedClasses,
         setAllowedClasses,
         relationships,
@@ -130,7 +136,9 @@ export const useClassesContext = () => {
         updateAttribute,
         updateAttributeUsage,
         deleteEntityFromModel,
-        usages,
-        setUsages,
+        profiles,
+        setProfiles,
+        sourceModelOfEntityMap,
+        setSourceModelOfEntityMap,
     };
 };

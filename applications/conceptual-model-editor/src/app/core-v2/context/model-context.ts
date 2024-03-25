@@ -10,6 +10,7 @@ import { randomColorFromPalette } from "~/app/utils/color-utils";
 import {
     createClassUsage,
     createRelationshipUsage,
+    modifyClassUsage,
     modifyRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import {
@@ -138,6 +139,21 @@ export const useModelGraphContext = () => {
             console.log("about to modify relationshipusage", id, entity);
             const result = model.executeOperation(modifyRelationshipUsage(id, entity));
             return result.success;
+        } else if (entityType == "class-usage") {
+            const result = model.executeOperation(modifyClassUsage(id, entity));
+            return result.success;
+        }
+    };
+
+    const updateClassUsage = (
+        model: InMemorySemanticModel,
+        entityType: "class-usage",
+        id: string,
+        entity: Partial<Omit<SemanticModelClassUsage, "usageOf" | "type">>
+    ) => {
+        if (entityType == "class-usage") {
+            const result = model.executeOperation(modifyClassUsage(id, entity));
+            return result.success;
         }
     };
 
@@ -168,6 +184,7 @@ export const useModelGraphContext = () => {
         createClassEntityUsage,
         createRelationshipEntityUsage,
         updateEntityUsage,
+        updateClassUsage,
         cleanModels,
         removeModelFromModels,
         visualModels,

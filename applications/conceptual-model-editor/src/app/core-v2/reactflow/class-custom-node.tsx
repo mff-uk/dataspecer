@@ -16,6 +16,7 @@ import {
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { shortenStringTo } from "../util/utils";
+import { useConfigurationContext } from "../context/configuration-context";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
@@ -28,6 +29,7 @@ type ClassCustomNodeDataType = {
 };
 
 export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
+    const { language: preferredLanguage } = useConfigurationContext();
     const cls = props.data.cls;
     const { id } = cls;
 
@@ -40,10 +42,10 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
         isUsage = false;
 
     if (isSemanticModelClass(cls)) {
-        [name, description] = getNameOrIriAndDescription(cls, cls.iri ?? id);
+        [name, description] = getNameOrIriAndDescription(cls, cls.iri ?? id, preferredLanguage);
     } else if (isSemanticModelClassUsage(cls)) {
-        const [a, b] = getStringFromLanguageStringInLang(cls.name ?? {});
-        const [c, d] = getStringFromLanguageStringInLang(cls.description ?? cls.usageNote ?? {});
+        const [a, b] = getStringFromLanguageStringInLang(cls.name ?? {}, preferredLanguage);
+        const [c, d] = getStringFromLanguageStringInLang(cls.description ?? cls.usageNote ?? {}, preferredLanguage);
         [name, description, isUsage] = [
             (a ?? cls.id) + (b != null ? `@${b}` : ""),
             c ?? "" + (d != null ? `@${d}` : ""),
@@ -67,10 +69,10 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 {attributes?.map((attr) => {
                     const end = attr.ends[1]!;
-                    const [n, d] = getNameOrIriAndDescription(end, "no-iri");
+                    const [n, d] = getNameOrIriAndDescription(end, "no-iri", preferredLanguage);
 
                     const usage = props.data.usagesOfAttributes.find((u) => u.usageOf == attr.id);
-                    const [usageNote, l] = getStringFromLanguageStringInLang(usage?.usageNote ?? {});
+                    const [usageNote, l] = getStringFromLanguageStringInLang(usage?.usageNote ?? {}, preferredLanguage);
 
                     return (
                         <p key={`${n}.${attr.id}`} title={d ?? ""} className="flex flex-row">
@@ -86,8 +88,8 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 {props.data.attributeUsages?.map((attr) => {
                     const end = attr.ends[1]!;
-                    const n = getStringFromLanguageStringInLang(end.name ?? {}) ?? attr.id;
-                    const d = getStringFromLanguageStringInLang(end.description ?? {})[0] ?? "";
+                    const n = getStringFromLanguageStringInLang(end.name ?? {}, preferredLanguage) ?? attr.id;
+                    const d = getStringFromLanguageStringInLang(end.description ?? {}, preferredLanguage)[0] ?? "";
 
                     const usageOf = attr.usageOf;
                     const [usageNote, l] = getStringFromLanguageStringInLang(attr.usageNote ?? {});

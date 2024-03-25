@@ -16,6 +16,7 @@ import {
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isAttribute } from "../util/utils";
+import { useConfigurationContext } from "../context/configuration-context";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
     return (
@@ -41,13 +42,14 @@ export const EntityRow = (props: {
     removable: null | {
         remove: () => void;
     };
-    usage: null | {
-        createUsageHandler: () => void;
+    profile: null | {
+        createProfileHandler: () => void;
     };
     offset?: number;
 }) => {
     const [isVisible, setIsVisible] = useState(props.drawable?.isVisibleOnCanvas());
     const [isExpanded, setIsExpanded] = useState(props.expandable?.expanded());
+    const { language: preferredLanguage } = useConfigurationContext();
 
     const entity = props.entity;
     let iri: string | null = null;
@@ -62,7 +64,8 @@ export const EntityRow = (props: {
             : undefined;
     const [name, description] = getNameOrIriAndDescription(
         { ...entity, name: attrName ?? entity.name ?? {}, description: {} } satisfies NamedThing,
-        iri ?? entity.id
+        iri ?? entity.id,
+        preferredLanguage
     );
 
     return (
@@ -111,7 +114,17 @@ export const EntityRow = (props: {
                         {isVisible ? "👁️" : "🕶"}
                     </button>
                 )}
-                <button onClick={props.usage?.createUsageHandler}>🥑</button>
+                <button
+                    className={`${props.profile ? "" : "opacity-30"}`}
+                    title={
+                        props.profile
+                            ? ""
+                            : "don't make profiles here, possibly find the entity and make the profile there"
+                    }
+                    onClick={props.profile?.createProfileHandler}
+                >
+                    🥑
+                </button>
             </div>
         </div>
     );
