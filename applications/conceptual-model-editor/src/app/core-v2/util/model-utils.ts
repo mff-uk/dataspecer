@@ -16,6 +16,10 @@ export const sourceModelOfEntity = (entityId: string, models: EntityModel[]) => 
     return models.find((m) => Object.keys(m.getEntities()).find((eId) => eId == entityId));
 };
 
+export const sourceModelIdOfEntity = (entityId: string, sourceMap: Map<string, string>) => {
+    return sourceMap.get(entityId);
+};
+
 export const getIri = (
     entity:
         | SemanticModelClass

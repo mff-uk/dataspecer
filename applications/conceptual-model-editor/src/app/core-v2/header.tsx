@@ -3,6 +3,7 @@ import React, { Children } from "react";
 import { PackageManagement } from "./management/package-management";
 import { ViewManagement } from "./management/view-management";
 import { ExportManagement } from "./management/export-management";
+import { LanguageManagement } from "./management/language-management";
 
 const Logo = () => {
     return (
@@ -12,6 +13,8 @@ const Logo = () => {
         </div>
     );
 };
+
+const Divider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />;
 
 const Header = () => {
     return (
@@ -24,8 +27,10 @@ const Header = () => {
                 </div>
                 <div className="flex flex-row justify-center">
                     <PackageManagement />
-                    <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />
+                    <Divider />
                     <ViewManagement />
+                    <Divider />
+                    <LanguageManagement />
                 </div>
                 <div className="my-auto flex flex-row justify-end">
                     <ExportManagement />

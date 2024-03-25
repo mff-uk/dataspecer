@@ -1,11 +1,13 @@
 import {
     isSemanticModelClass,
     isSemanticModelRelationship,
+    SemanticModelGeneralization,
     type SemanticModelClass,
     type SemanticModelRelationship,
+    isSemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { cardinalityToString } from "../util/utils";
+import { cardinalityToString, isAttribute } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
 import {
     getLanguagesForNamedThing,
@@ -21,12 +23,14 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "./base-dialog";
 import { getIri } from "../util/model-utils";
+import { useConfigurationContext } from "../context/configuration-context";
 
 type SupportedEntityType =
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage;
+    | SemanticModelRelationshipUsage
+    | SemanticModelGeneralization;
 
 export const useEntityDetailDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -51,20 +55,22 @@ export const useEntityDetailDialog = () => {
     };
 
     const EntityDetailDialog = () => {
-        const [currentLang, setCurrentLang] = useState("en");
+        const { language: preferredLanguage } = useConfigurationContext();
+        const [currentLang, setCurrentLang] = useState(preferredLanguage);
 
-        const langs = getLanguagesForNamedThing(viewedEntity);
+        const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
         let name = "",
             description = "",
             iri: null | string = null,
             usageNote: null | string = null,
-            usageOf: null | string = null;
+            profileOf: null | string = null,
+            profiledBy: string[] = [];
 
         if (isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)) {
             const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {});
             const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {});
             const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {});
-            [name, description, usageNote, usageOf] = [
+            [name, description, usageNote, profileOf] = [
                 (a ?? "no-name") + (b != null ? `@${b}` : ""),
                 c ?? "" + (d != null ? `@${d}` : ""),
                 e ?? "" + (f != null ? `@${f}` : ""),
@@ -75,11 +81,14 @@ export const useEntityDetailDialog = () => {
             [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
         }
 
-        const { classes: c, attributes: a, usages: u } = useClassesContext();
+        const { classes: c, attributes: a, profiles } = useClassesContext();
+
         const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
-        const attributeUsages = u
+        const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+
+        profiledBy = profiles.filter((p) => p.usageOf == viewedEntity.id).map((p) => p.id);
 
         const ends =
             isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
@@ -87,11 +96,12 @@ export const useEntityDetailDialog = () => {
                 : null;
         const domain =
             c.get(ends?.at(0)?.concept || "dfjkn23jb21828532923891")?.cls ??
-            u.find((v) => v.id == ends?.at(0)?.concept);
+            profiles.find((v) => v.id == ends?.at(0)?.concept);
         const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality ?? [0, null]);
         const domainIri = getIri(domain ?? null);
         const range =
-            c.get(ends?.at(1)?.concept || "tnrkemlf83904349820402")?.cls ?? u.find((v) => v.id == ends?.at(0)?.concept);
+            c.get(ends?.at(1)?.concept || "tnrkemlf83904349820402")?.cls ??
+            profiles.find((v) => v.id == ends?.at(0)?.concept);
         const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality ?? [0, null]);
         const rangeIri = getIri(range ?? null);
 
@@ -99,7 +109,7 @@ export const useEntityDetailDialog = () => {
 
         return (
             <BaseDialog heading="Entity detail">
-                <div>
+                <div className="bg-slate-100">
                     <h5>
                         Detail of: <span className="font-semibold">{name}</span>
                     </h5>
@@ -122,12 +132,24 @@ export const useEntityDetailDialog = () => {
                                 ))}
                             </select>
                         </div>
-                        {usageOf && <p className="flex flex-row text-gray-500">usage of: {usageOf}</p>}
+                        <div>
+                            {profileOf && <div className="flex flex-row text-gray-500">profile of: {profileOf}</div>}
+                            {profiledBy.length > 0 && (
+                                <div className="flex flex-row text-gray-500">profiled by: {profiledBy.join(", ")}</div>
+                            )}
+                        </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-[20%_80%] gap-y-3">
+                <div className="grid grid-cols-[20%_80%] gap-y-3 bg-slate-100">
                     <div className="font-semibold">type:</div>
-                    <div>{viewedEntity.type}</div>
+                    <div>
+                        {viewedEntity.type}
+                        {(isSemanticModelRelationship(viewedEntity) ||
+                            isSemanticModelRelationshipUsage(viewedEntity)) &&
+                        isAttribute(viewedEntity)
+                            ? " (attribute)"
+                            : ""}
+                    </div>
                     <div className="font-semibold">description:</div>
                     <div> {description}</div>
                     {attributes.length > 0 && (
@@ -160,11 +182,11 @@ export const useEntityDetailDialog = () => {
                         </>
                     )}
 
-                    {attributeUsages.length > 0 && (
+                    {attributeProfiles.length > 0 && (
                         <>
-                            <div className="font-semibold">attribute usages:</div>
+                            <div className="font-semibold">attribute profiles:</div>
                             <div>
-                                {attributeUsages.map((v) => {
+                                {attributeProfiles.map((v) => {
                                     const attr = v.ends.at(1)!;
                                     const [name, fallbackLang] = getStringFromLanguageStringInLang(
                                         attr.name ?? {},
@@ -222,7 +244,7 @@ export const useEntityDetailDialog = () => {
                         </>
                     )}
                 </div>
-                <p>
+                <p className="bg-slate-100">
                     domain: {domain ? "present" : "null"}, range: {range ? "present" : "null"}
                 </p>
                 <div className="flex flex-row justify-evenly">

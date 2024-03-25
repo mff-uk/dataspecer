@@ -50,7 +50,7 @@ export const ViewManagement = () => {
     return (
         <div className="my-auto">
             <div className="flex flex-col text-[15px]">
-                <div className="flex flex-row">
+                <div className="relative flex flex-row">
                     <div>
                         view:<span className="ml-2 font-mono">{viewId ?? "---"}</span>
                     </div>
@@ -60,23 +60,25 @@ export const ViewManagement = () => {
                     <button className="white ml-2 text-[15px]" onClick={handleCreateNewView} title="create a new view">
                         <span className="font-bold">+</span>🖼️
                     </button>
+                    {dropdownOpen && (
+                        <ul className="absolute z-10 mt-8 flex w-full flex-col bg-[#5438dc]">
+                            {availableVisualModelIds.map((vId) => (
+                                <li key={vId} className="flex w-full flex-row justify-between">
+                                    <button className="flex-grow" onClick={() => handleViewSelected(vId)}>
+                                        {vId}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            handleViewDeleted(vId);
+                                        }}
+                                    >
+                                        🗑
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
-                {dropdownOpen && (
-                    <ul className="absolute z-10 mt-8 flex flex-col bg-[#5438dc]">
-                        {availableVisualModelIds.map((vId) => (
-                            <li key={vId} className="flex w-full flex-row justify-between">
-                                <button onClick={() => handleViewSelected(vId)}>{vId}</button>
-                                <button
-                                    onClick={() => {
-                                        handleViewDeleted(vId);
-                                    }}
-                                >
-                                    🗑
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
             </div>
         </div>
     );
