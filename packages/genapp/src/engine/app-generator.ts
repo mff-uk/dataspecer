@@ -1,18 +1,18 @@
-import { AggregateConfiguration, AlternateApplicationConfiguration, ApplicationConfiguration, DatasourceConfig } from "../application-config";
+import { AggregateConfiguration, AlternateApplicationConfiguration, ApplicationConfiguration, DataSourceType, DatasourceConfig } from "../application-config";
 import { Capability } from "../capabilities/capability-definition";
-import { OverviewCapability } from "../capabilities/overview-generator";
+import { OverviewCapability } from "../capabilities/overview";
 
 type CapabilityPair = { aggName: string, capability: Capability };
 
 class ApplicationGenerator {
 
-    private appConfig: ApplicationConfiguration;
+    //private appConfig: ApplicationConfiguration;
 
-    constructor(appConfig: ApplicationConfiguration) {
-        this.appConfig = appConfig;
+    constructor() { //appConfig: ApplicationConfiguration) {
+        //this.appConfig = appConfig;
     }
 
-    getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
+    private getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
         const mapping: { [name: string]: Capability } = {
             "overview": new OverviewCapability(datasourceConfig)
         };
@@ -25,7 +25,7 @@ class ApplicationGenerator {
         return capabilityMatch;
     }
 
-    constructCapabilityAggregatePairs(config: AlternateApplicationConfiguration): CapabilityPair[] {
+    private constructCapabilityAggregatePairs(config: AlternateApplicationConfiguration): CapabilityPair[] {
         const pairs: CapabilityPair[] = [];
         Object.entries(config)
         .forEach(([aggregateIdentifier, { capabilities, datasource }]) => {
@@ -46,33 +46,33 @@ class ApplicationGenerator {
 
     generate() {
         // get application configuration
-        const appConfig: ApplicationConfiguration = {
-            targetLanguage: "ts",
-            datasources: {
-                "Catalog": [{ format: "rdf", endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[],
-                "Dataset": [{ format: "rdf", endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[]
-            },
-            capabilities: {
-                "Catalog": ["overview", "detail"],
-                "Dataset": ["overview", "detail"]
-            }
-        };
+        // const appConfig: ApplicationConfiguration = {
+        //     targetLanguage: "ts",
+        //     datasources: {
+        //         "Catalog": [{ format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[],
+        //         "Dataset": [{ format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[]
+        //     },
+        //     capabilities: {
+        //         "Catalog": ["overview", "detail"],
+        //         "Dataset": ["overview", "detail"]
+        //     }
+        // };
 
         const appConfig2: AlternateApplicationConfiguration = {
             //targetLanguage: "ts",
             "Catalog": {
                 capabilities: ["overview"],
-                datasource: { format: "rdf", endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
+                datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
             } as AggregateConfiguration,
             "Dataset": {
                 capabilities: ["overview"],
-                datasource: { format: "rdf", endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
+                datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
             } as AggregateConfiguration
         }
 
         this.constructCapabilityAggregatePairs(appConfig2)
         .forEach(({aggName, capability}) => {
-            capability.generateCapability()
+            capability.generateCapability(aggName);
         });
 
         // foreach Pair<Capability, Aggregate> from application configuration:
@@ -89,3 +89,6 @@ class ApplicationGenerator {
         // use generated artefacts to construct an app landing page, links / react routers ...
     }
 }
+
+const appGen = new ApplicationGenerator();
+appGen.generate();

@@ -1,0 +1,25 @@
+import { Reader } from "<%= it.reader_path %>";
+import { createLens, type Context, setDefaultContext  } from "ldkit";
+import { <%= it.schema_name %> } from <%= it.schema_filepath %>
+
+export default class LdkitReader implements Reader {
+
+    async readObjects(): Promise<object[]> {
+
+        const context: Context = {
+            sources: ["<%= it.sparql_endpointUri %>"]
+        }
+        setDefaultContext(context);
+
+        const EntityLens = createLens(<%= it.schema_name %>);
+        const fetchedEntities = await EntityLens.find();
+
+        if (!fetchedEntities) {
+            throw new Error("Error on data read.");
+        }
+
+        console.log("Fetch log:", fetchedEntities);
+
+        return fetchedEntities;
+    }
+}

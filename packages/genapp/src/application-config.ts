@@ -1,5 +1,13 @@
-export type DatasourceConfig = { format: "local" } | {
-    format: "json" | "rdf" | "xml" | "csv",
+export enum DataSourceType {
+    Local,
+    Json,
+    Rdf,
+    Xml,
+    Csv
+}
+
+export type DatasourceConfig = { format: DataSourceType.Local } | {
+    format: DataSourceType.Json | DataSourceType.Csv | DataSourceType.Rdf | DataSourceType.Xml,
     endpointUri: string
 };
 

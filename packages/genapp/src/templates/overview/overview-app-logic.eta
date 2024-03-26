@@ -1,0 +1,15 @@
+import { Reader } from "<%= it.reader_interface_path %>";   
+import ReaderImplementation from "<%= it.reader_implementation_path %>";
+
+export async function fetchObjects(callback) {
+
+    const reader: Reader = new ReaderImplementation();
+    const objectsPromise = reader.readObjects();
+
+    await objectsPromise
+        .then(result => {
+            console.log(result)
+            callback(result)
+        })
+        .catch(err => console.error("An error occurred on reading objects", err));
+}

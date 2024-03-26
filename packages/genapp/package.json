@@ -4,19 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && copyfiles -u 1 src/**/* ./lib/",
     "dev": "tsc -w",
-    "prebuild": "rimraf lib",
-    "start": "echo \"Starting\"",
+    "prebuild": "rimraf lib generated",
+    "start": "node ./lib/engine/app-generator.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Viktor Bujko",
   "license": "ISC",
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/ldkit": "*"
+    "@dataspecer/ldkit": "*",
+    "copyfiles": "^2.4.1",
+    "eta": "^3.4.0",
+    "ts-morph": "^22.0.0"
   },
   "devDependencies": {
+    "@types/node": "^20.11.30",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   }

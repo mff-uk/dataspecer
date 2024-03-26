@@ -1,4 +1,4 @@
-import { ApplicationConfiguration } from "./application-config";
+import { ApplicationConfiguration, DataSourceType } from "./application-config";
 
 export interface ConfigurationReader<TConfiguration extends ApplicationConfiguration> {
     getAppConfiguration(): TConfiguration;
@@ -11,13 +11,13 @@ export class GenAppConfigurationReader implements ConfigurationReader<Applicatio
         datasources: {
             "Catalog": [
                 {
-                    format: "rdf",
+                    format: DataSourceType.Rdf,
                     endpointUri: "https://data.gov.cz/sparql"
                 }
             ],
             "Dataset": [
                 {
-                    format: "rdf",
+                    format: DataSourceType.Rdf,
                     endpointUri: "https://data.gov.cz/sparql"
                 }
             ]

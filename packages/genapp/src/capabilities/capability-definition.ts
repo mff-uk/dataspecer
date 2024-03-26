@@ -1,6 +1,6 @@
 export interface Capability {
     identifier: string;
-    generateCapability(): void;
+    generateCapability(aggregateName: string): void;
     // implementation template
     // datasource required operations template
     // i.e. - overview              requires data read
