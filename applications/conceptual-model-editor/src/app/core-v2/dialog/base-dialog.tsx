@@ -1,5 +1,3 @@
-import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
 import { clickedInside } from "../util/utils";
 
@@ -30,7 +28,7 @@ export const useBaseDialog = () => {
         return (
             <dialog
                 ref={dialogRef}
-                className="flex h-[70%] w-[70%] flex-col justify-between p-4"
+                className="z-30 flex h-[70%] w-[70%] flex-col justify-between p-4"
                 onCancel={(e) => {
                     e.preventDefault();
                     close();
@@ -47,14 +45,6 @@ export const useBaseDialog = () => {
                     <h1>{heading}</h1>
                 </div>
                 {children}
-
-                {/* <div className="flex flex-row justify-evenly">
-                    <button
-                    >
-                        confirm
-                    </button>
-                    <button onClick={close}>close</button>
-                </div> */}
             </dialog>
         );
     };
