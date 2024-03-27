@@ -1,1 +1,0 @@
-{ FOCUS rdf:type <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>}@<5612c1873ed3a1d5024b30ff367ed370adresaShape>

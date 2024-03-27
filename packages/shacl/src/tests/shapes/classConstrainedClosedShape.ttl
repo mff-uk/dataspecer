@@ -1,9 +1,11 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
 <5612c1873ed3a1d5024b30ff367ed370osobaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:closed true;
     sh:ignoredProperties (<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>);
     sh:nodeKind sh:BlankNodeOrIRI;
@@ -27,8 +29,9 @@
     sh:name "Typ ochrany stavebního objektu"@cs;
     sh:minCount 1;
     sh:maxCount 2;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu>.
+
+<47a29c86c5f445146aef364f0619cfb8typ-ochrany-stavebniho-objektuShape> sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape> sh:property <47a29c86c5f445146aef364f0619cfb8typ-ochrany-stavebniho-objektuShape>.
 <bd55148718bc1da1d49f0381fa1b8831typ-stavebniho-objektuShape> a sh:PropertyShape;
     sh:description "Typ stavebního objektu popis"@cs;
@@ -36,7 +39,7 @@
     sh:minCount 1;
     sh:maxCount 2;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-stavebního-objektu>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape> sh:property <bd55148718bc1da1d49f0381fa1b8831typ-stavebniho-objektuShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66je-adresou-stavebniho-objektuShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape>.
 <5612c1873ed3a1d5024b30ff367ed370osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66je-adresou-stavebniho-objektuShape>.
@@ -56,7 +59,7 @@
     sh:name "Datum vzniku území obvodu "@cs;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
+    sh:datatype xsd:date.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape> sh:property <47a29c86c5f445146aef364f0619cfb8datum-vzniku-obvoduShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-mestskeho-obvoduShape>.
 <5612c1873ed3a1d5024b30ff367ed370osobaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemiShape>.

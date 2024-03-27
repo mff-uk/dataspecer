@@ -1,0 +1,67 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+base <https://example.org/>
+
+<cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShExShape> NonLiteral CLOSED{
+	a [<https://example.com/Jmeno_A_Prijmeni_class>] ;
+	<https://example.com/Jmeno> xsd:string {1,2}
+		// rdfs:label	"Jméno"
+		// rdfs:comment	"Jméno osoby" ;
+	<https://example.com/Prijmeni> xsd:string {1,2}
+		// rdfs:label	"Příjmení"
+		// rdfs:comment	"Příjmení"
+}
+<cb7b59f426ab7ddeb06a5fac76e9e517adresaShExShape> NonLiteral{
+	a [<https://example.com/class2/adresa>] ;
+	<https://example.com/Ulice> xsd:string ?
+		// rdfs:label	"ulice"
+		// rdfs:comment	"Ulice bydliště" ;
+	<https://example.com/CisloPopisne> xsd:integer
+		// rdfs:label	"Číslo popisné"
+		// rdfs:comment	"Číslo popisné dané budovy" ;
+	<https://example.com/Mesto> xsd:string
+		// rdfs:label	"Město"
+		// rdfs:comment	"Město, ve kterém se nachází budova" ;
+	<https://example.com/PSC> xsd:integer
+		// rdfs:label	"PSČ"
+		// rdfs:comment	"Poštovní směrovací číslo" ;
+	<https://example.com/Stat> xsd:string
+		// rdfs:label	"Stát"
+		// rdfs:comment	"Stát - země, ve které se objekt nachází" ;
+	<https://example.com/Rozloha> xsd:decimal ?
+		// rdfs:label	"Rozloha pozemku v kmxkm."
+		// rdfs:comment	"Rozloha pozemku" ;
+	<https://example.com/Jmeno_A_Prijmeni> @<cb7b59f426ab7ddeb06a5fac76e9e517jmeno-a-prijmeniShExShape>
+		// rdfs:label	"Jméno a příjmení"
+		// rdfs:comment	"Jméno a příjmení dané osoby"
+}
+<cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShExShape> NonLiteral{
+	a [<https://example.com/Narozeni_a_umrti_class>] ;
+	<https://example.com/Narozeni> xsd:date
+		// rdfs:label	"Datum narození"
+		// rdfs:comment	"Datum narození dané osoby" ;
+	<https://example.com/Umrti> xsd:date ?
+		// rdfs:label	"Datum úmrtí"
+		// rdfs:comment	"Datum úmrtí osoby"
+}
+<cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShExShape> NonLiteral{
+	a [<https://example.com/Vyucovaci_hodina_class>] ;
+	<https://example.com/Zacatek_cas> xsd:time ?
+		// rdfs:label	"Začátek uveden v čase"
+		// rdfs:comment	"Začátek" ;
+	<https://example.com/Konec_cas> xsd:time
+		// rdfs:label	"Konec v čase"
+		// rdfs:comment	"Konec"
+}
+<2da40eef3feaff877bb3b51ed1214374osobaShExShape> NonLiteral CLOSED{
+	a [<https://example.com/Věc>] ;
+	<https://example.com/Adresa> @<cb7b59f426ab7ddeb06a5fac76e9e517adresaShExShape>
+		// rdfs:label	"Adresa"
+		// rdfs:comment	"Adresa bydliště dané osoby" ;
+	<https://example.com/Narozeni_a_umrti> @<cb7b59f426ab7ddeb06a5fac76e9e517narozeni-a-umrtiShExShape>
+		// rdfs:label	"Datum narození a úmrtí"
+		// rdfs:comment	"Datum narození a úmrtí dané osoby" ;
+	<https://example.com/Vyucovaci_hodina> @<cb7b59f426ab7ddeb06a5fac76e9e517vyucovaci-hodinaShExShape>
+		// rdfs:label	"Vyučovací hodina a její detaily"
+		// rdfs:comment	"Vyučovací hodina dané osoby"
+}

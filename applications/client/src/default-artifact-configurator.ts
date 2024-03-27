@@ -74,12 +74,16 @@ export class DefaultArtifactConfigurator {
     } else if (dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION) {
       const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
       for (const psmSchemaIri of dataSpecification.psms) {
-        const name = await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+        let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+
+        if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.psms.length === 1) {
+          subdirectory = "";
+        }
 
         currentSchemaArtefacts.push(...getSchemaArtifacts(
             psmSchemaIri,
-            `${this.baseURL}/${name}`,
-            `${dataSpecificationName}/${name}`,
+            `${this.baseURL}${subdirectory}`,
+            `${dataSpecificationName}${subdirectory}`,
             configuration
         ));
       }
@@ -94,8 +98,7 @@ export class DefaultArtifactConfigurator {
 
   protected normalizeName(name: string): string {
     return name
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/[\s/<>:"\\|?*]+/g, "-") // Windows and Linux forbidden characters
         .toLowerCase();
   }
 

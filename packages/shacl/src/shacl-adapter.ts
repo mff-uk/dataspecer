@@ -4,20 +4,15 @@ import {
   StructureModelType,
   StructureModelComplexType,
   StructureModelProperty,
-  StructureModelPrimitiveType,
-  StructureModelCustomType,
+  StructureModelPrimitiveType
 } from "@dataspecer/core/structure-model/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import {
-  DataSpecificationArtefact,
-  DataSpecificationSchema,
+  DataSpecificationArtefact
 } from "@dataspecer/core/data-specification/model";
-import {isTheSameEntity, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
+import {fixPrefixPosition, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
   getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
 import { OFN } from "@dataspecer/core/well-known";
-//import { N3Deref } from 'n3';
-//import { DataFactory as DataFactoryN3 } from 'n3';
-//import { Writer as WriterN3 } from 'n3';
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";
 import md5 from "md5";
@@ -98,25 +93,22 @@ type PrefixDef = [tag: string, iri: string];
 type sameTag = [tag: string, number: number];
 type classNameShapeTuple = [classShapeName: string, classObject: StructureModelClass];
 type StructureModelClassOrProperty = StructureModelClass | StructureModelProperty;
-
-const SHACL_PREFIX_DEF: PrefixDef = ["sh", "http://www.w3.org/ns/shacl#"];
-const RDFS_PREFIX_DEF : PrefixDef = ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"];
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
-export class ShaclAdapter {
-  
-  
+
+export class ShaclAdapter { 
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
   protected knownPrefixes: PrefixDef[] = []; // list of tags and corresponding IRIs
-  //protected knownCims: KnownCim[] = []; 
   protected shapes: string[] = []; // Entity beginning with name of the shape and ending with .
   protected debugString: string = "";
   protected sameTags: sameTag[] = [];
-  protected classesUsedInStructure: string[] = [];
   protected sameClass: classNameShapeTuple[] = [];
   protected thisDataStructurePrefix : string = "";
+  /**
+   * Writer for N3 library for TURTLE output string format
+   */
   protected writer = null;
   protected scriptString: string = "";
   protected prefixesString: string = "";
@@ -126,6 +118,7 @@ export class ShaclAdapter {
   protected uniquePredicatePredicate  = null;
   protected root : StructureModelClass = null;
   protected rootName = null;
+  protected addedXSDPrefix = false;
 
   constructor(
     model: StructureModel,
@@ -136,12 +129,14 @@ export class ShaclAdapter {
     this.context = context;
     this.artefact = artefact;
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
-    //console.log("base URL in constructor is " + this.baseURL);
-    // UNCOMMENT WHEN N3.Writer handles baseIRI properly
+    // UNCOMMENT WHEN N3.Writer handles baseIRI properly and delete the next line
     //this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
       this.writer  =  new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
   }
 
+  /**
+   * Function accessed from the frontend applications for generating the SHACL artifact.
+   */
   public generate = async () => {
     
     if (this.model.roots.length > 1) {
@@ -152,60 +147,53 @@ export class ShaclAdapter {
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
       this.root = root;
-      this.registerClasses(root);
       
       this.generateClassConstraints(root, null);
-      for(var cls of this.classesUsedInStructure){
-      }
     }
     var resultString = "";
     
     this.writer.end((error, result) => resultString = result);
 
-    if(this.baseURL != null && this.baseURL != undefined){
+    // Add @base definition to the turtle output as N3 does not support that feature right now
+    if(this.baseURL != null && this.baseURL != undefined && this.baseURL != ""){
       resultString = (await fixTurtleFileWithBase(resultString, this.baseURL)).toString();
+    }
+    // If xsd domain is needed due to used data structures, add it to the prefixes definitions
+    if(this.addedXSDPrefix){
+      resultString = (await fixPrefixPosition(resultString, "@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.")).toString();
     }
 
     return { data: resultString };
   };
 
-  generatePrefixesString(): string {
-    var prefixesString = "";
-    let iterations = this.knownPrefixes.length;
-    var prefixesObject: { [key: string]: any } = {};
-
-    for(const tuple of this.knownPrefixes){
-      var newAttribute = tuple[0];
-      prefixesObject[newAttribute] =  tuple[1] ;
-    }
-    return prefixesString;
-  }
-
-  generateClassConstraints(root: StructureModelClass, objectOf : String): string {
-    var newResult = "";
+  /**
+   * Generate class constraints and nodes needed for this description for a StructureModelClass.
+   * @param root The class that the constraints are built for.
+   * @param objectOf cimIRI of a class preceding this class in the data structure. Null if the class is a root class.
+   * @returns IRI name for the Shape for the supllied class.
+   */
+  generateClassConstraints(root: StructureModelClass, objectOf : String): string{
     var nodeName : string;
     
-    nodeName = this.generateNodeShapeName(root);
+    nodeName = this.getIRIforShape(root);
     this.rootName = (objectOf == null) ? nodeName : this.rootName;
-    const prefixTag = this.prefixify(root.cimIri)[0];
-    const prefixForName = this.knownPrefixes.find(tuple => tuple[0] === prefixTag);
     const classNameIri = nodeName;
-    // TODO Make sure the shape name is not duplicate for completely different class
     if(this.sameClass.find(tuple => tuple[0] === nodeName) == null){
-      // The class has not been Shaped yet -- to get rid of duplicate shape
-      newResult = newResult.concat(this.generateNodeShapeHead(root, classNameIri, objectOf));
-      newResult = newResult.concat(this.generatePropertiesConstraints(root, classNameIri));
+      this.generateNodeShapeHead(root, classNameIri, objectOf);
+      this.generatePropertiesConstraints(root, classNameIri);
 
-      this.shapes.push(newResult);
       this.sameClass.push([nodeName, root]);
     }
     return nodeName;
   }
 
-
-  generateNodeShapeHead(root: StructureModelClass, classNameIri: string, objectOf : String): string {
-
-    var newResult = "";
+  /**
+   * Generate structures of a shape associated to the class and naming.
+   * @param root The class that the constraints are built for.
+   * @param classNameIri Generated IRI for this shape.
+   * @param objectOf cimIRI of preceding class in the data structure. Null if the class is a root class.
+   */
+  generateNodeShapeHead(root: StructureModelClass, classNameIri: string, objectOf : String) {
     this.writer.addQuad(
       namedNode( classNameIri),
       namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
@@ -227,9 +215,14 @@ export class ShaclAdapter {
       );
     }
     switch(root.instancesSpecifyTypes){
-      // TODO make sure the class is unique in the structure
       case "ALWAYS": { 
-          if(objectOf == null){this.decideHowToTarget(root, classNameIri);} 
+          if(objectOf == null){
+            this.decideHowToTarget(root, classNameIri);
+            this.writer.addQuad(
+              namedNode( classNameIri ),
+              namedNode('http://www.w3.org/ns/shacl#class'),
+              namedNode( root.cimIri )
+            );} 
           else{
             this.writer.addQuad(
               namedNode( classNameIri ),
@@ -282,8 +275,7 @@ export class ShaclAdapter {
               namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
             ])
           );
-        }
-        
+        }       
     }
 
     var nodeType = "";
@@ -302,12 +294,17 @@ export class ShaclAdapter {
       namedNode( nodeType )
     );
 
-    this.generateLanguageString(root.humanDescription,classNameIri, null, "description");
-    this.generateLanguageString(root.humanLabel,classNameIri, null, "name");
-    return newResult;
+    this.generateLanguageString(root.humanDescription,classNameIri, "description");
+    this.generateLanguageString(root.humanLabel,classNameIri, "name");
   }
 
-  generateLanguageString(languageDescription: LanguageString, classNameIri: string, blankNodes: any[], attribute: string): void {
+  /**
+   * Goes through the supplied language string and allignes properly the tags with the values for the wanted label/description graph nodes.
+   * @param languageDescription Language string to be deconstructed.
+   * @param classNameIri Shape node to attach the results of this addition to.
+   * @param attribute Attribute to which append the language values and tags. Either name or description.
+   */
+  generateLanguageString(languageDescription: LanguageString, classNameIri: string, attribute: string): void {
     const predicate = "http://www.w3.org/ns/shacl#" + attribute;
     if(classNameIri != null){
       for (const languageTag in languageDescription) {
@@ -321,57 +318,15 @@ export class ShaclAdapter {
           
         }
       }
-    } else{
-      for (const languageTag in languageDescription) {
-        const language = languageDescription[languageTag];
-        if(languageDescription != null){
-          blankNodes.push({
-            predicate: namedNode(predicate),
-            object:    literal(language , languageTag )
-          });
-        }
-      }
-    }
+    } 
   }
 
   /**
-   * The function takes available description (technical or human label) and makes it camel case.
-   * @param root
-   * @returns Camel case name for the shape.
+   * Generate the constraints for the attributes of the class supllied in the parameters.
+   * @param root The class to generate constraints on properties for.
+   * @param classNameIri The IRI for the shape to attach those properties constraints to.
    */
-  public generateNodeShapeName(root: StructureModelClass): string {
-    var capitalizedTechnicalLabel = "";
-    
-    if (root.technicalLabel != null) {
-      const split = root.technicalLabel.split(" ",5);
-      this.debugString = this.debugString + `\n${split}`;
-      for(const piece of split){
-        capitalizedTechnicalLabel = capitalizedTechnicalLabel + piece.charAt(0).toUpperCase() +
-        piece.slice(1);
-      }
-    } else {
-      for (const languageTag in root.humanLabel) {
-        const language = root.humanLabel[languageTag];
-        this.debugString = this.debugString + `\n${languageTag}`;
-        const split = language.split(" ",5);
-        this.debugString = this.debugString + `\n${split}`;
-        for(const piece of split){
-          capitalizedTechnicalLabel = capitalizedTechnicalLabel + piece.charAt(0).toUpperCase() +
-          piece.slice(1);
-        }
-       
-      }
-    }
-    this.debugString = this.debugString + `\n${capitalizedTechnicalLabel}`;
-
-    return this.getIRIforShape(root);
-    //return capitalizedTechnicalLabel + "Shape";
-  }
-
-
-
-  generatePropertiesConstraints(root: StructureModelClass, classNameIri: string): string {
-    var propDesc = "";
+  generatePropertiesConstraints(root: StructureModelClass, classNameIri: string) {
     if (root.properties != null && root.properties.length != 0) {
       for (const [i, prop] of root.properties.entries()) {
 
@@ -391,8 +346,8 @@ export class ShaclAdapter {
           namedNode('http://www.w3.org/ns/shacl#PropertyShape')
         );
 
-        this.generateLanguageString(humandesc, nodeIRI, null, "description");
-        this.generateLanguageString(humanLabel, nodeIRI, null, "name");
+        this.generateLanguageString(humandesc, nodeIRI, "description");
+        this.generateLanguageString(humanLabel, nodeIRI, "name");
 
           if(cardinalitymin != 0 && cardinalitymin != null){
             this.writer.addQuad(
@@ -455,63 +410,49 @@ export class ShaclAdapter {
       ])
       );
     }
-    
-    return "returnFromPropertiesCreation";
   }
 
-  protected getObjectForPropMin(min: number): string{
-    if(min != 0 && min != null){
-      return `{
-        predicate: namedNode('http://www.w3.org/ns/shacl#minCount'),
-        object:    literal(${min})
-      },`
-    } else {
-      return "";
-    }
-  }
-
-  protected getObjectForPropMax(max: number): any {
-    if(max != 0 && max != null){
-      return `{
-        predicate: namedNode('http://www.w3.org/ns/shacl#maxCount'),
-        object:    literal(${max})
-      },`
-    } else {
-      return "";
-    }
-  }
-
+  /**
+   * Takes Technical name of an entity and deletes all blank characters that do not belong to an IRI.
+   * @param root The class or Property to edit the technical label for.
+   * @returns Technical name of the supplied entity strapped of blank characters.
+   */
   protected irify(root: StructureModelClassOrProperty) : string{
     var irifiedString : string;
-
     if(root.technicalLabel != null){
       irifiedString = root.technicalLabel.replaceAll(/\s/g,"");
     } else{
       irifiedString = "";
-    }
-    
-
+    }   
     return irifiedString;
   }
 
+  /**
+   * Generate an IRI for the shape of supplied class.
+   * @param root Class or Property to generate the Shape name for
+   * @returns IRI of a SHACL Shape
+   */
   protected getIRIforShape(root: StructureModelClassOrProperty): string{
     var generatedIRI : string;
     var md5String = md5(root.psmIri);
     const technicalName = this.irify(root);
-
-    // UNCOMMENT WHEN N3 library supports @base
+    // UNCOMMENT WHEN N3 library supports @base and delete the next line
     // generatedIRI = (this.baseURL != null) ? this.baseURL +  md5String + technicalName + "Shape" : md5String + technicalName + "Shape";
     generatedIRI = md5String + technicalName + "Shape";
     return generatedIRI;
   }
 
-
+  /**
+   * Generate the constraints for the type of property of the Propery class supplied
+   * @param datatypes The type of the Property that will have constraints generated.
+   * @param propertyNodeIRI The node name IRI
+   * @param objectOf The cim IRI of the class this Poperty is a child of.
+   */
   protected getObjectForPropType(datatypes: StructureModelType[], propertyNodeIRI: string, objectOf : string): void {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
-        // create new NodeShape and tie this property to it if its not just an empty class
-        
+        // create new NodeShape and tie this property to it if its not just an empty class     
         const dtcasted = <StructureModelComplexType> dt;
 
         var nodeType = "";
@@ -535,10 +476,7 @@ export class ShaclAdapter {
               namedNode('http://www.w3.org/ns/shacl#pattern'),
               literal(dtcasted.dataType.regex.toString()));
           }
-
-        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
-          
-          
+        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){                 
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, objectOf);
    
@@ -554,8 +492,13 @@ export class ShaclAdapter {
         if(dtcasted != null){
           const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
           var datatypeString = "";
-          
+          console.log("Datatype from map consideration: " + dtcasted.dataType);
           if(datatypeFromMap != undefined){
+            console.log("adding prefix to prefixes");
+            if(!this.addedXSDPrefix){
+              this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
+              this.addedXSDPrefix = true;
+            }
             datatypeString = `${datatypeFromMap[0]}:${datatypeFromMap[1]}`;
             if(this.knownPrefixes.find(tuple => tuple[0] === "xsd") == null){
               this.knownPrefixes.push(["xsd","http://www.w3.org/2001/XMLSchema#"]);
@@ -574,89 +517,42 @@ export class ShaclAdapter {
             }
           } else{
             if(dtcasted.dataType != null){
+              if(dtcasted.dataType.includes("http://www.w3.org/2001/XMLSchema#") && !this.addedXSDPrefix){
+                console.log("adding prefix to prefixes")
+                this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
+                this.addedXSDPrefix = true;
+              }
               this.writer.addQuad(
                 namedNode( propertyNodeIRI ),
                 namedNode('http://www.w3.org/ns/shacl#datatype'),
                 namedNode( dtcasted.dataType ));
-          } 
-          }
-        
-        }
-        
+            } 
+            if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
+              this.writer.addQuad(
+                namedNode( propertyNodeIRI ),
+                namedNode('http://www.w3.org/ns/shacl#pattern'),
+                literal(dtcasted.regex.toString()));
+            }
+          }        
+        }   
       } else if(dt.isCustomType() == true){
         // CUSTOM TYPE IS NOT USED AT THE MOMENT
         console.warn("SHACL generator: Custom Type is not supported.");
       } else{
         throw new Error("Datatype must be one of the 3 basic types.");
-      }
-      
+      }    
     }
   }
 
-  /**
-   * Parse the IRI into tag:name and put known prefixes into array. Check for duplicates in tags.
-   * @param iri IRI for the entity at hand
-   * @returns Returns tuple QName = [tag,name]
-   */
-  prefixify(iri: string): QName {
-    var qname : QName;
-    var splitted = iri.split("/", 100); 
-    var name = splitted[splitted.length-1];
-    var prefix = iri.substring(0, iri.length - name.length);
-    const found = this.knownPrefixes.find(obj => obj[1] === prefix);
-    if( found != null){
-      qname = [found[0], name];
-      //this.debugString = this.debugString + "prefix v knownPrefixes nalezen " + qname + `\n`;
-    } else{
-      var splittedForTag = iri.split("www.", 100); 
-      if(splittedForTag.length = 1){
-        splittedForTag = iri.split("://", 100);
-      }
-      var newTagUnfinished = splittedForTag[1];
-      var splitAgain = newTagUnfinished.split(".", 2);
-      var fisrtPart= splitAgain[0];
-      var newTag = fisrtPart.length < 4 ? fisrtPart.substring(0, fisrtPart.length) : fisrtPart.substring(0, 4);
-      // Search for possible duplicates in known prefixes
-      if(this.knownPrefixes.find(obj => obj[0] === newTag) != null){
-        var tupleIndex = this.sameTags.findIndex(obj => obj[0] === newTag);
-        if(tupleIndex == -1){
-          this.sameTags.push([newTag,1]);
-        } 
-        tupleIndex = this.sameTags.findIndex(obj => obj[0] === newTag);
-        newTag = newTag + this.sameTags[tupleIndex][1].toString();
-        this.sameTags[tupleIndex][1] = this.sameTags[tupleIndex][1] + 1;
-      }
-      
-      qname = [newTag, name];
-      this.knownPrefixes.push([newTag,prefix]);
-    }
-
-    return qname;
-  }
-
-
-  protected registerClasses(root: StructureModelClass): void {
-    // if the class is not in the list, add it
-    if(this.classesUsedInStructure.indexOf(root.cimIri) == -1){
-      this.classesUsedInStructure.push[root.cimIri];
-      //console.log(root.cimIri);
-    }
-    for (const [i, prop] of root.properties.entries()) {
-      for (var dt of prop.dataTypes) {
-        if(dt.isAssociation() == true){
-          const dtcasted = <StructureModelComplexType> dt;
-          this.registerClasses(dtcasted.dataType);
-        }
-      }
-    }
-  }
-
-
+/**
+ * Decides how the Shape is going to target the data that need to be supplied for SHACL validator.
+ * @param cls Class object of the root class of the data structure.
+ * @param classNameIri IRI for the shape of the root class.
+ */
   protected decideHowToTarget(cls : StructureModelClass, classNameIri : string): void {
 
     if(cls.instancesSpecifyTypes == "ALWAYS" && (isUniqueClass(cls))){
       // USE CASE #1
-      //console.log("DOING USE CASE 1 " + this.rootName);
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetClass'),
@@ -664,41 +560,25 @@ export class ShaclAdapter {
       );
     } else if(hasUniquePredicates(cls)){
       // USE CASE #2
-      //console.log("DOING USE CASE 2 " + this.rootName);
       const cimOfUniquePredicate = getUniquePredicate(cls);
       this.writer.addQuad(
         namedNode( classNameIri),
         namedNode('http://www.w3.org/ns/shacl#targetSubjectsOf'),
         namedNode( cimOfUniquePredicate.toString())
       );
-  
     } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
       // USE CASE #3
-      //console.log("DOING USE CASE 3 " + this.rootName + " anyPredicateHasUniqueType(cls, this.root.cimIri): " + anyPredicateHasUniqueType(cls, this.root.cimIri));
       this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
-      //console.log("DOING USE CASE 3 " + this.root.cimIri + " chosen unique type: " + this.uniquePredicateClass.cimIri);  
     } else if(anyPredicateHasUniquePredicates(cls)){
       // USE CASE #4
-      //console.log("DOING USE CASE 4 " + this.rootName);
       this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
-      const predicate = this.uniquePredicatePredicate as StructureModelProperty;
-      //console.log("DOING USE CASE 4 unique predicate from predicate: " + predicate.cimIri);
     } else{
-      //console.log("DOING USE CASE 5 " + this.rootName);
       // CANNOT TARGET THE SHAPE, fail to generate the artifact
-
       throw new Error('Unable to target the Data structure defined with SHACL shape. Either define at least one unique type of class with instance typing mandatory or define at least one unique attribute going from the root or its associations with cardinality bigger than 0.');
       // TODO Use a mechanism that dataspecer provides in case an artifact cant be generated
     }
   }
-
 }
-function isEmptyOrSpaces(str) : boolean{
-  return str === null || str.match(/^ *$/) !== null;
-}
-
-
-
 // Types for specification in sh:datatype
 const simpleTypeMapQName: Record<string, QName> = {
   [OFN.boolean]: ["xsd", "boolean"],

@@ -18,13 +18,13 @@
   "devDependencies": {
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.192",
     "babel": "^6.23.0",
     "babel-jest": "^29.5.0",
     "jest": "^29.5.0",
-    "rimraf": "^4.4.1",
-    "typescript": "~5.3.3"
+    "rimraf": "^5.0.5",
+    "typescript": "~5.4.2"
   },
   "dependencies": {
     "@dataspecer/core": "*",

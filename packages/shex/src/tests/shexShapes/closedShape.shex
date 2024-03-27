@@ -1,0 +1,10 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+base <https://example.org/>
+
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1ShExShape> NonLiteral CLOSED{
+	a [<https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>] ;
+	<https://slovník.gov.cz/generický/adresy/pojem/text-adresy> xsd:string *
+		// rdfs:label	"Text adresy"
+		// rdfs:comment	"Text adresy popis"
+}

@@ -1,0 +1,17 @@
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@base <https://example.org/>.
+
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> a sh:NodeShape;
+    sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:nodeKind sh:IRI;
+    sh:description "Adresa popis"@cs;
+    sh:name "Adresa"@cs.
+<740f084d956304c0dac4cae38cfaf031má_adresuShape> a sh:PropertyShape;
+    sh:description "Text má adresu popis"@cs;
+    sh:name "Má adresu"@cs;
+    sh:minCount 1;
+    sh:path [ sh:inversePath <https://slovník.gov.cz/generický/umístění/pojem/má-adresu> ];
+    sh:nodeKind sh:BlankNodeOrIRI.
+<bfe55dedc512e9e184b5194b632c1c03Technickýpopisekclass1Shape> sh:property <740f084d956304c0dac4cae38cfaf031má_adresuShape>.

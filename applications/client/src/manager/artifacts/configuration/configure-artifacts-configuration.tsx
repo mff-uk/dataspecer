@@ -13,6 +13,7 @@ import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
 import { TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "@dataspecer/template-artifact/configuration";
+import { ArtifactNames } from "./tabs/artifact-names";
 
 /**
  * Component that renders the UI for configuration change. It is possible to pre-set default configuration, or keep it
@@ -32,6 +33,7 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
                 <Tab label="CSV" />
                 <Tab label="XSD" />
                 <Tab label="Documentation" />
+                <Tab label="File names" />
             </Tabs>
         </Box>
         {currentTab === 0 &&
@@ -67,6 +69,15 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
                 input={TemplateArtifactConfigurator.getFromObject(configuration)}
                 onChange={u => onConfigurationChange(TemplateArtifactConfigurator.setToObject(configuration, u))}
                 defaultObject={defaultConfiguration ? TemplateArtifactConfigurator.getFromObject(defaultConfiguration) as TemplateArtifactConfiguration : undefined}
+            />
+        }
+        {currentTab === 5 &&
+            <ArtifactNames
+                input={DataSpecificationConfigurator.getFromObject(configuration)}
+                onChange={u => onConfigurationChange(DataSpecificationConfigurator.setToObject(configuration, u))}
+                defaultObject={defaultConfiguration ? DataSpecificationConfigurator.getFromObject(defaultConfiguration) as DataSpecificationConfiguration : undefined}
+
+                currentConfiguration={configuration}
             />
         }
     </div>

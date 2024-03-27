@@ -6,6 +6,9 @@
                 "^build"
             ]
         },
-        "test": {}
+        "test": {},
+        "test:watch": {
+            "cache": false
+        }
     }
 }

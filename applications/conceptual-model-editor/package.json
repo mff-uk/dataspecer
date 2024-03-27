@@ -9,6 +9,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "@dagrejs/dagre": "^1.0.4",
         "@dataspecer/core": "*",
         "@dataspecer/core-v2": "^0.0.0",
         "@dataspecer/rdfs-adapter": "*",
@@ -22,7 +23,7 @@
     },
     "devDependencies": {
         "@types/eslint": "^8.21.3",
-        "@types/node": "^18.15.5",
+        "@types/node": "^20.11.26",
         "@types/prettier": "^2.7.2",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.11",
@@ -35,7 +36,7 @@
         "prettier": "^2.8.6",
         "prettier-plugin-tailwindcss": "^0.2.6",
         "tailwindcss": "^3.3.0",
-        "typescript": "~5.3.3"
+        "typescript": "~5.4.2"
     },
     "ct3aMetadata": {
         "initVersion": "7.10.2"

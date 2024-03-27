@@ -1,9 +1,11 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
 
 <bfe55dedc512e9e184b5194b632c1c03adresaShape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
+    sh:class <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;
     sh:nodeKind sh:BlankNodeOrIRI;
     sh:description "Adresa popis"@cs;
     sh:name "Adresa"@cs.
@@ -21,8 +23,9 @@
     sh:name "Stát"@cs;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#date>.
+    sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-obce>.
+
+<47a29c86c5f445146aef364f0619cfb8stat-popisekShape> sh:datatype xsd:date.
 <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-obceShape> sh:property <47a29c86c5f445146aef364f0619cfb8stat-popisekShape>.
 <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemi-obceShape> sh:node <cb7b59f426ab7ddeb06a5fac76e9e517uzemi-obceShape>.
 <bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66ma-prirazene-uzemi-obceShape>.
@@ -43,7 +46,7 @@
     sh:description "Typ ochrany popisek"@cs;
     sh:name "Typ ochrany stavebního objektu"@cs;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/typ-ochrany-stavebního-objektu>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape> sh:property <47a29c86c5f445146aef364f0619cfb8typ-ochranyShape>.
 <bd55148718bc1da1d49f0381fa1b8831ma-identifikacni-udajeShape> a sh:PropertyShape;
     sh:description "Má identifikační údaje popis"@cs;
@@ -62,7 +65,7 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/číslo-popisné-nebo-evidenční>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <90377914e9bf36d733f16f6480fd28ccid-udaje-stavebniho-objektuShape> sh:property <00e5693dd7c0f49d2acb654950978ffacislo-popisne-nebo-evidencniShape>.
 <bd55148718bc1da1d49f0381fa1b8831ma-identifikacni-udajeShape> sh:node <90377914e9bf36d733f16f6480fd28ccid-udaje-stavebniho-objektuShape>.
 <cb7b59f426ab7ddeb06a5fac76e9e517stavebni-objektShape> sh:property <bd55148718bc1da1d49f0381fa1b8831ma-identifikacni-udajeShape>.
@@ -74,5 +77,5 @@
     sh:minCount 1;
     sh:maxCount 1;
     sh:path <https://slovník.gov.cz/generický/adresy/pojem/má-kód-adresního-místa>;
-    sh:datatype <http://www.w3.org/2001/XMLSchema#string>.
+    sh:datatype xsd:string.
 <bfe55dedc512e9e184b5194b632c1c03adresaShape> sh:property <b15bb696c6af8c644bb05cbbc9bd2a66ma-kod-adresniho-mistaShape>.
