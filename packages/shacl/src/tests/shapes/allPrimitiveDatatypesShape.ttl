@@ -1,7 +1,7 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <bfe55dedc512e9e184b5194b632c1c03Technickýpopisekvěci1Shape> a sh:NodeShape;
     sh:targetClass <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa>;

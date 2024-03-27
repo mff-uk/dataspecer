@@ -1,0 +1,8 @@
+@prefix genum: <https://slovník.gov.cz/generický/umístění/pojem/> .
+@prefix legsb: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> .
+@prefix base: <http://www.example.org/> .
+
+base:adresa a legsb:adresa ;
+    genum:má-adresu base:misto.
+
+base:misto a genum:místo .

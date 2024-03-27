@@ -1,0 +1,6 @@
+<http://www.example.org/simpleObjectadresa> a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/adresa> ;
+    <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian> <http://www.example.org/prvek> ;
+    <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/má-přiřazené-území-městského-obvodu-v-hlavním-městě-praze> <http://www.example.org/uzemi> .
+<http://www.example.org/prvek> a <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/prvek-obsažený-v-rúian> .
+<http://www.example.org/uzemi> <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/název-městského-obvodu-v-hlavním-městě-praze> "Praha 2";
+                        <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/datum-vzniku-území-městského-obvodu-v-hlavním-městě-praze> "152 00".

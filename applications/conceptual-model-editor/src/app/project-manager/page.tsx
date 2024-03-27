@@ -28,7 +28,7 @@ const Page = () => {
             tags: [],
         } as PackageEditable);
         console.log(pkg);
-        alert(`package ${pkg.id}-${getOneNameFromLanguageString(pkg.name).t} logged to console`);
+        alert(`package ${pkg.id}-${packageNameCs} logged to console`);
         return pkg;
     };
 
@@ -69,7 +69,7 @@ const Page = () => {
                         return (
                             <li key={"package-" + pkg.id}>
                                 <Link href={"/core-v2" + query} className="hover:text-cyan-700">
-                                    core-v2: {getOneNameFromLanguageString(pkg.name).t}
+                                    core-v2: {getOneNameFromLanguageString(pkg.name)?.t || pkg.id}
                                 </Link>
                             </li>
                         );

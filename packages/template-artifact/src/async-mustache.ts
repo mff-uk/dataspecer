@@ -93,7 +93,7 @@ class SyncPromiseResolver<T> {
                     obj.forEach(item => newArray.push(process(item)));
                     return newArray;
                 } else {
-                    const newObject = {};
+                    const newObject = Object.create(obj);
                     visitedObjectsMapping.set(obj, newObject);
                     Object.entries(obj).forEach(([key, value]) => newObject[key] = process(value));
                     return newObject;
