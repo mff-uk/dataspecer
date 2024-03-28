@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "ldkit": "^1.1.0"
+    "ldkit": "^1.1.0",
+    "perf_hooks": "^0.0.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
