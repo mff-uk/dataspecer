@@ -11,11 +11,11 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "ldkit": "^1.1.0",
-    "ts-morph": "^21.0.1"
+    "ldkit": "^1.1.0"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
+    "ts-morph": "^22.0.0",
     "typescript": "~5.4.2"
   }
 }

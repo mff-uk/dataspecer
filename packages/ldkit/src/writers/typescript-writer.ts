@@ -33,37 +33,12 @@ export class TypescriptWriter implements SourceCodeWriter {
     }
 
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string {
-        // const printer = createPrinter({
-        //     newLine: NewLineKind.CarriageReturnLineFeed,
-        //     omitTrailingSemicolon: false,
-        //     removeComments: false
-        // });
 
         const filePath: string = this.generateSourceFilePath("./generated/", aggregateMetadata.aggregateName);
         const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
         const printed: string = printNode(ldkitSchemaRootNode);
 
-        // const ldkitSchemaSourceFile = createSourceFile(
-        //     filePath,
-        //     printed,
-        //     ScriptTarget.Latest,
-        //     false,
-        //     ScriptKind.TS
-        // );
-    
-        // const project = new Project();
-        // console.log(ldkitSchemaSourceFile.getFullText());
-
-        // project.createSourceFile(
-        //     filePath,
-        //     printed,
-        //     { scriptKind: ts.ScriptKind.TS, overwrite: true } as SourceFileCreateOptions
-        // );
-        // const sourceFileSaver: Promise<void> = project.save();
-        // sourceFileSaver.then(() => console.log("Saved"))
-
-        //console.log(printNode(this.getLdkitSchemaNode(aggregateMetadata), ldkitSchemaSourceFile, {emitHint: ts.EmitHint.SourceFile}));
-        return printed;
+        return printed; //printed;
     }
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {

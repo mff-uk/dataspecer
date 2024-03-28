@@ -7,3 +7,4 @@ generated
 !src/data
 tsconfig.tsbuildinfo
 genapp-configurator
+example.json
