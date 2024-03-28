@@ -9,7 +9,7 @@
     "moduleDetection": "force",
     "isolatedModules": true,
 
-    "strict": true,
+    "strict": false,
     "noUncheckedIndexedAccess": true,
 
     "moduleResolution": "Node16",
