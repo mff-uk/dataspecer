@@ -1,0 +1,115 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+
+<https://my-model.org/huge-area> a owl:Class, rdfs:Class;
+    rdfs:label "Huge Area"@en;
+    rdfs:comment "\n"@en.
+<https://fake-attribute-iri.xyz> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://my-model.org/huge-area>;
+    a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://my-model.org/huge-area>;
+    a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://my-model.org/huge-area>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/jazyk> a owl:Class, rdfs:Class;
+    rdfs:label "Jazyk"@cs.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl> a owl:Class, rdfs:Class;
+    rdfs:label "Turistický cíl"@cs, "Tourist destination"@en;
+    rdfs:comment "Samostatný turistický cíl."@cs, "A separate tourist destination"@en;
+    rdfs:subClassOf <https://slovník.gov.cz/generický/veřejná-místa/pojem/veřejné-místo>.
+<https://slovník.gov.cz/datový/sportoviště/pojem/kapacita> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/bezbariérovost> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "bezbariérovost"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/kapacita> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "kapacita"@cs, "capacity"@en;
+    rdfs:comment "Kapacita turistického cíle určující, kolik návštěvníků najednou se do objektu turistického cíle vejde."@cs, "The capacity of a tourist destination, which determines how many visitors the tourist destination can accommodate at one time."@en;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/množství/pojem/množství>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/kontakt> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "kontakt"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/kontakty/pojem/kontakt>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/kouření-povoleno> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/má-dostupný-jazyk> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "má dostupný jazyk"@cs, "has available language"@en;
+    rdfs:comment "Dostupný jazyk v místě turistického objektu."@cs, "Language available at the location of the tourist facility."@en;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/číselníky/pojem/jazyk>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/má-jazyk> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "má jazyk"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/datový/turistické-cíle/pojem/jazyk>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/má-typ-turistického-cíle> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "má typ turistického cíle"@cs, "has touristic destination type"@en;
+    rdfs:comment "Určuje, zda se jedná o přírodní nebo kulturní turistický cíl."@cs, "Indicates whether it is a natural or cultural tourist destination."@en;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/datový/turistické-cíle/pojem/typ-turistického-cíle>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/otevírací-doba> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "otevírací doba"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/čas/pojem/časová-specifikace>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/provozovatel> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "provozovatel"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/lidé-a-osoby/pojem/člověk-či-osoba>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/umístění> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "umístění"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/umístění/pojem/místo>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/veřejná-přístupnost> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/vlastník> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "vlastník"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/lidé-a-osoby/pojem/člověk-či-osoba>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/vstupné> a rdf:Property, owl:ObjectProperty;
+    rdfs:label "vstupné"@cs;
+    rdfs:domain <https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl>;
+    rdfs:range <https://slovník.gov.cz/generický/vstupné/pojem/vstupné>.
+<https://slovník.gov.cz/datový/turistické-cíle/pojem/typ-turistického-cíle> a owl:Class, rdfs:Class;
+    rdfs:label "Typ turistického cíle"@cs, "Touristic destination type"@en;
+    rdfs:comment "Typ turistického cíle (např. přírodní nebo kulturní) reprezentovaný jako položka číselníku typů turistických cílů."@cs, "The type of tourist destination (e.g. natural or cultural) represented as an entry in the tourist destination type codelist."@en.
+<https://slovník.gov.cz/generický/bezbariérové-přístupy/pojem/bezbariérový-přístup> a owl:Class, rdfs:Class;
+    rdfs:label "Bezbariérový přístup"@cs, "Barrier-free access"@en;
+    rdfs:comment "Popis bezbariérovosti objektu z uživatelského hlediska."@cs, "Description of the barrier-free accessibility of the building from the user's point of view."@en.
+<https://slovník.gov.cz/generický/kontakty/pojem/kontakt> a owl:Class, rdfs:Class;
+    rdfs:label "Kontakt"@cs, "Contact"@en;
+    rdfs:comment "Kontaktní údaje, např. na člověka, společnost, apod."@cs.
+<https://slovník.gov.cz/generický/lidé-a-osoby/pojem/člověk-či-osoba> a owl:Class, rdfs:Class;
+    rdfs:label "Člověk či osoba"@cs.
+<https://slovník.gov.cz/generický/množství/pojem/množství> a owl:Class, rdfs:Class;
+    rdfs:label "Množství"@cs, "Quantity"@en;
+    rdfs:comment "Hodnota nebo rozsah hodnot nějaké charakteristiky nějaké entity."@cs, "The value or range of values of some characteristic of an entity."@en.
+<https://slovník.gov.cz/generický/umístění/pojem/místo> a owl:Class, rdfs:Class;
+    rdfs:label "Místo"@cs, "Place"@en;
+    rdfs:comment "Objekt, který je geografický umístěn."@cs, "An object that is geographically located."@en.
+<https://slovník.gov.cz/generický/veřejná-místa/pojem/veřejné-místo> a owl:Class, rdfs:Class;
+    rdfs:label "Veřejné místo"@cs, "Public place"@en;
+    rdfs:comment "Tato třída reprezentuje veřejně dostupné místo, které je bodem zájmu návštěvníků."@cs, "This class represents a publicly accessible place that is a point of interest for visitors."@en.
+<https://slovník.gov.cz/generický/vstupné/pojem/vstupné> a owl:Class, rdfs:Class;
+    rdfs:label "Vstupné"@cs, "Admission"@en;
+    rdfs:comment "Vstupné do objektu, na událost apod. vyjádřené jako cena v penězích pro danou kategorii návštěvníků, účastníků apod."@cs, "Admission to a facility, event, etc. expressed as a price in money for a given category of visitors, participants, etc."@en.
+<https://slovník.gov.cz/generický/čas/pojem/časová-specifikace> a owl:Class, rdfs:Class;
+    rdfs:label "Časová specifikace"@cs, "Time specification"@en;
+    rdfs:comment "Časová specifikace určuje množinu časových úseků pomocí různých způsobů (časový interval, specifický časový interval, frekvence a další). Výsledná množina časových úseků je průnikem těchto množin. Kromě níže specifikovaných vlastností a vazeb je možné u této třídy použít také vlastnosti a vazby třídy Věc."@cs, "A time specification defines a set of time periods using various methods (time interval, specific time interval, frequency, and more). The resulting set of time periods is the intersection of these sets. In addition to the properties and constraints specified below, the properties and constraints of the Thing class can also be applied to this class."@en.
+<https://slovník.gov.cz/generický/číselníky/pojem/jazyk> a owl:Class, rdfs:Class;
+    rdfs:label "Jazyk"@cs;
+    rdfs:comment "Jazyk dle Evropského číselníku jazyků http://publications.europa.eu/resource/dataset/language."@cs.
+<https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba> a owl:Class, rdfs:Class;
+    rdfs:label "Fyzická osoba"@cs, "Natural Person"@en;
+    rdfs:comment "Fyzická osoba je člověkem, který je subjektem práva."@cs, "Natural Person is a human as a legal subject."@en;
+    rdfs:subClassOf <https://slovník.gov.cz/veřejný-sektor/pojem/subjekt-práva>, <https://slovník.gov.cz/veřejný-sektor/pojem/člověk>.
+<https://slovník.gov.cz/veřejný-sektor/pojem/křestní-jméno> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba>.
+<https://slovník.gov.cz/veřejný-sektor/pojem/příjmení> a rdf:Property, owl:ObjectProperty;
+    rdfs:domain <https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba>.
+<https://slovník.gov.cz/veřejný-sektor/pojem/subjekt-práva> a owl:Class, rdfs:Class;
+    rdfs:label "Subjekt práva"@cs, "Legal Subject"@en;
+    rdfs:comment "Subjekt práva je osoba,  která se účastní právních vztahů."@cs, "Legal Subject is a person participating in one or more legal relationships."@en.
+<https://slovník.gov.cz/veřejný-sektor/pojem/člověk> a owl:Class, rdfs:Class;
+    rdfs:label "Člověk"@cs, "Human"@en;
+    rdfs:comment "Člověk je rod živočichů."@cs, "Human is the genus that encompasses the species Homo sapiens."@en.
