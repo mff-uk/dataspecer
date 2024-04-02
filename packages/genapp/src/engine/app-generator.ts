@@ -122,11 +122,11 @@ class ApplicationGenerator {
         const errorPageComponent = this.appBaseTemplateGenerator
             .generateFromTemplateMetadata({
                 exportedObjectName: "ErrorPage",
-                targetSourceFilePath: "./generated/ErrorPage.tsx",
+                targetSourceFilePath: "./generated/src/ErrorPage.tsx",
                 templatePath: "../templates/scaffolding/ErrorPage"
             })
 
-        const appComponentPath = "./generated/App.tsx";
+        const appComponentPath = "./generated/src/App.tsx";
         const appLandingComponentMetadata = this.appBaseTemplateGenerator
             .generateFromTemplateMetadata({
                 exportedObjectName: "App",
@@ -140,13 +140,14 @@ class ApplicationGenerator {
                 }
             });
 
+        const indexPath = "./generated/src/index.tsx";
         this.appBaseTemplateGenerator.generateFromTemplateMetadata({
             exportedObjectName: "index",
-            targetSourceFilePath: "./generated/index.tsx",
+            targetSourceFilePath: indexPath,
             templatePath: "../templates/scaffolding/index",
             placeHolders: {
                 app_landing_component: appLandingComponentMetadata.objectName,
-                landing_component_filepath: wrapString(getRelativePath("./generated/index.tsx", appLandingComponentMetadata.objectFilepath))
+                landing_component_filepath: wrapString(getRelativePath(indexPath, appLandingComponentMetadata.objectFilepath))
             }
         });
 

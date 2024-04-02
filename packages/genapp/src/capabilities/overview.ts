@@ -32,7 +32,7 @@ export class OverviewCapability implements Capability {
 
         const readerInterface = this.templateAppLogicGenerator.generateFromTemplateMetadata({
             templatePath: "./overview/reader-interface",
-            targetSourceFilePath: "./generated/readers/reader.ts",
+            targetSourceFilePath: "./generated/src/readers/reader.ts",
             exportedObjectName: "Reader"
         });
 
@@ -41,21 +41,21 @@ export class OverviewCapability implements Capability {
         const appLogicResult = this.templateAppLogicGenerator
             .generateFromTemplateMetadata({
                 templatePath: "./overview/overview-app-logic",
-                targetSourceFilePath: "./generated/app-logic/overview-app-logic.ts",
+                targetSourceFilePath: "./generated/src/app-logic/overview-app-logic.ts",
                 exportedObjectName: "fetchObjects",
                 placeHolders: {
                     // TODO: Write a generic selector
-                    reader_interface_path: wrapString(getRelativePath("./generated/app-logic/overview-app-logic.ts", readerInterface.objectFilepath)),
+                    reader_interface_path: wrapString(getRelativePath("./generated/src/app-logic/overview-app-logic.ts", readerInterface.objectFilepath)),
                     reader: readerInterface.objectName,
                     reader_implementation_path: {
                         templatePath: "./overview/ldkit-reader",
-                        targetSourceFilePath: "./generated/readers/reader-implementation.ts",
+                        targetSourceFilePath: "./generated/src/readers/reader-implementation.ts",
                         exportedObjectName: "LdkitReader", // ReaderImplementation
                         placeHolders: {
-                            reader_path: wrapString(getRelativePath("./generated/readers/reader-implementation.ts", readerInterface.objectFilepath)),
+                            reader_path: wrapString(getRelativePath("./generated/src/readers/reader-implementation.ts", readerInterface.objectFilepath)),
                             reader: readerInterface.objectName,
                             schema_name: generatedDal.objectName, // TODO: get generated schema name from data layer
-                            schema_filepath: wrapString(getRelativePath("./generated/readers/reader-implementation.ts", generatedDal.objectFilepath)), // TODO: get generated code filepath from data layer
+                            schema_filepath: wrapString(getRelativePath("./generated/src/readers/reader-implementation.ts", generatedDal.objectFilepath)), // TODO: get generated code filepath from data layer
                             sparql_endpointUri: [this.dataEndpointUri]
                                 .map(endpoint => wrapString(endpoint))
                                 .join(",")
@@ -69,11 +69,11 @@ export class OverviewCapability implements Capability {
         const entrypoint = this.frontendElementGenerator
             .generateFromTemplateMetadata({
                 templatePath: "./overview/overview-table.eta",
-                targetSourceFilePath: `./generated/components/overview/${aggregateName}OverviewTable.tsx`,
+                targetSourceFilePath: `./generated/src/components/overview/${aggregateName}OverviewTable.tsx`,
                 exportedObjectName: aggregateName + "OverviewTable",
                 placeHolders: {
                     app_logic_delegate: appLogicResult.objectName,
-                    delegate_path: wrapString(getRelativePath(`./generated/components/overview/${aggregateName}OverviewTable.tsx`, appLogicResult.objectFilepath))
+                    delegate_path: wrapString(getRelativePath(`./generated/src/components/overview/${aggregateName}OverviewTable.tsx`, appLogicResult.objectFilepath))
                 }
             });
 
