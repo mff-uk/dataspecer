@@ -149,6 +149,12 @@ class ApplicationGenerator {
                 landing_component_filepath: wrapString(getRelativePath("./generated/index.tsx", appLandingComponentMetadata.objectFilepath))
             }
         });
+
+        this.appBaseTemplateGenerator.generateFromTemplateMetadata({
+            exportedObjectName: "package",
+            targetSourceFilePath: "./generated/package.json",
+            templatePath: "../templates/scaffolding/package"
+        })
     }
 
     generate() {
