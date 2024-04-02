@@ -1,6 +1,9 @@
+import { CodeGenerationArtifactMetadata } from "../utils/utils";
+
 export interface Capability {
     identifier: string;
-    generateCapability(aggregateName: string): void;
+    entryPoint?: CodeGenerationArtifactMetadata;
+    generateCapability(aggregateName: string): CodeGenerationArtifactMetadata;
     // implementation template
     // datasource required operations template
     // i.e. - overview              requires data read

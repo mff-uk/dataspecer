@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { useEffect, useState } from 'react';
-import { fetchObjects } from "../../app-logic/overview-app-logic";
+import { <%= it.app_logic_delegate %> } from <%~ it.delegate_path %>
 
 export default function OverviewTable() {
 
@@ -28,7 +28,7 @@ export default function OverviewTable() {
 
     useEffect(() => {
         if (!overviewObjects) {
-            fetchObjects(setOverviewObjects);
+            <%= it.app_logic_delegate %>(setOverviewObjects);
         }
     }, [overviewObjects]);
 

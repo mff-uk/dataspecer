@@ -1,0 +1,23 @@
+import React from "react";
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import <%= it.error_component %> from <%= it.error_component_filepath %>;
+<%= it.componentImports %>
+
+
+const router = createBrowserRouter([
+  {
+    path: "*",
+    element: <div>Home page</div>,
+    children: [],
+    errorElement: <ErrorPage />
+  },
+  // the snippet below should be generated from generator's OverviewCapability
+  <%= it.capability_components %>
+])
+
+const App = () => {
+  return <RouterProvider router={router} />;
+}
+
+export default App;

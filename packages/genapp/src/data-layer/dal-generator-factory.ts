@@ -1,5 +1,6 @@
 import { LDkitGenerator } from "@dataspecer/ldkit";
 import { DataSourceType, DatasourceConfig } from "../application-config";
+import { CodeGenerationArtifactMetadata } from "../utils/utils";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGenerator: (datasourceConfig: DatasourceConfig) => DalGenerator;
@@ -12,7 +13,8 @@ export class DalGenerator {
         this.dalGenerator = dalGenerator;
     }
 
-    generate() {
+    generate(): CodeGenerationArtifactMetadata {
+        return new CodeGenerationArtifactMetadata({ "anObjectName": "./anObjectPath.ts" });
     }
 }
 
