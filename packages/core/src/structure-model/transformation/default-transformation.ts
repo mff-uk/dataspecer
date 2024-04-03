@@ -11,6 +11,7 @@ import {StructureModel} from "../model";
 import {propagateReverse} from "./propagate-reverse";
 import { propagateRegex } from "./propagate-regex";
 import { propagateExample } from "./propagate-example";
+import { propagateLanguageStringRequiredLanguages } from "./propagate-language-string-required-languages";
 
 type ConceptualTransformation = (
   conceptualModel: ConceptualModel,
@@ -33,6 +34,7 @@ export const defaultConceptualTransformations: ConceptualTransformation[] = [
   propagateReverse,
   propagateRegex,
   propagateExample,
+  propagateLanguageStringRequiredLanguages,
 ];
 
 /**
@@ -40,7 +42,7 @@ export const defaultConceptualTransformations: ConceptualTransformation[] = [
  */
 export const defaultStructureTransformations: StructureTransformation[] = [
   structureModelFlattenInheritance,
-  structureModelDematerialize
+  structureModelDematerialize,
 ];
 
 /**

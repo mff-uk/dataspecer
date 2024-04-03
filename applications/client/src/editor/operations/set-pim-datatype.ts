@@ -5,11 +5,13 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
 export class SetPimDatatype implements ComplexOperation {
   private readonly forPimAttributeIri: string;
   private readonly datatype: string | null;
+  private readonly requiredLanguages: string[];
   private store!: FederatedObservableStore;
 
-  constructor(forPimAttributeIri: string, datatype: string | null) {
+  constructor(forPimAttributeIri: string, datatype: string | null, requiredLanguages: string[] = []) {
     this.forPimAttributeIri = forPimAttributeIri;
     this.datatype = datatype;
+    this.requiredLanguages = requiredLanguages;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -29,6 +31,9 @@ export class SetPimDatatype implements ComplexOperation {
     const pimSetDatatype = new PimSetDatatype();
     pimSetDatatype.pimAttribute = this.forPimAttributeIri;
     pimSetDatatype.pimDatatype = datatype;
+    if (datatype === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+      pimSetDatatype.pimLanguageStringRequiredLanguages = [...new Set(this.requiredLanguages)];
+    }
     await this.store.applyOperation(schema, pimSetDatatype);
   }
 }

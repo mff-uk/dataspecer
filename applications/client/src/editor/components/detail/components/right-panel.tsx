@@ -28,7 +28,7 @@ import {knownDatatypes} from "../../../utils/known-datatypes";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
 import {Icons} from "../../../icons";
-import {isEqual} from "lodash";
+import {isEqual, set} from "lodash";
 import {SetClassCodelist} from "../../../operations/set-class-codelist";
 import {useSaveHandler} from "../../helper/save-handler";
 import {CardContent} from "../../../mui-overrides";
@@ -104,17 +104,41 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         useCallback(async () => resource && await store.executeComplexOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 
+    const [datatypeLangsText, setDatatypeLangsText] = useState<string>("");
+    const setDatatypeLangs = (langs: string[]) => {
+        setDatatypeLangsText(langs.join(","));
+    }
+    const getDatatypeLangs = () => {
+        return datatypeLangsText.split(",").map(lang => lang.trim()).filter(lang => lang.length > 0);
+    }
+    useEffect(() => {
+        if (isAttribute) {
+            const attr = pimResource as PimAttribute;
+            if (attr?.pimDatatype === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+                setDatatypeLangs((attr?.pimLanguageStringRequiredLanguages ?? []));
+            }
+        }
+    }, [pimResource, isAttribute]);
+
+    const isLanguageStringDatatype = isAttribute && getIriFromDatatypeSelectorValue(datatype) === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text";
     useSaveHandler(
-        resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
+        resource !== null &&
+        isAttribute &&
+        (resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype) || 
+        (
+            isLanguageStringDatatype &&
+            !isEqual(new Set((pimResource as PimAttribute)?.pimLanguageStringRequiredLanguages ?? []), new Set(getDatatypeLangs()))
+        ) 
+        ),
         useCallback(async () => {
             if (resource) {
                 await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
                 // Todo: let user choose where to set the datatype
                 if (pimResource) {
-                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
+                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype), getDatatypeLangs()));
                 }
             }
-        }, [resource, store, datatype, pimResource]),
+        }, [resource, store, datatype, pimResource, datatypeLangsText]),
     );
 
     useSaveHandler(
@@ -346,6 +370,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 </Typography>
 
                 <DatatypeSelector disabled={readOnly} value={datatype} onChange={setDatatype} options={knownDatatypes}/>
+                {isLanguageStringDatatype &&
+                    <TextField
+                        margin="dense"
+                        label="Required languages"
+                        fullWidth
+                        variant="filled"
+                        value={datatypeLangsText}
+                        onChange={e => setDatatypeLangsText(e.target.value)}
+                        helperText={<>Comma separated list of languages, for example <code>cs,en</code></>}
+                    />
+                }
             </Box>
         </>}
 
