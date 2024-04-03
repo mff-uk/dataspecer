@@ -136,7 +136,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype), datatypeLangsArray));
                 }
             }
-        }, [resource, store, datatype, pimResource, datatypeLangsText, datatypeLangsArray]),
+        }, [resource, store, datatype, pimResource, datatypeLangsArray]),
     );
 
     useSaveHandler(
