@@ -31,9 +31,9 @@ export const shortenStringTo = (modelId: string | null, length: number = 20) => 
     return modelName;
 };
 
-export const cardinalityToString = (cardinality: [number, number | null] | undefined) => {
+export const cardinalityToString = (cardinality: [number, number | null] | undefined | null) => {
     if (!cardinality) {
-        return null;
+        return undefined;
     }
     return `[${cardinality[0] || "*"}..${cardinality[1] || "*"}]`;
 };

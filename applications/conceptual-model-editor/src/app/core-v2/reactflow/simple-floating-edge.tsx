@@ -27,6 +27,7 @@ import {
     SemanticModelRelationshipUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { cardinalityToString } from "../util/utils";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -151,8 +152,8 @@ export const semanticModelRelationshipToReactFlowEdge = (
         data: {
             label: `${isSemanticModelRelationshipUsage(rel) ? "<<profile>> " : ""}${name}`,
             type: "r",
-            cardinalitySource: rel.ends[0]?.cardinality?.toString(),
-            cardinalityTarget: rel.ends[1]?.cardinality?.toString(),
+            cardinalitySource: cardinalityToString(rel.ends[0]?.cardinality),
+            cardinalityTarget: cardinalityToString(rel.ends[1]?.cardinality),
             bgColor: color,
             usageNotes,
             openEntityDetailDialog,

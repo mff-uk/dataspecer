@@ -7,10 +7,13 @@ export const MultiLanguageInputForLanguageString = (props: {
     setLs: React.Dispatch<React.SetStateAction<LanguageString>>;
     defaultLang: string;
     inputType: "text" | "textarea";
+    disabled?: boolean;
 }) => {
+    const { disabled, defaultLang: preferredLanguage } = props;
+
     const AddLang = (props: { onEnterCallback: (l: string) => void }) => {
         const [active, setActive] = useState(false);
-        const [l, setL] = useState("en");
+        const [l, setL] = useState(preferredLanguage);
 
         const reset = () => {
             setActive(false);
@@ -21,6 +24,7 @@ export const MultiLanguageInputForLanguageString = (props: {
             return (
                 <li>
                     <input
+                        disabled={disabled}
                         autoFocus
                         value={l}
                         size={4}
@@ -47,9 +51,9 @@ export const MultiLanguageInputForLanguageString = (props: {
         }
     };
 
-    const { ls, setLs, defaultLang } = props;
+    const { ls, setLs } = props;
     const languages = getAvailableLanguagesForLanguageString(ls);
-    const [currentLang, setCurrentLang] = useState(defaultLang || languages.at(0) || "en");
+    const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
 
     if (!languages.includes(currentLang) && languages.length) {
         setCurrentLang(languages.at(0)!);
@@ -57,7 +61,7 @@ export const MultiLanguageInputForLanguageString = (props: {
 
     return (
         <div>
-            <ul className="flex flex-row [&>*]:mx-1">
+            <ul className="flex flex-row text-base [&>*]:mx-1">
                 {languages
                     .map((lang, i) => (
                         <li
@@ -69,6 +73,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                             {lang}
                             {lang == currentLang && (
                                 <button
+                                    disabled={disabled}
                                     className="text-xs"
                                     onClick={() => {
                                         setLs((prev) =>
@@ -94,15 +99,17 @@ export const MultiLanguageInputForLanguageString = (props: {
             </ul>
             {props.inputType == "text" ? (
                 <input
+                    disabled={disabled}
                     type="text"
-                    className="w-[96%]"
+                    className="w-full"
                     value={ls[currentLang]!}
                     onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
                 />
             ) : (
                 <textarea
+                    disabled={disabled}
                     value={ls[currentLang]!}
-                    className="w-[96%]"
+                    className="w-full"
                     onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
                 />
             )}

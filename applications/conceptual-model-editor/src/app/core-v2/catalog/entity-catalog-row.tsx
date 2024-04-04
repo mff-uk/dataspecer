@@ -72,13 +72,17 @@ export const EntityRow = (props: {
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />
-                {"-".repeat((props.offset ?? 0) * 2)}
+                {props.offset && props.offset > 0 ? (
+                    <span style={{ marginLeft: (props.offset - 1) * 12 }}>└-</span>
+                ) : (
+                    <></>
+                )}
                 {name}
             </span>
-            <div className="ml-2 flex flex-row bg-teal-300 px-1">
+            <div className="ml-2 flex flex-row bg-teal-300 px-1 ">
                 {props.expandable && (
                     <button
-                        className="ml-0.5"
+                        className="ml-0.5 hover:bg-teal-400"
                         onClick={() => {
                             if (!props.expandable) {
                                 return;
@@ -92,20 +96,26 @@ export const EntityRow = (props: {
                     </button>
                 )}
                 {props.removable && (
-                    <button className="ml-0.5" onClick={props.removable.remove}>
+                    <button className="ml-0.5 hover:bg-teal-400" title="remove entity" onClick={props.removable.remove}>
                         🗑
                     </button>
                 )}
                 {props.modifiable && (
-                    <button className="ml-0.5" onClick={props.modifiable.openModificationHandler}>
-                        Modify
+                    <button
+                        className="ml-0.5 hover:bg-teal-400"
+                        title="modify entity"
+                        onClick={props.modifiable.openModificationHandler}
+                    >
+                        ✏
                     </button>
                 )}
-                <button className="ml-2" onClick={props.openDetailHandler}>
-                    Detail
+                <button className="ml-2 hover:bg-teal-400" title="entity detail" onClick={props.openDetailHandler}>
+                    ℹ
                 </button>
                 {props.drawable && (
                     <button
+                        className="hover:bg-teal-400"
+                        title="add/remove from diagram"
                         onClick={() => {
                             isVisible ? props.drawable?.removeFromViewHandler() : props.drawable?.addToViewHandler();
                             setIsVisible(props.drawable?.isVisibleOnCanvas());
@@ -115,7 +125,7 @@ export const EntityRow = (props: {
                     </button>
                 )}
                 <button
-                    className={`${props.profile ? "" : "opacity-30"}`}
+                    className={`hover:bg-teal-400 ${props.profile ? "" : "opacity-30"}`}
                     title={
                         props.profile
                             ? ""

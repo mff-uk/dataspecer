@@ -8,7 +8,7 @@ export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
     const { addModelToGraph } = useModelGraphContext();
-    const [onSaveCallback, setOnSaveCallback] = useState<null | (() => void)>();
+    const [onSaveCallback, setOnSaveCallback] = useState<null | ((ttlFiles: string[]) => void)>(null);
 
     useEffect(() => {
         const { current: el } = addModelDialogRef;
@@ -16,20 +16,16 @@ export const useAddModelDialog = () => {
     }, [isOpen]);
 
     const localClose = () => {
-        onSaveCallback?.();
         setOnSaveCallback(null);
         close();
     };
-    const localOpen = (onSaveCallback: () => void) => {
+    const localOpen = (onSaveCallback: (ttlFiles: string[]) => void) => {
         setOnSaveCallback(() => onSaveCallback);
         open();
     };
     const save = async (modelTtlFiles: string[]) => {
-        const model = await createRdfsModel(modelTtlFiles, httpFetch);
-        model.fetchFromPimStore();
-        addModelToGraph(model);
-        onSaveCallback?.();
-        close();
+        onSaveCallback?.(modelTtlFiles);
+        localClose();
     };
 
     const AddModelDialog = () => {
