@@ -61,7 +61,12 @@ export const useEntityDetailDialog = () => {
 
         const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
 
-        const { classes2: c, attributes: a, profiles, sourceModelOfEntityMap } = useClassesContext();
+        const {
+            classes2: c,
+            relationships: r,
+            /* attributes: a, */ profiles,
+            sourceModelOfEntityMap,
+        } = useClassesContext();
         const { models } = useModelGraphContext();
         const sourceModelId = sourceModelOfEntityMap.get(viewedEntity.id);
         const sourceModel = models.get(sourceModelId ?? "");
@@ -89,7 +94,7 @@ export const useEntityDetailDialog = () => {
             [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
         }
 
-        const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+        const attributes = /* a */ r.filter(isAttribute).filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
         const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
@@ -228,17 +233,6 @@ export const useEntityDetailDialog = () => {
                             <div>{usageNote}</div>
                         </>
                     )}
-                    {domain && (
-                        <>
-                            <div className="font-semibold">domain: </div>
-                            <div>
-                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
-                                    domainIri ??
-                                    domain.id}
-                                :{domainCardinality}
-                            </div>
-                        </>
-                    )}
                     {range && (
                         <>
                             <div className="font-semibold">range: </div>
@@ -251,9 +245,20 @@ export const useEntityDetailDialog = () => {
                             </div>
                         </>
                     )}
+                    {domain && (
+                        <>
+                            <div className="font-semibold">domain: </div>
+                            <div>
+                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
+                                    domainIri ??
+                                    domain.id}
+                                :{domainCardinality}
+                            </div>
+                        </>
+                    )}
                 </div>
                 <p className="bg-slate-100">
-                    domain: {domain ? "present" : "null"}, range: {range ? "present" : "null"}
+                    range: {range ? "present" : "null"}, domain: {domain ? "present" : "null"},
                 </p>
                 <div className="flex flex-row justify-evenly">
                     <button onClick={save}>confirm</button>

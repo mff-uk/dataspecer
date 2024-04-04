@@ -41,7 +41,7 @@ const Page = () => {
     const [classes2, setClasses2] = useState<SemanticModelClass[]>([]); //<SemanticModelClassWithOrigin[]>([]);
     const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
-    const [attributes, setAttributes] = useState<SemanticModelRelationship[]>([]); // useState(new Map<string, SemanticModelRelationship[]>()); // conceptId -> relationship[]
+    // const [attributes, setAttributes] = useState<SemanticModelRelationship[]>([]); // useState(new Map<string, SemanticModelRelationship[]>()); // conceptId -> relationship[]
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
@@ -102,32 +102,34 @@ const Page = () => {
             setClasses((prev) => new Map([...prev.entries()].filter((v) => !removedIds.has(v[1].cls.id))));
             setClasses2((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setRelationships((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            setAttributes((prev) => prev.filter((v) => !removedIds.has(v.id)));
+            // setAttributes((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setUsages((prev) => prev.filter((v) => !removedIds.has(v.id)));
 
-            const { clsses, rels, atts, gens, prfiles } = updated.reduce(
-                ({ clsses, rels, atts, gens, prfiles }, curr, i, arr) => {
+            const { clsses, rels, gens, prfiles } = updated.reduce(
+                ({ clsses, rels, /* atts,  */ gens, prfiles }, curr, i, arr) => {
                     if (isSemanticModelClass(curr.aggregatedEntity)) {
-                        return { clsses: clsses.concat(curr.aggregatedEntity), rels, atts, gens, prfiles };
+                        return { clsses: clsses.concat(curr.aggregatedEntity), rels, /*  atts, */ gens, prfiles };
                     } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
-                        if (
-                            curr.aggregatedEntity.ends[1]?.concept == null ||
-                            /* TODO: tohle vykuchej, az zjistis, jak to pridat spravne */ curr.aggregatedEntity.ends[1]
-                                ?.concept == ""
-                        ) {
-                            // attribute
-                            return { clsses, rels, atts: atts.concat(curr.aggregatedEntity), gens, prfiles };
-                        } else {
-                            // relationship
-                            return { clsses, rels: rels.concat(curr.aggregatedEntity), atts, gens, prfiles };
-                        }
+                        return { clsses, rels: rels.concat(curr.aggregatedEntity), /* atts, */ gens, prfiles };
+
+                        // if (
+                        //     curr.aggregatedEntity.ends[1]?.concept == null ||
+                        //     /* TODO: tohle vykuchej, az zjistis, jak to pridat spravne */ curr.aggregatedEntity.ends[1]
+                        //         ?.concept == ""
+                        // ) {
+                        //     // attribute
+                        //     return { clsses, rels, atts: atts.concat(curr.aggregatedEntity), gens, prfiles };
+                        // } else {
+                        //     // relationship
+                        //     return { clsses, rels: rels.concat(curr.aggregatedEntity), atts, gens, prfiles };
+                        // }
                     } else if (
                         isSemanticModelClassUsage(curr.aggregatedEntity) ||
                         isSemanticModelRelationshipUsage(curr.aggregatedEntity)
                     ) {
-                        return { clsses, rels, atts, gens, prfiles: prfiles.concat(curr.aggregatedEntity) };
+                        return { clsses, rels, /* atts, */ gens, prfiles: prfiles.concat(curr.aggregatedEntity) };
                     } else if (isSemanticModelGeneralization(curr.aggregatedEntity)) {
-                        return { clsses, rels, atts, gens: gens.concat(curr.aggregatedEntity), prfiles };
+                        return { clsses, rels, /* atts, */ gens: gens.concat(curr.aggregatedEntity), prfiles };
                     } else {
                         throw new Error(
                             `unknown type of updated entity: ${curr.aggregatedEntity?.type}, entityId: ${curr.aggregatedEntity?.id}`
@@ -137,7 +139,7 @@ const Page = () => {
                 {
                     clsses: [] as SemanticModelClass[],
                     rels: [] as SemanticModelRelationship[],
-                    atts: [] as SemanticModelRelationship[],
+                    // atts: [] as SemanticModelRelationship[],
                     gens: [] as SemanticModelGeneralization[],
                     prfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
                 }
@@ -149,11 +151,11 @@ const Page = () => {
             }
             setSourceModelOfEntityMap(new Map(localSourceMap));
 
-            console.log(clsses, rels, atts, prfiles);
-            const [clssesIds, relsIds, attsIds, gensIds, prfilesIds] = [
+            console.log(clsses, rels, /* atts, */ prfiles);
+            const [clssesIds, relsIds, /* attsIds, */ gensIds, prfilesIds] = [
                 new Set(clsses.map((c) => c.id)),
                 new Set(rels.map((r) => r.id)),
-                new Set(atts.map((a) => a.id)),
+                // new Set(atts.map((a) => a.id)),
                 new Set(gens.map((g) => g.id)),
                 new Set(prfiles.map((p) => p.id)),
             ];
@@ -200,7 +202,7 @@ const Page = () => {
             // ]));
             setClasses2((prev) => prev.filter((v) => !clssesIds.has(v.id)).concat(clsses));
             setRelationships((prev) => prev.filter((v) => !relsIds.has(v.id)).concat(rels));
-            setAttributes((prev) => prev.filter((v) => !attsIds.has(v.id)).concat(atts));
+            // setAttributes((prev) => prev.filter((v) => !attsIds.has(v.id)).concat(atts));
             setGeneralizations((prev) => prev.filter((v) => !gensIds.has(v.id)).concat(gens));
             // setGeneralizations(
             //     [...models.keys()]
@@ -245,8 +247,8 @@ const Page = () => {
                             setAllowedClasses,
                             relationships,
                             setRelationships,
-                            attributes,
-                            setAttributes,
+                            // attributes,
+                            // setAttributes,
                             generalizations,
                             setGeneralizations,
                             profiles: usages,

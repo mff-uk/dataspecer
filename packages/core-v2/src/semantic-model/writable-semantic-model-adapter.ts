@@ -105,13 +105,13 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                     {
                         name: operation.entity.ends?.[0]?.name ?? {},
                         description: operation.entity.ends?.[0]?.description ?? {},
-                        cardinality: operation.entity.ends?.[0]?.cardinality ?? [0, null],
+                        cardinality: operation.entity.ends?.[0]?.cardinality, // ?? [0, null],
                         concept: operation.entity.ends?.[0]?.concept ?? "",
                     },
                     {
                         name: operation.entity.ends?.[1]?.name ?? {},
                         description: operation.entity.ends?.[1]?.description ?? {},
-                        cardinality: operation.entity.ends?.[1]?.cardinality ?? [0, null],
+                        cardinality: operation.entity.ends?.[1]?.cardinality, // ?? [0, null],
                         concept: operation.entity.ends?.[1]?.concept ?? "",
                     },
                 ],
@@ -326,7 +326,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                     },
                     {
                         ...oldRelationship.ends[1],
-                        ...operation.entity.ends?.[0],
+                        ...operation.entity.ends?.[1],
                     },
                 ],
             } as SemanticModelRelationshipUsage;

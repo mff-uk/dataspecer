@@ -18,9 +18,10 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isAttribute } from "../util/utils";
 
 export const AttributeCatalog = () => {
-    const { attributes, deleteEntityFromModel, sourceModelOfEntityMap } = useClassesContext();
+    const { relationships: r, /* attributes, */ deleteEntityFromModel, sourceModelOfEntityMap } = useClassesContext();
     const { models, aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, openEntityDetailDialog, EntityDetailDialog } = useEntityDetailDialog();
     const {
@@ -40,6 +41,8 @@ export const AttributeCatalog = () => {
     ) => {
         openModifyEntityDialog(entity, model);
     };
+
+    const attributes = r.filter(isAttribute);
 
     return (
         <>
@@ -111,7 +114,7 @@ export const AttributeCatalog = () => {
 };
 
 export const RelationshipCatalog = () => {
-    const { relationships, sourceModelOfEntityMap, deleteEntityFromModel } = useClassesContext();
+    const { relationships: r, sourceModelOfEntityMap, deleteEntityFromModel } = useClassesContext();
     const { models, aggregatorView } = useModelGraphContext();
     const { isEntityDetailDialogOpen, openEntityDetailDialog, EntityDetailDialog } = useEntityDetailDialog();
     const {
@@ -120,6 +123,8 @@ export const RelationshipCatalog = () => {
         CreateProfileDialog: CreateUsageDialog,
     } = useCreateProfileDialog();
     const { isModifyEntityDialogOpen, openModifyEntityDialog, ModifyEntityDialog } = useModifyEntityDialog();
+
+    const relationships = r.filter((v) => !isAttribute(v));
 
     return (
         <>

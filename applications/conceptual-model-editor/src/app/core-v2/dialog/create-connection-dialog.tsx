@@ -14,7 +14,6 @@ import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
-import { string } from "zod";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
 
@@ -182,13 +181,27 @@ export const useCreateConnectionDialog = () => {
             localClose();
             return <></>;
         }
-        const { source, target } = connectionCreated;
-        if (!source || !target) {
+        const { source: sourceId, target: targetId } = connectionCreated;
+        if (!sourceId || !targetId) {
             localClose();
             return <></>;
         }
+        const { language: preferredLanguage } = useConfigurationContext();
+        const { classes2: c } = useClassesContext();
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
+
+        const source = c.find((cls) => cls.id == sourceId);
+        const target = c.find((cls) => cls.id == targetId);
+
+        if (!source || !target) {
+            alert("couldn't find source or target" + sourceId + " " + targetId);
+            localClose();
+            return;
+        }
+
+        const sourceName = getStringFromLanguageStringInLang(source.name, preferredLanguage);
+        const targetName = getStringFromLanguageStringInLang(target.name, preferredLanguage);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
@@ -218,10 +231,14 @@ export const useCreateConnectionDialog = () => {
                             ))}
                         </select>
                         <div className="font-bold">source:</div>
-                        <div>{source.substring(15)}</div>
+                        <div>
+                            {sourceName} -- ({sourceId})
+                        </div>
                         <div className="font-bold">target:</div>
-                        <div>{target.substring(15)}</div>
-                        <div className="font-bold">iri:</div>
+                        <div>
+                            {targetName} -- ({targetId})
+                        </div>
+                        <div className="font-bold">relative iri:</div>
                         <div>
                             <input
                                 className="w-full"
@@ -259,8 +276,8 @@ export const useCreateConnectionDialog = () => {
                         }
                     >
                         <AssociationComponent
-                            from={source}
-                            to={target}
+                            from={sourceId}
+                            to={targetId}
                             setAssociation={setAssociation}
                             key="sdasd"
                             setAssociationIsProfileOf={setAssociationIsProfileOf}
@@ -276,8 +293,8 @@ export const useCreateConnectionDialog = () => {
                                 if (connectionType == "generalization") {
                                     const result = createConnection(saveModel, {
                                         type: "generalization",
-                                        child: source,
-                                        parent: target,
+                                        child: sourceId,
+                                        parent: targetId,
                                         iri: iri,
                                     } as GeneralizationConnectionType);
                                     console.log("creating generalization ", result, target, source);
@@ -310,7 +327,20 @@ export const useCreateConnectionDialog = () => {
                                             iri,
                                             name: association.name,
                                             description: association.description,
-                                            ends: association.ends,
+                                            ends: [
+                                                {
+                                                    name: association.ends.at(0)?.name ?? null,
+                                                    description: association.ends.at(0)?.description ?? null,
+                                                    concept: association.ends.at(0)?.concept ?? null,
+                                                    cardinality: association.ends.at(0)?.cardinality ?? null,
+                                                },
+                                                {
+                                                    name: association.ends.at(1)?.name ?? null,
+                                                    description: association.ends.at(1)?.description ?? null,
+                                                    concept: association.ends.at(1)?.concept ?? null,
+                                                    cardinality: association.ends.at(1)?.cardinality ?? null,
+                                                },
+                                            ],
                                         } as AssociationConnectionType);
                                         console.log("creating association ", result, target, source);
                                     }
