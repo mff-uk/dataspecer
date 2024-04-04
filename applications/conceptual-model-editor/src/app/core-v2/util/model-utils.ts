@@ -35,3 +35,7 @@ export const getIri = (
     }
     return null;
 };
+
+export const getModelIri = (model: EntityModel | undefined | null) => {
+    return `https://my-model-${model?.getId() ?? "undefined-model"}.iri.todo.com/entities/`;
+};

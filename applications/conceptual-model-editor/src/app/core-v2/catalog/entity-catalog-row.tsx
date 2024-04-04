@@ -72,7 +72,11 @@ export const EntityRow = (props: {
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />
-                {"-".repeat((props.offset ?? 0) * 2)}
+                {props.offset && props.offset > 0 ? (
+                    <span style={{ marginLeft: (props.offset - 1) * 12 }}>└-</span>
+                ) : (
+                    <></>
+                )}
                 {name}
             </span>
             <div className="ml-2 flex flex-row bg-teal-300 px-1">

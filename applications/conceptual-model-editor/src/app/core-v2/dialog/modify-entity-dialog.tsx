@@ -4,6 +4,7 @@ import {
     SemanticModelRelationship,
     isSemanticModelRelationship,
     isSemanticModelClass,
+    SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEffect, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
@@ -25,6 +26,7 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isAttribute } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
+import { getModelIri } from "../util/model-utils";
 
 const AddAttributesComponent = (props: {
     modifiedClassId: string;
@@ -37,7 +39,7 @@ const AddAttributesComponent = (props: {
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
     const [cardinality, setCardinality] = useState("");
-    const [iri, setIri] = useState("https://fake-attribute-iri.xyz");
+    const [iri, setIri] = useState("todo/iri");
     const { attributes } = useClassesContext();
     const [newAttributeIsProfileOf, setNewAttributeIsProfileOf] = useState<string | null>(null);
 
@@ -179,17 +181,39 @@ export const useModifyEntityDialog = () => {
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
 
-        const [currentName] = getStringFromLanguageStringInLang(modifiedEntity.name ?? {}, preferredLanguage);
         const [newIri, setNewIri] = useState<string | null>(
-            isSemanticModelClass(modifiedEntity) ? modifiedEntity.iri : null
+            isSemanticModelClass(modifiedEntity) || isSemanticModelRelationship(modifiedEntity)
+                ? modifiedEntity.iri
+                : null
         ); // FIXME: sanitize
-        const { modifyClassInAModel, createRelationshipEntityUsage, updateEntityUsage, updateClassUsage } =
-            useModelGraphContext();
+        const { classes2: classes } = useClassesContext();
+        const {
+            modifyClassInAModel,
+            modifyRelationship,
+            createRelationshipEntityUsage,
+            updateEntityUsage,
+            updateClassUsage,
+        } = useModelGraphContext();
         const [name2, setName2] = useState(modifiedEntity.name ?? {});
         const [description2, setDescription2] = useState(modifiedEntity.description ?? {});
         const [usageNote2, setUsageNote2] = useState<LanguageString>(
             isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.usageNote ?? {} : {}
         );
+
+        const [newRangeForRelationship, setNewRangeForRelationship] = useState(
+            isSemanticModelRelationship(modifiedEntity) ? modifiedEntity.ends.at(0) ?? null : null
+        );
+        const [newRangeForRelationshipUsage, setNewRangeForRelationshipUsage] = useState(
+            isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.ends.at(0) ?? null : null
+        );
+        const [newDomainForRelationship, setNewDomainForRelationship] = useState(
+            isSemanticModelRelationship(modifiedEntity) ? modifiedEntity.ends.at(1) ?? null : null
+        );
+        const [newDomainForRelationshipUsage, setNewDomainForRelationshipUsage] = useState(
+            isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.ends.at(1) ?? null : null
+        );
+
+        const modelIri = getModelIri(model);
 
         // prepare for modifying entities from non-local models. https://github.com/mff-uk/dataspecer/issues/397
         const { models } = useModelGraphContext();
@@ -211,41 +235,37 @@ export const useModifyEntityDialog = () => {
 
         return (
             <BaseDialog heading="Entity modification">
-                <div>
-                    <div className="grid grid-cols-[25%_75%] bg-slate-100">
-                        <div>Detail of:</div>
-                        <h5 className=" overflow-x-clip" title={`${currentName} (${modifiedEntity.id})`}>
-                            <span className="font-semibold">{currentName}</span> ({modifiedEntity.id})
-                        </h5>
-                        {isSemanticModelClass(modifiedEntity) && (
-                            <>
-                                <div className="font-semibold">iri:</div>
-                                <input
-                                    className="w-[96%]"
-                                    value={newIri ?? ""}
-                                    onChange={(e) => setNewIri(e.target.value)}
-                                />
-                            </>
-                        )}
-                    </div>
-                </div>
-                <div className="grid grid-cols-[25%_75%] bg-slate-100">
-                    <div className="font-semibold">new name:</div>
-                    <div className="">
+                <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
+                    <div className="font-semibold">name:</div>
+                    <div className="pb-3 text-xl">
                         <MultiLanguageInputForLanguageString
                             inputType="text"
                             ls={name2}
                             setLs={setName2}
-                            defaultLang={getAvailableLanguagesForLanguageString(name2)[0] ?? "en"}
+                            defaultLang={preferredLanguage}
                         />
                     </div>
-
+                    <div className="font-semibold">id:</div>
+                    <div>{modifiedEntity.id}</div>
+                    {isSemanticModelClass(modifiedEntity) && (
+                        <>
+                            <div className="font-semibold">relative iri:</div>
+                            <div className="flex flex-row">
+                                <div className="text-nowrap">{modelIri}</div>
+                                <input
+                                    className="w-full"
+                                    value={newIri ?? ""}
+                                    onChange={(e) => setNewIri(e.target.value)}
+                                />
+                            </div>
+                        </>
+                    )}
                     <div className="font-semibold">description:</div>
                     <MultiLanguageInputForLanguageString
                         inputType="textarea"
                         ls={description2}
                         setLs={setDescription2}
-                        defaultLang={getAvailableLanguagesForLanguageString(description2)[0] ?? "en"}
+                        defaultLang={preferredLanguage}
                     />
                     {isSemanticModelRelationshipUsage(modifiedEntity) && (
                         <>
@@ -254,7 +274,7 @@ export const useModifyEntityDialog = () => {
                                 inputType="text"
                                 ls={usageNote2}
                                 setLs={setUsageNote2}
-                                defaultLang={getAvailableLanguagesForLanguageString(usageNote2)?.[0] ?? "en"}
+                                defaultLang={preferredLanguage}
                             />
                         </>
                     )}
@@ -268,11 +288,14 @@ export const useModifyEntityDialog = () => {
 
                                         const attr = v.ends.at(1)!;
                                         const name =
-                                            getStringFromLanguageStringInLang(nameField ?? {}, "en")[0] ??
+                                            getStringFromLanguageStringInLang(nameField ?? {}, preferredLanguage)[0] ??
                                             v.id ??
                                             "no id or iri";
                                         const descr =
-                                            getStringFromLanguageStringInLang(attr.description ?? {}, "en")[0] ?? "";
+                                            getStringFromLanguageStringInLang(
+                                                attr.description ?? {},
+                                                preferredLanguage
+                                            )[0] ?? "";
 
                                         return (
                                             <div
@@ -286,8 +309,10 @@ export const useModifyEntityDialog = () => {
                                                     <div
                                                         className="ml-1 bg-blue-200"
                                                         title={
-                                                            getStringFromLanguageStringInLang(v.usageNote ?? {})[0] ??
-                                                            "no usage (profile?) note"
+                                                            getStringFromLanguageStringInLang(
+                                                                v.usageNote ?? {},
+                                                                preferredLanguage
+                                                            )[0] ?? "no usage (profile?) note"
                                                         }
                                                     >
                                                         usage (profile?) note
@@ -306,13 +331,16 @@ export const useModifyEntityDialog = () => {
                                     })}
 
                                     {[...newAttributes, ...newAttributeProfiles].map((v) => {
-                                        const attr = v?.ends?.at(1)!;
+                                        const attr = v.ends?.at(1)!;
                                         const name =
-                                            getStringFromLanguageStringInLang(attr.name ?? {}, "en")[0] ??
+                                            getStringFromLanguageStringInLang(attr.name ?? {}, preferredLanguage)[0] ??
                                             v.id ??
                                             "no id or iri";
                                         const descr =
-                                            getStringFromLanguageStringInLang(attr.description ?? {}, "en")[0] ?? "";
+                                            getStringFromLanguageStringInLang(
+                                                attr.description ?? {},
+                                                preferredLanguage
+                                            )[0] ?? "";
                                         return (
                                             <div className="flex flex-row" title={descr}>
                                                 {name}
@@ -328,6 +356,64 @@ export const useModifyEntityDialog = () => {
                                     })}
                                 </>
                             </div>
+                        </>
+                    )}
+                    {(isSemanticModelRelationship(modifiedEntity) ||
+                        isSemanticModelRelationshipUsage(modifiedEntity)) && (
+                        <>
+                            <div className="font-semibold">range:</div>
+                            <select
+                                onChange={(e) => {
+                                    if (isSemanticModelRelationship(modifiedEntity) && newRangeForRelationship) {
+                                        setNewDomainForRelationship({
+                                            concept: e.target.value,
+                                            description: newRangeForRelationship.description,
+                                            name: newRangeForRelationship.name,
+                                            cardinality: newRangeForRelationship.cardinality,
+                                        } satisfies SemanticModelRelationshipEnd);
+                                    }
+                                }}
+                            >
+                                <option disabled={true}>---</option>
+                                {classes.map((c) => (
+                                    <option value={c.id} selected={modifiedEntity.ends.at(0)?.concept == c.id}>
+                                        {getNameOrIriAndDescription(c, preferredLanguage)[0] +
+                                            " ".repeat(3) +
+                                            "(" +
+                                            (c.iri ?? c.id) +
+                                            ")"}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <div className="font-semibold">domain:</div>
+                            {isAttribute(modifiedEntity) ? (
+                                <div>an attribute, {modifiedEntity.ends.at(1)?.concept}</div>
+                            ) : (
+                                <select
+                                    onChange={(e) => {
+                                        if (isSemanticModelRelationship(modifiedEntity) && newDomainForRelationship) {
+                                            setNewDomainForRelationship({
+                                                concept: e.target.value,
+                                                description: newDomainForRelationship.description,
+                                                name: newDomainForRelationship.name,
+                                                cardinality: newDomainForRelationship.cardinality,
+                                            } satisfies SemanticModelRelationshipEnd);
+                                        }
+                                    }}
+                                >
+                                    <option disabled>---</option>
+                                    {classes.map((c) => (
+                                        <option value={c.id} selected={modifiedEntity.ends.at(1)?.concept == c.id}>
+                                            {getNameOrIriAndDescription(c, preferredLanguage)[0] +
+                                                " ".repeat(3) +
+                                                "(" +
+                                                (c.iri ?? c.id) +
+                                                ")"}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
                         </>
                     )}
                 </div>
@@ -399,6 +485,20 @@ export const useModifyEntityDialog = () => {
                                     // const res = deleteEntityFromModel(model, rem);
                                     console.log("todo remove entity from attribute's domain", rem);
                                 }
+                            } else if (isSemanticModelRelationship(modifiedEntity)) {
+                                let newEnds: SemanticModelRelationshipEnd[] | undefined = undefined;
+                                if (newDomainForRelationship && newRangeForRelationship) {
+                                    newEnds = [newDomainForRelationship, newRangeForRelationship];
+                                }
+
+                                const result = modifyRelationship(model, modifiedEntity.id, {
+                                    ...modifiedEntity,
+                                    ends: newEnds ?? modifiedEntity.ends, // if there is a change with `ends`, change it. Otherwise leave it as is
+                                    name: name2,
+                                    iri: newIri,
+                                    description: description2,
+                                });
+                                console.log(result);
                             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
                                 // todo
                                 const res = updateEntityUsage(model, "relationship-usage", modifiedEntity.id, {

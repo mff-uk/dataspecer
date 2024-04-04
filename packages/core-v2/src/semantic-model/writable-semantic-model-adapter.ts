@@ -142,9 +142,12 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                     },
                     {
                         ...oldRelationship.ends[1],
-                        ...operation.entity.ends?.[0],
+                        ...operation.entity.ends?.[1],
                     },
                 ],
+                name: operation.entity.name ?? oldRelationship.name,
+                description: operation.entity.description ?? oldRelationship.description,
+                iri: operation.entity.iri ?? oldRelationship.iri,
             } as SemanticModelRelationship;
 
             this.entityModel.change({ [operation.id]: updatedRelationship }, []);

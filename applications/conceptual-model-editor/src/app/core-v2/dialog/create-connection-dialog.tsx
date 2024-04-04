@@ -15,13 +15,18 @@ import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-la
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { string } from "zod";
+import { getRandomName } from "~/app/utils/random-gen";
+import { useConfigurationContext } from "../context/configuration-context";
 
 const AssociationComponent = (props: {
     from: string;
     to: string;
     setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
     setAssociationIsProfileOf: Dispatch<SetStateAction<string | null>>;
+    disabled: boolean;
 }) => {
+    const { language: preferredLanguage } = useConfigurationContext();
+
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
     const [source, setSource] = useState({
@@ -65,6 +70,7 @@ const AssociationComponent = (props: {
     const RadioField = (rfProps: { label: string; card: [number, number | null]; what: "source" | "target" }) => (
         <div className="mx-1">
             <input
+                disabled={props.disabled}
                 type="radio"
                 id={`cardinality-${rfProps.what}-${rfProps.label}`}
                 name={`cardinality-${rfProps.what}`}
@@ -80,11 +86,17 @@ const AssociationComponent = (props: {
     );
 
     return (
-        <div className="grid grid-cols-[20%_80%] bg-slate-50">
+        <>
             {/* TODO: sanitize */}
             <span className="font-bold">name:</span>
             {/* <input value={name.en!} onChange={(e) => setName({ en: e.target.value })} /> */}
-            <MultiLanguageInputForLanguageString ls={name} setLs={setName} inputType="text" defaultLang="en" />
+            <MultiLanguageInputForLanguageString
+                ls={name}
+                setLs={setName}
+                inputType="text"
+                defaultLang={preferredLanguage}
+                disabled={props.disabled}
+            />
             {/* TODO: sanitize */}
             <span className="font-bold">description:</span>
             {/* <input value={description.en!} onChange={(e) => setDescription({ en: e.target.value })} /> */}
@@ -92,28 +104,33 @@ const AssociationComponent = (props: {
                 ls={description}
                 setLs={setDescription}
                 inputType="textarea"
-                defaultLang="en"
+                defaultLang={preferredLanguage}
+                disabled={props.disabled}
             />
-            <p>
-                cardinality-source:
-                <div className="flex flex-row [&]:font-mono">
-                    <RadioField label="0..*" what="source" card={[0, null]} />
-                    <RadioField label="1..*" what="source" card={[1, null]} />
-                    <RadioField label="0..1" what="source" card={[0, 1]} />
-                    <RadioField label="1..1" what="source" card={[1, 1]} />
-                </div>
-            </p>
-            <p>
-                cardinality-target:
-                <div className="flex flex-row [&]:font-mono">
-                    <RadioField label="0..*" what="target" card={[0, null]} />
-                    <RadioField label="1..*" what="target" card={[1, null]} />
-                    <RadioField label="0..1" what="target" card={[0, 1]} />
-                    <RadioField label="1..1" what="target" card={[1, 1]} />
-                </div>
-            </p>
+            <div className="font-semibold">cardinalities:</div>
+            <div>
+                <p>
+                    cardinality-source:
+                    <div className="flex flex-row [&]:font-mono">
+                        <RadioField label="0..*" what="source" card={[0, null]} />
+                        <RadioField label="1..*" what="source" card={[1, null]} />
+                        <RadioField label="0..1" what="source" card={[0, 1]} />
+                        <RadioField label="1..1" what="source" card={[1, 1]} />
+                    </div>
+                </p>
+                <p>
+                    cardinality-target:
+                    <div className="flex flex-row [&]:font-mono">
+                        <RadioField label="0..*" what="target" card={[0, null]} />
+                        <RadioField label="1..*" what="target" card={[1, null]} />
+                        <RadioField label="0..1" what="target" card={[0, 1]} />
+                        <RadioField label="1..1" what="target" card={[1, 1]} />
+                    </div>
+                </p>
+            </div>
             <div>is profile of:</div>
             <select
+                disabled={props.disabled}
                 onChange={(e) => {
                     props.setAssociationIsProfileOf(e.target.value);
                 }}
@@ -129,7 +146,7 @@ const AssociationComponent = (props: {
                     );
                 })}
             </select>
-        </div>
+        </>
     );
 };
 
@@ -175,7 +192,7 @@ export const useCreateConnectionDialog = () => {
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
-        const [iri, setIri] = useState("https://some.placeholder.com/iri");
+        const [iri, setIri] = useState(getRandomName(7));
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
             name: {},
             description: {},
@@ -186,63 +203,70 @@ export const useCreateConnectionDialog = () => {
         return (
             <BaseDialog heading="Create a connection">
                 <div>
-                    <div>
-                        <h5>Connection</h5>
-                        <p>
-                            <label className="font-bold" htmlFor="models">
-                                active-model:
-                            </label>
-
-                            <select
-                                name="models"
-                                id="models"
-                                onChange={(e) => setActiveModel(e.target.value)}
-                                defaultValue={activeModel}
-                            >
-                                {inMemoryModels.map((mId) => (
-                                    <option value={mId}>{mId}</option>
-                                ))}
-                            </select>
-                        </p>
-                        <p>
-                            <span className="font-bold">from:</span> ..{source.substring(15)}
-                        </p>
-                        <p>
-                            <span className="font-bold">to:</span> ..{target.substring(15)}
-                        </p>
-                        <p className="text-gray-500">
-                            <span className="font-bold"> iri:</span>
-                            <input value={iri} onChange={(e) => setIri(e.target.value)} />
-                        </p>
+                    <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
+                        <label className="font-bold" htmlFor="models">
+                            active model:
+                        </label>
+                        <select
+                            name="models"
+                            id="models"
+                            onChange={(e) => setActiveModel(e.target.value)}
+                            defaultValue={activeModel}
+                        >
+                            {inMemoryModels.map((mId) => (
+                                <option value={mId}>{mId}</option>
+                            ))}
+                        </select>
+                        <div className="font-bold">source:</div>
+                        <div>{source.substring(15)}</div>
+                        <div className="font-bold">target:</div>
+                        <div>{target.substring(15)}</div>
+                        <div className="font-bold">iri:</div>
+                        <div>
+                            <input
+                                className="w-full"
+                                value={iri}
+                                onFocus={(e) => e.target.select()}
+                                onChange={(e) => setIri(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <p>
-                        <span className="font-bold">type:</span>
-                        <span
-                            onClick={() => {
-                                setConnectionType("association");
-                            }}
-                            className={connectionType == "association" ? "text-black" : "text-gray-400"}
-                        >
-                            association
-                        </span>
-                        |
-                        <span
-                            onClick={() => setConnectionType("generalization")}
-                            className={connectionType == "generalization" ? "text-black" : "text-gray-400"}
-                        >
-                            generalization
-                        </span>
-                    </p>
-                    {connectionType == "association" && (
+                    <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
+                        <div className="font-bold">type:</div>
+                        <div>
+                            <span
+                                onClick={() => {
+                                    setConnectionType("association");
+                                }}
+                                className={connectionType == "association" ? "text-black" : "text-gray-400"}
+                            >
+                                association
+                            </span>
+                            |
+                            <span
+                                onClick={() => setConnectionType("generalization")}
+                                className={connectionType == "generalization" ? "text-black" : "text-gray-400"}
+                            >
+                                generalization
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        className={
+                            "grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16 " +
+                            (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
+                        }
+                    >
                         <AssociationComponent
                             from={source}
                             to={target}
                             setAssociation={setAssociation}
                             key="sdasd"
                             setAssociationIsProfileOf={setAssociationIsProfileOf}
+                            disabled={connectionType != "association"}
                         />
-                    )}
+                    </div>
                 </div>
                 <div className="flex flex-row justify-evenly font-bold">
                     <button

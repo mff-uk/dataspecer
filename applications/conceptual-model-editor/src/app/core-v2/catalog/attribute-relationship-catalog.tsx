@@ -9,6 +9,7 @@ import {
     SemanticModelClass,
     SemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { tailwindColorToHex } from "~/app/utils/color-utils";
 import {
@@ -56,7 +57,8 @@ export const AttributeCatalog = () => {
                         if (
                             isSemanticModelClass(v) ||
                             isSemanticModelClassUsage(v) ||
-                            isSemanticModelRelationshipUsage(v)
+                            isSemanticModelRelationshipUsage(v) ||
+                            isSemanticModelRelationship(v)
                         ) {
                             modifyHandler = {
                                 openModificationHandler: () => {
@@ -135,7 +137,8 @@ export const RelationshipCatalog = () => {
                         if (
                             isSemanticModelClass(r) ||
                             isSemanticModelClassUsage(r) ||
-                            isSemanticModelRelationshipUsage(r)
+                            isSemanticModelRelationshipUsage(r) ||
+                            isSemanticModelRelationship(r)
                         ) {
                             modifyHandler = {
                                 openModificationHandler: () => {
