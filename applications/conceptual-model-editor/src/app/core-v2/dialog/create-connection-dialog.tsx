@@ -12,7 +12,10 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
@@ -189,12 +192,12 @@ export const useCreateConnectionDialog = () => {
             return <></>;
         }
         const { language: preferredLanguage } = useConfigurationContext();
-        const { classes2: c } = useClassesContext();
+        const { classes2: c, profiles: p } = useClassesContext();
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
 
-        const source = c.find((cls) => cls.id == sourceId);
-        const target = c.find((cls) => cls.id == targetId);
+        const source = c.find((cls) => cls.id == sourceId) ?? p.find((prof) => prof.id == sourceId);
+        const target = c.find((cls) => cls.id == targetId) ?? p.find((prof) => prof.id == targetId);
 
         if (!source || !target) {
             alert("couldn't find source or target" + sourceId + " " + targetId);
@@ -202,8 +205,8 @@ export const useCreateConnectionDialog = () => {
             return;
         }
 
-        const sourceName = getStringFromLanguageStringInLang(source.name, preferredLanguage);
-        const targetName = getStringFromLanguageStringInLang(target.name, preferredLanguage);
+        const sourceName = getStringFromLanguageStringInLang(source.name ?? {}, preferredLanguage);
+        const targetName = getStringFromLanguageStringInLang(target.name ?? {}, preferredLanguage);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
