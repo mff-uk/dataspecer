@@ -19,6 +19,8 @@ import {
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
+import { IriInput, WhitespaceRegExp } from "./iri-input";
+import { getModelIri } from "../util/model-utils";
 
 const AssociationComponent = (props: {
     from: string;
@@ -210,12 +212,19 @@ export const useCreateConnectionDialog = () => {
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
-        const [iri, setIri] = useState(getRandomName(7));
+
+        const modelIri = getModelIri(models.get(activeModel));
+
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
             name: {},
             description: {},
             ends: [],
         });
+        const [iriHasChanged, setIriHasChanged] = useState(false);
+        const [newIri, setNewIri] = useState(
+            association.name[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-")
+        );
+
         const [associationIsProfileOf, setAssociationIsProfileOf] = useState<string | null>(null);
 
         return (
@@ -246,12 +255,14 @@ export const useCreateConnectionDialog = () => {
                             {targetName} -- ({targetId})
                         </div>
                         <div className="font-bold">relative iri:</div>
-                        <div>
-                            <input
-                                className="w-full"
-                                value={iri}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) => setIri(e.target.value)}
+                        <div className="flex flex-row">
+                            <div className="text-nowrap">{modelIri}</div>
+                            <IriInput
+                                name={association.name}
+                                newIri={newIri}
+                                setNewIri={(i) => setNewIri(i)}
+                                iriHasChanged={iriHasChanged}
+                                setIriHasChanged={(v) => setIriHasChanged(v)}
                             />
                         </div>
                     </div>
@@ -302,12 +313,13 @@ export const useCreateConnectionDialog = () => {
                                         type: "generalization",
                                         child: sourceId,
                                         parent: targetId,
-                                        iri: iri,
+                                        iri: newIri,
                                     } as GeneralizationConnectionType);
                                     console.log("creating generalization ", result, target, source);
                                 } else if (connectionType == "association") {
                                     if (associationIsProfileOf) {
                                         createRelationshipEntityUsage(saveModel, "relationship", {
+                                            // todo: relationshipusage nema IRI!!!
                                             usageOf: associationIsProfileOf,
                                             name: association.name,
                                             description: association.description,
@@ -331,7 +343,7 @@ export const useCreateConnectionDialog = () => {
                                     } else {
                                         const result = createConnection(saveModel, {
                                             type: "association",
-                                            iri,
+                                            iri: newIri,
                                             name: association.name,
                                             description: association.description,
                                             ends: [

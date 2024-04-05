@@ -28,6 +28,7 @@ import { isAttribute } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getModelIri } from "../util/model-utils";
 import { getRandomName } from "~/app/utils/random-gen";
+import { IriInput, WhitespaceRegExp } from "./iri-input";
 
 const AddAttributesComponent = (props: {
     modifiedClassId: string;
@@ -170,11 +171,6 @@ export const useModifyEntityDialog = () => {
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
 
-        const [newIri, setNewIri] = useState<string | null>(
-            isSemanticModelClass(modifiedEntity) || isSemanticModelRelationship(modifiedEntity)
-                ? modifiedEntity.iri
-                : null
-        ); // FIXME: sanitize
         const { classes2: classes } = useClassesContext();
         const {
             modifyClassInAModel,
@@ -188,6 +184,9 @@ export const useModifyEntityDialog = () => {
         const [usageNote2, setUsageNote2] = useState<LanguageString>(
             isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.usageNote ?? {} : {}
         );
+
+        const [newIri, setNewIri] = useState(name2[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
+        const [iriHasChanged, setIriHasChanged] = useState(false);
 
         const [currentRange, currentDomain] =
             isSemanticModelRelationship(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity)
@@ -231,19 +230,17 @@ export const useModifyEntityDialog = () => {
                     </div>
                     <div className="font-semibold">id:</div>
                     <div>{modifiedEntity.id}</div>
-                    {isSemanticModelClass(modifiedEntity) && (
-                        <>
-                            <div className="font-semibold">relative iri:</div>
-                            <div className="flex flex-row">
-                                <div className="text-nowrap">{modelIri}</div>
-                                <input
-                                    className="w-full"
-                                    value={newIri ?? ""}
-                                    onChange={(e) => setNewIri(e.target.value)}
-                                />
-                            </div>
-                        </>
-                    )}
+                    <div className="font-semibold">relative iri:</div>
+                    <div className="flex flex-row">
+                        <div className="text-nowrap">{modelIri}</div>
+                        <IriInput
+                            name={name2}
+                            iriHasChanged={iriHasChanged}
+                            newIri={newIri}
+                            setIriHasChanged={(v) => setIriHasChanged(v)}
+                            setNewIri={(i) => setNewIri(i)}
+                        />
+                    </div>
                     <div className="font-semibold">description:</div>
                     <MultiLanguageInputForLanguageString
                         inputType="textarea"

@@ -8,6 +8,7 @@ import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-la
 import { getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { IriInput, WhitespaceRegExp } from "./iri-input";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -17,7 +18,6 @@ export const useCreateClassDialog = () => {
         setModel(model);
         open();
     };
-    const whitespaceRegexp = new RegExp(/\s+/g);
 
     const CreateClassDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
@@ -25,23 +25,10 @@ export const useCreateClassDialog = () => {
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
         const [newDescription, setNewDescription] = useState<LanguageString>({});
         const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(whitespaceRegexp, "-"));
+        const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
         const { addClassToModel, aggregatorView } = useModelGraphContext();
 
         const modelIri = getModelIri(model);
-
-        // change iri based on entity name
-        useEffect(() => {
-            if (iriHasChanged) {
-                return;
-            }
-
-            const [n, l] = getStringFromLanguageStringInLang(newName, preferredLanguage);
-
-            if (l == null && n) {
-                setNewIri(n.trim().toLowerCase().replaceAll(whitespaceRegexp, "-"));
-            }
-        }, [newName]);
 
         return (
             <BaseDialog heading="Creating an entity">
@@ -58,13 +45,12 @@ export const useCreateClassDialog = () => {
                     <div className="font-semibold">relative iri:</div>
                     <div className="flex flex-row">
                         <div className="text-nowrap">{modelIri}</div>
-                        <input
-                            className="w-full"
-                            value={newIri}
-                            onChange={(e) => {
-                                setNewIri(e.target.value);
-                                setIriHasChanged(true);
-                            }}
+                        <IriInput
+                            name={newName}
+                            newIri={newIri}
+                            setNewIri={(i) => setNewIri(i)}
+                            iriHasChanged={iriHasChanged}
+                            setIriHasChanged={(v) => setIriHasChanged(v)}
                         />
                     </div>
                     <div className="font-semibold">description:</div>
