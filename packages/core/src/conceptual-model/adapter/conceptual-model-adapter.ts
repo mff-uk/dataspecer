@@ -143,6 +143,7 @@ class ConceptualModelAdapter {
     //if (attributeData.pimDatatype !== null) {
       const type = new ConceptualModelPrimitiveType();
       type.dataType = attributeData.pimDatatype ?? OFN.string; // If no datatype is known for PIM attribute, use string
+      type.languageStringRequiredLanguages = attributeData.pimLanguageStringRequiredLanguages ?? [];
       type.regex = attributeData.pimRegex;
       type.example = attributeData.pimExample;
       model.dataTypes.push(type);

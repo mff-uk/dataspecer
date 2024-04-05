@@ -84,6 +84,9 @@ export function structureModelToJsonSchema(
     artefact: artefact,
     configuration,
   };
+  if (artefact.publicUrl) {
+    result.id = artefact.publicUrl;
+  }
   if (model.roots[0].classes.length != 1) {
     const anyOf = new JsonSchemaAnyOf();
     anyOf.types = model.roots[0].classes.map((c) =>
@@ -311,8 +314,12 @@ function structureModelPrimitiveToJsonDefinition(
       result.examples = primitive.example;
       break;
     case OFN.text:
-      result = languageString();
+      result = languageString(primitive.languageStringRequiredLanguages);
       result.title = context.stringSelector(OFN_LABELS[OFN.text]);
+      break;
+    case OFN.rdfLangString:
+      result = rdfLanguageString();
+      result.title = context.stringSelector(OFN_LABELS[OFN.rdfLangString]);
       break;
     default:
       result = new JsonSchemaString(null);
@@ -329,8 +336,10 @@ function structureModelCustomTypeToJsonDefinition(
   return new JsonSchemaCustomType(customType.data);
 }
 
-function languageString(): JsonSchemaObject {
+function languageString(requiredLanguages: string[]): JsonSchemaObject {
   const result = new JsonSchemaObject();
+
+  result.required = requiredLanguages;
 
   const cs = new JsonSchemaString(null);
   result.properties["cs"] = cs;
@@ -339,6 +348,22 @@ function languageString(): JsonSchemaObject {
   const en = new JsonSchemaString(null);
   result.properties["en"] = en;
   en.title = "Hodnota v anglickém jazyce";
+
+  return result;
+}
+
+function rdfLanguageString(): JsonSchemaObject {
+  const result = new JsonSchemaObject();
+
+  result.required = ["@value", "@language"];
+
+  const value = new JsonSchemaString(null);
+  result.properties["@value"] = value;
+  value.title = "Text v daném jazyce";
+
+  const language = new JsonSchemaString(null);
+  result.properties["@language"] = language;
+  language.title = "Jazyk textu";
 
   return result;
 }

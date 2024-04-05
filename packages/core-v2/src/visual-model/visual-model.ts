@@ -12,7 +12,7 @@ export interface VisualEntityModel {
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
     deserializeModel(data: object): VisualEntityModel;
 
-    getColor(semModelId: string): string;
+    getColor(semModelId: string): string | undefined;
     setColor(semModelId: string, hexColor: string): void;
 }
 
@@ -25,6 +25,8 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
 
     constructor(modelId: string | undefined) {
+        console.log("visual model being created");
+        console.trace();
         this.id = modelId ?? createId();
     }
 
@@ -136,14 +138,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     }
 
     getColor(modelId: string) {
-        const color = this.modelColors.get(modelId);
-        if (color) {
-            return color;
-        }
-
-        const defaultColor = "#db0000";
-        this.setColor(modelId, defaultColor);
-        return defaultColor;
+        return this.modelColors.get(modelId);
     }
 
     setColor(modelId: string, hexColor: string) {

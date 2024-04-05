@@ -8,7 +8,7 @@ import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/ge
 import { JsonSchema } from "./json-schema-model";
 import { writeJsonSchema } from "./json-schema-writer";
 import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { assertFailed, assertNot } from "@dataspecer/core/core";
+import { assertFailed, assertNot, createStringSelector } from "@dataspecer/core/core";
 import {
   structureModelAddDefaultValues,
   transformStructureModel
@@ -85,7 +85,14 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     if (!skipIdAndTypeProperties) {
       structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration);
     }
-    const jsonSchema = structureModelToJsonSchema(context.specifications, specification, structureModel, configuration, artefact);
+    const jsonSchema = structureModelToJsonSchema(
+      context.specifications,
+      specification,
+      structureModel,
+      configuration,
+      artefact,
+      createStringSelector([configuration.jsonLabelLanguage])
+    );
 
     return {structureModel, jsonSchema, mergedConceptualModel, configuration, globalConfiguration}
   }
@@ -191,7 +198,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
             if (documentationArtefact.templateType === "respec") {
               return render(`<section>
 <h3>Přehled JSON struktury</h3>
-<p>JSON Schéma zachycující stukturu pro <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i> je definováno v souboru <a href="{{{artifact.json-schema.relativePath}}}"><code>{{artifact.json-schema.relativePath}}</code></a>. ${infoText} <i>{{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}</i>.${infoText2}</p>
+<p>JSON Schéma zachycující strukturu pro <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i> je definováno v souboru <a href="{{{artifact.json-schema.relativePath}}}"><code>{{artifact.json-schema.relativePath}}</code></a>. ${infoText} <i>{{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}</i>.${infoText2}</p>
 
 <ul>
 {{#classes}}{{#inThisSchema}}
@@ -271,6 +278,11 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Příklad</dt>
 <dd><div>{{.}}</div></dd>
 {{/example}}{{/isAttribute}}{{/dataTypes}}
+
+{{#dataTypes}}{{#isAttribute}}{{#regex}}
+<dt>Regulární výraz</dt>
+<dd><code>{{.}}</code></dd>
+{{/regex}}{{/isAttribute}}{{/dataTypes}}
 
 <dt>Interpretace</dt>
 {{#pimAssociation}} 

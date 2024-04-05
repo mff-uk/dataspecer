@@ -1,11 +1,10 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { useModelGraphContext } from "../context/graph-context";
-import { useAddModelDialog } from "../dialogs/add-model-dialog";
+import { useModelGraphContext } from "../context/model-context";
+import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
-import { useState } from "react";
-import { shortenSemanticModelId } from "../util/utils";
+import { shortenStringTo } from "../util/utils";
 
 export const ModelCatalog = () => {
     const { aggregator, aggregatorView, setAggregatorView, addModelToGraph, models, removeModelFromModels } =
@@ -39,12 +38,23 @@ export const ModelCatalog = () => {
 
     const AddModelDialogButton = () => (
         <button
-            onClick={() => openAddModelDialog()}
+            onClick={() =>
+                openAddModelDialog((ttlFiles: string[]) => {
+                    const cb = async () => {
+                        const model = await createRdfsModel(ttlFiles, httpFetch);
+                        model.fetchFromPimStore();
+                        addModelToGraph(model);
+                        const aggregatedView = aggregator.getView();
+                        setAggregatorView(aggregatedView);
+                    };
+                    cb();
+                })
+            }
             disabled={isAddModelDialogOpen}
             type="button"
             className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
-            + <span className=" font-mono">Model</span>
+            + <span className="font-mono">Model</span>
         </button>
     );
 
@@ -55,7 +65,7 @@ export const ModelCatalog = () => {
             type="button"
             className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
-            + <span className=" font-mono">{props.modelType}</span>
+            + <span className="font-mono">{props.modelType}</span>
         </button>
     );
 
@@ -63,7 +73,7 @@ export const ModelCatalog = () => {
         const model = models.get(props.modelId);
         return (
             <div className={`m-2 flex flex-row justify-between`}>
-                <h4 onClick={() => console.log(model)}>Ⓜ {shortenSemanticModelId(props.modelId)}</h4>
+                <h4 onClick={() => console.log(model)}>Ⓜ {shortenStringTo(props.modelId)}</h4>
                 <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
                     🗑️
                 </button>
@@ -73,8 +83,8 @@ export const ModelCatalog = () => {
 
     return (
         <>
-            <div className="overflow-y-scroll bg-teal-100">
-                <h3 className=" font-semibold">Add Model Section</h3>
+            <div className="min-w-24 overflow-y-scroll bg-teal-100">
+                <h3 className="font-semibold">Add Model Section</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index}>

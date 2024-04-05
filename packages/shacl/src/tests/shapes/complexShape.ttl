@@ -1,7 +1,7 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <2da40eef3feaff877bb3b51ed1214374osobaShape> a sh:NodeShape;
     sh:targetClass <https://example.com/Věc>;

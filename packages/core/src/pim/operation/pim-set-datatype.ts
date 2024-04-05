@@ -8,6 +8,8 @@ export class PimSetDatatype extends CoreOperation {
 
   pimDatatype: string | null = null;
 
+  pimLanguageStringRequiredLanguages: string[] | null = null;
+
   constructor() {
     super();
     this.types.push(PimSetDatatype.TYPE);

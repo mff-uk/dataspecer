@@ -1,5 +1,6 @@
 import {
     LanguageString,
+    NamedThing,
     SemanticModelClass,
     SemanticModelEntity,
     SemanticModelGeneralization,
@@ -26,6 +27,9 @@ export function generate(entities: SemanticModelEntity[]): Promise<string> {
 
 const RDF_TYPE = namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
+// IRIs that basically represents owl thing and are not necessary to be included in the ontology
+const OWL_THING = ["http://www.w3.org/2002/07/owl#Thing"];
+
 class Generator {
     private writer!: N3.Writer;
     private subclasses!: SemanticModelGeneralization[];
@@ -44,12 +48,17 @@ class Generator {
         classes.sort(simpleIdSort);
         const properties = entities.filter(isSemanticModelRelationship);
 
+        const writtenProperties = new Set<string>();
         for (const cls of classes) {
             this.writeClass(cls);
             const propertiesOfThisClass = properties.filter(p => p.ends[0]?.concept === cls.id);
             propertiesOfThisClass.sort(simpleIdSort);
             for (const property of propertiesOfThisClass) {
+                if (writtenProperties.has(property.iri ?? property.id)) {
+                    continue;
+                }
                 this.writeProperty(property);
+                writtenProperties.add(property.id);
             }
         }
 
@@ -69,11 +78,7 @@ class Generator {
             RDF_TYPE,
             namedNode("http://www.w3.org/2000/01/rdf-schema#Class")
         );
-        this.writeLanguageString(
-            iri,
-            namedNode("http://www.w3.org/2000/01/rdf-schema#label"),
-            entity.name
-        );
+        this.writeNamedThing(entity);
         for (const subclass of this.subclasses.filter(s => s.child === entity.id)) {
             this.writer.addQuad(
                 iri,
@@ -85,6 +90,20 @@ class Generator {
 
     private getNodeById(id: string) {
         return namedNode(this.entitiesMap[id]?.iri ?? id);
+    }
+
+    private writeNamedThing(entity: NamedThing & SemanticModelEntity) {
+        const iri = namedNode(entity.iri ?? entity.id);
+        this.writeLanguageString(
+            iri,
+            namedNode("http://www.w3.org/2000/01/rdf-schema#label"),
+            entity.name
+        );
+        this.writeLanguageString(
+            iri,
+            namedNode("http://www.w3.org/2000/01/rdf-schema#comment"),
+            entity.description
+        );
     }
 
     private writeProperty(entity: SemanticModelRelationship) {
@@ -99,17 +118,24 @@ class Generator {
             RDF_TYPE,
             namedNode("http://www.w3.org/2002/07/owl#ObjectProperty")
         );
-        this.writer.addQuad(
-            iri,
-            namedNode("http://www.w3.org/2000/01/rdf-schema#domain"),
-            this.getNodeById(entity.ends[0]!.concept)
-        );
-        if (entity.ends[1]!.concept) {
+        this.writeNamedThing(entity);
+        const domain = this.getNodeById(entity.ends[0]!.concept);
+        if (!OWL_THING.includes(domain.value)) {
             this.writer.addQuad(
                 iri,
-                namedNode("http://www.w3.org/2000/01/rdf-schema#range"),
-                this.getNodeById(entity.ends[1]!.concept)
+                namedNode("http://www.w3.org/2000/01/rdf-schema#domain"),
+                domain
             );
+        }
+        const range = this.getNodeById(entity.ends[1]!.concept);
+        if (!OWL_THING.includes(range.value)) {
+            if (entity.ends[1]!.concept) {
+                this.writer.addQuad(
+                    iri,
+                    namedNode("http://www.w3.org/2000/01/rdf-schema#range"),
+                    range
+                );
+            }
         }
     }
 

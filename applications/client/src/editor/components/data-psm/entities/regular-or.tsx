@@ -28,6 +28,7 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
   const store = useFederatedObservableStore();
   const {dataSpecifications, dataSpecificationIri} = useContext(ConfigurationContext);
   const dataSpecification = dataSpecifications[dataSpecificationIri as string];
+  const {operationContext} = useContext(ConfigurationContext);
 
   const {resource} = useResource<DataPsmOr>(props.iri);
 
@@ -44,20 +45,24 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
   // When user selects class to add to OR that is in context of Association
   const onAddClass = useCallback(async (pimClassIri: string, pimStore: CoreResourceReader) => {
     if (props.iri) {
-      await store.executeComplexOperation(new CreateNewClassInOr(props.iri, pimClassIri, pimStore));
+      const op = new CreateNewClassInOr(props.iri, pimClassIri, pimStore);
+      op.setContext(operationContext);
+      await store.executeComplexOperation(op);
       AddToOr.close();
     }
-  }, [AddToOr, props.iri, store]);
+  }, [AddToOr, props.iri, store, operationContext]);
 
   const onSearchClass = useCallback(async (pimClass: PimClass) => {
     if (pimClass) {
       const pimStore = ReadOnlyMemoryStore.create({
         [pimClass.iri as string]: pimClass
       });
-      await store.executeComplexOperation(new CreateNewClassInOr(props.iri, pimClass.iri as string, pimStore, dataSpecification.pim));
+      const op = new CreateNewClassInOr(props.iri, pimClass.iri as string, pimStore, dataSpecification.pim);
+      op.setContext(operationContext);
+      await store.executeComplexOperation(op);
       SearchToOr.close();
     }
-  }, [SearchToOr, props.iri, store, dataSpecification.pim]);
+  }, [SearchToOr, props.iri, store, dataSpecification.pim, operationContext]);
 
   const thisStartRow = <>
     <Span sx={sxStyles.or}>{t("OR")}</Span>

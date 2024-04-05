@@ -36,7 +36,8 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
     // Whether the value is non-null object
     const valueIsKnown = typeof value === 'object' && value;
 
-    return <Autocomplete
+    return <>
+    <Autocomplete
         autoHighlight
         disabled={disabled}
 
@@ -116,4 +117,7 @@ export const DatatypeSelector: React.FC<DatatypeSelectorParameters> = memo(({val
         }}
         options={options}
     />
+
+
+    </>
 });

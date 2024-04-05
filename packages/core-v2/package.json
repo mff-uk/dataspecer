@@ -4,7 +4,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "prebuild": "rimraf lib"
+    "prebuild": "rimraf lib",
+    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
+    "test:watch": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests --watch"
   },
   "exports": {
     ".": "./lib/entity-model/index.js", 
@@ -14,6 +16,7 @@
     "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
     "./semantic-model/simplified": "./lib/semantic-model/simplified/index.js",
     "./semantic-model/lightweight-owl": "./lib/semantic-model/lightweight-owl/index.js",
+    "./semantic-model/data-specification-vocabulary": "./lib/semantic-model/data-specification-vocabulary/index.js",
     "./semantic-model/operations": "./lib/semantic-model/operations/index.js",
     "./semantic-model/in-memory": "./lib/semantic-model/in-memory/index.js",
     "./semantic-model/usage/concepts": "./lib/semantic-model/usage/concepts/index.js",
@@ -29,8 +32,11 @@
     "n3": "^1.17.1"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "rimraf": "^5.0.1",
-    "typescript": "~5.3.3",
-    "@types/n3": "^1.16.3"
+    "typescript": "~5.4.2",
+    "@types/n3": "^1.16.3",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.2"
   }
 }

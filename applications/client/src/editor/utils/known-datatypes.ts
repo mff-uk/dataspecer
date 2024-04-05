@@ -65,6 +65,7 @@ export const knownDatatypes: KnownDatatype[] = [
             "en": "URI, IRI, URL"
         }
     },
+    // Normal string
     {
         "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#řetězec",
@@ -73,6 +74,7 @@ export const knownDatatypes: KnownDatatype[] = [
             "en": "String"
         }
     },
+    // Dictionary with one string per key=language
     {
         "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#text",
@@ -80,5 +82,14 @@ export const knownDatatypes: KnownDatatype[] = [
             "cs": "Text",
             "en": "Text"
         }
-    }
+    },
+    // RDF language string - string with given language tag
+    {
+        "iri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+        "documentation": "https://www.w3.org/TR/rdf11-schema/#ch_langstring",
+        "label": {
+            "cs": "Řetězec anotovaný jazykem",
+            "en": "Language tagged string"
+        }
+    },
 ];

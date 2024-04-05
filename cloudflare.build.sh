@@ -8,14 +8,26 @@ printf "NEXT_PUBLIC_BASE_PATH=/conceptual-model-editor\nNEXT_PUBLIC_APP_BACKEND=
 
 printf "VITE_BACKEND=$BACKEND\nVITE_CME=/conceptual-model-editor" > applications/manager/.env.local
 
-npx turbo run build --filter=client --filter=conceptual-model-editor --filter=manager
+npx turbo run build --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp
 
 rm -rf .dist
-mkdir .dist
 
+# Copy client application
+mkdir .dist
 cp -r applications/client/build/* .dist
 
+# Copy conceptual-model-editor application
 mkdir .dist/conceptual-model-editor
 cp -r applications/conceptual-model-editor/out/* .dist/conceptual-model-editor
+
+# Copy manager application
 mkdir .dist/manager
 cp -r applications/manager/dist/* .dist/manager
+
+# Copy api-specification application
+mkdir .dist/api-specification
+cp -r applications/api-specification/dist/* .dist/api-specification
+
+# Copy genapp application
+mkdir .dist/genapp
+cp -r applications/genapp/dist/* .dist/genapp

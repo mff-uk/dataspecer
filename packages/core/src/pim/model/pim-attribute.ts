@@ -11,6 +11,9 @@ export class PimAttribute extends PimResource {
 
   pimDatatype: string | null = null;
 
+  // If pimDataType is languageString, then this is the list of required languages
+  pimLanguageStringRequiredLanguages: string[] = [];
+
   pimOwnerClass: string | null = null;
 
   pimCardinalityMin: number | null = null;

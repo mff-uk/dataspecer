@@ -1,7 +1,7 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @base <https://example.org/>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <5612c1873ed3a1d5024b30ff367ed370adresaShape> a sh:NodeShape;
     sh:targetSubjectsOf <https://slovník.gov.cz/generický/adresy/pojem/prvek-rúian>;
