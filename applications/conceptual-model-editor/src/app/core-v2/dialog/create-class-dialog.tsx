@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useBaseDialog } from "./base-dialog";
@@ -7,6 +7,7 @@ import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
+import { getStringFromLanguageStringInLang } from "../util/language-utils";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -16,6 +17,7 @@ export const useCreateClassDialog = () => {
         setModel(model);
         open();
     };
+    const whitespaceRegexp = new RegExp(/\s+/g);
 
     const CreateClassDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
@@ -23,10 +25,23 @@ export const useCreateClassDialog = () => {
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
         const [newDescription, setNewDescription] = useState<LanguageString>({});
         const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(newName[preferredLanguage]!.toLowerCase().replace(" ", "-"));
-        const { addClassToModel } = useModelGraphContext();
+        const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(whitespaceRegexp, "-"));
+        const { addClassToModel, aggregatorView } = useModelGraphContext();
 
         const modelIri = getModelIri(model);
+
+        // change iri based on entity name
+        useEffect(() => {
+            if (iriHasChanged) {
+                return;
+            }
+
+            const [n, l] = getStringFromLanguageStringInLang(newName, preferredLanguage);
+
+            if (l == null && n) {
+                setNewIri(n.trim().toLowerCase().replaceAll(whitespaceRegexp, "-"));
+            }
+        }, [newName]);
 
         return (
             <BaseDialog heading="Creating an entity">
@@ -43,7 +58,14 @@ export const useCreateClassDialog = () => {
                     <div className="font-semibold">relative iri:</div>
                     <div className="flex flex-row">
                         <div className="text-nowrap">{modelIri}</div>
-                        <input className="w-full" value={newIri} onChange={(e) => setNewIri(e.target.value)} />
+                        <input
+                            className="w-full"
+                            value={newIri}
+                            onChange={(e) => {
+                                setNewIri(e.target.value);
+                                setIriHasChanged(true);
+                            }}
+                        />
                     </div>
                     <div className="font-semibold">description:</div>
                     <div>
@@ -59,7 +81,14 @@ export const useCreateClassDialog = () => {
                 <div className="flex flex-row justify-evenly">
                     <button
                         onClick={() => {
-                            addClassToModel(model, newName, newIri, newDescription);
+                            if (!newIri) {
+                                alert("iri not set");
+                                return;
+                            }
+                            const { id: clsId } = addClassToModel(model, newName, newIri, newDescription);
+                            if (clsId) {
+                                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: clsId });
+                            }
                             close();
                         }}
                     >

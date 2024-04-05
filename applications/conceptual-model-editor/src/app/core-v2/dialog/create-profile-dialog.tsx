@@ -40,7 +40,8 @@ export const useCreateProfileDialog = () => {
     };
 
     const CreateProfileDialog = () => {
-        const { models, createClassEntityUsage, createRelationshipEntityUsage } = useModelGraphContext();
+        const { models, createClassEntityUsage, createRelationshipEntityUsage, aggregatorView } =
+            useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
@@ -102,12 +103,18 @@ export const useCreateProfileDialog = () => {
                         <button
                             onClick={() => {
                                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                                    createClassEntityUsage(model, entity.type[0], {
+                                    const { id: classUsageId } = createClassEntityUsage(model, entity.type[0], {
                                         usageOf: entity.id,
                                         usageNote: usageNote,
                                         description,
                                         name,
                                     });
+
+                                    if (classUsageId) {
+                                        aggregatorView
+                                            .getActiveVisualModel()
+                                            ?.addEntity({ sourceEntityId: classUsageId });
+                                    }
                                 } else if (
                                     isSemanticModelRelationship(entity) ||
                                     isSemanticModelRelationshipUsage(entity)
