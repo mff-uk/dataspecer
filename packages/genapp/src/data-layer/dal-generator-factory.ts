@@ -1,20 +1,24 @@
 import { LDkitGenerator } from "@dataspecer/ldkit";
 import { DataSourceType, DatasourceConfig } from "../application-config";
-import { CodeGenerationArtifactMetadata } from "../utils/utils";
+import { CodeGenerationArtifactMetadata, GeneratorArtifactProvider } from "@dataspecer/genapp-artifact-provider";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGenerator: (datasourceConfig: DatasourceConfig) => DalGenerator;
 }
 
 export class DalGenerator {
-    private readonly dalGenerator: any;
+    private readonly dalGenerator: GeneratorArtifactProvider;
 
-    constructor(dalGenerator: any) {
+    constructor(dalGenerator: GeneratorArtifactProvider | null) {
+        if (dalGenerator === null) {
+            throw new Error("Unsupported dalGenerator");
+        }
+
         this.dalGenerator = dalGenerator;
     }
 
     generate(): CodeGenerationArtifactMetadata {
-        return new CodeGenerationArtifactMetadata({ "anObjectName": "./anObjectPath.ts" });
+        return this.dalGenerator.getGeneratedArtifactMapping();
     }
 }
 

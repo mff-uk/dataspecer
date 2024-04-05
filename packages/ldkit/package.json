@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
+    "@dataspecer/genapp-artifact-provider": "*",
     "ldkit": "^1.1.0"
   },
   "devDependencies": {

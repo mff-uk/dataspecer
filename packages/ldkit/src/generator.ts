@@ -13,8 +13,10 @@ import { StructureModel } from "@dataspecer/core/structure-model/model/structure
 import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
+import { CodeGenerationArtifactMetadata, GeneratorArtifactProvider } from "@dataspecer/genapp-artifact-provider";
 
-export class LDkitGenerator implements ArtefactGenerator {
+export class LDkitGenerator implements ArtefactGenerator, GeneratorArtifactProvider {
+    
     static readonly IDENTIFIER = "https://schemas.dataspecer.com/generator/LDkit";
 
     identifier(): string {
@@ -105,5 +107,13 @@ export class LDkitGenerator implements ArtefactGenerator {
             await stream.write(sourcefileContent);
             await stream.close();
         }
+    }
+
+    generateArtifact() {
+        //this.generateToStream(undefined, undefined, undefined, undefined);
+    }
+
+    getGeneratedArtifactMapping(): CodeGenerationArtifactMetadata{
+        return new CodeGenerationArtifactMetadata({ "anObjectName": "./anObjectPath.ts" });
     }
 }

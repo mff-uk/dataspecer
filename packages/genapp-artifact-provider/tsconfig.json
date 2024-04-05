@@ -3,7 +3,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES6",
+    "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
@@ -21,7 +21,7 @@
 
     "declarationMap": true,
     
-    "lib": ["ES6"]
+    "lib": ["es2022"]
   },
   "include": ["src/**/*"]
 }

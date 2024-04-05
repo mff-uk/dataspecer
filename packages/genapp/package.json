@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@dataspecer/core": "*",
+    "@dataspecer/genapp-artifact-provider": "^1.0.0",
     "@dataspecer/ldkit": "*",
     "copyfiles": "^2.4.1",
     "eta": "^3.4.0",
