@@ -24,7 +24,7 @@ import { RowHierarchy } from "./row-hierarchy";
 export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { classes, classes2, allowedClasses, setAllowedClasses, profiles, deleteEntityFromModel } =
         useClassesContext();
-    const { aggregatorView } = useModelGraphContext();
+    const { aggregatorView, models } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
@@ -49,6 +49,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
 
     const modelId = model.getId();
     let clses: JSX.Element[];
+
+    const modelDisplayName = model.getAlias() ?? shortenStringTo(modelId);
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
@@ -187,7 +189,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         <>
             <li key={modelId} style={{ backgroundColor: tailwindColorToHex(backgroundColor) }}>
                 <div className="flex flex-row justify-between">
-                    <h4>Ⓜ {shortenStringTo(modelId)}</h4>
+                    <h4>Ⓜ {modelDisplayName}</h4>
                     <div className="flex flex-row">
                         <ColorPicker
                             currentColor={backgroundColor}

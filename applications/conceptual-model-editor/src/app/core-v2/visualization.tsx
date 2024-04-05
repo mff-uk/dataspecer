@@ -132,7 +132,7 @@ export const Visualization = () => {
                 openEntityDetailDialog(entity)
             ) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            console.log("got generalization to make it a rf edege");
+            // console.log("got generalization to make it a rf edege");
             return semanticModelGeneralizationToReactFlowEdge(entity, color, () =>
                 openEntityDetailDialog(entity)
             ) as Edge;
@@ -162,8 +162,11 @@ export const Visualization = () => {
             let [localAttributes] = [relationships.filter(isAttribute)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
-                const pos = visualEntity?.position;
-                const visible = visualEntity?.visible;
+                if (!visualEntity) {
+                    return;
+                }
+                const pos = visualEntity.position;
+                const visible = visualEntity.visible;
                 if (!cls || !pos) {
                     return;
                 }
@@ -259,10 +262,10 @@ export const Visualization = () => {
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
-                        console.log("hiding node", n);
+                        // console.log("hiding node", n);
                         setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
                     } else if (n) {
-                        console.log("adding node", n);
+                        // console.log("adding node", n);
                         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                     }
                 } else if (
@@ -321,7 +324,6 @@ export const Visualization = () => {
                         )
                     )
                     .filter((e): e is Edge => {
-                        console.log("e undefined?", e);
                         return e?.id != undefined;
                     })
                     .concat(

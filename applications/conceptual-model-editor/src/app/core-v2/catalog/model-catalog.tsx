@@ -5,10 +5,18 @@ import { useModelGraphContext } from "../context/model-context";
 import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { shortenStringTo } from "../util/utils";
+import { useState } from "react";
 
 export const ModelCatalog = () => {
-    const { aggregator, aggregatorView, setAggregatorView, addModelToGraph, models, removeModelFromModels } =
-        useModelGraphContext();
+    const {
+        aggregator,
+        aggregatorView,
+        setAggregatorView,
+        addModelToGraph,
+        models,
+        removeModelFromModels,
+        setModelAlias,
+    } = useModelGraphContext();
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
     const handleAddModel = async (modelType: string) => {
@@ -71,15 +79,69 @@ export const ModelCatalog = () => {
 
     const ModelItem = (props: { modelId: string }) => {
         const model = models.get(props.modelId);
+
+        const modelAlias = model?.getAlias();
+        const displayName = modelAlias ?? shortenStringTo(props.modelId);
+
+        const [editing, setEditing] = useState(false);
+        const [newAlias, setNewAlias] = useState(modelAlias);
+
+        const reset = () => {
+            setNewAlias(modelAlias);
+            setEditing(false);
+        };
+
+        const saveAlias = () => {
+            if (!model) {
+                return;
+            }
+            console.log("saving new alias", newAlias, " to model ", model);
+            setModelAlias(newAlias ?? null, model);
+        };
+
         return (
-            <div className={`m-2 flex flex-row justify-between`}>
-                <h4 onClick={() => console.log(model)}>Ⓜ {shortenStringTo(props.modelId)}</h4>
-                <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
-                    🗑️
-                </button>
+            <div className="m-2 flex flex-row justify-between">
+                <div className="flex flex-row">
+                    <div>Ⓜ</div>
+                    {editing ? (
+                        <input
+                            autoFocus
+                            onFocus={(e) => e.target.select()}
+                            value={newAlias ?? displayName}
+                            disabled={!editing}
+                            onChange={(e) => setNewAlias(e.target.value)}
+                            onBlur={() => {
+                                saveAlias();
+                                reset();
+                            }}
+                            onKeyUp={(e) => {
+                                if (e.key === "Enter") {
+                                    saveAlias();
+                                    reset();
+                                }
+                                if (e.key === "Escape") {
+                                    reset();
+                                }
+                            }}
+                        />
+                    ) : (
+                        // <div>bob</div>
+                        <div>{displayName}</div>
+                    )}
+                </div>
+                <div>
+                    <button className="hover:shadow-sm" onClick={() => setEditing(true)}>
+                        ✏
+                    </button>
+                    <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
+                        🗑️
+                    </button>
+                </div>
             </div>
         );
     };
+
+    console.log("rerender");
 
     return (
         <>

@@ -51,6 +51,8 @@ export const useCreateProfileDialog = () => {
         const [domain, setDomain] = useState<SemanticModelRelationshipEnd | null>(null);
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
+        // const modelName = model?.getAlias() ?? shortenStringTo(model?.getId() ?? null);
+
         const entityName2 = getStringFromLanguageStringInLang(entity?.name ?? {}) ?? entity?.id;
 
         if (inMemoryModels.length == 0) {
@@ -67,9 +69,11 @@ export const useCreateProfileDialog = () => {
                         active model:
                         <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
                             {inMemoryModels
-                                .map((m) => m.getId())
-                                .map((mId) => (
-                                    <option value={mId}>{mId}</option>
+                                .map((m) => ({ mId: m.getId(), mAlias: m.getAlias() }))
+                                .map(({ mId, mAlias }) => (
+                                    <option value={mId}>
+                                        {mAlias}:{mId}
+                                    </option>
                                 ))}
                         </select>
                     </p>

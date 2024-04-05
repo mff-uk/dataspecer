@@ -173,7 +173,9 @@ export const useCreateConnectionDialog = () => {
     };
 
     const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-        return [...models.entries()].filter(([mId, m]) => m instanceof InMemorySemanticModel).map(([mId, _]) => mId);
+        return [...models.entries()]
+            .filter(([mId, m]) => m instanceof InMemorySemanticModel)
+            .map(([mId, m]) => [mId, m.getAlias()]) as [string, string | null][];
     };
 
     const CreateConnectionDialog = () => {
@@ -204,7 +206,7 @@ export const useCreateConnectionDialog = () => {
         const targetName = getStringFromLanguageStringInLang(target.name, preferredLanguage);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
-        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
         const [iri, setIri] = useState(getRandomName(7));
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
             name: {},
@@ -226,8 +228,10 @@ export const useCreateConnectionDialog = () => {
                             onChange={(e) => setActiveModel(e.target.value)}
                             defaultValue={activeModel}
                         >
-                            {inMemoryModels.map((mId) => (
-                                <option value={mId}>{mId}</option>
+                            {inMemoryModels.map(([mId, mAlias]) => (
+                                <option value={mId}>
+                                    {mAlias}:{mId}
+                                </option>
                             ))}
                         </select>
                         <div className="font-bold">source:</div>
