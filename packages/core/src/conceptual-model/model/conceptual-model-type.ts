@@ -7,6 +7,8 @@ export interface ConceptualModelType {
 export class ConceptualModelPrimitiveType implements ConceptualModelType {
   dataType: string | null = null;
 
+  languageStringRequiredLanguages: string[] | null = null;
+
   regex: string | null = null;
 
   /**

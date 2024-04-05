@@ -11,6 +11,8 @@ export interface StructureModelType {
 export class StructureModelPrimitiveType implements StructureModelType {
   dataType: string | null = null;
 
+  languageStringRequiredLanguages: string[] = [];
+
   regex: string | null = null;
 
   /**

@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EntityCatalog } from "./entity-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog, RelationshipCatalog } from "./attribute-relationship-catalog";
 import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
+import { isAttribute } from "../util/utils";
 
 export const Catalog = () => {
     const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile">("class");
-    const { relationships, attributes, profiles } = useClassesContext();
+    const { relationships: r, /* attributes, */ profiles } = useClassesContext();
+
+    const relationships = r.filter((v) => !isAttribute(v));
+    const attributes = r.filter(isAttribute);
+
+    if (entityView == "relationship" && relationships.length == 0) {
+        setEntityView("class");
+    } else if (entityView == "attribute" && attributes.length == 0) {
+        setEntityView("class");
+    } else if (entityView == "profile" && profiles.length == 0) {
+        setEntityView("class");
+    }
 
     return (
         <div className="grid h-full w-full grid-cols-1 grid-rows-[20%_80%]">

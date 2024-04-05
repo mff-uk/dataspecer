@@ -119,7 +119,7 @@ export function getCorner(s: Node, t: Node, offset = 30) {
 }
 
 export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30) {
-    const handleT = s[internalsSymbol]?.handleBounds?.target?.find((h) => h.id === (typeE == "rel" ? "td" : "tb"));
+    const handleT = s[internalsSymbol]?.handleBounds?.target?.find((h) => h.id === (typeE == "rel" ? "tb" : "tb"));
     const handleS = s[internalsSymbol]?.handleBounds?.source?.find((h) => h.id === (typeE == "rel" ? "sc" : "sa"));
 
     const p1 = {
@@ -130,7 +130,7 @@ export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30)
     const p2 =
         typeE == "rel"
             ? {
-                  x: s.position.x - offset,
+                  x: s.position.x + s.width!, // + offset, // - offset,
                   y: s.position.y + s.height! + offset,
               }
             : {
@@ -138,7 +138,7 @@ export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30)
                   y: s.position.y + -offset,
               };
 
-    const path = `M ${s.position.x + handleS!.x},${s.position.y + handleS!.y} A 1 1 90 0 1 ${
+    const path = `M ${s.position.x + handleS!.x},${s.position.y + handleS!.y} A 1 1 90 0 ${typeE == "rel" ? 0 : 1} ${
         t.position.x + handleT!.x
     } ${t.position.y + handleT!.y}`;
     return [path, p2.x, p2.y] as const;

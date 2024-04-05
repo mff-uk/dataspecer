@@ -39,9 +39,15 @@ export const ModelCatalog = () => {
     const AddModelDialogButton = () => (
         <button
             onClick={() =>
-                openAddModelDialog(() => {
-                    const aggregatedView = aggregator.getView();
-                    setAggregatorView(aggregatedView);
+                openAddModelDialog((ttlFiles: string[]) => {
+                    const cb = async () => {
+                        const model = await createRdfsModel(ttlFiles, httpFetch);
+                        model.fetchFromPimStore();
+                        addModelToGraph(model);
+                        const aggregatedView = aggregator.getView();
+                        setAggregatorView(aggregatedView);
+                    };
+                    cb();
                 })
             }
             disabled={isAddModelDialogOpen}

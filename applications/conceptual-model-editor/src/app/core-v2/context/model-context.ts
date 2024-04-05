@@ -2,9 +2,13 @@ import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspece
 import { LanguageString } from "@dataspecer/core/core";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
+import { createClass, modifyClass, modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClass,
+    SemanticModelRelationship,
+    isSemanticModelClass,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
 import {
@@ -97,6 +101,15 @@ export const useModelGraphContext = () => {
         return result.success;
     };
 
+    const modifyRelationship = (
+        model: InMemorySemanticModel,
+        entityId: string,
+        newEntity: Partial<Omit<SemanticModelRelationship, "type" | "id">>
+    ) => {
+        console.log("modifying relationship ", newEntity);
+        return model.executeOperation(modifyRelation(entityId, newEntity)).success;
+    };
+
     const createClassEntityUsage = (
         model: InMemorySemanticModel,
         entityType: "class" | "class-usage",
@@ -110,7 +123,6 @@ export const useModelGraphContext = () => {
             console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
         }
-        return false;
     };
 
     const createRelationshipEntityUsage = (
@@ -136,7 +148,7 @@ export const useModelGraphContext = () => {
         entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
     ) => {
         if (entityType == "relationship-usage") {
-            console.log("about to modify relationshipusage", id, entity);
+            console.log("about to modify relationship usage", id, entity);
             const result = model.executeOperation(modifyRelationshipUsage(id, entity));
             return result.success;
         } else if (entityType == "class-usage") {
@@ -181,6 +193,7 @@ export const useModelGraphContext = () => {
         setAggregatorView,
         addClassToModel,
         modifyClassInAModel,
+        modifyRelationship,
         createClassEntityUsage,
         createRelationshipEntityUsage,
         updateEntityUsage,

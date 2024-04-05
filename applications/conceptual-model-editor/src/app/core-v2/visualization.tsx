@@ -98,7 +98,7 @@ export const Visualization = () => {
     const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
     const { ModifyEntityDialog, isModifyEntityDialogOpen, openModifyEntityDialog } = useModifyEntityDialog();
 
-    const { classes, classes2, relationships, attributes, generalizations, profiles, sourceModelOfEntityMap } =
+    const { classes, classes2, relationships, /* attributes, */ generalizations, profiles, sourceModelOfEntityMap } =
         useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
@@ -132,6 +132,7 @@ export const Visualization = () => {
                 openEntityDetailDialog(entity)
             ) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
+            console.log("got generalization to make it a rf edege");
             return semanticModelGeneralizationToReactFlowEdge(entity, color, () =>
                 openEntityDetailDialog(entity)
             ) as Edge;
@@ -158,7 +159,7 @@ export const Visualization = () => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
             const [localRelationships, localGeneralizations, localModels] = [relationships, generalizations, models];
-            let [localAttributes] = [attributes];
+            let [localAttributes] = [relationships.filter(isAttribute)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 const pos = visualEntity?.position;
@@ -320,6 +321,7 @@ export const Visualization = () => {
                         )
                     )
                     .filter((e): e is Edge => {
+                        console.log("e undefined?", e);
                         return e?.id != undefined;
                     })
                     .concat(

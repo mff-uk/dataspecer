@@ -22,8 +22,9 @@ import {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "./base-dialog";
-import { getIri } from "../util/model-utils";
+import { getIri, getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
+import { useModelGraphContext } from "../context/model-context";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -59,17 +60,29 @@ export const useEntityDetailDialog = () => {
         const [currentLang, setCurrentLang] = useState(preferredLanguage);
 
         const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
+
+        const {
+            classes2: c,
+            relationships: r,
+            /* attributes: a, */ profiles,
+            sourceModelOfEntityMap,
+        } = useClassesContext();
+        const { models } = useModelGraphContext();
+        const sourceModelId = sourceModelOfEntityMap.get(viewedEntity.id);
+        const sourceModel = models.get(sourceModelId ?? "");
+
         let name = "",
             description = "",
             iri: null | string = null,
+            modelIri: null | string = getModelIri(sourceModel),
             usageNote: null | string = null,
             profileOf: null | string = null,
             profiledBy: string[] = [];
 
         if (isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)) {
-            const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {});
-            const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {});
-            const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {});
+            const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {}, currentLang);
+            const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {}, currentLang);
+            const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {}, currentLang);
             [name, description, usageNote, profileOf] = [
                 (a ?? "no-name") + (b != null ? `@${b}` : ""),
                 c ?? "" + (d != null ? `@${d}` : ""),
@@ -81,9 +94,7 @@ export const useEntityDetailDialog = () => {
             [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
         }
 
-        const { classes: c, attributes: a, profiles } = useClassesContext();
-
-        const attributes = a.filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+        const attributes = /* a */ r.filter(isAttribute).filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
         const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
@@ -95,14 +106,12 @@ export const useEntityDetailDialog = () => {
                 ? viewedEntity.ends
                 : null;
         const domain =
-            c.get(ends?.at(0)?.concept || "dfjkn23jb21828532923891")?.cls ??
-            profiles.find((v) => v.id == ends?.at(0)?.concept);
-        const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality ?? [0, null]);
+            c.find((cls) => cls.id == ends?.at(0)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
+        const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality);
         const domainIri = getIri(domain ?? null);
         const range =
-            c.get(ends?.at(1)?.concept || "tnrkemlf83904349820402")?.cls ??
-            profiles.find((v) => v.id == ends?.at(0)?.concept);
-        const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality ?? [0, null]);
+            c.find((cls) => cls.id == ends?.at(1)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
+        const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality);
         const rangeIri = getIri(range ?? null);
 
         console.log(ends, domain, viewedEntity);
@@ -115,8 +124,8 @@ export const useEntityDetailDialog = () => {
                     </h5>
                     <div className="grid grid-cols-[80%_20%] grid-rows-1">
                         <p className="flex flex-row text-gray-500" title={iri ?? ""}>
-                            <IriLink iri={iri} />
-                            {iri}
+                            <IriLink iri={modelIri + iri} />
+                            {modelIri + iri}
                         </p>
 
                         <div>
@@ -193,7 +202,7 @@ export const useEntityDetailDialog = () => {
                                         currentLang
                                     );
                                     const [attributeDescription, fallbackAttributeDescriptionLang] =
-                                        getStringFromLanguageStringInLang(attr.description ?? {});
+                                        getStringFromLanguageStringInLang(attr.description ?? {}, currentLang);
 
                                     let descr = "";
                                     if (attributeDescription && !fallbackAttributeDescriptionLang) {
@@ -203,7 +212,8 @@ export const useEntityDetailDialog = () => {
                                     }
 
                                     const usageNote =
-                                        getStringFromLanguageStringInLang(v.usageNote ?? {})[0] ?? "no usage note";
+                                        getStringFromLanguageStringInLang(v.usageNote ?? {}, currentLang)[0] ??
+                                        "no usage note";
 
                                     return (
                                         <div title={descr}>
@@ -223,29 +233,32 @@ export const useEntityDetailDialog = () => {
                             <div>{usageNote}</div>
                         </>
                     )}
-                    {domain && (
-                        <>
-                            <div className="font-semibold">domain: </div>
-                            <div>
-                                {getStringFromLanguageStringInLang(domain.name ?? {}) ?? domainIri ?? domain.id}:
-                                {domainCardinality}
-                            </div>
-                        </>
-                    )}
                     {range && (
                         <>
                             <div className="font-semibold">range: </div>
 
                             <div>
-                                {" "}
-                                {getStringFromLanguageStringInLang(range.name ?? {}) ?? rangeIri ?? range.id}:
-                                {rangeCardinality}
+                                {getStringFromLanguageStringInLang(range.name ?? {}, currentLang) ??
+                                    rangeIri ??
+                                    range.id}
+                                :{rangeCardinality}
+                            </div>
+                        </>
+                    )}
+                    {domain && (
+                        <>
+                            <div className="font-semibold">domain: </div>
+                            <div>
+                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
+                                    domainIri ??
+                                    domain.id}
+                                :{domainCardinality}
                             </div>
                         </>
                     )}
                 </div>
                 <p className="bg-slate-100">
-                    domain: {domain ? "present" : "null"}, range: {range ? "present" : "null"}
+                    range: {range ? "present" : "null"}, domain: {domain ? "present" : "null"},
                 </p>
                 <div className="flex flex-row justify-evenly">
                     <button onClick={save}>confirm</button>

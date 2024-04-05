@@ -1,7 +1,6 @@
-import React, {memo, useCallback, useEffect, useState} from "react";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {SetTechnicalLabel} from "../../../operations/set-technical-label";
-import {SetDataPsmDatatype} from "../../../operations/set-data-psm-datatype";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import {
     Alert,
     Box,
@@ -22,29 +21,30 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {useTranslation} from "react-i18next";
-import {DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue} from "../../helper/datatype-selector";
-import {knownDatatypes} from "../../../utils/known-datatypes";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
-import {Icons} from "../../../icons";
-import {isEqual} from "lodash";
-import {SetClassCodelist} from "../../../operations/set-class-codelist";
-import {useSaveHandler} from "../../helper/save-handler";
-import {CardContent} from "../../../mui-overrides";
-import {TransitionGroup} from "react-transition-group";
-import {Cardinality, cardinalityFromPim, CardinalitySelector} from "../../helper/cardinality-selector";
-import {SetCardinality} from "../../../operations/set-cardinality";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {SetDematerialize} from "../../../operations/set-dematerialize";
-import { SetPimDatatype } from "../../../operations/set-pim-datatype";
-import { RegexField } from "../../helper/regex-field";
-import { StringExamplesField } from "../../helper/string-examples-field";
-import { SetRegex } from "../../../operations/set-regex";
+import { isEqual } from "lodash";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { TransitionGroup } from "react-transition-group";
+import { InfoHelp } from "../../../../components/info-help";
+import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { Icons } from "../../../icons";
+import { CardContent } from "../../../mui-overrides";
+import { SetCardinality } from "../../../operations/set-cardinality";
+import { SetClassCodelist } from "../../../operations/set-class-codelist";
+import { SetDataPsmDatatype } from "../../../operations/set-data-psm-datatype";
+import { SetDematerialize } from "../../../operations/set-dematerialize";
 import { SetExample } from "../../../operations/set-example";
-import {SetIsClosed} from "../../../operations/set-is-closed";
-import {InfoHelp} from "../../../../components/info-help";
-import {SetInstancesHaveIdentity} from "../../../operations/set-inastances-have-identity";
+import { SetInstancesHaveIdentity } from "../../../operations/set-inastances-have-identity";
+import { SetIsClosed } from "../../../operations/set-is-closed";
+import { SetPimDatatype } from "../../../operations/set-pim-datatype";
+import { SetRegex } from "../../../operations/set-regex";
+import { SetTechnicalLabel } from "../../../operations/set-technical-label";
+import { knownDatatypes } from "../../../utils/known-datatypes";
+import { Cardinality, CardinalitySelector, cardinalityFromPim } from "../../helper/cardinality-selector";
+import { DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue } from "../../helper/datatype-selector";
+import { RegexField } from "../../helper/regex-field";
+import { useSaveHandler } from "../../helper/save-handler";
+import { StringExamplesField } from "../../helper/string-examples-field";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -104,17 +104,39 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         useCallback(async () => resource && await store.executeComplexOperation(new SetTechnicalLabel(resource.iri as string, technicalLabel)), [resource, store, technicalLabel]),
     );
 
+    const [datatypeLangsText, setDatatypeLangsText] = useState<string>("");
+    const setDatatypeLangs = (langs: string[]) => {
+        setDatatypeLangsText(langs.join(","));
+    }
+    const datatypeLangsArray = useMemo(() => datatypeLangsText.split(",").map(lang => lang.trim()).filter(lang => lang.length > 0), [datatypeLangsText]);
+    useEffect(() => {
+        if (isAttribute) {
+            const attr = pimResource as PimAttribute;
+            if (attr?.pimDatatype === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+                setDatatypeLangs((attr?.pimLanguageStringRequiredLanguages ?? []));
+            }
+        }
+    }, [pimResource, isAttribute]);
+
+    const isLanguageStringDatatype = isAttribute && getIriFromDatatypeSelectorValue(datatype) === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text";
     useSaveHandler(
-        resource !== null && isAttribute && resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype),
+        resource !== null &&
+        isAttribute &&
+        (resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype) || 
+        (
+            isLanguageStringDatatype &&
+            !isEqual(new Set((pimResource as PimAttribute)?.pimLanguageStringRequiredLanguages ?? []), new Set(datatypeLangsArray))
+        ) 
+        ),
         useCallback(async () => {
             if (resource) {
                 await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
                 // Todo: let user choose where to set the datatype
                 if (pimResource) {
-                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
+                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype), datatypeLangsArray));
                 }
             }
-        }, [resource, store, datatype, pimResource]),
+        }, [resource, store, datatype, pimResource, datatypeLangsArray]),
     );
 
     useSaveHandler(
@@ -346,6 +368,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 </Typography>
 
                 <DatatypeSelector disabled={readOnly} value={datatype} onChange={setDatatype} options={knownDatatypes}/>
+                {isLanguageStringDatatype &&
+                    <TextField
+                        margin="dense"
+                        label="Required languages"
+                        fullWidth
+                        variant="filled"
+                        value={datatypeLangsText}
+                        onChange={e => setDatatypeLangsText(e.target.value)}
+                        helperText={<>Comma separated list of languages, for example <code>cs,en</code></>}
+                    />
+                }
             </Box>
         </>}
 
