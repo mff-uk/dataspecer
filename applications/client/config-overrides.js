@@ -18,6 +18,6 @@ module.exports = function override(config, env) {
     ];
     // Issue with LdKit generator, specifically with the @ts-morph package
     // https://github.com/microsoft/TypeScript/issues/39436
-    config.module.noParse = /typescript/;
+    config.module.noParse = /typescript\.js/;
     return config;
 };
