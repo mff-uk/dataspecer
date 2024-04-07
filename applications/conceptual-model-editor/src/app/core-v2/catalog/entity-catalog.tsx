@@ -11,7 +11,7 @@ export const EntityCatalog = () => {
             <ul>
                 {[...models.entries()].map(([modelId, model]) => {
                     console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
-                    return <EntitiesOfModel key={modelId + model.getAlias()} model={model} />;
+                    return <EntitiesOfModel entityType="class" key={modelId + model.getAlias()} model={model} />;
                 })}
             </ul>
         </>

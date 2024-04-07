@@ -3,26 +3,28 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
-import { shortenStringTo } from "../util/utils";
-import { EntityRow, InputEntityRow } from "./entity-catalog-row";
+import { isAttribute, shortenStringTo } from "../util/utils";
+import { InputEntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/model-context";
-import {
-    SemanticModelClass,
-    SemanticModelRelationship,
-    isSemanticModelClass,
-} from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
 import { useCreateProfileDialog, ProfileDialogSupportedTypes } from "../dialog/create-profile-dialog";
-import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { RowHierarchy } from "./row-hierarchy";
 
-export const EntitiesOfModel = (props: { model: EntityModel }) => {
-    const { classes, classes2, allowedClasses, setAllowedClasses, profiles, deleteEntityFromModel } =
+export const EntitiesOfModel = (props: {
+    model: EntityModel;
+    entityType: "class" | "relationship" | "attribute" | "profile";
+}) => {
+    const { classes2, relationships, allowedClasses, setAllowedClasses, profiles, deleteEntityFromModel } =
         useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
@@ -31,9 +33,19 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     const { isCreateProfileDialogOpen, CreateProfileDialog, openCreateProfileDialog } = useCreateProfileDialog();
 
     const [isOpen, setIsOpen] = useState(true);
-    const { model } = props;
+    const { model, entityType } = props;
     const activeVisualModel = aggregatorView.getActiveVisualModel();
     const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#000001");
+
+    const [modelDisplayName, setModelDisplayName] = useState(model.getAlias() ?? shortenStringTo(model.getId()));
+
+    useEffect(() => {
+        console.log("entities of model, models changed");
+        const alias = models.get(model.getId())?.getAlias();
+        if (alias) {
+            setModelDisplayName(alias);
+        }
+    }, [models]);
 
     useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
@@ -48,9 +60,22 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     }, [activeVisualModel]);
 
     const modelId = model.getId();
-    let clses: JSX.Element[];
-
-    const modelDisplayName = model.getAlias() ?? shortenStringTo(modelId);
+    let entities: JSX.Element[];
+    let entitySource:
+        | SemanticModelClass[]
+        | SemanticModelRelationship[]
+        | SemanticModelRelationship[]
+        | (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
+    if (entityType == "class") {
+        entitySource = classes2;
+    } else if (entityType == "relationship") {
+        entitySource = relationships.filter((v) => !isAttribute(v));
+    } else if (entityType == "attribute") {
+        entitySource = relationships.filter(isAttribute);
+    } else {
+        // profile
+        entitySource = profiles;
+    }
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
@@ -67,7 +92,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
         }
     };
 
-    const handleOpenDetail = (entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship) => {
+    const handleOpenDetail = (
+        entity:
+            | SemanticModelClass
+            | SemanticModelClassUsage
+            | SemanticModelRelationship
+            | SemanticModelRelationshipUsage
+    ) => {
         openEntityDetailDialog(entity);
     };
 
@@ -88,9 +119,13 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
 
     const handleOpenModification = (
         model: InMemorySemanticModel,
-        cls: SemanticModelClass | SemanticModelClassUsage
+        entity:
+            | SemanticModelClass
+            | SemanticModelRelationship
+            | SemanticModelClassUsage
+            | SemanticModelRelationshipUsage
     ) => {
-        openModifyEntityDialog(cls, model);
+        openModifyEntityDialog(entity, model);
     };
 
     const handleCreateUsage = (entity: ProfileDialogSupportedTypes) => {
@@ -102,8 +137,8 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
     };
 
     if (model instanceof ExternalSemanticModel) {
-        clses = classes2
-            .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
+        entities = entitySource
+            .filter((v) => sourceModelOfEntity(v.id, [model]))
             .map((v) => (
                 <RowHierarchy
                     entity={v}
@@ -120,52 +155,56 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                 />
             ))
             .concat(
-                <InputEntityRow
-                    onClickHandler={(search: string) => {
-                        const callback = async () => {
-                            const result = await model.search(search);
-                            for (const cls of result) {
-                                await model.allowClass(cls.iri!);
-                            }
-                            console.log(result);
-                        };
-                        callback();
-                    }}
-                />
-            );
-    } else if (model instanceof InMemorySemanticModel) {
-        clses =
-            // [...classes.entries()]
-            //     .filter(([_, cwo]) => cwo.origin == model.getId())
-            // .map(([clsId, cwo]) => (
-            classes2
-                .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
-                .map((v) => (
-                    // modifiable-row, e.g. local
-                    <RowHierarchy
-                        entity={v}
-                        indent={0}
-                        handlers={{
-                            handleOpenDetail,
-                            handleAddClassToActiveView,
-                            handleCreateUsage,
-                            handleOpenModification,
-                            handleRemoveClassFromActiveView,
-                            handleExpansion: toggleAllow,
-                            handleRemoval,
+                entityType == "class" ? (
+                    <InputEntityRow
+                        onClickHandler={(search: string) => {
+                            const callback = async () => {
+                                const result = await model.search(search);
+                                for (const cls of result) {
+                                    await model.allowClass(cls.iri!);
+                                }
+                                console.log(result);
+                            };
+                            callback();
                         }}
                     />
-                ))
-                .concat(
+                ) : (
+                    <></>
+                )
+            );
+    } else if (model instanceof InMemorySemanticModel) {
+        entities = entitySource
+            .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
+            .map((v) => (
+                // modifiable-row, e.g. local
+                <RowHierarchy
+                    entity={v}
+                    indent={0}
+                    handlers={{
+                        handleOpenDetail,
+                        handleAddClassToActiveView,
+                        handleCreateUsage,
+                        handleOpenModification,
+                        handleRemoveClassFromActiveView,
+                        handleExpansion: toggleAllow,
+                        handleRemoval,
+                    }}
+                />
+            ))
+            .concat(
+                entityType == "class" ? (
                     <div key="add-a-concept-" className="flex flex-row justify-between whitespace-nowrap">
                         Add a concept
                         <button className="ml-2 bg-teal-300 px-1" onClick={() => handleAddConcept(model)}>
                             Add
                         </button>
                     </div>
-                );
+                ) : (
+                    <></>
+                )
+            );
     } else {
-        clses = classes2
+        entities = entitySource
             .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
             .map((v) => (
                 // non-expandable, e.g. dcat
@@ -202,7 +241,7 @@ export const EntitiesOfModel = (props: { model: EntityModel }) => {
                         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
                     </div>
                 </div>
-                {isOpen && <ul className="ml-1">{clses}</ul>}
+                {isOpen && <ul className="ml-1">{entities}</ul>}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
