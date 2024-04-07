@@ -12,15 +12,13 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
-import {
-    isSemanticModelClassUsage,
-    isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
-import { IriInput, WhitespaceRegExp } from "./iri-input";
+import { IriInput } from "./iri-input";
 import { getModelIri } from "../util/model-utils";
+import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 
 const AssociationComponent = (props: {
     from: string;
@@ -51,49 +49,9 @@ const AssociationComponent = (props: {
         });
     }, [name, description, source, target]);
 
-    const onCardinalityChange = (cardinalityParam: [number, number | null], what: "source" | "target") => {
-        if (what == "source") {
-            setSource((prev) => ({ ...prev, cardinality: cardinalityParam }));
-        } else if (what == "target") {
-            setTarget((prev) => ({ ...prev, cardinality: cardinalityParam }));
-        } else {
-            alert(`create-connection-dialog: unknown value of what: [${what}]`);
-        }
-    };
-
-    const isCardinalitySelected = (
-        value: [number, number | null] | undefined,
-        cardinality: [number, number | null]
-    ) => {
-        if (!value) {
-            return false;
-        }
-        return value[0] == cardinality[0] && value[1] == cardinality[1];
-    };
-
-    const RadioField = (rfProps: { label: string; card: [number, number | null]; what: "source" | "target" }) => (
-        <div className="mx-1">
-            <input
-                disabled={props.disabled}
-                type="radio"
-                id={`cardinality-${rfProps.what}-${rfProps.label}`}
-                name={`cardinality-${rfProps.what}`}
-                value={rfProps.label}
-                checked={isCardinalitySelected(
-                    rfProps.what == "source" ? source.cardinality : target.cardinality,
-                    rfProps.card
-                )}
-                onChange={() => onCardinalityChange(rfProps.card, rfProps.what)}
-            />
-            <label htmlFor={`cardinality-${rfProps.what}-${rfProps.label}`}>{rfProps.label}</label>
-        </div>
-    );
-
     return (
         <>
-            {/* TODO: sanitize */}
-            <span className="font-bold">name:</span>
-            {/* <input value={name.en!} onChange={(e) => setName({ en: e.target.value })} /> */}
+            <span className="text-lg font-bold">name:</span>
             <MultiLanguageInputForLanguageString
                 ls={name}
                 setLs={setName}
@@ -101,9 +59,7 @@ const AssociationComponent = (props: {
                 defaultLang={preferredLanguage}
                 disabled={props.disabled}
             />
-            {/* TODO: sanitize */}
             <span className="font-bold">description:</span>
-            {/* <input value={description.en!} onChange={(e) => setDescription({ en: e.target.value })} /> */}
             <MultiLanguageInputForLanguageString
                 ls={description}
                 setLs={setDescription}
@@ -115,21 +71,19 @@ const AssociationComponent = (props: {
             <div>
                 <p>
                     cardinality-source:
-                    <div className="flex flex-row [&]:font-mono">
-                        <RadioField label="0..*" what="source" card={[0, null]} />
-                        <RadioField label="1..*" what="source" card={[1, null]} />
-                        <RadioField label="0..1" what="source" card={[0, 1]} />
-                        <RadioField label="1..1" what="source" card={[1, 1]} />
-                    </div>
+                    <CardinalityOptions
+                        group="source"
+                        defaultCard={semanticCardinalityToOption(source.cardinality ?? null)}
+                        setCardinality={setSource}
+                    />
                 </p>
                 <p>
                     cardinality-target:
-                    <div className="flex flex-row [&]:font-mono">
-                        <RadioField label="0..*" what="target" card={[0, null]} />
-                        <RadioField label="1..*" what="target" card={[1, null]} />
-                        <RadioField label="0..1" what="target" card={[0, 1]} />
-                        <RadioField label="1..1" what="target" card={[1, 1]} />
-                    </div>
+                    <CardinalityOptions
+                        group="target"
+                        defaultCard={semanticCardinalityToOption(target.cardinality ?? null)}
+                        setCardinality={setTarget}
+                    />
                 </p>
             </div>
             <div>is profile of:</div>
@@ -221,9 +175,7 @@ export const useCreateConnectionDialog = () => {
             ends: [],
         });
         const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(
-            association.name[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-")
-        );
+        const [newIri, setNewIri] = useState(getRandomName(7));
 
         const [associationIsProfileOf, setAssociationIsProfileOf] = useState<string | null>(null);
 
@@ -242,7 +194,8 @@ export const useCreateConnectionDialog = () => {
                         >
                             {inMemoryModels.map(([mId, mAlias]) => (
                                 <option value={mId}>
-                                    {mAlias}:{mId}
+                                    {mAlias ? mAlias + ":" : null}
+                                    {mId}
                                 </option>
                             ))}
                         </select>
