@@ -9,17 +9,24 @@ import { getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { IriInput, WhitespaceRegExp } from "./iri-input";
+import { filterInMemoryModels } from "../util/utils";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [model, setModel] = useState(null as unknown as InMemorySemanticModel);
+    const [model, setModel] = useState<InMemorySemanticModel | null>(null);
+    const [position, setPosition] = useState<{ x: number; y: number } | undefined>(undefined);
 
-    const localOpen = (model: InMemorySemanticModel) => {
-        setModel(model);
+    const localOpen = (model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
+        setModel(model ?? null);
+        setPosition(position);
         open();
     };
 
     const CreateClassDialog = () => {
+        const { models } = useModelGraphContext();
+        const inMemoryModels = filterInMemoryModels([...models.values()]);
+        const [activeModel, setActiveModel] = useState(model ?? inMemoryModels.at(0));
+
         const { language: preferredLanguage } = useConfigurationContext();
 
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
@@ -33,6 +40,22 @@ export const useCreateClassDialog = () => {
         return (
             <BaseDialog heading="Creating an entity">
                 <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pr-16">
+                    <label className="font-bold" htmlFor="models">
+                        active model:
+                    </label>
+                    <select
+                        name="models"
+                        id="models"
+                        onChange={(e) => setActiveModel(inMemoryModels.find((m) => m.getId() == e.target.value))}
+                        defaultValue={activeModel?.getId()}
+                    >
+                        {inMemoryModels.map((m) => (
+                            <option value={m.getId()}>
+                                {m.getAlias() ? m.getAlias() + ":" : null}
+                                {m.getId()}
+                            </option>
+                        ))}
+                    </select>
                     <div className="font-semibold">name:</div>
                     <div className="text-xl">
                         <MultiLanguageInputForLanguageString
@@ -67,13 +90,19 @@ export const useCreateClassDialog = () => {
                 <div className="flex flex-row justify-evenly">
                     <button
                         onClick={() => {
+                            if (!activeModel) {
+                                alert("active model not set");
+                                return;
+                            }
                             if (!newIri) {
                                 alert("iri not set");
                                 return;
                             }
-                            const { id: clsId } = addClassToModel(model, newName, newIri, newDescription);
+                            const { id: clsId } = addClassToModel(activeModel, newName, newIri, newDescription);
                             if (clsId) {
-                                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: clsId });
+                                aggregatorView
+                                    .getActiveVisualModel()
+                                    ?.addEntity({ sourceEntityId: clsId, position: position ?? undefined });
                             }
                             close();
                         }}
