@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { createSgovModel, createRdfsModel, ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
 import { useAddModelDialog } from "../dialog/add-model-dialog";
@@ -8,15 +8,8 @@ import { shortenStringTo } from "../util/utils";
 import { useState } from "react";
 
 export const ModelCatalog = () => {
-    const {
-        aggregator,
-        aggregatorView,
-        setAggregatorView,
-        addModelToGraph,
-        models,
-        removeModelFromModels,
-        setModelAlias,
-    } = useModelGraphContext();
+    const { aggregator, setAggregatorView, addModelToGraph, models, removeModelFromModels, setModelAlias } =
+        useModelGraphContext();
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
     const handleAddModel = async (modelType: string) => {
@@ -79,6 +72,15 @@ export const ModelCatalog = () => {
 
     const ModelItem = (props: { modelId: string }) => {
         const model = models.get(props.modelId);
+        let modelType: string;
+        if (model instanceof InMemorySemanticModel) {
+            modelType = "🏠";
+        } else if (model instanceof ExternalSemanticModel) {
+            modelType = "sgov";
+        } else {
+            //if (model instanceof PimStoreWrapper) {
+            modelType = "📁";
+        }
 
         const modelAlias = model?.getAlias();
         const displayName = modelAlias ?? shortenStringTo(props.modelId);
@@ -102,12 +104,12 @@ export const ModelCatalog = () => {
         return (
             <div className="m-2 flex flex-row justify-between">
                 <div className="flex flex-row">
-                    <div>Ⓜ</div>
+                    <div className="mr-2">Ⓜ{modelType}</div>
                     {editing ? (
                         <input
                             autoFocus
                             onFocus={(e) => e.target.select()}
-                            value={newAlias ?? displayName}
+                            value={newAlias ?? displayName ?? undefined}
                             disabled={!editing}
                             onChange={(e) => setNewAlias(e.target.value)}
                             onBlur={() => {

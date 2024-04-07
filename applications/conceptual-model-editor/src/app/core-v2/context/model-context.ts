@@ -74,7 +74,7 @@ export const useModelGraphContext = () => {
     const setModelAlias = (alias: string | null, model: EntityModel) => {
         model.setAlias(alias);
         setModels((prev) => {
-            return prev.set(model.getId(), model);
+            return new Map(prev.set(model.getId(), model));
         });
     };
 
