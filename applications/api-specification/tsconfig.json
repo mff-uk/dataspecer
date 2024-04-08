@@ -16,8 +16,8 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false, // disable for early development
+    "noUnusedParameters": false, // disable for early development
     "noFallthroughCasesInSwitch": true,
 
     /** shadcn/ui */
