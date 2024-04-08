@@ -14,10 +14,14 @@ export interface VisualEntityModel {
 
     getColor(semModelId: string): string | undefined;
     setColor(semModelId: string, hexColor: string): void;
+
+    /** [modelId: string, hexColor: string] */
+    getModelColorPairs(): [string, string][];
 }
 
 export class VisualEntityModelImpl implements VisualEntityModel {
     private id: string;
+    /** [modelId: string, hexColor: string] */
     private modelColors: Map<string, string> = new Map();
     /** @internal [sourceEntityId, VisualEntity] */
     public entitiesMap: Map<string, VisualEntity> = new Map();
@@ -144,7 +148,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-                this.change(
+        this.change(
             Object.fromEntries(
                 [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
                     entity.id,
@@ -160,6 +164,10 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             ),
             []
         );
+    }
+
+    getModelColorPairs(): [string, string][] {
+        return [...this.modelColors.entries()];
     }
 }
 
