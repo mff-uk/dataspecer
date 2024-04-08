@@ -13,7 +13,7 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "./iri-input";
@@ -94,12 +94,13 @@ const AssociationComponent = (props: {
                 }}
             >
                 <option>---</option>
-                {relationshipsAndProfiles.map((a) => {
-                    const name = getStringFromLanguageStringInLang(a.ends.at(1)?.name ?? {})[0] ?? a.id;
-                    const descr = getStringFromLanguageStringInLang(a.ends.at(1)?.description ?? {})[0] ?? "";
+                {relationshipsAndProfiles.map((rp) => {
+                    const displayName = getLocalizedString(
+                        getStringFromLanguageStringInLang(rp.name ?? {}, preferredLanguage)
+                    );
                     return (
-                        <option title={descr} value={a.id}>
-                            {name}:{a.id}
+                        <option value={rp.id}>
+                            {displayName}:{rp.id}
                         </option>
                     );
                 })}

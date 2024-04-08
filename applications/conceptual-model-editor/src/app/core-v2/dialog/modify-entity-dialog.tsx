@@ -11,7 +11,11 @@ import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
+import {
+    getLocalizedString,
+    getNameOrIriAndDescription,
+    getStringFromLanguageStringInLang,
+} from "../util/language-utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { useBaseDialog } from "./base-dialog";
 import {
@@ -26,6 +30,7 @@ import { getModelIri } from "../util/model-utils";
 import { IriInput, WhitespaceRegExp } from "./iri-input";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { AddAttributesComponent } from "./attributes-component";
+import { DomainRangeComponent } from "./domain-range-component";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -80,10 +85,8 @@ export const useModifyEntityDialog = () => {
                 ? (modifiedEntity.ends as SemanticModelRelationshipEnd[]) // TODO: tohle bys mohl predelat
                 : [null, null];
 
-        const [newRange, setNewRange] = useState(currentRange?.concept);
-        const [newRange2, setNewRange2] = useState(currentRange ?? ({} as SemanticModelRelationshipEnd));
-        const [newDomain, setNewDomain] = useState(currentDomain?.concept);
-        const [newDomain2, setNewDomain2] = useState(currentDomain ?? ({} as SemanticModelRelationshipEnd));
+        const [newRange, setNewRange] = useState(currentRange ?? ({} as SemanticModelRelationshipEnd));
+        const [newDomain, setNewDomain] = useState(currentDomain ?? ({} as SemanticModelRelationshipEnd));
 
         const modelIri = getModelIri(model);
 
@@ -186,14 +189,14 @@ export const useModifyEntityDialog = () => {
 
                                         const attr = v.ends.at(1)!;
                                         const name =
-                                            getStringFromLanguageStringInLang(nameField ?? {}, preferredLanguage)[0] ??
+                                            getLocalizedString(
+                                                getStringFromLanguageStringInLang(nameField ?? {}, preferredLanguage)
+                                            ) ??
                                             v.id ??
                                             "no id or iri";
-                                        const descr =
-                                            getStringFromLanguageStringInLang(
-                                                attr.description ?? {},
-                                                preferredLanguage
-                                            )[0] ?? "";
+                                        const descr = getLocalizedString(
+                                            getStringFromLanguageStringInLang(attr.description ?? {}, preferredLanguage)
+                                        );
 
                                         return (
                                             <div
@@ -264,89 +267,13 @@ export const useModifyEntityDialog = () => {
                     */}
                     {(isSemanticModelRelationship(modifiedEntity) ||
                         isSemanticModelRelationshipUsage(modifiedEntity)) && (
-                        <>
-                            <div className="font-semibold">range:</div>
-                            <select onChange={(e) => setNewRange(e.target.value)}>
-                                <option
-                                    disabled={true}
-                                    selected={
-                                        modifiedEntity.ends.at(0)?.concept == null ||
-                                        modifiedEntity.ends.at(0)?.concept == ""
-                                    }
-                                >
-                                    ---
-                                </option>
-                                {classes.map((c) => (
-                                    <option value={c.id} selected={modifiedEntity.ends.at(0)?.concept == c.id}>
-                                        {getNameOrIriAndDescription(c, preferredLanguage)[0] +
-                                            " ".repeat(3) +
-                                            "(" +
-                                            (c.iri ?? c.id) +
-                                            ")"}
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="font-semibold">range cardinality:</div>
-                            <div>
-                                <CardinalityOptions
-                                    group="source"
-                                    defaultCard={semanticCardinalityToOption(newRange2?.cardinality ?? null)}
-                                    setCardinality={setNewRange2}
-                                />
-                            </div>
-                            <div className="font-semibold">domain:</div>
-                            <div className="flex w-full flex-row">
-                                {isAttribute(modifiedEntity) && (
-                                    <div className="mr-4">
-                                        attribute
-                                        <span
-                                            className="ml-1"
-                                            title="setting a domain makes this attribute more of a relationship"
-                                        >
-                                            ❓
-                                        </span>
-                                    </div>
-                                )}
-                                <select
-                                    className="w-full"
-                                    onChange={(e) => {
-                                        if (e.target.value == "null") {
-                                            setNewDomain(undefined);
-                                        } else {
-                                            setNewDomain(e.target.value);
-                                        }
-                                    }}
-                                >
-                                    <option
-                                        disabled={!isAttribute(modifiedEntity)}
-                                        selected={isAttribute(modifiedEntity)}
-                                        value={"null"}
-                                    >
-                                        ---
-                                    </option>
-                                    {classes.map((c) => (
-                                        <option value={c.id} selected={modifiedEntity.ends.at(1)?.concept == c.id}>
-                                            {getNameOrIriAndDescription(c, preferredLanguage)[0] +
-                                                " ".repeat(3) +
-                                                "(" +
-                                                (c.iri ?? c.id) +
-                                                ")"}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            {/* show domain cardinality only when domain is selected */}
-                            {newDomain && (
-                                <>
-                                    <div className="font-semibold">domain cardinality:</div>
-                                    <CardinalityOptions
-                                        group="target"
-                                        defaultCard={semanticCardinalityToOption(currentDomain?.cardinality ?? null)}
-                                        setCardinality={setNewDomain2}
-                                    />
-                                </>
-                            )}
-                        </>
+                        <DomainRangeComponent
+                            entity={modifiedEntity}
+                            range={newRange}
+                            setRange={setNewRange}
+                            domain={newDomain}
+                            setDomain={setNewDomain}
+                        />
                     )}
                 </div>
 
@@ -442,12 +369,12 @@ export const useModifyEntityDialog = () => {
                                 }
                             } else if (isSemanticModelRelationship(modifiedEntity)) {
                                 const rangeCard =
-                                    newRange2.cardinality != currentRange?.cardinality
-                                        ? newRange2.cardinality
+                                    newRange.cardinality != currentRange?.cardinality
+                                        ? newRange.cardinality
                                         : currentRange?.cardinality;
                                 const domainCard =
-                                    newDomain2.cardinality != currentDomain?.cardinality
-                                        ? newDomain2.cardinality
+                                    newDomain.cardinality != currentDomain?.cardinality
+                                        ? newDomain.cardinality
                                         : currentDomain?.cardinality;
 
                                 const result = modifyRelationship(model, modifiedEntity.id, {
@@ -455,12 +382,12 @@ export const useModifyEntityDialog = () => {
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange ?? currentRange?.concept ?? "",
+                                            concept: newRange.concept ?? currentRange?.concept ?? "",
                                             cardinality: rangeCard,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain ?? currentDomain?.concept ?? "",
+                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
                                             cardinality: domainCard,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is
@@ -473,12 +400,12 @@ export const useModifyEntityDialog = () => {
                                 // todo
 
                                 const rangeCard =
-                                    newRange2.cardinality != currentRange?.cardinality
-                                        ? newRange2.cardinality
+                                    newRange.cardinality != currentRange?.cardinality
+                                        ? newRange.cardinality
                                         : currentRange?.cardinality;
                                 const domainCard =
-                                    newDomain2.cardinality != currentDomain?.cardinality
-                                        ? newDomain2.cardinality
+                                    newDomain.cardinality != currentDomain?.cardinality
+                                        ? newDomain.cardinality
                                         : currentDomain?.cardinality;
 
                                 const res = updateEntityUsage(model, "relationship-usage", modifiedEntity.id, {
@@ -488,12 +415,12 @@ export const useModifyEntityDialog = () => {
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange ?? currentRange?.concept ?? "",
+                                            concept: newRange.concept ?? currentRange?.concept ?? "",
                                             cardinality: rangeCard ?? null,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain ?? currentDomain?.concept ?? "",
+                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
                                             cardinality: domainCard ?? null,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is

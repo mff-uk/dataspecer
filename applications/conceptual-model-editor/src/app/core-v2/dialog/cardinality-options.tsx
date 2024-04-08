@@ -2,7 +2,7 @@ import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model
 import { group } from "console";
 import { Dispatch, SetStateAction } from "react";
 
-export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x";
+export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 
 export const semanticCardinalityToOption = (v: null | [number, number | null]): CardinalityOption => {
     if (v == null) {
@@ -15,6 +15,8 @@ export const semanticCardinalityToOption = (v: null | [number, number | null]): 
         return "01";
     } else if (v[0] == 1 && v[1] == 1) {
         return "11";
+    } else if (v[0] == null && v[1] == null) {
+        return "xx";
     } else {
         alert("unknown cardinality option for [" + v[0] + "," + v[1]);
         return "unset";
@@ -37,6 +39,9 @@ export const CardinalityOptions = (props: {
             props.setCardinality((prev) => ({ ...prev, cardinality: [1, 1] }));
         } else if (value == "1x") {
             props.setCardinality((prev) => ({ ...prev, cardinality: [1, null] }));
+        } else if (value == "xx") {
+            // @ts-ignore  FIXME:
+            props.setCardinality((prev) => ({ ...prev, cardinality: [null, null] }));
         } else {
             alert("unknown cardinality: " + value);
         }
@@ -85,6 +90,14 @@ export const CardinalityOptions = (props: {
                     checked={props.defaultCard == "1x"}
                 />
                 <label htmlFor="1x">1..*</label>
+                <input
+                    type="radio"
+                    value="xx"
+                    name={props.group}
+                    onClick={() => cardinalitySelected("xx")}
+                    checked={props.defaultCard == "xx"}
+                />
+                <label htmlFor="xx">*..*</label>
             </fieldset>
         </div>
     );
