@@ -27,7 +27,14 @@ export const ViewManagement = () => {
     };
 
     const handleCreateNewView = () => {
+        // FIXME: workaround for having the same color for different views
+        const activeVisualModel = aggregatorView.getActiveVisualModel();
         const model = new VisualEntityModelImpl(undefined);
+        if (activeVisualModel) {
+            for (const [mId, mColor] of activeVisualModel?.getModelColorPairs()) {
+                model.setColor(mId, mColor);
+            }
+        }
         addVisualModelToGraph(model);
         aggregatorView.changeActiveVisualModel(model.getId());
         setAggregatorView(aggregator.getView());

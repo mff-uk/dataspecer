@@ -14,6 +14,14 @@ export class SemanticModelAdapter implements EntityModel {
         return this.entityModel.getId();
     }
 
+    getAlias(): string | null {
+        return this.entityModel.getAlias();
+    }
+
+    setAlias(alias: string | null): void {
+        this.entityModel.setAlias(alias);
+    }
+
     getEntities(): Entities {
         return this.entityModel.getEntities();
     }

@@ -105,19 +105,25 @@ export const useEntityDetailDialog = () => {
             isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
                 ? viewedEntity.ends
                 : null;
-        const domain =
-            c.find((cls) => cls.id == ends?.at(0)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
-        const domainCardinality = cardinalityToString(ends?.at(0)?.cardinality);
-        const domainIri = getIri(domain ?? null);
+
         const range =
-            c.find((cls) => cls.id == ends?.at(1)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
-        const rangeCardinality = cardinalityToString(ends?.at(1)?.cardinality);
+            c.find((cls) => cls.id == ends?.at(0)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
+        const rangeCardinality = cardinalityToString(ends?.at(0)?.cardinality);
         const rangeIri = getIri(range ?? null);
+        const domain =
+            c.find((cls) => cls.id == ends?.at(1)?.concept) ?? profiles.find((v) => v.id == ends?.at(1)?.concept);
+        const domainCardinality = cardinalityToString(ends?.at(1)?.cardinality);
+        const domainIri = getIri(domain ?? null);
 
         console.log(ends, domain, viewedEntity);
 
         return (
-            <BaseDialog heading="Entity detail">
+            <BaseDialog
+                heading={`${
+                    viewedEntity.type[0].charAt(0).toUpperCase() +
+                    viewedEntity.type[0].slice(1).replace("-", " ").replace("usage", "profile")
+                } detail`}
+            >
                 <div className="bg-slate-100">
                     <h5>
                         Detail of: <span className="font-semibold">{name}</span>
@@ -183,7 +189,8 @@ export const useEntityDetailDialog = () => {
 
                                     return (
                                         <div title={descr}>
-                                            {name}@{fallbackLang}
+                                            {name}
+                                            {fallbackLang ? "@" + fallbackLang : ""}
                                         </div>
                                     );
                                 })}

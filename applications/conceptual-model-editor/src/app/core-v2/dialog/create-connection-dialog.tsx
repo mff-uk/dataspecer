@@ -13,9 +13,12 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
+import { IriInput } from "./iri-input";
+import { getModelIri } from "../util/model-utils";
+import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 
 const AssociationComponent = (props: {
     from: string;
@@ -46,49 +49,9 @@ const AssociationComponent = (props: {
         });
     }, [name, description, source, target]);
 
-    const onCardinalityChange = (cardinalityParam: [number, number | null], what: "source" | "target") => {
-        if (what == "source") {
-            setSource((prev) => ({ ...prev, cardinality: cardinalityParam }));
-        } else if (what == "target") {
-            setTarget((prev) => ({ ...prev, cardinality: cardinalityParam }));
-        } else {
-            alert(`create-connection-dialog: unknown value of what: [${what}]`);
-        }
-    };
-
-    const isCardinalitySelected = (
-        value: [number, number | null] | undefined,
-        cardinality: [number, number | null]
-    ) => {
-        if (!value) {
-            return false;
-        }
-        return value[0] == cardinality[0] && value[1] == cardinality[1];
-    };
-
-    const RadioField = (rfProps: { label: string; card: [number, number | null]; what: "source" | "target" }) => (
-        <div className="mx-1">
-            <input
-                disabled={props.disabled}
-                type="radio"
-                id={`cardinality-${rfProps.what}-${rfProps.label}`}
-                name={`cardinality-${rfProps.what}`}
-                value={rfProps.label}
-                checked={isCardinalitySelected(
-                    rfProps.what == "source" ? source.cardinality : target.cardinality,
-                    rfProps.card
-                )}
-                onChange={() => onCardinalityChange(rfProps.card, rfProps.what)}
-            />
-            <label htmlFor={`cardinality-${rfProps.what}-${rfProps.label}`}>{rfProps.label}</label>
-        </div>
-    );
-
     return (
         <>
-            {/* TODO: sanitize */}
-            <span className="font-bold">name:</span>
-            {/* <input value={name.en!} onChange={(e) => setName({ en: e.target.value })} /> */}
+            <span className="text-lg font-bold">name:</span>
             <MultiLanguageInputForLanguageString
                 ls={name}
                 setLs={setName}
@@ -96,9 +59,7 @@ const AssociationComponent = (props: {
                 defaultLang={preferredLanguage}
                 disabled={props.disabled}
             />
-            {/* TODO: sanitize */}
             <span className="font-bold">description:</span>
-            {/* <input value={description.en!} onChange={(e) => setDescription({ en: e.target.value })} /> */}
             <MultiLanguageInputForLanguageString
                 ls={description}
                 setLs={setDescription}
@@ -110,21 +71,19 @@ const AssociationComponent = (props: {
             <div>
                 <p>
                     cardinality-source:
-                    <div className="flex flex-row [&]:font-mono">
-                        <RadioField label="0..*" what="source" card={[0, null]} />
-                        <RadioField label="1..*" what="source" card={[1, null]} />
-                        <RadioField label="0..1" what="source" card={[0, 1]} />
-                        <RadioField label="1..1" what="source" card={[1, 1]} />
-                    </div>
+                    <CardinalityOptions
+                        group="source"
+                        defaultCard={semanticCardinalityToOption(source.cardinality ?? null)}
+                        setCardinality={setSource}
+                    />
                 </p>
                 <p>
                     cardinality-target:
-                    <div className="flex flex-row [&]:font-mono">
-                        <RadioField label="0..*" what="target" card={[0, null]} />
-                        <RadioField label="1..*" what="target" card={[1, null]} />
-                        <RadioField label="0..1" what="target" card={[0, 1]} />
-                        <RadioField label="1..1" what="target" card={[1, 1]} />
-                    </div>
+                    <CardinalityOptions
+                        group="target"
+                        defaultCard={semanticCardinalityToOption(target.cardinality ?? null)}
+                        setCardinality={setTarget}
+                    />
                 </p>
             </div>
             <div>is profile of:</div>
@@ -135,12 +94,13 @@ const AssociationComponent = (props: {
                 }}
             >
                 <option>---</option>
-                {relationshipsAndProfiles.map((a) => {
-                    const name = getStringFromLanguageStringInLang(a.ends.at(1)?.name ?? {})[0] ?? a.id;
-                    const descr = getStringFromLanguageStringInLang(a.ends.at(1)?.description ?? {})[0] ?? "";
+                {relationshipsAndProfiles.map((rp) => {
+                    const displayName = getLocalizedString(
+                        getStringFromLanguageStringInLang(rp.name ?? {}, preferredLanguage)
+                    );
                     return (
-                        <option title={descr} value={a.id}>
-                            {name}:{a.id}
+                        <option value={rp.id}>
+                            {displayName}:{rp.id}
                         </option>
                     );
                 })}
@@ -173,7 +133,9 @@ export const useCreateConnectionDialog = () => {
     };
 
     const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-        return [...models.entries()].filter(([mId, m]) => m instanceof InMemorySemanticModel).map(([mId, _]) => mId);
+        return [...models.entries()]
+            .filter(([mId, m]) => m instanceof InMemorySemanticModel)
+            .map(([mId, m]) => [mId, m.getAlias()]) as [string, string | null][];
     };
 
     const CreateConnectionDialog = () => {
@@ -187,12 +149,12 @@ export const useCreateConnectionDialog = () => {
             return <></>;
         }
         const { language: preferredLanguage } = useConfigurationContext();
-        const { classes2: c } = useClassesContext();
+        const { classes2: c, profiles: p } = useClassesContext();
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
 
-        const source = c.find((cls) => cls.id == sourceId);
-        const target = c.find((cls) => cls.id == targetId);
+        const source = c.find((cls) => cls.id == sourceId) ?? p.find((prof) => prof.id == sourceId);
+        const target = c.find((cls) => cls.id == targetId) ?? p.find((prof) => prof.id == targetId);
 
         if (!source || !target) {
             alert("couldn't find source or target" + sourceId + " " + targetId);
@@ -200,17 +162,22 @@ export const useCreateConnectionDialog = () => {
             return;
         }
 
-        const sourceName = getStringFromLanguageStringInLang(source.name, preferredLanguage);
-        const targetName = getStringFromLanguageStringInLang(target.name, preferredLanguage);
+        const sourceName = getStringFromLanguageStringInLang(source.name ?? {}, preferredLanguage);
+        const targetName = getStringFromLanguageStringInLang(target.name ?? {}, preferredLanguage);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
-        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0) ?? "no in-memory model");
-        const [iri, setIri] = useState(getRandomName(7));
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
+
+        const modelIri = getModelIri(models.get(activeModel));
+
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
             name: {},
             description: {},
             ends: [],
         });
+        const [iriHasChanged, setIriHasChanged] = useState(false);
+        const [newIri, setNewIri] = useState(getRandomName(7));
+
         const [associationIsProfileOf, setAssociationIsProfileOf] = useState<string | null>(null);
 
         return (
@@ -226,8 +193,11 @@ export const useCreateConnectionDialog = () => {
                             onChange={(e) => setActiveModel(e.target.value)}
                             defaultValue={activeModel}
                         >
-                            {inMemoryModels.map((mId) => (
-                                <option value={mId}>{mId}</option>
+                            {inMemoryModels.map(([mId, mAlias]) => (
+                                <option value={mId}>
+                                    {mAlias ? mAlias + ":" : null}
+                                    {mId}
+                                </option>
                             ))}
                         </select>
                         <div className="font-bold">source:</div>
@@ -239,12 +209,14 @@ export const useCreateConnectionDialog = () => {
                             {targetName} -- ({targetId})
                         </div>
                         <div className="font-bold">relative iri:</div>
-                        <div>
-                            <input
-                                className="w-full"
-                                value={iri}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) => setIri(e.target.value)}
+                        <div className="flex flex-row">
+                            <div className="text-nowrap">{modelIri}</div>
+                            <IriInput
+                                name={association.name}
+                                newIri={newIri}
+                                setNewIri={(i) => setNewIri(i)}
+                                iriHasChanged={iriHasChanged}
+                                setIriHasChanged={(v) => setIriHasChanged(v)}
                             />
                         </div>
                     </div>
@@ -295,12 +267,13 @@ export const useCreateConnectionDialog = () => {
                                         type: "generalization",
                                         child: sourceId,
                                         parent: targetId,
-                                        iri: iri,
+                                        iri: newIri,
                                     } as GeneralizationConnectionType);
                                     console.log("creating generalization ", result, target, source);
                                 } else if (connectionType == "association") {
                                     if (associationIsProfileOf) {
                                         createRelationshipEntityUsage(saveModel, "relationship", {
+                                            // todo: relationshipusage nema IRI!!!
                                             usageOf: associationIsProfileOf,
                                             name: association.name,
                                             description: association.description,
@@ -324,7 +297,7 @@ export const useCreateConnectionDialog = () => {
                                     } else {
                                         const result = createConnection(saveModel, {
                                             type: "association",
-                                            iri,
+                                            iri: newIri,
                                             name: association.name,
                                             description: association.description,
                                             ends: [

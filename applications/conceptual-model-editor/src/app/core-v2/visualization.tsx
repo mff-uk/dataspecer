@@ -48,6 +48,9 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { layout, graphlib } from "@dagrejs/dagre";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { useCreateClassDialog } from "./dialog/create-class-dialog";
+import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
     const dagreGraph = new graphlib.Graph();
@@ -97,6 +100,8 @@ export const Visualization = () => {
         useCreateConnectionDialog();
     const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
     const { ModifyEntityDialog, isModifyEntityDialogOpen, openModifyEntityDialog } = useModifyEntityDialog();
+    const { CreateClassDialog, isCreateClassDialogOpen, openCreateClassDialog } = useCreateClassDialog();
+    const { CreateProfileDialog, isCreateProfileDialogOpen, openCreateProfileDialog } = useCreateProfileDialog();
 
     const { classes, classes2, relationships, /* attributes, */ generalizations, profiles, sourceModelOfEntityMap } =
         useClassesContext();
@@ -118,24 +123,16 @@ export const Visualization = () => {
     const relationshipOrGeneralizationToEdgeType = (
         entity: Entity | null,
         color: string | undefined,
-        openEntityDetailDialog: (
-            entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelGeneralization
-        ) => void
+        openEntityDetailDialog: () => void
     ): Edge | undefined => {
         if (isSemanticModelRelationshipUsage(entity)) {
             const usageNotes = entity.usageNote ? [entity.usageNote] : [];
-            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes, () =>
-                openEntityDetailDialog(entity)
-            ) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes, openEntityDetailDialog) as Edge;
         } else if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(entity, color, [], () =>
-                openEntityDetailDialog(entity)
-            ) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(entity, color, [], openEntityDetailDialog) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            console.log("got generalization to make it a rf edege");
-            return semanticModelGeneralizationToReactFlowEdge(entity, color, () =>
-                openEntityDetailDialog(entity)
-            ) as Edge;
+            // console.log("got generalization to make it a rf edege");
+            return semanticModelGeneralizationToReactFlowEdge(entity, color, openEntityDetailDialog) as Edge;
         }
         return;
     };
@@ -162,8 +159,11 @@ export const Visualization = () => {
             let [localAttributes] = [relationships.filter(isAttribute)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
-                const pos = visualEntity?.position;
-                const visible = visualEntity?.visible;
+                if (!visualEntity) {
+                    return;
+                }
+                const pos = visualEntity.position;
+                const visible = visualEntity.visible;
                 if (!cls || !pos) {
                     return;
                 }
@@ -186,6 +186,9 @@ export const Visualization = () => {
                         originModelId = modelId;
                     }
                 }
+                const sourceModel = [models.get(originModelId ?? "")].find(
+                    (m): m is InMemorySemanticModel => m instanceof InMemorySemanticModel
+                );
 
                 const attributes = localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id);
                 const idsOfAttributes = attributes.map((a) => a.id);
@@ -203,8 +206,9 @@ export const Visualization = () => {
                     pos,
                     originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
                     attributes,
-                    openEntityDetailDialog,
-                    (cls: SemanticModelClass) => openModifyEntityDialog(cls),
+                    () => openEntityDetailDialog(cls),
+                    () => openModifyEntityDialog(cls, sourceModel ?? null),
+                    () => openCreateProfileDialog(cls),
                     profilesOfAttributes,
                     attributeProfiles
                 );
@@ -214,7 +218,7 @@ export const Visualization = () => {
                 relOrGen: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage,
                 color: string | undefined
             ) => {
-                return relationshipOrGeneralizationToEdgeType(relOrGen, color, openEntityDetailDialog);
+                return relationshipOrGeneralizationToEdgeType(relOrGen, color, () => openEntityDetailDialog(relOrGen));
             };
 
             if (removed.length > 0) {
@@ -259,10 +263,10 @@ export const Visualization = () => {
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
-                        console.log("hiding node", n);
+                        // console.log("hiding node", n);
                         setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
                     } else if (n) {
-                        console.log("adding node", n);
+                        // console.log("adding node", n);
                         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                     }
                 } else if (
@@ -321,7 +325,6 @@ export const Visualization = () => {
                         )
                     )
                     .filter((e): e is Edge => {
-                        console.log("e undefined?", e);
                         return e?.id != undefined;
                     })
                     .concat(
@@ -389,6 +392,8 @@ export const Visualization = () => {
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
+            {isCreateClassDialogOpen && <CreateClassDialog />}
+            {isCreateProfileDialogOpen && <CreateProfileDialog />}
 
             <div className="h-full w-full">
                 <ReactFlow
@@ -406,6 +411,12 @@ export const Visualization = () => {
                     onConnect={onConnect}
                     snapGrid={[20, 20]}
                     snapToGrid={true}
+                    onPaneClick={(e) => {
+                        if (e.altKey) {
+                            console.log(e);
+                            openCreateClassDialog(undefined, { x: e.nativeEvent.layerX, y: e.nativeEvent.layerY });
+                        }
+                    }}
                 >
                     <Controls />
                     <MiniMap
@@ -413,20 +424,9 @@ export const Visualization = () => {
                         style={{ borderStyle: "solid", borderColor: "#5438dc", borderWidth: "2px" }}
                     />
                     <Panel position="top-right">
-                        <button
-                            onClick={() => {
-                                const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-                                    nodes,
-                                    edges,
-                                    "LR"
-                                );
-
-                                setNodes([...layoutedNodes]);
-                                setEdges([...layoutedEdges]);
-                            }}
-                        >
-                            layout
-                        </button>
+                        <div className="flex flex-col">
+                            <div title="add class to canvas by clicking and holding `alt`">ℹ</div>
+                        </div>
                     </Panel>
                     <Background gap={12} size={1} />
                 </ReactFlow>
