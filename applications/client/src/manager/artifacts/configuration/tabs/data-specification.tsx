@@ -180,16 +180,6 @@ export const DataSpecification: FC<{
       </Grid>
       <Grid item xs={12}>
         <SwitchWithDefault
-            label="LDkit application skeleton (experimental)"
-            current={input.useGenerators ?? {}}
-            itemKey="LDkit"
-            onChange={(value) => onChange({ ...input, useGenerators: value })}
-            default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
-            undefinedIs={generatorsEnabledByDefault}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <SwitchWithDefault
           label="Documentation"
           current={input.useGenerators ?? {}}
           itemKey="respec"

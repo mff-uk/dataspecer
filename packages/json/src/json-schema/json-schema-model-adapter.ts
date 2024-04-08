@@ -314,7 +314,7 @@ function structureModelPrimitiveToJsonDefinition(
       result.examples = primitive.example;
       break;
     case OFN.text:
-      result = languageString();
+      result = languageString(primitive.languageStringRequiredLanguages);
       result.title = context.stringSelector(OFN_LABELS[OFN.text]);
       break;
     case OFN.rdfLangString:
@@ -336,8 +336,10 @@ function structureModelCustomTypeToJsonDefinition(
   return new JsonSchemaCustomType(customType.data);
 }
 
-function languageString(): JsonSchemaObject {
+function languageString(requiredLanguages: string[]): JsonSchemaObject {
   const result = new JsonSchemaObject();
+
+  result.required = requiredLanguages;
 
   const cs = new JsonSchemaString(null);
   result.properties["cs"] = cs;

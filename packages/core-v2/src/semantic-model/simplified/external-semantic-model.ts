@@ -41,6 +41,14 @@ export class ExternalSemanticModel implements EntityModel {
         return this.id;
     }
 
+    getAlias(): string | null {
+        return this.id;
+    }
+
+    setAlias(alias: string): void {
+        return;
+    }
+
     getEntities(): Record<string, Entity> {
         return this.observableModel.getEntities();
     }

@@ -8,6 +8,7 @@ import { WritableSemanticModelAdapter } from "../../semantic-model/writable-sema
 import { VisualEntityModel } from "../../visual-model";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model";
 import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
+import { PimStoreWrapper } from "../../semantic-model/v1-adapters";
 
 async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise<WritableSemanticModelAdapter> {
     const baseModel = HttpEntityModel.createFromDescriptor(data, httpFetch);
@@ -41,7 +42,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
-                return (await result.json()) as Package;
+        return (await result.json()) as Package;
     }
 
     async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {
@@ -160,6 +161,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/in-memory-semantic-model"
             ) {
                 const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
+                constructedEntityModels.push(model);
+            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper") {
+                const model = new PimStoreWrapper(modelDescriptor.pimStore, modelDescriptor.id, modelDescriptor.alias);
+                model.fetchFromPimStore();
                 constructedEntityModels.push(model);
             } else {
                 throw new Error(`Unknown model descriptor type: ${modelDescriptor.type}. Can not create such model.`);

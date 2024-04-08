@@ -24,6 +24,7 @@ export async function executePimSetDataType(
       {
         ...resource,
         pimDatatype: operation.pimDatatype,
+        pimLanguageStringRequiredLanguages: operation.pimLanguageStringRequiredLanguages,
       } as CoreResource,
     ]
   );

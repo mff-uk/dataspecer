@@ -12,12 +12,16 @@ export interface VisualEntityModel {
     subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
     deserializeModel(data: object): VisualEntityModel;
 
-    getColor(semModelId: string): string;
+    getColor(semModelId: string): string | undefined;
     setColor(semModelId: string, hexColor: string): void;
+
+    /** [modelId: string, hexColor: string] */
+    getModelColorPairs(): [string, string][];
 }
 
 export class VisualEntityModelImpl implements VisualEntityModel {
     private id: string;
+    /** [modelId: string, hexColor: string] */
     private modelColors: Map<string, string> = new Map();
     /** @internal [sourceEntityId, VisualEntity] */
     public entitiesMap: Map<string, VisualEntity> = new Map();
@@ -25,6 +29,8 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
 
     constructor(modelId: string | undefined) {
+        console.log("visual model being created");
+        console.trace();
         this.id = modelId ?? createId();
     }
 
@@ -136,20 +142,13 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     }
 
     getColor(modelId: string) {
-        const color = this.modelColors.get(modelId);
-        if (color) {
-            return color;
-        }
-
-        const defaultColor = "#db0000";
-        this.setColor(modelId, defaultColor);
-        return defaultColor;
+        return this.modelColors.get(modelId);
     }
 
     setColor(modelId: string, hexColor: string) {
         // TODO: sanitize
         this.modelColors.set(modelId, hexColor);
-                this.change(
+        this.change(
             Object.fromEntries(
                 [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
                     entity.id,
@@ -165,6 +164,10 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             ),
             []
         );
+    }
+
+    getModelColorPairs(): [string, string][] {
+        return [...this.modelColors.entries()];
     }
 }
 

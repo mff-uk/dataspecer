@@ -89,10 +89,6 @@ const artefactTitle = {
       cs: "ShEx Map",
       en: "ShEx Map",
   },
-  "https://schemas.dataspecer.com/generator/LDkit": {
-      cs: "LDkit ukázková aplikace",
-      en: "LDkit example application",
-  },
 };
 
 export const ArtifactNames: FC<{

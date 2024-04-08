@@ -10,10 +10,13 @@
     ".": "./lib/index.js"
   },
   "dependencies": {
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "ldkit": "^1.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "rimraf": "^5.0.5",
+    "ts-morph": "^22.0.0",
     "typescript": "~5.4.2"
   }
 }

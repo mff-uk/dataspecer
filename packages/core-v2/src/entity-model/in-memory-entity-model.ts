@@ -6,14 +6,29 @@ import { EntityModel } from "./entity-model";
  */
 export class InMemoryEntityModel implements EntityModel {
     /** @internal */
-    public id: string = createId();
+    public id: string;
+    /** @internal */
+    public alias?: string;
     /** @internal */
     public entities: Record<string, Entity> = {};
     /** @internal */
     public listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
 
+    constructor(id?: string, alias?: string) {
+        this.id = id ?? createId();
+        this.alias = alias;
+    }
+
     getId(): string {
         return this.id;
+    }
+
+    getAlias(): string | null {
+        return this.alias ?? null;
+    }
+
+    setAlias(alias: string | null) {
+        this.alias = alias ?? undefined;
     }
 
     getEntities(): Record<string, Entity> {

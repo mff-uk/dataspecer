@@ -38,7 +38,7 @@ test("Update attribute datatype.", async () => {
 
   expect(actual.failed).toBeFalsy();
   expect(actual.created).toEqual({});
-  expect(actual.changed).toEqual({
+  expect(actual.changed).toMatchObject({
     "http://localhost/1": {
       iri: "http://localhost/1",
       types: [PIM.ATTRIBUTE],
