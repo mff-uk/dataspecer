@@ -1,5 +1,5 @@
 import { SourceCodeWriter, SourceCodeLanguageIdentifier } from "../writers/source-code-writer-model";
-import { TypescriptWriter } from "../writers/typescript-writer";
+import { TypescriptWriter } from "../writers/ts-writer";
 
 export function tryGetKnownDictionaryPrefix(iri: string) {
     const knownPrefixes: { [key: string]: string } = {
