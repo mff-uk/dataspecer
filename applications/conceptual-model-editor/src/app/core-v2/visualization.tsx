@@ -47,52 +47,9 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { layout, graphlib } from "@dagrejs/dagre";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useCreateClassDialog } from "./dialog/create-class-dialog";
 import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
-
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
-    const dagreGraph = new graphlib.Graph();
-    const isHorizontal = direction === "LR";
-    dagreGraph.setGraph({ rankdir: direction });
-
-    const fallbackNodeWidth = 150,
-        fallbackNodeHeight = 100;
-
-    nodes.forEach((node) => {
-        dagreGraph.setNode(node.id, {
-            width: node.width ?? fallbackNodeWidth,
-            height: node.height ?? fallbackNodeHeight,
-        });
-    });
-
-    edges.forEach((edge) => {
-        dagreGraph.setEdge(edge.source, edge.target);
-    });
-
-    console.log(dagreGraph);
-    layout(dagreGraph);
-
-    nodes.forEach((node) => {
-        const nodeWithPosition = dagreGraph.node(node.id);
-        node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-        node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-
-        // We are shifting the dagre node position (anchor=center center) to the top left
-        // so it matches the React Flow node anchor point (top left).
-        node.position = {
-            x: nodeWithPosition.x - (node.width ?? fallbackNodeWidth) / 2,
-            y: nodeWithPosition.y - (node.height ?? fallbackNodeHeight) / 2,
-        };
-
-        return node;
-    });
-
-    console.log(nodes);
-
-    return { nodes, edges };
-};
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
