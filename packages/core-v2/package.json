@@ -11,6 +11,7 @@
   "exports": {
     ".": "./lib/entity-model/index.js", 
     "./entity-model": "./lib/entity-model/index.js",
+    "./model/known-models": "./lib/model/known-models.js",
     "./project": "./lib/project/index.js",
     "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
     "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
