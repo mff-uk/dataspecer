@@ -46,7 +46,7 @@ export interface Package extends BaseResource {
 /**
  * Resource model manages resource in local database that is managed by Prisma.
  */
-export class APIAdapterForPackagesAndResources {
+export class ResourceModel {
     private readonly storeModel: LocalStoreModel;
     private readonly prismaClient: PrismaClient;
 
@@ -208,6 +208,30 @@ export class APIAdapterForPackagesAndResources {
             });
             return this.storeModel.getModelStore(store.uuid);
         }
+    }
+
+    async deleteModelStore(iri: string, storeName: string = "model") {
+        const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
+        if (prismaResource === null) {
+            throw new Error("Resource not found.");
+        }
+        
+        const dataStoreId = JSON.parse(prismaResource.dataStoreId);
+
+        if (!dataStoreId[storeName]) {
+            throw new Error("Store not found.");
+        }
+
+        await this.storeModel.remove(this.storeModel.getById(dataStoreId[storeName]));
+
+        delete dataStoreId[storeName];
+
+        await this.prismaClient.resource.update({
+            where: {id: prismaResource.id},
+            data: {
+                dataStoreId: JSON.stringify(dataStoreId)
+            }
+        });
     }
 
     async assignExistingStoreToResource(iri: string, storeId: string, storeName: string = "model") {

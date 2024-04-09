@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { APIAdapterForPackagesAndResources } from "../models/resource-model";
+import { ResourceModel } from "../models/resource-model";
 import { LocalStoreModel } from "../models/local-store-model";
 import { V1 } from "@dataspecer/core-v2/model/known-models";
+import { ROOT_PACKAGE_FOR_V1, createV1RootModel } from "../models/data-specification-model-adapted";
 
 (async () => {    
     const prisma = new PrismaClient();
@@ -10,14 +11,18 @@ import { V1 } from "@dataspecer/core-v2/model/known-models";
     const reuses = await prisma.$queryRaw`SELECT * FROM _DataSpecificationReuse` as any[];
     prisma.$disconnect();
     
-    
-    const adapter = new APIAdapterForPackagesAndResources(null as any, prisma);
+    const adapter = new ResourceModel(null as any, prisma);
     const storeModel = new LocalStoreModel("./database/stores");
     
-    const rootPackage = "http://dataspecer.com/packages/v1";
-    
-    
-    await adapter.createPackage(null, rootPackage, {});
+    if (await adapter.getPackage(ROOT_PACKAGE_FOR_V1)) {
+        if (process.argv[2] !== "--force") {
+            throw new Error("Root package for model v1 already exists. Use --force to overwrite. Aborting.");
+        } else {
+            throw new Error("Root package for model v1 already exists. Overwriting.");
+        }
+    }
+
+    await createV1RootModel(adapter);
     
     for (const dataSpecification of dataSpecifications) {
         const pimBuffer = await storeModel.get(dataSpecification.storeId);
@@ -26,7 +31,7 @@ import { V1 } from "@dataspecer/core-v2/model/known-models";
         const description = pim.resources[dataSpecification.pimSchema].pimHumanDescription;
         
         // Data specification
-        await adapter.createPackage(rootPackage, dataSpecification.id, {
+        await adapter.createPackage(ROOT_PACKAGE_FOR_V1, dataSpecification.id, {
             label,
             description,
             tags: JSON.parse(dataSpecification.tags)
@@ -49,7 +54,9 @@ import { V1 } from "@dataspecer/core-v2/model/known-models";
         {
             await adapter.createResource(dataSpecification.id, dataSpecification.id + "/cim", V1.CIM, {});
             const store = await adapter.getOrCreateResourceModelStore(dataSpecification.id + "/cim");
-            await store.setString(dataSpecification.cimAdapters);
+            await store.setJson({
+                models: JSON.parse(dataSpecification.cimAdapters),
+            });
         }
 
         // PIM

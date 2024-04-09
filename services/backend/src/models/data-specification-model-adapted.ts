@@ -6,9 +6,22 @@ import { PimCreateSchema } from "@dataspecer/core/pim/operation";
 import { v4 as uuidv4 } from "uuid";
 import { LocalStoreDescriptor } from "./local-store-descriptor";
 import { LocalStoreModel } from "./local-store-model";
-import { APIAdapterForPackagesAndResources } from "./resource-model";
+import { ResourceModel } from "./resource-model";
 
-const ROOT_PACKAGE_FOR_V1 = "http://dataspecer.com/packages/v1";
+export const ROOT_PACKAGE_FOR_V1 = "http://dataspecer.com/packages/v1";
+
+export async function createV1RootModel(adapter: ResourceModel) {
+  await adapter.createPackage(null, ROOT_PACKAGE_FOR_V1, {
+    label: {
+      cs: "Datové specifikace z core@v.1",
+      en: "Data specifications from core@v.1"
+    },
+    description: {
+      cs: "Tato složka obsahuje všechny datové specifikace se kterými dokáže pracovat manažer specifikací z core@v.1.",
+      en: "This folder contains all data specifications that can be managed by the data specification manager from core@v.1."
+    }
+  });
+}
 
 /**
  * Manages data specifications, its data structures and store handlers.
@@ -17,9 +30,9 @@ const ROOT_PACKAGE_FOR_V1 = "http://dataspecer.com/packages/v1";
 export class DataSpecificationModelAdapted {
   private readonly storeModel: LocalStoreModel;
   private readonly iriTemplate: string;
-  private readonly resourceModel: APIAdapterForPackagesAndResources;
+  private readonly resourceModel: ResourceModel;
 
-  constructor(storeModel: LocalStoreModel, iriTemplate: string, resourceModel: APIAdapterForPackagesAndResources) {
+  constructor(storeModel: LocalStoreModel, iriTemplate: string, resourceModel: ResourceModel) {
     this.storeModel = storeModel;
     this.iriTemplate = iriTemplate;
     this.resourceModel = resourceModel;
@@ -87,7 +100,7 @@ export class DataSpecificationModelAdapted {
       psmStores: Object.fromEntries(psmResources.map(psmResource => [psmResource.iri, [this.storeModel.getById(psmResource.dataStores.model)]])),
       tags: dataSpecificationPackage.userMetadata.tags ?? [],
       type: "http://dataspecer.com/vocabularies/data-specification/documentation",
-      cimAdapters: JSON.parse((await this.storeModel.get(cimResource.dataStores.model))!.toString()),
+      cimAdapters: JSON.parse((await this.storeModel.get(cimResource.dataStores.model))!.toString()).models ?? [],
     };
   }
 
@@ -124,7 +137,7 @@ export class DataSpecificationModelAdapted {
 
     // Create CIM
     await this.resourceModel.createResource(iri, iri + "/cim", V1.CIM, {});
-    await (await this.resourceModel.getOrCreateResourceModelStore(iri + "/cim")).setJson([]);
+    await (await this.resourceModel.getOrCreateResourceModelStore(iri + "/cim")).setJson({models: []});
 
     // Create rest of PIM
     await this.resourceModel.createResource(iri, pimSchema, V1.PIM, {});
@@ -177,7 +190,11 @@ export class DataSpecificationModelAdapted {
     }
 
     if (dataSpecification.cimAdapters) {
-      await this.storeModel.set(cimResource.dataStores.model, JSON.stringify(dataSpecification.cimAdapters));
+      const modelStore = await this.storeModel.getModelStore(cimResource.dataStores.model);
+      await modelStore.setJson({
+        ...await modelStore.getJson(),
+        models: dataSpecification.cimAdapters,
+      });
     }
 
     return (await this.getDataSpecification(iri))!;

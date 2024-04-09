@@ -15,7 +15,6 @@ import {createDataPsm, deleteDataPsm} from "./routes/dataPsm";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { generateBikeshedRoute } from "./routes/bikeshed";
-import {DataSpecificationModel} from "./models/data-specification-model";
 import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
 import {convertLocalStoresToHttpStores} from "./utils/local-store-to-http-store";
 import configuration from "./configuration";
@@ -31,12 +30,16 @@ import {
     updatePackage
 } from "./routes/packages";
 import {LocalStoreDescriptor} from "./models/local-store-descriptor";
+import { DataSpecificationModelAdapted, ROOT_PACKAGE_FOR_V1, createV1RootModel } from "./models/data-specification-model-adapted";
+import { ResourceModel } from "./models/resource-model";
+import { createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
 
-// Create models
+// Create application models
 
 export const storeModel = new LocalStoreModel("./database/stores");
 export const prismaClient = new PrismaClient();
-export const dataSpecificationModel = new DataSpecificationModel(storeModel, prismaClient,"https://ofn.gov.cz/data-specification/{}");
+export const resourceModel = new ResourceModel(storeModel, prismaClient);
+export const dataSpecificationModel = new DataSpecificationModelAdapted(storeModel, "https://ofn.gov.cz/data-specification/{}", resourceModel);
 export const packageModel = new PackageModel(storeModel, prismaClient);
 
 export const storeApiUrl = configuration.host + '/store/{}';
@@ -89,6 +92,28 @@ application.get(basename + '/packages/semantic-models', getSemanticModels);
 application.patch(basename + '/packages/semantic-models', setSemanticModels);
 application.post(basename + '/packages/semantic-models', createSemanticModel);
 
+// Manipulates with resources on metadata level only.
+application.get(basename + '/resources', getResource);
+application.put(basename + '/resources', updateResource);
+application.delete(basename + '/resources', deleteResource);
+// Low level API for creating new resources.
+application.post(basename + '/resources', createResource);
+
+// Manipulates with raw data (blobs) of the resource, if available.
+// Raw data may not be available at all if the resource is not a file, per se. Then, use other operations to access and manipulate the resource.
+application.get(basename + '/resources/blob', getBlob);
+application.post(basename + '/resources/blob', updateBlob);
+application.put(basename + '/resources/blob', updateBlob);
+application.delete(basename + '/resources/blob', deleteBlob);
+
+// Operations on resoruces that are interpreted as packages
+application.get(basename + '/resources/packages', getPackageResource);
+application.post(basename + '/resources/packages', createPackageResource);
+application.patch(basename + '/resources/packages', updateResource); // same
+application.delete(basename + '/resources/packages', deleteResource); // same
+// Special operation to list all root packages
+application.get(basename + '/resources/root-resources', getRootPackages); // ---
+
 // Configuration
 
 application.get(basename + '/default-configuration', getDefaultConfiguration);
@@ -102,7 +127,24 @@ application.put(basename + '/store/:storeId', writeStore);
 
 application.post(basename + '/transformer/bikeshed', bodyParser.text({type:"*/*", limit: configuration.payloadSizeLimit}), generateBikeshedRoute);
 
-application.listen(Number(configuration.port), () => {
-    console.log(`Server is listening on port ${Number(configuration.port)}.`);
-    console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
-});
+(async () => {
+    // Create root models for the common use and for the v1 adapter.
+    if (!await resourceModel.getResource(ROOT_PACKAGE_FOR_V1)) {
+        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
+        await createV1RootModel(resourceModel);
+    }
+    if (!await resourceModel.getResource("http://dataspecer.com/packages/local-root")) {
+        console.log("There is no default root package. Creating one...");
+        await resourceModel.createPackage(null, "http://dataspecer.com/packages/local-root", {
+            label: {
+                cs: "Lokální modely",
+                en: "Local models"
+            },
+        });
+    }
+
+    application.listen(Number(configuration.port), () => {
+        console.log(`Server is listening on port ${Number(configuration.port)}.`);
+        console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
+    });
+})();
