@@ -7,12 +7,18 @@ export const usePackageSearch = () => {
     const { queryParams, setQueryParams } = useQueryParams();
     const [packageId, setPackageId] = useState<string>();
 
-    useEffect(() => {
+    const changePackageId = () => {
         const pId = queryParams.get(PACKAGE_ID);
         if (pId && pId != packageId) {
             setPackageId(pId);
             console.log(`package-search: setting a new package id pid:'${pId}', packageId:'${packageId}'`);
         }
+        if (!pId) {
+        }
+    };
+
+    useEffect(() => {
+        changePackageId();
     }, [queryParams]);
 
     const setPackage = (pckgId: string | null) => {

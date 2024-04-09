@@ -89,8 +89,23 @@ const Page = () => {
         getModels()
             .then((models) => {
                 console.log("getModels: then: models:", models);
-                const [entityModels, visualModels] = models;
-                for (const model of visualModels) {
+                const [entityModels, visualModels2] = models;
+                if (entityModels.length == 0 && visualModels2.length == 0) {
+                    console.log("empty models from backend", entityModels, visualModels2);
+
+                    const visualModel = new VisualEntityModelImpl(undefined);
+                    visualModels2.push(visualModel);
+
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                for (const model of visualModels2) {
                     aggregator.addModel(model);
                     setVisualModels((prev) => prev.set(model.getId(), model));
                 }
@@ -99,14 +114,15 @@ const Page = () => {
                     setModels((previous) => previous.set(model.getId(), model));
                 }
                 setAggregatorView(aggregator.getView());
+                return visualModels2;
             })
-            .then(() => {
-                const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+            .then((vm: VisualEntityModel[]) => {
+                const availableVisualModelIds = vm.map((m) => m.getId());
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
                     aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
                 } else {
                     // choose the first available model
-                    const modelId = [...visualModels.keys()].at(0);
+                    const modelId = vm.at(0)?.getId();
                     if (modelId) {
                         aggregatorView.changeActiveVisualModel(modelId);
                     }

@@ -9,7 +9,7 @@ export const AttributeCatalog = () => {
         <>
             <ul>
                 {[...models.entries()].map(([modelId, model]) => {
-                    console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
+                    // console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
                     return <EntitiesOfModel entityType="attribute" key={modelId + model.getAlias()} model={model} />;
                 })}
             </ul>
@@ -25,7 +25,7 @@ export const RelationshipCatalog = () => {
         <>
             <ul>
                 {[...models.entries()].map(([modelId, model]) => {
-                    console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
+                    // console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
                     return <EntitiesOfModel entityType="relationship" key={modelId + model.getAlias()} model={model} />;
                 })}
             </ul>

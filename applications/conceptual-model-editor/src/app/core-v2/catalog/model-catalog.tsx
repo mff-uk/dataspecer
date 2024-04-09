@@ -103,35 +103,37 @@ export const ModelCatalog = () => {
 
         return (
             <div className="m-2 flex flex-row justify-between">
-                <div className="flex flex-row">
+                <div className="flex flex-row overflow-x-clip">
                     <div className="mr-2">Ⓜ{modelType}</div>
                     {editing ? (
-                        <input
-                            autoFocus
-                            onFocus={(e) => e.target.select()}
-                            value={newAlias ?? displayName ?? undefined}
-                            disabled={!editing}
-                            onChange={(e) => setNewAlias(e.target.value)}
-                            onBlur={() => {
-                                saveAlias();
-                                reset();
-                            }}
-                            onKeyUp={(e) => {
-                                if (e.key === "Enter") {
+                        <div>
+                            <input
+                                className="w-full flex-grow"
+                                autoFocus
+                                onFocus={(e) => e.target.select()}
+                                value={newAlias ?? displayName ?? undefined}
+                                disabled={!editing}
+                                onChange={(e) => setNewAlias(e.target.value)}
+                                onBlur={() => {
                                     saveAlias();
                                     reset();
-                                }
-                                if (e.key === "Escape") {
-                                    reset();
-                                }
-                            }}
-                        />
+                                }}
+                                onKeyUp={(e) => {
+                                    if (e.key === "Enter") {
+                                        saveAlias();
+                                        reset();
+                                    }
+                                    if (e.key === "Escape") {
+                                        reset();
+                                    }
+                                }}
+                            />
+                        </div>
                     ) : (
-                        // <div>bob</div>
-                        <div>{displayName}</div>
+                        <div className="text-nowrap">{displayName}</div>
                     )}
                 </div>
-                <div>
+                <div className="flex flex-row">
                     <button className="hover:shadow-sm" onClick={() => setEditing(true)}>
                         ✏
                     </button>
@@ -143,7 +145,7 @@ export const ModelCatalog = () => {
         );
     };
 
-    console.log("rerender");
+    // console.log("rerender");
 
     return (
         <>
