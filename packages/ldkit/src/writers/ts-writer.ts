@@ -1,14 +1,10 @@
-import { printNode, Project, SourceFileCreateOptions } from "ts-morph";
 import ts, {
     factory,
     createPrinter,
-    createSourceFile,
     Expression,
     Node,
     NodeFlags,
     PropertyAccessExpression,
-    ScriptTarget,
-    ScriptKind,
     SyntaxKind,
     VariableDeclaration,
     VariableDeclarationList,
@@ -34,11 +30,11 @@ export class TypescriptWriter implements SourceCodeWriter {
 
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string {
 
-        const filePath: string = this.generateSourceFilePath("./generated/", aggregateMetadata.aggregateName);
         const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
-        const printed: string = printNode(ldkitSchemaRootNode);
+        const sourceFile: ts.SourceFile = ts.createSourceFile("", "", ts.ScriptTarget.Latest);
+        const printed = createPrinter().printNode(ts.EmitHint.Unspecified, ldkitSchemaRootNode, sourceFile);
 
-        return printed; //printed;
+        return printed;
     }
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
