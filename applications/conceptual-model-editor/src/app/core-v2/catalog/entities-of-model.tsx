@@ -48,7 +48,7 @@ export const EntitiesOfModel = (props: {
     }, [models]);
 
     useEffect(() => {
-        console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
+        // console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
         // fixme: move it elsewhere
         let color = activeVisualModel?.getColor(model.getId());
         if (!color) {
