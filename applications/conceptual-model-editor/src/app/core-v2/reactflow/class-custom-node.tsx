@@ -22,8 +22,9 @@ type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
     color: string | undefined;
     attributes: SemanticModelRelationship[];
-    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void;
-    openModifyDialog: (cls: SemanticModelClass) => void;
+    openEntityDetailDialog: () => void;
+    openModifyDialog: () => void;
+    openProfileDialog: () => void;
     usagesOfAttributes: SemanticModelClassUsage[];
     attributeUsages: SemanticModelRelationshipUsage[];
 };
@@ -107,21 +108,14 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                 })}
 
                 <div className="flex flex-row justify-between">
-                    <button
-                        className="text-slate-500"
-                        onClick={() => {
-                            alert("FIXME: editing class");
-                        }}
-                    >
+                    <button className="text-slate-500" onClick={props.data.openModifyDialog}>
                         edit
                     </button>
-                    <button
-                        className="text-slate-500"
-                        onClick={() => {
-                            props.data.openEntityDetailDialog(cls);
-                        }}
-                    >
+                    <button className="text-slate-500" onClick={props.data.openEntityDetailDialog}>
                         detail
+                    </button>
+                    <button className="text-slate-500" onClick={props.data.openProfileDialog}>
+                        profile
                     </button>
                 </div>
             </div>
@@ -158,8 +152,10 @@ export const semanticModelClassToReactFlowNode = (
     position: XYPosition,
     color: string | undefined, // FIXME: vymysli lip
     attributes: SemanticModelRelationship[],
-    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void,
-    openModifyDialog: (cls: SemanticModelClass) => void,
+    openEntityDetailDialog: () => void,
+    openModifyDialog: () => void,
+    openProfileDialog: () => void,
+
     usagesOfAttributes: SemanticModelClassUsage[],
     attributeUsages: SemanticModelRelationshipUsage[]
 ) =>
@@ -172,6 +168,7 @@ export const semanticModelClassToReactFlowNode = (
             attributes,
             openEntityDetailDialog,
             openModifyDialog,
+            openProfileDialog,
             usagesOfAttributes,
             attributeUsages,
         } satisfies ClassCustomNodeDataType,

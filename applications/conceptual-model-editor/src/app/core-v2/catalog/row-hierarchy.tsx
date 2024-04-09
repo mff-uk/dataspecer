@@ -4,7 +4,11 @@ import {
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityRow } from "./entity-catalog-row";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { useModelGraphContext } from "../context/model-context";
@@ -15,13 +19,23 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useState } from "react";
 
 export const RowHierarchy = (props: {
-    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship;
+    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
     handlers: {
         handleOpenModification: (
             model: InMemorySemanticModel,
-            entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship
+            entity:
+                | SemanticModelClass
+                | SemanticModelClassUsage
+                | SemanticModelRelationship
+                | SemanticModelRelationshipUsage
         ) => void;
-        handleOpenDetail: (cls: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship) => void;
+        handleOpenDetail: (
+            cls:
+                | SemanticModelClass
+                | SemanticModelClassUsage
+                | SemanticModelRelationship
+                | SemanticModelRelationshipUsage
+        ) => void;
         handleAddClassToActiveView: (classId: string) => void;
         handleRemoveClassFromActiveView: (classId: string) => void;
         handleCreateUsage: (entity: ProfileDialogSupportedTypes) => void;
@@ -43,10 +57,20 @@ export const RowHierarchy = (props: {
             : null;
 
     const expansionHandler =
-        sourceModel instanceof ExternalSemanticModel
+        isSemanticModelClass(props.entity) && sourceModel instanceof ExternalSemanticModel
             ? {
                   toggleHandler: () => props.handlers.handleExpansion(sourceModel, props.entity.id),
                   expanded: () => allowedClasses.includes(props.entity.id),
+              }
+            : null;
+
+    const drawingHandler =
+        isSemanticModelClass(props.entity) || isSemanticModelClassUsage(props.entity)
+            ? {
+                  addToViewHandler: () => props.handlers.handleAddClassToActiveView(props.entity.id),
+                  removeFromViewHandler: () => props.handlers.handleRemoveClassFromActiveView(props.entity.id),
+                  isVisibleOnCanvas: () =>
+                      aggregatorView.getActiveVisualModel()?.getVisualEntity(props.entity.id)?.visible ?? false,
               }
             : null;
 
@@ -54,6 +78,12 @@ export const RowHierarchy = (props: {
         sourceModel instanceof InMemorySemanticModel
             ? { remove: () => props.handlers.handleRemoval(sourceModel, props.entity.id) }
             : null;
+
+    const profilingHandler = {
+        createProfileHandler: () => {
+            props.handlers.handleCreateUsage(props.entity);
+        },
+    };
 
     const thisEntityProfiles = profiles
         .filter((p) => p.usageOf == props.entity.id)
@@ -81,22 +111,9 @@ export const RowHierarchy = (props: {
                     expandable={expansionHandler}
                     openDetailHandler={() => props.handlers.handleOpenDetail(props.entity)}
                     modifiable={modificationHandler}
-                    drawable={{
-                        addToViewHandler: () => props.handlers.handleAddClassToActiveView(props.entity.id),
-                        removeFromViewHandler: () => props.handlers.handleRemoveClassFromActiveView(props.entity.id),
-                        isVisibleOnCanvas: () =>
-                            aggregatorView.getActiveVisualModel()?.getVisualEntity(props.entity.id)?.visible ?? false,
-                    }}
+                    drawable={drawingHandler}
                     removable={removalHandler}
-                    profile={
-                        isSemanticModelClass(props.entity)
-                            ? {
-                                  createProfileHandler: () => {
-                                      props.handlers.handleCreateUsage(props.entity);
-                                  },
-                              }
-                            : null
-                    }
+                    profile={profilingHandler}
                 />
             </div>
             {(props.indent > 0 || showProfiles) &&

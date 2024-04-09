@@ -1,13 +1,14 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { createSgovModel, createRdfsModel, ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
 import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { shortenStringTo } from "../util/utils";
+import { useState } from "react";
 
 export const ModelCatalog = () => {
-    const { aggregator, aggregatorView, setAggregatorView, addModelToGraph, models, removeModelFromModels } =
+    const { aggregator, setAggregatorView, addModelToGraph, models, removeModelFromModels, setModelAlias } =
         useModelGraphContext();
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
@@ -71,15 +72,80 @@ export const ModelCatalog = () => {
 
     const ModelItem = (props: { modelId: string }) => {
         const model = models.get(props.modelId);
+        let modelType: string;
+        if (model instanceof InMemorySemanticModel) {
+            modelType = "🏠";
+        } else if (model instanceof ExternalSemanticModel) {
+            modelType = "sgov";
+        } else {
+            //if (model instanceof PimStoreWrapper) {
+            modelType = "📁";
+        }
+
+        const modelAlias = model?.getAlias();
+        const displayName = modelAlias ?? shortenStringTo(props.modelId);
+
+        const [editing, setEditing] = useState(false);
+        const [newAlias, setNewAlias] = useState(modelAlias);
+
+        const reset = () => {
+            setNewAlias(modelAlias);
+            setEditing(false);
+        };
+
+        const saveAlias = () => {
+            if (!model) {
+                return;
+            }
+            console.log("saving new alias", newAlias, " to model ", model);
+            setModelAlias(newAlias ?? null, model);
+        };
+
         return (
-            <div className={`m-2 flex flex-row justify-between`}>
-                <h4 onClick={() => console.log(model)}>Ⓜ {shortenStringTo(props.modelId)}</h4>
-                <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
-                    🗑️
-                </button>
+            <div className="m-2 flex flex-row justify-between">
+                <div className="flex flex-row overflow-x-clip">
+                    <div className="mr-2">Ⓜ{modelType}</div>
+                    {editing ? (
+                        <div>
+                            <input
+                                className="w-full flex-grow"
+                                autoFocus
+                                onFocus={(e) => e.target.select()}
+                                value={newAlias ?? displayName ?? undefined}
+                                disabled={!editing}
+                                onChange={(e) => setNewAlias(e.target.value)}
+                                onBlur={() => {
+                                    saveAlias();
+                                    reset();
+                                }}
+                                onKeyUp={(e) => {
+                                    if (e.key === "Enter") {
+                                        saveAlias();
+                                        reset();
+                                    }
+                                    if (e.key === "Escape") {
+                                        reset();
+                                    }
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="text-nowrap">{displayName}</div>
+                    )}
+                </div>
+                <div className="flex flex-row">
+                    <button className="hover:shadow-sm" onClick={() => setEditing(true)}>
+                        ✏
+                    </button>
+                    <button className="my-auto" onClick={() => removeModelFromModels(props.modelId)}>
+                        🗑️
+                    </button>
+                </div>
             </div>
         );
     };
+
+    // console.log("rerender");
 
     return (
         <>

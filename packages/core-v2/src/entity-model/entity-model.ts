@@ -26,4 +26,14 @@ export interface EntityModel {
      * Returns Id of the model
      */
     getId(): string;
+
+    /**
+     * Returns the alias of the model
+     */
+    getAlias(): string | null;
+
+    /**
+     * Sets the alias of the model
+     */
+    setAlias(alias: string | null): void;
 }

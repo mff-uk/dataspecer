@@ -6,13 +6,13 @@ import {
     isSemanticModelClass,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import {
-    getAvailableLanguagesForLanguageString,
+    getLocalizedString,
     getNameOrIriAndDescription,
     getStringFromLanguageStringInLang,
 } from "../util/language-utils";
@@ -27,117 +27,10 @@ import {
 import { isAttribute } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getModelIri } from "../util/model-utils";
-import { getRandomName } from "~/app/utils/random-gen";
-
-const AddAttributesComponent = (props: {
-    modifiedClassId: string;
-    saveNewAttribute: (attr: Partial<Omit<SemanticModelRelationship, "type">>) => void;
-    saveNewAttributeProfile: (
-        attr: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
-    ) => void;
-}) => {
-    const [newAttribute, setNewAttribute] = useState<Partial<Omit<SemanticModelRelationship, "type">>>({});
-    const [name, setName] = useState({} as LanguageString);
-    const [description, setDescription] = useState({} as LanguageString);
-    const [cardinality, setCardinality] = useState("");
-    const [iri, setIri] = useState(getRandomName(7)); // todo
-    const { relationships } = useClassesContext();
-    const [newAttributeIsProfileOf, setNewAttributeIsProfileOf] = useState<string | null>(null);
-
-    useEffect(() => {
-        setNewAttribute({
-            iri,
-            ends: [
-                { cardinality: [0, null], name: {}, description: {}, concept: props.modifiedClassId },
-                {
-                    cardinality: [0, null], // TODO: cardinality
-                    name,
-                    description,
-                    // @ts-ignore
-                    concept: null,
-                },
-            ],
-        });
-    }, [name, description, cardinality, iri]);
-
-    return (
-        <div>
-            <span className="text-xs italic">It is possible to add only one attribute rn.</span>
-            <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
-                <div className="font-semibold">name:</div>
-                <div>
-                    <MultiLanguageInputForLanguageString
-                        inputType="text"
-                        ls={name}
-                        setLs={setName}
-                        defaultLang={getAvailableLanguagesForLanguageString(name)[0] ?? "en"}
-                    />
-                </div>
-                <div className="font-semibold">description:</div>
-                <div>
-                    <MultiLanguageInputForLanguageString
-                        inputType="text"
-                        ls={description}
-                        setLs={setDescription}
-                        defaultLang={getAvailableLanguagesForLanguageString(description)[0] ?? "en"}
-                    />
-                </div>
-                <div>is profile of:</div>
-                <select
-                    onChange={(e) => {
-                        setNewAttributeIsProfileOf(e.target.value);
-                    }}
-                >
-                    <option>---</option>
-                    {relationships.filter(isAttribute).map((a) => {
-                        const [name, descr] = getNameOrIriAndDescription(a.ends.at(1), a.iri || a.id);
-                        return (
-                            <option title={descr ?? ""} value={a.id}>
-                                {name}:{a.id}
-                            </option>
-                        );
-                    })}
-                </select>
-            </div>
-            <div className="flex flex-row justify-center">
-                <button
-                    onClick={() => {
-                        if (newAttributeIsProfileOf) {
-                            console.log("profile selected", newAttributeIsProfileOf);
-                            props.saveNewAttributeProfile({
-                                usageOf: newAttributeIsProfileOf,
-                                name,
-                                description,
-                                // ends: TODO az bude jasne, jestli maji byt konce taky ..shipEndUsage nebo jen ..shipEnd
-                                ends: [
-                                    {
-                                        cardinality: [0, null],
-                                        name: {},
-                                        description: {},
-                                        concept: props.modifiedClassId,
-                                        usageNote: {},
-                                    },
-                                    {
-                                        cardinality: [0, null], // TODO: cardinality
-                                        name,
-                                        description,
-                                        // @ts-ignore
-                                        concept: null,
-                                        usageNote: {},
-                                    },
-                                ],
-                            });
-                        } else {
-                            props.saveNewAttribute(newAttribute);
-                        }
-                    }}
-                >
-                    save
-                </button>
-            </div>
-        </div>
-    );
-};
+import { IriInput, WhitespaceRegExp } from "./iri-input";
+import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
+import { AddAttributesComponent } from "./attributes-component";
+import { DomainRangeComponent } from "./domain-range-component";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -170,11 +63,6 @@ export const useModifyEntityDialog = () => {
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
 
-        const [newIri, setNewIri] = useState<string | null>(
-            isSemanticModelClass(modifiedEntity) || isSemanticModelRelationship(modifiedEntity)
-                ? modifiedEntity.iri
-                : null
-        ); // FIXME: sanitize
         const { classes2: classes } = useClassesContext();
         const {
             modifyClassInAModel,
@@ -189,13 +77,16 @@ export const useModifyEntityDialog = () => {
             isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.usageNote ?? {} : {}
         );
 
+        const [newIri, setNewIri] = useState(name2[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
+        const [iriHasChanged, setIriHasChanged] = useState(false);
+
         const [currentRange, currentDomain] =
             isSemanticModelRelationship(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity)
-                ? modifiedEntity.ends
+                ? (modifiedEntity.ends as SemanticModelRelationshipEnd[]) // TODO: tohle bys mohl predelat
                 : [null, null];
 
-        const [newRange, setNewRange] = useState(currentRange?.concept);
-        const [newDomain, setNewDomain] = useState(currentDomain?.concept);
+        const [newRange, setNewRange] = useState(currentRange ?? ({} as SemanticModelRelationshipEnd));
+        const [newDomain, setNewDomain] = useState(currentDomain ?? ({} as SemanticModelRelationshipEnd));
 
         const modelIri = getModelIri(model);
 
@@ -229,21 +120,40 @@ export const useModifyEntityDialog = () => {
                             defaultLang={preferredLanguage}
                         />
                     </div>
+
+                    {/* 
+                    ---------
+                    Entity id
+                    ---------
+                    */}
+
                     <div className="font-semibold">id:</div>
                     <div>{modifiedEntity.id}</div>
-                    {isSemanticModelClass(modifiedEntity) && (
-                        <>
-                            <div className="font-semibold">relative iri:</div>
-                            <div className="flex flex-row">
-                                <div className="text-nowrap">{modelIri}</div>
-                                <input
-                                    className="w-full"
-                                    value={newIri ?? ""}
-                                    onChange={(e) => setNewIri(e.target.value)}
-                                />
-                            </div>
-                        </>
-                    )}
+
+                    {/* 
+                    ----------
+                    Entity IRI
+                    ----------
+                    */}
+
+                    <div className="font-semibold">relative iri:</div>
+                    <div className="flex flex-row">
+                        <div className="text-nowrap">{modelIri}</div>
+                        <IriInput
+                            name={name2}
+                            iriHasChanged={iriHasChanged}
+                            newIri={newIri}
+                            setIriHasChanged={(v) => setIriHasChanged(v)}
+                            setNewIri={(i) => setNewIri(i)}
+                        />
+                    </div>
+
+                    {/* 
+                    ------------------
+                    Entity description
+                    ------------------
+                    */}
+
                     <div className="font-semibold">description:</div>
                     <MultiLanguageInputForLanguageString
                         inputType="textarea"
@@ -262,7 +172,14 @@ export const useModifyEntityDialog = () => {
                             />
                         </>
                     )}
-                    {isSemanticModelClass(modifiedEntity) && (
+
+                    {/* 
+                    --------------------------------------
+                    Attributes for class and class profile
+                    --------------------------------------
+                    */}
+
+                    {(isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) && (
                         <>
                             <div className="font-semibold">attributes:</div>
                             <div className="flex flex-col">
@@ -272,14 +189,14 @@ export const useModifyEntityDialog = () => {
 
                                         const attr = v.ends.at(1)!;
                                         const name =
-                                            getStringFromLanguageStringInLang(nameField ?? {}, preferredLanguage)[0] ??
+                                            getLocalizedString(
+                                                getStringFromLanguageStringInLang(nameField ?? {}, preferredLanguage)
+                                            ) ??
                                             v.id ??
                                             "no id or iri";
-                                        const descr =
-                                            getStringFromLanguageStringInLang(
-                                                attr.description ?? {},
-                                                preferredLanguage
-                                            )[0] ?? "";
+                                        const descr = getLocalizedString(
+                                            getStringFromLanguageStringInLang(attr.description ?? {}, preferredLanguage)
+                                        );
 
                                         return (
                                             <div
@@ -342,79 +259,35 @@ export const useModifyEntityDialog = () => {
                             </div>
                         </>
                     )}
+
+                    {/* 
+                    -----------------------------------------------------------
+                    Range and domain for a relationship or relationship profile
+                    -----------------------------------------------------------
+                    */}
                     {(isSemanticModelRelationship(modifiedEntity) ||
                         isSemanticModelRelationshipUsage(modifiedEntity)) && (
-                        <>
-                            <div className="font-semibold">range:</div>
-                            <select
-                                onChange={(e) => {
-                                    setNewRange(e.target.value);
-                                }}
-                            >
-                                <option
-                                    disabled={true}
-                                    selected={
-                                        modifiedEntity.ends.at(0)?.concept == null ||
-                                        modifiedEntity.ends.at(0)?.concept == ""
-                                    }
-                                >
-                                    ---
-                                </option>
-                                {classes.map((c) => (
-                                    <option value={c.id} selected={modifiedEntity.ends.at(0)?.concept == c.id}>
-                                        {getNameOrIriAndDescription(c, preferredLanguage)[0] +
-                                            " ".repeat(3) +
-                                            "(" +
-                                            (c.iri ?? c.id) +
-                                            ")"}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <div className="font-semibold">domain:</div>
-                            <div className="flex w-full flex-row">
-                                {isAttribute(modifiedEntity) && (
-                                    <div className="mr-4">
-                                        attribute
-                                        <span
-                                            className="ml-1"
-                                            title="setting a domain makes this attribute more of a relationship"
-                                        >
-                                            ❓
-                                        </span>
-                                    </div>
-                                )}
-                                <select
-                                    className="w-full"
-                                    onChange={(e) => {
-                                        setNewDomain(e.target.value);
-                                    }}
-                                >
-                                    <option
-                                        disabled={!isAttribute(modifiedEntity)}
-                                        selected={isAttribute(modifiedEntity)}
-                                    >
-                                        ---
-                                    </option>
-                                    {classes.map((c) => (
-                                        <option value={c.id} selected={modifiedEntity.ends.at(1)?.concept == c.id}>
-                                            {getNameOrIriAndDescription(c, preferredLanguage)[0] +
-                                                " ".repeat(3) +
-                                                "(" +
-                                                (c.iri ?? c.id) +
-                                                ")"}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </>
+                        <DomainRangeComponent
+                            entity={modifiedEntity}
+                            range={newRange}
+                            setRange={setNewRange}
+                            domain={newDomain}
+                            setDomain={setNewDomain}
+                        />
                     )}
                 </div>
-                {isSemanticModelClass(modifiedEntity) && (
+
+                {/* 
+                -----------------------------------------------------
+                Adding new attributes to class or TODO: class profile
+                -----------------------------------------------------
+                 */}
+
+                {(isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) && (
                     <p className="bg-slate-100">
                         <div className="flex flex-row justify-between">
                             <button
-                                className="bg-slate-300"
+                                className="ml-8 bg-slate-300"
                                 onClick={() => setWantsToAddNewAttributes((prev) => !prev)}
                             >
                                 {wantsToAddNewAttributes ? "cancel" : "add attribute"}
@@ -423,6 +296,7 @@ export const useModifyEntityDialog = () => {
                         <div className="">
                             {wantsToAddNewAttributes && (
                                 <AddAttributesComponent
+                                    sourceModel={model}
                                     modifiedClassId={modifiedEntity.id}
                                     saveNewAttribute={(attribute: Partial<Omit<SemanticModelRelationship, "type">>) => {
                                         setNewAttributes((prev) => prev.concat(attribute));
@@ -441,6 +315,12 @@ export const useModifyEntityDialog = () => {
                     </p>
                 )}
 
+                {/* 
+                ----------------------------
+                Save and cancel button group
+                ----------------------------
+                */}
+
                 <div className="flex flex-row justify-evenly">
                     <button
                         disabled={wantsToAddNewAttributes}
@@ -456,13 +336,22 @@ export const useModifyEntityDialog = () => {
                             // todo: make it work for other types
                             let result = false;
 
-                            if (isSemanticModelClass(modifiedEntity)) {
-                                result = modifyClassInAModel(model, modifiedEntity.id, {
-                                    name: name2,
-                                    iri: newIri,
-                                    description: description2,
-                                });
-                                console.log(result);
+                            if (isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) {
+                                if (isSemanticModelClass(modifiedEntity)) {
+                                    result = modifyClassInAModel(model, modifiedEntity.id, {
+                                        name: name2,
+                                        iri: newIri,
+                                        description: description2,
+                                    });
+                                    console.log(result);
+                                } else {
+                                    const res = updateClassUsage(model, "class-usage", modifiedEntity.id, {
+                                        name: name2,
+                                        description: description2,
+                                        usageNote: usageNote2,
+                                    });
+                                    console.log(res, "class profile updated", usageNote2, description2, name2);
+                                }
 
                                 for (const attribute of newAttributes) {
                                     const res = addAttribute(model, attribute);
@@ -479,16 +368,27 @@ export const useModifyEntityDialog = () => {
                                     console.log("todo remove entity from attribute's domain", rem);
                                 }
                             } else if (isSemanticModelRelationship(modifiedEntity)) {
+                                const rangeCard =
+                                    newRange.cardinality != currentRange?.cardinality
+                                        ? newRange.cardinality
+                                        : currentRange?.cardinality;
+                                const domainCard =
+                                    newDomain.cardinality != currentDomain?.cardinality
+                                        ? newDomain.cardinality
+                                        : currentDomain?.cardinality;
+
                                 const result = modifyRelationship(model, modifiedEntity.id, {
                                     ...modifiedEntity,
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange ?? currentRange?.concept ?? "",
+                                            concept: newRange.concept ?? currentRange?.concept ?? "",
+                                            cardinality: rangeCard,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain ?? currentDomain?.concept ?? "",
+                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
+                                            cardinality: domainCard,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is
                                     name: name2,
@@ -499,6 +399,15 @@ export const useModifyEntityDialog = () => {
                             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
                                 // todo
 
+                                const rangeCard =
+                                    newRange.cardinality != currentRange?.cardinality
+                                        ? newRange.cardinality
+                                        : currentRange?.cardinality;
+                                const domainCard =
+                                    newDomain.cardinality != currentDomain?.cardinality
+                                        ? newDomain.cardinality
+                                        : currentDomain?.cardinality;
+
                                 const res = updateEntityUsage(model, "relationship-usage", modifiedEntity.id, {
                                     name: name2,
                                     description: description2,
@@ -506,11 +415,13 @@ export const useModifyEntityDialog = () => {
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange ?? currentRange?.concept ?? "",
+                                            concept: newRange.concept ?? currentRange?.concept ?? "",
+                                            cardinality: rangeCard ?? null,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain ?? currentDomain?.concept ?? "",
+                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
+                                            cardinality: domainCard ?? null,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is
                                 });
@@ -523,13 +434,6 @@ export const useModifyEntityDialog = () => {
                                     newRange,
                                     newDomain
                                 );
-                            } else if (isSemanticModelClassUsage(modifiedEntity)) {
-                                const res = updateClassUsage(model, "class-usage", modifiedEntity.id, {
-                                    name: name2,
-                                    description: description2,
-                                    usageNote: usageNote2,
-                                });
-                                console.log(res, "class profile updated", usageNote2, description2, name2);
                             }
 
                             close();

@@ -42,7 +42,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
-                return (await result.json()) as Package;
+        return (await result.json()) as Package;
     }
 
     async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {
@@ -163,7 +163,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
                 constructedEntityModels.push(model);
             } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper") {
-                const model = new PimStoreWrapper(modelDescriptor.pimStore, modelDescriptor.id);
+                const model = new PimStoreWrapper(modelDescriptor.pimStore, modelDescriptor.id, modelDescriptor.alias);
                 model.fetchFromPimStore();
                 constructedEntityModels.push(model);
             } else {

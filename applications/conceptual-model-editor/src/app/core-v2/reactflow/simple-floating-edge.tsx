@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback } from "react";
+import { useCallback } from "react";
 import {
     useStore,
     EdgeProps,
@@ -7,7 +7,6 @@ import {
     getStraightPath,
     Edge,
     MarkerType,
-    BaseEdge,
 } from "reactflow";
 
 import { getEdgeParams, getLoopPath } from "./utils";
@@ -16,12 +15,7 @@ import {
     SemanticModelGeneralization,
     LanguageString,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    getNameOfThingInLangOrIri,
-    getNameOrIriAndDescription,
-    getStringFromLanguageStringInLang,
-} from "../util/language-utils";
-import { number, string } from "zod";
+import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -92,7 +86,6 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     }
     return (
         <>
-            {/* <BaseEdge path={edgePath} id={id} style={style} markerEnd={markerEnd} /> */}
             <path
                 id={id}
                 className="react-flow__edge-path"
@@ -100,11 +93,20 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 strokeWidth={1}
                 markerEnd={markerEnd}
                 style={style}
-                onClick={d.openEntityDetailDialog}
+            />
+            <path
+                id={id + "transparent"}
+                className="react-flow__edge-path"
+                d={edgePath}
+                style={{ ...style, strokeWidth: 12, stroke: "transparent" }}
+                onClick={(e) => {
+                    d.openEntityDetailDialog();
+                    e.stopPropagation();
+                }}
             />
             <EdgeLabelRenderer>
                 <div
-                    className="  absolute flex flex-col p-2" // nopan nodrag
+                    className="absolute z-10 flex flex-col p-2"
                     style={{
                         transform: `translate(${labelX}px,${labelY}px) translate(-50%, -50%)`,
                     }}
@@ -158,7 +160,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
             usageNotes,
             openEntityDetailDialog,
         } satisfies SimpleFloatingEdgeDataType,
-        style: { strokeWidth: 2, stroke: color },
+        style: { strokeWidth: 3, stroke: color },
     } as Edge;
 };
 

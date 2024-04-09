@@ -14,10 +14,10 @@ import { ModelGraphContext } from "./context/model-context";
 import Header from "./header";
 import { Visualization } from "./visualization";
 import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
-import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemoryEntityModel, type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { Catalog } from "./catalog/catalog";
 import {
     type SemanticModelClassUsage,
@@ -27,6 +27,7 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useViewParam } from "./util/view-param";
 import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -47,6 +48,8 @@ const Page = () => {
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
     const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
 
+    const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
+
     const { packageId, setPackage } = usePackageSearch();
     const { viewId: viewIdFromURLParams } = useViewParam();
     const { getModelsFromBackend } = useBackendConnection();
@@ -56,15 +59,53 @@ const Page = () => {
             "getModelsFromBackend is going to be called from useEffect in ModelsComponent, packageId:",
             packageId
         );
-        if (!packageId) return;
+
+        if (!packageId) {
+            if (defaultModelAlreadyCreated) {
+                return;
+            }
+            const visualModel = new VisualEntityModelImpl(undefined);
+            setVisualModels((prev) => prev.set(visualModel.getId(), visualModel));
+            aggregator.addModel(visualModel);
+            aggregatorView.changeActiveVisualModel(visualModel.getId());
+
+            const model = new InMemorySemanticModel();
+            model.setAlias("default local model");
+            setModels((previous) => previous.set(model.getId(), model));
+            aggregator.addModel(model);
+
+            setDefaultModelAlreadyCreated(true);
+            return () => {
+                aggregator.deleteModel(visualModel);
+                aggregator.deleteModel(model);
+                setDefaultModelAlreadyCreated(false);
+                setModels(() => new Map<string, EntityModel>());
+                setVisualModels(() => new Map<string, VisualEntityModel>());
+            };
+        }
 
         const getModels = () => getModelsFromBackend(packageId);
 
         getModels()
             .then((models) => {
                 console.log("getModels: then: models:", models);
-                const [entityModels, visualModels] = models;
-                for (const model of visualModels) {
+                const [entityModels, visualModels2] = models;
+                if (entityModels.length == 0 && visualModels2.length == 0) {
+                    console.log("empty models from backend", entityModels, visualModels2);
+
+                    const visualModel = new VisualEntityModelImpl(undefined);
+                    visualModels2.push(visualModel);
+
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                for (const model of visualModels2) {
                     aggregator.addModel(model);
                     setVisualModels((prev) => prev.set(model.getId(), model));
                 }
@@ -73,14 +114,15 @@ const Page = () => {
                     setModels((previous) => previous.set(model.getId(), model));
                 }
                 setAggregatorView(aggregator.getView());
+                return visualModels2;
             })
-            .then(() => {
-                const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+            .then((vm: VisualEntityModel[]) => {
+                const availableVisualModelIds = vm.map((m) => m.getId());
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
                     aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
                 } else {
                     // choose the first available model
-                    const modelId = [...visualModels.keys()].at(0);
+                    const modelId = vm.at(0)?.getId();
                     if (modelId) {
                         aggregatorView.changeActiveVisualModel(modelId);
                     }
@@ -91,7 +133,10 @@ const Page = () => {
                 console.error(reason);
                 setPackage(null);
             });
-        return () => setModels(new Map<string, EntityModel>());
+        return () => {
+            console.log("models cleanup in package effect");
+            setModels(new Map<string, EntityModel>());
+        };
     }, [packageId]);
 
     useEffect(() => {

@@ -86,6 +86,19 @@ export const getStringFromLanguageStringInLang = (languageString: LanguageString
     return [null, null] as const;
 };
 
+export const getLocalizedString = (
+    stringAndLang: readonly [null, null] | readonly [string, string] | readonly [string, null]
+) => {
+    if (stringAndLang[0] == null && stringAndLang[1] == null) {
+        return null;
+    } else if (stringAndLang[1] != null) {
+        return stringAndLang[0] + "@" + stringAndLang[1];
+    } else {
+        // [string, null]
+        return stringAndLang[0];
+    }
+};
+
 const nextLanguageInHierarchy = (lang: string) => {
     switch (lang) {
         case "en":
