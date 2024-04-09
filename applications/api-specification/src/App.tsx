@@ -1,5 +1,5 @@
 import './App.css';
-import {ApiSpecificationForm} from './ApiSpecificationForm.tsx'
+import {ApiSpecificationForm} from './ApiSpecificationNew.tsx'
 import {SplitScreen} from './SplitScreen.tsx'
 
 const ComponentLeft = () => 
