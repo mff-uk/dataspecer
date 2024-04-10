@@ -22,7 +22,7 @@ export interface BaseResource {
      * User-friendly metadata that each resource may have.
      */
     userMetadata: {
-        name?: LanguageString;
+        label?: LanguageString;
         description?: LanguageString;
         tags?: string[];
     };
@@ -94,7 +94,7 @@ export class ResourceModel {
                     await recursivelyDeleteResourceByPrismaResource(subResource);
                 }
             }
-            this.deleteSingleResource(resource.iri);
+            await this.deleteSingleResource(resource.iri);
         }
 
         const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
@@ -140,6 +140,9 @@ export class ResourceModel {
      */
     async getPackage(iri: string, deep: boolean = false) {
         const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri, representationType: LOCAL_PACKAGE}});
+        if (prismaResource === null) {
+            return null;
+        }
         const packageResources = await this.prismaClient.resource.findMany({where: {parentResourceId: prismaResource!.id}});
 
         return {

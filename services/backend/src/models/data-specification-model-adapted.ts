@@ -55,6 +55,10 @@ export class DataSpecificationModelAdapted {
 
   private async unpackDS(iri: string) {
     const dataSpecificationPackage = await this.resourceModel.getPackage(iri); // This is data specification
+    if (!dataSpecificationPackage) {
+      return null;
+    }
+
     const cimResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.CIM));
     const pimResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.PIM));
     const psmResources = dataSpecificationPackage.subResources.filter(subResource => subResource.types.includes(V1.PSM));
