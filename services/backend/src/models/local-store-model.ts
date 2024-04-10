@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
+import { readFile, rm, writeFile } from "fs/promises";
 import path from "path";
-import {rm, readFile, writeFile} from "fs/promises";
-import {LocalStoreDescriptor} from "./local-store-descriptor";
+import { v4 as uuidv4 } from 'uuid';
+import { LocalStoreDescriptor } from "./local-store-descriptor";
 
 /**
  * Manages creating, reading, updating and deleting of the store files.
@@ -50,6 +50,10 @@ export class LocalStoreModel {
         return new LocalStoreDescriptor(uuid);
     }
 
+    getModelStore(uuid: string): ModelStore {
+        return new ModelStore(uuid, this);
+    }
+
     /**
      * Returns the content of the store
      * @internal used only by MemoryStoreHandle
@@ -82,5 +86,35 @@ export class LocalStoreModel {
         } else {
             return path.join(this.storage, unsafeId);
         }
+    }
+}
+
+export class ModelStore {
+    private readonly uuid: string;
+    private readonly storeModel: LocalStoreModel;
+
+    constructor(uuid: string, storeModel: LocalStoreModel) {
+        this.uuid = uuid;
+        this.storeModel = storeModel;
+    }
+
+    getBuffer(): Promise<Buffer> {
+        return this.storeModel.get(this.uuid) as Promise<Buffer>;
+    }
+
+    getString(): Promise<string> {
+        return this.getBuffer().then(buffer => buffer?.toString());
+    }
+
+    getJson(): Promise<any> {
+        return this.getString().then(str => JSON.parse(str));
+    }
+
+    setString(payload: string): Promise<void> {
+        return this.storeModel.set(this.uuid, payload);
+    }
+
+    setJson(payload: any): Promise<void> {
+        return this.setString(JSON.stringify(payload));
     }
 }

@@ -1,14 +1,15 @@
-import { PackageService, SemanticModelPackageService } from "./package-service";
-import { EntityModel } from "../../entity-model";
-import { Package, PackageEditable } from "./package";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified";
+import { EntityModel } from "../../entity-model";
 import { HttpEntityModel } from "../../entity-model/http-entity-model";
+import { LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
+import { createSgovModel } from "../../semantic-model/simplified";
+import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
+import { createVisualModel } from "../../semantic-model/simplified/visual-model";
+import { PimStoreWrapper } from "../../semantic-model/v1-adapters";
 import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
 import { VisualEntityModel } from "../../visual-model";
-import { createVisualModel } from "../../semantic-model/simplified/visual-model";
-import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
-import { PimStoreWrapper } from "../../semantic-model/v1-adapters";
+import { BaseResource, Package, ResourceEditable } from "../resource/resource";
+import { PackageService, SemanticModelPackageService } from "./package-service";
 
 async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise<WritableSemanticModelAdapter> {
     const baseModel = HttpEntityModel.createFromDescriptor(data, httpFetch);
@@ -31,22 +32,13 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         this.httpFetch = httpFetch;
     }
 
-    async listPackages(): Promise<Package[]> {
-        const url = this.getPackageListUrl().toString();
-        const result = await this.httpFetch(url);
-        if (!result || !result.json) {
-            return [];
-        }
-        return (await result.json()) as Package[];
-    }
-
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
         return (await result.json()) as Package;
     }
 
-    async createPackage(parentPackageId: string, data: PackageEditable): Promise<Package> {
-        const result = await this.httpFetch(this.getPackageUrl(parentPackageId).toString(), {
+    async createPackage(parentPackageId: string, data: ResourceEditable): Promise<Package> {
+        const result = await this.httpFetch(this.getPackageUrl(parentPackageId, true).toString(), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -56,7 +48,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return (await result.json()) as Package;
     }
 
-    async updatePackage(packageId: string, data: Partial<PackageEditable>): Promise<Package> {
+    async updatePackage(packageId: string, data: Partial<ResourceEditable>): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString(), {
             method: "PATCH",
             headers: {
@@ -76,12 +68,8 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
-        const url = this.getPackageUrl(packageId);
-        url.pathname += "/semantic-models";
-        const result = await this.httpFetch(url.toString());
-        const modelDescriptors = (await result.json()) as any[];
-
-        return this.getModelsFromModelDescriptors(modelDescriptors);
+        const pckg = await this.getPackage(packageId);
+        return this.getModelsFromResources(pckg.subResources!);
     }
 
     async updateSemanticModelPackageModels(
@@ -89,27 +77,35 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         models: EntityModel[],
         visualModels: VisualEntityModel[]
     ): Promise<Package> {
-        const modelDescriptors: {}[] = [];
-
-        for (const model of models) {
+        for (const visualModel of [...models, ...visualModels]) {
             // @ts-ignore
-            modelDescriptors.push(model.serializeModel());
-        }
-        for (const visualModel of visualModels) {
-            // @ts-ignore
-            modelDescriptors.push(visualModel.serializeModel());
+            const modelSerialization = visualModel.serializeModel();
+            const iri = visualModel.getId();
+
+            const response = await this.httpFetch(this.getResourceUrl(iri).toString());
+            if (response.status !== 200) {
+                await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        iri: iri,
+                        type: modelSerialization.type,
+                    }),
+                });
+            }
+
+            await this.httpFetch(this.getBlobUrl(iri).toString(), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(modelSerialization),
+            });
         }
 
-        const url = this.getPackageUrl(packageId);
-        url.pathname += "/semantic-models";
-        const result = await this.httpFetch(url.toString(), {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(modelDescriptors),
-        });
-        return null as unknown as Package;
+        return null as any as Package; // todo
     }
 
     async createRemoteSemanticModel(packageId: string) {
@@ -123,54 +119,72 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return await createHttpSemanticModel(data, this.httpFetch);
     }
 
-    private getPackageListUrl(): URL {
-        return new URL(this.backendUrl + "/package-list");
-    }
-
-    private getPackageUrl(packageId: string): URL {
-        const url = new URL(this.backendUrl + "/packages");
-        url.searchParams.append("packageId", packageId);
+    private getPackageUrl(packageId: string, asParent: boolean = false): URL {
+        const url = new URL(this.backendUrl + "/resources/packages");
+        url.searchParams.append(asParent ? "parentIri" : "iri", packageId);
         return url;
     }
 
-    async getModelsFromModelDescriptors(modelDescriptors: any[]) {
-        const constructedEntityModels: EntityModel[] = [];
-        const constructedVisualModels: VisualEntityModel[] = [];
-        // todo: use more robust approach
-        for (const modelDescriptor of modelDescriptors) {
-            if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/sgov") {
-                const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch);
-                await model.unserializeModel(modelDescriptor);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim") {
-                const model = await createPimModel(
-                    modelDescriptor.backendUrl,
-                    modelDescriptor.dataSpecificationIri,
-                    this.httpFetch
-                );
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/rdfs") {
-                const model = await createRdfsModel(modelDescriptor.urls, this.httpFetch);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://ofn.gov.cz/store-descriptor/http") {
-                constructedEntityModels.push(await createHttpSemanticModel(modelDescriptor, this.httpFetch));
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/visual-model") {
-                const model = createVisualModel(modelDescriptor.modelId).deserializeModel(modelDescriptor);
-                constructedVisualModels.push(model);
-            } else if (
-                modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/in-memory-semantic-model"
-            ) {
-                const model = createInMemorySemanticModel().deserializeModel(modelDescriptor);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper") {
-                const model = new PimStoreWrapper(modelDescriptor.pimStore, modelDescriptor.id, modelDescriptor.alias);
+    private getResourceUrl(iri: string, asParent: boolean = false): URL {
+        const url = new URL(this.backendUrl + "/resources");
+        url.searchParams.append(asParent ? "parentIri" : "iri", iri);
+        return url;
+    }
+
+    private getBlobUrl(iri: string, name?: string): URL {
+        const url = new URL(this.backendUrl + "/resources/blob");
+        url.searchParams.append("iri", iri);
+        if (name) {
+            url.searchParams.append("name", name);
+        }
+        return url;
+    }
+
+    private async getFullJsonModel(resource: BaseResource): Promise<object> {
+        const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+        return {resource, ...modelData};
+    }
+
+    async getModelsFromResources(resources: BaseResource[]): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
+        const entityModels = [];
+        const visualModels = [];
+
+        for (const resource of resources) {
+            // Visual model
+            if (resource.types.includes(LOCAL_VISUAL_MODEL)) {
+                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const model = createVisualModel(resource.iri).deserializeModel(modelData); // ok
+                visualModels.push(model);
+            }
+
+            // SGOV model
+            if (resource.types.includes("https://dataspecer.com/core/model-descriptor/sgov")) {
+                const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch, resource.iri);
+                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                await model.unserializeModel(modelData);
+                entityModels.push(model);
+            } 
+
+            // Semantic model
+            if (resource.types.includes(LOCAL_SEMANTIC_MODEL)) {
+                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const model = createInMemorySemanticModel().deserializeModel(modelData);
+                entityModels.push(model);
+            }
+
+            // Pim store wrapper
+            if (resource.types.includes("https://dataspecer.com/core/model-descriptor/pim-store-wrapper")) {
+                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias);
                 model.fetchFromPimStore();
-                constructedEntityModels.push(model);
-            } else {
-                throw new Error(`Unknown model descriptor type: ${modelDescriptor.type}. Can not create such model.`);
+                entityModels.push(model);
             }
         }
 
-        return [constructedEntityModels, constructedVisualModels] as const;
+        return [entityModels,visualModels] as const;
+    }
+
+    async getModelsFromModelDescriptors(modelDescriptors: any[]) {
+        return [[], []] as const;
     }
 }
