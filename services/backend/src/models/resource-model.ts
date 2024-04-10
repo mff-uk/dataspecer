@@ -22,7 +22,7 @@ export interface BaseResource {
      * User-friendly metadata that each resource may have.
      */
     userMetadata: {
-        label?: LanguageString;
+        name?: LanguageString;
         description?: LanguageString;
         tags?: string[];
     };

@@ -1,3 +1,4 @@
+import { LOCAL_VISUAL_MODEL } from "../model/known-models";
 import { type VisualEntities, VisualEntity } from "./visual-entity";
 
 export interface VisualEntityModel {
@@ -20,7 +21,7 @@ export interface VisualEntityModel {
 }
 
 export class VisualEntityModelImpl implements VisualEntityModel {
-    private id: string;
+    private iri: string;
     /** [modelId: string, hexColor: string] */
     private modelColors: Map<string, string> = new Map();
     /** @internal [sourceEntityId, VisualEntity] */
@@ -31,11 +32,11 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     constructor(modelId: string | undefined) {
         console.log("visual model being created");
         console.trace();
-        this.id = modelId ?? createId();
+        this.iri = modelId ?? createId();
     }
 
     getId(): string {
-        return this.id;
+        return this.iri;
     }
 
     getVisualEntity(entityId: string): VisualEntity | undefined {
@@ -121,7 +122,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     serializeModel() {
         return {
             // TODO: fix
-            type: "https://dataspecer.com/core/model-descriptor/visual-model",
+            type: LOCAL_VISUAL_MODEL,
             modelId: this.getId(),
             visualEntities: Object.fromEntries(this.entitiesMap.entries()),
             modelColors: Object.fromEntries(this.modelColors.entries()),
