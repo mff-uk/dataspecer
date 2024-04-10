@@ -41,10 +41,6 @@ export const useBackendConnection = () => {
         return pkg;
     };
 
-    const listPackages = async () => {
-        return await service.listPackages();
-    };
-
     const listViews = () => {
         return ["view-1", "view-xyz"];
     };
@@ -53,7 +49,6 @@ export const useBackendConnection = () => {
         service,
         getPackageFromBackend,
         updateSemanticModelPackageModels,
-        listPackages,
         listViews,
         getModelsFromBackend,
         createPackage,
