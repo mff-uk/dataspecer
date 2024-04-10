@@ -6,7 +6,7 @@ export default defineConfig({
   base: "",
   plugins: [react()],
   optimizeDeps: {
-    include: ["@dataspecer/core-v2/project", "@dataspecer/core/**"]
+    include: ["@dataspecer/core-v2/project", "@dataspecer/core/**", "@dataspecer/core-v2/**"]
   },
   build: {
     commonjsOptions: {
@@ -17,7 +17,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "fs": "@dataspecer/core", // Hack to make polyfill to null
+      "fs": "path", // Hack to make polyfill to null
     },
   },
 })
