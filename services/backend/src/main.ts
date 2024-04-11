@@ -6,7 +6,6 @@ import configuration from "./configuration";
 import { DataSpecificationModelAdapted, ROOT_PACKAGE_FOR_V1, createV1RootModel } from "./models/data-specification-model-adapted";
 import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
-import { generateBikeshedRoute } from "./routes/bikeshed";
 import { getDefaultConfiguration } from "./routes/configuration";
 import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
 import { createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
@@ -79,10 +78,6 @@ application.get(basename + '/resources/root-resources', getRootPackages); // ---
 // Configuration
 
 application.get(basename + '/default-configuration', getDefaultConfiguration);
-
-// API for generators
-
-application.post(basename + '/transformer/bikeshed', bodyParser.text({type:"*/*", limit: configuration.payloadSizeLimit}), generateBikeshedRoute);
 
 (async () => {
     // Create root models for the common use and for the v1 adapter.
