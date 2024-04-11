@@ -7,7 +7,7 @@
     "build-pack": "webpack --mode=production",
     "prebuild": "prisma generate",
     "prebuild-pack": "prisma generate",
-    "start": "node dist/main.js",
+    "start": "node --enable-source-maps dist/main.js",
     "update-database": "prisma migrate deploy"
   },
   "dependencies": {

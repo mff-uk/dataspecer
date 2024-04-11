@@ -1,12 +1,9 @@
-import { DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
-import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { PrismaClient } from '@prisma/client';
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import configuration from "./configuration";
 import { DataSpecificationModelAdapted, ROOT_PACKAGE_FOR_V1, createV1RootModel } from "./models/data-specification-model-adapted";
-import { LocalStoreDescriptor } from "./models/local-store-descriptor";
 import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
 import { generateBikeshedRoute } from "./routes/bikeshed";
@@ -21,8 +18,6 @@ import {
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
-import { readStore, writeStore } from "./routes/store";
-import { convertLocalStoresToHttpStores } from "./utils/local-store-to-http-store";
 
 // Create application models
 
@@ -31,23 +26,9 @@ export const prismaClient = new PrismaClient();
 export const resourceModel = new ResourceModel(storeModel, prismaClient);
 export const dataSpecificationModel = new DataSpecificationModelAdapted(storeModel, "https://ofn.gov.cz/data-specification/{}", resourceModel);
 
-export const storeApiUrl = configuration.host + '/store/{}';
-
 let basename = new URL(configuration.host).pathname;
 if (basename.endsWith('/')) {
     basename = basename.slice(0, -1);
-}
-
-export function convertStores(stores: LocalStoreDescriptor[]): StoreDescriptor[] {
-    return convertLocalStoresToHttpStores(stores, storeApiUrl);
-}
-
-export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {
-    return {
-        ...dataSpecification,
-        pimStores: convertLocalStoresToHttpStores(dataSpecification.pimStores, storeApiUrl),
-        psmStores: Object.fromEntries(Object.entries(dataSpecification.psmStores).map(entry => [entry[0], convertLocalStoresToHttpStores(entry[1] as StoreDescriptor[], storeApiUrl)])),
-    }
 }
 
 // Run express
@@ -98,11 +79,6 @@ application.get(basename + '/resources/root-resources', getRootPackages); // ---
 // Configuration
 
 application.get(basename + '/default-configuration', getDefaultConfiguration);
-
-// API for reading and writing store content.
-
-application.get(basename + '/store/:storeId', readStore);
-application.put(basename + '/store/:storeId', writeStore);
 
 // API for generators
 

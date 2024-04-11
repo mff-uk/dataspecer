@@ -1,13 +1,14 @@
+import { UpdateDataSpecification } from "@dataspecer/backend-utils/interfaces";
+import { CoreResource } from "@dataspecer/core/core";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { dataPsmGarbageCollection, pimGarbageCollection } from "@dataspecer/core/garbage-collection";
+import { PimSchema } from "@dataspecer/core/pim/model";
+import { normalizePim } from "@dataspecer/core/processing-utils/normalize-pim";
 import express from "express";
-import {dataSpecificationModel, replaceStoreDescriptorsInDataSpecification, storeModel} from "../main";
-import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
-import {asyncHandler} from "../utils/async-handler";
-import {LocalStoreDescriptor} from "../models/local-store-descriptor";
-import {dataPsmGarbageCollection, pimGarbageCollection} from "@dataspecer/core/garbage-collection";
-import {CoreResource} from "@dataspecer/core/core";
-import {PimSchema} from "@dataspecer/core/pim/model";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {normalizePim} from "@dataspecer/core/processing-utils/normalize-pim";
+import { dataSpecificationModel, storeModel } from "../main";
+import { replaceStoreDescriptorsInDataSpecification } from "../models/data-specification-model-adapted";
+import { LocalStoreDescriptor } from "../models/local-store-descriptor";
+import { asyncHandler } from "../utils/async-handler";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
     if (request.query.dataSpecificationIri) {

@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { LocalStoreDescriptor } from "./local-store-descriptor";
 import { LocalStoreModel } from "./local-store-model";
 import { ResourceModel } from "./resource-model";
+import configuration from "../configuration";
+import { HttpStoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 
 export const ROOT_PACKAGE_FOR_V1 = "http://dataspecer.com/packages/v1";
 
@@ -21,6 +23,27 @@ export async function createV1RootModel(adapter: ResourceModel) {
       en: "This folder contains all data specifications that can be managed by the data specification manager from core@v.1."
     }
   });
+}
+
+export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {
+  const blobApi = configuration.host + '/resources/blob?iri=';
+  const pimStore = new HttpStoreDescriptor();
+  pimStore.url = blobApi + encodeURIComponent(dataSpecification.pim!);
+  pimStore.isReadOnly = false;
+
+  const psmStores: Record<string, HttpStoreDescriptor[]> = {};
+  for (const psm of dataSpecification.psms) {
+      const store = new HttpStoreDescriptor();
+      store.url = blobApi + encodeURIComponent(psm);
+      store.isReadOnly = false;
+      psmStores[psm] = [store];
+  }
+
+  return {
+      ...dataSpecification,
+      pimStores: [pimStore],
+      psmStores: psmStores,
+  }
 }
 
 /**
