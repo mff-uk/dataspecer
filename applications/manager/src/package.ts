@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 
-const backendUrl = "https://backend.dataspecer.com";
+const backendUrl = import.meta.env.VITE_BACKEND;
 
 type ResourceWithIris = Package & { subResourcesIri: string[] };
 

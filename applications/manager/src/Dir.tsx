@@ -93,7 +93,6 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
 
 export default function Component() {
   const rootPackages = useContext(RootResourcesContext);
-  const resources = useContext(ResourcesContext);
 
   return (
     <div>
