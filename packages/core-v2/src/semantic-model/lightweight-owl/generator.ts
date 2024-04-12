@@ -11,12 +11,12 @@ import { DataFactory, Quad_Predicate, Quad_Subject } from "n3";
 import namedNode = DataFactory.namedNode;
 import literal = DataFactory.literal;
 import {
-    getDomainAndRange,
     isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "../concepts";
+import { getDomainAndRange } from "../relationship-utils/utils";
 
 function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
@@ -103,10 +103,10 @@ class Generator {
         let iri: N3.NamedNode;
         let name: LanguageString, description: LanguageString;
         if (isSemanticModelRelationship(entity)) {
-            const { range, domain } = getDomainAndRange(entity);
-            iri = namedNode(domain.iri ?? entity.id);
-            name = domain.name;
-            description = domain.description;
+            const domain = getDomainAndRange(entity)?.domain;
+            iri = namedNode(domain?.iri ?? entity.iri ?? entity.id);
+            name = domain?.name ?? entity.name;
+            description = domain?.description ?? entity.description;
         } else {
             iri = namedNode(entity.iri ?? entity.id);
             name = entity.name;
@@ -119,8 +119,8 @@ class Generator {
     }
 
     private writeProperty(entity: SemanticModelRelationship) {
-        const { domain: domainEnd } = getDomainAndRange(entity);
-        const iri = namedNode(domainEnd.iri ?? entity.id);
+        const domainEnd = getDomainAndRange(entity)?.domain;
+        const iri = namedNode(domainEnd?.iri ?? entity.iri ?? entity.id);
 
         // const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));

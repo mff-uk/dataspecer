@@ -1,5 +1,6 @@
 import { Entity } from "../../entity-model";
 import {
+    LanguageString,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
@@ -25,46 +26,41 @@ export function isSemanticModelAttribute(resource: Entity | null): resource is S
     if (!isSemanticModelRelationship(resource)) {
         return false;
     }
-    const [end1, end2] = resource.ends;
-
-    return (
-        (end1?.iri != null &&
-            end2?.iri == null &&
-            semanticModelRelationshipEndConceptIsNullEmptyOrDataType(end1, resource)) ||
-        (end2?.iri != null &&
-            end1?.iri == null &&
-            semanticModelRelationshipEndConceptIsNullEmptyOrDataType(end2, resource))
-    );
+    return isSemanticModelRelationPrimitive(resource);
 }
 
-function semanticModelRelationshipEndConceptIsNullEmptyOrDataType(
-    resourceEnd: SemanticModelRelationshipEnd,
-    resource: SemanticModelRelationship
-) {
-    return (
-        resourceEnd.concept == null ||
-        resourceEnd.concept == "" /* TODO: dataType and other logic */ ||
-        resource.id.endsWith("#attribute")
-    );
-}
+export function isSemanticModelRelationPrimitive(resource: SemanticModelRelationship) {
+    const isConceptAPrimitiveType = (concept: string | null) => {
+        return concept == null || concept == "" || resource.id.endsWith("#attribute"); // TODO: temporary workaround for SKOS #449
+    };
 
-export function getDomainAndRange(resource: SemanticModelRelationship) {
-    let domain: SemanticModelRelationshipEnd, range: SemanticModelRelationshipEnd;
-    const [end1, end2] = resource.ends;
-    if (end1!.iri && end2!.iri) {
-        console.error("unsupported attribute type, has two ends with iris", resource);
-        throw new Error("unsupported attribute type, has two ends with iris");
-    } else if (end1!.iri) {
-        domain = end1!;
-        range = end2!;
-    } else if (end2!.iri) {
-        domain = end2!;
-        range = end1!;
-    } else {
-        // none of them has iri
-        console.error("unsupported attribute type, none of the two ends has iri", resource);
-        throw new Error("unsupported attribute type, none of the two ends has iri");
+    const conditionForEnds = (end1: SemanticModelRelationshipEnd, end2: SemanticModelRelationshipEnd) => {
+        return (
+            end1.iri == null &&
+            isEmptyLanguageString(end1.name) &&
+            isEmptyLanguageString(end1.description) &&
+            isConceptAPrimitiveType(end2.concept)
+        );
+    };
+
+    const [e1, e2] = resource.ends;
+
+    if (!e1 || !e2) {
+        return false;
     }
 
-    return { domain: domain, range: range };
+    return (
+        resource.iri == null &&
+        isEmptyLanguageString(resource.name) &&
+        isEmptyLanguageString(resource.description) &&
+        ((!conditionForEnds(e1, e2) && conditionForEnds(e2, e1)) ||
+            (conditionForEnds(e1, e2) && !conditionForEnds(e2, e1)))
+    );
 }
+
+const isEmptyLanguageString = (ls: LanguageString | null) => {
+    if (!ls) {
+        return true;
+    }
+    return Object.entries(ls).length == 0;
+};
