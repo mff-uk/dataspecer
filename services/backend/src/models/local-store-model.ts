@@ -50,8 +50,8 @@ export class LocalStoreModel {
         return new LocalStoreDescriptor(uuid);
     }
 
-    getModelStore(uuid: string): ModelStore {
-        return new ModelStore(uuid, this);
+    getModelStore(uuid: string, onChangeListeners: (() => Promise<unknown>)[] = []): ModelStore {
+        return new ModelStore(uuid, this, onChangeListeners);
     }
 
     /**
@@ -92,29 +92,38 @@ export class LocalStoreModel {
 export class ModelStore {
     private readonly uuid: string;
     private readonly storeModel: LocalStoreModel;
+    private readonly onChangeListeners: (() => Promise<unknown>)[];
 
-    constructor(uuid: string, storeModel: LocalStoreModel) {
+    constructor(uuid: string, storeModel: LocalStoreModel, onChangeListeners: (() => Promise<unknown>)[] = []) {
         this.uuid = uuid;
         this.storeModel = storeModel;
+        this.onChangeListeners = onChangeListeners;
     }
 
-    getBuffer(): Promise<Buffer> {
+    async getBuffer(): Promise<Buffer> {
         return this.storeModel.get(this.uuid) as Promise<Buffer>;
     }
 
-    getString(): Promise<string> {
+    async getString(): Promise<string> {
         return this.getBuffer().then(buffer => buffer?.toString());
     }
 
-    getJson(): Promise<any> {
+    async getJson(): Promise<any> {
         return this.getString().then(str => JSON.parse(str));
     }
 
-    setString(payload: string): Promise<void> {
+    async setString(payload: string): Promise<void> {
+        await this.notifyChangeListeners();
         return this.storeModel.set(this.uuid, payload);
     }
 
-    setJson(payload: any): Promise<void> {
+    async setJson(payload: any): Promise<void> {
         return this.setString(JSON.stringify(payload));
+    }
+
+    async notifyChangeListeners() {
+        for (const listener of this.onChangeListeners) {
+            await listener();
+        }
     }
 }

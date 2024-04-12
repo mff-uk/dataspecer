@@ -78,9 +78,10 @@ export class ResourceModel {
         await this.prismaClient.resource.update({
             where: {iri},
             data: {
-                userMetadata: JSON.stringify(userMetadata)
+                userMetadata: JSON.stringify(userMetadata),
             }
         });
+        await this.updateModificationTime(iri);
     }
 
     /**
@@ -103,6 +104,9 @@ export class ResourceModel {
         }
 
         await recursivelyDeleteResourceByPrismaResource(prismaResource);
+        if (prismaResource.parentResourceId !== null) {
+            await this.updateModificationTimeById(prismaResource.parentResourceId);
+        }
     }
 
     /**
@@ -188,6 +192,10 @@ export class ResourceModel {
                 userMetadata: JSON.stringify(userMetadata)
             }
         });
+
+        if (parentResourceId !== null) {
+            await this.updateModificationTimeById(parentResourceId);
+        }
     }
 
     async getOrCreateResourceModelStore(iri: string, storeName: string = "model"): Promise<ModelStore> {
@@ -195,11 +203,13 @@ export class ResourceModel {
         if (prismaResource === null) {
             throw new Error("Resource not found.");
         }
+
+        const onUpdate = () => this.updateModificationTime(iri);
         
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (dataStoreId[storeName]) {
-            return this.storeModel.getModelStore(dataStoreId[storeName]);
+            return this.storeModel.getModelStore(dataStoreId[storeName], [onUpdate]);
         } else {
             const store = await this.storeModel.create();
             dataStoreId[storeName] = store.uuid;
@@ -209,7 +219,7 @@ export class ResourceModel {
                     dataStoreId: JSON.stringify(dataStoreId)
                 }
             });
-            return this.storeModel.getModelStore(store.uuid);
+            return this.storeModel.getModelStore(store.uuid, [onUpdate]);
         }
     }
 
@@ -235,8 +245,13 @@ export class ResourceModel {
                 dataStoreId: JSON.stringify(dataStoreId)
             }
         });
+
+        await this.updateModificationTime(iri);
     }
 
+    /**
+     * @internal for importing resources
+     */
     async assignExistingStoreToResource(iri: string, storeId: string, storeName: string = "model") {
         const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
         if (prismaResource === null) {
@@ -251,5 +266,35 @@ export class ResourceModel {
                 dataStoreId: JSON.stringify(dataStoreId)
             }
         });
+
+        await this.updateModificationTime(iri);
     }
+
+    /**
+     * Updates modification time of the resource and all its parent packages.
+     * @param iri 
+     */
+    async updateModificationTime(iri: string) {
+        const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
+        if (prismaResource === null) {
+            throw new Error("Cannot update modification time. Resource does not exists.");
+        }
+
+        let id: number | null = prismaResource.id;
+        await this.updateModificationTimeById(id);
+    }
+
+    private async updateModificationTimeById(id: number) {
+        while (id !== null) {
+            await this.prismaClient.resource.update({
+                where: {id},
+                data: {
+                    modifiedAt: new Date(),
+                }
+            });
+
+            const parent = await this.prismaClient.resource.findFirst({select: {parentResourceId: true}, where: {id}}) as any; // It was causing TS7022 error
+            id = parent?.parentResourceId ?? null;
+        }
+    }   
 }
