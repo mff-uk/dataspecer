@@ -262,7 +262,7 @@ export const Visualization = () => {
                     }
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
-                    throw new Error("unknown entity type");
+                    //throw new Error("unknown entity type"); // todo: throws if there is a visual entity without semantic entity
                 }
             }
 
