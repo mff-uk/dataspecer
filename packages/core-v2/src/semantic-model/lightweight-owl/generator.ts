@@ -120,6 +120,8 @@ class Generator {
 
     private writeProperty(entity: SemanticModelRelationship) {
         const domainEnd = getDomainAndRange(entity)?.domain;
+        const rangeEnd = getDomainAndRange(entity)?.range;
+
         const iri = namedNode(domainEnd?.iri ?? entity.iri ?? entity.id);
 
         // const iri = namedNode(entity.iri ?? entity.id);
@@ -132,28 +134,22 @@ class Generator {
 
         this.writeNamedThing(entity);
 
-        let domainConcept: string | null;
-        let rangeConcept: string | null;
-        if (entity.ends[0]!.iri != null && entity.ends[1]!.iri == null) {
-            domainConcept = entity.ends[0]!.concept;
-            rangeConcept = entity.ends[1]!.concept;
-        } else if (entity.ends[1]!.iri != null && entity.ends[0]!.iri == null) {
-            domainConcept = entity.ends[1]!.concept;
-            rangeConcept = entity.ends[0]!.concept;
-        } else {
-            console.error("no domain end, none or both of the ends has/have an IRI", entity.ends);
-            throw new Error("no domain end, none or both of the ends has/have an IRI");
-        }
+        const domainConcept = domainEnd?.concept ?? null;
+        const rangeConcept = rangeEnd?.concept ?? null;
 
         // neni tohle obracene? Jakoze range je odkud sipka smeruje a domain je kam sipka smeruje?
-        const domain = this.getNodeById(domainConcept!);
-        if (!OWL_THING.includes(domain.value)) {
-            this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#domain"), domain);
+        if (domainConcept) {
+            const domain = this.getNodeById(domainConcept);
+            if (!OWL_THING.includes(domain.value)) {
+                this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#domain"), domain);
+            }
         }
-        const range = this.getNodeById(rangeConcept!);
-        if (!OWL_THING.includes(range.value)) {
-            if (rangeConcept) {
-                this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#range"), range);
+        if (rangeConcept) {
+            const range = this.getNodeById(rangeConcept!);
+            if (!OWL_THING.includes(range.value)) {
+                if (rangeConcept) {
+                    this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#range"), range);
+                }
             }
         }
     }
