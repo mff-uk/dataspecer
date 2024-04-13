@@ -1,5 +1,10 @@
-import { LanguageString, SemanticModelRelationship, SemanticModelRelationshipEnd } from "../concepts";
+import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "../concepts";
 
+/**
+ * Gets domain and range of a relationship.
+ * @param resource
+ * @returns {domain: SemanticModelRelationshipEnd, range: SemanticModelRelationshipEnd} if only one of the ends has an IRI, if both or none have it, returns null.
+ */
 export const getDomainAndRange = (resource: SemanticModelRelationship) => {
     let domain: SemanticModelRelationshipEnd, range: SemanticModelRelationshipEnd;
     const [end1, end2] = resource.ends;
@@ -7,7 +12,6 @@ export const getDomainAndRange = (resource: SemanticModelRelationship) => {
     if (!end1 || !end2) {
         return null;
     } else if (end1!.iri && end2!.iri) {
-        console.log("both ends have an iri, cannot decide which is domain and range", resource);
         return null;
     } else if (end1!.iri) {
         domain = end1!;
@@ -17,7 +21,6 @@ export const getDomainAndRange = (resource: SemanticModelRelationship) => {
         range = end1!;
     } else {
         // none of them has an iri
-        console.log("none of the ends has an iri, cannot decide which is domain and range", resource);
         return null;
     }
 
