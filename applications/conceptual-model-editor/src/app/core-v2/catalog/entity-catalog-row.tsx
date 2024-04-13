@@ -1,22 +1,19 @@
 import { useState } from "react";
-import { SemanticModelClassWithOrigin } from "../context/classes-context";
-import { getNameOrIriAndDescription, getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getNameOrIriAndDescription } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
-    isSemanticModelClassUsage,
-    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
-    LanguageString,
     NamedThing,
     SemanticModelClass,
     SemanticModelRelationship,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isAttribute } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
+import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
     return (
@@ -58,12 +55,16 @@ export const EntityRow = (props: {
         iri = entity.iri;
     }
 
-    const attrName =
-        (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && isAttribute(entity)
-            ? entity.ends.at(1)?.name
-            : undefined;
+    const domainRange =
+        isSemanticModelRelationship(entity) || isSemanticModelAttribute(entity) ? getDomainAndRange(entity) : null;
+
+    const relationshipName = domainRange ? domainRange.domain.name : undefined;
     const [name, description] = getNameOrIriAndDescription(
-        { ...entity, name: attrName ?? entity.name ?? {}, description: {} } satisfies NamedThing,
+        {
+            ...entity,
+            name: relationshipName ?? entity.name ?? {},
+            description: domainRange?.domain.description ?? {},
+        } satisfies NamedThing,
         iri ?? entity.id,
         preferredLanguage
     );

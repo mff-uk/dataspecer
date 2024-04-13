@@ -4,14 +4,14 @@ import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog, RelationshipCatalog } from "./attribute-relationship-catalog";
 import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
-import { isAttribute } from "../util/utils";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const Catalog = () => {
     const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile">("class");
     const { relationships: r, /* attributes, */ profiles } = useClassesContext();
 
-    const relationships = r.filter((v) => !isAttribute(v));
-    const attributes = r.filter(isAttribute);
+    const relationships = r.filter((v) => !isSemanticModelAttribute(v));
+    const attributes = r.filter(isSemanticModelAttribute);
 
     if (entityView == "relationship" && relationships.length == 0) {
         setEntityView("class");

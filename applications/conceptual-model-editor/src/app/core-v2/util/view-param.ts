@@ -5,7 +5,7 @@ const VIEW_ID = "view-id";
 
 export const useViewParam = () => {
     const { queryParams, setQueryParams } = useQueryParams();
-    const [viewId, setViewId] = useState<string>();
+    const [viewId, setViewId] = useState<string | null>(queryParams.get(VIEW_ID));
 
     useEffect(() => {
         const vId = queryParams.get(VIEW_ID);

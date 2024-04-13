@@ -5,6 +5,7 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     isSemanticModelGeneralization,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
 import { cardinalityToString, isAttribute } from "../util/utils";
@@ -25,6 +26,7 @@ import { useBaseDialog } from "./base-dialog";
 import { getIri, getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
+import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -79,7 +81,7 @@ export const useEntityDetailDialog = () => {
             profileOf: null | string = null,
             profiledBy: string[] = [];
 
-        if (isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)) {
+        if (isSemanticModelClassUsage(viewedEntity)) {
             const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {}, currentLang);
             const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {}, currentLang);
             const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {}, currentLang);
@@ -89,33 +91,56 @@ export const useEntityDetailDialog = () => {
                 e ?? "" + (f != null ? `@${f}` : ""),
                 viewedEntity.usageOf,
             ];
-        } else if (isSemanticModelClass(viewedEntity) || isSemanticModelRelationship(viewedEntity)) {
+        } else if (isSemanticModelClass(viewedEntity)) {
             const [a, b] = getNameOrIriAndDescription(viewedEntity, viewedEntity.iri || viewedEntity.id, currentLang);
             [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
+        } else if (isSemanticModelRelationship(viewedEntity)) {
+            const domain = getDomainAndRange(viewedEntity)?.domain;
+            const [a, b] = getNameOrIriAndDescription(domain, domain?.iri || viewedEntity.id, currentLang);
+            [name, description, iri] = [a ?? "no-iri", b ?? "", domain?.iri ?? "no-iri"];
+        } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
+            const domain = viewedEntity.ends.at(1); // TODO: make it work for attributes that are profiles
+            const [a, b] = getStringFromLanguageStringInLang(domain?.name ?? viewedEntity.name ?? {}, currentLang);
+            const [c, d] = getStringFromLanguageStringInLang(
+                domain?.description ?? viewedEntity.description ?? {},
+                currentLang
+            );
+            const [e, f] = getStringFromLanguageStringInLang(
+                domain?.usageNote ?? viewedEntity.usageNote ?? {},
+                currentLang
+            );
+            [name, description, usageNote, profileOf] = [
+                (a ?? "no-name") + (b != null ? `@${b}` : ""),
+                c ?? "" + (d != null ? `@${d}` : ""),
+                e ?? "" + (f != null ? `@${f}` : ""),
+                viewedEntity.usageOf,
+            ];
         }
 
-        const attributes = /* a */ r.filter(isAttribute).filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+        const attributes = /* a */ r
+            .filter(isSemanticModelAttribute)
+            .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
         const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
+            .filter(isAttribute)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
 
         profiledBy = profiles.filter((p) => p.usageOf == viewedEntity.id).map((p) => p.id);
 
-        const ends =
-            isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
-                ? viewedEntity.ends
-                : null;
+        const ends = isSemanticModelRelationship(viewedEntity) // || isSemanticModelRelationshipUsage(viewedEntity)
+            ? getDomainAndRange(viewedEntity)
+            : null;
 
         const range =
-            c.find((cls) => cls.id == ends?.at(0)?.concept) ?? profiles.find((v) => v.id == ends?.at(0)?.concept);
-        const rangeCardinality = cardinalityToString(ends?.at(0)?.cardinality);
-        const rangeIri = getIri(range ?? null);
+            c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept);
+        const rangeCardinality = cardinalityToString(ends?.range?.cardinality);
+        const rangeIri = getIri(range ?? null) ?? ends?.range?.concept;
         const domain =
-            c.find((cls) => cls.id == ends?.at(1)?.concept) ?? profiles.find((v) => v.id == ends?.at(1)?.concept);
-        const domainCardinality = cardinalityToString(ends?.at(1)?.cardinality);
-        const domainIri = getIri(domain ?? null);
+            c.find((cls) => cls.id == ends?.domain?.concept) ?? profiles.find((v) => v.id == ends?.domain?.concept);
+        const domainCardinality = cardinalityToString(ends?.domain?.cardinality);
+        const domainIri = getIri(domain ?? null) ?? ends?.domain.concept;
 
-        console.log(ends, domain, viewedEntity);
+        console.log(viewedEntity, ends);
 
         return (
             <BaseDialog
@@ -159,9 +184,8 @@ export const useEntityDetailDialog = () => {
                     <div className="font-semibold">type:</div>
                     <div>
                         {viewedEntity.type}
-                        {(isSemanticModelRelationship(viewedEntity) ||
-                            isSemanticModelRelationshipUsage(viewedEntity)) &&
-                        isAttribute(viewedEntity)
+                        {isSemanticModelAttribute(viewedEntity) ||
+                        (isSemanticModelRelationshipUsage(viewedEntity) && isAttribute(viewedEntity))
                             ? " (attribute)"
                             : ""}
                     </div>
@@ -245,9 +269,10 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">range: </div>
 
                             <div>
-                                {getStringFromLanguageStringInLang(range.name ?? {}, currentLang) ??
+                                {getStringFromLanguageStringInLang(range.name ?? {}, currentLang)[0] ??
                                     rangeIri ??
-                                    range.id}
+                                    range.id ??
+                                    ends?.range.concept}
                                 :{rangeCardinality}
                             </div>
                         </>

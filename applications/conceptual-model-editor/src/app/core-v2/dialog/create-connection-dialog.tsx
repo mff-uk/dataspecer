@@ -2,6 +2,7 @@ import {
     LanguageString,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
@@ -39,7 +40,9 @@ const AssociationComponent = (props: {
     } as SemanticModelRelationshipEnd);
 
     const { relationships: r, profiles: p } = useClassesContext();
-    const relationshipsAndProfiles = [...r, ...p.filter(isSemanticModelRelationshipUsage)];
+    const relationshipsAndProfiles = [...r, ...p.filter(isSemanticModelRelationshipUsage)].filter(
+        (v) => !isSemanticModelAttribute(v)
+    );
 
     useEffect(() => {
         props.setAssociation({
@@ -69,22 +72,22 @@ const AssociationComponent = (props: {
             />
             <div className="font-semibold">cardinalities:</div>
             <div>
-                <p>
+                <div>
                     cardinality-source:
                     <CardinalityOptions
                         group="source"
                         defaultCard={semanticCardinalityToOption(source.cardinality ?? null)}
                         setCardinality={setSource}
                     />
-                </p>
-                <p>
+                </div>
+                <div>
                     cardinality-target:
                     <CardinalityOptions
                         group="target"
                         defaultCard={semanticCardinalityToOption(target.cardinality ?? null)}
                         setCardinality={setTarget}
                     />
-                </p>
+                </div>
             </div>
             <div>is profile of:</div>
             <select
@@ -297,21 +300,20 @@ export const useCreateConnectionDialog = () => {
                                     } else {
                                         const result = createConnection(saveModel, {
                                             type: "association",
-                                            iri: newIri,
-                                            name: association.name,
+                                            // iri: newIri,
+                                            // name: association.name,
                                             description: association.description,
                                             ends: [
                                                 {
-                                                    name: association.ends.at(0)?.name ?? null,
-                                                    description: association.ends.at(0)?.description ?? null,
                                                     concept: association.ends.at(0)?.concept ?? null,
                                                     cardinality: association.ends.at(0)?.cardinality ?? null,
                                                 },
                                                 {
-                                                    name: association.ends.at(1)?.name ?? null,
-                                                    description: association.ends.at(1)?.description ?? null,
+                                                    name: association.name ?? null,
+                                                    description: association.description ?? null,
                                                     concept: association.ends.at(1)?.concept ?? null,
                                                     cardinality: association.ends.at(1)?.cardinality ?? null,
+                                                    iri: newIri,
                                                 },
                                             ],
                                         } as AssociationConnectionType);

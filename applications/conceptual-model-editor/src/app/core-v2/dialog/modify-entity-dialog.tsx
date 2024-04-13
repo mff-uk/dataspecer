@@ -5,6 +5,7 @@ import {
     isSemanticModelRelationship,
     isSemanticModelClass,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
@@ -28,9 +29,10 @@ import { isAttribute } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getModelIri } from "../util/model-utils";
 import { IriInput, WhitespaceRegExp } from "./iri-input";
-import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { AddAttributesComponent } from "./attributes-component";
 import { DomainRangeComponent } from "./domain-range-component";
+import { createRelationship, deleteEntity, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
+import { createRelationshipUsage, modifyClassUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -43,7 +45,7 @@ export const useModifyEntityDialog = () => {
     const [modifiedEntity, setModifiedEntity] = useState(null as unknown as SupportedTypes);
     const [model, setModel] = useState<InMemorySemanticModel | null>(null);
 
-    const { addAttribute } = useClassesContext();
+    const { executeMultipleOperations } = useClassesContext();
 
     const localClose = () => {
         setModifiedEntity(null as unknown as SemanticModelClass);
@@ -51,6 +53,9 @@ export const useModifyEntityDialog = () => {
         close();
     };
     const localOpen = (entity: SupportedTypes, model: InMemorySemanticModel | null = null) => {
+        if (!model) {
+            localClose();
+        }
         setModifiedEntity(entity);
         setModel(model);
         open();
@@ -95,7 +100,7 @@ export const useModifyEntityDialog = () => {
         const inMemoryModels = filterInMemoryModels(models);
 
         const { relationships: r, /* attributes: a, */ deleteEntityFromModel, profiles: p } = useClassesContext();
-        const attributes = r.filter(isAttribute).filter((v) => v.ends.at(0)?.concept == modifiedEntity.id);
+        const attributes = r.filter(isSemanticModelAttribute).filter((v) => v.ends.at(0)?.concept == modifiedEntity.id);
         const attributeProfiles = p
             .filter(isSemanticModelRelationshipUsage)
             .filter(isAttribute)
@@ -114,6 +119,7 @@ export const useModifyEntityDialog = () => {
                     <div className="font-semibold">name:</div>
                     <div className="pb-3 text-xl">
                         <MultiLanguageInputForLanguageString
+                            key={name2 + "name-key"}
                             inputType="text"
                             ls={name2}
                             setLs={setName2}
@@ -156,6 +162,7 @@ export const useModifyEntityDialog = () => {
 
                     <div className="font-semibold">description:</div>
                     <MultiLanguageInputForLanguageString
+                        key={name2 + "description-key"}
                         inputType="textarea"
                         ls={description2}
                         setLs={setDescription2}
@@ -337,36 +344,57 @@ export const useModifyEntityDialog = () => {
                             let result = false;
 
                             if (isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) {
+                                const operations = [];
                                 if (isSemanticModelClass(modifiedEntity)) {
-                                    result = modifyClassInAModel(model, modifiedEntity.id, {
-                                        name: name2,
-                                        iri: newIri,
-                                        description: description2,
-                                    });
-                                    console.log(result);
+                                    operations.push(
+                                        modifyClass(modifiedEntity.id, {
+                                            name: name2,
+                                            iri: newIri,
+                                            description: description2,
+                                        })
+                                    );
+                                    // result = modifyClassInAModel(model, modifiedEntity.id, {
+                                    //     name: name2,
+                                    //     iri: newIri,
+                                    //     description: description2,
+                                    // });
+                                    // console.log(result);
                                 } else {
-                                    const res = updateClassUsage(model, "class-usage", modifiedEntity.id, {
-                                        name: name2,
-                                        description: description2,
-                                        usageNote: usageNote2,
-                                    });
-                                    console.log(res, "class profile updated", usageNote2, description2, name2);
+                                    operations.push(
+                                        modifyClassUsage(modifiedEntity.id, {
+                                            name: name2,
+                                            description: description2,
+                                            usageNote: usageNote2,
+                                        })
+                                    );
+                                    // const res = updateClassUsage(model, "class-usage", modifiedEntity.id, {
+                                    //     name: name2,
+                                    //     description: description2,
+                                    //     usageNote: usageNote2,
+                                    // });
+                                    // console.log(res, "class profile updated", usageNote2, description2, name2);
                                 }
 
                                 for (const attribute of newAttributes) {
-                                    const res = addAttribute(model, attribute);
-                                    console.log(res);
+                                    operations.push(createRelationship(attribute));
+
+                                    // const res = addAttribute(model, attribute);
+                                    // console.log(res);
                                 }
 
                                 for (const attributeProfile of newAttributeProfiles) {
-                                    const res = createRelationshipEntityUsage(model, "relationship", attributeProfile);
-                                    console.log("wanted to create a new attribute profile", attributeProfile, res);
+                                    operations.push(createRelationshipUsage(attributeProfile));
+
+                                    // const res = createRelationshipEntityUsage(model, "relationship", attributeProfile);
+                                    // console.log("wanted to create a new attribute profile", attributeProfile, res);
                                 }
 
                                 for (const rem of toBeRemovedAttributes) {
+                                    operations.push(deleteEntity(rem));
                                     // const res = deleteEntityFromModel(model, rem);
                                     console.log("todo remove entity from attribute's domain", rem);
                                 }
+                                executeMultipleOperations(model, operations);
                             } else if (isSemanticModelRelationship(modifiedEntity)) {
                                 const rangeCard =
                                     newRange.cardinality != currentRange?.cardinality
@@ -389,11 +417,14 @@ export const useModifyEntityDialog = () => {
                                             ...modifiedEntity.ends.at(1)!,
                                             concept: newDomain.concept ?? currentDomain?.concept ?? "",
                                             cardinality: domainCard,
+                                            iri: newIri ?? null,
+                                            name: name2,
+                                            description: description2,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is
-                                    name: name2,
-                                    iri: newIri,
-                                    description: description2,
+                                    // name: name2,
+                                    // iri: newIri,
+                                    // description: description2,
                                 });
                                 console.log(result);
                             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {

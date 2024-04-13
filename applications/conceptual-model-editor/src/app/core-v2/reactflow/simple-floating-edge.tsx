@@ -14,6 +14,7 @@ import {
     SemanticModelRelationship,
     SemanticModelGeneralization,
     LanguageString,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import {
@@ -22,6 +23,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { cardinalityToString } from "../util/utils";
+import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -144,7 +146,9 @@ export const semanticModelRelationshipToReactFlowEdge = (
     usageNotes: LanguageString[],
     openEntityDetailDialog: () => void
 ) => {
-    const name = getStringFromLanguageStringInLang(rel.name ?? {})[0] ?? rel.id;
+    const domain = isSemanticModelRelationship(rel) ? getDomainAndRange(rel)?.domain : null;
+
+    const name = getStringFromLanguageStringInLang(domain?.name ?? rel.name ?? {})[0] ?? rel.id;
     return {
         id: rel.id,
         source: rel.ends[0]!.concept,

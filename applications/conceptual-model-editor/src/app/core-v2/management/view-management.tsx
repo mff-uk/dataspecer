@@ -13,6 +13,9 @@ export const ViewManagement = () => {
     const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
 
     useEffect(() => {
+        if (!activeViewId) {
+            console.log("setting activeViewId to null");
+        }
         setViedIdSearchParam(activeViewId ?? null);
     }, [activeViewId]);
 
@@ -23,6 +26,7 @@ export const ViewManagement = () => {
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
         setAggregatorView(aggregator.getView());
+        setViedIdSearchParam(activeViewId ?? null);
         toggleDropdown();
     };
 
@@ -38,6 +42,7 @@ export const ViewManagement = () => {
         addVisualModelToGraph(model);
         aggregatorView.changeActiveVisualModel(model.getId());
         setAggregatorView(aggregator.getView());
+        setViedIdSearchParam(activeViewId ?? null);
     };
 
     const handleViewDeleted = (viewId: string) => {

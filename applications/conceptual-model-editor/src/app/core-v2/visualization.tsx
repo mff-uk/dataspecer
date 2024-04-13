@@ -30,6 +30,7 @@ import {
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
@@ -88,7 +89,6 @@ export const Visualization = () => {
         } else if (isSemanticModelRelationship(entity)) {
             return semanticModelRelationshipToReactFlowEdge(entity, color, [], openEntityDetailDialog) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            // console.log("got generalization to make it a rf edege");
             return semanticModelGeneralizationToReactFlowEdge(entity, color, openEntityDetailDialog) as Edge;
         }
         return;
@@ -113,7 +113,7 @@ export const Visualization = () => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
             const [localRelationships, localGeneralizations, localModels] = [relationships, generalizations, models];
-            let [localAttributes] = [relationships.filter(isAttribute)];
+            let [localAttributes] = [relationships.filter(isSemanticModelAttribute)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 if (!visualEntity) {
@@ -233,7 +233,7 @@ export const Visualization = () => {
                 ) {
                     if (
                         (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                        isAttribute(entity)
+                        (isSemanticModelAttribute(entity) || isAttribute(entity))
                     ) {
                         // it is an attribute, rerender the node that the attribute comes form
                         const aggrEntityOfAttributesNode =
@@ -382,7 +382,9 @@ export const Visualization = () => {
                     />
                     <Panel position="top-right">
                         <div className="flex flex-col">
-                            <div title="add class to canvas by clicking and holding `alt`">ℹ</div>
+                            <div className="cursor-help" title="add class to canvas by clicking and holding `alt`">
+                                ℹ
+                            </div>
                         </div>
                     </Panel>
                     <Background gap={12} size={1} />
