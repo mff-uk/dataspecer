@@ -95,7 +95,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         if (isVisualModel(model)) {
             if (this.activeVisualModel?.getId() == model.getId()) {
                 this.setActiveVisualModel(
-                    ([...this.models.keys()].find((m) => isVisualModel(m)) as VisualEntityModel) ?? null
+                    [...this.models.keys()].filter(isVisualModel).find((m) => m.getId() != model.getId()) ?? null
                 );
             }
             return;
