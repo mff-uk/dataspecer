@@ -1,14 +1,9 @@
 import {
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
-    isSemanticModelClass,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    getLocalizedString,
-    getNameOrIriAndDescription,
-    getStringFromLanguageStringInLang,
-} from "../util/language-utils";
-import { isAttribute } from "../util/utils";
+import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import {
     SemanticModelRelationshipUsage,
@@ -17,6 +12,7 @@ import {
 import { Dispatch, SetStateAction } from "react";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useClassesContext } from "../context/classes-context";
+import { isAttribute } from "../util/utils";
 
 export const DomainRangeComponent = (props: {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -63,7 +59,7 @@ export const DomainRangeComponent = (props: {
             </div>
             <div className="font-semibold">domain:</div>
             <div className="flex w-full flex-row">
-                {isAttribute(entity) && (
+                {(isSemanticModelAttribute(entity) || isAttribute(entity)) && (
                     <div className="mr-4">
                         attribute
                         <span className="ml-1" title="setting a domain makes this attribute more of a relationship">
@@ -84,7 +80,11 @@ export const DomainRangeComponent = (props: {
                         }
                     }}
                 >
-                    <option disabled={!isAttribute(entity)} selected={isAttribute(entity)} value={"null"}>
+                    <option
+                        // disabled={!isSemanticModelAttribute(entity)}
+                        defaultChecked={isSemanticModelAttribute(entity) || isAttribute(entity)}
+                        value={"null"}
+                    >
                         ---
                     </option>
                     {classesOrProfiles.map((v) => {

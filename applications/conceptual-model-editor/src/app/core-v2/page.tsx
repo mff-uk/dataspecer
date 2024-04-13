@@ -266,7 +266,7 @@ const Page = () => {
         return () => {
             callToUnsubscribe();
         };
-    }, [models, aggregatorView]);
+    }, [, /* models */ aggregatorView]);
 
     return (
         <>

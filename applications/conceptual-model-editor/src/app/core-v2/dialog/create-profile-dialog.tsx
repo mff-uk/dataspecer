@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useBaseDialog } from "./base-dialog";
-import { filterInMemoryModels, isAttribute, shortenStringTo } from "../util/utils";
+import { filterInMemoryModels } from "../util/utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import {
     LanguageString,
     SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -90,7 +91,7 @@ export const useCreateProfileDialog = () => {
                     <div>
                         {entity?.type +
                             ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                            isAttribute(entity)
+                            isSemanticModelAttribute(entity)
                                 ? " (attribute)"
                                 : "")}
                     </div>

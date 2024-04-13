@@ -3,6 +3,7 @@ import {
     SemanticModelRelationship,
     LanguageString,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useState, useEffect } from "react";
@@ -10,7 +11,6 @@ import { getRandomName } from "~/app/utils/random-gen";
 import { useClassesContext } from "../context/classes-context";
 import { getAvailableLanguagesForLanguageString, getNameOrIriAndDescription } from "../util/language-utils";
 import { getModelIri } from "../util/model-utils";
-import { isAttribute } from "../util/utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { IriInput } from "./iri-input";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
@@ -36,15 +36,16 @@ export const AddAttributesComponent = (props: {
 
     useEffect(() => {
         setNewAttribute({
-            iri,
+            // iri,
             ends: [
-                { cardinality: [0, null], name: {}, description: {}, concept: props.modifiedClassId },
+                { cardinality: [0, null], name: {}, description: {}, concept: props.modifiedClassId, iri: null },
                 {
                     cardinality: cardinality.cardinality, // TODO: cardinality
                     name,
                     description,
                     // @ts-ignore
-                    concept: null,
+                    concept: null, // TODO dataType
+                    iri,
                 },
             ],
         });
@@ -98,7 +99,7 @@ export const AddAttributesComponent = (props: {
                     }}
                 >
                     <option>---</option>
-                    {relationships.filter(isAttribute).map((a) => {
+                    {relationships.filter(isSemanticModelAttribute).map((a) => {
                         const [name, descr] = getNameOrIriAndDescription(a.ends.at(1), a.iri || a.id);
                         return (
                             <option title={descr ?? ""} value={a.id}>
@@ -115,8 +116,8 @@ export const AddAttributesComponent = (props: {
                             console.log("profile selected", newAttributeIsProfileOf);
                             props.saveNewAttributeProfile({
                                 usageOf: newAttributeIsProfileOf,
-                                name,
-                                description,
+                                // name,
+                                // description,
                                 // ends: TODO az bude jasne, jestli maji byt konce taky ..shipEndUsage nebo jen ..shipEnd
                                 ends: [
                                     {
@@ -127,10 +128,9 @@ export const AddAttributesComponent = (props: {
                                         usageNote: {},
                                     },
                                     {
-                                        cardinality: [0, null], // TODO: cardinality
+                                        cardinality: cardinality.cardinality ?? null,
                                         name,
                                         description,
-                                        // @ts-ignore
                                         concept: null,
                                         usageNote: {},
                                     },
