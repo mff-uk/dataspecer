@@ -1,4 +1,4 @@
-import { buildEntityMap } from "../../wikidata-backend-connector/api-types/build-entity-map";
+import { buildEntityMap } from "../../wikidata-backend-connector/api-types/utils/build-entity-map";
 import { WdClassDescOnly } from "../../wikidata-entities/wd-class";
 import { EntityId } from "../../wikidata-entities/wd-entity";
 import { WdProperty, WdPropertyDescOnly } from "../../wikidata-entities/wd-property";

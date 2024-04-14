@@ -1,26 +1,35 @@
-import { buildEntityMap } from "./build-entity-map";
-import { WdClassHierarchySurroundingsDescOnly, WdClassDescOnly } from "../../wikidata-entities/wd-class";
+import { buildEntityMap } from "./utils/build-entity-map";
+import { WdClassHierarchySurroundingsDescOnly } from "../../wikidata-entities/wd-class";
 import { EntityId, EntityIdsList } from "../../wikidata-entities/wd-entity";
 import { WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
 
-export interface SurroundingsResponseResults {
-  readonly startClass: EntityId;
-  readonly parents: EntityIdsList;
-  readonly subjectOf: EntityIdsList;
-  readonly valueOf: EntityIdsList;
+export interface GetClassSurroundingsResponseResults {
+  readonly startClassId: EntityId;
+  readonly parentsIds: EntityIdsList;
+  readonly subjectOfIds: EntityIdsList;
+  readonly valueOfIds: EntityIdsList;
   readonly classes: WdClassHierarchySurroundingsDescOnly[];
   readonly properties: WdPropertyDescOnly[];
 }
 
-export interface GetSurroundingsResponse {
-  readonly results: SurroundingsResponseResults;
+export interface GetClassSurroundingsResponse {
+  readonly results: GetClassSurroundingsResponseResults;
 }
 
-export interface ClassSurroundings {
+export class ClassSurroundings {
   readonly startClassId: EntityId;
   readonly parentsIds: EntityIdsList;
   readonly subjectOfIds: EntityIdsList;
   readonly valueOfIds: EntityIdsList;
   readonly classesMap: ReadonlyMap<EntityId, WdClassHierarchySurroundingsDescOnly>;
   readonly propertiesMap: ReadonlyMap<EntityId, WdPropertyDescOnly>;
+
+  constructor(response: GetClassSurroundingsResponse) {
+    this.startClassId = response.results.startClassId;
+    this.parentsIds = response.results.parentsIds;
+    this.subjectOfIds = response.results.subjectOfIds
+    this.valueOfIds = response.results.valueOfIds
+    this.classesMap = buildEntityMap(response.results.classes)
+    this.propertiesMap = buildEntityMap(response.results.properties)
+  }
 }

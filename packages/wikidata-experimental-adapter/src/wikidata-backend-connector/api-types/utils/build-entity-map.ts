@@ -1,0 +1,12 @@
+import { WdEntityDescOnly, EntityId } from "../../../wikidata-entities/wd-entity";
+
+
+export function buildEntityMap<T extends WdEntityDescOnly>(entities: T[]): ReadonlyMap<EntityId, T> {
+    const newMap = new Map<EntityId, T>();
+    entities.forEach((entity) => {
+      if (!newMap.has(entity.id)) {
+        newMap.set(entity.id, entity);
+      }
+    });
+    return newMap;
+  }
