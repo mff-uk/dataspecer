@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useBaseDialog } from "./base-dialog";
@@ -7,7 +7,6 @@ import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { IriInput, WhitespaceRegExp } from "./iri-input";
 import { filterInMemoryModels } from "../util/utils";
 
