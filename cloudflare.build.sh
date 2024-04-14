@@ -6,7 +6,7 @@ printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(e
 
 printf "NEXT_PUBLIC_BASE_PATH=/conceptual-model-editor\nNEXT_PUBLIC_APP_BACKEND=$BACKEND" > applications/conceptual-model-editor/.env.local
 
-printf "VITE_BACKEND=$BACKEND\nVITE_CME=/conceptual-model-editor" > applications/manager/.env.local
+printf "VITE_BACKEND=$BACKEND\nVITE_CME=/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=/api-specification" > applications/manager/.env.local
 
 npx turbo run build --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp
 
