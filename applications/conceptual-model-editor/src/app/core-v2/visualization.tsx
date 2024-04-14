@@ -30,6 +30,7 @@ import {
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
@@ -50,6 +51,7 @@ import {
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useCreateClassDialog } from "./dialog/create-class-dialog";
 import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
+import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -88,7 +90,6 @@ export const Visualization = () => {
         } else if (isSemanticModelRelationship(entity)) {
             return semanticModelRelationshipToReactFlowEdge(entity, color, [], openEntityDetailDialog) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            // console.log("got generalization to make it a rf edege");
             return semanticModelGeneralizationToReactFlowEdge(entity, color, openEntityDetailDialog) as Edge;
         }
         return;
@@ -113,7 +114,8 @@ export const Visualization = () => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
             const [localRelationships, localGeneralizations, localModels] = [relationships, generalizations, models];
-            let [localAttributes] = [relationships.filter(isAttribute)];
+            let [localAttributes] = [relationships.filter(isSemanticModelAttribute)];
+            let [localAttributeProfiles] = [profiles.filter(isSemanticModelRelationshipUsage).filter(isAttribute)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 if (!visualEntity) {
@@ -127,8 +129,6 @@ export const Visualization = () => {
                 if (!visible) {
                     return "hide-it!";
                 }
-                // let originModelId = localClasses.get(cls.id)?.origin;
-                // let originModelId = sourceModelOfEntity(cls.id, localModelsAsAnArray)?.getId(); // ocalClasses.get(cls.id)?.origin;
                 let originModelId = sourceModelOfEntityMap.get(cls.id); // ocalClasses.get(cls.id)?.origin;
 
                 if (!originModelId) {
@@ -147,16 +147,14 @@ export const Visualization = () => {
                     (m): m is InMemorySemanticModel => m instanceof InMemorySemanticModel
                 );
 
-                const attributes = localAttributes.filter((attr) => attr.ends[0]?.concept == cls.id);
-                const idsOfAttributes = attributes.map((a) => a.id);
-                const profilesOfAttributes = profiles
-                    .filter((p) => idsOfAttributes.includes(p.usageOf))
-                    .filter((p): p is SemanticModelClassUsage => isSemanticModelRelationshipUsage(p));
-                const attributeProfiles = profiles
+                const attributes = localAttributes
+                    .filter(isSemanticModelAttribute)
+                    .filter((attr) => getDomainAndRange(attr)?.range.concept == cls.id);
+                const attributeProfiles = localAttributeProfiles
                     .filter(isSemanticModelRelationshipUsage)
+                    .filter(isAttribute)
                     .filter((attr) => attr.ends[0]?.concept == cls.id && !attr.ends[1]?.concept);
 
-                // const usagesOfAttributes = attributes.map()
                 return semanticModelClassToReactFlowNode(
                     cls.id,
                     cls,
@@ -166,7 +164,6 @@ export const Visualization = () => {
                     () => openEntityDetailDialog(cls),
                     () => openModifyEntityDialog(cls, sourceModel ?? null),
                     () => openCreateProfileDialog(cls),
-                    profilesOfAttributes,
                     attributeProfiles
                 );
             };
@@ -233,17 +230,31 @@ export const Visualization = () => {
                 ) {
                     if (
                         (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                        isAttribute(entity)
+                        (isSemanticModelAttribute(entity) || isAttribute(entity))
                     ) {
                         // it is an attribute, rerender the node that the attribute comes form
+                        const rangeOfAttribute = isSemanticModelAttribute(entity)
+                            ? getDomainAndRange(entity)?.range.concept
+                            : null;
                         const aggrEntityOfAttributesNode =
-                            entities[entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                            entities[rangeOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                        // console.log("entity is attribute", entity, rangeOfAttribute, aggrEntityOfAttributesNode);
+
                         if (
                             isSemanticModelClass(aggrEntityOfAttributesNode) ||
                             isSemanticModelClassUsage(aggrEntityOfAttributesNode)
                         ) {
                             // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
-                            localAttributes.push(entity);
+                            if (isSemanticModelRelationship(entity)) {
+                                // remove the existing version of attribute, use this updated one
+                                localAttributes = localAttributes.filter((v) => v.id != entity.id).concat(entity);
+                            } else {
+                                // remove the existing version of attribute, use this updated one
+                                localAttributeProfiles = localAttributeProfiles
+                                    .filter((v) => v.id != entity.id)
+                                    .concat(entity);
+                            }
+                            // localAttributes.push(entity as SemanticModelRelationship);
                             const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
                             const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                             if (n && n != "hide-it!") {
@@ -276,7 +287,6 @@ export const Visualization = () => {
                         getEdge(
                             relOrGen,
                             localActiveVisualModel?.getColor(
-                                // sourceModelOfEntity(relOrGen.id, localModelsAsAnArray)?.getId()
                                 sourceModelOfEntityMap.get(relOrGen.id) ?? "some random model id that doesn't exist"
                             )
                         )
@@ -382,7 +392,9 @@ export const Visualization = () => {
                     />
                     <Panel position="top-right">
                         <div className="flex flex-col">
-                            <div title="add class to canvas by clicking and holding `alt`">ℹ</div>
+                            <div className="cursor-help" title="add class to canvas by clicking and holding `alt`">
+                                ℹ
+                            </div>
                         </div>
                     </Panel>
                     <Background gap={12} size={1} />

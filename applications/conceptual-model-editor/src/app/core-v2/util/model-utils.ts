@@ -1,15 +1,15 @@
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import {
     SemanticModelClass,
+    SemanticModelGeneralization,
     SemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
+import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
-    isSemanticModelClassUsage,
-    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const sourceModelOfEntity = (entityId: string, models: EntityModel[]) => {
@@ -26,14 +26,17 @@ export const getIri = (
         | SemanticModelClassUsage
         | SemanticModelRelationship
         | SemanticModelRelationshipUsage
+        | SemanticModelGeneralization
         | null
 ) => {
-    if (isSemanticModelClass(entity) || isSemanticModelRelationship(entity)) {
+    if (isSemanticModelClass(entity)) {
         return entity.iri;
-    } else if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
+    } else if (isSemanticModelRelationship(entity)) {
+        const domain = getDomainAndRange(entity)?.domain;
+        return domain?.iri ?? null;
+    } else {
         return null;
     }
-    return null;
 };
 
 export const getModelIri = (model: EntityModel | undefined | null) => {

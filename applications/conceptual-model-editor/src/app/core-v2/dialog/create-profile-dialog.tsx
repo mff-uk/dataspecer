@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useBaseDialog } from "./base-dialog";
-import { filterInMemoryModels, isAttribute, shortenStringTo } from "../util/utils";
+import { filterInMemoryModels } from "../util/utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import {
     LanguageString,
     SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -20,6 +21,8 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
 import { DomainRangeComponent } from "./domain-range-component";
+import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
+import { getIri } from "../util/model-utils";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -49,8 +52,8 @@ export const useCreateProfileDialog = () => {
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
-        const [name, setName] = useState<LanguageString>(entity?.name ?? {});
-        const [description, setDescription] = useState<LanguageString>(entity?.description ?? {});
+        const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
+        const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
 
         // Relationships and relationship profiles
@@ -64,16 +67,17 @@ export const useCreateProfileDialog = () => {
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
 
-        const entityName2 = getStringFromLanguageStringInLang(entity?.name ?? {}) ?? entity?.id;
+        const nameOfProfiledEntity =
+            getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ?? entity?.id;
 
         if (inMemoryModels.length == 0) {
-            alert("Create a local model first, pls");
+            alert("Create a local model first, please");
             localClose();
             return;
         }
         console.log(model, entity);
         return (
-            <BaseDialog heading={`Create a profile ${entityName2 ? "of " + entityName2 : ""}`}>
+            <BaseDialog heading={`Create a profile ${nameOfProfiledEntity ? "of " + nameOfProfiledEntity : ""}`}>
                 <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
                     <div className="font-semibold">active model:</div>
                     <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
@@ -86,11 +90,15 @@ export const useCreateProfileDialog = () => {
                                 </option>
                             ))}
                     </select>
+                    <div className="font-semibold">profiled entity:</div>
+                    <div>
+                        {nameOfProfiledEntity}, {getIri(entity) ?? entity?.id}
+                    </div>
                     <div className="font-semibold">profiled entity type:</div>
                     <div>
                         {entity?.type +
                             ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                            isAttribute(entity)
+                            isSemanticModelAttribute(entity)
                                 ? " (attribute)"
                                 : "")}
                     </div>
