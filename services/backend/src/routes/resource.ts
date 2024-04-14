@@ -32,7 +32,7 @@ export const createResource = asyncHandler(async (request: express.Request, resp
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    resourceModel.createResource(query.parentIri, body.iri, body.type, body.userMetadata ?? {});
+    await resourceModel.createResource(query.parentIri, body.iri, body.type, body.userMetadata ?? {});
 
     response.send(await resourceModel.getResource(body.iri));
 });
@@ -49,7 +49,7 @@ export const updateResource = asyncHandler(async (request: express.Request, resp
     const body = bodySchema.parse(request.body);
 
     if (body.userMetadata) {
-        resourceModel.updateResource(query.iri, body.userMetadata);
+        await resourceModel.updateResource(query.iri, body.userMetadata);
     }
 
     response.send(await resourceModel.getResource(query.iri));
@@ -129,7 +129,7 @@ export const createPackageResource = asyncHandler(async (request: express.Reques
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    resourceModel.createPackage(query.parentIri, body.iri, body.userMetadata ?? {});
+    await resourceModel.createPackage(query.parentIri, body.iri, body.userMetadata ?? {});
 
     response.send(await resourceModel.getPackage(body.iri));
 });
