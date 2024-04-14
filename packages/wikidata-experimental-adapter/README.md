@@ -1,14 +1,11 @@
-# Wikidata experimental adapter v2
+# Wikidata Experimental Adapter
 
-A second iteration of a Wikidata integration to the Dataspecer tool.
-The client queries the Wikidata backend with extracted ontology.
-
-## How to start it up for development?
+## How to start development?
 
 1. `> git clone repository`
 2. `> cd repository`
 3. `> git fetch` just in case
-4. `> git switch feature/wikidata-adapter`
+4. `> git switch feature/wikidata`
 5. `> npm install`
 6. `> npm run build`
 7. `> cd ./application/client`

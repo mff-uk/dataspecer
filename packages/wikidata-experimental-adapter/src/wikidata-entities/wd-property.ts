@@ -1,5 +1,4 @@
-import type { IWdEntity, EntityIdsList, ExternalOntologyMapping } from './wd-entity';
-import { type EmptyTypeConstraint, GeneralConstraints, type ItemTypeConstraints } from './constraints';
+import { EntityIdsList, ExternalOntologyMapping, WdEntity } from './wd-entity';
 
 export enum UnderlyingType {
   ENTITY = 0,
@@ -29,12 +28,16 @@ export enum Datatype {
   GEOGRAPHIC_COORDINATES = 16,
 }
 
-export interface IWdProperty extends IWdEntity {
+export interface WdProperty extends WdEntity {
   readonly datatype: Datatype;
   readonly underlyingType: UnderlyingType;
   readonly subpropertyOf: EntityIdsList;
   readonly relatedProperty: EntityIdsList;
   readonly equivalentExternalOntologyProperties: ExternalOntologyMapping;
+  readonly inverseProperty: EntityIdsList;
+  readonly complementaryProperty: EntityIdsList;
+  readonly negatesProperty: EntityIdsList;
+  readonly subproperties: EntityIdsList;
   readonly generalConstraints: GeneralConstraints;
 
   readonly itemConstraints?: ItemTypeConstraints;
@@ -43,3 +46,18 @@ export interface IWdProperty extends IWdEntity {
   readonly timeConstraints?: EmptyTypeConstraint;
   readonly coordinatesConstraints?: EmptyTypeConstraint;
 }
+
+export type WdPropertyDescOnly = Pick<
+  WdProperty,
+  'id' | 'iri' | 'labels' | 'descriptions' | 'datatype' | 'underlyingType'
+>;
+
+export interface GeneralConstraints {
+  readonly subjectTypeStats: EntityIdsList;
+}
+
+export interface ItemTypeConstraints {
+  readonly valueTypeStats: EntityIdsList;
+}
+
+export type EmptyTypeConstraint = null;
