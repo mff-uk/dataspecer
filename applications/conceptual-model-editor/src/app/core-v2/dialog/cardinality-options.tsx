@@ -1,5 +1,4 @@
 import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { group } from "console";
 import { Dispatch, SetStateAction } from "react";
 
 export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";

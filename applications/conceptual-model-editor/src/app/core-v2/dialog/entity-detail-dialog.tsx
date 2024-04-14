@@ -1,18 +1,18 @@
 import {
-    isSemanticModelClass,
     isSemanticModelRelationship,
     SemanticModelGeneralization,
     type SemanticModelClass,
     type SemanticModelRelationship,
     isSemanticModelGeneralization,
     isSemanticModelAttribute,
+    SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
 import { cardinalityToString, isAttribute } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
 import {
     getLanguagesForNamedThing,
-    getNameOrIriAndDescription,
+    getLocalizedStringFromLanguageString,
     getStringFromLanguageStringInLang,
 } from "../util/language-utils";
 import { IriLink } from "../catalog/entity-catalog-row";
@@ -27,6 +27,7 @@ import { getIri, getModelIri } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -73,48 +74,23 @@ export const useEntityDetailDialog = () => {
         const sourceModelId = sourceModelOfEntityMap.get(viewedEntity.id);
         const sourceModel = models.get(sourceModelId ?? "");
 
-        let name = "",
-            description = "",
-            iri: null | string = null,
-            modelIri: null | string = getModelIri(sourceModel),
-            usageNote: null | string = null,
+        let modelIri: null | string = getModelIri(sourceModel),
             profileOf: null | string = null,
             profiledBy: string[] = [];
 
+        const name = getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang);
+        const description = getLocalizedStringFromLanguageString(
+            getDescriptionLanguageString(viewedEntity),
+            currentLang
+        );
+        const usageNote = getLocalizedStringFromLanguageString(getUsageNoteLanguageString(viewedEntity), currentLang);
+        const iri = getIri(viewedEntity);
+
         if (isSemanticModelClassUsage(viewedEntity)) {
-            const [a, b] = getStringFromLanguageStringInLang(viewedEntity.name ?? {}, currentLang);
-            const [c, d] = getStringFromLanguageStringInLang(viewedEntity.description ?? {}, currentLang);
-            const [e, f] = getStringFromLanguageStringInLang(viewedEntity.usageNote ?? {}, currentLang);
-            [name, description, usageNote, profileOf] = [
-                (a ?? "no-name") + (b != null ? `@${b}` : ""),
-                c ?? "" + (d != null ? `@${d}` : ""),
-                e ?? "" + (f != null ? `@${f}` : ""),
-                viewedEntity.usageOf,
-            ];
-        } else if (isSemanticModelClass(viewedEntity)) {
-            const [a, b] = getNameOrIriAndDescription(viewedEntity, viewedEntity.iri || viewedEntity.id, currentLang);
-            [name, description, iri] = [a ?? "no-iri", b ?? "", viewedEntity.iri];
-        } else if (isSemanticModelRelationship(viewedEntity)) {
-            const domain = getDomainAndRange(viewedEntity)?.domain;
-            const [a, b] = getNameOrIriAndDescription(domain, domain?.iri || viewedEntity.id, currentLang);
-            [name, description, iri] = [a ?? "no-iri", b ?? "", domain?.iri ?? "no-iri"];
+            profileOf = viewedEntity.usageOf;
         } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
             const domain = viewedEntity.ends.at(1); // TODO: make it work for attributes that are profiles
-            const [a, b] = getStringFromLanguageStringInLang(domain?.name ?? viewedEntity.name ?? {}, currentLang);
-            const [c, d] = getStringFromLanguageStringInLang(
-                domain?.description ?? viewedEntity.description ?? {},
-                currentLang
-            );
-            const [e, f] = getStringFromLanguageStringInLang(
-                domain?.usageNote ?? viewedEntity.usageNote ?? {},
-                currentLang
-            );
-            [name, description, usageNote, profileOf] = [
-                (a ?? "no-name") + (b != null ? `@${b}` : ""),
-                c ?? "" + (d != null ? `@${d}` : ""),
-                e ?? "" + (f != null ? `@${f}` : ""),
-                viewedEntity.usageOf,
-            ];
+            profileOf = viewedEntity.usageOf;
         }
 
         const attributes = /* a */ r
@@ -127,9 +103,15 @@ export const useEntityDetailDialog = () => {
 
         profiledBy = profiles.filter((p) => p.usageOf == viewedEntity.id).map((p) => p.id);
 
-        const ends = isSemanticModelRelationship(viewedEntity) // || isSemanticModelRelationshipUsage(viewedEntity)
-            ? getDomainAndRange(viewedEntity)
-            : null;
+        let ends: { domain: SemanticModelRelationshipEnd; range: SemanticModelRelationshipEnd } | null = null;
+        if (isSemanticModelRelationship(viewedEntity)) {
+            ends = getDomainAndRange(viewedEntity);
+        } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
+            ends = {
+                range: { ...viewedEntity.ends[0]!, iri: null } as SemanticModelRelationshipEnd,
+                domain: { ...viewedEntity.ends[1], iri: null } as SemanticModelRelationshipEnd,
+            };
+        }
 
         const range =
             c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept);
@@ -196,27 +178,16 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">attributes:</div>
                             <div>
                                 {attributes.map((v) => {
-                                    const attr = v.ends.at(1)!;
-                                    const [name, fallbackLang] = getStringFromLanguageStringInLang(
-                                        attr.name,
-                                        currentLang
+                                    const name = getLocalizedStringFromLanguageString(
+                                        getNameLanguageString(v),
+                                        preferredLanguage
                                     );
-                                    const [attributeDescription, fallbackAttributeDescriptionLang] =
-                                        getStringFromLanguageStringInLang(attr.description);
-
-                                    let descr = "";
-                                    if (attributeDescription && !fallbackAttributeDescriptionLang) {
-                                        descr = attributeDescription;
-                                    } else if (attributeDescription && fallbackAttributeDescriptionLang) {
-                                        descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
-                                    }
-
-                                    return (
-                                        <div title={descr}>
-                                            {name}
-                                            {fallbackLang ? "@" + fallbackLang : ""}
-                                        </div>
+                                    const descr = getLocalizedStringFromLanguageString(
+                                        getDescriptionLanguageString(v),
+                                        preferredLanguage
                                     );
+
+                                    return <div title={descr ?? ""}>{name}</div>;
                                 })}
                             </div>
                         </>
@@ -227,31 +198,27 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">attribute profiles:</div>
                             <div>
                                 {attributeProfiles.map((v) => {
-                                    const attr = v.ends.at(1)!;
-                                    const [name, fallbackLang] = getStringFromLanguageStringInLang(
-                                        attr.name ?? {},
-                                        currentLang
+                                    const name = getLocalizedStringFromLanguageString(
+                                        getNameLanguageString(v),
+                                        preferredLanguage
                                     );
-                                    const [attributeDescription, fallbackAttributeDescriptionLang] =
-                                        getStringFromLanguageStringInLang(attr.description ?? {}, currentLang);
-
-                                    let descr = "";
-                                    if (attributeDescription && !fallbackAttributeDescriptionLang) {
-                                        descr = attributeDescription;
-                                    } else if (attributeDescription && fallbackAttributeDescriptionLang) {
-                                        descr = `${attributeDescription}@${fallbackAttributeDescriptionLang}`;
-                                    }
-
-                                    const usageNote =
-                                        getStringFromLanguageStringInLang(v.usageNote ?? {}, currentLang)[0] ??
-                                        "no usage note";
+                                    const descr = getLocalizedStringFromLanguageString(
+                                        getDescriptionLanguageString(v),
+                                        preferredLanguage
+                                    );
+                                    const usageNote = getLocalizedStringFromLanguageString(
+                                        getUsageNoteLanguageString(v),
+                                        preferredLanguage
+                                    );
 
                                     return (
-                                        <div title={descr}>
-                                            {name ?? v.id}@{fallbackLang}
-                                            <span className="ml-2 bg-blue-200" title={usageNote}>
-                                                usage note
-                                            </span>
+                                        <div title={descr ?? ""}>
+                                            {name}
+                                            {usageNote && (
+                                                <span className="ml-2 bg-blue-200" title={usageNote}>
+                                                    usage note
+                                                </span>
+                                            )}
                                         </div>
                                     );
                                 })}

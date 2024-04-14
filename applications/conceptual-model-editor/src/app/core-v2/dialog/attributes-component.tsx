@@ -9,13 +9,15 @@ import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-mod
 import { useState, useEffect } from "react";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useClassesContext } from "../context/classes-context";
-import { getAvailableLanguagesForLanguageString, getNameOrIriAndDescription } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { IriInput } from "./iri-input";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
+import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 
 export const AddAttributesComponent = (props: {
+    preferredLanguage: string;
     sourceModel: EntityModel | null;
     modifiedClassId: string;
     saveNewAttribute: (attr: Partial<Omit<SemanticModelRelationship, "type">>) => void;
@@ -61,7 +63,7 @@ export const AddAttributesComponent = (props: {
                         inputType="text"
                         ls={name}
                         setLs={setName}
-                        defaultLang={getAvailableLanguagesForLanguageString(name)[0] ?? "en"}
+                        defaultLang={props.preferredLanguage}
                     />
                 </div>
                 <div className="font-semibold">description:</div>
@@ -70,7 +72,7 @@ export const AddAttributesComponent = (props: {
                         inputType="text"
                         ls={description}
                         setLs={setDescription}
-                        defaultLang={getAvailableLanguagesForLanguageString(description)[0] ?? "en"}
+                        defaultLang={props.preferredLanguage}
                     />
                 </div>
                 <div className="font-semibold">relative iri:</div>
@@ -100,7 +102,15 @@ export const AddAttributesComponent = (props: {
                 >
                     <option>---</option>
                     {relationships.filter(isSemanticModelAttribute).map((a) => {
-                        const [name, descr] = getNameOrIriAndDescription(a.ends.at(1), a.iri || a.id);
+                        const name = getLocalizedStringFromLanguageString(
+                            getNameLanguageString(a),
+                            props.preferredLanguage
+                        );
+                        const descr = getLocalizedStringFromLanguageString(
+                            getDescriptionLanguageString(a),
+                            props.preferredLanguage
+                        );
+
                         return (
                             <option title={descr ?? ""} value={a.id}>
                                 {name}:{a.id}
@@ -116,21 +126,20 @@ export const AddAttributesComponent = (props: {
                             console.log("profile selected", newAttributeIsProfileOf);
                             props.saveNewAttributeProfile({
                                 usageOf: newAttributeIsProfileOf,
-                                // name,
-                                // description,
-                                // ends: TODO az bude jasne, jestli maji byt konce taky ..shipEndUsage nebo jen ..shipEnd
+                                name,
+                                description,
                                 ends: [
                                     {
                                         cardinality: [0, null],
-                                        name: {},
-                                        description: {},
                                         concept: props.modifiedClassId,
+                                        name: null,
+                                        description: null,
                                         usageNote: {},
                                     },
                                     {
                                         cardinality: cardinality.cardinality ?? null,
-                                        name,
-                                        description,
+                                        name: null,
+                                        description: null,
                                         concept: null,
                                         usageNote: {},
                                     },

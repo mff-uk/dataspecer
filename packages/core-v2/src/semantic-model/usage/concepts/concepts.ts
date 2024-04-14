@@ -2,7 +2,7 @@ import { Entity } from "../../../entity-model";
 import { LanguageString, NamedThing } from "../../concepts/concepts";
 import { SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE } from "./concepts-utils";
 
-type Nullable<T> = {
+export type Nullable<T> = {
     [P in keyof T]: T[P] | null;
 };
 

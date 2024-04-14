@@ -1,19 +1,16 @@
 import { useState } from "react";
-import { getNameOrIriAndDescription } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
-    NamedThing,
     SemanticModelClass,
     SemanticModelRelationship,
-    isSemanticModelAttribute,
     isSemanticModelClass,
-    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
     return (
@@ -55,19 +52,8 @@ export const EntityRow = (props: {
         iri = entity.iri;
     }
 
-    const domainRange =
-        isSemanticModelRelationship(entity) || isSemanticModelAttribute(entity) ? getDomainAndRange(entity) : null;
-
-    const relationshipName = domainRange ? domainRange.domain.name : undefined;
-    const [name, description] = getNameOrIriAndDescription(
-        {
-            ...entity,
-            name: relationshipName ?? entity.name ?? {},
-            description: domainRange?.domain.description ?? {},
-        } satisfies NamedThing,
-        iri ?? entity.id,
-        preferredLanguage
-    );
+    const name = getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage);
+    const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), preferredLanguage);
 
     return (
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
