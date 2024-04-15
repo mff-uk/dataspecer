@@ -29,8 +29,6 @@ export type ClassesContextType = {
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];
     setRelationships: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>;
-    // attributes: SemanticModelRelationship[]; // Map<string, SemanticModelRelationship[]>;
-    // setAttributes: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>; // React.Dispatch<React.SetStateAction<Map<string, SemanticModelRelationship[]>>>;
     generalizations: SemanticModelGeneralization[];
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
     profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
@@ -56,8 +54,6 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
-        // attributes,
-        // setAttributes,
         generalizations,
         setGeneralizations,
         profiles,
@@ -132,8 +128,6 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
-        // attributes,
-        // setAttributes,
         generalizations,
         setGeneralizations,
         createConnection,

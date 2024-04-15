@@ -1,4 +1,4 @@
-import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemoryEntityModel, type EntityModel } from "@dataspecer/core-v2/entity-model";
 import {
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -6,6 +6,7 @@ import {
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
     SemanticModelClassUsage,
@@ -40,5 +41,12 @@ export const getIri = (
 };
 
 export const getModelIri = (model: EntityModel | undefined | null) => {
-    return `https://my-model-${model?.getId() ?? "undefined-model"}.iri.todo.com/entities/`;
+    // console.log("getting base iri", model);
+    if (model instanceof InMemorySemanticModel) {
+        if (model.getBaseIri()?.length > 0) {
+            return model.getBaseIri();
+        }
+        return `https://my-model-${model?.getId() ?? "undefined-model"}.iri.todo.com/entities/`;
+    }
+    return "";
 };

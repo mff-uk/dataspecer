@@ -11,6 +11,7 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
+import { getIri } from "../util/model-utils";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
     return (
@@ -46,14 +47,10 @@ export const EntityRow = (props: {
     const { language: preferredLanguage } = useConfigurationContext();
 
     const entity = props.entity;
-    let iri: string | null = null;
-
-    if (isSemanticModelClass(entity)) {
-        iri = entity.iri;
-    }
 
     const name = getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage);
     const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), preferredLanguage);
+    const iri = getIri(entity);
 
     return (
         <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">

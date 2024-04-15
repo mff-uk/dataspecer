@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
     useStore,
     EdgeProps,
@@ -24,6 +24,9 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { cardinalityToString } from "../util/utils";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import { useModelGraphContext } from "../context/model-context";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { useClassesContext } from "../context/classes-context";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -36,7 +39,10 @@ const CardinalityEdgeLabel = ({
     bgColor: string | undefined;
 }) => {
     return (
-        <div className="nodrag nopan absolute origin-center p-1" style={{ transform, backgroundColor: bgColor }}>
+        <div
+            className="nodrag nopan absolute origin-center p-1"
+            style={{ transform, backgroundColor: bgColor, pointerEvents: "all" }}
+        >
             {label}
         </div>
     );
@@ -44,17 +50,23 @@ const CardinalityEdgeLabel = ({
 
 type SimpleFloatingEdgeDataType = {
     label: string;
+    entityId: string;
     type: "r" | "g";
     cardinalitySource?: string;
     cardinalityTarget?: string;
     bgColor?: string;
     usageNotes?: LanguageString[];
     openEntityDetailDialog: () => void;
+    openModificationDialog: (m: InMemorySemanticModel | null) => void;
+    openCreateProfileDialog: () => void;
 };
 
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
     const sourceNode = useStore(useCallback((store) => store.nodeInternals.get(source), [source]));
     const targetNode = useStore(useCallback((store) => store.nodeInternals.get(target), [target]));
+    const { models } = useModelGraphContext();
+    const { sourceModelOfEntityMap, deleteEntityFromModel } = useClassesContext();
+    const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
 
     const d = data as SimpleFloatingEdgeDataType;
 
@@ -86,6 +98,95 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                       targetY: ty,
                   });
     }
+
+    const MenuOptions = () => {
+        const sourceModelId = sourceModelOfEntityMap.get(d.entityId ?? " ");
+        const m = models.get(sourceModelId ?? "");
+
+        return (
+            <div
+                style={{ pointerEvents: "all" }}
+                className="flex w-max flex-col bg-white [&>*]:px-5 [&>*]:text-left"
+                onBlur={(e) => {
+                    setIsMenuOptionsOpen(false);
+                    e.stopPropagation();
+                }}
+            >
+                <button
+                    type="button"
+                    className="text-red-700 hover:shadow"
+                    onClick={(e) => {
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    close
+                </button>
+                <button
+                    type="button"
+                    className="hover:shadow"
+                    onClick={(e) => {
+                        d.openEntityDetailDialog();
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    open detail
+                </button>
+                {d.type == "r" && (
+                    <button
+                        type="button"
+                        className="hover:shadow"
+                        onClick={(e) => {
+                            d.openCreateProfileDialog();
+                            setIsMenuOptionsOpen(false);
+                            e.stopPropagation();
+                        }}
+                    >
+                        create profile
+                    </button>
+                )}
+                {/* <button                type="button"
+
+                    className="hover:shadow"
+                    onClick={(e) => {
+                        d.openEntityDetailDialog();
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    remove from view
+                </button> */}
+                {m instanceof InMemorySemanticModel && (
+                    <>
+                        <button
+                            type="button"
+                            className="hover:shadow"
+                            onClick={(e) => {
+                                d.openModificationDialog(m);
+                                setIsMenuOptionsOpen(false);
+                                e.stopPropagation();
+                            }}
+                        >
+                            modify
+                        </button>
+                        <button
+                            type="button"
+                            className="hover:shadow"
+                            onClick={(e) => {
+                                deleteEntityFromModel(m, d.entityId);
+                                setIsMenuOptionsOpen(false);
+                                e.stopPropagation();
+                            }}
+                        >
+                            delete
+                        </button>
+                    </>
+                )}
+            </div>
+        );
+    };
+
     return (
         <>
             <path
@@ -101,25 +202,32 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 className="react-flow__edge-path"
                 d={edgePath}
                 style={{ ...style, strokeWidth: 12, stroke: "transparent" }}
-                onClick={(e) => {
-                    d.openEntityDetailDialog();
+                onDoubleClick={(e) => {
+                    setIsMenuOptionsOpen(true);
                     e.stopPropagation();
                 }}
             />
             <EdgeLabelRenderer>
                 <div
-                    className="absolute z-10 flex flex-col p-2"
+                    className="absolute flex flex-col bg-slate-200 p-1"
                     style={{
                         transform: `translate(${labelX}px,${labelY}px) translate(-50%, -50%)`,
+                        pointerEvents: "all",
                     }}
-                    // TODO
+                    onDoubleClick={(e) => {
+                        setIsMenuOptionsOpen(true);
+                        e.stopPropagation();
+                    }}
                 >
-                    <div className="bg-slate-200" onClick={d.openEntityDetailDialog}>
-                        {d.label}
-                    </div>
+                    {d.label.length > 0 && (
+                        <div className="nopan bg-slate-200 hover:cursor-pointer" style={{ pointerEvents: "all" }}>
+                            {d.label}
+                        </div>
+                    )}
                     {d.usageNotes?.map((u) => (
                         <div className="bg-blue-200">{getStringFromLanguageStringInLang(u)[0] ?? "no usage"}</div>
                     ))}
+                    {isMenuOptionsOpen && <MenuOptions />}
                 </div>
                 {d.cardinalitySource && (
                     <CardinalityEdgeLabel
@@ -144,7 +252,9 @@ export const semanticModelRelationshipToReactFlowEdge = (
     rel: SemanticModelRelationship | SemanticModelRelationshipUsage,
     color: string | undefined,
     usageNotes: LanguageString[],
-    openEntityDetailDialog: () => void
+    openEntityDetailDialog: () => void,
+    openModificationDialog: () => void,
+    openCreateProfileDialog: () => void
 ) => {
     const domain = isSemanticModelRelationship(rel) ? getDomainAndRange(rel)?.domain : null;
 
@@ -157,12 +267,15 @@ export const semanticModelRelationshipToReactFlowEdge = (
         type: "floating",
         data: {
             label: `${isSemanticModelRelationshipUsage(rel) ? "<<profile>> " : ""}${name}`,
+            entityId: rel.id,
             type: "r",
             cardinalitySource: cardinalityToString(rel.ends[0]?.cardinality),
             cardinalityTarget: cardinalityToString(rel.ends[1]?.cardinality),
             bgColor: color,
             usageNotes,
             openEntityDetailDialog,
+            openModificationDialog,
+            openCreateProfileDialog,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 3, stroke: color },
     } as Edge;
@@ -184,14 +297,21 @@ export const semanticModelGeneralizationToReactFlowEdge = (
             strokeWidth: 2,
         },
         type: "floating",
-        data: { label: "", type: "g", openEntityDetailDialog } satisfies SimpleFloatingEdgeDataType,
+        data: {
+            entityId: gen.id,
+            label: "",
+            type: "g",
+            openEntityDetailDialog,
+            openModificationDialog: () => {},
+        } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
     } as Edge);
 
 export const semanticModelClassUsageToReactFlowEdge = (
     classUsage: SemanticModelClassUsage,
     color: string | undefined,
-    openEntityDetailDialog: () => void
+    openEntityDetailDialog: () => void,
+    openModificationDialog: () => void
 ) =>
     ({
         id: classUsage.id,
@@ -200,9 +320,11 @@ export const semanticModelClassUsageToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: color || "azure" },
         type: "floating",
         data: {
+            entityId: classUsage.id,
             label: "",
             type: "r",
             openEntityDetailDialog,
+            openModificationDialog,
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "azure", strokeWidth: 2, strokeDasharray: 5 },
     } as Edge);

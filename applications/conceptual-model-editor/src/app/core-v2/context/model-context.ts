@@ -78,6 +78,13 @@ export const useModelGraphContext = () => {
         });
     };
 
+    const setModelIri = (iri: string, model: InMemorySemanticModel) => {
+        model.setBaseIri(iri);
+        setModels((prev) => {
+            return new Map(prev.set(model.getId(), model));
+        });
+    };
+
     // FIXME: zas to vymysli nejak lip
     const addClassToModel = (
         model: InMemorySemanticModel,
@@ -211,5 +218,6 @@ export const useModelGraphContext = () => {
         addVisualModelToGraph,
         setVisualModels,
         setModelAlias,
+        setModelIri,
     };
 };

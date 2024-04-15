@@ -23,7 +23,7 @@ import {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "./base-dialog";
-import { getIri, getModelIri } from "../util/model-utils";
+import { getIri, getModelIri, sourceModelIdOfEntity, sourceModelOfEntity } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
@@ -64,19 +64,14 @@ export const useEntityDetailDialog = () => {
 
         const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
 
-        const {
-            classes2: c,
-            relationships: r,
-            /* attributes: a, */ profiles,
-            sourceModelOfEntityMap,
-        } = useClassesContext();
+        const { classes2: c, relationships: r, profiles, sourceModelOfEntityMap } = useClassesContext();
         const { models } = useModelGraphContext();
-        const sourceModelId = sourceModelOfEntityMap.get(viewedEntity.id);
-        const sourceModel = models.get(sourceModelId ?? "");
+        const sourceModel = sourceModelOfEntity(viewedEntity.id, [...models.values()]); //  models.get(sourceModelId ?? "");
 
-        let modelIri: null | string = getModelIri(sourceModel),
-            profileOf: null | string = null,
+        let profileOf: null | string = null,
             profiledBy: string[] = [];
+
+        const modelIri = getModelIri(sourceModel);
 
         const name = getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang);
         const description = getLocalizedStringFromLanguageString(
