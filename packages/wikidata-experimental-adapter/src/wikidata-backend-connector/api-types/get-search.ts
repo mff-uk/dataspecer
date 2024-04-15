@@ -1,7 +1,7 @@
-import { WdClassDescOnly } from '../../wikidata-entities/wd-class'
+import { WdClassHierarchyDescOnly } from '../../wikidata-entities/wd-class'
 
 export interface GetSearchResponseResults {
-  readonly classes: WdClassDescOnly[];
+  readonly classes: WdClassHierarchyDescOnly[];
 }
 
 export interface GetSearchResponse {
@@ -9,7 +9,7 @@ export interface GetSearchResponse {
 }
 
 export class SearchResults {
-  readonly classes: WdClassDescOnly[];
+  readonly classes: WdClassHierarchyDescOnly[];
 
   constructor(response: GetSearchResponse) {
     this.classes = response.results.classes; 

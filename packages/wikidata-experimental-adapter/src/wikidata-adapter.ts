@@ -6,13 +6,16 @@ import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
 import { WdConnector } from "./wikidata-backend-connector/wd-connector";
 import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
-import { cimIriToEntityId } from "./wikidata-to-dataspecer-entity-adapters/wd-entity-adapter";
-import { associationTypes, loadWikidataProperty } from "./wikidata-to-dataspecer-entity-adapters/wd-property-adapter";
+import { isErrorResponse } from "./wikidata-backend-connector/api-types/error";
+import { EntityId, EntityIdsList, wdIriToNumId } from "./wikidata-entities/wd-entity";
+import { ClassHierarchy } from "./wikidata-backend-connector/api-types/get-class-hierarchy";
+import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
     protected readonly connector: WdConnector;
+    protected static readonly URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/[QP][1-9][0-9]*$');
     
     constructor(httpFetch: HttpFetch) {
         this.httpFetch = httpFetch;
@@ -46,18 +49,18 @@ export class WikidataAdapter implements CimAdapter {
         return undefined;
     }
 
-    async search(searchString: string): Promise<PimClass[]> {
+    async search(query: string): Promise<PimClass[]> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        const results = []
-        // const searchResponse = await this.connector.getSearch(searchString);
-        // if (searchResponse != null) {
-        //     for (const cls of searchResponse.results.classes) {
-        //         const newPimClass = loadWikidataClass(cls, this.iriProvider);
-        //         results.push(newPimClass);
-        //     }
-        // }
+
+        const results: PimClass[] = []
+        const response = await this.connector.getSearch(query);
+        if (!isErrorResponse(response)) {
+            for (const cls of response.classes) {
+                results.push(loadWikidataClass(cls, this.iriProvider));
+            }
+        }
         return results;
     }
 
@@ -65,12 +68,16 @@ export class WikidataAdapter implements CimAdapter {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        // const getClassResponse = await this.connector.getClass(cimIriToEntityId(cimIri));
-        // if (getClassResponse != null && getClassResponse.results.classes.length != 0) {
-        //         const cls = getClassResponse.results.classes[0];
-        //         return loadWikidataClass(cls, this.iriProvider);
-        // }
-        return null;
+        
+        let result: PimClass | null = null;
+        if (WikidataAdapter.URI_REGEXP.test(cimIri)) {
+            const response = await this.connector.getSearch(cimIri);
+            if (!isErrorResponse(response) && response.classes.length === 1) {
+                const cls = response.classes[0];
+                result = loadWikidataClass(cls, this.iriProvider);
+            }
+        }
+        return result;
     }
     
     async getFullHierarchy(cimIri: string): Promise<CoreResourceReader> {
@@ -78,26 +85,24 @@ export class WikidataAdapter implements CimAdapter {
             throw new Error("Missing IRI provider.");
         }
 
-        // const hierarchyResponse = await this.connector.hierarchy(cimIriToEntityId(cimIri));
-        // if (hierarchyResponse != null) {
-        //     const resources = this.loadParentsChildrenHierarchy(hierarchyResponse);
-        //     return ReadOnlyMemoryStore.create(resources);
-        // }
+        if (WikidataAdapter.URI_REGEXP.test(cimIri)) {
+            const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), 'full');
+            if (!isErrorResponse(response)) {
+                const resources = this.loadParentsChildrenHierarchy(response);
+                return ReadOnlyMemoryStore.create(resources);
+            }
+        }
         return ReadOnlyMemoryStore.create({});
     }
 
-    // @todo implement
+    // This method should not be called, the surroundings have different dialog to handle surroundings.
     async getSurroundings(cimIri: string): Promise<CoreResourceReader> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
 
-        // const surroundingsResponse = await this.connector.surroundings(cimIriToEntityId(cimIri));
-        // if (surroundingsResponse != null) {
-        //     const resources = this.loadSurroundings(surroundingsResponse);
-        //     return ReadOnlyMemoryStore.create(resources);
-        // }
-        return ReadOnlyMemoryStore.create({});
+        throw new Error("Not not implemented.");
+        // return ReadOnlyMemoryStore.create({});
     }
 
 
@@ -106,42 +111,30 @@ export class WikidataAdapter implements CimAdapter {
         return [];
     }
 
-    // private loadParentsChildrenHierarchy(hierarchyResponse: IHierarchyResponse): { [iri: string]: CoreResource } {
-    //     // Outputs 
-    //     const resources: { [iri: string]: CoreResource } = {}
-    //     const loadedClassesSet = new Set<EntityId>();
+    private loadParentsChildrenHierarchy(response: ClassHierarchy): { [iri: string]: CoreResource } {
+        const resources: { [iri: string]: CoreResource } = {}
+        const loadedClassesSet = new Set<EntityId>();
 
-    //     // Load root
-    //     this.tryLoadClassesToResources([hierarchyResponse.results.root], resources, loadedClassesSet);
+        // Load start class
+        this.tryLoadClassesToResources([response.startClassId], resources, loadedClassesSet, response.classesMap);
 
-    //     // Load parents
-    //     this.tryLoadClassesToResources(hierarchyResponse.results.parents, resources, loadedClassesSet);
+        // Load parents
+        this.tryLoadClassesToResources(response.parentsIds, resources, loadedClassesSet, response.classesMap);
 
-    //     // Load children
-    //     this.tryLoadClassesToResources(hierarchyResponse.results.children, resources, loadedClassesSet);
+        // Load children
+        this.tryLoadClassesToResources(response.childrenIds, resources, loadedClassesSet, response.classesMap);
 
-    //     return resources;
-    // }
+        return resources;
+    }
 
-    // private tryLoadClassesToResources(wdClasses: IWdClass[], resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<EntityId>): void {
-    //     for (const cls of wdClasses) {
-    //         if (!loadedClassesSet.has(cls.id)) {
-    //             loadedClassesSet.add(cls.id);
-    //             const newPimClass = loadWikidataClass(cls, this.iriProvider)
-    //             resources[newPimClass.iri] = newPimClass;
-    //         } 
-    //     } 
-    // }
-
-    // private tryLoadPropertiesToResources(inOrOut: associationTypes, wdProperties: IWdProperty[], rootClass: IWdClass, resources: { [iri: string]: CoreResource }, loadedPropertiesSet: Set<EntityId>): void {
-    //     for (const prop of wdProperties) {
-    //         if (!loadedPropertiesSet.has(prop.id)) {
-    //             loadedPropertiesSet.add(prop.id);
-    //             const coreResources: CoreResource[] = loadWikidataProperty(inOrOut, prop, rootClass, this.iriProvider)
-    //             for (const resource of coreResources) {
-    //                 resources[resource.iri] = resource;
-    //             }
-    //         } 
-    //     }
-    // }
+    private tryLoadClassesToResources(classesIds: EntityIdsList, resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<EntityId>, contextClasses: ReadonlyMap<EntityId, WdClassHierarchyDescOnly>): void {
+        for (const clsId of classesIds) {
+            if (!loadedClassesSet.has(clsId)) {
+                loadedClassesSet.add(clsId);
+                const cls = contextClasses.get(clsId) as WdClassHierarchyDescOnly;
+                const newPimClass = loadWikidataClass(cls, this.iriProvider, contextClasses)
+                resources[newPimClass.iri] = newPimClass;
+            } 
+        } 
+    }
 }

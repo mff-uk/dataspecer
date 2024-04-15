@@ -1,5 +1,5 @@
 import { HttpFetch } from '@dataspecer/core/io/fetch/fetch-api';
-import { EntityId, EntityIdsList, WdEntityDescOnly } from '../wikidata-entities/wd-entity';
+import { EntityId } from '../wikidata-entities/wd-entity';
 import { GetSearchResponse, SearchResults } from './api-types/get-search';
 import { ErrorResponse, isErrorResponse } from './api-types/error';
 import {
@@ -40,7 +40,7 @@ export class WdConnector {
       this.addBaseUrlPrefix(`/classes/${classId}/surroundings`),
     getFilterByInstanceUrl: (instanceUrl: string) =>
       this.addBaseUrlPrefix(`/filter-by-instance?url=${encodeURI(instanceUrl)}`),
-    getClassPropertyDomainsOrRangesUrl: ( classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited) =>
+    getClassPropertyEndpointsUrl: (classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited) =>
       this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?part=${ownOrInherited}`)
   };
 
@@ -85,9 +85,9 @@ export class WdConnector {
     return await this.callFetch<GetFilterByInstanceResponse, FilterByInstance>(url, FilterByInstance);
   }
 
-  public async getClassPropertyEndpoints(classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited,
+  public async getClassPropertyEndpoints(classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited
   ): Promise<ClassPropertyEndpoints | ErrorResponse> {
-    const url = this.API_ENDPOINTS.getClassPropertyDomainsOrRangesUrl(classId, propertyId, domainsOrRanges, ownOrInherited);
+    const url = this.API_ENDPOINTS.getClassPropertyEndpointsUrl(classId, propertyId, domainsOrRanges, ownOrInherited);
     return await this.callFetch<GetClassPropertyEndpointsResponse, ClassPropertyEndpoints>(url, ClassPropertyEndpoints);
   }
 }

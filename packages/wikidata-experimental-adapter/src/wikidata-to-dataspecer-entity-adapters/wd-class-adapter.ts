@@ -1,18 +1,23 @@
 
-import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { PimClass } from "@dataspecer/core/pim/model";
 import { IriProvider } from "@dataspecer/core/cim";
-import { IWdClass } from "../connector/entities/wd-class";
-import { entityIdsToCimIds, loadWikidataEntityToResource } from "./wd-entity-adapter";
-import { EntityTypes } from "../connector/entities/wd-entity";
+import { loadWikidataEntityToResource } from "./wd-entity-adapter";
+import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class";
+import { EntityId, concatWdPrefixWithId } from "../wikidata-entities/wd-entity";
 
 export function loadWikidataClass(
-    entity: IWdClass,
-    iriProvider: IriProvider
+    cls: WdClassHierarchyDescOnly,
+    iriProvider: IriProvider,
+    contextClasses: ReadonlyMap<EntityId, WdClassHierarchyDescOnly> | undefined = undefined
   ): PimClass {
     const result = new PimClass();
-    loadWikidataEntityToResource(entity, EntityTypes.CLASS, iriProvider, result);
+    loadWikidataEntityToResource(cls, iriProvider, result);
     result.pimIsCodelist = false;
-    result.pimExtends = entityIdsToCimIds(entity.subclassOf, EntityTypes.CLASS).map(iriProvider.cimToPim);
+    result.pimExtends = cls.subclassOf.map((clsId) => {
+      let cimIri = '';
+      if (contextClasses != null) cimIri = contextClasses.get(clsId)?.iri;
+      if (cimIri === '' || cimIri == null) cimIri = concatWdPrefixWithId("Q" + clsId.toString());
+      return iriProvider.cimToPim(cimIri);
+    });
     return result;
 }

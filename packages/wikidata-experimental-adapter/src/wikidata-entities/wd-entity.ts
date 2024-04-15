@@ -13,6 +13,9 @@ export type EntityIriList = readonly EntityIri[];
 export type ExternalEntityId = string;
 export type ExternalOntologyMapping = readonly ExternalEntityId[];
 
+
+export const WIKIDATA_URI_PREFIX = "http://www.wikidata.org/entity/";
+
 export interface WdEntity {
   readonly id: EntityId;
   readonly iri: string;
@@ -20,11 +23,19 @@ export interface WdEntity {
   readonly descriptions: LanguageMap;
 }
 
-export function isEntityPropertyDocs(entity: WdEntityDescOnly): entity is WdPropertyDescOnly {
+export function wdIriToNumId(wdIri: string): EntityId {
+  return Number(wdIri.split("/").pop().slice(1));
+}
+
+export function concatWdPrefixWithId(id: string): string {
+  return WIKIDATA_URI_PREFIX + id;
+}
+
+export function isEntityPropertyDesc(entity: WdEntityDescOnly): entity is WdPropertyDescOnly {
   return 'datatype' in entity;
 }
 
-export function isEntityClassDocs(entity: WdEntityDescOnly): entity is WdClassDescOnly {
+export function isEntityClassDesc(entity: WdEntityDescOnly): entity is WdClassDescOnly {
   return !('datatype' in entity);
 }
 
