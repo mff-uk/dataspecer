@@ -55,7 +55,6 @@ import { useCreateClassDialog } from "./dialog/create-class-dialog";
 import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
-import { sourceModelOfEntity } from "./util/model-utils";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();

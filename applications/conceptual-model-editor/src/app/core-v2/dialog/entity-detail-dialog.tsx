@@ -304,9 +304,10 @@ export const useEntityDetailDialog = () => {
                         <>
                             <div className="font-semibold">domain: </div>
                             <div>
-                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
-                                    domainIri ??
-                                    domain.id}
+                                {getLocalizedStringFromLanguageString(
+                                    getNameLanguageString(domain),
+                                    preferredLanguage
+                                ) ?? getFallbackDisplayName(domain)}
                                 :{domainCardinality}
                             </div>
                         </>
@@ -316,10 +317,10 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">range: </div>
 
                             <div>
-                                {getStringFromLanguageStringInLang(range.name ?? {}, currentLang)[0] ??
-                                    rangeIri ??
-                                    range.id ??
-                                    ends?.range.concept}
+                                {getLocalizedStringFromLanguageString(
+                                    getNameLanguageString(range),
+                                    preferredLanguage
+                                ) ?? getFallbackDisplayName(range)}
                                 :{rangeCardinality}
                             </div>
                         </>

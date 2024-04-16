@@ -51,7 +51,7 @@ const CardinalityEdgeLabel = ({
 };
 
 type SimpleFloatingEdgeDataType = {
-    label: string;
+    label: LanguageString | null;
     entityId: string;
     type: "r" | "g";
     cardinalitySource?: string;
@@ -69,8 +69,13 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const { models } = useModelGraphContext();
     const { sourceModelOfEntityMap, deleteEntityFromModel } = useClassesContext();
     const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
+    const { language: preferredLanguage } = useConfigurationContext();
 
     const d = data as SimpleFloatingEdgeDataType;
+
+    const fallbackName = d.type == "r" ? d.entityId : null;
+
+    const displayName = getLocalizedStringFromLanguageString(d.label, preferredLanguage) ?? fallbackName;
 
     if (!sourceNode || !targetNode) {
         return null;
@@ -210,9 +215,9 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                         e.stopPropagation();
                     }}
                 >
-                    {d.label.length > 0 && (
+                    {displayName && (
                         <div className="nopan bg-slate-200 hover:cursor-pointer" style={{ pointerEvents: "all" }}>
-                            {d.label}
+                            {displayName}
                         </div>
                     )}
                     {d.usageNotes?.map((u) => (
@@ -247,12 +252,6 @@ export const semanticModelRelationshipToReactFlowEdge = (
     openModificationDialog: () => void,
     openCreateProfileDialog: () => void
 ) => {
-    const { language: preferredLanguage } = useConfigurationContext();
-    const range = isSemanticModelRelationship(rel) ? getDomainAndRange(rel)?.range : null;
-
-    const name =
-        getLocalizedStringFromLanguageString(getNameLanguageString(rel), preferredLanguage) ??
-        getFallbackDisplayName(rel ?? null);
     return {
         id: rel.id,
         source: rel.ends[0]!.concept,
@@ -260,7 +259,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: `${isSemanticModelRelationshipUsage(rel) ? "<<profile>> " : ""}${name}`,
+            label: getNameLanguageString(rel),
             entityId: rel.id,
             type: "r",
             cardinalitySource: cardinalityToString(rel.ends[0]?.cardinality),
@@ -293,7 +292,7 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         type: "floating",
         data: {
             entityId: gen.id,
-            label: "",
+            label: null,
             type: "g",
             openEntityDetailDialog,
             openModificationDialog: () => {},
@@ -316,7 +315,7 @@ export const semanticModelClassUsageToReactFlowEdge = (
         type: "floating",
         data: {
             entityId: classUsage.id,
-            label: "",
+            label: null,
             type: "r",
             openEntityDetailDialog,
             openModificationDialog,

@@ -37,7 +37,7 @@ export const getNameLanguageString = (
         // return name ?? null;
     } else if (isSemanticModelGeneralization(resource)) {
         return {
-            en: "Generalization of " + resource.parent + " is " + resource.parent,
+            en: "Generalization of " + resource.child + " is " + resource.parent,
         };
     } else {
         return null;
