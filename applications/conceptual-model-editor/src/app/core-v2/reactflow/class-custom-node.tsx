@@ -8,7 +8,12 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { shortenStringTo } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getNameLanguageString, getDescriptionLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
+import {
+    getNameLanguageString,
+    getDescriptionLanguageString,
+    getUsageNoteLanguageString,
+    getFallbackDisplayName,
+} from "../util/name-utils";
 import { getIri, getModelIri, sourceModelOfEntity } from "../util/model-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useMemo, useState } from "react";
@@ -40,7 +45,9 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     let isUsage = false;
 
-    const name = getLocalizedStringFromLanguageString(getNameLanguageString(cls), preferredLanguage);
+    const name =
+        getLocalizedStringFromLanguageString(getNameLanguageString(cls), preferredLanguage) ??
+        getFallbackDisplayName(cls ?? null);
     const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(cls), preferredLanguage);
     const usageNote = getLocalizedStringFromLanguageString(getUsageNoteLanguageString(cls), preferredLanguage);
     const iri = getIri(cls);
@@ -156,7 +163,9 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 <div key={"attributes" + attributes.length}>
                     {attributes?.map((attr) => {
-                        const n = getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage);
+                        const n =
+                            getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                            getFallbackDisplayName(attr ?? null);
                         const d = getLocalizedStringFromLanguageString(
                             getDescriptionLanguageString(attr),
                             preferredLanguage
@@ -181,7 +190,9 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 <div key={"attributeProfiles" + attributeUsages.length}>
                     {attributeUsages?.map((attr) => {
-                        const n = getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage);
+                        const n =
+                            getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                            getFallbackDisplayName(attr ?? null);
                         const d = getLocalizedStringFromLanguageString(
                             getDescriptionLanguageString(attr),
                             preferredLanguage

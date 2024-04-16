@@ -28,7 +28,12 @@ import { AddAttributesComponent } from "./attributes-component";
 import { DomainRangeComponent } from "./domain-range-component";
 import { createRelationship, deleteEntity, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { createRelationshipUsage, modifyClassUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
+import {
+    getDescriptionLanguageString,
+    getFallbackDisplayName,
+    getNameLanguageString,
+    getUsageNoteLanguageString,
+} from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 
 type SupportedTypes =
@@ -187,10 +192,11 @@ export const useModifyEntityDialog = () => {
                             <div className="flex flex-col">
                                 <>
                                     {[...attributes, ...attributeProfiles].map((v) => {
-                                        const name = getLocalizedStringFromLanguageString(
-                                            getNameLanguageString(v),
-                                            preferredLanguage
-                                        );
+                                        const name =
+                                            getLocalizedStringFromLanguageString(
+                                                getNameLanguageString(v),
+                                                preferredLanguage
+                                            ) ?? getFallbackDisplayName(v ?? null);
                                         const description = getLocalizedStringFromLanguageString(
                                             getDescriptionLanguageString(v),
                                             preferredLanguage

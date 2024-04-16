@@ -48,7 +48,7 @@ export const EntityRow = (props: {
 
     const entity = props.entity;
 
-    const name = getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage);
+    const name = getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ?? entity.id;
     const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), preferredLanguage);
     const iri = getIri(entity);
 

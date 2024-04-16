@@ -16,7 +16,7 @@ import {
     LanguageString,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -27,6 +27,8 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
 import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useClassesContext } from "../context/classes-context";
+import { getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
+import { useConfigurationContext } from "../context/configuration-context";
 
 // this is a little helper component to render the actual edge label
 const CardinalityEdgeLabel = ({
@@ -245,9 +247,12 @@ export const semanticModelRelationshipToReactFlowEdge = (
     openModificationDialog: () => void,
     openCreateProfileDialog: () => void
 ) => {
+    const { language: preferredLanguage } = useConfigurationContext();
     const range = isSemanticModelRelationship(rel) ? getDomainAndRange(rel)?.range : null;
 
-    const name = getStringFromLanguageStringInLang(range?.name ?? rel.name ?? {})[0] ?? rel.id;
+    const name =
+        getLocalizedStringFromLanguageString(getNameLanguageString(rel), preferredLanguage) ??
+        getFallbackDisplayName(rel ?? null);
     return {
         id: rel.id,
         source: rel.ends[0]!.concept,

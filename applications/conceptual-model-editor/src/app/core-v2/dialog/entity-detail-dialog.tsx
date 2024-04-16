@@ -28,7 +28,12 @@ import { getIri, getModelIri, sourceModelIdOfEntity, sourceModelOfEntity } from 
 import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
+import {
+    getDescriptionLanguageString,
+    getFallbackDisplayName,
+    getNameLanguageString,
+    getUsageNoteLanguageString,
+} from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 
 type SupportedEntityType =
@@ -75,7 +80,9 @@ export const useEntityDetailDialog = () => {
 
         const modelIri = getModelIri(sourceModel);
 
-        const name = getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang);
+        const name =
+            getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang) ??
+            getFallbackDisplayName(viewedEntity);
         const description = getLocalizedStringFromLanguageString(
             getDescriptionLanguageString(viewedEntity),
             currentLang
@@ -87,13 +94,21 @@ export const useEntityDetailDialog = () => {
             .filter((g) => g.child == viewedEntity.id)
             .map((g) => c.find((cl) => cl.id == g.parent))
             .filter((cl) => isSemanticModelClass(cl ?? null))
-            .map((cl) => getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang))
+            .map(
+                (cl) =>
+                    getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
+                    getFallbackDisplayName(cl ?? null)
+            )
             .join(", ");
         const generalizationOf = generalizations
             .filter((g) => g.parent == viewedEntity.id)
             .map((g) => c.find((cl) => cl.id == g.child))
             .filter((cl) => isSemanticModelClass(cl ?? null))
-            .map((cl) => getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang))
+            .map(
+                (cl) =>
+                    getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
+                    getFallbackDisplayName(cl ?? null)
+            )
             .join(", ");
 
         const isProfileOf =
@@ -101,14 +116,22 @@ export const useEntityDetailDialog = () => {
                 ? profiles
                       .filter((p) => p.id == viewedEntity.id)
                       .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.usageOf))
-                      .map((e) => getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang))
+                      .map(
+                          (e) =>
+                              getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
+                              getFallbackDisplayName(e ?? null)
+                      )
                       .join(", ")
                 : null;
 
         const isProfiledBy = profiles
             .filter((p) => p.usageOf == viewedEntity.id)
             .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.id))
-            .map((e) => getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang))
+            .map(
+                (e) =>
+                    getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
+                    getFallbackDisplayName(e ?? null)
+            )
             .join(", ");
 
         const attributes = /* a */ r
@@ -220,10 +243,13 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">attributes:</div>
                             <div>
                                 {attributes.map((v) => {
-                                    const name = getLocalizedStringFromLanguageString(
-                                        getNameLanguageString(v),
-                                        preferredLanguage
-                                    );
+                                    const name =
+                                        getLocalizedStringFromLanguageString(
+                                            getNameLanguageString(v),
+                                            preferredLanguage
+                                        ) ??
+                                        v.ends.at(0)?.iri ??
+                                        v.id;
                                     const descr = getLocalizedStringFromLanguageString(
                                         getDescriptionLanguageString(v),
                                         preferredLanguage
@@ -240,10 +266,11 @@ export const useEntityDetailDialog = () => {
                             <div className="font-semibold">attribute profiles:</div>
                             <div>
                                 {attributeProfiles.map((v) => {
-                                    const name = getLocalizedStringFromLanguageString(
-                                        getNameLanguageString(v),
-                                        preferredLanguage
-                                    );
+                                    const name =
+                                        getLocalizedStringFromLanguageString(
+                                            getNameLanguageString(v),
+                                            preferredLanguage
+                                        ) ?? getFallbackDisplayName(v ?? null);
                                     const descr = getLocalizedStringFromLanguageString(
                                         getDescriptionLanguageString(v),
                                         preferredLanguage

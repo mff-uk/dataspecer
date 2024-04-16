@@ -87,6 +87,32 @@ export const getUsageNoteLanguageString = (
     }
 };
 
+export const getFallbackDisplayName = (
+    resource:
+        | null
+        | SemanticModelClass
+        | SemanticModelRelationship
+        | SemanticModelClassUsage
+        | SemanticModelRelationshipUsage
+        | SemanticModelGeneralization
+) => {
+    if (isSemanticModelClass(resource)) {
+        return resource.iri ?? resource.id;
+    } else if (isSemanticModelRelationship(resource)) {
+        const range = getDomainAndRange(resource)?.range;
+        return range?.iri ?? resource.id;
+    } else if (isSemanticModelClassUsage(resource)) {
+        return resource.id;
+    }
+    if (isSemanticModelRelationshipUsage(resource)) {
+        return resource.id;
+    } else if (isSemanticModelGeneralization(resource)) {
+        return resource.iri ?? resource.id;
+    } else {
+        return null;
+    }
+};
+
 const capFirst = (what: string) => {
     return what.charAt(0).toUpperCase() + what.slice(1);
 };
