@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { useBaseDialog } from "./base-dialog";
@@ -29,7 +28,13 @@ import { AddAttributesComponent } from "./attributes-component";
 import { DomainRangeComponent } from "./domain-range-component";
 import { createRelationship, deleteEntity, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { createRelationshipUsage, modifyClassUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
+import {
+    getDescriptionLanguageString,
+    getFallbackDisplayName,
+    getNameLanguageString,
+    getUsageNoteLanguageString,
+} from "../util/name-utils";
+import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -58,21 +63,10 @@ export const useModifyEntityDialog = () => {
         open();
     };
 
-    const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-        return [...models.entries()].filter(([mId, m]) => m instanceof InMemorySemanticModel).map(([mId, _]) => mId);
-    };
-
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
 
-        const { classes2: classes } = useClassesContext();
-        const {
-            modifyClassInAModel,
-            modifyRelationship,
-            createRelationshipEntityUsage,
-            updateEntityUsage,
-            updateClassUsage,
-        } = useModelGraphContext();
+        const { modifyRelationship, updateEntityUsage } = useModelGraphContext();
 
         const currentIri = getIri(modifiedEntity);
 
@@ -87,25 +81,25 @@ export const useModifyEntityDialog = () => {
         );
         const [iriHasChanged, setIriHasChanged] = useState(false);
 
-        const [currentRange, currentDomain] =
+        const currentDomainAndRange =
             isSemanticModelRelationship(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity)
                 ? /* TODO: redo this after domain/range is ready for profiles */
-                  // isSemanticModelRelationship(modifiedEntity) ? [getDomainAndRange(modifiedEntity)?.range, getDomainAndRange(modifiedEntity)?.domain ]:
+                  temporaryDomainRangeHelper(modifiedEntity)
+                : //   (modifiedEntity.ends as SemanticModelRelationshipEnd[])
+                  // TODO: tohle bys mohl predelat
+                  null;
 
-                  (modifiedEntity.ends as SemanticModelRelationshipEnd[])
-                : // TODO: tohle bys mohl predelat
-                  [null, null];
-
-        const [newRange, setNewRange] = useState(currentRange ?? ({} as SemanticModelRelationshipEnd));
-        const [newDomain, setNewDomain] = useState(currentDomain ?? ({} as SemanticModelRelationshipEnd));
+        const [newDomain, setNewDomain] = useState(
+            currentDomainAndRange?.domain ?? ({} as SemanticModelRelationshipEnd)
+        );
+        const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
 
         const modelIri = getModelIri(model);
 
         // prepare for modifying entities from non-local models. https://github.com/mff-uk/dataspecer/issues/397
         const { models } = useModelGraphContext();
-        const inMemoryModels = filterInMemoryModels(models);
 
-        const { relationships: r, /* attributes: a, */ deleteEntityFromModel, profiles: p } = useClassesContext();
+        const { relationships: r, profiles: p } = useClassesContext();
         const attributes = r.filter(isSemanticModelAttribute).filter((v) => v.ends.at(0)?.concept == modifiedEntity.id);
         const attributeProfiles = p
             .filter(isSemanticModelRelationshipUsage)
@@ -198,10 +192,11 @@ export const useModifyEntityDialog = () => {
                             <div className="flex flex-col">
                                 <>
                                     {[...attributes, ...attributeProfiles].map((v) => {
-                                        const name = getLocalizedStringFromLanguageString(
-                                            getNameLanguageString(v),
-                                            preferredLanguage
-                                        );
+                                        const name =
+                                            getLocalizedStringFromLanguageString(
+                                                getNameLanguageString(v),
+                                                preferredLanguage
+                                            ) ?? getFallbackDisplayName(v ?? null);
                                         const description = getLocalizedStringFromLanguageString(
                                             getDescriptionLanguageString(v),
                                             preferredLanguage
@@ -343,7 +338,6 @@ export const useModifyEntityDialog = () => {
                                 return;
                             }
                             // todo: make it work for other types
-                            let result = false;
 
                             if (isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) {
                                 const operations = [];
@@ -379,27 +373,27 @@ export const useModifyEntityDialog = () => {
                                 }
                                 executeMultipleOperations(model, operations);
                             } else if (isSemanticModelRelationship(modifiedEntity)) {
-                                const rangeCard =
-                                    newRange.cardinality != currentRange?.cardinality
-                                        ? newRange.cardinality
-                                        : currentRange?.cardinality;
                                 const domainCard =
-                                    newDomain.cardinality != currentDomain?.cardinality
+                                    newDomain.cardinality != currentDomainAndRange?.domain?.cardinality
                                         ? newDomain.cardinality
-                                        : currentDomain?.cardinality;
+                                        : currentDomainAndRange?.domain?.cardinality;
+                                const rangeCard =
+                                    newRange.cardinality != currentDomainAndRange?.range?.cardinality
+                                        ? newRange.cardinality
+                                        : currentDomainAndRange?.range?.cardinality;
 
                                 const result = modifyRelationship(model, modifiedEntity.id, {
                                     ...modifiedEntity,
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange.concept ?? currentRange?.concept ?? "",
-                                            cardinality: rangeCard,
+                                            concept: newDomain.concept ?? currentDomainAndRange?.domain?.concept ?? "",
+                                            cardinality: domainCard,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
-                                            cardinality: domainCard,
+                                            concept: newRange.concept ?? currentDomainAndRange?.range?.concept ?? "",
+                                            cardinality: rangeCard,
                                             iri: newIri ?? null,
                                             name: name2,
                                             description: description2,
@@ -412,15 +406,14 @@ export const useModifyEntityDialog = () => {
                                 console.log(result);
                             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
                                 // todo
-
-                                const rangeCard =
-                                    newRange.cardinality != currentRange?.cardinality
-                                        ? newRange.cardinality
-                                        : currentRange?.cardinality;
                                 const domainCard =
-                                    newDomain.cardinality != currentDomain?.cardinality
+                                    newDomain.cardinality != currentDomainAndRange?.domain?.cardinality
                                         ? newDomain.cardinality
-                                        : currentDomain?.cardinality;
+                                        : currentDomainAndRange?.domain?.cardinality;
+                                const rangeCard =
+                                    newRange.cardinality != currentDomainAndRange?.range?.cardinality
+                                        ? newRange.cardinality
+                                        : currentDomainAndRange?.range?.cardinality;
 
                                 const res = updateEntityUsage(model, "relationship-usage", modifiedEntity.id, {
                                     name: name2,
@@ -429,13 +422,13 @@ export const useModifyEntityDialog = () => {
                                     ends: [
                                         {
                                             ...modifiedEntity.ends.at(0)!,
-                                            concept: newRange.concept ?? currentRange?.concept ?? "",
-                                            cardinality: rangeCard ?? null,
+                                            concept: newDomain.concept ?? currentDomainAndRange?.domain?.concept ?? "",
+                                            cardinality: domainCard ?? null,
                                         },
                                         {
                                             ...modifiedEntity.ends.at(1)!,
-                                            concept: newDomain.concept ?? currentDomain?.concept ?? "",
-                                            cardinality: domainCard ?? null,
+                                            concept: newRange.concept ?? currentDomainAndRange?.range.concept ?? "",
+                                            cardinality: rangeCard ?? null,
                                         },
                                     ], // if there is a change with `ends`, change it. Otherwise leave it as is
                                 });

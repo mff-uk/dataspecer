@@ -122,7 +122,7 @@ class Generator {
         const domainEnd = getDomainAndRange(entity)?.domain;
         const rangeEnd = getDomainAndRange(entity)?.range;
 
-        const iri = namedNode(domainEnd?.iri ?? entity.iri ?? entity.id);
+        const iri = namedNode(rangeEnd?.iri ?? entity.iri ?? entity.id);
 
         // const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
@@ -137,7 +137,6 @@ class Generator {
         const domainConcept = domainEnd?.concept ?? null;
         const rangeConcept = rangeEnd?.concept ?? null;
 
-        // neni tohle obracene? Jakoze range je odkud sipka smeruje a domain je kam sipka smeruje?
         if (domainConcept) {
             const domain = this.getNodeById(domainConcept);
             if (!OWL_THING.includes(domain.value)) {

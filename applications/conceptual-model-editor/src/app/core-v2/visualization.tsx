@@ -9,10 +9,12 @@ import ReactFlow, {
     NodeChange,
     Panel,
     Position,
+    ReactFlowInstance,
     useEdgesState,
     useNodesState,
+    useReactFlow,
 } from "reactflow";
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import { ClassCustomNode, semanticModelClassToReactFlowNode } from "./reactflow/class-custom-node";
 import {
     SimpleFloatingEdge,
@@ -52,6 +54,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { useCreateClassDialog } from "./dialog/create-class-dialog";
 import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import { bothEndsHaveAnIri } from "./util/relationship-utils";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -62,8 +65,7 @@ export const Visualization = () => {
     const { CreateClassDialog, isCreateClassDialogOpen, openCreateClassDialog } = useCreateClassDialog();
     const { CreateProfileDialog, isCreateProfileDialogOpen, openCreateProfileDialog } = useCreateProfileDialog();
 
-    const { classes, classes2, relationships, /* attributes, */ generalizations, profiles, sourceModelOfEntityMap } =
-        useClassesContext();
+    const { classes, classes2, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -82,20 +84,41 @@ export const Visualization = () => {
     const relationshipOrGeneralizationToEdgeType = (
         entity: Entity | null,
         color: string | undefined,
-        openEntityDetailDialog: () => void
+        openEntityDetailDialog: () => void,
+        openModificationDialog: () => void,
+        openCreateProfileDialog: () => void
     ): Edge | undefined => {
         if (isSemanticModelRelationshipUsage(entity)) {
             const usageNotes = entity.usageNote ? [entity.usageNote] : [];
-            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes, openEntityDetailDialog) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(
+                entity,
+                color,
+                usageNotes,
+                openEntityDetailDialog,
+                openModificationDialog,
+                openCreateProfileDialog
+            ) as Edge;
         } else if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(entity, color, [], openEntityDetailDialog) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(
+                entity,
+                color,
+                [],
+                openEntityDetailDialog,
+                openModificationDialog,
+                openCreateProfileDialog
+            ) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
             return semanticModelGeneralizationToReactFlowEdge(entity, color, openEntityDetailDialog) as Edge;
         }
         return;
     };
     const classUsageToEdgeType = (entity: SemanticModelClassUsage, color: string | undefined): Edge => {
-        const res = semanticModelClassUsageToReactFlowEdge(entity, color, () => openEntityDetailDialog(entity));
+        const res = semanticModelClassUsageToReactFlowEdge(
+            entity,
+            color,
+            () => openEntityDetailDialog(entity),
+            () => openModifyEntityDialog(entity)
+        );
         return res;
     };
 
@@ -149,7 +172,7 @@ export const Visualization = () => {
 
                 const attributes = localAttributes
                     .filter(isSemanticModelAttribute)
-                    .filter((attr) => getDomainAndRange(attr)?.range.concept == cls.id);
+                    .filter((attr) => getDomainAndRange(attr)?.domain.concept == cls.id);
                 const attributeProfiles = localAttributeProfiles
                     .filter(isSemanticModelRelationshipUsage)
                     .filter(isAttribute)
@@ -172,7 +195,15 @@ export const Visualization = () => {
                 relOrGen: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage,
                 color: string | undefined
             ) => {
-                return relationshipOrGeneralizationToEdgeType(relOrGen, color, () => openEntityDetailDialog(relOrGen));
+                return relationshipOrGeneralizationToEdgeType(
+                    relOrGen,
+                    color,
+                    () => openEntityDetailDialog(relOrGen),
+                    // @ts-ignore TODO: modifikace generalizace
+                    // model ? () => openModifyEntityDialog(relOrGen, model) :
+                    (m: InMemorySemanticModel | null) => openModifyEntityDialog(relOrGen, m),
+                    isSemanticModelGeneralization(relOrGen) ? () => {} : () => openCreateProfileDialog(relOrGen)
+                );
             };
 
             if (removed.length > 0) {
@@ -209,7 +240,6 @@ export const Visualization = () => {
                         .filter((v) => !removed.includes(v.id) && !affectedNodeIds.has(v.id))
                         .concat(nodesAffectedByAttributeRemovals)
                 );
-                console.log(removed, affectedNodeIds, nodesAffectedByAttributeRemovals);
             }
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
@@ -217,10 +247,8 @@ export const Visualization = () => {
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
-                        // console.log("hiding node", n);
                         setNodes((prev) => prev.filter((node) => node.data.cls.id !== id));
                     } else if (n) {
-                        // console.log("adding node", n);
                         setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                     }
                 } else if (
@@ -232,13 +260,17 @@ export const Visualization = () => {
                         (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
                         (isSemanticModelAttribute(entity) || isAttribute(entity))
                     ) {
+                        if (bothEndsHaveAnIri(entity)) {
+                            console.warn("both ends have an IRI, skipping", entity, entity.ends);
+                            alert("both ends have an IRI, skipping");
+                            continue;
+                        }
                         // it is an attribute, rerender the node that the attribute comes form
-                        const rangeOfAttribute = isSemanticModelAttribute(entity)
-                            ? getDomainAndRange(entity)?.range.concept
+                        const domainOfAttribute = isSemanticModelAttribute(entity)
+                            ? getDomainAndRange(entity)?.domain.concept
                             : null;
                         const aggrEntityOfAttributesNode =
-                            entities[rangeOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
-                        // console.log("entity is attribute", entity, rangeOfAttribute, aggrEntityOfAttributesNode);
+                            entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
 
                         if (
                             isSemanticModelClass(aggrEntityOfAttributesNode) ||
@@ -254,11 +286,10 @@ export const Visualization = () => {
                                     .filter((v) => v.id != entity.id)
                                     .concat(entity);
                             }
-                            // localAttributes.push(entity as SemanticModelRelationship);
+
                             const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
                             const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                             if (n && n != "hide-it!") {
-                                console.log("adding node due to attribute", n);
                                 setNodes((prev) => prev.filter((n) => n.data.cls.id !== id).concat(n));
                             }
                         } else {
@@ -283,28 +314,21 @@ export const Visualization = () => {
                     ...localGeneralizations,
                     ...profiles.filter(isSemanticModelRelationshipUsage),
                 ]
-                    .map((relOrGen) =>
-                        getEdge(
+                    .map((relOrGen) => {
+                        const sourceModelId = sourceModelOfEntityMap.get(relOrGen.id);
+                        return getEdge(
                             relOrGen,
-                            localActiveVisualModel?.getColor(
-                                sourceModelOfEntityMap.get(relOrGen.id) ?? "some random model id that doesn't exist"
-                            )
-                        )
-                    )
+                            localActiveVisualModel?.getColor(sourceModelId ?? "some random model id that doesn't exist")
+                        );
+                    })
                     .filter((e): e is Edge => {
                         return e?.id != undefined;
                     })
                     .concat(
-                        [...profiles].filter(isSemanticModelClassUsage).map((u) =>
-                            classUsageToEdgeType(
-                                u,
-                                localActiveVisualModel?.getColor(
-                                    // sourceModelOfEntity(relOrGen.id, localModelsAsAnArray)?.getId()
-                                    sourceModelOfEntityMap.get(u.id) ?? "some random model id that doesn't exist"
-                                    // relOrGenToModel.get(u.id)!)
-                                )
-                            )
-                        )
+                        [...profiles].filter(isSemanticModelClassUsage).map((u) => {
+                            const sourceModelId = sourceModelOfEntityMap.get(u.id);
+                            return classUsageToEdgeType(u, localActiveVisualModel?.getColor(sourceModelId ?? ""));
+                        })
                     );
 
                 setEdges(es);
@@ -316,7 +340,6 @@ export const Visualization = () => {
         const callToUnsubscribe3 = aggregatorView
             .getActiveVisualModel()
             ?.subscribeToChanges((updated: Record<string, VisualEntity>, removed: string[]) => {
-                console.log("callToUnsubscribe3 u&r:", updated, removed);
                 const entities = aggregatorView.getEntities();
                 const updatedAsAggrEntityWrappers = Object.entries(updated).map(
                     ([uId, visualEntity]) =>
@@ -333,7 +356,7 @@ export const Visualization = () => {
 
         return () => {
             callToUnsubscribe2?.();
-            // callToUnsubscribe3?.();
+            callToUnsubscribe3?.();
         };
     }, [aggregatorView, classes /* changed when new view is used */]);
 
@@ -353,6 +376,8 @@ export const Visualization = () => {
             }
         }
     };
+
+    const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
     return (
         <>
@@ -378,10 +403,17 @@ export const Visualization = () => {
                     onConnect={onConnect}
                     snapGrid={[20, 20]}
                     snapToGrid={true}
+                    onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}
                     onPaneClick={(e) => {
                         if (e.altKey) {
-                            console.log(e);
-                            openCreateClassDialog(undefined, { x: e.nativeEvent.layerX, y: e.nativeEvent.layerY });
+                            const position = reactFlowInstance?.screenToFlowPosition({
+                                x: e.clientX,
+                                y: e.clientY,
+                            });
+                            openCreateClassDialog(undefined, {
+                                x: position?.x ?? e.nativeEvent.layerX,
+                                y: position?.y ?? e.nativeEvent.layerY,
+                            });
                         }
                     }}
                 >

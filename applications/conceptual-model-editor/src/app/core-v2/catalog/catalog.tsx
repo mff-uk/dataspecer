@@ -5,10 +5,15 @@ import { AttributeCatalog, RelationshipCatalog } from "./attribute-relationship-
 import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { WarningCatalog } from "./warning-catalog";
+import { useWarningsContext } from "../context/warnings-context";
 
 export const Catalog = () => {
-    const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile">("class");
-    const { relationships: r, /* attributes, */ profiles } = useClassesContext();
+    const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile" | "warning">(
+        "class"
+    );
+    const { relationships: r, profiles } = useClassesContext();
+    const { warnings } = useWarningsContext();
 
     const relationships = r.filter((v) => !isSemanticModelAttribute(v));
     const attributes = r.filter(isSemanticModelAttribute);
@@ -61,6 +66,15 @@ export const Catalog = () => {
                             profiles
                         </button>
                     )}
+                    {warnings.length > 0 && (
+                        <button
+                            disabled={entityView == "warning"}
+                            onClick={() => setEntityView("warning")}
+                            className={`text-orange-500 ${entityView == "warning" ? "font-bold" : "font-semibold "}`}
+                        >
+                            ⚠️warnings
+                        </button>
+                    )}
                 </div>
 
                 <div className="my-0 overflow-y-scroll pb-2">
@@ -68,6 +82,7 @@ export const Catalog = () => {
                     {entityView == "relationship" && <RelationshipCatalog />}
                     {entityView == "attribute" && <AttributeCatalog />}
                     {entityView == "profile" && <ProfileCatalog />}
+                    {entityView == "warning" && <WarningCatalog />}
                 </div>
             </div>
         </div>

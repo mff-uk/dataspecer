@@ -11,14 +11,14 @@ export const getDomainAndRange = (resource: SemanticModelRelationship) => {
 
     if (!end1 || !end2) {
         return null;
-    } else if (end1!.iri && end2!.iri) {
+    } else if (end1.iri && end2.iri) {
         return null;
-    } else if (end1!.iri) {
-        domain = end1!;
-        range = end2!;
-    } else if (end2!.iri) {
-        domain = end2!;
-        range = end1!;
+    } else if (end1.iri) {
+        domain = end2;
+        range = end1;
+    } else if (end2.iri) {
+        domain = end1;
+        range = end2;
     } else {
         // none of them has an iri
         return null;
