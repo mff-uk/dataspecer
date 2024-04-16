@@ -9,10 +9,12 @@ import ReactFlow, {
     NodeChange,
     Panel,
     Position,
+    ReactFlowInstance,
     useEdgesState,
     useNodesState,
+    useReactFlow,
 } from "reactflow";
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import { ClassCustomNode, semanticModelClassToReactFlowNode } from "./reactflow/class-custom-node";
 import {
     SimpleFloatingEdge,
@@ -171,7 +173,7 @@ export const Visualization = () => {
 
                 const attributes = localAttributes
                     .filter(isSemanticModelAttribute)
-                    .filter((attr) => getDomainAndRange(attr)?.range.concept == cls.id);
+                    .filter((attr) => getDomainAndRange(attr)?.domain.concept == cls.id);
                 const attributeProfiles = localAttributeProfiles
                     .filter(isSemanticModelRelationshipUsage)
                     .filter(isAttribute)
@@ -265,11 +267,11 @@ export const Visualization = () => {
                             continue;
                         }
                         // it is an attribute, rerender the node that the attribute comes form
-                        const rangeOfAttribute = isSemanticModelAttribute(entity)
-                            ? getDomainAndRange(entity)?.range.concept
+                        const domainOfAttribute = isSemanticModelAttribute(entity)
+                            ? getDomainAndRange(entity)?.domain.concept
                             : null;
                         const aggrEntityOfAttributesNode =
-                            entities[rangeOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                            entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
 
                         if (
                             isSemanticModelClass(aggrEntityOfAttributesNode) ||
@@ -376,6 +378,8 @@ export const Visualization = () => {
         }
     };
 
+    const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
@@ -400,9 +404,17 @@ export const Visualization = () => {
                     onConnect={onConnect}
                     snapGrid={[20, 20]}
                     snapToGrid={true}
+                    onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}
                     onPaneClick={(e) => {
                         if (e.altKey) {
-                            openCreateClassDialog(undefined, { x: e.nativeEvent.layerX, y: e.nativeEvent.layerY });
+                            const position = reactFlowInstance?.screenToFlowPosition({
+                                x: e.clientX,
+                                y: e.clientY,
+                            });
+                            openCreateClassDialog(undefined, {
+                                x: position?.x ?? e.nativeEvent.layerX,
+                                y: position?.y ?? e.nativeEvent.layerY,
+                            });
                         }
                     }}
                 >

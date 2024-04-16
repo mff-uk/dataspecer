@@ -5,12 +5,11 @@ import {
     SemanticModelGeneralization,
     SemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
-    Nullable,
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
@@ -29,13 +28,17 @@ export const getNameLanguageString = (
     if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)) {
         return resource.name ?? null;
     } else if (isSemanticModelRelationship(resource)) {
-        const dom = getDomainAndRange(resource)?.domain;
-        return dom?.name ?? null;
+        const range = getDomainAndRange(resource)?.range;
+        return range?.name ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
         // TODO: redo after knowing domain from relationship profiles is implemented
         return resource.name;
         // const name = resource.ends.at(1)?.name;
         // return name ?? null;
+    } else if (isSemanticModelGeneralization(resource)) {
+        return {
+            en: "Generalization of " + resource.parent + " is " + resource.parent,
+        };
     } else {
         return null;
     }
@@ -53,8 +56,8 @@ export const getDescriptionLanguageString = (
     if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)) {
         return resource.description;
     } else if (isSemanticModelRelationship(resource)) {
-        const dom = getDomainAndRange(resource)?.domain;
-        return dom?.description ?? null;
+        const range = getDomainAndRange(resource)?.range;
+        return range?.description ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
         // TODO: redo after knowing domain from relationship profiles is implemented
         return resource.description;

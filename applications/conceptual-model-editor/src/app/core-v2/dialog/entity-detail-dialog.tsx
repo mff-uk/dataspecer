@@ -6,6 +6,7 @@ import {
     isSemanticModelGeneralization,
     isSemanticModelAttribute,
     SemanticModelRelationshipEnd,
+    isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
 import { cardinalityToString, isAttribute } from "../util/utils";
@@ -28,6 +29,7 @@ import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "../util/name-utils";
+import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -64,7 +66,7 @@ export const useEntityDetailDialog = () => {
 
         const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
 
-        const { classes2: c, relationships: r, profiles, sourceModelOfEntityMap } = useClassesContext();
+        const { classes2: c, relationships: r, profiles, generalizations } = useClassesContext();
         const { models } = useModelGraphContext();
         const sourceModel = sourceModelOfEntity(viewedEntity.id, [...models.values()]); //  models.get(sourceModelId ?? "");
 
@@ -81,12 +83,33 @@ export const useEntityDetailDialog = () => {
         const usageNote = getLocalizedStringFromLanguageString(getUsageNoteLanguageString(viewedEntity), currentLang);
         const iri = getIri(viewedEntity);
 
-        if (isSemanticModelClassUsage(viewedEntity)) {
-            profileOf = viewedEntity.usageOf;
-        } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
-            const domain = viewedEntity.ends.at(1); // TODO: make it work for attributes that are profiles
-            profileOf = viewedEntity.usageOf;
-        }
+        const specializationOf = generalizations
+            .filter((g) => g.child == viewedEntity.id)
+            .map((g) => c.find((cl) => cl.id == g.parent))
+            .filter((cl) => isSemanticModelClass(cl ?? null))
+            .map((cl) => getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang))
+            .join(", ");
+        const generalizationOf = generalizations
+            .filter((g) => g.parent == viewedEntity.id)
+            .map((g) => c.find((cl) => cl.id == g.child))
+            .filter((cl) => isSemanticModelClass(cl ?? null))
+            .map((cl) => getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang))
+            .join(", ");
+
+        const isProfileOf =
+            isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
+                ? profiles
+                      .filter((p) => p.id == viewedEntity.id)
+                      .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.usageOf))
+                      .map((e) => getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang))
+                      .join(", ")
+                : null;
+
+        const isProfiledBy = profiles
+            .filter((p) => p.usageOf == viewedEntity.id)
+            .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.id))
+            .map((e) => getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang))
+            .join(", ");
 
         const attributes = /* a */ r
             .filter(isSemanticModelAttribute)
@@ -96,15 +119,25 @@ export const useEntityDetailDialog = () => {
             .filter(isAttribute)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
 
-        profiledBy = profiles.filter((p) => p.usageOf == viewedEntity.id).map((p) => p.id);
-
         let ends: { domain: SemanticModelRelationshipEnd; range: SemanticModelRelationshipEnd } | null = null;
         if (isSemanticModelRelationship(viewedEntity)) {
             ends = getDomainAndRange(viewedEntity);
         } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
+            ends = temporaryDomainRangeHelper(viewedEntity);
+        } else if (isSemanticModelGeneralization(viewedEntity)) {
             ends = {
-                range: { ...viewedEntity.ends[0]!, iri: null } as SemanticModelRelationshipEnd,
-                domain: { ...viewedEntity.ends[1], iri: null } as SemanticModelRelationshipEnd,
+                domain: {
+                    concept: viewedEntity.child,
+                    name: { en: "Generalization child" },
+                    description: {},
+                    iri: null,
+                } as SemanticModelRelationshipEnd,
+                range: {
+                    concept: viewedEntity.parent,
+                    name: { en: "Generalization parent" },
+                    description: {},
+                    iri: null,
+                } as SemanticModelRelationshipEnd,
             };
         }
 
@@ -149,10 +182,24 @@ export const useEntityDetailDialog = () => {
                                 ))}
                             </select>
                         </div>
+
                         <div>
-                            {profileOf && <div className="flex flex-row text-gray-500">profile of: {profileOf}</div>}
-                            {profiledBy.length > 0 && (
-                                <div className="flex flex-row text-gray-500">profiled by: {profiledBy.join(", ")}</div>
+                            {isProfileOf && (
+                                <div className="flex flex-row text-gray-500">profile of: {isProfileOf}</div>
+                            )}
+                            {isProfiledBy && (
+                                <div className="flex flex-row text-gray-500">profiled by: {isProfiledBy}</div>
+                            )}
+                        </div>
+
+                        <div></div>
+
+                        <div>
+                            {specializationOf && (
+                                <div className="flex flex-row text-gray-500">specialization of: {specializationOf}</div>
+                            )}
+                            {generalizationOf && (
+                                <div className="flex flex-row text-gray-500">generalization of: {generalizationOf}</div>
                             )}
                         </div>
                     </div>
@@ -226,6 +273,17 @@ export const useEntityDetailDialog = () => {
                             <div>{usageNote}</div>
                         </>
                     )}
+                    {domain && (
+                        <>
+                            <div className="font-semibold">domain: </div>
+                            <div>
+                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
+                                    domainIri ??
+                                    domain.id}
+                                :{domainCardinality}
+                            </div>
+                        </>
+                    )}
                     {range && (
                         <>
                             <div className="font-semibold">range: </div>
@@ -236,17 +294,6 @@ export const useEntityDetailDialog = () => {
                                     range.id ??
                                     ends?.range.concept}
                                 :{rangeCardinality}
-                            </div>
-                        </>
-                    )}
-                    {domain && (
-                        <>
-                            <div className="font-semibold">domain: </div>
-                            <div>
-                                {getStringFromLanguageStringInLang(domain.name ?? {}, currentLang) ??
-                                    domainIri ??
-                                    domain.id}
-                                :{domainCardinality}
                             </div>
                         </>
                     )}

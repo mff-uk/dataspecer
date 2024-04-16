@@ -4,6 +4,7 @@ import {
     SemanticModelGeneralization,
     SemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -33,8 +34,10 @@ export const getIri = (
     if (isSemanticModelClass(entity)) {
         return entity.iri;
     } else if (isSemanticModelRelationship(entity)) {
-        const domain = getDomainAndRange(entity)?.domain;
-        return domain?.iri ?? null;
+        const range = getDomainAndRange(entity)?.range;
+        return range?.iri ?? null;
+    } else if (isSemanticModelGeneralization(entity)) {
+        return entity.iri;
     } else {
         return null;
     }
