@@ -34,7 +34,7 @@ export const useCreateClassDialog = () => {
         const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
         const { addClassToModel, aggregatorView } = useModelGraphContext();
 
-        const modelIri = getModelIri(model);
+        const modelIri = getModelIri(activeModel);
 
         return (
             <BaseDialog heading="Creating an entity">
