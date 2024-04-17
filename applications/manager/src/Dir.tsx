@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
-import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Plus, Sparkles, Trash2 } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Time, getValidTime } from "./components/time";
 import { Button } from "./components/ui/button";
@@ -15,6 +15,7 @@ import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, RootResourcesContext, requestLoadPackage } from "./package";
+import { Autolayout } from "./dialog/autolayout";
 
 
 export function lng(text: LanguageString | undefined): string | undefined {
@@ -90,8 +91,8 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-    <DropdownMenuItem>Profile</DropdownMenuItem> */}
+          <DropdownMenuSeparator /> */}
+          {resource.types.includes(LOCAL_SEMANTIC_MODEL) && <DropdownMenuItem onClick={() => openModal(Autolayout, {iri, parentIri: parentIri!})}><Sparkles className="mr-2 h-4 w-4" /> Autolayout</DropdownMenuItem>}
           <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => openModal(DeleteResource, {iri})}><Trash2 className="mr-2 h-4 w-4" /> Odstranit</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

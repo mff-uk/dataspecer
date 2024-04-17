@@ -6,7 +6,7 @@ export default defineConfig({
   base: "",
   plugins: [react()],
   optimizeDeps: {
-    include: ["@dataspecer/core-v2/project", "@dataspecer/core-v2/**"]
+    include: ["@dataspecer/core-v2/project", "@dataspecer/core-v2/**", "@dataspecer/layout"]
   },
   build: {
     commonjsOptions: {
