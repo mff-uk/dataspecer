@@ -78,7 +78,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
         <ModalHeader>
           <ModalTitle>Autolayout</ModalTitle>
           <ModalDescription>
-            Spustí layout z @dataspecer/visualization pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
+            Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
           </ModalDescription>
         </ModalHeader>
         <ModalFooter>
