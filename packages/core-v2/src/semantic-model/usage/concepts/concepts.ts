@@ -9,6 +9,7 @@ export type Nullable<T> = {
 interface WithUsageNote {
     /**
      * Additional information about the usage of the entity.
+     * If null, the usage is not described.
      */
     usageNote: LanguageString | null;
 }
@@ -34,12 +35,13 @@ export interface SemanticModelRelationshipUsage extends SemanticModelUsage, Null
 interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>, WithUsageNote {
     /**
      * Must be stricter or equal to the corresponding cardinality of the used entity.
+     * If null, the cardinality is not changed.
      */
     cardinality: [number, number | null] | null;
 
     /**
      * Must be descendant or self of the corresponding concept of the used entity.
-     * @todo is null default or no entity?
+     * If null, the concept is not changed.
      */
     concept: string | null;
 }
