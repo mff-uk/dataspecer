@@ -78,7 +78,7 @@ export function semanticModelToSimplifiedSemanticModel(semanticModel: Record<str
 
     return {
         // @ts-ignore
-        "$schema": "https://schemas.dataspecer.com/schemas/adapters/simplified-semantic-model.v1.0.schema.json",
+        "$schema": "https://schemas.dataspecer.com/adapters/simplified-semantic-model.v1.0.schema.json",
         classes,
         attributes: allRelationships.filter(r => !classIris.includes(r.range)),
         relationships: allRelationships.filter(r => classIris.includes(r.range)),
