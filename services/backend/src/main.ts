@@ -17,6 +17,7 @@ import {
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
+import { getSimplifiedSemanticModel } from './routes/simplified-semantic-model';
 
 // Create application models
 
@@ -78,6 +79,10 @@ application.get(basename + '/resources/root-resources', getRootPackages); // ---
 // Configuration
 
 application.get(basename + '/default-configuration', getDefaultConfiguration);
+
+// Simplified semantic model
+
+application.get(basename + '/simplified-semantic-model', getSimplifiedSemanticModel);
 
 (async () => {
     // Create root models for the common use and for the v1 adapter.
