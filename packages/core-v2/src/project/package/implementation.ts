@@ -65,6 +65,12 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
+    async deleteResource(iri: string): Promise<void> {
+        await this.httpFetch(this.getResourceUrl(iri).toString(), {
+            method: "DELETE",
+        });
+    }
+
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {

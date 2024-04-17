@@ -1,16 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, Folder, Plus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
+import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Plus, Trash2 } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Time, getValidTime } from "./components/time";
 import { Button } from "./components/ui/button";
 import { Skeleton } from "./components/ui/skeleton";
 import { CreateNew } from "./dialog/create-new";
+import { DeleteResource } from "./dialog/delete-resource";
 import { ResourceDetail } from "./dialog/resource-detail";
 import { useIsMobile } from "./hooks/use-is-mobile";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, modelTypeToName } from "./known-models";
+import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, RootResourcesContext, requestLoadPackage } from "./package";
 
 
@@ -41,6 +44,8 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
   const detailModalToggle = useToggle();
 
   const createNew = useContext(createNewContext);
+
+  const openModal = useBetterModal();
 
   return <li className="first:border-y last:border-none border-b border-gray-200">
     <div className="flex items-center space-x-4 transition-all hover:bg-accent" onClick={isMobile ? detailModalToggle.open : undefined}>
@@ -77,20 +82,19 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         </Button>
       }
 
-      {/* <DropdownMenu>
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="shrink-0">
             <EllipsisVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive/90"><Trash2 className="mr-2 h-4 w-4" /> Odstranit</DropdownMenuItem>
+    <DropdownMenuItem>Profile</DropdownMenuItem> */}
+          <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => openModal(DeleteResource, {iri})}><Trash2 className="mr-2 h-4 w-4" /> Odstranit</DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu> */}
+      </DropdownMenu>
     </div>
     {resource?.subResourcesIri?.length && isOpen && <ul className="pl-8">
       {resource?.subResourcesIri?.map(iri => <Row iri={iri} key={iri} parentIri={resource.iri} />)}
