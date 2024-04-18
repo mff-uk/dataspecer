@@ -1,14 +1,9 @@
 import {
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
-    isSemanticModelClass,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    getLocalizedString,
-    getNameOrIriAndDescription,
-    getStringFromLanguageStringInLang,
-} from "../util/language-utils";
-import { isAttribute } from "../util/utils";
+import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import {
     SemanticModelRelationshipUsage,
@@ -17,6 +12,7 @@ import {
 import { Dispatch, SetStateAction } from "react";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useClassesContext } from "../context/classes-context";
+import { isAttribute } from "../util/utils";
 
 export const DomainRangeComponent = (props: {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -35,9 +31,9 @@ export const DomainRangeComponent = (props: {
 
     return (
         <>
-            <div className="font-semibold">range:</div>
-            <select onChange={(e) => setRange((prev) => ({ ...prev, concept: e.target.value }))}>
-                <option disabled={true} selected={range.concept == "" || range.concept == null}>
+            <div className="font-semibold">domain:</div>
+            <select onChange={(e) => setDomain((prev) => ({ ...prev, concept: e.target.value }))}>
+                <option disabled={true} selected={domain.concept == "" || domain.concept == null}>
                     ---
                 </option>
                 {classesOrProfiles.map((v) => {
@@ -47,26 +43,26 @@ export const DomainRangeComponent = (props: {
                     const iriOrId = isSemanticModelClassUsage(v) ? v.id : v.iri ?? v.id;
 
                     return (
-                        <option value={v.id} selected={range.concept == v.id}>
+                        <option value={v.id} selected={domain.concept == v.id}>
                             {displayName ?? iriOrId}
                         </option>
                     );
                 })}
             </select>
-            <div className="font-semibold">range cardinality:</div>
+            <div className="font-semibold">domain cardinality:</div>
             <div>
                 <CardinalityOptions
                     group="source"
-                    defaultCard={semanticCardinalityToOption(range?.cardinality ?? null)}
-                    setCardinality={setRange}
+                    defaultCard={semanticCardinalityToOption(domain?.cardinality ?? null)}
+                    setCardinality={setDomain}
                 />
             </div>
-            <div className="font-semibold">domain:</div>
+            <div className="font-semibold">range:</div>
             <div className="flex w-full flex-row">
-                {isAttribute(entity) && (
+                {(isSemanticModelAttribute(entity) || isAttribute(entity)) && (
                     <div className="mr-4">
                         attribute
-                        <span className="ml-1" title="setting a domain makes this attribute more of a relationship">
+                        <span className="ml-1" title="setting a range makes this attribute more of a relationship">
                             ❓
                         </span>
                     </div>
@@ -76,15 +72,17 @@ export const DomainRangeComponent = (props: {
                     onChange={(e) => {
                         if (e.target.value == "null") {
                             // @ts-ignore
-                            setDomain((prev) => ({ ...prev, concept: undefined }));
-                            // setNewDomain(undefined);
+                            setRange((prev) => ({ ...prev, concept: undefined }));
                         } else {
-                            setDomain((prev) => ({ ...prev, concept: e.target.value }));
-                            // setNewDomain(e.target.value);
+                            setRange((prev) => ({ ...prev, concept: e.target.value }));
                         }
                     }}
                 >
-                    <option disabled={!isAttribute(entity)} selected={isAttribute(entity)} value={"null"}>
+                    <option
+                        // disabled={!isSemanticModelAttribute(entity)}
+                        defaultChecked={isSemanticModelAttribute(entity) || isAttribute(entity)}
+                        value={"null"}
+                    >
                         ---
                     </option>
                     {classesOrProfiles.map((v) => {
@@ -94,21 +92,21 @@ export const DomainRangeComponent = (props: {
                         const iriOrId = isSemanticModelClassUsage(v) ? v.id : v.iri ?? v.id;
 
                         return (
-                            <option value={v.id} selected={domain.concept == v.id}>
+                            <option value={v.id} selected={range.concept == v.id}>
                                 {displayName ?? iriOrId}
                             </option>
                         );
                     })}
                 </select>
             </div>
-            {/* show domain cardinality only when domain is selected */}
-            {domain.concept && (
+            {/* show range cardinality only when range is selected */}
+            {range.concept && (
                 <>
-                    <div className="font-semibold">domain cardinality:</div>
+                    <div className="font-semibold">range cardinality:</div>
                     <CardinalityOptions
                         group="target"
-                        defaultCard={semanticCardinalityToOption(domain?.cardinality ?? null)}
-                        setCardinality={setDomain}
+                        defaultCard={semanticCardinalityToOption(range?.cardinality ?? null)}
+                        setCardinality={setRange}
                     />
                 </>
             )}

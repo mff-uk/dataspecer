@@ -1,13 +1,9 @@
-import { createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useRef, useEffect, useState } from "react";
-import { useModelGraphContext } from "../context/model-context";
 import { useBaseDialog } from "./base-dialog";
 
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const { addModelToGraph } = useModelGraphContext();
     const [onSaveCallback, setOnSaveCallback] = useState<null | ((ttlFiles: string[]) => void)>(null);
 
     useEffect(() => {
@@ -49,9 +45,8 @@ export const useAddModelDialog = () => {
                     <button
                         onClick={() =>
                             save(
-                                modelTtlFiles.filter((u) => {
+                                modelTtlFiles.filter(() => {
                                     try {
-                                        const a = new URL(u);
                                         return true;
                                     } catch (_) {
                                         return false;

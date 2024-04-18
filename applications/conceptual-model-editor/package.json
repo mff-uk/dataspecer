@@ -2,6 +2,7 @@
     "name": "conceptual-model-editor",
     "version": "0.1.0",
     "private": true,
+    "type": "module",
     "scripts": {
         "build": "next build",
         "dev": "next dev",
@@ -12,8 +13,6 @@
         "@dagrejs/dagre": "^1.0.4",
         "@dataspecer/core": "*",
         "@dataspecer/core-v2": "^0.0.0",
-        "@dataspecer/rdfs-adapter": "*",
-        "@dataspecer/sgov-adapter": "^0.0.0",
         "jointjs": "^3.7.0",
         "next": "^14.0.4",
         "react": "18.2.0",

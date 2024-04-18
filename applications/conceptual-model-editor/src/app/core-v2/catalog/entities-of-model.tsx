@@ -3,10 +3,14 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { useEffect, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
-import { isAttribute, shortenStringTo } from "../util/utils";
+import { shortenStringTo } from "../util/utils";
 import { InputEntityRow } from "./entity-catalog-row";
 import { useModelGraphContext } from "../context/model-context";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClass,
+    SemanticModelRelationship,
+    isSemanticModelAttribute,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
 import { ColorPicker } from "../util/color-picker";
@@ -48,7 +52,7 @@ export const EntitiesOfModel = (props: {
     }, [models]);
 
     useEffect(() => {
-        console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
+        // console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
         // fixme: move it elsewhere
         let color = activeVisualModel?.getColor(model.getId());
         if (!color) {
@@ -69,9 +73,9 @@ export const EntitiesOfModel = (props: {
     if (entityType == "class") {
         entitySource = classes2;
     } else if (entityType == "relationship") {
-        entitySource = relationships.filter((v) => !isAttribute(v));
+        entitySource = relationships.filter((v) => !isSemanticModelAttribute(v));
     } else if (entityType == "attribute") {
-        entitySource = relationships.filter(isAttribute);
+        entitySource = relationships.filter(isSemanticModelAttribute);
     } else {
         // profile
         entitySource = profiles;
@@ -141,6 +145,7 @@ export const EntitiesOfModel = (props: {
             .filter((v) => sourceModelOfEntity(v.id, [model]))
             .map((v) => (
                 <RowHierarchy
+                    key={v.id}
                     entity={v}
                     indent={0}
                     handlers={{
@@ -157,6 +162,7 @@ export const EntitiesOfModel = (props: {
             .concat(
                 entityType == "class" ? (
                     <InputEntityRow
+                        key={model.getId() + "input row"}
                         onClickHandler={(search: string) => {
                             const callback = async () => {
                                 const result = await model.search(search);
@@ -178,6 +184,7 @@ export const EntitiesOfModel = (props: {
             .map((v) => (
                 // modifiable-row, e.g. local
                 <RowHierarchy
+                    key={v.id}
                     entity={v}
                     indent={0}
                     handlers={{
@@ -209,6 +216,7 @@ export const EntitiesOfModel = (props: {
             .map((v) => (
                 // non-expandable, e.g. dcat
                 <RowHierarchy
+                    key={v.id}
                     entity={v}
                     indent={0}
                     handlers={{
@@ -238,10 +246,16 @@ export const EntitiesOfModel = (props: {
                                 activeVisualModel?.setColor(modelId, color);
                             }}
                         />
-                        <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? "🔼" : "🔽"}</button>
+                        <button title={isOpen ? "fold" : "expand"} onClick={() => setIsOpen((prev) => !prev)}>
+                            {isOpen ? "🔼" : "🔽"}
+                        </button>
                     </div>
                 </div>
-                {isOpen && <ul className="ml-1">{entities}</ul>}
+                {isOpen && (
+                    <ul className="ml-1" key={"entities" + modelId}>
+                        {entities}
+                    </ul>
+                )}
             </li>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}

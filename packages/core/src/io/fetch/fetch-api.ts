@@ -18,6 +18,8 @@ export interface FetchResponse {
   json(): Promise<unknown>;
 
   text(): Promise<string>;
+
+  status: number;
 }
 
 export interface FetchHeaders {

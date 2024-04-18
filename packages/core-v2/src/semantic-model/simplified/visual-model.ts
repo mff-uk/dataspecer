@@ -1,6 +1,6 @@
 import { VisualEntityModel, VisualEntityModelImpl } from "../../visual-model";
 
-export const createVisualModel = (modelId: string) => {
-    const model = new VisualEntityModelImpl(modelId);
+export const createVisualModel = (iri: string) => {
+    const model = new VisualEntityModelImpl(iri);
     return model as VisualEntityModel;
 };

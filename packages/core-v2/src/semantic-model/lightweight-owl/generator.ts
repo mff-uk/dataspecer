@@ -4,14 +4,19 @@ import {
     SemanticModelClass,
     SemanticModelEntity,
     SemanticModelGeneralization,
-    SemanticModelRelationship
+    SemanticModelRelationship,
 } from "../concepts/concepts";
 import * as N3 from "n3";
-import {DataFactory, Quad_Predicate, Quad_Subject} from "n3";
+import { DataFactory, Quad_Predicate, Quad_Subject } from "n3";
 import namedNode = DataFactory.namedNode;
 import literal = DataFactory.literal;
-import {isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship} from "../concepts";
-
+import {
+    isSemanticModelAttribute,
+    isSemanticModelClass,
+    isSemanticModelGeneralization,
+    isSemanticModelRelationship,
+} from "../concepts";
+import { getDomainAndRange } from "../relationship-utils/utils";
 
 function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
@@ -47,6 +52,7 @@ class Generator {
         this.subclasses.sort((a, b) => a.parent < b.parent ? -1 : a.parent > b.parent ? 1 : 0);
         classes.sort(simpleIdSort);
         const properties = entities.filter(isSemanticModelRelationship);
+        // TODO: what about application profiles
 
         const writtenProperties = new Set<string>();
         for (const cls of classes) {
@@ -93,48 +99,56 @@ class Generator {
     }
 
     private writeNamedThing(entity: NamedThing & SemanticModelEntity) {
-        const iri = namedNode(entity.iri ?? entity.id);
-        this.writeLanguageString(
-            iri,
-            namedNode("http://www.w3.org/2000/01/rdf-schema#label"),
-            entity.name
-        );
-        this.writeLanguageString(
-            iri,
-            namedNode("http://www.w3.org/2000/01/rdf-schema#comment"),
-            entity.description
-        );
+        // TODO: make more robust for new approach -- ends:[{concept}, {concept, iri, name, description}]
+        let iri: N3.NamedNode;
+        let name: LanguageString, description: LanguageString;
+        if (isSemanticModelRelationship(entity)) {
+            const domain = getDomainAndRange(entity)?.domain;
+            iri = namedNode(domain?.iri ?? entity.iri ?? entity.id);
+            name = domain?.name ?? entity.name;
+            description = domain?.description ?? entity.description;
+        } else {
+            iri = namedNode(entity.iri ?? entity.id);
+            name = entity.name;
+            description = entity.description;
+        }
+
+        // const iri = namedNode(entity.iri ?? entity.id);
+        this.writeLanguageString(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#label"), name);
+        this.writeLanguageString(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#comment"), description);
     }
 
     private writeProperty(entity: SemanticModelRelationship) {
-        const iri = namedNode(entity.iri ?? entity.id);
-        this.writer.addQuad(
-            iri,
-            RDF_TYPE,
-            namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")
-        );
-        this.writer.addQuad(
-            iri,
-            RDF_TYPE,
-            namedNode("http://www.w3.org/2002/07/owl#ObjectProperty")
-        );
-        this.writeNamedThing(entity);
-        const domain = this.getNodeById(entity.ends[0]!.concept);
-        if (!OWL_THING.includes(domain.value)) {
-            this.writer.addQuad(
-                iri,
-                namedNode("http://www.w3.org/2000/01/rdf-schema#domain"),
-                domain
-            );
+        const domainEnd = getDomainAndRange(entity)?.domain;
+        const rangeEnd = getDomainAndRange(entity)?.range;
+
+        const iri = namedNode(rangeEnd?.iri ?? entity.iri ?? entity.id);
+
+        // const iri = namedNode(entity.iri ?? entity.id);
+        this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
+        if (isSemanticModelAttribute(entity)) {
+            this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/2002/07/owl#DatatypeProperty"));
+        } else {
+            this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/2002/07/owl#ObjectProperty"));
         }
-        const range = this.getNodeById(entity.ends[1]!.concept);
-        if (!OWL_THING.includes(range.value)) {
-            if (entity.ends[1]!.concept) {
-                this.writer.addQuad(
-                    iri,
-                    namedNode("http://www.w3.org/2000/01/rdf-schema#range"),
-                    range
-                );
+
+        this.writeNamedThing(entity);
+
+        const domainConcept = domainEnd?.concept ?? null;
+        const rangeConcept = rangeEnd?.concept ?? null;
+
+        if (domainConcept) {
+            const domain = this.getNodeById(domainConcept);
+            if (!OWL_THING.includes(domain.value)) {
+                this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#domain"), domain);
+            }
+        }
+        if (rangeConcept) {
+            const range = this.getNodeById(rangeConcept!);
+            if (!OWL_THING.includes(range.value)) {
+                if (rangeConcept) {
+                    this.writer.addQuad(iri, namedNode("http://www.w3.org/2000/01/rdf-schema#range"), range);
+                }
             }
         }
     }

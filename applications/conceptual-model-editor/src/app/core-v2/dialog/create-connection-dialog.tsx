@@ -2,6 +2,7 @@ import {
     LanguageString,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Connection } from "reactflow";
@@ -13,12 +14,14 @@ import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "./iri-input";
 import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
+import { getNameLanguageString } from "../util/name-utils";
+import { isAttribute } from "../util/utils";
 
 const AssociationComponent = (props: {
     from: string;
@@ -39,7 +42,10 @@ const AssociationComponent = (props: {
     } as SemanticModelRelationshipEnd);
 
     const { relationships: r, profiles: p } = useClassesContext();
-    const relationshipsAndProfiles = [...r, ...p.filter(isSemanticModelRelationshipUsage)];
+    const relationshipsAndProfiles = [
+        ...r.filter((v) => !isSemanticModelAttribute(v)),
+        ...p.filter(isSemanticModelRelationshipUsage).filter((v) => !isAttribute(v)),
+    ];
 
     useEffect(() => {
         props.setAssociation({
@@ -69,22 +75,22 @@ const AssociationComponent = (props: {
             />
             <div className="font-semibold">cardinalities:</div>
             <div>
-                <p>
+                <div>
                     cardinality-source:
                     <CardinalityOptions
                         group="source"
                         defaultCard={semanticCardinalityToOption(source.cardinality ?? null)}
                         setCardinality={setSource}
                     />
-                </p>
-                <p>
+                </div>
+                <div>
                     cardinality-target:
                     <CardinalityOptions
                         group="target"
                         defaultCard={semanticCardinalityToOption(target.cardinality ?? null)}
                         setCardinality={setTarget}
                     />
-                </p>
+                </div>
             </div>
             <div>is profile of:</div>
             <select
@@ -95,8 +101,9 @@ const AssociationComponent = (props: {
             >
                 <option>---</option>
                 {relationshipsAndProfiles.map((rp) => {
-                    const displayName = getLocalizedString(
-                        getStringFromLanguageStringInLang(rp.name ?? {}, preferredLanguage)
+                    const displayName = getLocalizedStringFromLanguageString(
+                        getNameLanguageString(rp),
+                        preferredLanguage
                     );
                     return (
                         <option value={rp.id}>
@@ -162,8 +169,8 @@ export const useCreateConnectionDialog = () => {
             return;
         }
 
-        const sourceName = getStringFromLanguageStringInLang(source.name ?? {}, preferredLanguage);
-        const targetName = getStringFromLanguageStringInLang(target.name ?? {}, preferredLanguage);
+        const sourceName = getLocalizedStringFromLanguageString(getNameLanguageString(source), preferredLanguage);
+        const targetName = getLocalizedStringFromLanguageString(getNameLanguageString(target), preferredLanguage);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
@@ -297,21 +304,20 @@ export const useCreateConnectionDialog = () => {
                                     } else {
                                         const result = createConnection(saveModel, {
                                             type: "association",
-                                            iri: newIri,
-                                            name: association.name,
+                                            // iri: newIri,
+                                            // name: association.name,
                                             description: association.description,
                                             ends: [
                                                 {
-                                                    name: association.ends.at(0)?.name ?? null,
-                                                    description: association.ends.at(0)?.description ?? null,
                                                     concept: association.ends.at(0)?.concept ?? null,
                                                     cardinality: association.ends.at(0)?.cardinality ?? null,
                                                 },
                                                 {
-                                                    name: association.ends.at(1)?.name ?? null,
-                                                    description: association.ends.at(1)?.description ?? null,
+                                                    name: association.name ?? null,
+                                                    description: association.description ?? null,
                                                     concept: association.ends.at(1)?.concept ?? null,
                                                     cardinality: association.ends.at(1)?.cardinality ?? null,
+                                                    iri: newIri,
                                                 },
                                             ],
                                         } as AssociationConnectionType);

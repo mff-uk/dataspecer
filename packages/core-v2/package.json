@@ -9,7 +9,9 @@
     "test:watch": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests --watch"
   },
   "exports": {
+    ".": "./lib/entity-model/index.js", 
     "./entity-model": "./lib/entity-model/index.js",
+    "./model/known-models": "./lib/model/known-models.js",
     "./project": "./lib/project/index.js",
     "./semantic-model/aggregator": "./lib/semantic-model/aggregator/index.js",
     "./semantic-model/concepts": "./lib/semantic-model/concepts/index.js",
@@ -18,8 +20,10 @@
     "./semantic-model/data-specification-vocabulary": "./lib/semantic-model/data-specification-vocabulary/index.js",
     "./semantic-model/operations": "./lib/semantic-model/operations/index.js",
     "./semantic-model/in-memory": "./lib/semantic-model/in-memory/index.js",
+    "./semantic-model/relationship-utils": "./lib/semantic-model/relationship-utils/index.js",
     "./semantic-model/usage/concepts": "./lib/semantic-model/usage/concepts/index.js",
     "./semantic-model/usage/operations": "./lib/semantic-model/usage/operations/index.js",
+    "./simplified-semantic-model": "./lib/simplified-semantic-model/index.js",
     "./visual-model": "./lib/visual-model/index.js",
     "./semantic-model/v1-adapters": "./lib/semantic-model/v1-adapters/index.js"
   },

@@ -1,7 +1,7 @@
 import { EntityModel } from "../../entity-model";
-import { Package, PackageEditable } from "./package";
 import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
 import { VisualEntityModel } from "../../visual-model";
+import { Package, ResourceEditable } from "../resource/resource";
 
 /**
  * Provides basic operations with packages.
@@ -15,12 +15,12 @@ export interface PackageService {
     /**
      * Create a new empty package that can be used to store other packages or models.
      */
-    createPackage(parentPackageId: string, data: PackageEditable): Promise<Package>;
+    createPackage(parentPackageId: string, data: ResourceEditable): Promise<Package>;
 
     /**
      * Updates editable package metadata.
      */
-    updatePackage(packageId: string, data: Partial<PackageEditable>): Promise<Package>;
+    updatePackage(packageId: string, data: Partial<ResourceEditable>): Promise<Package>;
 
     /**
      * Removes the package with all models and sub-packages.
