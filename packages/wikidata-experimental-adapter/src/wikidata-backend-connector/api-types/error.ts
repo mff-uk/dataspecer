@@ -4,6 +4,8 @@ export interface ErrorResponse {
     message?: string
 }
 
-export function isErrorResponse(response: object): response is ErrorResponse {
-    return 'error' in response;
+export function isErrorResponse(response: object | undefined): response is ErrorResponse {
+    if (response != null) {
+        return 'error' in response;
+    } else return false;
 } 
