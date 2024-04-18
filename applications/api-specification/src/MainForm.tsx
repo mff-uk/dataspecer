@@ -8,6 +8,7 @@ import FormCardSection from './customComponents/FormCardSection';
 import useSWR from 'swr'
 import CustomCheckbox from './customComponents/CustomCheckbox';
 import OperationCard from './customComponents/OperationCard';
+import { fetchDataSpecificationInfo } from './Fetcher';
 
 // form obj
 type FormValues = {
@@ -71,54 +72,6 @@ const ffetcher: (...args: Parameters<typeof fetch>) => Promise<any> = (...args: 
 
 
 export const ApiSpecificationForm = () => {
-
-    {/* call swr hook to get info about data specification*/ }
-    const { data, error } = useSWR('https://backend.dataspecer.com/resources/packages?iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099', fetcher)
-
-    // // get Data Structure iris
-    const dsIris = data?.subResources?.filter((resource: { types: string | string[]; }) => resource.types.includes("http://dataspecer.com/resources/v1/psm"))
-        .map((resource: { iri: any; }) => resource.iri);
-
-
-    let dataStructures: any[] = [];
-
-    if (Array.isArray(dsIris)) {
-        // Map each iri to a promise that fetches the data
-        // TODO: encodeuri
-        const fetchPromises = dsIris.map(iri =>
-            fetch("https://backend.dataspecer.com/resources/blob?iri=" + iri)
-                .then(response => response.json())
-                .catch(error => {
-                    console.error(`Error fetching data for ${iri}:`, error);
-                    return null; // Or handle the error according to your needs
-                })
-        );
-
-        // Wait for all promises to resolve
-        Promise.all(fetchPromises)
-            .then(dataArray => {
-                // Filter out any null values (errors occurred during fetching)
-                const validData = dataArray.filter(data => data !== null);
-                // Push valid data to your data structures
-                dataStructures.push(...validData);
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                // Handle error
-            });
-    }
-
-    console.log(dataStructures)
-
-    const rootClass = Object.values(dataStructures[0].resources).find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema")).dataPsmRoots[0];
-    const rootPropertyIris = dataStructures[0].resources[rootClass].dataPsmParts;
-    for (rootIri of rootPropertyIris) {
-        const property = dataStructures[0].resources[rootIri];
-        console.log(property.dataPsmTechnicalLabel);
-    }
-
-    // at this point dataStructures is populated with individual data structure info
-    // TODO: populate selects with correct values
 
     const { register, handleSubmit, control } = useForm<FormValues>();
     const { fields, append, remove, update } = useFieldArray({
@@ -202,6 +155,14 @@ export const ApiSpecificationForm = () => {
         const updatedOperations = fields[index]?.singleResOperation?.filter((_, idx) => idx !== operationIndex);
         update(index, { ...fields[index], singleResOperation: updatedOperations });
     };
+
+    fetchDataSpecificationInfo().then(dataStructures => {
+        if (dataStructures && dataStructures.length > 0) {
+            console.log(dataStructures[0]);
+        } else {
+            console.log("No data structures found.");
+        }
+    });
 
     return (
 
@@ -312,5 +273,3 @@ export const ApiSpecificationForm = () => {
         </form>
     );
 };
-
-export default ApiSpecificationForm;
