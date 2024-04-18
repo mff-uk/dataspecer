@@ -25,6 +25,12 @@ type FormValues = {
             oEndpoint: string,
             oComment: string
         }[]
+        singleResOperation?:{
+            oType: string,
+            oName: string,
+            oEndpoint: string,
+            oComment: string
+        }[]
     }[];
 };
 
@@ -166,67 +172,69 @@ export const ApiSpecificationForm = () => {
                 <h3>Data Structures:</h3>
                 {fields.map((field, index) => (
                     <Card key={field.id} className="p-4">
-                        <div>
-                            <label>Name of the Data Structure:</label>
-                            <select {...register(`dataStructures.${index}.name` as const)} required>
-                                <option value="Structure 1">Structure 1</option>
-                                <option value="Structure 2">Structure 2</option>
-                                {/* Add more options as needed */}
-                            </select>
+
+                        <div className="flex flex-row justify-between">
+                            <div>
+                                <label>Choose Data Structure:</label>
+                                <select {...register(`dataStructures.${index}.name` as const)} required>
+                                    <option value="Structure 1">Structure 1</option>
+                                    <option value="Structure 2">Structure 2</option>
+                                    {/* Add more options as needed */}
+                                </select>
+                            </div>
+
+                            <div><Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>Delete</Button></div>
+
                         </div>
                         <div>
-                            <label>How should this resource be treated?</label>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    checked={collectionLogicEnabled[index]}
-                                    onChange={() => toggleCollectionLogic(index)}
-                                />
-                                <label>Treat as a Collection</label>
-                            </div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    checked={singleResourceLogicEnabled[index]}
-                                    onChange={() => toggleSingleResourceLogic(index)}
-                                />
-                                <label>Treat as a Single Resource</label>
-                            </div>
+                            <label className="mr-2">Treat the resource as a </label>
+                            <input className="mr-0.5"
+                                type="checkbox"
+                                checked={collectionLogicEnabled[index]}
+                                onChange={() => toggleCollectionLogic(index)}
+                            />
+                            <label className="mr-2">a Collection</label>
+                            <input className="mr-0.5"
+                                type="checkbox"
+                                checked={singleResourceLogicEnabled[index]}
+                                onChange={() => toggleSingleResourceLogic(index)}
+                            />
+                            <label>a Single Resource</label>
                         </div>
+
                         {/* Additional cards for collection and single resource logic */}
                         {collectionLogicEnabled[index] && (
                             <Card className="p-4 mt-5">
 
 
-                                <div className="flex w-full p-4">
+                                <div className="flex w-full p-1">
                                     <h4>Collection Operations:</h4>
-                                    <Button className='bg-blue-500 hover:bg-blue-400' type="button" onClick={() => update(index, {
-                                        ...field, collectionOperations: [...(field?.collectionOperations || []), {
-                                            oType: "",
-                                            oName: "",
-                                            oEndpoint: "",
-                                            oComment: ""
-                                        }]
-                                    })}>Add Operation</Button>
                                 </div>
 
                                 {
                                     field?.collectionOperations?.map((colOp, operationIndex) => (
                                         <div key={operationIndex}>
-                                            <Card className = "p-4">
-                                            <div className= 'flex w-full justify-end'>
-                                                <Button className = "bg-red-500 hover:bg-red-400"
-                                                    type="button"
-                                                    onClick={() => {
-                                                        // Remove the operation from the collectionOperations array
-                                                        const updatedOperations = (field.collectionOperations || []).filter((_, idx) => idx !== operationIndex);
-                                                        update(index, { ...field, collectionOperations: updatedOperations });
-                                                    }}
-                                                >
-                                                    Delete Operation
-                                                </Button>
+                                            <Card className="p-2">
+
+                                                <div className='flex w-full justify-between p-2'>
+                                                    <div>
+                                                        <h2>Operation ID: {operationIndex}</h2>
+                                                    </div>
+
+                                                    <div>
+                                                        <Button className="bg-red-500 hover:bg-red-400"
+                                                            type="button"
+                                                            onClick={() => {
+                                                                // Remove the operation from the collectionOperations array
+                                                                const updatedOperations = (field.collectionOperations || []).filter((_, idx) => idx !== operationIndex);
+                                                                update(index, { ...field, collectionOperations: updatedOperations });
+                                                            }}>
+                                                            Delete Operation
+                                                        </Button>
+                                                    </div>
+
                                                 </div>
-                                                <Card className = "p-4">
+                                                <Card className="p-5">
                                                     <label htmlFor="operationType">Operation Type:</label>
 
                                                     <select id="operationType" {...register(`dataStructures.${index}.collectionOperations.${operationIndex}.oType` as const)} required>
@@ -237,15 +245,15 @@ export const ApiSpecificationForm = () => {
                                                         <option value="DELETE">DELETE</option>
                                                     </select>
 
-                                                    <div>
-                                                        <label htmlFor={`operationName_${index}_${operationIndex}`}>Operation Name:</label>
+                                                    <div className="p-1 flex items-center">
+                                                        <label className="mr-2" htmlFor={`operationName_${index}_${operationIndex}`}>Operation Name:</label>
                                                         <Input
                                                             id={`operationName_${index}_${operationIndex}`}
                                                             placeholder="Enter Operation Name"
                                                             {...register(`dataStructures.${index}.collectionOperations.${operationIndex}.oName` as const)}
                                                         />
                                                     </div>
-                                                    <div>
+                                                    <div className="p-1 flex items-center">
                                                         <label htmlFor={`endpoint_${index}_${operationIndex}`}>Endpoint:</label>
                                                         <Input
                                                             id={`endpoint_${index}_${operationIndex}`}
@@ -253,7 +261,7 @@ export const ApiSpecificationForm = () => {
                                                             {...register(`dataStructures.${index}.collectionOperations.${operationIndex}.oEndpoint` as const)}
                                                         />
                                                     </div>
-                                                    <div>
+                                                    <div className="p-1 flex items-center">
                                                         <label htmlFor={`comment_${index}_${operationIndex}`}>Comment:</label>
                                                         <Input
                                                             id={`comment_${index}_${operationIndex}`}
@@ -263,21 +271,24 @@ export const ApiSpecificationForm = () => {
                                                     </div>
 
                                                 </Card>
-                                                
+
                                             </Card>
-                                            
+
                                         </div>
                                     ))
                                 }
-
-
-
-
+                                <Button className='bg-blue-500 hover:bg-blue-400' type="button" onClick={() => update(index, {
+                                    ...field, collectionOperations: [...(field?.collectionOperations || []), {
+                                        oType: "",
+                                        oName: "",
+                                        oEndpoint: "",
+                                        oComment: ""
+                                    }]
+                                })}>Add Operation</Button>
                             </Card>
                         )}
 
                         {singleResourceLogicEnabled[index] && <Card className="p-4">Logic for Single Resource</Card>}
-                        <Button className = "bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>Delete</Button>
                     </Card>
                 ))}
                 <Button className='bg-blue-500 hover:bg-blue-400' type="button" onClick={() => append({ name: '', isCollection: false, isSingleResource: false })}>Add Data Structure</Button>
