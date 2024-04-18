@@ -84,6 +84,7 @@ export const ApiSpecificationForm = () => {
 
     if (Array.isArray(dsIris)) {
         // Map each iri to a promise that fetches the data
+        // TODO: encodeuri
         const fetchPromises = dsIris.map(iri =>
             fetch("https://backend.dataspecer.com/resources/blob?iri=" + iri)
                 .then(response => response.json())
@@ -106,6 +107,15 @@ export const ApiSpecificationForm = () => {
                 // Handle error
             });
     }
+
+    console.log(dataStructures)
+
+    // const rootClass = Object.values(dataStructures[0].resources).find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema")).dataPsmRoots[0];
+    // const rootPropertyIris = dataStructures[0].resources[rootClass].dataPsmParts;
+    // for (rootIri of rootPropertyIris) {
+    //     const property = obj.resources[rootIri];
+    //     console.log(property.dataPsmTechnicalLabel);
+    // }
 
     // at this point dataStructures is populated with individual data structure info
     // TODO: populate selects with correct values
@@ -176,11 +186,8 @@ export const ApiSpecificationForm = () => {
             oEndpoint: "",
             oComment: ""
         }];
-        console.log("before")
-        console.log(...fields)
         update(index, { ...fields[index], singleResOperation: updatedOperations });
-        console.log("after")
-        console.log(...fields)
+
     };
 
 
@@ -255,7 +262,7 @@ export const ApiSpecificationForm = () => {
                                         index={index}
                                         register={register}
                                         collectionLogicEnabled={collectionLogicEnabled[index]}
-                                        singleResourceLogicEnabled = {singleResourceLogicEnabled[index]}
+                                        singleResourceLogicEnabled={singleResourceLogicEnabled[index]}
                                     />
                                 ))}
                                 {/* Button to add new operation */}
@@ -283,7 +290,7 @@ export const ApiSpecificationForm = () => {
                                         index={index}
                                         register={register}
                                         collectionLogicEnabled={collectionLogicEnabled[index]}
-                                        singleResourceLogicEnabled = {singleResourceLogicEnabled[index]}
+                                        singleResourceLogicEnabled={singleResourceLogicEnabled[index]}
                                     />
                                 ))}
                                 {/* Button to add new operation */}
