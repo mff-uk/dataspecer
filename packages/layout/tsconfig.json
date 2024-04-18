@@ -13,8 +13,8 @@
     "strict": false,
     "noUncheckedIndexedAccess": false,
 
-    "moduleResolution": "Node16",
-    "module": "Node16",
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
     "outDir": "lib",
     "sourceMap": true,
 
