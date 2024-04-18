@@ -1,12 +1,12 @@
 import React from "react";
 import {Box, Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Typography} from "@mui/material";
-import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
+import {SlovnikGovCzGlossary} from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {PimAssociation, PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {LanguageStringFallback, LanguageStringUndefineable} from "../helper/LanguageStringComponents";
+import {LanguageStringFallback, LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
 import {useTranslation} from "react-i18next";
 import ListRoundedIcon from "@mui/icons-material/ListRounded";
 import {styled} from "@mui/material/styles";

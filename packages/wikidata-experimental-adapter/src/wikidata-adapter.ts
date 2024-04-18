@@ -14,8 +14,8 @@ import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
-    protected readonly connector: WdConnector;
-    protected static readonly URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/[QP][1-9][0-9]*$');
+    public static readonly ENTITY_URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/[QP][1-9][0-9]*$');
+    public readonly connector: WdConnector;
     
     constructor(httpFetch: HttpFetch) {
         this.httpFetch = httpFetch;
@@ -70,7 +70,7 @@ export class WikidataAdapter implements CimAdapter {
         }
         
         let result: PimClass | null = null;
-        if (WikidataAdapter.URI_REGEXP.test(cimIri)) {
+        if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
             const response = await this.connector.getSearch(cimIri);
             if (!isErrorResponse(response) && response.classes.length === 1) {
                 const cls = response.classes[0];
@@ -85,7 +85,7 @@ export class WikidataAdapter implements CimAdapter {
             throw new Error("Missing IRI provider.");
         }
 
-        if (WikidataAdapter.URI_REGEXP.test(cimIri)) {
+        if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
             const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), 'full');
             if (!isErrorResponse(response)) {
                 const resources = this.loadParentsChildrenHierarchy(response);

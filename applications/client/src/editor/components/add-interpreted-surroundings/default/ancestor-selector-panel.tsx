@@ -1,16 +1,16 @@
 import React, {useEffect} from "react";
 import {IconButton, List, ListItem, ListItemText, Tooltip, Typography} from "@mui/material";
-import {LoadingDialog} from "../helper/LoadingDialog";
-import {SlovnikGovCzGlossary} from "../slovnik.gov.cz/SlovnikGovCzGlossary";
+import {LoadingDialog} from "../../helper/LoadingDialog";
+import {SlovnikGovCzGlossary} from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import {useTranslation} from "react-i18next";
-import {LanguageStringFallback, LanguageStringText} from "../helper/LanguageStringComponents";
+import {LanguageStringFallback, LanguageStringText} from "../../helper/LanguageStringComponents";
 import {PimClass} from "@dataspecer/core/pim/model";
-import {ConfigurationContext} from "../App";
+import {ConfigurationContext} from "../../App";
 import {CoreResourceReader, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {useAsyncMemo} from "../../hooks/use-async-memo";
+import {useAsyncMemo} from "../../../hooks/use-async-memo";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
-import {useDialog} from "../../hooks/use-dialog";
-import {PimClassDetailDialog} from "../detail/pim-class-detail-dialog";
+import {useDialog} from "../../../hooks/use-dialog";
+import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
 import {StoreContext, useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 
 interface AncestorSelectorPanelParameters {
