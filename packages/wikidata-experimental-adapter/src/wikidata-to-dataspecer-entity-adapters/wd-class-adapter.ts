@@ -3,12 +3,12 @@ import { PimClass } from "@dataspecer/core/pim/model";
 import { IriProvider } from "@dataspecer/core/cim";
 import { loadWikidataEntityToResource } from "./wd-entity-adapter";
 import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class";
-import { EntityId, concatWdPrefixWithId } from "../wikidata-entities/wd-entity";
+import { WdEntityId, concatWdPrefixWithId } from "../wikidata-entities/wd-entity";
 
 export function loadWikidataClass(
     cls: WdClassHierarchyDescOnly,
     iriProvider: IriProvider,
-    contextClasses: ReadonlyMap<EntityId, WdClassHierarchyDescOnly> | undefined = undefined
+    contextClasses: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly> | undefined = undefined
   ): PimClass {
     const result = new PimClass();
     loadWikidataEntityToResource(cls, iriProvider, result);

@@ -1,35 +1,35 @@
-import { EntityId, EntityIdsList } from "../../wikidata-entities/wd-entity";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
 
-export interface GetFilterPropertyRecordResponseResults {
-  readonly propertyId: EntityId;
-  readonly rangeIds: EntityIdsList;
+export interface WdGetFilterPropertyRecordResponseResults {
+  readonly propertyId: WdEntityId;
+  readonly rangeIds: WdEntityIdsList;
 }
 
-export interface GetFilterByInstanceResponseResults {
-  readonly instanceOfIds: EntityIdsList;
-  readonly subjectOfFilterRecords: GetFilterPropertyRecordResponseResults[];
-  readonly valueOfFilterRecords: GetFilterPropertyRecordResponseResults[];
+export interface WdGetFilterByInstanceResponseResults {
+  readonly instanceOfIds: WdEntityIdsList;
+  readonly subjectOfFilterRecords: WdGetFilterPropertyRecordResponseResults[];
+  readonly valueOfFilterRecords: WdGetFilterPropertyRecordResponseResults[];
 }
 
-export interface GetFilterByInstanceResponse {
-  readonly results: GetFilterByInstanceResponseResults;
+export interface WdGetFilterByInstanceResponse {
+  readonly results: WdGetFilterByInstanceResponseResults;
 }
 
-export class FilterByInstance {
-  readonly instanceOfIds: EntityIdsList;
-  readonly subjectOfFilterRecordsMap: ReadonlyMap<EntityId, EntityIdsList>;
-  readonly valueOfFilterRecordsMap: ReadonlyMap<EntityId, EntityIdsList>;
+export class WdFilterByInstance {
+  readonly instanceOfIds: WdEntityIdsList;
+  readonly subjectOfFilterRecordsMap: ReadonlyMap<WdEntityId, WdEntityIdsList>;
+  readonly valueOfFilterRecordsMap: ReadonlyMap<WdEntityId, WdEntityIdsList>;
 
-  constructor(response: GetFilterByInstanceResponse) {
+  constructor(response: WdGetFilterByInstanceResponse) {
     this.instanceOfIds = response.results.instanceOfIds;
-    this.subjectOfFilterRecordsMap = FilterByInstance.buildFilterPropertyRecordsMap(response.results.subjectOfFilterRecords);
-    this.valueOfFilterRecordsMap = FilterByInstance.buildFilterPropertyRecordsMap(response.results.valueOfFilterRecords);
+    this.subjectOfFilterRecordsMap = WdFilterByInstance.buildFilterPropertyRecordsMap(response.results.subjectOfFilterRecords);
+    this.valueOfFilterRecordsMap = WdFilterByInstance.buildFilterPropertyRecordsMap(response.results.valueOfFilterRecords);
   }
   
   private static buildFilterPropertyRecordsMap(
-      filterByInstaceRecords: GetFilterPropertyRecordResponseResults[],
-    ): ReadonlyMap<EntityId, EntityIdsList> {
-      const newMap = new Map<EntityId, EntityIdsList>();
+      filterByInstaceRecords: WdGetFilterPropertyRecordResponseResults[],
+    ): ReadonlyMap<WdEntityId, WdEntityIdsList> {
+      const newMap = new Map<WdEntityId, WdEntityIdsList>();
       filterByInstaceRecords.forEach((record) => {
         if (!newMap.has(record.propertyId)) {
           newMap.set(record.propertyId, record.rangeIds);

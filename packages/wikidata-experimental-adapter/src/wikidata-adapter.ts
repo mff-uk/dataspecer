@@ -6,9 +6,9 @@ import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
 import { WdConnector } from "./wikidata-backend-connector/wd-connector";
 import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
-import { isErrorResponse } from "./wikidata-backend-connector/api-types/error";
-import { EntityId, EntityIdsList, wdIriToNumId } from "./wikidata-entities/wd-entity";
-import { ClassHierarchy } from "./wikidata-backend-connector/api-types/get-class-hierarchy";
+import { isWdErrorResponse } from "./wikidata-backend-connector/api-types/error";
+import { WdEntityId, WdEntityIdsList, wdIriToNumId } from "./wikidata-entities/wd-entity";
+import { WdClassHierarchy } from "./wikidata-backend-connector/api-types/get-class-hierarchy";
 import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 
 export class WikidataAdapter implements CimAdapter {
@@ -56,7 +56,7 @@ export class WikidataAdapter implements CimAdapter {
 
         const results: PimClass[] = []
         const response = await this.connector.getSearch(query);
-        if (!isErrorResponse(response)) {
+        if (!isWdErrorResponse(response)) {
             for (const cls of response.classes) {
                 results.push(loadWikidataClass(cls, this.iriProvider));
             }
@@ -72,7 +72,7 @@ export class WikidataAdapter implements CimAdapter {
         let result: PimClass | null = null;
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
             const response = await this.connector.getSearch(cimIri);
-            if (!isErrorResponse(response) && response.classes.length === 1) {
+            if (!isWdErrorResponse(response) && response.classes.length === 1) {
                 const cls = response.classes[0];
                 result = loadWikidataClass(cls, this.iriProvider);
             }
@@ -87,7 +87,7 @@ export class WikidataAdapter implements CimAdapter {
 
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
             const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), 'full');
-            if (!isErrorResponse(response)) {
+            if (!isWdErrorResponse(response)) {
                 const resources = this.loadParentsChildrenHierarchy(response);
                 return ReadOnlyMemoryStore.create(resources);
             }
@@ -111,9 +111,9 @@ export class WikidataAdapter implements CimAdapter {
         return [];
     }
 
-    private loadParentsChildrenHierarchy(response: ClassHierarchy): { [iri: string]: CoreResource } {
+    private loadParentsChildrenHierarchy(response: WdClassHierarchy): { [iri: string]: CoreResource } {
         const resources: { [iri: string]: CoreResource } = {}
-        const loadedClassesSet = new Set<EntityId>();
+        const loadedClassesSet = new Set<WdEntityId>();
 
         // Load start class
         this.tryLoadClassesToResources([response.startClassId], resources, loadedClassesSet, response.classesMap);
@@ -127,7 +127,7 @@ export class WikidataAdapter implements CimAdapter {
         return resources;
     }
 
-    private tryLoadClassesToResources(classesIds: EntityIdsList, resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<EntityId>, contextClasses: ReadonlyMap<EntityId, WdClassHierarchyDescOnly>): void {
+    private tryLoadClassesToResources(classesIds: WdEntityIdsList, resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<WdEntityId>, contextClasses: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>): void {
         for (const clsId of classesIds) {
             if (!loadedClassesSet.has(clsId)) {
                 loadedClassesSet.add(clsId);

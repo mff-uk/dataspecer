@@ -1,24 +1,24 @@
 import { buildEntityMap } from "./utils/build-entity-map";
 import { WdClassDescOnly } from "../../wikidata-entities/wd-class";
-import { EntityId } from "../../wikidata-entities/wd-entity";
+import { WdEntityId } from "../../wikidata-entities/wd-entity";
 import { WdProperty, WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
 
-export interface GetPropertyWithSurroundingDescResponseResults {
+export interface WdGetPropertyWithSurroundingDescResponseResults {
   readonly property: WdProperty;
   readonly surroundingClassesDesc: WdClassDescOnly[];
   readonly surroundingPropertiesDesc: WdPropertyDescOnly[];
 }
 
-export interface GetPropertyWithSurroundingDescResponse {
-  readonly results: GetPropertyWithSurroundingDescResponseResults;
+export interface WdGetPropertyWithSurroundingDescResponse {
+  readonly results: WdGetPropertyWithSurroundingDescResponseResults;
 }
 
-export class PropertyWithSurroundingDesc {
+export class WdPropertyWithSurroundingDesc {
   readonly property: WdProperty;
-  readonly surroundingClassesDescMap: ReadonlyMap<EntityId, WdClassDescOnly>;
-  readonly surroundingPropertiesDescMap: ReadonlyMap<EntityId, WdPropertyDescOnly>;
+  readonly surroundingClassesDescMap: ReadonlyMap<WdEntityId, WdClassDescOnly>;
+  readonly surroundingPropertiesDescMap: ReadonlyMap<WdEntityId, WdPropertyDescOnly>;
 
-  constructor(response: GetPropertyWithSurroundingDescResponse) {
+  constructor(response: WdGetPropertyWithSurroundingDescResponse) {
     this.property = response.results.property;
     this.surroundingClassesDescMap = buildEntityMap(response.results.surroundingClassesDesc)
     this.surroundingPropertiesDescMap = buildEntityMap(response.results.surroundingPropertiesDesc)

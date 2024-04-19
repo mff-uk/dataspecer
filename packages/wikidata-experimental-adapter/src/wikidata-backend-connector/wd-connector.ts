@@ -1,26 +1,26 @@
 import { HttpFetch } from '@dataspecer/core/io/fetch/fetch-api';
-import { EntityId } from '../wikidata-entities/wd-entity';
-import { GetSearchResponse, SearchResults } from './api-types/get-search';
-import { ErrorResponse, isErrorResponse } from './api-types/error';
+import { WdEntityId } from '../wikidata-entities/wd-entity';
+import { WdGetSearchResponse, WdSearchResults } from './api-types/get-search';
+import { WdErrorResponse, isWdErrorResponse } from './api-types/error';
 import {
-  ClassPropertyEndpoints,
-  DomainsOrRanges,
-  GetClassPropertyEndpointsResponse,
-  OwnOrInherited,
+  WdClassPropertyEndpoints,
+  WdDomainsOrRanges,
+  WdGetClassPropertyEndpointsResponse,
+  WdOwnOrInherited,
 } from './api-types/get-class-property-endpoints';
 import {
-  ClassWithSurroundingsDesc,
-  GetClassWithSurroundingsDescResponse,
+  WdClassWithSurroundingsDesc,
+  WdGetClassWithSurroundingsDescResponse,
 } from './api-types/get-class';
 import {
-  GetPropertyWithSurroundingDescResponse,
-  PropertyWithSurroundingDesc,
+  WdGetPropertyWithSurroundingDescResponse,
+  WdPropertyWithSurroundingDesc,
 } from './api-types/get-property';
-import { ClassHierarchy, GetClassHierarchyResponse, HierarchyPart } from './api-types/get-class-hierarchy';
-import { ClassSurroundings, GetClassSurroundingsResponse } from './api-types/get-class-surroundings';
+import { WdClassHierarchy, WdGetClassHierarchyResponse, WdHierarchyPart } from './api-types/get-class-hierarchy';
+import { WdClassSurroundings, WdGetClassSurroundingsResponse } from './api-types/get-class-surroundings';
 import {
-  FilterByInstance,
-  GetFilterByInstanceResponse,
+  WdFilterByInstance,
+  WdGetFilterByInstanceResponse,
 } from './api-types/get-filter-by-instance';
 
 export class WdConnector {
@@ -30,17 +30,17 @@ export class WdConnector {
   private readonly API_ENDPOINTS = {
     getSearchUrl: (query: string) =>
       this.addBaseUrlPrefix(`/search?query=${encodeURI(query)}&searchClasses=true`),
-    getClassUrl: (classId: EntityId) => 
+    getClassUrl: (classId: WdEntityId) => 
       this.addBaseUrlPrefix(`/classes/${classId}`),
-    getPropertyUrl: (propertyId: EntityId) => 
+    getPropertyUrl: (propertyId: WdEntityId) => 
       this.addBaseUrlPrefix(`/properties/${propertyId}`),
-    getHierarchyUrl: (classId: EntityId, part: HierarchyPart) =>
+    getHierarchyUrl: (classId: WdEntityId, part: WdHierarchyPart) =>
       this.addBaseUrlPrefix(`/classes/${classId}/hierarchy?part=${part}`),
-    getSurroundingsUrl: (classId: EntityId) =>
+    getSurroundingsUrl: (classId: WdEntityId) =>
       this.addBaseUrlPrefix(`/classes/${classId}/surroundings`),
     getFilterByInstanceUrl: (instanceUrl: string) =>
       this.addBaseUrlPrefix(`/filter-by-instance?url=${encodeURI(instanceUrl)}`),
-    getClassPropertyEndpointsUrl: (classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited) =>
+    getClassPropertyEndpointsUrl: (classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, ownOrInherited: WdOwnOrInherited) =>
       this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?part=${ownOrInherited}`)
   };
 
@@ -48,46 +48,46 @@ export class WdConnector {
     this.httpFetch = httpFetch;
   }
 
-  private async callFetch<RespType, RetType>(url, RetCreator: { new (response: RespType): RetType}): Promise<RetType | ErrorResponse> {
+  private async callFetch<RespType, RetType>(url, RetCreator: { new (response: RespType): RetType}): Promise<RetType | WdErrorResponse> {
     const response = (await (await this.httpFetch(url)).json()) as object;
-    if (isErrorResponse(response)) {
+    if (isWdErrorResponse(response)) {
       return response;
     } else return new RetCreator(response as RespType);
   }
 
-  public async getSearch(query: string): Promise<SearchResults | ErrorResponse> {
+  public async getSearch(query: string): Promise<WdSearchResults | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getSearchUrl(query);
-    return await this.callFetch<GetSearchResponse, SearchResults>(url, SearchResults);
+    return await this.callFetch<WdGetSearchResponse, WdSearchResults>(url, WdSearchResults);
   }
 
-  public async getClass(classId: EntityId): Promise<ClassWithSurroundingsDesc | ErrorResponse> {
+  public async getClass(classId: WdEntityId): Promise<WdClassWithSurroundingsDesc | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getClassUrl(classId);
-    return await this.callFetch<GetClassWithSurroundingsDescResponse, ClassWithSurroundingsDesc>(url, ClassWithSurroundingsDesc);
+    return await this.callFetch<WdGetClassWithSurroundingsDescResponse, WdClassWithSurroundingsDesc>(url, WdClassWithSurroundingsDesc);
   }
 
-  public async getProperty(propertyId: EntityId): Promise<PropertyWithSurroundingDesc | ErrorResponse> {
+  public async getProperty(propertyId: WdEntityId): Promise<WdPropertyWithSurroundingDesc | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getPropertyUrl(propertyId);
-    return await this.callFetch<GetPropertyWithSurroundingDescResponse, PropertyWithSurroundingDesc>(url, PropertyWithSurroundingDesc);
+    return await this.callFetch<WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc>(url, WdPropertyWithSurroundingDesc);
   }
 
-  public async getClassHierarchy(classId: EntityId, part: HierarchyPart): Promise<ClassHierarchy | ErrorResponse> {
+  public async getClassHierarchy(classId: WdEntityId, part: WdHierarchyPart): Promise<WdClassHierarchy | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getHierarchyUrl(classId, part);
-    return await this.callFetch<GetClassHierarchyResponse, ClassHierarchy>(url, ClassHierarchy);
+    return await this.callFetch<WdGetClassHierarchyResponse, WdClassHierarchy>(url, WdClassHierarchy);
   }
 
-  public async getClassSurroundings(classId: EntityId): Promise<ClassSurroundings | ErrorResponse> {
+  public async getClassSurroundings(classId: WdEntityId): Promise<WdClassSurroundings | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getSurroundingsUrl(classId);
-    return await this.callFetch<GetClassSurroundingsResponse, ClassSurroundings>(url, ClassSurroundings);
+    return await this.callFetch<WdGetClassSurroundingsResponse, WdClassSurroundings>(url, WdClassSurroundings);
   }
 
-  public async getFilterByInstance(instanceUri: string): Promise<FilterByInstance | ErrorResponse> {
+  public async getFilterByInstance(instanceUri: string): Promise<WdFilterByInstance | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getFilterByInstanceUrl(instanceUri);
-    return await this.callFetch<GetFilterByInstanceResponse, FilterByInstance>(url, FilterByInstance);
+    return await this.callFetch<WdGetFilterByInstanceResponse, WdFilterByInstance>(url, WdFilterByInstance);
   }
 
-  public async getClassPropertyEndpoints(classId: EntityId, propertyId: EntityId, domainsOrRanges: DomainsOrRanges, ownOrInherited: OwnOrInherited
-  ): Promise<ClassPropertyEndpoints | ErrorResponse> {
+  public async getClassPropertyEndpoints(classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, ownOrInherited: WdOwnOrInherited
+  ): Promise<WdClassPropertyEndpoints | WdErrorResponse> {
     const url = this.API_ENDPOINTS.getClassPropertyEndpointsUrl(classId, propertyId, domainsOrRanges, ownOrInherited);
-    return await this.callFetch<GetClassPropertyEndpointsResponse, ClassPropertyEndpoints>(url, ClassPropertyEndpoints);
+    return await this.callFetch<WdGetClassPropertyEndpointsResponse, WdClassPropertyEndpoints>(url, WdClassPropertyEndpoints);
   }
 }

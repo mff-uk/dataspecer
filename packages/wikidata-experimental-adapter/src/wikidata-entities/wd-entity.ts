@@ -1,29 +1,29 @@
 import { WdClassDescOnly } from './wd-class';
 import { WdPropertyDescOnly } from './wd-property';
 
-export type LanguageMap = Record<string, string>;
+export type WdLanguageMap = Record<string, string>;
 
-export type LanugageArrayMap = Record<string, string[]>;
+export type WdLanugageArrayMap = Record<string, string[]>;
 
-export type EntityId = number;
-export type EntityIri = string;
-export type EntityIdsList = readonly EntityId[];
-export type EntityIriList = readonly EntityIri[];
+export type WdEntityId = number;
+export type WdEntityIri = string;
+export type WdEntityIdsList = readonly WdEntityId[];
+export type WdEntityIriList = readonly WdEntityIri[];
 
-export type ExternalEntityId = string;
-export type ExternalOntologyMapping = readonly ExternalEntityId[];
+export type WdExternalEntityId = string;
+export type WdExternalOntologyMapping = readonly WdExternalEntityId[];
 
 
 export const WIKIDATA_URI_PREFIX = "http://www.wikidata.org/entity/";
 
 export interface WdEntity {
-  readonly id: EntityId;
+  readonly id: WdEntityId;
   readonly iri: string;
-  readonly labels: LanguageMap;
-  readonly descriptions: LanguageMap;
+  readonly labels: WdLanguageMap;
+  readonly descriptions: WdLanguageMap;
 }
 
-export function wdIriToNumId(wdIri: string): EntityId {
+export function wdIriToNumId(wdIri: string): WdEntityId {
   return Number(wdIri.split("/").pop().slice(1));
 }
 

@@ -1,6 +1,6 @@
-import { EntityIdsList, ExternalOntologyMapping, WdEntity } from './wd-entity';
+import { WdEntityIdsList, WdExternalOntologyMapping, WdEntity } from './wd-entity';
 
-export enum UnderlyingType {
+export enum WdUnderlyingType {
   ENTITY = 0,
   STRING = 1,
   TIME = 2,
@@ -8,7 +8,7 @@ export enum UnderlyingType {
   GLOBE_COORDINATE = 4,
 }
 
-export enum Datatype {
+export enum WdDatatype {
   ITEM = 0,
   PROPERTY = 1,
   LEXEME = 2,
@@ -29,22 +29,22 @@ export enum Datatype {
 }
 
 export interface WdProperty extends WdEntity {
-  readonly datatype: Datatype;
-  readonly underlyingType: UnderlyingType;
-  readonly subpropertyOf: EntityIdsList;
-  readonly relatedProperty: EntityIdsList;
-  readonly equivalentExternalOntologyProperties: ExternalOntologyMapping;
-  readonly inverseProperty: EntityIdsList;
-  readonly complementaryProperty: EntityIdsList;
-  readonly negatesProperty: EntityIdsList;
-  readonly subproperties: EntityIdsList;
-  readonly generalConstraints: GeneralConstraints;
+  readonly datatype: WdDatatype;
+  readonly underlyingType: WdUnderlyingType;
+  readonly subpropertyOf: WdEntityIdsList;
+  readonly relatedProperty: WdEntityIdsList;
+  readonly equivalentExternalOntologyProperties: WdExternalOntologyMapping;
+  readonly inverseProperty: WdEntityIdsList;
+  readonly complementaryProperty: WdEntityIdsList;
+  readonly negatesProperty: WdEntityIdsList;
+  readonly subproperties: WdEntityIdsList;
+  readonly generalConstraints: WdGeneralConstraints;
 
-  readonly itemConstraints?: ItemTypeConstraints;
-  readonly stringConstraints?: EmptyTypeConstraint;
-  readonly quantityConstraints?: EmptyTypeConstraint;
-  readonly timeConstraints?: EmptyTypeConstraint;
-  readonly coordinatesConstraints?: EmptyTypeConstraint;
+  readonly itemConstraints?: WdItemTypeConstraints;
+  readonly stringConstraints?: WdEmptyTypeConstraint;
+  readonly quantityConstraints?: WdEmptyTypeConstraint;
+  readonly timeConstraints?: WdEmptyTypeConstraint;
+  readonly coordinatesConstraints?: WdEmptyTypeConstraint;
 }
 
 export type WdPropertyDescOnly = Pick<
@@ -52,12 +52,12 @@ export type WdPropertyDescOnly = Pick<
   'id' | 'iri' | 'labels' | 'descriptions' | 'datatype' | 'underlyingType'
 >;
 
-export interface GeneralConstraints {
-  readonly subjectTypeStats: EntityIdsList;
+export interface WdGeneralConstraints {
+  readonly subjectTypeStats: WdEntityIdsList;
 }
 
-export interface ItemTypeConstraints {
-  readonly valueTypeStats: EntityIdsList;
+export interface WdItemTypeConstraints {
+  readonly valueTypeStats: WdEntityIdsList;
 }
 
-export type EmptyTypeConstraint = null;
+export type WdEmptyTypeConstraint = null;

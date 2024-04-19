@@ -1,17 +1,17 @@
 import { WdClassHierarchyDescOnly } from '../../wikidata-entities/wd-class'
 
-export interface GetSearchResponseResults {
+export interface WdGetSearchResponseResults {
   readonly classes: WdClassHierarchyDescOnly[];
 }
 
-export interface GetSearchResponse {
-  readonly results: GetSearchResponseResults;
+export interface WdGetSearchResponse {
+  readonly results: WdGetSearchResponseResults;
 }
 
-export class SearchResults {
+export class WdSearchResults {
   readonly classes: WdClassHierarchyDescOnly[];
 
-  constructor(response: GetSearchResponse) {
+  constructor(response: WdGetSearchResponse) {
     this.classes = response.results.classes; 
   }
 }

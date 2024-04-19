@@ -1,30 +1,30 @@
 import { buildEntityMap } from "./utils/build-entity-map";
 import { WdClassHierarchySurroundingsDescOnly } from "../../wikidata-entities/wd-class";
-import { EntityId, EntityIdsList } from "../../wikidata-entities/wd-entity";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
 import { WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
 
-export interface GetClassSurroundingsResponseResults {
-  readonly startClassId: EntityId;
-  readonly parentsIds: EntityIdsList;
-  readonly subjectOfIds: EntityIdsList;
-  readonly valueOfIds: EntityIdsList;
+export interface WdGetClassSurroundingsResponseResults {
+  readonly startClassId: WdEntityId;
+  readonly parentsIds: WdEntityIdsList;
+  readonly subjectOfIds: WdEntityIdsList;
+  readonly valueOfIds: WdEntityIdsList;
   readonly classes: WdClassHierarchySurroundingsDescOnly[];
   readonly properties: WdPropertyDescOnly[];
 }
 
-export interface GetClassSurroundingsResponse {
-  readonly results: GetClassSurroundingsResponseResults;
+export interface WdGetClassSurroundingsResponse {
+  readonly results: WdGetClassSurroundingsResponseResults;
 }
 
-export class ClassSurroundings {
-  readonly startClassId: EntityId;
-  readonly parentsIds: EntityIdsList;
-  readonly subjectOfIds: EntityIdsList;
-  readonly valueOfIds: EntityIdsList;
-  readonly classesMap: ReadonlyMap<EntityId, WdClassHierarchySurroundingsDescOnly>;
-  readonly propertiesMap: ReadonlyMap<EntityId, WdPropertyDescOnly>;
+export class WdClassSurroundings {
+  readonly startClassId: WdEntityId;
+  readonly parentsIds: WdEntityIdsList;
+  readonly subjectOfIds: WdEntityIdsList;
+  readonly valueOfIds: WdEntityIdsList;
+  readonly classesMap: ReadonlyMap<WdEntityId, WdClassHierarchySurroundingsDescOnly>;
+  readonly propertiesMap: ReadonlyMap<WdEntityId, WdPropertyDescOnly>;
 
-  constructor(response: GetClassSurroundingsResponse) {
+  constructor(response: WdGetClassSurroundingsResponse) {
     this.startClassId = response.results.startClassId;
     this.parentsIds = response.results.parentsIds;
     this.subjectOfIds = response.results.subjectOfIds

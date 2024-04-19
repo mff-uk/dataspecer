@@ -1,27 +1,27 @@
 import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class"
-import { EntityId, EntityIdsList } from "../../wikidata-entities/wd-entity";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
 import { buildEntityMap } from "./utils/build-entity-map";
 
-export type HierarchyPart = 'full' | 'parents' | 'children'
+export type WdHierarchyPart = 'full' | 'parents' | 'children'
 
-export interface GetClassHierarchyResponseResults {
-    readonly startClassId: EntityId;
-    readonly parentsIds: EntityIdsList;
-    readonly childrenIds: EntityIdsList;
+export interface WdGetClassHierarchyResponseResults {
+    readonly startClassId: WdEntityId;
+    readonly parentsIds: WdEntityIdsList;
+    readonly childrenIds: WdEntityIdsList;
     readonly classes: WdClassHierarchyDescOnly[];
 }
 
-export interface GetClassHierarchyResponse {
-    readonly results: GetClassHierarchyResponseResults;
+export interface WdGetClassHierarchyResponse {
+    readonly results: WdGetClassHierarchyResponseResults;
 }
 
-export class ClassHierarchy {
-    readonly startClassId: EntityId;
-    readonly parentsIds: EntityIdsList;
-    readonly childrenIds: EntityIdsList;
-    readonly classesMap: ReadonlyMap<EntityId, WdClassHierarchyDescOnly>;
+export class WdClassHierarchy {
+    readonly startClassId: WdEntityId;
+    readonly parentsIds: WdEntityIdsList;
+    readonly childrenIds: WdEntityIdsList;
+    readonly classesMap: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>;
 
-    constructor(response: GetClassHierarchyResponse) {
+    constructor(response: WdGetClassHierarchyResponse) {
         this.startClassId = response.results.startClassId;
         this.parentsIds = response.results.parentsIds;
         this.childrenIds = response.results.childrenIds;

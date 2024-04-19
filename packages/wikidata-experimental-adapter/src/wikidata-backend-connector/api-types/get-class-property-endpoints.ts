@@ -1,20 +1,20 @@
 import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 
-export type DomainsOrRanges = 'domains' | 'ranges';
-export type OwnOrInherited = 'own' | 'inherited';
+export type WdDomainsOrRanges = 'domains' | 'ranges';
+export type WdOwnOrInherited = 'own' | 'inherited';
 
-export interface ClassPropertyEndpointsResponseResults {
+export interface WdClassPropertyEndpointsResponseResults {
   readonly classes: WdClassHierarchyDescOnly[];
 }
 
-export interface GetClassPropertyEndpointsResponse {
-  readonly results: ClassPropertyEndpointsResponseResults;
+export interface WdGetClassPropertyEndpointsResponse {
+  readonly results: WdClassPropertyEndpointsResponseResults;
 }
 
-export class ClassPropertyEndpoints {
+export class WdClassPropertyEndpoints {
   readonly classes: WdClassHierarchyDescOnly[];
 
-  constructor(response: GetClassPropertyEndpointsResponse) {
+  constructor(response: WdGetClassPropertyEndpointsResponse) {
     this.classes = response.results.classes;
   }
 }
