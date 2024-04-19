@@ -13,9 +13,9 @@ import {WdEntityId, WikidataAdapter, wdIriToNumId} from "@dataspecer/wikidata-ex
 import {QueryClientProvider} from "react-query";
 import {WikidataAdapterContext} from "./contexts/wikidata-adapter-context";
 import {queryClient} from "./contexts/react-query-context";
-import { LoadingError } from "./helper/loading-error";
+import { LoadingError } from "./helpers/loading-error";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
-import { useWdGetSurroundings } from "./helper/use-get-surroundings";
+import { useWdGetSurroundings } from "./helpers/use-get-surroundings";
 import { WikidataAssociationsPanel } from "./wikidata-associations-panel";
 
 interface WikidataAddInterpretedSurroundingDialogContentProperties extends AddInterpretedSurroundingDialogProperties {
@@ -44,7 +44,7 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
 });
 
 const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInterpretedSurroundingDialogContentProperties> = ({isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId}) => {
-    const {t, i18n} = useTranslation("interpretedSurrounding");
+    const {t} = useTranslation("interpretedSurrounding");
     const [selectedWdClassId, setSelectedWdClassId] = useState<WdEntityId>(wdRootClassId);
     const {wdClassSurroundings: rootWdClassSurroundings, isLoading, isError} = useWdGetSurroundings(wdRootClassId);
     
@@ -54,7 +54,7 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInter
         </DialogTitle>
         <DialogContent dividers>
             {isLoading && <LoadingDialog />}
-            {isError && <LoadingError />} 
+            {isError && <LoadingError errorMessage={t("no ancestors no associations no attributes")} />} 
             {!isLoading && !isError && 
                 <Grid container spacing={3}>
                     <Grid item xs={3} sx={{borderRight: theme => "1px solid " + theme.palette.divider}}>

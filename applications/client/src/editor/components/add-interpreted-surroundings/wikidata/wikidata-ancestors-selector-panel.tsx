@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import { WdClassHierarchySurroundingsDescOnly, WdClassSurroundings, WdEntityId, WdEntityIdsList } from '@dataspecer/wikidata-experimental-adapter';
-import { entitySearchTextFilter } from './helper/search-text-filter';
+import { entitySearchTextFilterWithMap } from './helpers/search-text-filter';
 import { useTranslation } from 'react-i18next';
 import { LanguageStringFallback, LanguageStringText } from '../../helper/LanguageStringComponents';
 import { SlovnikGovCzGlossary } from '../../slovnik.gov.cz/SlovnikGovCzGlossary';
@@ -29,7 +29,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
   
   const classesIdsToDisplay = useMemo<WdEntityIdsList>(() => {
     const classes = [rootWdClassSurroundings.startClassId, ...rootWdClassSurroundings.parentsIds];
-    return entitySearchTextFilter(searchText, classes, rootWdClassSurroundings.classesMap);
+    return entitySearchTextFilterWithMap(searchText, classes, rootWdClassSurroundings.classesMap);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rootWdClassSurroundings, rootWdClassSurroundings.startClassId, rootWdClassSurroundings.parentsIds, rootWdClassSurroundings.classesMap, searchText]);
 

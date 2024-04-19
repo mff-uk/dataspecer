@@ -9,6 +9,8 @@
   "no attributes": "There are no attributes available.",
   "no backward associations": "There are no associations available.",
   "title": "Add interpreted surroundings",
-  "no ancestors no associations": "There are no ancestors and no associtions available",
-  "type to search": "Type to search"
+  "no ancestors no associations no attributes": "There are no ancestors, associtions, and attributes available.",
+  "no associations no attributes": "There are no associations and attributes available.",
+  "associations attributes": "Associations and attributes",
+  "type to search": "Type to search."
 }

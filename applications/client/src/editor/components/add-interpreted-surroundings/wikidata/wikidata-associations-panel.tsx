@@ -16,7 +16,7 @@ export const WikidataAssociationsPanel: React.FC<WikidataAssociationsPanelProper
     
     return (
         <>
-            <Typography variant="subtitle1" component="h2">{t('attributes')}</Typography>
+            <Typography variant="subtitle1" component="h2">{t('associations attributes')}</Typography>
             {rootClassIsSelected ? (
                 <WikidataAssociations
                     wdClassSurroundings={rootWdClassSurroundings}

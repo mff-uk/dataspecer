@@ -9,6 +9,8 @@
   "no attributes": "Žádné dostupné atributy",
   "no backward associations": "Žádné dostupné asociace",
   "title": "Přidat interpretované okolí",
-  "no ancestors no associations": "Žádné dostupné rodičovské třídy a asociace",
+  "no ancestors no associations no attributes": "Žádné dostupné rodičovské třídy, asociace a atributy.",
+  "no associations no attributes": "Žádné dostupné asociace a atributy.",
+  "associations attributes": "Asociace a atributy",
   "type to search": "Začněte psát pro hledání"
 }
