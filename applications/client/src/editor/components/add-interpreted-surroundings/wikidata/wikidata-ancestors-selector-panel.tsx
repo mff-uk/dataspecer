@@ -18,20 +18,20 @@ import { LanguageStringFallback, LanguageStringText } from '../../helper/Languag
 import { SlovnikGovCzGlossary } from '../../slovnik.gov.cz/SlovnikGovCzGlossary';
 
 export interface AncestorsSelectorPanelProperties {
-    rootClassSurroundings: WdClassSurroundings;
-    selectedClassId: WdEntityId
-    setSelectedClassId: React.Dispatch<React.SetStateAction<WdEntityId>>;
+    rootWdClassSurroundings: WdClassSurroundings;
+    selectedWdClassId: WdEntityId
+    setSelectedWdClassId: React.Dispatch<React.SetStateAction<WdEntityId>>;
 }
 
-export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProperties> = ({rootClassSurroundings, selectedClassId, setSelectedClassId}) => {
+export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProperties> = ({rootWdClassSurroundings, selectedWdClassId, setSelectedWdClassId}) => {
   const {t} = useTranslation("interpretedSurrounding");
   const [searchText, setSearchText] = useState('');
   
   const classesIdsToDisplay = useMemo<WdEntityIdsList>(() => {
-    const classes = [rootClassSurroundings.startClassId, ...rootClassSurroundings.parentsIds];
-    return entitySearchTextFilter(searchText, classes, rootClassSurroundings.classesMap);
+    const classes = [rootWdClassSurroundings.startClassId, ...rootWdClassSurroundings.parentsIds];
+    return entitySearchTextFilter(searchText, classes, rootWdClassSurroundings.classesMap);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rootClassSurroundings, rootClassSurroundings.startClassId, rootClassSurroundings.parentsIds, rootClassSurroundings.classesMap, searchText]);
+  }, [rootWdClassSurroundings, rootWdClassSurroundings.startClassId, rootWdClassSurroundings.parentsIds, rootWdClassSurroundings.classesMap, searchText]);
 
   return (
     <>
@@ -49,11 +49,11 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
       </Box>
       <List component="nav" aria-label="main mailbox folders" dense>
         {classesIdsToDisplay.map(clsId => {
-          const cls = rootClassSurroundings.classesMap.get(clsId) as WdClassHierarchySurroundingsDescOnly;
-          const isSelected = selectedClassId === cls.id;
+          const cls = rootWdClassSurroundings.classesMap.get(clsId) as WdClassHierarchySurroundingsDescOnly;
+          const isSelected = selectedWdClassId === cls.id;
           return (
             <Tooltip open={Object.values(cls.descriptions).some(s => s.length > 0) ? undefined : false} title={<LanguageStringText from={cls.descriptions} />} placement="left" key={"tooltip" + cls.iri}>
-              <ListItem button selected={isSelected} onClick={() => setSelectedClassId(cls.id)}>
+              <ListItem button selected={isSelected} onClick={() => setSelectedWdClassId(cls.id)}>
                 <ListItemText
                     primary={<LanguageStringFallback from={cls.labels} fallback={<i>unnamed</i>} />}
                     secondary={<SlovnikGovCzGlossary cimResourceIri={cls.iri}/>}

@@ -1,5 +1,5 @@
 import {Button, DialogActions, Grid} from "@mui/material";
-import React, {useContext, useState} from "react";
+import React, {useState} from "react";
 import {LoadingDialog} from "../../helper/LoadingDialog";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
@@ -9,16 +9,19 @@ import {ConfigurationContext} from "../../App";
 import {dialog} from "../../../dialog";
 import {DialogContent, DialogTitle} from "../../detail/common";
 import {AddInterpretedSurroundingDialogProperties} from "../default/add-interpreted-surroundings-dialog";
-import {WdClassSurroundings, WdEntityId, WikidataAdapter, isWdErrorResponse, wdIriToNumId} from "@dataspecer/wikidata-experimental-adapter";
-import {useQuery, QueryClientProvider} from "react-query";
+import {WdEntityId, WikidataAdapter, wdIriToNumId} from "@dataspecer/wikidata-experimental-adapter";
+import {QueryClientProvider} from "react-query";
 import {WikidataAdapterContext} from "./contexts/wikidata-adapter-context";
 import {queryClient} from "./contexts/react-query-context";
-import { LoadingError } from "./helper/LoadingError";
+import { LoadingError } from "./helper/loading-error";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
+import { useWdGetSurroundings } from "./helper/use-get-surroundings";
+import { WikidataAssociationsPanel } from "./wikidata-associations-panel";
 
 interface WikidataAddInterpretedSurroundingDialogContentProperties extends AddInterpretedSurroundingDialogProperties {
     pimClass: PimClass;
     dataPsmClass: DataPsmClass;
+    wdRootClassId: WdEntityId;
 }
 
 export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg", PaperProps: { sx: { height: '90%' } } }, (props) => {
@@ -31,7 +34,7 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
         return (
             <WikidataAdapterContext.Provider value={{iriProvider: cim.iriProvider, wdAdapter: wikidataAdapter}}>
                 <QueryClientProvider client={queryClient}>
-                    <WikidataAddInterpretedSurroundingsDialogContent {...props} pimClass={pimClass} dataPsmClass={dataPsmClass} />
+                    <WikidataAddInterpretedSurroundingsDialogContent {...props} pimClass={pimClass} dataPsmClass={dataPsmClass} wdRootClassId={wdIriToNumId(pimClass.pimInterpretation)}/>
                 </QueryClientProvider>
             </WikidataAdapterContext.Provider>
         );
@@ -40,34 +43,32 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
     return null;
 });
 
-const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInterpretedSurroundingDialogContentProperties> = ({isOpen, close, selected, pimClass, dataPsmClass}) => {
+const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInterpretedSurroundingDialogContentProperties> = ({isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId}) => {
     const {t, i18n} = useTranslation("interpretedSurrounding");
-    const adapterContext = useContext(WikidataAdapterContext);
-    const [selectedClassId, setSelectedClassId] = useState<WdEntityId>(wdIriToNumId(pimClass.pimInterpretation));
-    const rootSurroundingsQuery = useQuery(['surroundings', pimClass.pimInterpretation], async () => {
-            return await adapterContext.wdAdapter.connector.getClassSurroundings(wdIriToNumId(pimClass.pimInterpretation));
-    });
-
-    const queryFailed = !rootSurroundingsQuery.isLoading && (rootSurroundingsQuery.isError || isWdErrorResponse(rootSurroundingsQuery.data));
+    const [selectedWdClassId, setSelectedWdClassId] = useState<WdEntityId>(wdRootClassId);
+    const {wdClassSurroundings: rootWdClassSurroundings, isLoading, isError} = useWdGetSurroundings(wdRootClassId);
     
     return (<>
         <DialogTitle id="customized-dialog-title" close={close}>
             {t("title")}
         </DialogTitle>
         <DialogContent dividers>
-            {rootSurroundingsQuery.isLoading && <LoadingDialog />}
-            {queryFailed && <LoadingError />} 
-            {!rootSurroundingsQuery.isLoading && !queryFailed && 
+            {isLoading && <LoadingDialog />}
+            {isError && <LoadingError />} 
+            {!isLoading && !isError && 
                 <Grid container spacing={3}>
                     <Grid item xs={3} sx={{borderRight: theme => "1px solid " + theme.palette.divider}}>
                         <WikidataAncestorsSelectorPanel 
-                            rootClassSurroundings={rootSurroundingsQuery.data as WdClassSurroundings} 
-                            selectedClassId={selectedClassId} 
-                            setSelectedClassId={setSelectedClassId}
+                            rootWdClassSurroundings={rootWdClassSurroundings} 
+                            selectedWdClassId={selectedWdClassId} 
+                            setSelectedWdClassId={setSelectedWdClassId}
                         />                    
                     </Grid>
                     <Grid item xs={9}>
-                        surroundings
+                        <WikidataAssociationsPanel 
+                            selectedWdClassId={selectedWdClassId} 
+                            rootWdClassSurroundings={rootWdClassSurroundings} 
+                        />
                     </Grid>
                 </Grid>}
         </DialogContent>
