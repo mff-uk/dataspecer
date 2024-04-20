@@ -3,6 +3,7 @@
   "associations": "Asociace",
   "attributes": "Atributy",
   "backward associations": "Zpětné asociace",
+  "external identifiers attributes": "Attributy externích identifikátorů",
   "close button": "Zavřít",
   "confirm button": "Přidat",
   "no associations": "Žádné dostupné asociace",
@@ -12,5 +13,11 @@
   "no ancestors no associations no attributes": "Žádné dostupné rodičovské třídy, asociace a atributy.",
   "no associations no attributes": "Žádné dostupné asociace a atributy.",
   "associations attributes": "Asociace a atributy",
-  "type to search": "Začněte psát pro hledání"
+  "type to search": "Začněte psát pro hledání",
+  "include inherited": "Zahrnout nadtřídy",
+  "add filter by instance": "Přidat filtr dle instance",
+  "remove filter by instance": "Zrušit filtr dle instance",
+  "input instance uri": "Vložte URI instance",
+  "input filter by instance uri help": "Vložené URI instance musí splňovat regulární výraz: https?://www.wikidata.org/(entity|wiki)/[Q][1-9][0-9]*",
+  "input filter by instance uri help error": "Neplatná instance: neexistuje, nebo její třída není součásti ontologie, nebo neobsahuje vlastnost instance of."
 }

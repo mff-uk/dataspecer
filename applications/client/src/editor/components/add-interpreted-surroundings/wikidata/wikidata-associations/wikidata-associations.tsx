@@ -8,16 +8,22 @@ import {
     WdPropertyDescOnly
 } from "@dataspecer/wikidata-experimental-adapter"
 import { entitySearchTextFilter } from "../helpers/search-text-filter";
+import { useMemo } from "react";
+import { WdPropertyAccordionType, WikidataAssiciationsAccordion } from "./wikidata-associations-accordion";
+import { Stack } from "@mui/material";
 
 export interface WikidataAssociationsProperties {
-    wdClassSurroundings: WdClassSurroundings;
+    selectedWdClassSurroundings: WdClassSurroundings;
+    wdFilterByInstance: WdFilterByInstance | undefined;
+    searchText: string;
+    includeInheritedProperties: boolean;
 }
 
 interface WdPropertiesGroups {
     attributeWdProperties: WdPropertyDescOnly[];
-    identifierWdProperties: WdPropertyDescOnly[];
-    inItemWdProperties: WdPropertyDescOnly[];
-    outItemWdProperties: WdPropertyDescOnly[];
+    externalIdentifierWdProperties: WdPropertyDescOnly[];
+    associationWdProperties: WdPropertyDescOnly[];
+    backwardAssociationWdProperties: WdPropertyDescOnly[];
 }
   
 interface InAndOutWdProperties {
@@ -74,38 +80,81 @@ function retrieveInAndOutWdProperties(
 }
   
 function splitWdPropertiesIntoGroups(inAndOutProperties: InAndOutWdProperties): WdPropertiesGroups {
-    const attributeProperties: WdPropertyDescOnly[] = [];
-    const identifierProperties: WdPropertyDescOnly[] = [];
-    const outProperties: WdPropertyDescOnly[] = [];
+    const attributeWdProperties: WdPropertyDescOnly[] = [];
+    const externalIdentifierWdProperties: WdPropertyDescOnly[] = [];
+    const associationWdProperties: WdPropertyDescOnly[] = [];
   
     inAndOutProperties.outWdProperties.forEach((wdProperty) => {
-      if (wdProperty.datatype === WdDatatype.ITEM) {
-        outProperties.push(wdProperty);
-      } else if (wdProperty.datatype === WdDatatype.EXTERNAL_IDENTIFIER) {
-        identifierProperties.push(wdProperty);
-      } else {
-        attributeProperties.push(wdProperty);
-      }
+        if (wdProperty.datatype === WdDatatype.ITEM)
+            associationWdProperties.push(wdProperty);
+        else if (wdProperty.datatype === WdDatatype.EXTERNAL_IDENTIFIER)
+            externalIdentifierWdProperties.push(wdProperty);
+        else attributeWdProperties.push(wdProperty);
     });
   
     return {
-      attributeWdProperties: attributeProperties,
-      identifierWdProperties: identifierProperties,
-      outItemWdProperties: outProperties,
-      inItemWdProperties: inAndOutProperties.inWdProperties,
+      attributeWdProperties: attributeWdProperties,
+      externalIdentifierWdProperties: externalIdentifierWdProperties,
+      associationWdProperties: associationWdProperties,
+      backwardAssociationWdProperties: inAndOutProperties.inWdProperties,
     };
 }
 
-function conditionalTextFilter(
-    condition: boolean,
-    wdProperties: WdPropertyDescOnly[],
-    searchText: string | undefined,
-  ) {
-    if (condition) {
-      return entitySearchTextFilter(searchText, wdProperties);
-    } else return [];
-  }
-
-export const WikidataAssociations: React.FC<WikidataAssociationsProperties> = ({wdClassSurroundings}) => {
-    return <></>
+export const WikidataAssociations: React.FC<WikidataAssociationsProperties> = ({selectedWdClassSurroundings, wdFilterByInstance, searchText, includeInheritedProperties}) => {
+    const wdPropertiesGroups = useMemo<WdPropertiesGroups>(() => {
+        const selectedWdClass = selectedWdClassSurroundings.classesMap.get(selectedWdClassSurroundings.startClassId) as WdClassHierarchySurroundingsDescOnly; 
+        const inAndOutWdProperties: InAndOutWdProperties = retrieveInAndOutWdProperties(
+            selectedWdClass,
+            selectedWdClassSurroundings,
+            includeInheritedProperties,
+            wdFilterByInstance,
+        );
+        return splitWdPropertiesIntoGroups(inAndOutWdProperties);
+    }, [includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance]);
+  
+    const filteredWdPropertiesGroups = useMemo<WdPropertiesGroups>(() => {
+        return {
+            attributeWdProperties: entitySearchTextFilter(searchText, wdPropertiesGroups.attributeWdProperties),
+            externalIdentifierWdProperties: entitySearchTextFilter(searchText, wdPropertiesGroups.externalIdentifierWdProperties),
+            associationWdProperties: entitySearchTextFilter(searchText, wdPropertiesGroups.associationWdProperties),
+            backwardAssociationWdProperties: entitySearchTextFilter(searchText, wdPropertiesGroups.backwardAssociationWdProperties),
+        }
+    }, [searchText, wdPropertiesGroups]);
+  
+  return (
+        <>
+            <WikidataAssiciationsAccordion
+                key={WdPropertyAccordionType.ATTRIBUTES}
+                wdPropertyAccordionType={WdPropertyAccordionType.ATTRIBUTES}
+                wdProperties={filteredWdPropertiesGroups.attributeWdProperties}
+                selectedWdClassSurroundings={selectedWdClassSurroundings}
+                includeInheritedProperties={includeInheritedProperties}
+                wdFilterByInstance={wdFilterByInstance}
+                />
+            <WikidataAssiciationsAccordion
+                key={WdPropertyAccordionType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
+                wdPropertyAccordionType={WdPropertyAccordionType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
+                wdProperties={filteredWdPropertiesGroups.externalIdentifierWdProperties}
+                selectedWdClassSurroundings={selectedWdClassSurroundings}
+                includeInheritedProperties={includeInheritedProperties}
+                wdFilterByInstance={wdFilterByInstance}
+                />
+            <WikidataAssiciationsAccordion
+                key={WdPropertyAccordionType.ASSOCIATIONS}
+                wdPropertyAccordionType={WdPropertyAccordionType.ASSOCIATIONS}
+                wdProperties={filteredWdPropertiesGroups.associationWdProperties}
+                selectedWdClassSurroundings={selectedWdClassSurroundings}
+                includeInheritedProperties={includeInheritedProperties}
+                wdFilterByInstance={wdFilterByInstance}
+                />
+            <WikidataAssiciationsAccordion
+                key={WdPropertyAccordionType.BACKWARD_ASSOCIATIONS}
+                wdPropertyAccordionType={WdPropertyAccordionType.BACKWARD_ASSOCIATIONS}
+                wdProperties={filteredWdPropertiesGroups.backwardAssociationWdProperties}
+                selectedWdClassSurroundings={selectedWdClassSurroundings}
+                includeInheritedProperties={includeInheritedProperties}
+                wdFilterByInstance={wdFilterByInstance}
+                />      
+        </>
+    );
 }

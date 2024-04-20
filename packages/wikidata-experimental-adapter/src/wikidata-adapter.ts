@@ -14,7 +14,7 @@ import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
-    public static readonly ENTITY_URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/[QP][1-9][0-9]*$');
+    public static readonly ENTITY_URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/Q[1-9][0-9]*$');
     public readonly connector: WdConnector;
     
     constructor(httpFetch: HttpFetch) {

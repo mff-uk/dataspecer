@@ -3,6 +3,7 @@
   "associations": "Associations",
   "attributes": "Attributes",
   "backward associations": "Backward associations",
+  "external identifiers attributes": "External identifier attributes",
   "close button": "Close",
   "confirm button": "Confirm",
   "no associations": "There are no associations available.",
@@ -12,5 +13,11 @@
   "no ancestors no associations no attributes": "There are no ancestors, associtions, and attributes available.",
   "no associations no attributes": "There are no associations and attributes available.",
   "associations attributes": "Associations and attributes",
-  "type to search": "Type to search."
+  "type to search": "Type to search",
+  "include inherited": "Include inherited",
+  "add filter by instance": "Add filter by instance",
+  "remove filter by instance": "Remove filter by instance",
+  "input filter by instance uri": "Input instance URI",
+  "input filter by instance uri help": "The input instance URI must not be a class and must follow the regular expression: https?://www.wikidata.org/(entity|wiki)/[Q][1-9][0-9]*",
+  "input filter by instance uri help error": "Invalid instance: instance does not exists, or the class is not part of the ontology, or it lacks instance of property."
 }
