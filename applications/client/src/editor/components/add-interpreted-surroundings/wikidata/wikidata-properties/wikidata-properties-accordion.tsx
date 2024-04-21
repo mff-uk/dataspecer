@@ -5,6 +5,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { WikidataPropertyItem, WikidataPropertyType } from "./wikidata-property-item";
+import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog";
+import { useDialog } from "../../../../dialog";
 
 export interface WikidataPropertiesAccordionProps {
     wdProperties: WdPropertyDescOnly[];
@@ -20,7 +22,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
     const {t} = useTranslation("interpretedSurrounding");
     const [expanded, setExpanded] = useState(false);
     const [listLength, setListLength] = useState(PROPERTIES_PER_PAGE);
-    //const SelectionDialog = useDialog()
+    const PropertySelectionDialog = useDialog(WikidataPropertySelectionDialog)
 
     const actualLength = wdProperties.length < listLength ? wdProperties.length : listLength;
 
@@ -42,7 +44,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     id='panel1-header'
                     sx={{
                         "&:hover": {
-                            // color of hoover on ancestor panel classes
+                            // color of hover on ancestor panel classes
                             bgcolor: "#ebebeb" 
                         },
                         backgroundColor: (expanded ? "#ebebeb" : "inherit"),
@@ -75,10 +77,15 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                                     <WikidataPropertyItem
                                         key={wdProperty.iri}
                                         wdProperty={wdProperty}
-                                        selectedWdClassSurroundings={selectedWdClassSurroundings}
-                                        includeInheritedProperties={includeInheritedProperties}
-                                        wdFilterByInstance={wdFilterByInstance}
                                         wdPropertyType={wdPropertyType}
+                                        openSelectionDialog={() => {
+                                            PropertySelectionDialog.open({ 
+                                                wdProperty, 
+                                                wdPropertyType, 
+                                                includeInheritedProperties, 
+                                                wdFilterByInstance, 
+                                                selectedWdClassSurroundings})
+                                        }}
                                     />
                                 );
                             })}
@@ -86,6 +93,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     </List>
                 </AccordionDetails>
             </Accordion>
+            <PropertySelectionDialog.Component />
         </>
     );
 }

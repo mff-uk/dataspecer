@@ -1,4 +1,4 @@
-import { WdClassSurroundings, WdFilterByInstance, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter"
+import { WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter"
 import { ListItem, Typography, IconButton, ListItemText, Box } from "@mui/material";
 import { SlovnikGovCzGlossary } from "../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
@@ -17,19 +17,16 @@ export enum WikidataPropertyType {
 
 export interface WikidataPropertyItemProps {
     wdProperty: WdPropertyDescOnly;
-    selectedWdClassSurroundings: WdClassSurroundings;
-    includeInheritedProperties: boolean;
-    wdFilterByInstance: WdFilterByInstance | undefined;
     wdPropertyType: WikidataPropertyType;
-    // to do open dialog for range
+    openSelectionDialog: () => void;
 }
 
-export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({wdProperty, selectedWdClassSurroundings, includeInheritedProperties, wdFilterByInstance, wdPropertyType}) => {
+export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({wdProperty, wdPropertyType, openSelectionDialog}) => {
     const {t} = useTranslation("ui");
     
     return (
         <>
-            <ListItem key={"item" + wdProperty.iri} role={undefined} dense button onClick={() => {}} >
+            <ListItem key={"item" + wdProperty.iri} role={undefined} dense button onClick={() => openSelectionDialog()}>
                 <ListItemText secondary={
                     <Box style={{display: "flex", gap: "1em"}}>
                         <LanguageStringUndefineable from={wdProperty.descriptions}>
