@@ -1,19 +1,19 @@
 import { WdClassSurroundings, WdEntityId, WdFilterByInstance } from "@dataspecer/wikidata-experimental-adapter";
 import { Button, Checkbox, FormControlLabel, FormGroup, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { WikidataAssociations } from "./wikidata-associations/wikidata-associations";
-import { WikidataLoadedAssociations } from "./wikidata-associations/wikidata-loaded-associations";
+import { WikidataProperties } from "./wikidata-properties/wikidata-properties";
+import { WikidataLoadedProperties } from "./wikidata-properties/wikidata-loaded-properties";
 import { useState } from "react";
 import { useDialog } from "../../../dialog";
-import { WikidataFilterByInstanceDialog } from "./wikidata-associations/wikidata-filter-by-instance-dialog";
+import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog";
 
 
-export interface WikidataAssociationsPanelProperties {
+export interface WikidataPropertiesPanelProps {
     selectedWdClassId: WdEntityId;
     rootWdClassSurroundings: WdClassSurroundings;
 }
 
-export const WikidataAssociationsPanel: React.FC<WikidataAssociationsPanelProperties> = ({selectedWdClassId, rootWdClassSurroundings}) => {
+export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = ({selectedWdClassId, rootWdClassSurroundings}) => {
     const {t} = useTranslation("interpretedSurrounding");
     const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, ["setWdFilterByInstance"]); 
     const [includeInheritedProperties, setIncludeInheritedProperties] = useState(false);
@@ -62,14 +62,14 @@ export const WikidataAssociationsPanel: React.FC<WikidataAssociationsPanelProper
                 </Stack>
             </Stack>
             {rootWdClassIsSelected ? (
-                <WikidataAssociations
+                <WikidataProperties
                 selectedWdClassSurroundings={rootWdClassSurroundings}
                 wdFilterByInstance={wdFilterByInstance}
                 searchText={searchText}
                 includeInheritedProperties={includeInheritedProperties}
                 />
             ) : (
-                <WikidataLoadedAssociations
+                <WikidataLoadedProperties
                 selectedWdClassId={selectedWdClassId}
                 wdFilterByInstance={wdFilterByInstance}
                 searchText={searchText}

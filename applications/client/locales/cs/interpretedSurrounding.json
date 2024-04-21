@@ -19,5 +19,6 @@
   "remove filter by instance": "Zrušit filtr dle instance",
   "input instance uri": "Vložte URI instance",
   "input filter by instance uri help": "Vložené URI instance musí splňovat regulární výraz: https?://www.wikidata.org/(entity|wiki)/[Q][1-9][0-9]*",
-  "input filter by instance uri help error": "Neplatná instance: neexistuje, nebo její třída není součásti ontologie, nebo neobsahuje vlastnost instance of."
+  "input filter by instance uri help error": "Neplatná instance: neexistuje, nebo její třída není součásti ontologie, nebo neobsahuje vlastnost instance of.",
+  "show selected": "Zobraz vybrané"
 }

@@ -9,10 +9,10 @@ import {
 } from "@dataspecer/wikidata-experimental-adapter"
 import { entitySearchTextFilter } from "../helpers/search-text-filter";
 import { useMemo } from "react";
-import { WdPropertyAccordionType, WikidataAssiciationsAccordion } from "./wikidata-associations-accordion";
-import { Stack } from "@mui/material";
+import { WikidataPropertiesAccordion } from "./wikidata-properties-accordion";
+import { WikidataPropertyType } from "./wikidata-property-item";
 
-export interface WikidataAssociationsProperties {
+export interface WikidataPropertiesProps {
     selectedWdClassSurroundings: WdClassSurroundings;
     wdFilterByInstance: WdFilterByInstance | undefined;
     searchText: string;
@@ -100,7 +100,7 @@ function splitWdPropertiesIntoGroups(inAndOutProperties: InAndOutWdProperties): 
     };
 }
 
-export const WikidataAssociations: React.FC<WikidataAssociationsProperties> = ({selectedWdClassSurroundings, wdFilterByInstance, searchText, includeInheritedProperties}) => {
+export const WikidataProperties: React.FC<WikidataPropertiesProps> = ({selectedWdClassSurroundings, wdFilterByInstance, searchText, includeInheritedProperties}) => {
     const wdPropertiesGroups = useMemo<WdPropertiesGroups>(() => {
         const selectedWdClass = selectedWdClassSurroundings.classesMap.get(selectedWdClassSurroundings.startClassId) as WdClassHierarchySurroundingsDescOnly; 
         const inAndOutWdProperties: InAndOutWdProperties = retrieveInAndOutWdProperties(
@@ -123,33 +123,33 @@ export const WikidataAssociations: React.FC<WikidataAssociationsProperties> = ({
   
   return (
         <>
-            <WikidataAssiciationsAccordion
-                key={WdPropertyAccordionType.ATTRIBUTES}
-                wdPropertyAccordionType={WdPropertyAccordionType.ATTRIBUTES}
+            <WikidataPropertiesAccordion
+                key={WikidataPropertyType.ATTRIBUTES}
+                wdPropertyType={WikidataPropertyType.ATTRIBUTES}
                 wdProperties={filteredWdPropertiesGroups.attributeWdProperties}
                 selectedWdClassSurroundings={selectedWdClassSurroundings}
                 includeInheritedProperties={includeInheritedProperties}
                 wdFilterByInstance={wdFilterByInstance}
                 />
-            <WikidataAssiciationsAccordion
-                key={WdPropertyAccordionType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
-                wdPropertyAccordionType={WdPropertyAccordionType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
+            <WikidataPropertiesAccordion
+                key={WikidataPropertyType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
+                wdPropertyType={WikidataPropertyType.EXTERNAL_IDENTIFIERS_ATTRIBUTES}
                 wdProperties={filteredWdPropertiesGroups.externalIdentifierWdProperties}
                 selectedWdClassSurroundings={selectedWdClassSurroundings}
                 includeInheritedProperties={includeInheritedProperties}
                 wdFilterByInstance={wdFilterByInstance}
                 />
-            <WikidataAssiciationsAccordion
-                key={WdPropertyAccordionType.ASSOCIATIONS}
-                wdPropertyAccordionType={WdPropertyAccordionType.ASSOCIATIONS}
+            <WikidataPropertiesAccordion
+                key={WikidataPropertyType.ASSOCIATIONS}
+                wdPropertyType={WikidataPropertyType.ASSOCIATIONS}
                 wdProperties={filteredWdPropertiesGroups.associationWdProperties}
                 selectedWdClassSurroundings={selectedWdClassSurroundings}
                 includeInheritedProperties={includeInheritedProperties}
                 wdFilterByInstance={wdFilterByInstance}
                 />
-            <WikidataAssiciationsAccordion
-                key={WdPropertyAccordionType.BACKWARD_ASSOCIATIONS}
-                wdPropertyAccordionType={WdPropertyAccordionType.BACKWARD_ASSOCIATIONS}
+            <WikidataPropertiesAccordion
+                key={WikidataPropertyType.BACKWARD_ASSOCIATIONS}
+                wdPropertyType={WikidataPropertyType.BACKWARD_ASSOCIATIONS}
                 wdProperties={filteredWdPropertiesGroups.backwardAssociationWdProperties}
                 selectedWdClassSurroundings={selectedWdClassSurroundings}
                 includeInheritedProperties={includeInheritedProperties}

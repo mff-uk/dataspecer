@@ -7,14 +7,14 @@ import { Button, CircularProgress, DialogActions, TextField } from "@mui/materia
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../detail/common";
 
-export interface WikidataFilterByInstanceDialogProperties {
+export interface WikidataFilterByInstanceDialogProps {
     isOpen: boolean;
     close: () => void;
 
     setWdFilterByInstance: React.Dispatch<React.SetStateAction<WdFilterByInstance>>;
 }
 
-export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDialogProperties> = 
+export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDialogProps> = 
     dialog({fullWidth: true, maxWidth: "md", PaperProps: { sx: { height: 300 } } }, ({isOpen, close, setWdFilterByInstance}) => {
         const {t} = useTranslation("interpretedSurrounding");
         const wikidataAdapter = useContext(WikidataAdapterContext);
@@ -57,7 +57,7 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
                     {!isLoading &&
                         <TextField 
                             style={{margin: "2rem auto"}}
-                            label={t("input instance uri")}
+                            label={t("input filter by instance uri")}
                             autoFocus
                             fullWidth
                             onChange={e => {

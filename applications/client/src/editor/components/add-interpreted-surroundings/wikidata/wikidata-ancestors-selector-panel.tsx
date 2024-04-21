@@ -17,13 +17,13 @@ import { useTranslation } from 'react-i18next';
 import { LanguageStringFallback, LanguageStringText } from '../../helper/LanguageStringComponents';
 import { SlovnikGovCzGlossary } from '../../slovnik.gov.cz/SlovnikGovCzGlossary';
 
-export interface AncestorsSelectorPanelProperties {
+export interface AncestorsSelectorPanelProps {
     rootWdClassSurroundings: WdClassSurroundings;
     selectedWdClassId: WdEntityId
     setSelectedWdClassId: React.Dispatch<React.SetStateAction<WdEntityId>>;
 }
 
-export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProperties> = ({rootWdClassSurroundings, selectedWdClassId, setSelectedWdClassId}) => {
+export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProps> = ({rootWdClassSurroundings, selectedWdClassId, setSelectedWdClassId}) => {
     const {t} = useTranslation("interpretedSurrounding");
     const [searchText, setSearchText] = useState('');
   

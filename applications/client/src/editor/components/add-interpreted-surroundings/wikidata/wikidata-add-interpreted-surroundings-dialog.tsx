@@ -16,9 +16,9 @@ import {queryClient} from "./contexts/react-query-context";
 import { LoadingError } from "./helpers/loading-error";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
 import { useWdGetSurroundings } from "./helpers/use-get-surroundings";
-import { WikidataAssociationsPanel } from "./wikidata-associations-panel";
+import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
 
-interface WikidataAddInterpretedSurroundingDialogContentProperties extends AddInterpretedSurroundingDialogProperties {
+interface WikidataAddInterpretedSurroundingDialogContentProps extends AddInterpretedSurroundingDialogProperties {
     pimClass: PimClass;
     dataPsmClass: DataPsmClass;
     wdRootClassId: WdEntityId;
@@ -43,7 +43,7 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
     return null;
 });
 
-const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInterpretedSurroundingDialogContentProperties> = ({isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId}) => {
+const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInterpretedSurroundingDialogContentProps> = ({isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId}) => {
     const {t} = useTranslation("interpretedSurrounding");
     const [selectedWdClassId, setSelectedWdClassId] = useState<WdEntityId>(wdRootClassId);
     const {wdClassSurroundings: rootWdClassSurroundings, isLoading, isError} = useWdGetSurroundings(wdRootClassId);
@@ -65,7 +65,7 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInter
                         />                    
                     </Grid>
                     <Grid item xs={9}>
-                        <WikidataAssociationsPanel 
+                        <WikidataPropertiesPanel 
                             selectedWdClassId={selectedWdClassId} 
                             rootWdClassSurroundings={rootWdClassSurroundings} 
                         />
@@ -73,13 +73,14 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInter
                 </Grid>}
         </DialogContent>
         <DialogActions>
+            <Button>{t("show selected")} ({0})</Button>
             <Button onClick={close}>{t("close button")}</Button>
             <Button
                 onClick={async () => {
                     close();
                 }}
                 disabled={true}>
-                {t("confirm button")} ({0})
+                {t("confirm button")}
             </Button>
         </DialogActions>
     </>);
