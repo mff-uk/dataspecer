@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # Exit with nonzero exit code if anything fails
+
 npm install
 
 printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)" > applications/client/.env.local
