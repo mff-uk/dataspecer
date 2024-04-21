@@ -110,9 +110,9 @@ export const ApiSpecificationForm = () => {
 
     console.log(dataStructures)
 
-    const rootClass = Object.values(dataStructures[0].resources).find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema")).dataPsmRoots[0];
+    const rootClass = Object.values<any>(dataStructures[0].resources).find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema")).dataPsmRoots[0];
     const rootPropertyIris = dataStructures[0].resources[rootClass].dataPsmParts;
-    for (rootIri of rootPropertyIris) {
+    for (const rootIri of rootPropertyIris) {
         const property = dataStructures[0].resources[rootIri];
         console.log(property.dataPsmTechnicalLabel);
     }
