@@ -72,7 +72,7 @@ export const useCreateClassDialog = () => {
                             newIri={newIri}
                             setNewIri={(i) => setNewIri(i)}
                             iriHasChanged={iriHasChanged}
-                            setIriHasChanged={(v) => setIriHasChanged(v)}
+                            onChange={() => setIriHasChanged(true)}
                         />
                     </div>
                     <div className="font-semibold">description:</div>
@@ -86,7 +86,7 @@ export const useCreateClassDialog = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-evenly">
+                <div className="flex flex-row justify-evenly font-semibold">
                     <button
                         onClick={() => {
                             if (!activeModel) {

@@ -13,7 +13,10 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "./base-dialog";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelRelationshipUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
@@ -21,7 +24,6 @@ import { IriInput } from "./iri-input";
 import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { getNameLanguageString } from "../util/name-utils";
-import { isAttribute } from "../util/utils";
 
 const AssociationComponent = (props: {
     from: string;
@@ -44,7 +46,9 @@ const AssociationComponent = (props: {
     const { relationships: r, profiles: p } = useClassesContext();
     const relationshipsAndProfiles = [
         ...r.filter((v) => !isSemanticModelAttribute(v)),
-        ...p.filter(isSemanticModelRelationshipUsage).filter((v) => !isAttribute(v)),
+        ...p
+            .filter(isSemanticModelRelationshipUsage)
+            .filter((v) => !isSemanticModelAttribute(v as SemanticModelRelationship & SemanticModelRelationshipUsage)),
     ];
 
     useEffect(() => {
@@ -78,6 +82,7 @@ const AssociationComponent = (props: {
                 <div>
                     cardinality-source:
                     <CardinalityOptions
+                        disabled={props.disabled}
                         group="source"
                         defaultCard={semanticCardinalityToOption(source.cardinality ?? null)}
                         setCardinality={setSource}
@@ -86,6 +91,7 @@ const AssociationComponent = (props: {
                 <div>
                     cardinality-target:
                     <CardinalityOptions
+                        disabled={props.disabled}
                         group="target"
                         defaultCard={semanticCardinalityToOption(target.cardinality ?? null)}
                         setCardinality={setTarget}
@@ -223,7 +229,7 @@ export const useCreateConnectionDialog = () => {
                                 newIri={newIri}
                                 setNewIri={(i) => setNewIri(i)}
                                 iriHasChanged={iriHasChanged}
-                                setIriHasChanged={(v) => setIriHasChanged(v)}
+                                onChange={() => setIriHasChanged(true)}
                             />
                         </div>
                     </div>
@@ -264,7 +270,7 @@ export const useCreateConnectionDialog = () => {
                         />
                     </div>
                 </div>
-                <div className="flex flex-row justify-evenly font-bold">
+                <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     <button
                         onClick={() => {
                             const saveModel = models.get(activeModel);

@@ -19,9 +19,7 @@ export const temporaryDomainRangeHelper = (entity: SemanticModelRelationship | S
     if (isSemanticModelRelationship(entity)) {
         return getDomainAndRange(entity);
     } else {
-        return {
-            domain: entity.ends.at(0)! as unknown as SemanticModelRelationshipEnd,
-            range: entity.ends.at(1)! as unknown as SemanticModelRelationshipEnd,
-        };
+        const e = entity as SemanticModelRelationship & SemanticModelRelationshipUsage;
+        return getDomainAndRange(e);
     }
 };

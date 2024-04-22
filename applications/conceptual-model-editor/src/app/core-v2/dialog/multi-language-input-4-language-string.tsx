@@ -8,6 +8,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     defaultLang: string;
     inputType: "text" | "textarea";
     disabled?: boolean;
+    onChange?: () => void;
 }) => {
     const { disabled, defaultLang: preferredLanguage } = props;
 
@@ -38,16 +39,28 @@ export const MultiLanguageInputForLanguageString = (props: {
                             if (e.key === "Enter") {
                                 props.onEnterCallback(l);
                                 reset();
+                                e.stopPropagation();
                             }
                             if (e.key === "Escape") {
                                 reset();
+                                e.stopPropagation();
                             }
                         }}
                     />
                 </li>
             );
         } else {
-            return <li onClick={() => setActive(true)}>+lang</li>;
+            return (
+                <li
+                    onClick={() => {
+                        if (!disabled) {
+                            setActive(true);
+                        }
+                    }}
+                >
+                    +lang
+                </li>
+            );
         }
     };
 
@@ -93,6 +106,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                             onEnterCallback={(l) => {
                                 setLs((prev) => ({ ...prev, [l]: "" }));
                                 setCurrentLang(l);
+                                props.onChange?.();
                             }}
                         />
                     )}
@@ -103,14 +117,20 @@ export const MultiLanguageInputForLanguageString = (props: {
                     type="text"
                     className="w-full"
                     value={ls[currentLang]!}
-                    onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
+                    onChange={(e) => {
+                        setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
+                        props.onChange?.();
+                    }}
                 />
             ) : (
                 <textarea
                     disabled={disabled}
                     value={ls[currentLang]!}
                     className="w-full"
-                    onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
+                    onChange={(e) => {
+                        setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
+                        props.onChange?.();
+                    }}
                 />
             )}
         </div>

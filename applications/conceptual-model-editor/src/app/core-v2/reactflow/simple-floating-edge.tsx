@@ -7,6 +7,8 @@ import {
     getStraightPath,
     Edge,
     MarkerType,
+    getBezierPath,
+    getSmoothStepPath,
 } from "reactflow";
 
 import { getEdgeParams, getLoopPath } from "./utils";
@@ -53,7 +55,7 @@ const CardinalityEdgeLabel = ({
 type SimpleFloatingEdgeDataType = {
     label: LanguageString | null;
     entityId: string;
-    type: "r" | "g";
+    type: "relationship" | "relationship-profile" | "class-profile" | "generalization";
     cardinalitySource?: string;
     cardinalityTarget?: string;
     bgColor?: string;
@@ -73,7 +75,14 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 
     const d = data as SimpleFloatingEdgeDataType;
 
-    const fallbackName = d.type == "r" ? d.entityId : null;
+    let fallbackName: string | null;
+    if (d.type == "relationship") {
+        fallbackName = d.entityId;
+    } else if (d.type == "relationship-profile") {
+        fallbackName = d.entityId;
+    } else {
+        fallbackName = null;
+    }
 
     const displayName = getLocalizedStringFromLanguageString(d.label, preferredLanguage) ?? fallbackName;
 
@@ -86,24 +95,35 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     let edgePath: string, labelX: number, labelY: number;
 
     if (sourceNode.id == targetNode.id) {
-        [edgePath, labelX, labelY] = getLoopPath(sourceNode, targetNode, d.type == "r" ? "rel" : "gen");
+        [edgePath, labelX, labelY] = getLoopPath(sourceNode, targetNode, d.type != "generalization" ? "rel" : "gen");
     } else {
-        [edgePath, labelX, labelY] =
-            d.type == "r"
-                ? getSimpleBezierPath({
-                      sourceX: sx,
-                      sourceY: sy,
-                      sourcePosition: sourcePos,
-                      targetPosition: targetPos,
-                      targetX: tx,
-                      targetY: ty,
-                  })
-                : getStraightPath({
-                      sourceX: sx,
-                      sourceY: sy,
-                      targetX: tx,
-                      targetY: ty,
-                  });
+        if (d.type == "relationship" || d.type == "class-profile") {
+            [edgePath, labelX, labelY] = getSimpleBezierPath({
+                sourceX: sx,
+                sourceY: sy,
+                sourcePosition: sourcePos,
+                targetPosition: targetPos,
+                targetX: tx,
+                targetY: ty,
+            });
+        } else if (d.type == "relationship-profile") {
+            [edgePath, labelX, labelY] = getSmoothStepPath({
+                sourceX: sx,
+                sourceY: sy,
+                sourcePosition: sourcePos,
+                targetPosition: targetPos,
+                targetX: tx,
+                targetY: ty,
+                borderRadius: 60,
+            });
+        } else {
+            [edgePath, labelX, labelY] = getStraightPath({
+                sourceX: sx,
+                sourceY: sy,
+                targetX: tx,
+                targetY: ty,
+            });
+        }
     }
 
     const MenuOptions = () => {
@@ -140,7 +160,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 >
                     open detail
                 </button>
-                {d.type == "r" && (
+                {(d.type == "relationship" || d.type == "relationship-profile") && (
                     <button
                         type="button"
                         className="hover:shadow"
@@ -153,19 +173,20 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                         create profile
                     </button>
                 )}
-                {m instanceof InMemorySemanticModel && d.type == "r" && (
-                    <button
-                        type="button"
-                        className="hover:shadow"
-                        onClick={(e) => {
-                            d.openModificationDialog(m);
-                            setIsMenuOptionsOpen(false);
-                            e.stopPropagation();
-                        }}
-                    >
-                        modify
-                    </button>
-                )}
+                {m instanceof InMemorySemanticModel &&
+                    (d.type == "relationship" || d.type == "relationship-profile") && (
+                        <button
+                            type="button"
+                            className="hover:shadow"
+                            onClick={(e) => {
+                                d.openModificationDialog(m);
+                                setIsMenuOptionsOpen(false);
+                                e.stopPropagation();
+                            }}
+                        >
+                            modify
+                        </button>
+                    )}
                 {m instanceof InMemorySemanticModel && (
                     <button
                         type="button"
@@ -215,14 +236,15 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                         e.stopPropagation();
                     }}
                 >
-                    {displayName && (
-                        <div className="nopan bg-slate-200 hover:cursor-pointer" style={{ pointerEvents: "all" }}>
-                            {displayName}
-                        </div>
-                    )}
-                    {d.usageNotes?.map((u) => (
-                        <div className="bg-blue-200">{getStringFromLanguageStringInLang(u)[0] ?? "no usage"}</div>
-                    ))}
+                    <div className="nopan bg-slate-200 hover:cursor-pointer" style={{ pointerEvents: "all" }}>
+                        {d.type == "class-profile" || d.type == "relationship-profile" ? "<profile>" : ""}
+                        {displayName}
+                    </div>
+                    {d.usageNotes
+                        ?.filter((u) => Object.entries(u).length > 0)
+                        .map((u) => (
+                            <div className="bg-blue-200">{getStringFromLanguageStringInLang(u)[0] ?? "no usage"}</div>
+                        ))}
                     {isMenuOptionsOpen && <MenuOptions />}
                 </div>
                 {d.cardinalitySource && (
@@ -252,25 +274,28 @@ export const semanticModelRelationshipToReactFlowEdge = (
     openModificationDialog: () => void,
     openCreateProfileDialog: () => void
 ) => {
+    const domainAndRange = getDomainAndRange(rel as SemanticModelRelationship & SemanticModelRelationshipUsage);
+    const isDashed = isSemanticModelRelationshipUsage(rel) ? { strokeDasharray: 5 } : {};
+
     return {
         id: rel.id,
-        source: rel.ends[0]!.concept,
-        target: rel.ends[1]!.concept,
+        source: domainAndRange?.domain.concept ?? rel.ends[0]!.concept,
+        target: domainAndRange?.range.concept ?? rel.ends[1]!.concept,
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
             label: getNameLanguageString(rel),
             entityId: rel.id,
-            type: "r",
-            cardinalitySource: cardinalityToString(rel.ends[0]?.cardinality),
-            cardinalityTarget: cardinalityToString(rel.ends[1]?.cardinality),
+            type: isSemanticModelRelationship(rel) ? "relationship" : "relationship-profile",
+            cardinalitySource: cardinalityToString(domainAndRange?.domain.cardinality ?? rel.ends[0]?.cardinality),
+            cardinalityTarget: cardinalityToString(domainAndRange?.range.cardinality ?? rel.ends[1]?.cardinality),
             bgColor: color,
             usageNotes,
             openEntityDetailDialog,
             openModificationDialog,
             openCreateProfileDialog,
         } satisfies SimpleFloatingEdgeDataType,
-        style: { strokeWidth: 3, stroke: color },
+        style: { strokeWidth: 3, stroke: color, ...isDashed },
     } as Edge;
 };
 
@@ -293,7 +318,7 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         data: {
             entityId: gen.id,
             label: null,
-            type: "g",
+            type: "generalization",
             openEntityDetailDialog,
             openModificationDialog: () => {},
             openCreateProfileDialog: () => {},
@@ -316,7 +341,7 @@ export const semanticModelClassUsageToReactFlowEdge = (
         data: {
             entityId: classUsage.id,
             label: null,
-            type: "r",
+            type: "class-profile",
             openEntityDetailDialog,
             openModificationDialog,
             openCreateProfileDialog: () => {},

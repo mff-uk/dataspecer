@@ -82,7 +82,7 @@ export const AddAttributesComponent = (props: {
                         name={name}
                         iriHasChanged={iriHasChanged}
                         newIri={iri}
-                        setIriHasChanged={(v) => setIriHasChanged(v)}
+                        onChange={() => setIriHasChanged(true)}
                         setNewIri={(i) => setIri(i)}
                     />
                 </div>

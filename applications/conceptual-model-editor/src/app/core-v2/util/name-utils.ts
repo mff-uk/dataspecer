@@ -31,10 +31,9 @@ export const getNameLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.name ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
-        return resource.name;
-        // const name = resource.ends.at(1)?.name;
-        // return name ?? null;
+        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
+        const name = getDomainAndRange(r)?.range.name;
+        return name ?? resource.name;
     } else if (isSemanticModelGeneralization(resource)) {
         return {
             en: "Generalization of " + resource.child + " is " + resource.parent,
