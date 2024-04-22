@@ -32,7 +32,7 @@ export interface SemanticModelRelationshipUsage extends SemanticModelUsage, Null
     ends: SemanticModelRelationshipEndUsage[];
 }
 
-interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>, WithUsageNote {
+export interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>, WithUsageNote {
     /**
      * Must be stricter or equal to the corresponding cardinality of the used entity.
      * If null, the cardinality is not changed.
