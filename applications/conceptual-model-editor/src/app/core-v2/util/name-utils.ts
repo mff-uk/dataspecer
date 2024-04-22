@@ -15,6 +15,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { getIri } from "./model-utils";
 
 export const getNameLanguageString = (
     resource:
@@ -95,21 +96,7 @@ export const getFallbackDisplayName = (
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
 ) => {
-    if (isSemanticModelClass(resource)) {
-        return resource.iri ?? resource.id;
-    } else if (isSemanticModelRelationship(resource)) {
-        const range = getDomainAndRange(resource)?.range;
-        return range?.iri ?? resource.id;
-    } else if (isSemanticModelClassUsage(resource)) {
-        return resource.id;
-    }
-    if (isSemanticModelRelationshipUsage(resource)) {
-        return resource.id;
-    } else if (isSemanticModelGeneralization(resource)) {
-        return resource.iri ?? resource.id;
-    } else {
-        return null;
-    }
+    return getIri(resource) ?? resource?.id ?? null;
 };
 
 const capFirst = (what: string) => {

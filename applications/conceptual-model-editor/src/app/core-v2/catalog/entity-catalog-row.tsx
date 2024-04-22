@@ -10,7 +10,7 @@ import {
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
+import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
 import { getIri } from "../util/model-utils";
 
 export const IriLink = (props: { iri: string | undefined | null }) => {
@@ -48,7 +48,9 @@ export const EntityRow = (props: {
 
     const entity = props.entity;
 
-    const name = getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ?? entity.id;
+    const name =
+        getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ??
+        getFallbackDisplayName(entity);
     const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), preferredLanguage);
     const iri = getIri(entity);
 

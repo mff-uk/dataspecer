@@ -93,8 +93,8 @@ export const useEntityDetailDialog = () => {
                 if (cl) {
                     return (
                         <li onClick={() => setViewedEntity(cl)} className="cursor-pointer hover:underline">
-                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl ?? null), currentLang) ??
-                                getFallbackDisplayName(cl ?? null)}
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl), currentLang) ??
+                                getFallbackDisplayName(cl)}
                         </li>
                     );
                 }
@@ -102,12 +102,7 @@ export const useEntityDetailDialog = () => {
             .filter((e): e is JSX.Element => {
                 return e != undefined;
             });
-        // .map(
-        //     (cl) =>
-        //         getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
-        //         getFallbackDisplayName(cl ?? null)
-        // )
-        // .join(", ");
+
         const generalizationOf = generalizations
             .filter((g) => g.parent == viewedEntity.id)
             .map((g) => c.find((cl) => cl.id == g.child))
@@ -116,8 +111,8 @@ export const useEntityDetailDialog = () => {
                 if (cl) {
                     return (
                         <li onClick={() => setViewedEntity(cl)} className="cursor-pointer hover:underline">
-                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl ?? null), currentLang) ??
-                                getFallbackDisplayName(cl ?? null)}
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl), currentLang) ??
+                                getFallbackDisplayName(cl)}
                         </li>
                     );
                 }
@@ -125,12 +120,6 @@ export const useEntityDetailDialog = () => {
             .filter((e): e is JSX.Element => {
                 return e != undefined;
             });
-        // .map(
-        //     (cl) =>
-        //         getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
-        //         getFallbackDisplayName(cl ?? null)
-        // )
-        // .join(", ");
 
         const isProfileOf =
             isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
@@ -141,10 +130,8 @@ export const useEntityDetailDialog = () => {
                           if (e) {
                               return (
                                   <li onClick={() => setViewedEntity(e)} className="cursor-pointer hover:underline">
-                                      {getLocalizedStringFromLanguageString(
-                                          getNameLanguageString(e ?? null),
-                                          currentLang
-                                      ) ?? getFallbackDisplayName(e ?? null)}
+                                      {getLocalizedStringFromLanguageString(getNameLanguageString(e), currentLang) ??
+                                          getFallbackDisplayName(e)}
                                   </li>
                               );
                           }
@@ -161,8 +148,8 @@ export const useEntityDetailDialog = () => {
                 if (e) {
                     return (
                         <li onClick={() => setViewedEntity(e)} className="cursor-pointer hover:underline">
-                            {getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
-                                getFallbackDisplayName(e ?? null)}
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(e), currentLang) ??
+                                getFallbackDisplayName(e)}
                         </li>
                     );
                 }
@@ -170,16 +157,8 @@ export const useEntityDetailDialog = () => {
             .filter((e): e is JSX.Element => {
                 return e != undefined;
             });
-        // .map(
-        //     (e) =>
-        //         getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
-        //         getFallbackDisplayName(e ?? null)
-        // )
-        // .join(", ");
 
-        const attributes = /* a */ r
-            .filter(isSemanticModelAttribute)
-            .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+        const attributes = r.filter(isSemanticModelAttribute).filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
         const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
             .filter((a) =>
@@ -227,10 +206,10 @@ export const useEntityDetailDialog = () => {
                 } detail`}
             >
                 <div className="bg-slate-100">
-                    <h5>
+                    <h5 className="pl-8">
                         Detail of: <span className="font-semibold">{name}</span>
                     </h5>
-                    <div className="grid grid-cols-[80%_20%] grid-rows-1">
+                    <div className="grid grid-cols-[80%_20%] grid-rows-1 pl-8">
                         <p className="flex flex-row text-gray-500" title={iri ?? ""}>
                             <IriLink iri={modelIri + iri} />
                             {modelIri + iri}
@@ -253,14 +232,18 @@ export const useEntityDetailDialog = () => {
                         <div>
                             {isProfileOf.length > 0 && (
                                 <div className="flex flex-row text-gray-500">
-                                    <span className="mr-2 font-semibold">profile of:</span>
-                                    <ul className="flex list-none flex-row [&>li]:mx-1">{isProfileOf}</ul>
+                                    <span className="mr-2 text-nowrap font-semibold">profile of:</span>
+                                    <ul className="flex list-none flex-row  overflow-x-auto [&>li]:mx-1">
+                                        {isProfileOf}
+                                    </ul>
                                 </div>
                             )}
                             {isProfiledBy.length > 0 && (
                                 <div className="flex flex-row text-gray-500">
-                                    <span className="mr-2 font-semibold">profiled by:</span>
-                                    <ul className="flex list-none flex-row [&>li]:mx-1">{isProfiledBy}</ul>
+                                    <span className="mr-2 text-nowrap font-semibold">profiled by:</span>
+                                    <ul className="flex list-none flex-row overflow-x-auto [&>li]:mx-1">
+                                        {isProfiledBy}
+                                    </ul>
                                 </div>
                             )}
                         </div>
@@ -270,20 +253,24 @@ export const useEntityDetailDialog = () => {
                         <div>
                             {specializationOf.length > 0 && (
                                 <div className="flex flex-row text-gray-500">
-                                    <span className="mr-2 font-semibold">specialization of:</span>
-                                    <ul className="flex list-none flex-row [&>li]:mx-1">{specializationOf}</ul>
+                                    <span className="mr-2 text-nowrap font-semibold">specialization of:</span>
+                                    <ul className="flex list-none flex-row overflow-x-auto [&>li]:mx-1">
+                                        {specializationOf}
+                                    </ul>
                                 </div>
                             )}
                             {generalizationOf.length > 0 && (
                                 <div className="flex flex-row text-gray-500">
-                                    <span className="mr-2 font-semibold">generalization of:</span>
-                                    <ul className="flex list-none flex-row [&>li]:mx-1">{generalizationOf}</ul>
+                                    <span className="mr-2 text-nowrap font-semibold">generalization of:</span>
+                                    <ul className="flex list-none flex-row overflow-x-auto [&>li]:mx-1">
+                                        {generalizationOf}
+                                    </ul>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-[20%_80%] gap-y-3 bg-slate-100">
+                <div className="grid grid-cols-[20%_80%] gap-y-3 bg-slate-100 pl-8">
                     <div className="font-semibold">type:</div>
                     <div>
                         {viewedEntity.type}
@@ -292,19 +279,19 @@ export const useEntityDetailDialog = () => {
                             : ""}
                     </div>
                     <div className="font-semibold">description:</div>
-                    <div> {description}</div>
+                    <div>{description}</div>
                     {attributes.length > 0 && (
                         <>
                             <div className="font-semibold">attributes:</div>
-                            <div>
+                            <div
+                                className={`${attributeProfiles.length > 5 ? "max-h-36" : "max-h-44"} overflow-x-auto`}
+                            >
                                 {attributes.map((v) => {
                                     const name =
                                         getLocalizedStringFromLanguageString(
                                             getNameLanguageString(v),
                                             preferredLanguage
-                                        ) ??
-                                        v.ends.at(0)?.iri ??
-                                        v.id;
+                                        ) ?? getFallbackDisplayName(v);
                                     const descr = getLocalizedStringFromLanguageString(
                                         getDescriptionLanguageString(v),
                                         preferredLanguage
@@ -319,13 +306,13 @@ export const useEntityDetailDialog = () => {
                     {attributeProfiles.length > 0 && (
                         <>
                             <div className="font-semibold">attribute profiles:</div>
-                            <div>
+                            <div className={`${attributes.length > 5 ? "max-h-32" : "max-h-44"} overflow-x-auto`}>
                                 {attributeProfiles.map((v) => {
                                     const name =
                                         getLocalizedStringFromLanguageString(
                                             getNameLanguageString(v),
                                             preferredLanguage
-                                        ) ?? getFallbackDisplayName(v ?? null);
+                                        ) ?? getFallbackDisplayName(v);
                                     const descr = getLocalizedStringFromLanguageString(
                                         getDescriptionLanguageString(v),
                                         preferredLanguage

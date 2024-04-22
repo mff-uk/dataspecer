@@ -5,7 +5,10 @@ import {
     SemanticModelRelationshipEnd,
     isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useState, useEffect } from "react";
 import { getRandomName } from "~/app/utils/random-gen";
 import { useClassesContext } from "../context/classes-context";
@@ -14,7 +17,7 @@ import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
 import { IriInput } from "./iri-input";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
-import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
+import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
 
 export const AddAttributesComponent = (props: {
     preferredLanguage: string;
@@ -31,7 +34,7 @@ export const AddAttributesComponent = (props: {
     const [cardinality, setCardinality] = useState({} as SemanticModelRelationshipEnd);
     const [iri, setIri] = useState(getRandomName(7)); // todo
     const [iriHasChanged, setIriHasChanged] = useState(false);
-    const { relationships } = useClassesContext();
+    const { relationships, profiles } = useClassesContext();
     const [newAttributeIsProfileOf, setNewAttributeIsProfileOf] = useState<string | null>(null);
 
     const modelIri = getModelIri(props.sourceModel);
@@ -101,11 +104,13 @@ export const AddAttributesComponent = (props: {
                     }}
                 >
                     <option>---</option>
-                    {relationships.filter(isSemanticModelAttribute).map((a) => {
-                        const name = getLocalizedStringFromLanguageString(
-                            getNameLanguageString(a),
-                            props.preferredLanguage
-                        );
+                    {[
+                        ...relationships.filter(isSemanticModelAttribute),
+                        ...profiles.filter(isSemanticModelAttributeUsage),
+                    ].map((a) => {
+                        const name =
+                            getLocalizedStringFromLanguageString(getNameLanguageString(a), props.preferredLanguage) ??
+                            getFallbackDisplayName(a);
                         const descr = getLocalizedStringFromLanguageString(
                             getDescriptionLanguageString(a),
                             props.preferredLanguage
@@ -114,6 +119,7 @@ export const AddAttributesComponent = (props: {
                         return (
                             <option title={descr ?? ""} value={a.id}>
                                 {name}:{a.id}
+                                {isSemanticModelAttributeUsage(a) ? " (profile)" : ""}
                             </option>
                         );
                     })}
