@@ -53,15 +53,15 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                 const cls = rootWdClassSurroundings.classesMap.get(clsId) as WdClassHierarchySurroundingsDescOnly;
                 const isSelected = selectedWdClassId === cls.id;
                 return (
-                <Tooltip open={Object.values(cls.descriptions).some(s => s.length > 0) ? undefined : false} title={<LanguageStringText from={cls.descriptions} />} placement="left" key={"tooltip" + cls.iri}>
-                    <ListItem button selected={isSelected} onClick={() => setSelectedWdClassId(cls.id)}>
-                    <ListItemText
-                        primary={<LanguageStringFallback from={cls.labels} fallback={<i>unnamed</i>} />}
-                        secondary={<SlovnikGovCzGlossary cimResourceIri={cls.iri}/>}
-                    />
-                    <IconButton size="small"><InfoTwoToneIcon fontSize="inherit" /></IconButton>
-                    </ListItem>
-                </Tooltip>
+                    <Tooltip open={Object.values(cls.descriptions).some(s => s.length > 0) ? undefined : false} title={<LanguageStringText from={cls.descriptions} />} placement="left" key={"tooltip" + cls.iri}>
+                        <ListItem button selected={isSelected} onClick={() => setSelectedWdClassId(cls.id)}>
+                            <ListItemText
+                                primary={<LanguageStringFallback from={cls.labels} fallback={<i>unnamed</i>} />}
+                                secondary={<SlovnikGovCzGlossary cimResourceIri={cls.iri}/>}
+                            />
+                            <IconButton size="small"><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                        </ListItem>
+                    </Tooltip>
                 );
             })}
             </List>

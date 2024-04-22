@@ -1,6 +1,5 @@
 import {Button, DialogActions, Grid} from "@mui/material";
 import React, {useState} from "react";
-import {LoadingDialog} from "../../helper/LoadingDialog";
 import {useTranslation} from "react-i18next";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
@@ -13,10 +12,11 @@ import {WdEntityId, WikidataAdapter, wdIriToNumId} from "@dataspecer/wikidata-ex
 import {QueryClientProvider} from "react-query";
 import {WikidataAdapterContext} from "./contexts/wikidata-adapter-context";
 import {queryClient} from "./contexts/react-query-context";
-import { LoadingError } from "./helpers/loading-error";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
 import { useWdGetSurroundings } from "./helpers/use-get-surroundings";
 import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
+import { WikidataLoading } from "./helpers/wikidata-loading";
+import { WikidataLoadingError } from "./helpers/wikidata-loading-error";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps extends AddInterpretedSurroundingDialogProperties {
     pimClass: PimClass;
@@ -53,8 +53,8 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<WikidataAddInter
             {t("title")}
         </DialogTitle>
         <DialogContent dividers>
-            {isLoading && <LoadingDialog />}
-            {isError && <LoadingError errorMessage={t("no ancestors no associations no attributes")} />} 
+            {isLoading && <WikidataLoading />}
+            {isError && <WikidataLoadingError errorMessage={t("no ancestors no associations no attributes")} />} 
             {!isLoading && !isError && 
                 <Grid container spacing={3}>
                     <Grid item xs={3} sx={{borderRight: theme => "1px solid " + theme.palette.divider}}>

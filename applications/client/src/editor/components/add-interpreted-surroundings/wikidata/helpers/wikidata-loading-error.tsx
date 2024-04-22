@@ -7,12 +7,12 @@ export interface LoadingErrorProperties {
     errorMessage: string;
 }
 
-export const LoadingError: React.FC<LoadingErrorProperties> = ({errorMessage}) => {
+export const WikidataLoadingError: React.FC<LoadingErrorProperties> = ({errorMessage}) => {
     return (
     <DialogContent style={{textAlign: "center"}}>
         <Box 
             sx={{
-                height: 300,
+                height: 200,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

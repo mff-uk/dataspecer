@@ -26,7 +26,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({wdPro
     
     return (
         <>
-            <ListItem key={"item" + wdProperty.iri} role={undefined} dense button onClick={() => openSelectionDialog()}>
+            <ListItem key={wdProperty.iri} role={undefined} dense button onClick={() => openSelectionDialog()}>
                 <ListItemText secondary={
                     <Box style={{display: "flex", gap: "1em"}}>
                         <LanguageStringUndefineable from={wdProperty.descriptions}>

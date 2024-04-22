@@ -1,9 +1,9 @@
 import { WdEntityId, WdFilterByInstance } from '@dataspecer/wikidata-experimental-adapter';
 import { useWdGetSurroundings } from '../helpers/use-get-surroundings';
-import { LoadingDialog } from '../../../helper/LoadingDialog';
-import { LoadingError } from '../helpers/loading-error';
+import { WikidataLoadingError } from '../helpers/wikidata-loading-error';
 import { WikidataProperties } from './wikidata-properties';
 import { useTranslation } from 'react-i18next';
+import { WikidataLoading } from '../helpers/wikidata-loading';
 
 export interface WikidataLoadedAssociationsPropertiesProps {
     selectedWdClassId: WdEntityId;
@@ -18,8 +18,8 @@ export const WikidataLoadedProperties: React.FC<WikidataLoadedAssociationsProper
 
     return (
         <>
-            {isLoading && <LoadingDialog />}
-            {isError && <LoadingError errorMessage={t("no associations no attributes")} />}
+            {isLoading && <WikidataLoading />}
+            {isError && <WikidataLoadingError errorMessage={t("no associations no attributes")} />}
             {!isLoading && !isError && <WikidataProperties 
                 selectedWdClassSurroundings={selectedWdClassSurroundings}
                 wdFilterByInstance={props.wdFilterByInstance}

@@ -20,5 +20,17 @@
   "input filter by instance uri": "Input instance URI",
   "input filter by instance uri help": "The input instance URI must not be a class and must follow the regular expression: https?://www.wikidata.org/(entity|wiki)/[Q][1-9][0-9]*",
   "input filter by instance uri help error": "Invalid instance: instance does not exists, or the class is not part of the ontology, or it lacks instance of property.",
-  "show selected": "Show selected"
+  "show selected": "Show selected",
+  "selecting attributes": "Selecting attribute",
+  "selecting external identifiers attributes": "Selecting external identifier attribute",
+  "selecting associations": "Selecting association",
+  "selecting backward associations": "Selecting backward association",
+  "selecting back button": "Back",
+  "selecting next button": "Next",
+  "no endpoints": "There no available endpoints.",
+  "select one ancestor": "Select one ancestor",
+  "select one endpoint": "Select one endpoint",
+  "number of classes": "Number of classes",
+  "ancestor selection help 1": "Below stated ancestors, with the currently selected ancestor as root, define selected attribute/association.",
+  "ancestor selection help 2": "Please, choose one before continuing."
 }

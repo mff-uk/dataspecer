@@ -24,7 +24,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
     const [listLength, setListLength] = useState(PROPERTIES_PER_PAGE);
     const PropertySelectionDialog = useDialog(WikidataPropertySelectionDialog)
 
-    const actualLength = wdProperties.length < listLength ? wdProperties.length : listLength;
+    const actualListLength = wdProperties.length < listLength ? wdProperties.length : listLength;
 
     return (
         <>
@@ -62,17 +62,17 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                 <AccordionDetails sx={{height: '500px', overflowY: 'scroll' }} id={wdPropertyType}>
                     <List>
                         <InfiniteScroll
-                            dataLength={actualLength}
+                            dataLength={actualListLength}
                             next={() => {
                                 let newListLength = listLength + PROPERTIES_PER_PAGE;
                                 if (newListLength > wdProperties.length) newListLength = wdProperties.length;
                                 setListLength(newListLength);
                             }}
-                            hasMore={actualLength < wdProperties.length}
+                            hasMore={actualListLength < wdProperties.length}
                             scrollableTarget={wdPropertyType}
                             loader={<p>Loading...</p>}
                         >
-                            {wdProperties.slice(0, actualLength).map((wdProperty) => {
+                            {wdProperties.slice(0, actualListLength).map((wdProperty) => {
                                 return (
                                     <WikidataPropertyItem
                                         key={wdProperty.iri}
