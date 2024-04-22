@@ -276,7 +276,7 @@ export const ApiSpecificationForm = () => {
                                                     collectionLogicEnabled={false} 
                                                     singleResourceLogicEnabled={false}                                                />
                                                 {/* Endpoint */}
-                                                <EndpointInput index={index} operationIndex={operationIndex} register={register} collectionLogicEnabled={false} singleResourceLogicEnabled={false} />
+                                                <EndpointInput index={index} operationIndex={operationIndex} register={register} collectionLogicEnabled={false} singleResourceLogicEnabled={false} dataStructureName={''} baseUrl={''} />
                                                 {/* Comment */}
                                                 <CommentInput index={index} operationIndex={operationIndex} register={register} collectionLogicEnabled={false} singleResourceLogicEnabled={false} />
 

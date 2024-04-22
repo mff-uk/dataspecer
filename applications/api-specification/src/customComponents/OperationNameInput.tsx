@@ -46,7 +46,7 @@ interface OperationNameInputProps
 
 const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operationIndex, register, collectionLogicEnabled, singleResourceLogicEnabled }) => {
 
-    if (collectionLogicEnabled || singleResourceLogicEnabled) {
+    //if (collectionLogicEnabled || singleResourceLogicEnabled) {
         
         const inputId = `operationName_${index}_${operationIndex}`
         const inputPlaceholder = "Enter Operation Name"
@@ -61,6 +61,10 @@ const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operatio
         {
             path = `dataStructures.${index}.singleResOperation.${operationIndex}.oName`;
         }
+        else
+        {
+            path = `dataStructures.${index}.operations.${operationIndex}.oName`;
+        }
 
         return (
             <div className="p-1 flex items-center">
@@ -72,9 +76,9 @@ const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operatio
                 />
             </div>
         );
-    } else {
-        return null;
-    }
+    // } else {
+    //     return null;
+    // }
 };
 
 export default OperationNameInput;

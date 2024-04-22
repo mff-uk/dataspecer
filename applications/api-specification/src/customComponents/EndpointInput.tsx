@@ -14,20 +14,30 @@ interface EndpointInputProps
     register: any;
     collectionLogicEnabled: boolean;
     singleResourceLogicEnabled: boolean;
+    dataStructureName: string;
+    baseUrl: string;
 }
 
 /* EndpointInput - react functional component */
-const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, register,  collectionLogicEnabled, singleResourceLogicEnabled}) => 
+const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, register,  collectionLogicEnabled, singleResourceLogicEnabled, dataStructureName, baseUrl}) => 
 {
     let path = '';
+    let defaultValue = '';
 
     if (collectionLogicEnabled) 
     {
         path = `dataStructures.${index}.collectionOperations.${operationIndex}.oEndpoint`;
+        defaultValue = baseUrl + "/" + dataStructureName + "s";
+
     } 
     else if (singleResourceLogicEnabled) 
     {
         path = `dataStructures.${index}.singleResOperation.${operationIndex}.oEndpoint`;
+        defaultValue = baseUrl + "/" + dataStructureName + "/" + "{id}";
+    }
+    else
+    {
+        path = `dataStructures.${index}.operations.${operationIndex}.oEndpoint`;
     }
     
     return (
@@ -35,7 +45,8 @@ const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, re
             <label htmlFor = {`endpoint_${index}_${operationIndex}`}>Endpoint:</label>
             <Input
                 id = {`endpoint_${index}_${operationIndex}`}
-                placeholder = "Write your endpoint here"
+                defaultValue = {defaultValue}
+                placeholder = {defaultValue}
                 {...register(path)}
             />
         </div>

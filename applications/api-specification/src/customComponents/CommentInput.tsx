@@ -29,6 +29,10 @@ const CommentInput: React.FC<CommentInputProps> = ({ index, operationIndex, regi
     {
         path = `dataStructures.${index}.singleResOperation.${operationIndex}.oComment`;
     }
+    else
+    {
+        path = `dataStructures.${index}.operations.${operationIndex}.oComment`;
+    }
 
     return (
         <div className = "p-1 flex items-center">

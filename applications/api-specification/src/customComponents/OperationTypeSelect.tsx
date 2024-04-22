@@ -39,6 +39,10 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operat
         {
             path = `dataStructures.${index}.singleResOperation.${operationIndex}.oType`;
         }
+        else
+        {
+            path = `dataStructures.${index}.operations.${operationIndex}.oType`;
+        }
 
     // return (
     //     <>
@@ -63,7 +67,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operat
     //     </>
     // );
 
-    if (collectionLogicEnabled || singleResourceLogicEnabled) {
+    //if (collectionLogicEnabled || singleResourceLogicEnabled) {
         return (
             <>
                 {/* Operation Type Label*/}
@@ -87,9 +91,9 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operat
                 </select>
             </>
         );
-    } else {
-        return null;
-    }
+    // } else {
+    //     return null;
+    // }
 };
 
 export default OperationTypeSelect;

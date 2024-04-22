@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SubmitHandler } from 'react-hook-form';
@@ -8,9 +8,22 @@ import FormCardSection from './customComponents/FormCardSection';
 import useSWR from 'swr'
 import CustomCheckbox from './customComponents/CustomCheckbox';
 import OperationCard from './customComponents/OperationCard';
-import { fetchDataSpecificationInfo } from './Fetcher';
+import { useDataSpecificationInfo } from './Fetcher';
+import DataStructuresSelect from './customComponents/DataStructSelect';
+import { v4 as uuidv4 } from 'uuid';
+import { generateOpenAPISpecification } from './OpenAPIGenerator';
 
-// form obj
+
+
+interface Operation {
+    collection: boolean;
+    oType: string;
+    oName: string;
+    oEndpoint: string;
+    oComment: string;
+    oResponse: string;
+}
+
 type FormValues = {
     apiTitle: string;
     apiDescription: string;
@@ -20,22 +33,11 @@ type FormValues = {
     dataStructures: {
         id?: string;
         name: string;
-        isCollection: boolean;
-        isSingleResource: boolean;
-        collectionOperations?: {
-            collection: boolean;
-            oType: string;
-            oName: string;
-            oEndpoint: string;
-            oComment: string;
-        }[];
-        singleResOperation?: {
-            collection: boolean;
-            oType: string;
-            oName: string;
-            oEndpoint: string;
-            oComment: string;
-        }[];
+        givenName?: string
+        isCollection?: boolean;
+        isSingleResource?: boolean;
+        collectionOperations?: Operation[];
+        singleResOperation?: Operation[];
     }[];
 };
 
@@ -64,20 +66,37 @@ const formSchema = z.object({
     ),
 });
 
-const fetcher: (...args: Parameters<typeof fetch>) => Promise<any> = (...args: Parameters<typeof fetch>) =>
-    fetch(...args).then(res => res.json());
-
-const ffetcher: (...args: Parameters<typeof fetch>) => Promise<any> = (...args: Parameters<typeof fetch>) =>
-    fetch(...args).then(res => res.json());
 
 
 export const ApiSpecificationForm = () => {
 
-    const { register, handleSubmit, control } = useForm<FormValues>();
+    const { register, handleSubmit, control, watch } = useForm<FormValues>();
+
     const { fields, append, remove, update } = useFieldArray({
         control,
         name: "dataStructures",
     });
+
+
+    const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]); // Track selected data structures
+
+    useEffect(() => {
+        const dataStructures = watch("dataStructures");
+    
+        setSelectedDataStructures(dataStructures);
+    }, [watch]);
+
+    /* Handle Changes with respect to BaseUrl */
+    const baseUrl = watch("baseUrl");
+
+
+    const handleBaseUrlChange = useCallback((newBaseUrl) => {
+        console.log(`baseUrl changed to: ${newBaseUrl}`);
+    }, []);
+
+    useEffect(() => {
+        handleBaseUrlChange(baseUrl);
+    }, [baseUrl, handleBaseUrlChange]);
 
     // States  for tracking whether collection/single resource mode is activated for each Data Structure
     const [collectionLogicEnabled, setCollectionLogicEnabled] = useState<boolean[]>([]);
@@ -88,7 +107,10 @@ export const ApiSpecificationForm = () => {
         try {
             formSchema.parse(data);
             // TODO: Add Logic to handle form submission
-            console.log('Form submitted with data:', data);
+            //console.log('Form submitted with data:', data);
+
+            const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
+            console.log('Generated OpenAPI Specification:', openAPISpec)
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Form validation failed:', error.message);
@@ -97,8 +119,6 @@ export const ApiSpecificationForm = () => {
             }
         }
     };
-
-    // TODO: Move these to helper function file 
 
     // Handles toggle collection logic for particular DS
     const toggleCollectionLogic = (index: number) => {
@@ -126,9 +146,16 @@ export const ApiSpecificationForm = () => {
             oType: "",
             oName: "",
             oEndpoint: "",
-            oComment: ""
+            oComment: "",
+            oResponse: ""
         }];
         update(index, { ...fields[index], collectionOperations: updatedOperations });
+
+        setSelectedDataStructures((prevState) => {
+            const newState = [...prevState];
+            newState[index] = { ...newState[index], collectionOperations: updatedOperations };
+            return newState;
+        });
     };
 
     const addOperationSingle = (index: number) => {
@@ -137,15 +164,22 @@ export const ApiSpecificationForm = () => {
             oType: "",
             oName: "",
             oEndpoint: "",
-            oComment: ""
+            oComment: "",
+            oResponse: ""
+
         }];
+
+        setSelectedDataStructures((prevState) => {
+            const newState = [...prevState];
+            newState[index] = { ...newState[index], singleResOperation: updatedOperations };
+            return newState;
+        });
         update(index, { ...fields[index], singleResOperation: updatedOperations });
 
     };
 
 
     // Handles removing an operation from the collection for a particular DS
-    // TODO: update operation structure
     const removeOperation = (index: number, operationIndex: number) => {
         const updatedOperations = fields[index]?.collectionOperations?.filter((_, idx) => idx !== operationIndex);
         update(index, { ...fields[index], collectionOperations: updatedOperations });
@@ -156,13 +190,39 @@ export const ApiSpecificationForm = () => {
         update(index, { ...fields[index], singleResOperation: updatedOperations });
     };
 
-    fetchDataSpecificationInfo().then(dataStructures => {
-        if (dataStructures && dataStructures.length > 0) {
-            console.log(dataStructures[0]);
-        } else {
-            console.log("No data structures found.");
+    // Initialize fetched data structures array
+    const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
+
+    // Get data structures fetching function from custom hook
+    const { fetchDataStructures } = useDataSpecificationInfo();
+
+    // Use useEffect to fetch data structures when component mounts
+    useEffect(() => {
+        // Fetch data only if fetchDataStructures is defined
+        if (!fetchDataStructures) {
+            console.error('fetchDataStructures is not defined or not callable');
+            return;
         }
-    });
+
+        const fetchData = async () => {
+            try {
+                // Fetch data structures
+                const data = await fetchDataStructures();
+                if (!data) {
+                    console.log('No data structures found.');
+                    return;
+                }
+
+                setFetchedDataStructuresArr(data);
+            } catch (err) {
+                console.error('Error fetching data structures:', err);
+            }
+        };
+
+        fetchData();
+    }, [fetchDataStructures]);
+
+    console.log(fetchedDataStructuresArr);
 
     return (
 
@@ -184,11 +244,30 @@ export const ApiSpecificationForm = () => {
                         <div className="flex flex-row justify-between">
                             <div>
                                 <label>Choose Data Structure:</label>
-                                <select {...register(`dataStructures.${index}.name` as const)} required>
-                                    <option value="Structure 1">Structure 1</option>
-                                    <option value="Structure 2">Structure 2</option>
-                                    {/* Add more options as needed */}
-                                </select>
+                                <DataStructuresSelect
+                                    key={`dataStructureSelect_${index}`}
+                                    index={index}
+                                    register={register}
+                                    dataStructures={fetchedDataStructuresArr}
+                                    onChange={(selectedDataStructure) => {
+                                            register(`dataStructures.${index}.name`).onChange({
+                                                target: {
+                                                    value: selectedDataStructure.name
+                                                },
+                                            });
+
+                                            setSelectedDataStructures((prevState) => {
+                                                const newState = [...prevState];
+                                                newState[index] = selectedDataStructure;
+                                                return newState;
+                                            });
+
+                                            update(index, { ...fields[index], name: selectedDataStructure.name, id: selectedDataStructure.id });
+                                        
+                                    }
+                                    }
+
+                                />
                             </div>
 
                             <div><Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>Delete</Button></div>
@@ -224,7 +303,9 @@ export const ApiSpecificationForm = () => {
                                         register={register}
                                         collectionLogicEnabled={collectionLogicEnabled[index]}
                                         singleResourceLogicEnabled={singleResourceLogicEnabled[index]}
-                                    />
+                                        baseUrl={baseUrl}
+                                        selectedDataStructure={selectedDataStructures[index].name} 
+                                        fetchedDataStructures={fetchedDataStructuresArr} />
                                 ))}
                                 {/* Button to add new operation */}
                                 <Button
@@ -252,6 +333,9 @@ export const ApiSpecificationForm = () => {
                                         register={register}
                                         collectionLogicEnabled={collectionLogicEnabled[index]}
                                         singleResourceLogicEnabled={singleResourceLogicEnabled[index]}
+                                        baseUrl={baseUrl}
+                                        selectedDataStructure={selectedDataStructures[index].name}
+                                        fetchedDataStructures={fetchedDataStructuresArr}
                                     />
                                 ))}
                                 {/* Button to add new operation */}

@@ -5,6 +5,10 @@ import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
+import StatusCodeSelect from './HttpStatusCode';
+import RequestBodyComponent from './RequestBodyComponent';
+import DataStructuresSelect from './DataStructSelect';
+//import ResponseObjectComponent from './ResponseObjectSelect';
 
 interface OperationCardProps {
     operationIndex: number;
@@ -13,9 +17,12 @@ interface OperationCardProps {
     register: any;
     collectionLogicEnabled: boolean;
     singleResourceLogicEnabled: boolean;
+    baseUrl: string;
+    selectedDataStructure: string;
+    fetchedDataStructures: DataStructure[]
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, collectionLogicEnabled,  singleResourceLogicEnabled}) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures }) => {
     return (
         <div key={operationIndex}>
             <Card className="p-2">
@@ -41,33 +48,62 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Operation Name */}
                     <OperationNameInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Endpoint */}
-                    <EndpointInput 
+                    <EndpointInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
-                         />
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                        dataStructureName={selectedDataStructure}
+                        baseUrl={baseUrl} />
                     {/* Comment */}
-                    <CommentInput 
+                    <CommentInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
-                        />
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                    />
+                    {/* Comment */}
+                    <RequestBodyComponent
+                        dataStructure={selectedDataStructure}
+                        allDataStructures={fetchedDataStructures}
+                        operationIndex={operationIndex}
+                        index={index}
+                        register={register} />
+                    {/* Http StatusCode */}
+                    <StatusCodeSelect
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                    />
+
+                    {/* <ResponseObjectComponent
+                        index={index}
+                        register={register}
+                        dataStructures={fetchedDataStructures}
+                        onChange={(selectedDataStructure) => {
+                            register(`dataStructures.${index}.name`).onChange({
+                                target: {
+                                    value: selectedDataStructure.name,
+                                },
+                            });
+                        }}
+                    /> */}
                 </Card>
             </Card>
         </div>
