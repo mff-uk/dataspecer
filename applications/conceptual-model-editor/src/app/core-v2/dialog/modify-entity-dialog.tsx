@@ -379,22 +379,23 @@ export const useModifyEntityDialog = () => {
                     {(isSemanticModelRelationship(modifiedEntity) ||
                         isSemanticModelRelationshipUsage(modifiedEntity)) && (
                         <>
-                            {(changedFields.domain ||
-                                changedFields.range ||
-                                changedFields.domainCardinality ||
-                                changedFields.rangeCardinality) && (
-                                <>
-                                    <div />
-                                    <ProfileModificationWarning
-                                        changedFields={([] as string[])
-                                            .concat(changedFields.domain ? "domain" : "")
-                                            .concat(changedFields.range ? "range" : "")
-                                            .concat(changedFields.domainCardinality ? "domain cardinality" : "")
-                                            .concat(changedFields.rangeCardinality ? "range cardinality" : "")
-                                            .filter((s) => s.length > 0)}
-                                    />
-                                </>
-                            )}
+                            {isProfile &&
+                                (changedFields.domain ||
+                                    changedFields.range ||
+                                    changedFields.domainCardinality ||
+                                    changedFields.rangeCardinality) && (
+                                    <>
+                                        <div />
+                                        <ProfileModificationWarning
+                                            changedFields={([] as string[])
+                                                .concat(changedFields.domain ? "domain" : "")
+                                                .concat(changedFields.range ? "range" : "")
+                                                .concat(changedFields.domainCardinality ? "domain cardinality" : "")
+                                                .concat(changedFields.rangeCardinality ? "range cardinality" : "")
+                                                .filter((s) => s.length > 0)}
+                                        />
+                                    </>
+                                )}
                             <DomainRangeComponent
                                 enabledFields={changedFields}
                                 withCheckEnabling={isProfile}

@@ -23,7 +23,7 @@ import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "./iri-input";
 import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
-import { getNameLanguageString } from "../util/name-utils";
+import { getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
 
 const AssociationComponent = (props: {
     from: string;
@@ -107,10 +107,9 @@ const AssociationComponent = (props: {
             >
                 <option>---</option>
                 {relationshipsAndProfiles.map((rp) => {
-                    const displayName = getLocalizedStringFromLanguageString(
-                        getNameLanguageString(rp),
-                        preferredLanguage
-                    );
+                    const displayName =
+                        getLocalizedStringFromLanguageString(getNameLanguageString(rp), preferredLanguage) ??
+                        getFallbackDisplayName(rp);
                     return (
                         <option value={rp.id}>
                             {displayName}:{rp.id}
@@ -175,8 +174,12 @@ export const useCreateConnectionDialog = () => {
             return;
         }
 
-        const sourceName = getLocalizedStringFromLanguageString(getNameLanguageString(source), preferredLanguage);
-        const targetName = getLocalizedStringFromLanguageString(getNameLanguageString(target), preferredLanguage);
+        const sourceName =
+            getLocalizedStringFromLanguageString(getNameLanguageString(source), preferredLanguage) ??
+            getFallbackDisplayName(source);
+        const targetName =
+            getLocalizedStringFromLanguageString(getNameLanguageString(target), preferredLanguage) ??
+            getFallbackDisplayName(target);
 
         const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");

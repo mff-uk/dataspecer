@@ -55,6 +55,7 @@ const CardinalityEdgeLabel = ({
 type SimpleFloatingEdgeDataType = {
     label: LanguageString | null;
     entityId: string;
+    fallbackLabel: string | null;
     type: "relationship" | "relationship-profile" | "class-profile" | "generalization";
     cardinalitySource?: string;
     cardinalityTarget?: string;
@@ -75,16 +76,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 
     const d = data as SimpleFloatingEdgeDataType;
 
-    let fallbackName: string | null;
-    if (d.type == "relationship") {
-        fallbackName = d.entityId;
-    } else if (d.type == "relationship-profile") {
-        fallbackName = d.entityId;
-    } else {
-        fallbackName = null;
-    }
-
-    const displayName = getLocalizedStringFromLanguageString(d.label, preferredLanguage) ?? fallbackName;
+    const displayName = getLocalizedStringFromLanguageString(d.label, preferredLanguage) ?? d.fallbackLabel;
 
     if (!sourceNode || !targetNode) {
         return null;
@@ -284,9 +276,10 @@ export const semanticModelRelationshipToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            label: getNameLanguageString(rel),
-            entityId: rel.id,
             type: isSemanticModelRelationship(rel) ? "relationship" : "relationship-profile",
+            entityId: rel.id,
+            label: getNameLanguageString(rel),
+            fallbackLabel: getFallbackDisplayName(rel),
             cardinalitySource: cardinalityToString(domainAndRange?.domain.cardinality ?? rel.ends[0]?.cardinality),
             cardinalityTarget: cardinalityToString(domainAndRange?.range.cardinality ?? rel.ends[1]?.cardinality),
             bgColor: color,
@@ -316,9 +309,10 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         },
         type: "floating",
         data: {
+            type: "generalization",
             entityId: gen.id,
             label: null,
-            type: "generalization",
+            fallbackLabel: null,
             openEntityDetailDialog,
             openModificationDialog: () => {},
             openCreateProfileDialog: () => {},
@@ -339,9 +333,10 @@ export const semanticModelClassUsageToReactFlowEdge = (
         markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: color || "azure" },
         type: "floating",
         data: {
+            type: "class-profile",
             entityId: classUsage.id,
             label: null,
-            type: "class-profile",
+            fallbackLabel: null,
             openEntityDetailDialog,
             openModificationDialog,
             openCreateProfileDialog: () => {},

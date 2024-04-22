@@ -64,6 +64,10 @@ export const MultiLanguageInputForLanguageString = (props: {
         }
     };
 
+    const languageDeletedHandler = () => {
+        setLs((prev) => Object.fromEntries(Object.entries(prev).filter(([l, _]) => l != currentLang)));
+    };
+
     const { ls, setLs } = props;
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
@@ -71,6 +75,8 @@ export const MultiLanguageInputForLanguageString = (props: {
     if (!languages.includes(currentLang) && languages.length) {
         setCurrentLang(languages.at(0)!);
     }
+
+    const displayString = ls[currentLang] ?? "";
 
     return (
         <div>
@@ -85,17 +91,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                         >
                             {lang}
                             {lang == currentLang && (
-                                <button
-                                    disabled={disabled}
-                                    className="text-xs"
-                                    onClick={() => {
-                                        setLs((prev) =>
-                                            Object.fromEntries(
-                                                Object.entries(prev).filter(([l, _]) => l != currentLang)
-                                            )
-                                        );
-                                    }}
-                                >
+                                <button disabled={disabled} className="text-xs" onClick={languageDeletedHandler}>
                                     🗑
                                 </button>
                             )}
@@ -116,7 +112,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                     disabled={disabled}
                     type="text"
                     className="w-full"
-                    value={ls[currentLang]!}
+                    value={displayString}
                     onChange={(e) => {
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
                         props.onChange?.();
@@ -125,7 +121,7 @@ export const MultiLanguageInputForLanguageString = (props: {
             ) : (
                 <textarea
                     disabled={disabled}
-                    value={ls[currentLang]!}
+                    value={displayString}
                     className="w-full"
                     onChange={(e) => {
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));

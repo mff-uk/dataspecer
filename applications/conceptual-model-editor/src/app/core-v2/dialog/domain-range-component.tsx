@@ -14,6 +14,7 @@ import { Dispatch, SetStateAction } from "react";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useClassesContext } from "../context/classes-context";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
+import { getFallbackDisplayName } from "../util/name-utils";
 
 export const DomainRangeComponent = (props: {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -59,14 +60,13 @@ export const DomainRangeComponent = (props: {
                         ---
                     </option>
                     {classesOrProfiles.map((v) => {
-                        const displayName = getLocalizedString(
-                            getStringFromLanguageStringInLang(v.name || {}, preferredLanguage)
-                        );
-                        const iriOrId = isSemanticModelClassUsage(v) ? v.id : v.iri ?? v.id;
+                        const displayName =
+                            getLocalizedString(getStringFromLanguageStringInLang(v.name || {}, preferredLanguage)) ??
+                            getFallbackDisplayName(v);
 
                         return (
                             <option value={v.id} selected={domain.concept == v.id}>
-                                {displayName ?? iriOrId}
+                                {displayName}
                             </option>
                         );
                     })}
@@ -132,14 +132,13 @@ export const DomainRangeComponent = (props: {
                         ---
                     </option>
                     {classesOrProfiles.map((v) => {
-                        const displayName = getLocalizedString(
-                            getStringFromLanguageStringInLang(v.name || {}, preferredLanguage)
-                        );
-                        const iriOrId = isSemanticModelClassUsage(v) ? v.id : v.iri ?? v.id;
+                        const displayName =
+                            getLocalizedString(getStringFromLanguageStringInLang(v.name || {}, preferredLanguage)) ??
+                            getFallbackDisplayName(v);
 
                         return (
                             <option value={v.id} selected={range.concept == v.id}>
-                                {displayName ?? iriOrId}
+                                {displayName}
                             </option>
                         );
                     })}

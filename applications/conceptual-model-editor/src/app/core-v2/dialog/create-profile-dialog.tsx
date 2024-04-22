@@ -17,13 +17,13 @@ import {
     SemanticModelClassUsage,
     SemanticModelRelationshipEndUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
 import { DomainRangeComponent } from "./domain-range-component";
-import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
-import { getIri } from "../util/model-utils";
+import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
 import { ProfileModificationWarning } from "./profile-modification-warning";
@@ -81,8 +81,9 @@ export const useCreateProfileDialog = () => {
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
 
-        const nameOfProfiledEntity =
-            getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ?? entity?.id;
+        const displayNameOfProfiledEntity =
+            getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ??
+            getFallbackDisplayName(entity);
 
         if (inMemoryModels.length == 0) {
             alert("Create a local model first, please");
@@ -91,7 +92,9 @@ export const useCreateProfileDialog = () => {
         }
         console.log(model, entity, currentDomainAndRange);
         return (
-            <BaseDialog heading={`Create a profile ${nameOfProfiledEntity ? "of " + nameOfProfiledEntity : ""}`}>
+            <BaseDialog
+                heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
+            >
                 <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
                     <div className="font-semibold">active model:</div>
                     <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
@@ -105,14 +108,11 @@ export const useCreateProfileDialog = () => {
                             ))}
                     </select>
                     <div className="font-semibold">profiled entity:</div>
-                    <div>
-                        {nameOfProfiledEntity}, {getIri(entity) ?? entity?.id}
-                    </div>
+                    <div>{displayNameOfProfiledEntity}</div>
                     <div className="font-semibold">profiled entity type:</div>
                     <div>
                         {entity?.type +
-                            ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                            isSemanticModelAttribute(entity)
+                            (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)
                                 ? " (attribute)"
                                 : "")}
                     </div>

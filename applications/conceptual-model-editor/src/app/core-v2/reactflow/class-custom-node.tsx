@@ -47,7 +47,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     const name =
         getLocalizedStringFromLanguageString(getNameLanguageString(cls), preferredLanguage) ??
-        getFallbackDisplayName(cls ?? null);
+        getFallbackDisplayName(cls);
     const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(cls), preferredLanguage);
     const usageNote = getLocalizedStringFromLanguageString(getUsageNoteLanguageString(cls), preferredLanguage);
     const iri = getIri(cls);
@@ -157,10 +157,12 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                         <span className="text-gray-600">
                             profile
                             {profiledClass
-                                ? ` of ${getLocalizedStringFromLanguageString(
-                                      getNameLanguageString(profiledClass),
-                                      preferredLanguage
-                                  )}`
+                                ? ` of ${
+                                      getLocalizedStringFromLanguageString(
+                                          getNameLanguageString(profiledClass),
+                                          preferredLanguage
+                                      ) ?? getFallbackDisplayName(profiledClass)
+                                  }`
                                 : ""}
                         </span>
                     )}
@@ -172,63 +174,82 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     {iri}
                 </p>
 
-                <div key={"attributes" + attributes.length}>
-                    {attributes?.map((attr) => {
-                        const n =
-                            getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
-                            getFallbackDisplayName(attr ?? null);
-                        const d = getLocalizedStringFromLanguageString(
-                            getDescriptionLanguageString(attr),
-                            preferredLanguage
-                        );
-                        const un = getLocalizedStringFromLanguageString(
-                            getUsageNoteLanguageString(attr),
-                            preferredLanguage
-                        );
+                <div key={"attributes" + attributes.length} className="max-h-44 overflow-x-auto ">
+                    <>
+                        {attributes?.slice(0, 5).map((attr) => {
+                            const n =
+                                getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                                getFallbackDisplayName(attr);
+                            const d = getLocalizedStringFromLanguageString(
+                                getDescriptionLanguageString(attr),
+                                preferredLanguage
+                            );
+                            const un = getLocalizedStringFromLanguageString(
+                                getUsageNoteLanguageString(attr),
+                                preferredLanguage
+                            );
 
-                        return (
-                            <p key={attr.id} title={d ?? ""} className="flex flex-row">
-                                <span>- {n} </span>
-                                {un && (
-                                    <div className="ml-2 rounded-sm bg-blue-300" title={un}>
-                                        usage info
-                                    </div>
-                                )}
+                            return (
+                                <p key={attr.id} title={d ?? ""} className="flex flex-row">
+                                    <span>- {n} </span>
+                                    {un && (
+                                        <div className="ml-2 rounded-sm bg-blue-300" title={un}>
+                                            usage info
+                                        </div>
+                                    )}
+                                </p>
+                            );
+                        })}
+                        {attributes.length >= 5 && (
+                            <p
+                                key="more-than-5-attributes"
+                                className="flex flex-row"
+                                onClick={props.data.openEntityDetailDialog}
+                            >
+                                <span>- ...</span>
                             </p>
-                        );
-                    })}
+                        )}
+                        {attributeUsages?.slice(0, 5).map((attr) => {
+                            const n =
+                                getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                                getFallbackDisplayName(attr);
+                            const d = getLocalizedStringFromLanguageString(
+                                getDescriptionLanguageString(attr),
+                                preferredLanguage
+                            );
+                            const un = getLocalizedStringFromLanguageString(
+                                getUsageNoteLanguageString(attr),
+                                preferredLanguage
+                            );
+
+                            const usageOf = attr.usageOf;
+
+                            return (
+                                <p key={attr.id} title={d ?? ""} className="flex flex-row">
+                                    <span>
+                                        - {n}, profile of: {shortenStringTo(usageOf, 8)}{" "}
+                                    </span>
+                                    {un && (
+                                        <div className="ml-2 rounded-sm bg-blue-300" title={un}>
+                                            usage note
+                                        </div>
+                                    )}
+                                </p>
+                            );
+                        })}
+                        {attributeUsages.length >= 5 && (
+                            <p
+                                key="more-than-5-attribute-profiles"
+                                className="flex flex-row"
+                                onClick={props.data.openEntityDetailDialog}
+                            >
+                                <span>- ...</span>
+                            </p>
+                        )}
+                    </>
                 </div>
 
-                <div key={"attributeProfiles" + attributeUsages.length}>
-                    {attributeUsages?.map((attr) => {
-                        const n =
-                            getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
-                            getFallbackDisplayName(attr ?? null);
-                        const d = getLocalizedStringFromLanguageString(
-                            getDescriptionLanguageString(attr),
-                            preferredLanguage
-                        );
-                        const un = getLocalizedStringFromLanguageString(
-                            getUsageNoteLanguageString(attr),
-                            preferredLanguage
-                        );
-
-                        const usageOf = attr.usageOf;
-
-                        return (
-                            <p key={attr.id} title={d ?? ""} className="flex flex-row">
-                                <span>
-                                    - {n}, profile of: {shortenStringTo(usageOf, 8)}{" "}
-                                </span>
-                                {un && (
-                                    <div className="ml-2 rounded-sm bg-blue-300" title={un}>
-                                        usage note
-                                    </div>
-                                )}
-                            </p>
-                        );
-                    })}
-                </div>
+                <div key={"attributeProfiles" + attributeUsages.length}></div>
 
                 {isMenuOptionsOpen && <MenuOptions />}
             </div>
