@@ -1,16 +1,39 @@
 import { Entity } from "../../entity-model/entity";
-
 import { EntityModel } from "../../entity-model/entity-model";
 import { VisualEntity } from "../../visual-model/visual-entity";
 import { VisualEntityModel, isVisualModel } from "../../visual-model/visual-model";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the
  * aggregation was performed.
  */
 export interface AggregatedEntityWrapper {
+    /**
+     * ID of the lowest entity in the chain of aggregation.
+     */
     id: string;
+
+    /**
+     * All information combined from all models about the entity.
+     */
     aggregatedEntity: Entity | null;
+
+    /**
+     * Raw entity as is from the model.
+     */
+    rawEntity: Entity | null;
+
+    /**
+     * List of direct sources that contributed to the aggregation of the entity.
+     */
+    sources: AggregatedEntityWrapper[];
+
+    /**
+     * Visual information about the entity that was obtained from the visual model.
+     * There is no aggregation of visual entities as only one visual model can be present.
+     */
     visualEntity: VisualEntity | null;
 }
 
@@ -42,9 +65,33 @@ interface SemanticModelAggregator {
     getView(): SemanticModelAggregatorView;
 }
 
+interface EntityInModel {
+    entity: Entity;
+    model: SupportedModels;
+}
+
 class SemanticModelAggregatorInternal implements SemanticModelAggregator {
+    /**
+     * List of registered models in the aggregator.
+     */
     models: Map<SupportedModels, () => void> = new Map();
-    baseModelEntities: AggregatedEntityWrapper[] = [];
+
+    /**
+     * Contains all entities from all models by their ID.
+     */
+    entityCache: Record<string, EntityInModel> = {};
+
+    /**
+     * Contains all entities that depend on the given entity by their ID.
+     * The dependant entity (key) may not exist.
+     */
+    entityDependencyCache: Record<string, string[]> = {};
+
+    /**
+     * Contains calculated aggregated entities.
+     */
+    baseModelEntities: Record<string, AggregatedEntityWrapper> = {};
+
     baseModelSubscribers = new Set<AggregatedModelSubscriber>();
 
     activeVisualModel: VisualEntityModel | null = null;
@@ -69,14 +116,9 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             }
 
             const entities = Object.values(updated);
-            const wrappedEntities = entities.map((aggregatedEntity) => ({
-                id: aggregatedEntity.id,
-                aggregatedEntity,
-                visualEntity: null,
-            }));
 
             // Suppose there is a model that joins them all. Then we need to inform it
-            this.notifyBaseModel(model, wrappedEntities, removed);
+            this.notifyBaseModel(model, entities, removed);
         };
 
         const unsubscribe = model.subscribeToChanges(callback);
@@ -105,18 +147,133 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         // TODO: shouldn't `unsubscribe()` be called?
     }
 
+    private getEntityDependencies(entity: Entity | null): string[] {
+        if (!entity) {
+            return [];
+        }
+
+        if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
+            return [entity.usageOf];
+        }
+
+        if (isSemanticModelClass(entity) || isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
+            return [];
+        }
+
+        console.warn("Entity", entity.id, "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
+        return [];
+    }
+
     /**
      * Temporary function that notifies base model about changes. We suppose that every model is a dependency of the base model.
      */
-    private notifyBaseModel(fromModel: SupportedModels, updated: AggregatedEntityWrapper[], removed: string[]) {
-        // This does only a simple merge
-        this.baseModelEntities = this.baseModelEntities
-            .filter(
-                (entity) =>
-                    !removed.includes(entity.id) && !updated.find((updatedEntity) => updatedEntity.id === entity.id)
-            )
-            .concat(updated);
-        this.baseModelSubscribers.forEach((subscriber) => subscriber(updated, removed));
+    private notifyBaseModel(fromModel: SupportedModels, updated: Entity[], removed: string[]) { 
+        // Aggregated entities that need to be updated
+        const needsUpdate = [...updated.map((entity) => entity.id), ...removed];
+
+        // Update entity cache
+        for (const entity of updated) {
+            this.entityCache[entity.id] = { entity, model: fromModel };
+        }
+        for (const id of removed) {
+            delete this.entityCache[id];
+        }
+
+        // Create dependency cache (todo: do it more efficiently)
+        this.entityDependencyCache = {};
+        for (const entity of Object.values(this.entityCache)) {
+            const dependencies = this.getEntityDependencies(entity.entity);
+            for (const dependency of dependencies) {
+                const cache = this.entityDependencyCache[dependency] = this.entityDependencyCache[dependency] ?? [];
+                cache.push(entity.entity.id);
+            }
+        }
+
+        // List of updated entities
+        const updatedEntities: Record<string, AggregatedEntityWrapper> = {};
+
+        let updatedEntity: string | undefined;
+        while (updatedEntity = needsUpdate.pop()) {
+            if (removed.includes(updatedEntity)) {
+                delete this.baseModelEntities[updatedEntity];
+            } else {
+                const {entity, model} = this.entityCache[updatedEntity]!;
+
+                if (
+                    isSemanticModelClassUsage(entity)
+                ) {
+                    const source = this.baseModelEntities[entity.usageOf];
+                    const sourceEntity = source?.aggregatedEntity as SemanticModelClassUsage & SemanticModelClass | undefined;
+                    const aggregatedEntity = {
+                        ...sourceEntity,
+                        ...entity,
+                        name: entity.name ?? sourceEntity?.name ?? null,
+                        description: entity.description ?? sourceEntity?.description ?? null,
+                        usageNote: entity.usageNote ?? sourceEntity?.usageNote ?? null,
+                    } as SemanticModelClassUsage & SemanticModelClass; // this is legal in the given context
+
+                    this.baseModelEntities[updatedEntity] = {
+                        id: updatedEntity,
+                        aggregatedEntity: aggregatedEntity,
+                        rawEntity: entity,
+                        sources: source ? [source] : [],
+                        visualEntity: null, // we do not have to deal with it
+                    };
+                } else if (
+                    isSemanticModelRelationshipUsage(entity)
+                ) {
+                    const source = this.baseModelEntities[entity.usageOf];
+                    const sourceEntity = source?.aggregatedEntity as SemanticModelRelationshipUsage & SemanticModelRelationship | undefined;
+                    const aggregatedEntity = {
+                        ...sourceEntity,
+                        ...entity,
+                        name: entity.name ?? sourceEntity?.name ?? null,
+                        description: entity.description ?? sourceEntity?.description ?? null,
+                        usageNote: entity.usageNote ?? sourceEntity?.usageNote ?? null,
+                        ends: entity.ends.map((end, index) => {
+                            const sourceEnd = sourceEntity?.ends[index];
+                            return {
+                                ...sourceEnd,
+                                ...end,
+                                name: end.name ?? sourceEnd?.name ?? null,
+                                description: end.description ?? sourceEnd?.description ?? null,
+                                cardinality: end.cardinality ?? sourceEnd?.cardinality ?? null,
+                                concept: end.concept ?? sourceEnd?.concept ?? null,
+                            };
+                        }),
+                    } as SemanticModelRelationshipUsage & SemanticModelRelationship;
+
+                    this.baseModelEntities[updatedEntity] = {
+                        id: updatedEntity,
+                        aggregatedEntity: aggregatedEntity,
+                        rawEntity: entity,
+                        sources: source ? [source] : [],
+                        visualEntity: null, // we do not have to deal with it
+                    };
+                } else {
+                    if (
+                        !entity.type.includes(SEMANTIC_MODEL_CLASS) &&
+                        !entity.type.includes(SEMANTIC_MODEL_GENERALIZATION) &&
+                        !entity.type.includes(SEMANTIC_MODEL_RELATIONSHIP)
+                    ) {
+                        console.warn("Entity", entity.id, "from model", model.getId(), "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
+                    }
+                    this.baseModelEntities[updatedEntity] = {
+                        id: updatedEntity,
+                        aggregatedEntity: entity,
+                        rawEntity: entity,
+                        sources: [],
+                        visualEntity: null, // we do not have to deal with it
+                    };
+                }
+
+                updatedEntities[updatedEntity] = this.baseModelEntities[updatedEntity]!;
+            }
+
+            needsUpdate.push(...this.entityDependencyCache[updatedEntity] ?? []);
+        }
+
+        this.baseModelSubscribers.forEach((subscriber) => subscriber(Object.values(updatedEntities), removed));
     }
 
     getView(): SemanticModelAggregatorView {
@@ -159,17 +316,11 @@ export class SemanticModelAggregatorView {
      * Returns all entities aggregated.
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
-        // todo temporary
-        return Object.fromEntries(
-            this.aggregator.baseModelEntities.map((e) => [
-                e.id,
-                {
-                    id: e.id,
-                    aggregatedEntity: e.aggregatedEntity,
-                    visualEntity: this.aggregator.activeVisualModel?.getVisualEntity(e.id),
-                } as AggregatedEntityWrapper,
-            ])
-        );
+        const entities = {...this.aggregator.baseModelEntities};
+        for (const entity of Object.values(entities)) {
+            entity.visualEntity = this.aggregator.activeVisualModel?.getVisualEntity(entity.id) ?? null;
+        };
+        return entities;
     }
 
     /**
