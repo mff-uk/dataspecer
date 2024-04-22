@@ -25,10 +25,7 @@ export const useAddModelDialog = () => {
     };
 
     const AddModelDialog = () => {
-        const [modelTtlFiles, setModelTtlFiles] = useState([
-            "https://www.w3.org/ns/dcat.ttl",
-            "https://schema.org/version/latest/schemaorg-current-https.ttl",
-        ]); // FIXME: sanitize
+        const [modelTtlFiles, setModelTtlFiles] = useState(["https://www.w3.org/ns/dcat.ttl"]); // FIXME: sanitize
 
         return (
             <BaseDialog heading="Add semantic model">
@@ -41,7 +38,7 @@ export const useAddModelDialog = () => {
                     value={modelTtlFiles.join("\n")}
                 />
 
-                <div className="flex flex-row justify-evenly">
+                <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     <button
                         onClick={() =>
                             save(

@@ -9,13 +9,9 @@ import {
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { cardinalityToString, isAttribute } from "../util/utils";
+import { cardinalityToString } from "../util/utils";
 import { useClassesContext } from "../context/classes-context";
-import {
-    getLanguagesForNamedThing,
-    getLocalizedStringFromLanguageString,
-    getStringFromLanguageStringInLang,
-} from "../util/language-utils";
+import { getLanguagesForNamedThing, getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { IriLink } from "../catalog/entity-catalog-row";
 import {
     isSemanticModelClassUsage,
@@ -24,7 +20,7 @@ import {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "./base-dialog";
-import { getIri, getModelIri, sourceModelIdOfEntity, sourceModelOfEntity } from "../util/model-utils";
+import { getIri, getModelIri, sourceModelOfEntity } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
@@ -35,6 +31,7 @@ import {
     getUsageNoteLanguageString,
 } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 type SupportedEntityType =
     | SemanticModelClass
@@ -46,7 +43,7 @@ type SupportedEntityType =
 export const useEntityDetailDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const editDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const [viewedEntity, setViewedEntity] = useState(null as unknown as SupportedEntityType);
+    const [viewedEntity2, setViewedEntity2] = useState(null as unknown as SupportedEntityType);
 
     useEffect(() => {
         const { current: el } = editDialogRef;
@@ -54,11 +51,11 @@ export const useEntityDetailDialog = () => {
     }, [isOpen]);
 
     const localClose = () => {
-        setViewedEntity(null as unknown as SupportedEntityType);
+        setViewedEntity2(null as unknown as SupportedEntityType);
         close();
     };
     const localOpen = (entity: SupportedEntityType) => {
-        setViewedEntity(entity);
+        setViewedEntity2(entity);
         open();
     };
     const save = () => {
@@ -68,15 +65,13 @@ export const useEntityDetailDialog = () => {
     const EntityDetailDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
         const [currentLang, setCurrentLang] = useState(preferredLanguage);
+        const [viewedEntity, setViewedEntity] = useState(viewedEntity2);
 
         const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
 
         const { classes2: c, relationships: r, profiles, generalizations } = useClassesContext();
         const { models } = useModelGraphContext();
-        const sourceModel = sourceModelOfEntity(viewedEntity.id, [...models.values()]); //  models.get(sourceModelId ?? "");
-
-        let profileOf: null | string = null,
-            profiledBy: string[] = [];
+        const sourceModel = sourceModelOfEntity(viewedEntity.id, [...models.values()]);
 
         const modelIri = getModelIri(sourceModel);
 
@@ -94,53 +89,103 @@ export const useEntityDetailDialog = () => {
             .filter((g) => g.child == viewedEntity.id)
             .map((g) => c.find((cl) => cl.id == g.parent))
             .filter((cl) => isSemanticModelClass(cl ?? null))
-            .map(
-                (cl) =>
-                    getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
-                    getFallbackDisplayName(cl ?? null)
-            )
-            .join(", ");
+            .map((cl) => {
+                if (cl) {
+                    return (
+                        <li onClick={() => setViewedEntity(cl)} className="cursor-pointer hover:underline">
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl ?? null), currentLang) ??
+                                getFallbackDisplayName(cl ?? null)}
+                        </li>
+                    );
+                }
+            })
+            .filter((e): e is JSX.Element => {
+                return e != undefined;
+            });
+        // .map(
+        //     (cl) =>
+        //         getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
+        //         getFallbackDisplayName(cl ?? null)
+        // )
+        // .join(", ");
         const generalizationOf = generalizations
             .filter((g) => g.parent == viewedEntity.id)
             .map((g) => c.find((cl) => cl.id == g.child))
             .filter((cl) => isSemanticModelClass(cl ?? null))
-            .map(
-                (cl) =>
-                    getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
-                    getFallbackDisplayName(cl ?? null)
-            )
-            .join(", ");
+            .map((cl) => {
+                if (cl) {
+                    return (
+                        <li onClick={() => setViewedEntity(cl)} className="cursor-pointer hover:underline">
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(cl ?? null), currentLang) ??
+                                getFallbackDisplayName(cl ?? null)}
+                        </li>
+                    );
+                }
+            })
+            .filter((e): e is JSX.Element => {
+                return e != undefined;
+            });
+        // .map(
+        //     (cl) =>
+        //         getLocalizedStringFromLanguageString(cl?.name ?? {}, currentLang) ??
+        //         getFallbackDisplayName(cl ?? null)
+        // )
+        // .join(", ");
 
         const isProfileOf =
             isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
                 ? profiles
                       .filter((p) => p.id == viewedEntity.id)
                       .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.usageOf))
-                      .map(
-                          (e) =>
-                              getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
-                              getFallbackDisplayName(e ?? null)
-                      )
-                      .join(", ")
-                : null;
+                      .map((e) => {
+                          if (e) {
+                              return (
+                                  <li onClick={() => setViewedEntity(e)} className="cursor-pointer hover:underline">
+                                      {getLocalizedStringFromLanguageString(
+                                          getNameLanguageString(e ?? null),
+                                          currentLang
+                                      ) ?? getFallbackDisplayName(e ?? null)}
+                                  </li>
+                              );
+                          }
+                      })
+                      .filter((e): e is JSX.Element => {
+                          return e != undefined;
+                      })
+                : [];
 
         const isProfiledBy = profiles
             .filter((p) => p.usageOf == viewedEntity.id)
             .map((p) => [...c, ...r, ...profiles].find((e) => e.id == p.id))
-            .map(
-                (e) =>
-                    getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
-                    getFallbackDisplayName(e ?? null)
-            )
-            .join(", ");
+            .map((e) => {
+                if (e) {
+                    return (
+                        <li onClick={() => setViewedEntity(e)} className="cursor-pointer hover:underline">
+                            {getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
+                                getFallbackDisplayName(e ?? null)}
+                        </li>
+                    );
+                }
+            })
+            .filter((e): e is JSX.Element => {
+                return e != undefined;
+            });
+        // .map(
+        //     (e) =>
+        //         getLocalizedStringFromLanguageString(getNameLanguageString(e ?? null), currentLang) ??
+        //         getFallbackDisplayName(e ?? null)
+        // )
+        // .join(", ");
 
         const attributes = /* a */ r
             .filter(isSemanticModelAttribute)
             .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
         const attributeProfiles = profiles
             .filter(isSemanticModelRelationshipUsage)
-            .filter(isAttribute)
-            .filter((v) => v.ends.at(0)?.concept == viewedEntity.id);
+            .filter((a) =>
+                isSemanticModelAttributeUsage(a as SemanticModelRelationshipUsage & SemanticModelRelationship)
+            )
+            .filter((v) => temporaryDomainRangeHelper(v)?.domain.concept == viewedEntity.id);
 
         let ends: { domain: SemanticModelRelationshipEnd; range: SemanticModelRelationshipEnd } | null = null;
         if (isSemanticModelRelationship(viewedEntity)) {
@@ -167,11 +212,10 @@ export const useEntityDetailDialog = () => {
         const range =
             c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept);
         const rangeCardinality = cardinalityToString(ends?.range?.cardinality);
-        const rangeIri = getIri(range ?? null) ?? ends?.range?.concept;
+
         const domain =
             c.find((cls) => cls.id == ends?.domain?.concept) ?? profiles.find((v) => v.id == ends?.domain?.concept);
         const domainCardinality = cardinalityToString(ends?.domain?.cardinality);
-        const domainIri = getIri(domain ?? null) ?? ends?.domain.concept;
 
         console.log(viewedEntity, ends);
 
@@ -207,22 +251,34 @@ export const useEntityDetailDialog = () => {
                         </div>
 
                         <div>
-                            {isProfileOf && (
-                                <div className="flex flex-row text-gray-500">profile of: {isProfileOf}</div>
+                            {isProfileOf.length > 0 && (
+                                <div className="flex flex-row text-gray-500">
+                                    <span className="mr-2 font-semibold">profiled of:</span>
+                                    <ul className="flex list-none flex-row [&>li]:mx-1">{isProfileOf}</ul>
+                                </div>
                             )}
-                            {isProfiledBy && (
-                                <div className="flex flex-row text-gray-500">profiled by: {isProfiledBy}</div>
+                            {isProfiledBy.length > 0 && (
+                                <div className="flex flex-row text-gray-500">
+                                    <span className="mr-2 font-semibold">profiled by:</span>
+                                    <ul className="flex list-none flex-row [&>li]:mx-1">{isProfiledBy}</ul>
+                                </div>
                             )}
                         </div>
 
-                        <div></div>
+                        <div />
 
                         <div>
-                            {specializationOf && (
-                                <div className="flex flex-row text-gray-500">specialization of: {specializationOf}</div>
+                            {specializationOf.length > 0 && (
+                                <div className="flex flex-row text-gray-500">
+                                    <span className="mr-2 font-semibold">specialization of:</span>
+                                    <ul className="flex list-none flex-row [&>li]:mx-1">{specializationOf}</ul>
+                                </div>
                             )}
-                            {generalizationOf && (
-                                <div className="flex flex-row text-gray-500">generalization of: {generalizationOf}</div>
+                            {generalizationOf.length > 0 && (
+                                <div className="flex flex-row text-gray-500">
+                                    <span className="mr-2 font-semibold">generalization of:</span>
+                                    <ul className="flex list-none flex-row [&>li]:mx-1">{generalizationOf}</ul>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -231,8 +287,7 @@ export const useEntityDetailDialog = () => {
                     <div className="font-semibold">type:</div>
                     <div>
                         {viewedEntity.type}
-                        {isSemanticModelAttribute(viewedEntity) ||
-                        (isSemanticModelRelationshipUsage(viewedEntity) && isAttribute(viewedEntity))
+                        {isSemanticModelAttribute(viewedEntity) || isSemanticModelAttributeUsage(viewedEntity)
                             ? " (attribute)"
                             : ""}
                     </div>
@@ -329,8 +384,8 @@ export const useEntityDetailDialog = () => {
                 <p className="bg-slate-100">
                     range: {range ? "present" : "null"}, domain: {domain ? "present" : "null"},
                 </p>
-                <div className="flex flex-row justify-evenly">
-                    <button onClick={save}>confirm</button>
+                <div className="mt-auto flex flex-row justify-evenly font-semibold">
+                    {/* <button onClick={save}>confirm</button> */}
                     <button onClick={close}>close</button>
                 </div>
             </BaseDialog>

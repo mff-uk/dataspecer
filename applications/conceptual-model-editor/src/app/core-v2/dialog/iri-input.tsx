@@ -10,10 +10,10 @@ export const IriInput = (props: {
     newIri: string | undefined;
     setNewIri: (i: string) => void;
     iriHasChanged: boolean;
-    setIriHasChanged: (v: boolean) => void;
+    onChange?: () => void;
 }) => {
     const { language: preferredLanguage } = useConfigurationContext();
-    const { name, newIri, iriHasChanged, setIriHasChanged, setNewIri } = props;
+    const { name, newIri, iriHasChanged, setNewIri } = props;
 
     useEffect(() => {
         if (iriHasChanged) {
@@ -33,7 +33,7 @@ export const IriInput = (props: {
             value={newIri}
             onChange={(e) => {
                 setNewIri(e.target.value);
-                setIriHasChanged(true);
+                props.onChange?.();
             }}
         />
     );

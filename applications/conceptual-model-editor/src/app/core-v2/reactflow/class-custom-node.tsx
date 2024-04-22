@@ -34,7 +34,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { language: preferredLanguage } = useConfigurationContext();
     const { models, aggregatorView } = useModelGraphContext();
     const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
-    const { deleteEntityFromModel } = useClassesContext();
+    const { classes2: c, profiles, deleteEntityFromModel } = useClassesContext();
 
     const { cls, attributes, attributeUsages } = props.data;
 
@@ -54,6 +54,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     if (isSemanticModelClassUsage(cls)) {
         isUsage = true;
     }
+    const profiledClass = isSemanticModelClassUsage(cls) ? [...c, ...profiles].find((e) => e.id == cls.usageOf) : null;
 
     const MenuOptions = () => {
         return (
@@ -152,7 +153,17 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     style={{ backgroundColor: clr }}
                     title={description ?? ""}
                 >
-                    {isUsage && <span className="text-center">profile</span>}
+                    {isUsage && (
+                        <span className="text-gray-600">
+                            profile
+                            {profiledClass
+                                ? ` of ${getLocalizedStringFromLanguageString(
+                                      getNameLanguageString(profiledClass),
+                                      preferredLanguage
+                                  )}`
+                                : ""}
+                        </span>
+                    )}
                     <div className="relative flex w-full flex-row justify-between">{name}</div>
                 </h1>
 

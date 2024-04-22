@@ -47,6 +47,7 @@ import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggr
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -54,7 +55,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { useCreateClassDialog } from "./dialog/create-class-dialog";
 import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { bothEndsHaveAnIri } from "./util/relationship-utils";
+import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -138,7 +139,7 @@ export const Visualization = () => {
             const entities = aggregatorView.getEntities();
             const [localRelationships, localGeneralizations, localModels] = [relationships, generalizations, models];
             let [localAttributes] = [relationships.filter(isSemanticModelAttribute)];
-            let [localAttributeProfiles] = [profiles.filter(isSemanticModelRelationshipUsage).filter(isAttribute)];
+            let [localAttributeProfiles] = [profiles.filter(isSemanticModelAttributeUsage)];
 
             const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 if (!visualEntity) {
@@ -174,9 +175,8 @@ export const Visualization = () => {
                     .filter(isSemanticModelAttribute)
                     .filter((attr) => getDomainAndRange(attr)?.domain.concept == cls.id);
                 const attributeProfiles = localAttributeProfiles
-                    .filter(isSemanticModelRelationshipUsage)
-                    .filter(isAttribute)
-                    .filter((attr) => attr.ends[0]?.concept == cls.id && !attr.ends[1]?.concept);
+                    .filter(isSemanticModelAttributeUsage)
+                    .filter((attr) => temporaryDomainRangeHelper(attr)?.domain.concept == cls.id);
 
                 return semanticModelClassToReactFlowNode(
                     cls.id,
@@ -256,10 +256,7 @@ export const Visualization = () => {
                     isSemanticModelGeneralization(entity) ||
                     isSemanticModelRelationshipUsage(entity)
                 ) {
-                    if (
-                        (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) &&
-                        (isSemanticModelAttribute(entity) || isAttribute(entity))
-                    ) {
+                    if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
                         if (bothEndsHaveAnIri(entity)) {
                             console.warn("both ends have an IRI, skipping", entity, entity.ends);
                             alert("both ends have an IRI, skipping");

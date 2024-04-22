@@ -163,7 +163,6 @@ const Page = () => {
                                 curr.aggregatedEntity,
                                 curr.aggregatedEntity.ends
                             );
-                            alert("both ends have an IRI, skipping");
                             setWarnings((prev) =>
                                 prev.concat({
                                     id: getRandomName(10),
