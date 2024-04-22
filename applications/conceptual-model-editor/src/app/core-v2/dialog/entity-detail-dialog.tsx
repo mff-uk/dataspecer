@@ -253,7 +253,7 @@ export const useEntityDetailDialog = () => {
                         <div>
                             {isProfileOf.length > 0 && (
                                 <div className="flex flex-row text-gray-500">
-                                    <span className="mr-2 font-semibold">profiled of:</span>
+                                    <span className="mr-2 font-semibold">profile of:</span>
                                     <ul className="flex list-none flex-row [&>li]:mx-1">{isProfileOf}</ul>
                                 </div>
                             )}
