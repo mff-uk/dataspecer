@@ -1,0 +1,56 @@
+import { WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly } from "@dataspecer/wikidata-experimental-adapter";
+import { Stack, TextField, Typography } from "@mui/material";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { entitySearchTextFilter } from "../../helpers/search-text-filter";
+import { WikidataClassItem } from "../items/wikidata-class-item";
+import { WikidataInfinityScrollList } from "../../helpers/wikidata-infinity-scroll-list";
+
+export interface ClassListProperties {
+    wdClasses: WdClassHierarchyDescOnly[];
+    selectedWdClass: WdClassHierarchySurroundingsDescOnly | undefined;
+    setSelectedWdClass: React.Dispatch<React.SetStateAction<WdClassHierarchySurroundingsDescOnly>>;
+    scrollableClassContentId: string;
+}
+
+export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({wdClasses, selectedWdClass, setSelectedWdClass, scrollableClassContentId}) => {
+    const {t} = useTranslation("interpretedSurrounding");
+    const [searchText, setSearchText] = useState("");
+    
+    const classesToDisplay = useMemo(() => {
+        return entitySearchTextFilter(searchText, wdClasses);
+    },[wdClasses, searchText])
+    
+    return (
+        <>
+            <Stack direction="row" alignItems="center" spacing={2} marginTop={3}>
+                <TextField
+                    placeholder={t("type to search")}
+                    sx={{ width: "35%"}}
+                    onChange={e => {
+                        e.stopPropagation();
+                        setSearchText(e.target.value);
+                    }}
+                    variant={"standard"}
+                    autoComplete="off"
+                    value={searchText}
+                />
+                <Typography variant="body2" color="textSecondary">{t("number of classes")}: {classesToDisplay.length}</Typography>
+            </Stack>
+            <WikidataInfinityScrollList<WdClassHierarchyDescOnly> 
+                wdEntities={classesToDisplay} 
+                scrollableTargetId={scrollableClassContentId} 
+                mapListFunction={(wdClass: WdClassHierarchyDescOnly) => {
+                    return ( 
+                        <WikidataClassItem
+                                key={wdClass.iri}
+                                wdClass={wdClass}
+                                selectedWdClass={selectedWdClass}
+                                setSelectedWdClass={setSelectedWdClass}
+                        />
+                    );
+                }}
+            />
+        </>
+    );
+}

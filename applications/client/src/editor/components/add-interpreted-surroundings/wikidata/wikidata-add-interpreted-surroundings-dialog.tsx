@@ -13,7 +13,7 @@ import {QueryClientProvider} from "react-query";
 import {WikidataAdapterContext} from "./contexts/wikidata-adapter-context";
 import {queryClient} from "./contexts/react-query-context";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
-import { useWdGetSurroundings } from "./helpers/use-get-surroundings";
+import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";
 import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
 import { WikidataLoading } from "./helpers/wikidata-loading";
 import { WikidataLoadingError } from "./helpers/wikidata-loading-error";

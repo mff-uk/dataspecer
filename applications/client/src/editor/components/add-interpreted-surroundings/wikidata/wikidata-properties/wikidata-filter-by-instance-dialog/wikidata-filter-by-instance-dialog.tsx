@@ -1,11 +1,11 @@
 import { WdFilterByInstance, isWdErrorResponse } from "@dataspecer/wikidata-experimental-adapter";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { dialog } from "../../../../dialog";
+import { dialog } from "../../../../../dialog";
 import { useQuery } from "react-query";
-import { WikidataAdapterContext } from "../contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "../../contexts/wikidata-adapter-context";
 import { Button, CircularProgress, DialogActions, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { DialogContent, DialogTitle } from "../../../detail/common";
+import { DialogContent, DialogTitle } from "../../../../detail/common";
 
 export interface WikidataFilterByInstanceDialogProps {
     isOpen: boolean;

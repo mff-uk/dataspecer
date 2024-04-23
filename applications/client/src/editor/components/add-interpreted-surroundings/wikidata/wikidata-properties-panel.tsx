@@ -5,7 +5,7 @@ import { WikidataProperties } from "./wikidata-properties/wikidata-properties";
 import { WikidataLoadedProperties } from "./wikidata-properties/wikidata-loaded-properties";
 import { useState } from "react";
 import { useDialog } from "../../../dialog";
-import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog";
+import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
 
 
 export interface WikidataPropertiesPanelProps {

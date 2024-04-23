@@ -1,5 +1,5 @@
 import { WdEntityId, WdFilterByInstance } from '@dataspecer/wikidata-experimental-adapter';
-import { useWdGetSurroundings } from '../helpers/use-get-surroundings';
+import { useWdGetSurroundings } from '../hooks/use-wd-get-surroundings';
 import { WikidataLoadingError } from '../helpers/wikidata-loading-error';
 import { WikidataProperties } from './wikidata-properties';
 import { useTranslation } from 'react-i18next';

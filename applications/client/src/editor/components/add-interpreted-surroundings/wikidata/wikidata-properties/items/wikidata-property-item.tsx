@@ -1,9 +1,9 @@
 import { WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter"
 import { ListItem, Typography, IconButton, ListItemText, Box } from "@mui/material";
-import { SlovnikGovCzGlossary } from "../../../slovnik.gov.cz/SlovnikGovCzGlossary";
+import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import { useTranslation } from "react-i18next";
-import { LanguageStringFallback, LanguageStringUndefineable } from "../../../helper/LanguageStringComponents";
+import { LanguageStringFallback, LanguageStringUndefineable } from "../../../../helper/LanguageStringComponents";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 

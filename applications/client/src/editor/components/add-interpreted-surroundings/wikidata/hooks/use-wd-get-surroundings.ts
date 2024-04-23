@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 import { WikidataAdapterContext } from "../contexts/wikidata-adapter-context";
 
 export interface UseWdGetSurroundingsReturnValue {
-    wdClassSurroundings: WdClassSurroundings | null;
+    wdClassSurroundings: WdClassSurroundings | undefined;
     isLoading: boolean;
     isError: boolean;
 } 
@@ -16,9 +16,10 @@ export function useWdGetSurroundings(wdClassId: WdEntityId): UseWdGetSurrounding
     });
   
     const queryFailed = !isLoading && (isError || isWdErrorResponse(data));
+    const surroundings = (!isLoading && !queryFailed ? data as WdClassSurroundings : undefined)
     
     return {
-        wdClassSurroundings: (!isLoading && !queryFailed ? data as WdClassSurroundings : null),
+        wdClassSurroundings: surroundings,
         isLoading: isLoading,
         isError: queryFailed,
     }

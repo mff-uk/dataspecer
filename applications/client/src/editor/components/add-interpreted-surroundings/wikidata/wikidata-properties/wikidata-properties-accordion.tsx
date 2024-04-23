@@ -4,8 +4,8 @@ import { useState } from "react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { WikidataPropertyItem, WikidataPropertyType } from "./wikidata-property-item";
-import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog";
+import { WikidataPropertyItem, WikidataPropertyType } from "./items/wikidata-property-item";
+import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useDialog } from "../../../../dialog";
 
 export interface WikidataPropertiesAccordionProps {
