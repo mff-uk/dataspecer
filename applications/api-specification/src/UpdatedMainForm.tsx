@@ -7,7 +7,7 @@ import FormCardSection from './customComponents/FormCardSection';
 import CustomCheckbox from './customComponents/CustomCheckbox';
 import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OpenAPIGenerator';
-import { useDataSpecificationInfo } from './Fetcher';
+import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 
 type Operation = {
