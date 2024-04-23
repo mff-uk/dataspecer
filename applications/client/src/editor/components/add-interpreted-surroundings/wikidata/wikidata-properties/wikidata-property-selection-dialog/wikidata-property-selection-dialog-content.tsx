@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { WdClassHierarchySurroundingsDescOnly, WdDomainsOrRanges, WdOwnOrInherited } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly, WdDomainsOrRanges, WdEntity, WdEntityId, WdEntityIdsList, WdFilterByInstance, WdOwnOrInherited, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { WikidataPropertyType } from "../items/wikidata-property-item";
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../../detail/common";
@@ -19,6 +19,7 @@ export interface WikidataPropertySelectionDialogContentProps extends WikidataPro
     ancestorsContainingProperty: WdClassHierarchySurroundingsDescOnly[];
 }
 
+// Upon call to this function, all props should be non null/undefined, except filter by instance (which is set by the user).
 export const WikidaPropertySelectionDialogContent: React.FC<WikidataPropertySelectionDialogProps> = (props) => {
     const {t} = useTranslation("interpretedSurrounding");
     const ancestorsContainingProperty = useMemo(() => {
@@ -79,6 +80,29 @@ const WikidaPropertySelectionDialogContentAttributes: React.FC<WikidataPropertyS
     );
 }
 
+
+function getAllowedWdClassesIds(wdPropertyId: WdEntityId, wdPropertyType: WikidataPropertyType, wdFilterByInstance: WdFilterByInstance): WdEntityIdsList | undefined | never {
+    if (wdPropertyType === WikidataPropertyType.ASSOCIATIONS) {
+        return wdFilterByInstance.subjectOfFilterRecordsMap.get(wdPropertyId);
+    } else if (wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS) {
+        return wdFilterByInstance.valueOfFilterRecordsMap.get(wdPropertyId);
+    } else {
+        throw new Error("Filtering endpoints is not allowed for attributes.");
+    }
+} 
+
+function filterEndpointsWithFilterByInstance(endpoints: WdClassHierarchyDescOnly[], wdProperty: WdPropertyDescOnly, wdPropertyType: WikidataPropertyType, wdFilterByInstance: WdFilterByInstance): WdClassHierarchyDescOnly[] | never {
+    try {
+        const allowedWdClassesIds = getAllowedWdClassesIds(wdProperty.id, wdPropertyType, wdFilterByInstance);
+        if (allowedWdClassesIds) {
+            return endpoints.filter((wdClass) => allowedWdClassesIds.includes(wdClass.id));
+        } else throw new Error("Filter by instance is missing property endpoints.");
+    } catch (e) {
+        console.log(e);
+    }
+    return endpoints;
+}
+
 const WikidaPropertySelectionDialogContentAssociations: React.FC<WikidataPropertySelectionDialogContentProps> = (props) => {
     const {t} = useTranslation("interpretedSurrounding");
     const [activeStep, setActiveStep] = useState(0);
@@ -95,7 +119,16 @@ const WikidaPropertySelectionDialogContentAssociations: React.FC<WikidataPropert
             ownOrInherited
         );
     
-    const querySuccess = !isLoading && !isError;
+    const querySuccess = useMemo(() => !isLoading && !isError, [isError, isLoading]);
+
+    const endpointsToDisplay = useMemo(() => {
+        if (querySuccess) {
+            if (props.wdFilterByInstance && querySuccess)
+                return filterEndpointsWithFilterByInstance(wdEndpoints, props.wdProperty, props.wdPropertyType, props.wdFilterByInstance);
+            else return wdEndpoints;
+        } else return [];
+    }, [props.wdFilterByInstance, props.wdProperty, props.wdPropertyType, querySuccess, wdEndpoints])
+
 
     return (
         <>
@@ -135,7 +168,7 @@ const WikidaPropertySelectionDialogContentAssociations: React.FC<WikidataPropert
                     querySuccess && activeStep === 1 && 
                     <WikidataClassListWithSelection 
                         key={"endpoints"} 
-                        wdClasses={wdEndpoints} 
+                        wdClasses={endpointsToDisplay} 
                         selectedWdClass={selectedEndpoint} 
                         setSelectedWdClass={setSelectedEndpoint}
                         scrollableClassContentId={SCROLLABLE_CLASS_CONTENT_ID}    
