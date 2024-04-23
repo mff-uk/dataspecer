@@ -74,6 +74,7 @@ export const MultiLanguageInputForLanguageString = (props: {
 
     if (!languages.includes(currentLang) && languages.length) {
         setCurrentLang(languages.at(0)!);
+        props.onChange?.();
     }
 
     const displayString = ls[currentLang] ?? "";
