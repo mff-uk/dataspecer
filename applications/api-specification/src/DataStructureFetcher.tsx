@@ -117,9 +117,7 @@ function processFields(dataStructure: any, rootIri: string): Field {
 
     const field: Field = {
         name: fieldData.dataPsmTechnicalLabel,
-        type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Class")
-            ? getDataTypeName(fieldData.dataPsmDatatype)
-            : "Object",
+        type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? getDataTypeName(fieldData.dataPsmDatatype) : "Object",
     };
 
     if (fieldData.types.includes("https://ofn.gov.cz/slovník/psm/AssociationEnd")) {
