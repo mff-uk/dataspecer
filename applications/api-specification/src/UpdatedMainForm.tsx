@@ -123,7 +123,7 @@ export const ApiSpecificationForm = () => {
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         try {
             const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
-            console.log("submitted data: " + data)
+            console.log("submitted data: " + JSON.stringify(data))
             console.log('Generated OpenAPI Specification:', openAPISpec);
         } catch (error) {
             if (error instanceof Error) {
@@ -199,8 +199,9 @@ export const ApiSpecificationForm = () => {
                                     index={index}
                                     register={register}
                                     dataStructures={fetchedDataStructuresArr}
+                                    isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
-                                        console.log("here I am " + JSON.stringify(selectedDataStructure))
+                                        console.log("here I am " + JSON.stringify(selectedDataStructure));
                                         register(`dataStructures.${index}.name`).onChange({
                                             target: {
                                                 value: selectedDataStructure.name,
@@ -218,8 +219,7 @@ export const ApiSpecificationForm = () => {
                                             name: selectedDataStructure.givenName,
                                             id: selectedDataStructure.id,
                                         });
-                                    }}
-                                />
+                                    }} operationIndex={undefined} />
                             </div>
                             <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
                                 Delete
@@ -240,7 +240,7 @@ export const ApiSpecificationForm = () => {
                                     singleResourceLogicEnabled={false}
                                     baseUrl={baseUrl}
                                     selectedDataStructure={selectedDataStructures[index].givenName}
-                                    fetchedDataStructures = {fetchedDataStructuresArr} /> 
+                                    fetchedDataStructures={fetchedDataStructuresArr} />
                             ))}
 
                             {/* Add operation button */}

@@ -92,18 +92,23 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
 
-                    {/* <ResponseObjectComponent
-                        index={index}
-                        register={register}
-                        dataStructures={fetchedDataStructures}
-                        onChange={(selectedDataStructure) => {
-                            register(`dataStructures.${index}.name`).onChange({
-                                target: {
-                                    value: selectedDataStructure.name,
-                                },
-                            });
-                        }}
-                    /> */}
+                    <div>
+                        <label>Choose Data Structure:</label>
+                        <DataStructuresSelect
+                            key={`responseObject_${index}`}
+                            index={index}
+                            operationIndex={operationIndex}
+                            register={register}
+                            dataStructures={fetchedDataStructures}
+                            isResponseObj={true}
+                            onChange={(selectedDataStructure) => {
+                                register(`dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`).onChange({
+                                    target: {
+                                        value: selectedDataStructure.name,
+                                    },
+                                });
+                            }}/>
+                    </div>
                 </Card>
             </Card>
         </div>
