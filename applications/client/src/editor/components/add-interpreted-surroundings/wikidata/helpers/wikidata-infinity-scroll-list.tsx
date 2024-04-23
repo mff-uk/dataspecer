@@ -7,7 +7,7 @@ const ENTITIES_PER_PAGE = 50;
 
 export interface WikidataInfinityScrollListProps<T extends WdEntityDescOnly> {
     wdEntities: T[];
-    mapListFunction: (wdEntity: T) => ReactElement;
+    mapWdEntityFunc: (wdEntity: T) => ReactElement;
     scrollableTargetId: string;
 }
 
@@ -30,7 +30,7 @@ export function WikidataInfinityScrollList<T extends WdEntityDescOnly>(props: Wi
                     scrollableTarget={props.scrollableTargetId}
                     loader={<p>Loading...</p>}
                 >
-                    {props.wdEntities.slice(0, actualListLength).map(props.mapListFunction)}
+                    {props.wdEntities.slice(0, actualListLength).map(props.mapWdEntityFunc)}
                 </InfiniteScroll>
             </List>
         </>

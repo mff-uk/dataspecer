@@ -1,6 +1,6 @@
 import { WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { Stack, TextField, Typography } from "@mui/material";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { entitySearchTextFilter } from "../../helpers/search-text-filter";
 import { WikidataClassItem } from "../items/wikidata-class-item";
@@ -21,6 +21,17 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({w
         return entitySearchTextFilter(searchText, wdClasses);
     },[wdClasses, searchText])
     
+    const mapWdClassFunc = useCallback((wdClass: WdClassHierarchyDescOnly) => {
+        return ( 
+            <WikidataClassItem
+                    key={wdClass.iri}
+                    wdClass={wdClass}
+                    selectedWdClass={selectedWdClass}
+                    setSelectedWdClass={setSelectedWdClass}
+            />
+        );
+    }, [selectedWdClass, setSelectedWdClass])
+
     return (
         <>
             <Stack direction="row" alignItems="center" spacing={2} marginTop={3}>
@@ -40,16 +51,7 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({w
             <WikidataInfinityScrollList<WdClassHierarchyDescOnly> 
                 wdEntities={classesToDisplay} 
                 scrollableTargetId={scrollableClassContentId} 
-                mapListFunction={(wdClass: WdClassHierarchyDescOnly) => {
-                    return ( 
-                        <WikidataClassItem
-                                key={wdClass.iri}
-                                wdClass={wdClass}
-                                selectedWdClass={selectedWdClass}
-                                setSelectedWdClass={setSelectedWdClass}
-                        />
-                    );
-                }}
+                mapWdEntityFunc={mapWdClassFunc}
             />
         </>
     );
