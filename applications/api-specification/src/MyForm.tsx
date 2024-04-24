@@ -126,6 +126,7 @@ export const ApiSpecificationForm = () => {
     {
         setValue(`dataStructures.${index}.operations.${operationIndex}.oAssociatonMode`, value);
     }
+    
 
     /* Keep As it is - END */
 
@@ -202,7 +203,7 @@ export const ApiSpecificationForm = () => {
                                             )
                                         }
                                         <Select
-                                            {...register(`dataStructures.${index}`)}
+                                            
                                             onValueChange={(value) => handleDataStructureChange(value, index)}
                                             required
                                         >
