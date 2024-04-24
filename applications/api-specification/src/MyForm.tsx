@@ -16,13 +16,22 @@ import {
 } from "./components/ui/form.tsx";
 import { Input } from "./components/ui/input.tsx";
 import { Card } from "./components/ui/card.tsx";
+import { Switch } from "./components/ui/switch.tsx";
 import { DevTool } from "@hookform/devtools"
 import { v4 as uuidv4 } from 'uuid';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 type Operation = {
     oName: string;
     oAssociationMode?: boolean;
     oIsCollection: boolean;
+    oAssociationMode: boolean;
     oType: string;
     oEndpoint: string;
     oComment: string;
@@ -42,6 +51,7 @@ type FormValues = {
     dataStructures: {
         id?: string;
         name: string;
+        givenName?: string;
         operations: Operation[];
     }[];
 };
@@ -50,7 +60,8 @@ type FormValues = {
 export const ApiSpecificationForm = () => {
 
     const form = useForm();
-    const { register, control } = form;
+    const { register, control, watch, setValue, handleSubmit } = form;
+
 
     /* Keep As it Is  START */
 
@@ -81,12 +92,32 @@ export const ApiSpecificationForm = () => {
         fetchData();
     }, [fetchDataStructures]);
 
-    console.log(fetchedDataStructuresArr);
+    //console.log(fetchedDataStructuresArr);
 
     const { fields, append, remove, update } = useFieldArray({
         control,
         name: "dataStructures",
     });
+
+    const handleDataStructureChange = (value, index) => {
+        console.log("handleChange called with value:", value, "and index:", index);
+        const selectedDataStructure = fetchedDataStructuresArr.find(
+            (structure) => structure.name === value
+        );
+        
+        if (selectedDataStructure) {
+            console.log("Selected data structure:", selectedDataStructure);
+
+            setValue(`dataStructures.${index}.name`, selectedDataStructure.name);
+            setValue(`dataStructures.${index}.id`, selectedDataStructure.id);
+            setValue(`dataStructures.${index}.givenName`, selectedDataStructure.givenName);
+        
+        } else {
+            console.error('Selected data structure not found');
+        }
+    };
+
+
 
 
     /* Keep As it is - END */
@@ -148,7 +179,7 @@ export const ApiSpecificationForm = () => {
     // };
 
     return (
-        <Form {...form}>
+        <Form {...form} >
             <Card>
                 <FormField
                     control={form.control}
@@ -214,25 +245,73 @@ export const ApiSpecificationForm = () => {
                                 return (
                                     <FormControl key={field.id}>
                                         <div>
-                                            {/* Added missing div closing tag */}
-                                            <Card {...register(`dataStructures.${index}` as const)} />
-                                            <h3>dfjsf</h3>
+                                            {/* Logic for DataStructure Selection */}
                                             {
                                                 index > 0 && (
                                                     <Button onClick={() => remove(index)}>Remove DataStructure</Button>
                                                 )
                                             }
+                                            <Select
+                                                onValueChange={(value) => handleDataStructureChange(value, index)}
+                                                required
+                                            //{...register(`dataStructures.${index}.name`)}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a data structure" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {fetchedDataStructuresArr.map((dataStructure) => (
+                                                        <SelectItem control={form.control} key={dataStructure.id} value={dataStructure.name}>
+                                                            {dataStructure.givenName} {/* Display the name of the data structure */}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+
+                                            {/* <FormControl>
+                                                <Switch
+                                                    //{...register(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`)}
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+
+                                            <FormControl>
+                                                <Switch
+                                                    //{...register(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`)}
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl> */}
+
+
                                         </div>
                                     </FormControl>
                                 );
                             })
                         }
-                        <Button onClick={() => append({ name: '', operations: [] })}>Add DataStructure</Button>
+                        <Button onClick={() => append({ id: uuidv4(), name: '', givenName: '', operations: [] })}>Add DataStructure</Button>
                     </div>
 
                 </Card>
             </Card>
             <DevTool control={control} />
+
+            <Button
+                onClick={() => {
+                    // Log the entire form state
+                    console.log('Current form state:', form.getValues());
+
+                    // Log specific form field values
+                    console.log('Current apiTitle:', form.getValues('apiTitle'));
+                    console.log('Current dataStructures:', form.getValues('dataStructures'));
+                }}
+            >
+                Log Form State
+            </Button>
+
         </Form >
     );
 };
