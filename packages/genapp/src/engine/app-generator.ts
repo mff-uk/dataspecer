@@ -158,6 +158,34 @@ class ApplicationGenerator {
         })
     }
 
+    async generationHandler({ aggName, capability }: { aggName: string, capability: Capability }) {
+
+        console.log(`CALL BEFORE '${aggName}|${capability.identifier}' generation`);
+        const entrypoint = await capability.generateCapability(aggName);
+        console.log(`CALL AFTER '${aggName}|${capability.identifier}' generation with '${entrypoint}' result`);
+
+        capability.entryPoint = entrypoint;
+
+        console.log("After: ", capability.entryPoint);
+
+        return { aggName, capability };
+
+        // await promise
+        //     .then(
+        //         (entryPoint: any) => {
+        //             capability.entryPoint = entryPoint;
+
+        //             console.log("After: ", capability.entryPoint);
+
+        //             if (aggName in Object.keys(grouped)) {
+        //                 grouped[aggName]?.push(capability);
+        //             } else {
+        //                 grouped[aggName] = [capability];
+        //             }
+        //         });
+    }
+
+    
     generate() {
         // get application configuration
         // const appConfig: ApplicationConfiguration = {
@@ -178,29 +206,37 @@ class ApplicationGenerator {
                 capabilities: ["overview"],
                 datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
             } as AggregateConfiguration,
-            "Dataset": {
-                capabilities: ["overview"],
-                datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
-            } as AggregateConfiguration
+            // "Dataset": {
+            //     capabilities: ["overview"],
+            //     datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
+            // } as AggregateConfiguration
         }
 
         const groupedCapabilities: { [aggName: string]: Capability[] } = {};
 
+        const promises: Promise<{aggName: string; capability: Capability;}>[] = [];
+
         this.constructCapabilityAggregatePairs(appConfig2)
-            .forEach(({ aggName, capability }) => {
-                const entryPoint = capability.generateCapability(aggName);
-
-                capability.entryPoint = entryPoint;
-
-                console.log("After: ", capability.entryPoint);
+            .forEach(async (x) => {
+                const {aggName, capability} = await this.generationHandler(x);
 
                 if (aggName in Object.keys(groupedCapabilities)) {
                     groupedCapabilities[aggName]?.push(capability);
                 } else {
                     groupedCapabilities[aggName] = [capability];
                 }
-            });
-
+            })
+        
+        // promises.forEach(async promise => {
+        //     const { aggName, capability } = await promise;
+            
+        //     if (aggName in Object.keys(grouped)) {
+        //         grouped[aggName]?.push(capability);
+        //     } else {
+        //         grouped[aggName] = [capability];
+        //     }
+        // })
+        
         // foreach Pair<Capability, Aggregate> from application configuration:
         // generate data access layer artefacts
         // construct a DataAccessLayerGenerator instance based on config (i.e. LdkitGenerator, JsonDataAccessGenerator ...)
@@ -215,7 +251,7 @@ class ApplicationGenerator {
         // use generated artefacts to construct an app landing page, links / react routers ...
         console.log("Grouped: ", groupedCapabilities);
 
-        this.generateApplicationBase(groupedCapabilities);
+        //this.generateApplicationBase(groupedCapabilities);
     }
 }
 

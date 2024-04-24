@@ -8,16 +8,16 @@ export class CodeGenerationArtifactMetadata {
     constructor(map: {[objectName: string]: string; }) {
         const entries = Object.entries(map);
         console.log("Entries: ", entries); 
-        if (entries.length !== 1 || !entries[0]) {
-            throw new Error("Incorrect mapping of generated objects");
-        }
+        // if (entries.length !== 1 || !entries[0]) {
+        //     throw new Error("Incorrect mapping of generated objects");
+        // }
 
-        const entry = entries[0];
+        const entry = entries[0] ?? ["", ""];
         [this.objectName, this.objectFilepath] = entry;
 
-        if (!this.objectName || !this.objectFilepath) {
-            throw new Error("Incorrectly generated object");
-        }
+        // if (!this.objectName || !this.objectFilepath) {
+        //     throw new Error("Incorrectly generated object");
+        // }
     }
 }
 
@@ -27,8 +27,8 @@ export function wrapString(wrappee: string, wrapperSymbol: string = "\"") {
 
 export function getRelativePath(sourcePath: string, targetPath: string): string {
     // removes file extension
-    console.log("SRC: ", sourcePath);
-    console.log("Target: ", targetPath);
+    console.log("--utils SRC: ", sourcePath);
+    console.log("--utils Target: ", targetPath);
 
     targetPath = targetPath.substring(0, targetPath.lastIndexOf(".") < 1 ? targetPath.length : targetPath.lastIndexOf("."));
 

@@ -1,0 +1,19 @@
+{
+  "name": "@dataspecer/genapp_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "build": "tsc",
+    "run": "node ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "@dataspecer/ldkit": "*",
+    "dotenv": "^16.4.5"
+  }
+}

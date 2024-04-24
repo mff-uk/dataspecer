@@ -21,10 +21,16 @@ export class OverviewCapability implements Capability {
         }
     }
 
-    generateCapability(aggregateName: string): CodeGenerationArtifactMetadata {
-        const generatedDal: CodeGenerationArtifactMetadata = this.dalGenerator.generate();
-        console.log("Dal: ", generatedDal)
-        //const generatedDal = convertGeneratioResultToGenerationPair(dalResult)[0];
+    async generateCapability(aggregateName: string): Promise<CodeGenerationArtifactMetadata> {
+
+        console.log(`   Generate ${aggregateName} BEFORE`);
+        const dalAxiosResponse = await this.dalGenerator.generate(aggregateName);
+
+        console.log(`   Generate ${aggregateName} AFTER`);
+
+        const generatedDal: CodeGenerationArtifactMetadata = JSON.parse(dalAxiosResponse.data) as CodeGenerationArtifactMetadata;
+
+        console.log("   Dal: ", generatedDal);
 
         if (!generatedDal) {
             throw new Error("Could not generate data layer");
@@ -35,8 +41,6 @@ export class OverviewCapability implements Capability {
             targetSourceFilePath: "./generated/src/readers/reader.ts",
             exportedObjectName: "Reader"
         });
-
-        // TODO: If 2+ outputs are expected (exported object / filename ...), tell within the CodeTemplate.<target value>
 
         const appLogicResult = this.templateAppLogicGenerator
             .generateFromTemplateMetadata({
@@ -64,7 +68,7 @@ export class OverviewCapability implements Capability {
                 }
             });
 
-        console.log("Logic: ", appLogicResult);
+        console.log("   Logic: ", appLogicResult);
 
         const entrypoint = this.frontendElementGenerator
             .generateFromTemplateMetadata({
@@ -77,7 +81,7 @@ export class OverviewCapability implements Capability {
                 }
             });
 
-        console.log("Capab entrypoint: ", entrypoint);
+        console.log("   Capab entrypoint: ", entrypoint);
         this.entrypoint = entrypoint;
         return entrypoint;
     }

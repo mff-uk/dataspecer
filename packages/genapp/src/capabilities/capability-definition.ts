@@ -3,7 +3,7 @@ import { CodeGenerationArtifactMetadata } from "../utils/utils";
 export interface Capability {
     identifier: string;
     entryPoint?: CodeGenerationArtifactMetadata;
-    generateCapability(aggregateName: string): CodeGenerationArtifactMetadata;
+    generateCapability(aggregateName: string): Promise<CodeGenerationArtifactMetadata>;
     // implementation template
     // datasource required operations template
     // i.e. - overview              requires data read
