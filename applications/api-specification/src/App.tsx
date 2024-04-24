@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {ApiSpecificationForm} from './UpdatedMainForm.tsx'
+import {ApiSpecificationForm} from './MyForm.tsx'
 import {SplitScreen} from './SplitScreen.tsx'
 
 const ComponentLeft = () => 
