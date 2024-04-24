@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Time, getValidTime } from "./components/time";
 import { Button } from "./components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
@@ -137,8 +137,6 @@ export default function Component() {
     </div>
   )
 }
-
-const createNewContext = createContext<(parentIri: string) => void>(null as any);
 
 function RootPackage({iri}: {iri: string}) {
   const openModal = useBetterModal();
