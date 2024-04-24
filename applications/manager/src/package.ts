@@ -1,6 +1,7 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
@@ -41,12 +42,34 @@ export async function requestLoadPackage(iri: string, forceUpdate = false) {
     resourcesMemory.current = copiedResourcesMemory;
 }
 
+export async function modifyUserMetadata(iri: string, metadata: {label?: LanguageString, description?: LanguageString}) {
+    const pckg = await packageService.updatePackage(iri, { userMetadata: metadata });
+    const copiedResourcesMemory = {...resourcesMemory.current};
+    if (copiedResourcesMemory[iri]) {
+        copiedResourcesMemory[iri] = {...copiedResourcesMemory[iri], userMetadata: pckg.userMetadata, metadata: pckg.metadata};
+    }
+    setResourcesReact(copiedResourcesMemory);
+}
+
+export async function deleteResource(iri: string) {
+    await packageService.deletePackage(iri);
+    const copiedResourcesMemory = {...resourcesMemory.current};
+    delete copiedResourcesMemory[iri];
+    for (const resource of Object.values(copiedResourcesMemory)) {
+        if (resource.subResourcesIri?.includes(iri)) {
+            copiedResourcesMemory[resource.iri] = {...resource, subResourcesIri: resource.subResourcesIri.filter((subIri) => subIri !== iri)};
+        }
+    }
+    setResourcesReact(copiedResourcesMemory);
+}
+
 export const useResourcesContext = () => {
     resourcesMemory = useRef<Record<string, ResourceWithIris>>({});
 
     const [rootResources, setRootResources] = useState<string[]>([]);
     const [resources, setResources] = useState<Record<string, ResourceWithIris>>({});
     setResourcesReact = setResources;
+    resourcesMemory.current = resources;
 
     useEffect(() => {
         (async () => {

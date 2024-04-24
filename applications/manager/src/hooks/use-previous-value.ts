@@ -5,9 +5,9 @@ import {useRef} from "react";
  * @param live Whether the `value` is up-to-date.
  * @param value The value to return and remember.
  */
-export function usePreviousValue<T>(live: boolean, value: T): T {
+export function usePreviousValue<T>(value: T, live: boolean | undefined = undefined): T {
     const ref = useRef<T>(value);
-    if (live) {
+    if (live ?? value !== undefined) {
         ref.current = value;
     }
     return ref.current;

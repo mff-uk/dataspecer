@@ -1,14 +1,44 @@
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { Code, Cog, Eye, Folder, Globe2, LibraryBig } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
 import { cn } from "./lib/utils";
 import { packageService, requestLoadPackage } from "./package";
-import { v4 as uuidv4 } from 'uuid';
 
 export interface createModelContext {
   iri: string;
   parentIri: string;
   modelType: string;
-  name: string;
+  label?: LanguageString;
+  description?: LanguageString;
+}
+
+function getHookForStandardModel(type: string, initialContent: (iri: string) => any) {
+  return async (context: createModelContext) => {
+    const iri = uuidv4();
+    await fetch(import.meta.env.VITE_BACKEND + "/resources?parentIri=" + encodeURIComponent(context.parentIri), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        iri: iri,
+        type: type,
+        userMetadata: {
+          label: context.label,
+          description: context.description,
+        }
+      }),
+    });
+    await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(initialContent(iri)),
+    });
+    await requestLoadPackage(context.parentIri, true);
+  }
 }
 
 export const createModelInstructions = {
@@ -18,9 +48,8 @@ export const createModelInstructions = {
       await packageService.createPackage(context.parentIri, {
         iri: uuidv4(), 
         userMetadata: {
-          label: {
-            cs: context.name,
-          }
+          label: context.label,
+          description: context.description,
         }
       });
       await requestLoadPackage(context.parentIri, true);
@@ -28,33 +57,33 @@ export const createModelInstructions = {
   },
   [API_SPECIFICATION_MODEL]: {
     needsNaming: true,
-    createHook: async (context: createModelContext) => {
-      const iri = uuidv4();
-      await fetch(import.meta.env.VITE_BACKEND + "/resources?parentIri=" + encodeURIComponent(context.parentIri), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          iri: iri,
-          type: API_SPECIFICATION_MODEL,
-          userMetadata: {
-            label: {
-              cs: context.name,
-            }
-          }
-        }),
-      });
-      await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri), {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
-      await requestLoadPackage(context.parentIri, true);
-    }
-  }
+    createHook: getHookForStandardModel(API_SPECIFICATION_MODEL, () => {}),
+  },
+  [V1.PSM]: {
+    needsNaming: false,
+    createHook: getHookForStandardModel(V1.PSM, () => ({operations: [], resources: []})),
+  },
+  [LOCAL_VISUAL_MODEL]: {
+    needsNaming: false,
+    createHook: getHookForStandardModel(LOCAL_VISUAL_MODEL, iri => ({
+      "type": "http://dataspecer.com/resources/local/visual-model",
+      "modelId": iri,
+      "visualEntities": {},
+      "modelColors": {
+        "vhfk9": "#ffd670"
+      }
+    })),
+  },
+  [LOCAL_SEMANTIC_MODEL]: {
+    needsNaming: false,
+    createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, iri => ({
+      "type": "http://dataspecer.com/resources/local/semantic-model",
+      "modelId": iri,
+      "modelAlias": "",
+      "baseIri": iri,
+      "entities": {}
+    })),
+  },
 }
 
 export const modelTypeToName = {

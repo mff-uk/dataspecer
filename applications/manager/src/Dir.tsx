@@ -1,21 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
-import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Plus, Sparkles, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Time, getValidTime } from "./components/time";
 import { Button } from "./components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Skeleton } from "./components/ui/skeleton";
+import { Autolayout } from "./dialog/autolayout";
 import { CreateNew } from "./dialog/create-new";
 import { DeleteResource } from "./dialog/delete-resource";
+import { RenameResourceDialog } from "./dialog/rename-resource";
 import { ResourceDetail } from "./dialog/resource-detail";
 import { useIsMobile } from "./hooks/use-is-mobile";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
-import { ResourcesContext, RootResourcesContext, requestLoadPackage } from "./package";
-import { Autolayout } from "./dialog/autolayout";
+import { ResourcesContext, RootResourcesContext, modifyUserMetadata, requestLoadPackage } from "./package";
 
 
 export function lng(text: LanguageString | undefined): string | undefined {
@@ -26,6 +27,13 @@ function stopPropagation<E extends React.MouseEvent>(f: ((e: E) => void) | undef
   return (e: E) => {
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
+    f?.(e);
+  };
+}
+
+export function preventDefault<E extends React.SyntheticEvent>(f: ((e: E) => void) | undefined = undefined) {
+  return (e: E) => {
+    e.preventDefault();
     f?.(e);
   };
 }
@@ -43,8 +51,6 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
 
   const isMobile = useIsMobile();
   const detailModalToggle = useToggle();
-
-  const createNew = useContext(createNewContext);
 
   const openModal = useBetterModal();
 
@@ -78,7 +84,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
       {resource.types.includes(API_SPECIFICATION_MODEL) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_API_SPECIFICATION_APPLICATION + "?package-iri=" + encodeURIComponent(parentIri ?? "") + "&model-iri=" + encodeURIComponent(iri) }>Edit</a></Button>}
 
       {resource.types.includes(LOCAL_PACKAGE) &&
-        <Button variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation(() => createNew(iri))}>
+        <Button variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation(() => openModal(CreateNew, {iri}))}>
           <Plus className="h-4 w-4" />
         </Button>
       }
@@ -92,6 +98,12 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         <DropdownMenuContent>
           {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator /> */}
+          <DropdownMenuItem onClick={async () => {
+            const result = await openModal(RenameResourceDialog, {inputLabel: resource.userMetadata?.label, inputDescription: resource.userMetadata?.description});
+            if (result) {
+              await modifyUserMetadata(iri, {label: result.name, description: result.description});
+            }
+          }}><Pencil className="mr-2 h-4 w-4" /> Rename</DropdownMenuItem>
           {resource.types.includes(LOCAL_SEMANTIC_MODEL) && <DropdownMenuItem onClick={() => openModal(Autolayout, {iri, parentIri: parentIri!})}><Sparkles className="mr-2 h-4 w-4" /> Autolayout</DropdownMenuItem>}
           <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => openModal(DeleteResource, {iri})}><Trash2 className="mr-2 h-4 w-4" /> Odstranit</DropdownMenuItem>
         </DropdownMenuContent>
@@ -129,18 +141,15 @@ export default function Component() {
 const createNewContext = createContext<(parentIri: string) => void>(null as any);
 
 function RootPackage({iri}: {iri: string}) {
+  const openModal = useBetterModal();
   const resources = useContext(ResourcesContext);
   const pckg = resources[iri];
 
+  // Whether the package is open or not
+  const [isOpen, setIsOpen] = useState<boolean>(true);
+
   useEffect(() => {
     requestLoadPackage(iri);
-  }, []);
-
-  const createNewToggle = useToggle();
-  const [forIri, setForIri] = useState<string>(iri);
-  const createNew = useCallback((parentIri: string) => {
-    setForIri(parentIri);
-    createNewToggle.open();
   }, []);
 
   if (!pckg) {
@@ -153,17 +162,18 @@ function RootPackage({iri}: {iri: string}) {
     </div>;
   }
 
-  return <div>
+  return <div className="mb-12">
     <div className="flex flex-row">
-      <h2 className="font-heading mt-12 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow">{pckg.userMetadata?.label?.cs}</h2>
-      <Button variant="default" size={"sm"} className="shrink-0 ml-4" onClick={() => createNew(iri)}><Folder className="mr-2 h-4 w-4" /> New pakckage</Button>
+      <button onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+      </button>
+      <h2 className="font-heading ml-3 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow">{pckg.userMetadata?.label?.cs}</h2>
+      <Button variant="default" size={"sm"} className="shrink-0 ml-4" onClick={() => openModal(CreateNew, {iri})}><Folder className="mr-2 h-4 w-4" /> New pakckage</Button>
     </div>
-    <createNewContext.Provider value={createNew}>
+    {isOpen &&
       <ul>
         {pckg.subResourcesIri?.map(iri => <Row iri={iri} parentIri={pckg.iri} key={iri} />)}
       </ul>
-    </createNewContext.Provider>
-
-    <CreateNew isOpen={createNewToggle.isOpen} close={createNewToggle.close} iri={forIri} />
+    }
   </div>;
 }
