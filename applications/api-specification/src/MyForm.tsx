@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/select"
 
 type Operation = {
+    oId: string
     oName: string;
     oAssociationMode?: boolean;
     oIsCollection: boolean;
-    oAssociationMode: boolean;
     oType: string;
     oEndpoint: string;
     oComment: string;
@@ -61,7 +61,6 @@ export const ApiSpecificationForm = () => {
 
     const form = useForm();
     const { register, control, watch, setValue, handleSubmit } = form;
-
 
     /* Keep As it Is  START */
 
@@ -99,84 +98,36 @@ export const ApiSpecificationForm = () => {
         name: "dataStructures",
     });
 
+
     const handleDataStructureChange = (value, index) => {
         console.log("handleChange called with value:", value, "and index:", index);
         const selectedDataStructure = fetchedDataStructuresArr.find(
             (structure) => structure.name === value
         );
-        
+
         if (selectedDataStructure) {
             console.log("Selected data structure:", selectedDataStructure);
 
             setValue(`dataStructures.${index}.name`, selectedDataStructure.name);
             setValue(`dataStructures.${index}.id`, selectedDataStructure.id);
             setValue(`dataStructures.${index}.givenName`, selectedDataStructure.givenName);
-        
+
         } else {
             console.error('Selected data structure not found');
         }
     };
 
+    const handleIsCollectionChecked = (value, index, operationIndex) => 
+    {
+        setValue(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`, value);
+    }
 
-
+    const handleAssociationModeChecked = (value, index, operationIndex) => 
+    {
+        setValue(`dataStructures.${index}.operations.${operationIndex}.oAssociatonMode`, value);
+    }
 
     /* Keep As it is - END */
-
-
-    // const onSubmit: SubmitHandler<FormValues> = (data) => {
-    //     try {
-    //         const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
-    //         console.log("submitted data: " + JSON.stringify(data))
-    //         console.log('Generated OpenAPI Specification:', openAPISpec);
-    //     } catch (error) {
-    //         if (error instanceof Error) {
-    //             console.error('Form validation failed:', error.message);
-    //         } else {
-    //             console.error('Form validation failed:', 'Unknown error occurred');
-    //         }
-    //     }
-    // };
-
-    // const addOperation = (index: number) => {
-    //     const newOperation = {
-    //         name: '',
-    //         isCollection: false,
-    //         oType: '',
-    //         oName: '',
-    //         oEndpoint: '',
-    //         oComment: '',
-    //         oResponse: '',
-    //         oRequestBody: {},
-    //         //oResponseObject: {}
-    //     };
-
-    //     update(index, {
-    //         ...fields[index],
-    //         operations: [...fields[index].operations, newOperation],
-    //     });
-
-    //     setSelectedDataStructures((prevState) => {
-    //         const newState = [...prevState];
-    //         newState[index] = { ...newState[index], operations: newOperation };
-    //         return newState;
-    //     });
-    // };
-
-    // // Function to remove an operation from a data structure
-    // const removeOperation = (dataStructureIndex: number, operationIndex: number) => {
-    //     const updatedOperations = fields[dataStructureIndex].operations.filter((_, idx) => idx !== operationIndex);
-
-    //     update(dataStructureIndex, {
-    //         ...fields[dataStructureIndex],
-    //         operations: updatedOperations,
-    //     });
-
-    //     setSelectedDataStructures((prevState) => {
-    //         const newState = [...prevState];
-    //         newState[dataStructureIndex].operations = updatedOperations;
-    //         return newState;
-    //     });
-    // };
 
     return (
         <Form {...form} >
@@ -235,67 +186,113 @@ export const ApiSpecificationForm = () => {
                 />
             </Card>
 
-            <Card>
+            <Card className="p-2">
                 <h3>Data Structures</h3>
-                <Card>
-                    <div>
-                        {
-                            // Here we have access to each field - datastructure 
-                            fields.map((field, index) => {
-                                return (
-                                    <FormControl key={field.id}>
-                                        <div>
-                                            {/* Logic for DataStructure Selection */}
-                                            {
-                                                index > 0 && (
-                                                    <Button onClick={() => remove(index)}>Remove DataStructure</Button>
-                                                )
-                                            }
-                                            <Select
-                                                onValueChange={(value) => handleDataStructureChange(value, index)}
-                                                required
-                                            //{...register(`dataStructures.${index}.name`)}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select a data structure" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {fetchedDataStructuresArr.map((dataStructure) => (
-                                                        <SelectItem control={form.control} key={dataStructure.id} value={dataStructure.name}>
-                                                            {dataStructure.givenName} {/* Display the name of the data structure */}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-
-                                            {/* <FormControl>
-                                                <Switch
-                                                    //{...register(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`)}
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
-                                            </FormControl>
-
+                <div>
+                    {
+                        // Here we have access to each field - datastructure 
+                        fields.map((field, index) => {
+                            return (
+                                <FormControl key={field.id}>
+                                    <Card className="p-4 mt-5">
+                                        {/* Logic for DataStructure Selection */}
+                                        {
+                                            index >= 0 && (
+                                                <Button onClick={() => remove(index)}>Remove DataStructure</Button>
+                                            )
+                                        }
+                                        <Select
+                                            {...register(`dataStructures.${index}`)}
+                                            onValueChange={(value) => handleDataStructureChange(value, index)}
+                                            required
+                                        >
                                             <FormControl>
-                                                <Switch
-                                                    //{...register(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`)}
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
-                                            </FormControl> */}
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a data structure" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {fetchedDataStructuresArr.map((dataStructure) => (
+                                                    <SelectItem control={form.control} key={dataStructure.id} value={dataStructure.name}>
+                                                        {dataStructure.givenName} {/* Display the name of the data structure */}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                        {/* Logic for OperationCard*/}
+                                        <FormControl >
+                                            <div>
+                                                <h4>Operations:</h4>
+                                                {
+
+                                                    // Here we have access to operations of datastructure
+                                                    Array.isArray(field.operations) && field.operations.map((op, operationIndex) => {
+                                                        return (
+                                                            <FormControl>
+                                                                <div>
+                                                                    {
+                                                                        index >= 0 && (
+                                                                            //...fields[index].operations[operationIndex]
+                                                                            <Button onClick={() => update(index, 
+                                                                                {
+                                                                                    ...fields[index],
+                                                                                    operations: fields[index]?.operations?.filter((_, idx) => idx !== operationIndex)
+                                                                                })}>Remove Operation</Button>
+                                                                        )
+                                                                    }
+                                                                    <Card>
+                                                                        <FormControl>
+                                                                            <Switch
+                                                                                {...register(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`)}
+                                                                                checked={op.value}
+                                                                                onCheckedChange={(checked) => handleIsCollectionChecked(checked as boolean, index, operationIndex)}
+                                                                            />
+                                                                        </FormControl>
+
+                                                                        <FormControl>
+                                                                            <Switch
+                                                                                {...register(`dataStructures.${index}.operations.${operationIndex}.oAssociationMode`)}
+                                                                                checked={op.value}
+                                                                                onCheckedChange={(checked) => handleAssociationModeChecked(checked as boolean, index, operationIndex)}
+                                                                            />
+                                                                        </FormControl>
+                                                                    </Card>
+                                                                </div>
+                                                            </FormControl>
+
+                                                        );
+                                                    })
+                                                }
+                                                <Button className="p-2 mt-5" onClick={() => update(index,
+                                                    {
+                                                        ...fields[index],
+                                                        operations:
+                                                            [...fields[index].operations,
+                                                            {
+                                                                OId: uuidv4(),
+                                                                OName: '',
+                                                                oAssociationMode: false,
+                                                                oIsCollection: false,
+                                                                oType: '',
+                                                                oEndpoint: '',
+                                                                oComment: '',
+                                                                oResponse: '',
+                                                                oRequestBody: {},
+                                                                oTargetObject: {}
+                                                            }]
+                                                    })}>Add Operation</Button>
+                                            </div>
+                                        </FormControl>
+                                    </Card>
+                                </FormControl>
+                            );
+                        })
+                    }
+                    <Button className="p-2 mt-5" onClick={() => append({ id: uuidv4(), name: '', givenName: '', operations: [] })}>Add DataStructure</Button>
+                </div>
 
 
-                                        </div>
-                                    </FormControl>
-                                );
-                            })
-                        }
-                        <Button onClick={() => append({ id: uuidv4(), name: '', givenName: '', operations: [] })}>Add DataStructure</Button>
-                    </div>
-
-                </Card>
             </Card>
             <DevTool control={control} />
 
