@@ -108,25 +108,114 @@ export const ApiSpecificationForm = () => {
         if (selectedDataStructure) {
             console.log("Selected data structure:", selectedDataStructure);
 
+            console.log("before setValue " + JSON.stringify(`dataStructures.${index}`));
             setValue(`dataStructures.${index}.name`, selectedDataStructure.name);
             setValue(`dataStructures.${index}.id`, selectedDataStructure.id);
             setValue(`dataStructures.${index}.givenName`, selectedDataStructure.givenName);
+
+
+
+            console.log("before set " + JSON.stringify(`dataStructures.${index}`));
+
+
+            setSelectedDataStructures((prevState) => {
+                const newState = [...prevState];
+
+                // Initialize prevState[index] if it doesn't exist
+                if (!prevState[index]) {
+                    prevState[index] = {
+                        id: '',
+                        name: '',
+                        givenName: '',
+                        operations: [],
+                    };
+                }
+
+                // Ensure operations is an array
+                if (!Array.isArray(prevState[index].operations)) {
+                    prevState[index].operations = [];
+                }
+
+                // Update newState[index] with the selected data structure
+                newState[index] = {
+                    ...prevState[index],
+                    id: selectedDataStructure.id,
+                    name: selectedDataStructure.name,
+                    givenName: selectedDataStructure.givenName,
+                    // Keep existing operations (if any) or initialize as an empty array
+                    operations: Array.isArray(prevState[index].operations) ? prevState[index].operations : [],
+                };
+
+                return newState;
+            });
+
+
+
 
         } else {
             console.error('Selected data structure not found');
         }
     };
 
-    const handleIsCollectionChecked = (value, index, operationIndex) => 
-    {
+    const handleIsCollectionChecked = (value, index, operationIndex) => {
         setValue(`dataStructures.${index}.operations.${operationIndex}.oIsCollection`, value);
     }
 
-    const handleAssociationModeChecked = (value, index, operationIndex) => 
-    {
+    const handleAssociationModeChecked = (value, index, operationIndex) => {
         setValue(`dataStructures.${index}.operations.${operationIndex}.oAssociatonMode`, value);
     }
-    
+
+
+    const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
+
+    useEffect(() => {
+        const dataStructures = watch("dataStructures");
+        console.log("BEFORE " + JSON.stringify(dataStructures))
+        setSelectedDataStructures(dataStructures);
+        console.log("AFTER " + JSON.stringify(dataStructures))
+    }, [watch]);
+
+    const addOperation = (index: number) => {
+        const newOperation = {
+            OId: uuidv4(),
+            OName: '',
+            oAssociationMode: false,
+            oIsCollection: false,
+            oType: '',
+            oEndpoint: '',
+            oComment: '',
+            oResponse: '',
+            oRequestBody: {},
+            oTargetObject: {}
+        };
+
+        update(index, {
+            ...fields[index],
+            operations: [...fields[index].operations, newOperation],
+        });
+
+        setSelectedDataStructures((prevState) => {
+            const newState = [...prevState];
+            newState[index] = { ...newState[index], operations: newOperation };
+            return newState;
+        });
+    };
+
+    // Function to remove an operation from a data structure
+    const removeOperation = (dataStructureIndex: number, operationIndex: number) => {
+        const updatedOperations = fields[dataStructureIndex].operations.filter((_, idx) => idx !== operationIndex);
+
+        update(dataStructureIndex, {
+            ...fields[dataStructureIndex],
+            operations: updatedOperations,
+        });
+
+        setSelectedDataStructures((prevState) => {
+            const newState = [...prevState];
+            newState[dataStructureIndex].operations = updatedOperations;
+            return newState;
+        });
+    };
 
     /* Keep As it is - END */
 
@@ -202,8 +291,7 @@ export const ApiSpecificationForm = () => {
                                                 <Button onClick={() => remove(index)}>Remove DataStructure</Button>
                                             )
                                         }
-                                        <Select
-                                            
+                                        {/* <Select
                                             onValueChange={(value) => handleDataStructureChange(value, index)}
                                             required
                                         >
@@ -215,11 +303,38 @@ export const ApiSpecificationForm = () => {
                                             <SelectContent>
                                                 {fetchedDataStructuresArr.map((dataStructure) => (
                                                     <SelectItem control={form.control} key={dataStructure.id} value={dataStructure.name}>
-                                                        {dataStructure.givenName} {/* Display the name of the data structure */}
+                                                        {dataStructure.givenName} 
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
-                                        </Select>
+                                        </Select> */}
+
+                                        <DataStructuresSelect
+                                            key={`dataStructureSelect_${index}`}
+                                            index={index}
+                                            register={register}
+                                            dataStructures={fetchedDataStructuresArr}
+                                            isResponseObj={false}
+                                            onChange={(selectedDataStructure.name) => {
+                                                register(`dataStructures.${index}.name`).onChange({
+                                                    target: {
+                                                        value: selectedDataStructure.name,
+                                                    },
+                                                });
+
+                                                setSelectedDataStructures((prevState) => {
+                                                    const newState = [...prevState];
+                                                    console.log(selectedDataStructure)
+                                                    newState[index] = selectedDataStructure;
+                                                    return newState;
+                                                });
+
+                                                update(index, {
+                                                    ...fields[index],
+                                                    name: selectedDataStructure.givenName,
+                                                    id: selectedDataStructure.id,
+                                                });
+                                            }} operationIndex={undefined} />
 
                                         {/* Logic for OperationCard*/}
                                         <FormControl >
@@ -235,11 +350,17 @@ export const ApiSpecificationForm = () => {
                                                                     {
                                                                         index >= 0 && (
                                                                             //...fields[index].operations[operationIndex]
-                                                                            <Button onClick={() => update(index, 
-                                                                                {
-                                                                                    ...fields[index],
-                                                                                    operations: fields[index]?.operations?.filter((_, idx) => idx !== operationIndex)
-                                                                                })}>Remove Operation</Button>
+                                                                            // <Button onClick={() => update(index,
+                                                                            //     {
+                                                                            //         ...fields[index],
+                                                                            //         operations: fields[index]?.operations?.filter((_, idx) => idx !== operationIndex)
+                                                                            //     })}>Remove Operation</Button>
+
+                                                                            <Button
+                                                                                className="bg-red-500 hover:bg-red-400"
+                                                                                type="button"
+                                                                                onClick={() => removeOperation(index, operationIndex)}
+                                                                            >Remove Operation</Button>
                                                                         )
                                                                     }
                                                                     <Card>
@@ -265,7 +386,7 @@ export const ApiSpecificationForm = () => {
                                                         );
                                                     })
                                                 }
-                                                <Button className="p-2 mt-5" onClick={() => update(index,
+                                                {/* <Button className="p-2 mt-5" onClick={() => update(index,
                                                     {
                                                         ...fields[index],
                                                         operations:
@@ -282,7 +403,14 @@ export const ApiSpecificationForm = () => {
                                                                 oRequestBody: {},
                                                                 oTargetObject: {}
                                                             }]
-                                                    })}>Add Operation</Button>
+                                                    })}>Add Operation</Button> */}
+                                                <Button
+                                                    className="bg-blue-500 hover:bg-blue-400"
+                                                    type="button"
+                                                    onClick={() => addOperation(index)}
+                                                >
+                                                    Add Operation
+                                                </Button>
                                             </div>
                                         </FormControl>
                                     </Card>
