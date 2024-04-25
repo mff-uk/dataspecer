@@ -14,23 +14,23 @@ export interface WikidataInfinityScrollListProps<T extends WdEntityDescOnly> {
 export function WikidataInfinityScrollList<T extends WdEntityDescOnly>(props: WikidataInfinityScrollListProps<T>): ReactElement {
     const [listLength, setListLength] = useState(ENTITIES_PER_PAGE);
     
-    const actualListLength = props.wdEntities.length < listLength ? props.wdEntities.length : listLength;
+    const roundedDownListLength = props.wdEntities.length < listLength ? props.wdEntities.length : listLength;
 
     return (
         <>
             <List>
                 <InfiniteScroll
-                    dataLength={actualListLength}
+                    dataLength={roundedDownListLength}
                     next={() => {
                         let newListLength = listLength + ENTITIES_PER_PAGE;
                         if (newListLength > props.wdEntities.length) newListLength = props.wdEntities.length;
                         setListLength(newListLength);
                     }}
-                    hasMore={actualListLength < props.wdEntities.length}
+                    hasMore={roundedDownListLength < props.wdEntities.length}
                     scrollableTarget={props.scrollableTargetId}
                     loader={<p>Loading...</p>}
                 >
-                    {props.wdEntities.slice(0, actualListLength).map(props.mapWdEntityFunc)}
+                    {props.wdEntities.slice(0, roundedDownListLength).map(props.mapWdEntityFunc)}
                 </InfiniteScroll>
             </List>
         </>
