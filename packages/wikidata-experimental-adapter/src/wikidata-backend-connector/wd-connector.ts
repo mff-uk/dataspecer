@@ -6,7 +6,7 @@ import {
   WdClassPropertyEndpoints,
   WdDomainsOrRanges,
   WdGetClassPropertyEndpointsResponse,
-  WdOwnOrInherited,
+  WdBaseOrInheritOrder,
 } from './api-types/get-class-property-endpoints';
 import {
   WdClassWithSurroundingsDesc,
@@ -40,8 +40,8 @@ export class WdConnector {
       this.addBaseUrlPrefix(`/classes/${classId}/surroundings`),
     getFilterByInstanceUrl: (instanceUrl: string) =>
       this.addBaseUrlPrefix(`/filter-by-instance?url=${encodeURI(instanceUrl)}`),
-    getClassPropertyEndpointsUrl: (classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, ownOrInherited: WdOwnOrInherited) =>
-      this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?part=${ownOrInherited}`)
+    getClassPropertyEndpointsUrl: (classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, order: WdBaseOrInheritOrder) =>
+      this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?order=${order}`)
   };
 
   constructor(httpFetch: HttpFetch) {
@@ -85,9 +85,9 @@ export class WdConnector {
     return await this.callFetch<WdGetFilterByInstanceResponse, WdFilterByInstance>(url, WdFilterByInstance);
   }
 
-  public async getClassPropertyEndpoints(classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, ownOrInherited: WdOwnOrInherited
+  public async getClassPropertyEndpoints(classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, order: WdBaseOrInheritOrder
   ): Promise<WdClassPropertyEndpoints | WdErrorResponse> {
-    const url = this.API_ENDPOINTS.getClassPropertyEndpointsUrl(classId, propertyId, domainsOrRanges, ownOrInherited);
+    const url = this.API_ENDPOINTS.getClassPropertyEndpointsUrl(classId, propertyId, domainsOrRanges, order);
     return await this.callFetch<WdGetClassPropertyEndpointsResponse, WdClassPropertyEndpoints>(url, WdClassPropertyEndpoints);
   }
 }

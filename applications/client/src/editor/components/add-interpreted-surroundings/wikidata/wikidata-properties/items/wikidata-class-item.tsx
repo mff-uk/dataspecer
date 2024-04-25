@@ -1,5 +1,5 @@
-import { WdClassHierarchyDescOnly } from "@dataspecer/wikidata-experimental-adapter"
-import { ListItem, Typography, IconButton, ListItemText, Box, ListItemIcon, Checkbox } from "@mui/material";
+import { WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly } from "@dataspecer/wikidata-experimental-adapter"
+import { ListItem, Typography, IconButton, ListItemText, Box, ListItemIcon, Checkbox, Radio } from "@mui/material";
 import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,7 @@ import React from "react";
 export interface WikidataClassItemProps {
     wdClass: WdClassHierarchyDescOnly;
     selectedWdClass: WdClassHierarchyDescOnly | undefined;
-    setSelectedWdClass: React.Dispatch<React.SetStateAction<WdClassHierarchyDescOnly>>;
+    setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly | undefined) => void;
 }
 
 export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({wdClass, selectedWdClass, setSelectedWdClass}) => {
@@ -20,12 +20,12 @@ export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({wdClass, se
         <>
             <ListItem key={wdClass.iri} role={undefined} dense button onClick={() => setSelectedWdClass(currentClassIsSelected ? undefined : wdClass)}>
                 <ListItemIcon>
-                    <Checkbox
-                        edge="start"
-                        checked={currentClassIsSelected}
-                        tabIndex={-1}
-                        disableRipple
-                    />
+                <Radio
+                    edge="start"
+                    checked={currentClassIsSelected}
+                    tabIndex={-1}
+                    disableRipple
+                />
                 </ListItemIcon>
                 <ListItemText secondary={
                     <Box style={{display: "flex", gap: "1em"}}>

@@ -1,7 +1,7 @@
 import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 
 export type WdDomainsOrRanges = 'domains' | 'ranges';
-export type WdOwnOrInherited = 'own' | 'inherited';
+export type WdBaseOrInheritOrder = 'base' | 'inherit';
 
 export interface WdClassPropertyEndpointsResponseResults {
   readonly classes: WdClassHierarchyDescOnly[];

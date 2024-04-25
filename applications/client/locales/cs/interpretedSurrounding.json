@@ -31,6 +31,10 @@
   "select one ancestor": "Výběr nadtřídy",
   "select one endpoint": "Výběr koncové třídy",
   "number of classes": "Počet tříd",
+  "ancestor selection help 0": "Tento dialog se zobrazuje, protože jste povolili zahrnutí nadtříd.",
   "ancestor selection help 1": "Níže uvedené nadtřídy, kořenem v právě vybrané nadtřídě, definují zvolený atribut či vybranou asociaci.",
-  "ancestor selection help 2": "Prosím, vyberte jednu nadtřídu než budete pokračovat."
+  "ancestor selection help 2": "Prosím, vyberte jednu nadtřídu než budete pokračovat.",
+  "endpoint selection instance help": "Filtr dle instance je nastaven:",
+  "turn on": "Zapnout",
+  "turn off": "Vypnout"
 }

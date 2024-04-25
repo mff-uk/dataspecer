@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly, WdDomainsOrRanges, WdEntity, WdEntityId, WdEntityIdsList, WdFilterByInstance, WdOwnOrInherited, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
+import { WdBaseOrInheritOrder, WdClassHierarchyDescOnly, WdClassHierarchySurroundingsDescOnly, WdDomainsOrRanges, WdEntityId, WdEntityIdsList, WdFilterByInstance, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { WikidataPropertyType } from "../items/wikidata-property-item";
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../../detail/common";
@@ -13,73 +13,159 @@ import { WikidataClassListWithSelection } from "./wikidata-class-list-with-selec
 import { getAncestorsContainingProperty } from "../../helpers/ancestors-containing-property";
 import { WikidataPropertySelectionDialogProps } from "./wikidata-property-selection-dialog";
 
-const SCROLLABLE_CLASS_CONTENT_ID = "selection_scrollable_classc_content"
+const SCROLLABLE_CLASS_CONTENT_ID = "selection_scrollable_class_content"
 
-export interface WikidataPropertySelectionDialogContentProps extends WikidataPropertySelectionDialogProps {
-    ancestorsContainingProperty: WdClassHierarchySurroundingsDescOnly[];
+// Must match the translation ids, since the names are used as labels
+// Steps need to be string to work with mui stepper api.
+const ANCESTORS_SELECTION_STEP = "select one ancestor";
+const ENDPOINTS_SELECTION_STEP = "select one endpoint";
+
+interface WikidaPropertySelectionStepperProcessProps extends WikidataPropertySelectionDialogProps {
+    stepsNames: string[];
 }
 
-// Upon call to this function, all props should be non null/undefined, except filter by instance (which is set by the user).
+interface WikidataPropertySelectionStepProps extends WikidataPropertySelectionDialogProps {
+    selectedWdClass: WdClassHierarchyDescOnly | undefined;
+    setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly | undefined) => void;
+}
+
 export const WikidaPropertySelectionDialogContent: React.FC<WikidataPropertySelectionDialogProps> = (props) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const ancestorsContainingProperty = useMemo(() => {
-        return getAncestorsContainingProperty(props.selectedWdClassSurroundings, props.wdProperty, props.wdPropertyType);
-    },[props.selectedWdClassSurroundings, props.wdProperty, props.wdPropertyType])
+    
+    // There must be always at least one step.
+    const stepsNames = useMemo(() => {
+        const names: string[] = [];
+        if (props.includeInheritedProperties)
+            names.push(ANCESTORS_SELECTION_STEP);
+        if (props.wdPropertyType === WikidataPropertyType.ASSOCIATIONS || props.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS) {
+            names.push(ENDPOINTS_SELECTION_STEP);
+        }
+        return names;
+    }, [props.includeInheritedProperties, props.wdPropertyType]);
 
     return (
         <>
             <DialogTitle id="customized-dialog-title" close={props.close}>
                 {t("selecting".concat(" ", props.wdPropertyType))}: <b>{<LanguageStringFallback from={props.wdProperty.labels}/>}</b>
             </DialogTitle>
-            {   
-                props.wdPropertyType === WikidataPropertyType.ASSOCIATIONS || props.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS 
-                ?
-                <WikidaPropertySelectionDialogContentAssociations {...props} ancestorsContainingProperty={ancestorsContainingProperty}/>
-                :
-                <WikidaPropertySelectionDialogContentAttributes {...props} ancestorsContainingProperty={ancestorsContainingProperty}/>
-            }
+            <WikidataPropertySelectionStepperProcess {...props} stepsNames={stepsNames}/>
         </>
     );
 }
 
-const WikidaPropertySelectionDialogContentAttributes: React.FC<WikidataPropertySelectionDialogContentProps> = (props) => {
+const WikidataPropertySelectionStepperProcess: React.FC<WikidaPropertySelectionStepperProcessProps> = (props) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const [selectedAncestor, setSelectedAncestor] = useState<WdClassHierarchySurroundingsDescOnly | undefined>(undefined);
+    const [activeStep, setActiveStep] = useState(0)
+    const [selection, setSelection] = useState<Array<WdClassHierarchyDescOnly | undefined>>(Array(props.stepsNames.length).fill(undefined));
     
-    return (
+    function setSelectionHandle(wdClass: WdClassHierarchyDescOnly | undefined, idx: number): void {
+        const newSelection = [...selection];
+        newSelection[idx] = wdClass;
+        setSelection(newSelection);
+    } 
+
+    const stepProps = {
+        ...props,
+        key: props.stepsNames[activeStep],
+        selectedWdClass: selection[activeStep],
+        setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly) => setSelectionHandle(wdClass, activeStep)
+    }
+
+    return  (
         <>
             <DialogContent id={SCROLLABLE_CLASS_CONTENT_ID} dividers>
-                <Box 
-                    sx={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        ".MuiStepLabel-labelContainer span": {
-                            fontSize: "17px"
+                <Box
+                 sx={{
+                    width: "100%",
+                    display: (props.stepsNames.length === 1 ? "flex" : ""),
+                    justifyContent: "center",
+                    ".MuiStepLabel-labelContainer span": {
+                        fontSize: "17px"
+                    }}}
+                >
+                    <Stepper activeStep={activeStep} >
+                        {
+                            props.stepsNames.map((step, idx) => (
+                                <Step key={step} completed={selection.indexOf(undefined) > idx || selection.indexOf(undefined) === -1}>
+                                    <StepLabel>{t(step)}</StepLabel>
+                                </Step>
+                            ))
                         }
-                    }}>
-                        <Stepper activeStep={0}>
-                            <Step key={"ancestors"} completed={selectedAncestor != null}>
-                                <StepLabel>{t("select one ancestor")}</StepLabel>
-                            </Step>
-                        </Stepper>
+                    </Stepper>
                 </Box>
-                <AncestorsHelpBox />
-                <WikidataClassListWithSelection 
-                    wdClasses={props.ancestorsContainingProperty} 
-                    selectedWdClass={selectedAncestor} 
-                    setSelectedWdClass={setSelectedAncestor}
-                    scrollableClassContentId={SCROLLABLE_CLASS_CONTENT_ID}
-                />
+                {
+                    props.stepsNames[activeStep] === ANCESTORS_SELECTION_STEP ?
+                    <WikidaPropertySelectionAncestorsStep {...stepProps} /> :
+                    <WikidaPropertySelectionEndpointsStep {...stepProps} />
+                }
             </DialogContent>
             <DialogActions>
+                {props.stepsNames.length > 1 &&
+                    <>
+                        <Stack direction="row">
+                            <Button 
+                                disabled={activeStep < 1} 
+                                onClick={() => { 
+                                    const newSelection = [...selection]
+                                    newSelection[activeStep] = undefined
+                                    setSelection(newSelection);
+                                    setActiveStep(previous => previous - 1);
+                                }}
+                                >
+                                {t("selecting back button")}
+                            </Button>
+                            <Button 
+                                disabled={activeStep === (selection.length - 1) || selection.indexOf(undefined) === activeStep}
+                                onClick={() => setActiveStep(previous => previous + 1)}
+                                >
+                                {t("selecting next button")}
+                            </Button>
+                        </Stack>
+                        <Divider orientation="vertical" flexItem />
+                    </>
+                }
                 <Button onClick={props.close}>{t("close button")}</Button>
-                <Button onClick={props.close} disabled={selectedAncestor == null}>{t("confirm button")}</Button>
+                <Button onClick={props.close} disabled={selection.indexOf(undefined) !== -1}>{t("confirm button")}</Button>
             </DialogActions>
         </>
     );
 }
 
+const WikidaPropertySelectionAncestorsStep: React.FC<WikidataPropertySelectionStepProps> = (props) => {
+    const ancestorsContainingProperty = useMemo(() => {
+        return getAncestorsContainingProperty(props.selectedWdClassSurroundings, props.wdProperty, props.wdPropertyType);
+    },[props.selectedWdClassSurroundings, props.wdProperty, props.wdPropertyType])
+    
+    return (
+        <>  
+            <AncestorsHelpBox />
+            <WikidataClassListWithSelection 
+                wdClasses={ancestorsContainingProperty} 
+                selectedWdClass={props.selectedWdClass} 
+                setSelectedWdClass={props.setSelectedWdClass}
+                scrollableClassContentId={SCROLLABLE_CLASS_CONTENT_ID}
+                />
+        </>
+    );
+}
+
+const AncestorsHelpBox: React.FC = () => {
+    const {t} = useTranslation("interpretedSurrounding");
+    return (
+        <>
+            <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2}}>
+                    <HelpOutlineIcon color="info" />
+                    <Typography sx={{marginLeft: 2}} fontSize="15px">
+                        {t("ancestor selection help 0")}
+                        <br/>
+                        {t("ancestor selection help 1")}
+                        <br/>
+                        {t("ancestor selection help 2")}
+                    </Typography>
+            </Box>
+        </>
+    );
+}
 
 function getAllowedWdClassesIds(wdPropertyId: WdEntityId, wdPropertyType: WikidataPropertyType, wdFilterByInstance: WdFilterByInstance): WdEntityIdsList | undefined | never {
     if (wdPropertyType === WikidataPropertyType.ASSOCIATIONS) {
@@ -103,14 +189,12 @@ function filterEndpointsWithFilterByInstance(endpoints: WdClassHierarchyDescOnly
     return endpoints;
 }
 
-const WikidaPropertySelectionDialogContentAssociations: React.FC<WikidataPropertySelectionDialogContentProps> = (props) => {
+const WikidaPropertySelectionEndpointsStep: React.FC<WikidataPropertySelectionStepProps> = (props) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const [activeStep, setActiveStep] = useState(0);
-    const [selectedAncestor, setSelectedAncestor] = useState<WdClassHierarchySurroundingsDescOnly | undefined>(undefined);
-    const [selectedEndpoint, setSelectedEndpoint] = useState<WdClassHierarchySurroundingsDescOnly | undefined>(undefined);
-    
+    const [disableFilterByInstance, setDisableFilterByInstance] = useState(false);
+
     const domainsOrRanges: WdDomainsOrRanges = props.wdPropertyType === WikidataPropertyType.ASSOCIATIONS ? 'ranges' : 'domains';
-    const ownOrInherited: WdOwnOrInherited = props.includeInheritedProperties ? "inherited" : 'own'
+    const ownOrInherited: WdBaseOrInheritOrder = props.includeInheritedProperties ? "inherit" : 'base'
     const {wdEndpoints, isError, isLoading} = 
         useWdGetEndpoints(
             props.selectedWdClassSurroundings.startClassId, 
@@ -123,97 +207,57 @@ const WikidaPropertySelectionDialogContentAssociations: React.FC<WikidataPropert
 
     const endpointsToDisplay = useMemo(() => {
         if (querySuccess) {
-            if (props.wdFilterByInstance && querySuccess)
+            if (props.wdFilterByInstance && querySuccess && !disableFilterByInstance)
                 return filterEndpointsWithFilterByInstance(wdEndpoints, props.wdProperty, props.wdPropertyType, props.wdFilterByInstance);
             else return wdEndpoints;
         } else return [];
-    }, [props.wdFilterByInstance, props.wdProperty, props.wdPropertyType, querySuccess, wdEndpoints])
-
+    }, [disableFilterByInstance, props.wdFilterByInstance, props.wdProperty, props.wdPropertyType, querySuccess, wdEndpoints])
 
     return (
         <>
-            <DialogContent id={SCROLLABLE_CLASS_CONTENT_ID} dividers>
-                <Box 
-                    sx={{
-                        width: "100%",
-                        ".MuiStepLabel-labelContainer span": {
-                            fontSize: "17px"
-                        }
-                    }}>
-                    <Stepper activeStep={activeStep}>
-                        <Step key={"ancestors"} completed={selectedAncestor != null}>
-                            <StepLabel>{t("select one ancestor")}</StepLabel>
-                        </Step>
-                        <Step key={"endpoint"} completed={selectedAncestor != null && selectedEndpoint != null}>
-                            <StepLabel>{t("select one endpoint")}</StepLabel>
-                        </Step>
-                    </Stepper>
-                </Box>
-                {isLoading && <WikidataLoading />}
-                {isError && <WikidataLoadingError errorMessage={t("no endpoints")} />}
-                {   
-                    querySuccess && activeStep === 0 && 
-                    <>  
-                        <AncestorsHelpBox />
-                        <WikidataClassListWithSelection 
-                            key={"ancestors"} 
-                            wdClasses={props.ancestorsContainingProperty} 
-                            selectedWdClass={selectedAncestor} 
-                            setSelectedWdClass={setSelectedAncestor}
-                            scrollableClassContentId={SCROLLABLE_CLASS_CONTENT_ID}    
-                        />
-                    </>
-                }
-                {   
-                    querySuccess && activeStep === 1 && 
+            {isLoading && <WikidataLoading />}
+            {isError && <WikidataLoadingError errorMessage={t("no endpoints")} />}
+            {   
+                querySuccess && 
+                <>
+                    {<FilterByInstaceHelpBox turnedOff={disableFilterByInstance} toggle={setDisableFilterByInstance}/>}
                     <WikidataClassListWithSelection 
                         key={"endpoints"} 
                         wdClasses={endpointsToDisplay} 
-                        selectedWdClass={selectedEndpoint} 
-                        setSelectedWdClass={setSelectedEndpoint}
+                        selectedWdClass={props.selectedWdClass} 
+                        setSelectedWdClass={props.setSelectedWdClass}
                         scrollableClassContentId={SCROLLABLE_CLASS_CONTENT_ID}    
                     />
-                }
-            </DialogContent>
-            <DialogActions>
-                <Stack direction="row">
-                    <Button 
-                        disabled={activeStep === 0} 
-                        onClick={() => { 
-                            setActiveStep(previous => previous - 1);
-                            setSelectedEndpoint(undefined);
-                        }}
-                    >
-                        {t("selecting back button")}
-                    </Button>
-                    <Button 
-                        disabled={activeStep === 1 || selectedAncestor == null}
-                        onClick={() => setActiveStep(previous => previous + 1)}
-                    >
-                        {t("selecting next button")}
-                    </Button>
-                </Stack>
-                <Divider orientation="vertical" flexItem />
-                <Button onClick={props.close}>{t("close button")}</Button>
-                <Button onClick={props.close} disabled={selectedAncestor == null || selectedEndpoint == null}>{t("confirm button")}</Button>
-            </DialogActions>
+                </>
+            }
         </>
     );
 }
 
-const AncestorsHelpBox: React.FC = () => {
+interface FilterByInstaceHelpBoxProps {
+    turnedOff: boolean
+    toggle: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const FilterByInstaceHelpBox: React.FC<FilterByInstaceHelpBoxProps> = ({turnedOff, toggle}) => {
     const {t} = useTranslation("interpretedSurrounding");
     return (
         <>
-            <Box sx={{ display: "flex", alignItems: "center", marginTop: 3}}>
+            <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2}}>
                     <HelpOutlineIcon color="info" />
                     <Typography sx={{marginLeft: 2}} fontSize="15px">
-                        {t("ancestor selection help 1")}
-                        <br/>
-                        {t("ancestor selection help 2")}
+                            {t("endpoint selection instance help")} 
                     </Typography>
+                    <Button 
+                        onClick={() => toggle(previous => !previous)} 
+                        size="small" 
+                        color={turnedOff ? "primary" : "error"} 
+                        variant="contained" 
+                        style={{ marginLeft:5, maxWidth: '100px', maxHeight: '25px', minWidth: '100px', minHeight: '25px'}}
+                    >
+                        {t(turnedOff ? "turn on" : "turn off")}
+                    </Button>
             </Box>
         </>
-
     );
 }

@@ -16,7 +16,6 @@ export interface WikidataPropertiesAccordionProps {
     wdPropertyType: WikidataPropertyType;
 }
 
-
 export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionProps> = ({wdProperties, selectedWdClassSurroundings, includeInheritedProperties, wdFilterByInstance, wdPropertyType}) => {
     const {t} = useTranslation("interpretedSurrounding");
     const [expanded, setExpanded] = useState(false);

@@ -31,6 +31,10 @@
   "select one ancestor": "Select one ancestor",
   "select one endpoint": "Select one endpoint",
   "number of classes": "Number of classes",
+  "ancestor selection help 0": "This dialog is being shown since you have allowed including from ancestors.",
   "ancestor selection help 1": "Below stated ancestors, with the currently selected ancestor as root, define selected attribute/association.",
-  "ancestor selection help 2": "Please, choose one before continuing."
+  "ancestor selection help 2": "Please, choose one before continuing.",
+  "endpoint selection instance help": "Filter by instance is set:",
+  "turn on": "Turn on",
+  "turn off": "Turn off"
 }

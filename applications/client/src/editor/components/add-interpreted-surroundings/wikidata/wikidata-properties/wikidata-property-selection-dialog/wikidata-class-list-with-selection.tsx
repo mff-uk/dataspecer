@@ -8,8 +8,8 @@ import { WikidataInfinityScrollList } from "../../helpers/wikidata-infinity-scro
 
 export interface ClassListProperties {
     wdClasses: WdClassHierarchyDescOnly[];
-    selectedWdClass: WdClassHierarchySurroundingsDescOnly | undefined;
-    setSelectedWdClass: React.Dispatch<React.SetStateAction<WdClassHierarchySurroundingsDescOnly>>;
+    selectedWdClass: WdClassHierarchyDescOnly | undefined;
+    setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly | undefined) => void;
     scrollableClassContentId: string;
 }
 
@@ -34,7 +34,7 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({w
 
     return (
         <>
-            <Stack direction="row" alignItems="center" spacing={2} marginTop={3}>
+            <Stack direction="row" alignItems="center" spacing={2}>
                 <TextField
                     placeholder={t("type to search")}
                     sx={{ width: "35%"}}
