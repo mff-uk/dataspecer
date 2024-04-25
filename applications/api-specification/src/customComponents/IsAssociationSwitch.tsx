@@ -10,7 +10,10 @@ interface IsAssociationSwitchProps {
     setValue: any;
     dataStructureName: string;
     dataStructures: DataStructure[]
+    setSelectedResponseObject: React.Dispatch<React.SetStateAction<any>>;
+    setResponseObjectFields: React.Dispatch<React.SetStateAction<DataStructure[]>>;
 }
+
 
 
 const handleAssociationModeChecked = (checked, index, operationIndex, setValue, setSelectedAssociationMode) => {
@@ -20,28 +23,31 @@ const handleAssociationModeChecked = (checked, index, operationIndex, setValue, 
 }
 
 /* LabeledInput - react functional component */
-const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex, register, setValue, dataStructureName, dataStructures }) => {
+const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex, register, setValue, dataStructureName, dataStructures, setSelectedResponseObject, setResponseObjectFields }) => {
     const [selectedAssociationMode, setSelectedAssociationMode] = useState(register(`dataStructures.${index}.operations.${operationIndex}.oAssociationMode`).value);
 
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
-    console.log("selectedDS is:"  + JSON.stringify(selectedDataStructure))
     const objectFields: DataStructure[] = selectedDataStructure ? selectedDataStructure.fields.filter(field => field.type === 'Object') : [];
-    console.log("population " + JSON.stringify(objectFields))
-    // const nestedFields = selectedDataStructure ? selectedDataStructure.fields
-    // .filter(field => field.type === 'Object')
-    // .map(field => field.nestedFields) : [];
 
+    React.useEffect(() => {
+        setResponseObjectFields(objectFields);
+    }, [objectFields, setResponseObjectFields]);
+    
     return (
         <div className="p-1 flex items-center">
-            <Switch
-                checked={selectedAssociationMode}
-                onCheckedChange={(checked) => handleAssociationModeChecked(checked, index, operationIndex, setValue, setSelectedAssociationMode)}
-            />
+            <div>
+                <label>Association Mode: </label>
+                <Switch className
+                    checked={selectedAssociationMode}
+                    onCheckedChange={(checked) => handleAssociationModeChecked(checked, index, operationIndex, setValue, setSelectedAssociationMode)}
+                />
+            </div>
 
-            {/* Conditionally render DataStructuresSelect based on selectedAssociationMode */}
+
+            {/* Conditionally render ResponseObjectSelect based on selectedAssociationMode */}
             {selectedAssociationMode && (
                 <div>
-                    <label>Choose Data Structure:</label>
+                    <label>Target Datastructure: </label>
                     <ResponseObjectSelect
                         key={`responseObject_${index}`}
                         index={index}
@@ -50,6 +56,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
                         dataStructures={objectFields}
                         isResponseObj={true}
                         onChange={(selectedDataStructure) => {
+                            setSelectedResponseObject(selectedDataStructure);
                             register(`dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`).onChange({
                                 target: {
                                     value: selectedDataStructure.name,
@@ -59,24 +66,6 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
                     />
                 </div>
             )}
-
-            {/* <div>
-                <label>Choose Data Structure:</label>
-                <DataStructuresSelect
-                    key={`responseObject_${index}`}
-                    index={index}
-                    operationIndex={operationIndex}
-                    register={register}
-                    dataStructures={dataStructures}
-                    isResponseObj={true}
-                    onChange={(selectedDataStructure) => {
-                        register(`dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`).onChange({
-                            target: {
-                                value: selectedDataStructure.name,
-                            },
-                        });
-                    }} />
-            </div> */}
         </div>
     );
 };

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
-import { Switch } from "./components/ui/switch.tsx";
+import { Switch } from "../components/ui/switch.tsx";
 import { Card } from '../components/ui/card';
 import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
@@ -27,6 +27,9 @@ interface OperationCardProps {
 }
 
 const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures }) => {
+    
+    const [selectedResponseObject, setSelectedResponseObject] = useState(null);
+    const [responseObjectFields, setResponseObjectFields] = useState([]);
 
     return (
         <div key={operationIndex}>
@@ -47,15 +50,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                     </div>
                 </div>
                 {/* Form fields for operation details */}
-                <Card className="p-5">
-                    {/* Operation Name */}
-                    <OperationNameInput
-                        index={index}
-                        operationIndex={operationIndex}
-                        register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
-                    />
+                <Card className="justify-end">
                     {/* Association Mode*/}
                     <Association
                         index = {index}
@@ -64,6 +59,16 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         setValue = {setValue}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
+                        setSelectedResponseObject={setSelectedResponseObject}
+                        setResponseObjectFields={setResponseObjectFields}
+                    />
+                    {/* Operation Name */}
+                    <OperationNameInput
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        collectionLogicEnabled={collectionLogicEnabled}
+                        singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Operation Type */}
                     <OperationTypeSelect
@@ -73,6 +78,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructure={selectedDataStructure}
                         allDataStructures={fetchedDataStructures}
                         setValue={setValue}
+                        responseObjectFields = {responseObjectFields}
+                        selectedResponseObject = {selectedResponseObject}
                     //collectionLogicEnabled={collectionLogicEnabled}
                     //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />

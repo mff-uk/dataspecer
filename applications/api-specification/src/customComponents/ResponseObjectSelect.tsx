@@ -28,11 +28,6 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange,  isRe
                 },
             });
 
-            // register(`dataStructures.${index}.operations.${operationIndex}.oResponseObject.type`).onChange({
-            //     target: {
-            //         value: selectedDataStructure.type,
-            //     },
-            // });
         }
     };
 
@@ -41,7 +36,7 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange,  isRe
         <select {...register(path)} onChange={handleChange} required>
             {dataStructures.map((structure) => (
                 <option key={structure.id} value={structure.name}>
-                    {structure.name + " Type: " + structure.classType}
+                    {structure.name}
                 </option>
             ))}
         </select>

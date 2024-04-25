@@ -29,10 +29,12 @@ interface OperationTypeSelectProps {
     // singleResourceLogicEnabled: boolean;
     dataStructure: string;
     allDataStructures: DataStructure[]
+    responseObjectFields?: any;
+    selectedResponseObject?: string;
 
 }
 
-const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operationIndex, register, setValue, dataStructure, allDataStructures}) => {
+const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operationIndex, register, setValue, dataStructure, allDataStructures, responseObjectFields, selectedResponseObject}) => {
 
 
     // let path = ''
@@ -110,14 +112,14 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operat
                     operationIndex={operationIndex}
                     register={register}
                     setValue={setValue}
-                    dataStructure={dataStructure}
-                    allDataStructures={allDataStructures} />
+                    dataStructure={selectedResponseObject ? selectedResponseObject : dataStructure}
+                    //allDataStructures={allDataStructures}
+                    allDataStructures={allDataStructures}
+                    responseDataStructures = {responseObjectFields}
+                     />
             )}
         </>
     );
-    // } else {
-    //     return null;
-    // }
 };
 
 export default OperationTypeSelect;
