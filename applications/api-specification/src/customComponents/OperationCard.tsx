@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '../components/ui/button';
+import { Switch } from "./components/ui/switch.tsx";
 import { Card } from '../components/ui/card';
 import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
@@ -8,7 +9,7 @@ import CommentInput from '../customComponents/CommentInput';
 import StatusCodeSelect from './HttpStatusCode';
 import RequestBodyComponent from './RequestBodyComponent';
 import DataStructuresSelect from './DataStructSelect';
-import IsAssociationSwitch from '../customComponents/IsAssociationSwitch.tsx';
+import Association from '../customComponents/IsAssociationSwitch.tsx';
 
 //import ResponseObjectComponent from './ResponseObjectSelect';
 
@@ -56,7 +57,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Association Mode*/}
-                    <IsAssocaitionSwitch
+                    <Association
                         index = {index}
                         operationIndex = {operationIndex}
                         register = {register}
@@ -64,7 +65,6 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
                     />
-
                     {/* Operation Type */}
                     <OperationTypeSelect
                         index={index}

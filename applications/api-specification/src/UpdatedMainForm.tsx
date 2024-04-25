@@ -146,7 +146,7 @@ export const ApiSpecificationForm = () => {
             oComment: '',
             oResponse: '',
             oRequestBody: {},
-            //oResponseObject: {}
+            oResponseObject: {}
         };
 
         update(index, {
