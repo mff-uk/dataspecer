@@ -106,9 +106,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<WikidaPropertySelectionS
                             <Button 
                                 disabled={activeStep < 1} 
                                 onClick={() => { 
-                                    const newSelection = [...selection]
-                                    newSelection[activeStep] = undefined
-                                    setSelection(newSelection);
+                                    setSelectionHandle(undefined, activeStep)
                                     setActiveStep(previous => previous - 1);
                                 }}
                                 >
@@ -220,7 +218,9 @@ const WikidaPropertySelectionEndpointsStep: React.FC<WikidataPropertySelectionSt
             {   
                 querySuccess && 
                 <>
-                    {<FilterByInstaceHelpBox turnedOff={disableFilterByInstance} toggle={setDisableFilterByInstance}/>}
+                    {
+                        props.wdFilterByInstance && <FilterByInstaceHelpBox turnedOff={disableFilterByInstance} toggle={setDisableFilterByInstance} />
+                    }
                     <WikidataClassListWithSelection 
                         key={"endpoints"} 
                         wdClasses={endpointsToDisplay} 
