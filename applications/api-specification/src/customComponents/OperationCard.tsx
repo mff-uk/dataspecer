@@ -8,6 +8,8 @@ import CommentInput from '../customComponents/CommentInput';
 import StatusCodeSelect from './HttpStatusCode';
 import RequestBodyComponent from './RequestBodyComponent';
 import DataStructuresSelect from './DataStructSelect';
+import IsAssociationSwitch from '../customComponents/IsAssociationSwitch.tsx';
+
 //import ResponseObjectComponent from './ResponseObjectSelect';
 
 interface OperationCardProps {
@@ -15,6 +17,7 @@ interface OperationCardProps {
     removeOperation: (index: number, operationIndex: number) => void;
     index: number;
     register: any;
+    setValue: any;
     collectionLogicEnabled: boolean;
     singleResourceLogicEnabled: boolean;
     baseUrl: string;
@@ -22,7 +25,8 @@ interface OperationCardProps {
     fetchedDataStructures: DataStructure[]
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures }) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures }) => {
+
     return (
         <div key={operationIndex}>
             <Card className="p-2">
@@ -43,14 +47,6 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                 </div>
                 {/* Form fields for operation details */}
                 <Card className="p-5">
-                    {/* Operation Type */}
-                    <OperationTypeSelect
-                        index={index}
-                        operationIndex={operationIndex}
-                        register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
-                    />
                     {/* Operation Name */}
                     <OperationNameInput
                         index={index}
@@ -58,6 +54,27 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         register={register}
                         collectionLogicEnabled={collectionLogicEnabled}
                         singleResourceLogicEnabled={singleResourceLogicEnabled}
+                    />
+                    {/* Association Mode*/}
+                    <IsAssocaitionSwitch
+                        index = {index}
+                        operationIndex = {operationIndex}
+                        register = {register}
+                        setValue = {setValue}
+                        dataStructureName={selectedDataStructure}
+                        dataStructures={fetchedDataStructures}
+                    />
+
+                    {/* Operation Type */}
+                    <OperationTypeSelect
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        dataStructure={selectedDataStructure}
+                        allDataStructures={fetchedDataStructures}
+                        setValue={setValue}
+                    //collectionLogicEnabled={collectionLogicEnabled}
+                    //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Endpoint */}
                     <EndpointInput
@@ -76,13 +93,13 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         collectionLogicEnabled={collectionLogicEnabled}
                         singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
-                    {/* Comment */}
-                    <RequestBodyComponent
+                    {/* <RequestBodyComponent
                         dataStructure={selectedDataStructure}
                         allDataStructures={fetchedDataStructures}
                         operationIndex={operationIndex}
                         index={index}
-                        register={register} />
+                        register={register}
+                        setValue = {setValue} /> */}
                     {/* Http StatusCode */}
                     <StatusCodeSelect
                         index={index}
@@ -91,8 +108,14 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         collectionLogicEnabled={collectionLogicEnabled}
                         singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
+                    {
+                        // If datastructure{index}.operations.{operationIndex}.isAssociation == true 
+                        // show Target Object     
 
-                    <div>
+                        /**/
+                    }
+
+                    {/* <div>
                         <label>Choose Data Structure:</label>
                         <DataStructuresSelect
                             key={`responseObject_${index}`}
@@ -107,8 +130,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                                         value: selectedDataStructure.name,
                                     },
                                 });
-                            }}/>
-                    </div>
+                            }} />
+                    </div> */}
                 </Card>
             </Card>
         </div>

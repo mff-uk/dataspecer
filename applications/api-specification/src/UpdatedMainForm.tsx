@@ -13,6 +13,7 @@ import OperationCard from './customComponents/OperationCard';
 type Operation = {
     name: string;
     isCollection: boolean;
+    oAssociatonMode: boolean;
     oType: string;
     oName: string;
     oEndpoint: string;
@@ -65,7 +66,7 @@ type FormValues = {
 // });
 
 export const ApiSpecificationForm = () => {
-    const { register, handleSubmit, control, watch } = useForm<FormValues>();
+    const { register, handleSubmit, control, watch, setValue } = useForm<FormValues>();
 
     const { fields, append, remove, update } = useFieldArray({
         control,
@@ -122,9 +123,9 @@ export const ApiSpecificationForm = () => {
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         try {
-            const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
+           //const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
             console.log("submitted data: " + JSON.stringify(data))
-            console.log('Generated OpenAPI Specification:', openAPISpec);
+            //console.log('Generated OpenAPI Specification:', openAPISpec);
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Form validation failed:', error.message);
@@ -138,6 +139,7 @@ export const ApiSpecificationForm = () => {
         const newOperation = {
             name: '',
             isCollection: false,
+            oAssociatonMode: false,
             oType: '',
             oName: '',
             oEndpoint: '',
@@ -210,6 +212,7 @@ export const ApiSpecificationForm = () => {
 
                                         setSelectedDataStructures((prevState) => {
                                             const newState = [...prevState];
+                                            console.log(selectedDataStructure)
                                             newState[index] = selectedDataStructure;
                                             return newState;
                                         });
@@ -236,6 +239,7 @@ export const ApiSpecificationForm = () => {
                                     removeOperation={removeOperation}
                                     index={index}
                                     register={register}
+                                    setValue = {setValue}
                                     collectionLogicEnabled={false}
                                     singleResourceLogicEnabled={false}
                                     baseUrl={baseUrl}
