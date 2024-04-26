@@ -43,9 +43,15 @@ export const AddAttributesComponent = (props: {
         setNewAttribute({
             // iri,
             ends: [
-                { cardinality: [0, null], name: {}, description: {}, concept: props.modifiedClassId, iri: null },
                 {
-                    cardinality: cardinality.cardinality, // TODO: cardinality
+                    cardinality: cardinality.cardinality,
+                    name: {},
+                    description: {},
+                    concept: props.modifiedClassId,
+                    iri: null,
+                },
+                {
+                    // cardinality, // TODO: cardinality
                     name,
                     description,
                     // @ts-ignore
