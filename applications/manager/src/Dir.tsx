@@ -61,23 +61,24 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
       </button><Folder className="text-gray-400 ml-1" /></div> : <div><ModelIcon type={resource.types} /></div>}       
 
       <div className="grow min-w-0">
-        <div className="font-medium">{lng(resource.userMetadata?.label) ?? modelTypeToName[resource.types[0]]}</div>
-        <div className="text-sm text-gray-500 flex space-x-3">
-          {getValidTime(resource.metadata?.creationDate) && <span className="truncate">
+        <div className="font-medium">
+          {lng(resource.userMetadata?.label) ?? modelTypeToName[resource.types[0]]}
+          {lng(resource.userMetadata?.label) && <span className="ml-5 text-gray-500 font-normal">{modelTypeToName[resource.types[0]]}</span>}
+        </div>
+        <div className="text-sm text-gray-500 flex">
+          {getValidTime(resource.metadata?.creationDate) && <span className="truncate w-[5cm]">
             Vytvořeno <Time time={resource.metadata?.creationDate} />  
           </span>}
-          {getValidTime(resource.metadata?.modificationDate) && <span className="truncate">
+          {getValidTime(resource.metadata?.modificationDate) && <span className="truncate w-[5cm]">
             Změněno <Time time={resource.metadata?.modificationDate} />  
           </span>}
           <span className="truncate">
-            {lng(resource.userMetadata?.label) === undefined ? resource.iri : modelTypeToName[resource.types[0]]}
+            {resource.iri}
           </span>
         </div>
       </div>
 
       {resource.userMetadata?.tags?.map(tag => <Badge variant="secondary" key={tag}>{tag}</Badge>)}
-
-      {/* <RenameResourceDialog /> */}
 
       {resource.types.includes(V1.PSM) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_CME + "/../editor?data-specification=" + encodeURIComponent(parentIri ?? "") + "&data-psm-schema=" + encodeURIComponent(iri)}>Editovat strukturu</a></Button>}
       {resource.types.includes(LOCAL_VISUAL_MODEL) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_CME + "/core-v2?package-id=" + encodeURIComponent(parentIri ?? "") + "&view-id=" + encodeURIComponent(iri) }>Otevřít v CME</a></Button>}

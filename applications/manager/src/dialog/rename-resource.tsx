@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/modal"
+import { Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -78,46 +78,46 @@ export const RenameResourceDialog = ({ inputLabel, inputDescription, isOpen, res
             Please {type === "create" ? "select" : "change"} the name and the description of the resource.
           </ModalDescription>
         </ModalHeader>
-        <div className="flex justify-end">
-          <Button variant="ghost" onClick={() => setLabels([...labels, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add name</Button>
-          <Button variant="ghost" onClick={() => setDescription([...description, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add description</Button>
-        </div>
-        <div className="grid gap-4">
-          {labels.map(name => (
-            <div key={name.key} className="grid grid-cols-4  gap-2">
-              <Label htmlFor={name.key} className="text-right flex grow-3 items-baseline gap-2 justify-end">
-                <div>
-                  Name:
-                </div>
-                <Input value={name.lang} placeholder="xx" onChange={target => setLabels([...labels.map(n => n === name ? { ...n, lang: target.target.value } : n)])} className="w-[1cm] text-center border-none p-0" />
-              </Label>
-              <div className="col-span-3 flex gap-2">
+        <ModalBody>
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={() => setLabels([...labels, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add name</Button>
+            <Button variant="ghost" onClick={() => setDescription([...description, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add description</Button>
+          </div>
+          <div className="grid gap-4">
+            {labels.map(name => (
+              <div key={name.key}>
+                <Label htmlFor={name.key} className="flex grow-3 items-baseline gap-2 mb-2">
+                  <div>
+                    Name:
+                  </div>
+                  <input className="flex rounded-md border border-input bg-slate-100 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setLabels([...labels.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />
+                  <div className="grow"></div>
+                  <Button variant={"ghost"} size="smallIcon" onClick={() => removeName(name.key)}>
+                    <X className="text-muted-foreground" size={16} />
+                  </Button>
+                </Label>
                 <Input id={name.key} value={name.value} className="grow" onChange={target => setLabels([...labels.map(n => n === name ? { ...n, value: target.target.value } : n)])} />
-                <Button variant={"ghost"} size="icon" onClick={() => removeName(name.key)}>
-                  <X className="text-muted-foreground" size={16} />
-                </Button>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {description.map(name => (
-            <div key={name.key} className="grid grid-cols-4 gap-2">
-              <Label htmlFor={name.key} className="text-right flex grow-3 items-baseline gap-2 justify-end">
-                <div>
-                  Description:
-                </div>
-                <Input value={name.lang} placeholder="xx" onChange={target => setDescription([...description.map(n => n === name ? { ...n, lang: target.target.value } : n)])} className="w-[1cm] text-center border-none p-0" />
-              </Label>
-              <div className="col-span-3 flex gap-2">
+            {description.map(name => (
+              <div key={name.key}>
+                <Label htmlFor={name.key} className="flex grow-3 items-baseline gap-2 mb-2">
+                  <div>
+                    Description:
+                  </div>
+                  <input className="flex rounded-md border border-input bg-slate-100 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setDescription([...description.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />                
+                  <div className="grow"></div>
+                  <Button variant={"ghost"} size="smallIcon" onClick={() => removeDescription(name.key)}>
+                    <X className="text-muted-foreground" size={16} />
+                  </Button>
+                </Label>
                 <Textarea id={name.key} value={name.value} className="grow" onChange={target => setDescription([...description.map(n => n === name ? { ...n, value: target.target.value } : n)])} />
-                <Button variant={"ghost"} size="icon" onClick={() => removeDescription(name.key)}>
-                  <X className="text-muted-foreground" size={16} />
-                </Button>
               </div>
-            </div>
-          ))}
-          <button type="submit" className="hidden" />
-        </div>
+            ))}
+            <button type="submit" className="hidden" />
+          </div>
+        </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={() => resolve(null)}>Cancel</Button>
           <Button type="submit" onClick={closeWithSuccess}>Save changes</Button>
