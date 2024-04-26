@@ -22,14 +22,14 @@
 //     const path = `dataStructures.${index}.operations.${operationIndex}.oRequestBody`;
 //     let targetDataStructure = allDataStructures?.find((ds) => ds.givenName === dataStructure);
 //     let responseDataStructure;
-    
+
 //     if (responseDataStructures) {
 //         responseDataStructure = responseDataStructures.find((ds) => ds.classType === dataStructure.classType);
 //     }
 
-    
 
-    
+
+
 
 //     // Check if targetDataStructure is defined
 //     if (!targetDataStructure) {
@@ -75,7 +75,6 @@ interface RequestBodyProps {
 }
 
 const handleCheckboxChange = (fieldPath, checked, setValue) => {
-    // Update the form state based on the checkbox's value
     setValue(fieldPath, checked);
 };
 
@@ -90,10 +89,8 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oRequestBody`;
 
-    // Find the target data structure
     let targetDataStructure = allDataStructures?.find((ds) => ds.givenName === dataStructure);
-    
-    // Find the response data structure if it exists
+
     let responseDataStructure = responseDataStructures?.find((ds) => ds.name === dataStructure.name);
 
     // Render based on whether responseDataStructure is defined
@@ -107,8 +104,8 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                         <div key={field.name}>
                             <Checkbox
                                 id={`${path}.${field.name}`}
-                                //checked={register(`${path}.${field.name}`).value}
-                                //onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
+                                checked={register(`${path}.${field.name}`).value}
+                                onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
                             <label htmlFor={`${path}.${field.name}`}>
                                 {field.name}
@@ -119,7 +116,6 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
             </div>
         );
     } else if (targetDataStructure) {
-        // Render fields from targetDataStructure
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
@@ -140,7 +136,6 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
             </div>
         );
     } else {
-        // Return an error if neither data structure is found
         return <div>Error: Data structure not found</div>;
     }
 };
