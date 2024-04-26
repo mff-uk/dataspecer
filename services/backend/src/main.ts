@@ -17,7 +17,8 @@ import {
     listSpecifications,
     modifySpecification
 } from "./routes/specification";
-import { getSimplifiedSemanticModel } from './routes/simplified-semantic-model';
+import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes/simplified-semantic-model';
+import { getLightweightOwl, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
 
 // Create application models
 
@@ -83,6 +84,12 @@ application.get(basename + '/default-configuration', getDefaultConfiguration);
 // Simplified semantic model
 
 application.get(basename + '/simplified-semantic-model', getSimplifiedSemanticModel);
+application.put(basename + '/simplified-semantic-model', setSimplifiedSemanticModel);
+
+// Experimental features
+
+application.get(basename + '/experimental/lightweight-owl.ttl', getLightweightOwl);
+application.post(basename + '/experimental/lightweight-owl-from-simplified.ttl', getlightweightOwlFromSimplified);
 
 (async () => {
     // Create root models for the common use and for the v1 adapter.
