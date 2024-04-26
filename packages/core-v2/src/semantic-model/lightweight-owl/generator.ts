@@ -103,10 +103,10 @@ class Generator {
         let iri: N3.NamedNode;
         let name: LanguageString, description: LanguageString;
         if (isSemanticModelRelationship(entity)) {
-            const domain = getDomainAndRange(entity)?.domain;
-            iri = namedNode(domain?.iri ?? entity.iri ?? entity.id);
-            name = domain?.name ?? entity.name;
-            description = domain?.description ?? entity.description;
+            const range = getDomainAndRange(entity)?.range;
+            iri = namedNode(range?.iri ?? entity.iri ?? entity.id);
+            name = range?.name ?? entity.name;
+            description = range?.description ?? entity.description;
         } else {
             iri = namedNode(entity.iri ?? entity.id);
             name = entity.name;
@@ -157,6 +157,9 @@ class Generator {
         const languages = Object.keys(languageString);
         languages.sort();
         for (const lang of languages) {
+            if (!languageString[lang]) {
+                continue;
+            }
             this.writer.addQuad(
                 subject,
                 property,
