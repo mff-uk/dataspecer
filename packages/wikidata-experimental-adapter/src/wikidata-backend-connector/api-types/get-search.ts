@@ -1,17 +1,17 @@
-import { WdClassHierarchyDescOnly } from '../../wikidata-entities/wd-class'
+import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 
 export interface WdGetSearchResponseResults {
-  readonly classes: WdClassHierarchyDescOnly[];
+    readonly classes: WdClassHierarchyDescOnly[];
 }
 
 export interface WdGetSearchResponse {
-  readonly results: WdGetSearchResponseResults;
+    readonly results: WdGetSearchResponseResults;
 }
 
 export class WdSearchResults {
-  readonly classes: WdClassHierarchyDescOnly[];
+    readonly classes: WdClassHierarchyDescOnly[];
 
-  constructor(response: WdGetSearchResponse) {
-    this.classes = response.results.classes; 
-  }
+    constructor(response: WdGetSearchResponse) {
+        this.classes = response.results.classes;
+    }
 }

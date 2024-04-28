@@ -1,8 +1,8 @@
-import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class"
+import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
 import { buildEntityMap } from "./utils/build-entity-map";
 
-export type WdHierarchyPart = 'full' | 'parents' | 'children'
+export type WdHierarchyPart = "full" | "parents" | "children";
 
 export interface WdGetClassHierarchyResponseResults {
     readonly startClassId: WdEntityId;

@@ -1,9 +1,9 @@
-import {CimAdapter, IriProvider} from "@dataspecer/core/cim";
-import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
-import {OFN, XSD} from "./vocabulary";
-import {PimClass} from "@dataspecer/core/pim/model/pim-class";
-import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
+import { CimAdapter, IriProvider } from "@dataspecer/core/cim";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
+import { OFN, XSD } from "./vocabulary";
+import { PimClass } from "@dataspecer/core/pim/model/pim-class";
+import { CoreResource, ReadOnlyMemoryStore } from "@dataspecer/core/core";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
 import { WdConnector } from "./wikidata-backend-connector/wd-connector";
 import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
 import { isWdErrorResponse } from "./wikidata-backend-connector/api-types/error";
@@ -14,9 +14,11 @@ import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
-    public static readonly ENTITY_URI_REGEXP = new RegExp('^https?://www.wikidata.org/(entity|wiki)/Q[1-9][0-9]*$');
+    public static readonly ENTITY_URI_REGEXP = new RegExp(
+        "^https?://www.wikidata.org/(entity|wiki)/Q[1-9][0-9]*$",
+    );
     public readonly connector: WdConnector;
-    
+
     constructor(httpFetch: HttpFetch) {
         this.httpFetch = httpFetch;
         this.connector = new WdConnector(this.httpFetch);
@@ -40,7 +42,7 @@ export class WikidataAdapter implements CimAdapter {
             [XSD.decimal]: OFN.decimal,
             [XSD.anyURI]: OFN.url,
             [XSD.string]: OFN.string,
-        }
+        };
 
         if (Object.hasOwn(mapping, iri)) {
             return mapping[iri];
@@ -54,7 +56,7 @@ export class WikidataAdapter implements CimAdapter {
             throw new Error("Missing IRI provider.");
         }
 
-        const results: PimClass[] = []
+        const results: PimClass[] = [];
         const response = await this.connector.getSearch(query);
         if (!isWdErrorResponse(response)) {
             for (const cls of response.classes) {
@@ -68,7 +70,7 @@ export class WikidataAdapter implements CimAdapter {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
-        
+
         let result: PimClass | null = null;
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
             const response = await this.connector.getSearch(cimIri);
@@ -79,14 +81,14 @@ export class WikidataAdapter implements CimAdapter {
         }
         return result;
     }
-    
+
     async getFullHierarchy(cimIri: string): Promise<CoreResourceReader> {
         if (!this.iriProvider) {
             throw new Error("Missing IRI provider.");
         }
 
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
-            const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), 'full');
+            const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), "full");
             if (!isWdErrorResponse(response)) {
                 const resources = this.loadParentsChildrenHierarchy(response);
                 return ReadOnlyMemoryStore.create(resources);
@@ -105,36 +107,57 @@ export class WikidataAdapter implements CimAdapter {
         // return ReadOnlyMemoryStore.create({});
     }
 
-
     async getResourceGroup(cimIri: string): Promise<string[]> {
         // Keep as is
         return [];
     }
 
-    private loadParentsChildrenHierarchy(response: WdClassHierarchy): { [iri: string]: CoreResource } {
-        const resources: { [iri: string]: CoreResource } = {}
+    private loadParentsChildrenHierarchy(response: WdClassHierarchy): {
+        [iri: string]: CoreResource;
+    } {
+        const resources: { [iri: string]: CoreResource } = {};
         const loadedClassesSet = new Set<WdEntityId>();
 
         // Load start class
-        this.tryLoadClassesToResources([response.startClassId], resources, loadedClassesSet, response.classesMap);
+        this.tryLoadClassesToResources(
+            [response.startClassId],
+            resources,
+            loadedClassesSet,
+            response.classesMap,
+        );
 
         // Load parents
-        this.tryLoadClassesToResources(response.parentsIds, resources, loadedClassesSet, response.classesMap);
+        this.tryLoadClassesToResources(
+            response.parentsIds,
+            resources,
+            loadedClassesSet,
+            response.classesMap,
+        );
 
         // Load children
-        this.tryLoadClassesToResources(response.childrenIds, resources, loadedClassesSet, response.classesMap);
+        this.tryLoadClassesToResources(
+            response.childrenIds,
+            resources,
+            loadedClassesSet,
+            response.classesMap,
+        );
 
         return resources;
     }
 
-    private tryLoadClassesToResources(classesIds: WdEntityIdsList, resources: { [iri: string]: CoreResource }, loadedClassesSet: Set<WdEntityId>, contextClasses: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>): void {
+    private tryLoadClassesToResources(
+        classesIds: WdEntityIdsList,
+        resources: { [iri: string]: CoreResource },
+        loadedClassesSet: Set<WdEntityId>,
+        contextClasses: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>,
+    ): void {
         for (const clsId of classesIds) {
             if (!loadedClassesSet.has(clsId)) {
                 loadedClassesSet.add(clsId);
                 const cls = contextClasses.get(clsId) as WdClassHierarchyDescOnly;
-                const newPimClass = loadWikidataClass(cls, this.iriProvider, contextClasses)
+                const newPimClass = loadWikidataClass(cls, this.iriProvider, contextClasses);
                 resources[newPimClass.iri] = newPimClass;
-            } 
-        } 
+            }
+        }
     }
 }

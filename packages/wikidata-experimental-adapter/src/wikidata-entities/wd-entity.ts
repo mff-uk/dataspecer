@@ -1,5 +1,5 @@
-import { WdClassDescOnly } from './wd-class';
-import { WdPropertyDescOnly } from './wd-property';
+import { WdClassDescOnly } from "./wd-class";
+import { WdPropertyDescOnly } from "./wd-property";
 
 export type WdLanguageMap = Record<string, string>;
 
@@ -13,30 +13,29 @@ export type WdEntityIriList = readonly WdEntityIri[];
 export type WdExternalEntityId = string;
 export type WdExternalOntologyMapping = readonly WdExternalEntityId[];
 
-
 export const WIKIDATA_URI_PREFIX = "http://www.wikidata.org/entity/";
 
 export interface WdEntity {
-  readonly id: WdEntityId;
-  readonly iri: string;
-  readonly labels: WdLanguageMap;
-  readonly descriptions: WdLanguageMap;
+    readonly id: WdEntityId;
+    readonly iri: string;
+    readonly labels: WdLanguageMap;
+    readonly descriptions: WdLanguageMap;
 }
 
 export function wdIriToNumId(wdIri: string): WdEntityId {
-  return Number(wdIri.split("/").pop().slice(1));
+    return Number(wdIri.split("/").pop().slice(1));
 }
 
 export function concatWdPrefixWithId(id: string): string {
-  return WIKIDATA_URI_PREFIX + id;
+    return WIKIDATA_URI_PREFIX + id;
 }
 
 export function isEntityPropertyDesc(entity: WdEntityDescOnly): entity is WdPropertyDescOnly {
-  return 'datatype' in entity;
+    return "datatype" in entity;
 }
 
 export function isEntityClassDesc(entity: WdEntityDescOnly): entity is WdClassDescOnly {
-  return !('datatype' in entity);
+    return !("datatype" in entity);
 }
 
-export type WdEntityDescOnly = Pick<WdEntity, 'id' | 'iri' | 'labels' | 'descriptions'>;
+export type WdEntityDescOnly = Pick<WdEntity, "id" | "iri" | "labels" | "descriptions">;

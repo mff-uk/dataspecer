@@ -14,30 +14,37 @@ export interface WikidataFilterByInstanceDialogProps {
     setWdFilterByInstance: React.Dispatch<React.SetStateAction<WdFilterByInstance>>;
 }
 
-export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDialogProps> = 
-    dialog({fullWidth: true, maxWidth: "md", PaperProps: { sx: { height: 300 } } }, ({isOpen, close, setWdFilterByInstance}) => {
-        const {t} = useTranslation("interpretedSurrounding");
+export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDialogProps> = dialog(
+    { fullWidth: true, maxWidth: "md", PaperProps: { sx: { height: 300 } } },
+    ({ isOpen, close, setWdFilterByInstance }) => {
+        const { t } = useTranslation("interpretedSurrounding");
         const wikidataAdapter = useContext(WikidataAdapterContext);
         const [wasApplied, setWasApplied] = useState(false);
         const [instanceUri, setInstanceUri] = useState<string>("");
-        const {isLoading, isError, data, refetch} = useQuery(['filterByInstance', instanceUri], async () => {
+        const { isLoading, isError, data, refetch } = useQuery(
+            ["filterByInstance", instanceUri],
+            async () => {
                 return await wikidataAdapter.wdAdapter.connector.getFilterByInstance(instanceUri);
             },
             { refetchOnWindowFocus: false, enabled: false },
         );
-        
+
         const queryFailed = useMemo(() => {
-            return (wasApplied && !isLoading && (isError || isWdErrorResponse(data) || (data != null && data.instanceOfIds.length === 0)));
-        },[wasApplied, isError, isLoading, data]);
-        
+            return (
+                wasApplied &&
+                !isLoading &&
+                (isError || isWdErrorResponse(data) || (data != null && data.instanceOfIds.length === 0))
+            );
+        }, [wasApplied, isError, isLoading, data]);
+
         // Clear form on close.
         useEffect(() => {
-          if (!isOpen) {
-            setInstanceUri("")
-            setWasApplied(false);
-          } 
-        }, [isOpen])
-        
+            if (!isOpen) {
+                setInstanceUri("");
+                setWasApplied(false);
+            }
+        }, [isOpen]);
+
         // Assign data upon refetch finish.
         useEffect(() => {
             if (wasApplied && data != null && !queryFailed) {
@@ -49,44 +56,49 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
 
         return (
             <>
-                <DialogTitle id="customized-dialog-title" close={close}>
+                <DialogTitle id='customized-dialog-title' close={close}>
                     {t("add filter by instance")}
                 </DialogTitle>
-                <DialogContent dividers style={{textAlign: "center"}} >
-                    {isLoading && <CircularProgress style={{margin: "3rem auto"}}/>}
-                    {!isLoading &&
-                        <TextField 
-                            style={{margin: "2rem auto"}}
+                <DialogContent dividers style={{ textAlign: "center" }}>
+                    {isLoading && <CircularProgress style={{ margin: "3rem auto" }} />}
+                    {!isLoading && (
+                        <TextField
+                            style={{ margin: "2rem auto" }}
                             label={t("input filter by instance uri")}
                             autoFocus
                             fullWidth
-                            onChange={e => {
+                            onChange={(e) => {
                                 e.stopPropagation();
                                 setInstanceUri(e.target.value);
                             }}
                             variant={"standard"}
-                            autoComplete="off"
+                            autoComplete='off'
                             disabled={isLoading}
                             value={instanceUri}
                             error={queryFailed}
                             helperText={
                                 <>
                                     {queryFailed && t("input filter by instance uri help error")}
-                                    {queryFailed && <br/>}
+                                    {queryFailed && <br />}
                                     {t("input filter by instance uri help")}
                                 </>
                             }
-                        />}
+                        />
+                    )}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={close}>{t("close button")}</Button>
                     <Button
-                        onClick={() => { refetch(); setWasApplied(true); }}
-                        disabled={isLoading || instanceUri === ""}>
+                        onClick={() => {
+                            refetch();
+                            setWasApplied(true);
+                        }}
+                        disabled={isLoading || instanceUri === ""}
+                    >
                         {t("confirm button")}
                     </Button>
                 </DialogActions>
             </>
         );
-    }
+    },
 );

@@ -4,7 +4,9 @@ import { createContext } from "react";
 
 export interface WikidataAdapterContextValue {
     iriProvider: IriProvider;
-    wdAdapter: WikidataAdapter
+    wdAdapter: WikidataAdapter;
 }
 
-export const WikidataAdapterContext = createContext<WikidataAdapterContextValue | undefined>(undefined);
+export const WikidataAdapterContext = createContext<WikidataAdapterContextValue | undefined>(
+    undefined,
+);

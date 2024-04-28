@@ -11,10 +11,13 @@ export interface WikidataInfinityScrollListProps<T extends WdEntityDescOnly> {
     scrollableTargetId: string;
 }
 
-export function WikidataInfinityScrollList<T extends WdEntityDescOnly>(props: WikidataInfinityScrollListProps<T>): ReactElement {
+export function WikidataInfinityScrollList<T extends WdEntityDescOnly>(
+    props: WikidataInfinityScrollListProps<T>,
+): ReactElement {
     const [listLength, setListLength] = useState(ENTITIES_PER_PAGE);
-    
-    const roundedDownListLength = props.wdEntities.length < listLength ? props.wdEntities.length : listLength;
+
+    const roundedDownListLength =
+        props.wdEntities.length < listLength ? props.wdEntities.length : listLength;
 
     return (
         <>
@@ -23,7 +26,8 @@ export function WikidataInfinityScrollList<T extends WdEntityDescOnly>(props: Wi
                     dataLength={roundedDownListLength}
                     next={() => {
                         let newListLength = listLength + ENTITIES_PER_PAGE;
-                        if (newListLength > props.wdEntities.length) newListLength = props.wdEntities.length;
+                        if (newListLength > props.wdEntities.length)
+                            newListLength = props.wdEntities.length;
                         setListLength(newListLength);
                     }}
                     hasMore={roundedDownListLength < props.wdEntities.length}
