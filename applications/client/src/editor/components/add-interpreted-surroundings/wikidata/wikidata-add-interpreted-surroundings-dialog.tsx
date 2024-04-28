@@ -1,5 +1,5 @@
 import { Button, DialogActions, Grid } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
@@ -21,6 +21,8 @@ import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";
 import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
 import { WikidataLoading } from "./helpers/wikidata-loading";
 import { WikidataLoadingError } from "./helpers/wikidata-loading-error";
+import { PropertySelectionContext, PropertySelectionContextValue } from "./contexts/property-selection-context";
+import { PropertySelectionRecord, isPropertySelectionRecordPresent } from "./property-selection-record";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {
@@ -61,6 +63,7 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
     WikidataAddInterpretedSurroundingDialogContentProps
 > = ({ isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId }) => {
     const { t } = useTranslation("interpretedSurrounding");
+    const [propertySelectionRecords, setPropertySelectionRecords] = useState<PropertySelectionRecord[]>([]);
     const [selectedWdClassId, setSelectedWdClassId] = useState<WdEntityId>(wdRootClassId);
     const {
         wdClassSurroundings: rootWdClassSurroundings,
@@ -68,8 +71,22 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
         isError,
     } = useWdGetSurroundings(wdRootClassId);
 
+    const propertySelectionContextValue = useMemo((): PropertySelectionContextValue => {
+        return {
+            propertySelectionRecords: propertySelectionRecords,
+            addPropertySelectionRecord: (newRecord: PropertySelectionRecord) => {
+                if (!isPropertySelectionRecordPresent(newRecord, propertySelectionRecords)) {
+                    setPropertySelectionRecords([...propertySelectionRecords, newRecord]);
+                }
+            },
+            removePropertySelectionRecord: (record: PropertySelectionRecord) => {
+                setPropertySelectionRecords([...(propertySelectionRecords.filter((e) => e.id !== record.id))]);    
+            }
+        }
+    }, [propertySelectionRecords, setPropertySelectionRecords]);
+
     return (
-        <>
+        <PropertySelectionContext.Provider value={propertySelectionContextValue}>
             <DialogTitle id='customized-dialog-title' close={close}>
                 {t("title")}
             </DialogTitle>
@@ -86,36 +103,34 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
                             item
                             xs={3}
                             sx={{ borderRight: (theme) => "1px solid " + theme.palette.divider }}
-                        >
+                            >
                             <WikidataAncestorsSelectorPanel
                                 rootWdClassSurroundings={rootWdClassSurroundings}
                                 selectedWdClassId={selectedWdClassId}
                                 setSelectedWdClassId={setSelectedWdClassId}
-                            />
+                                />
                         </Grid>
                         <Grid item xs={9}>
                             <WikidataPropertiesPanel
+                                key={selectedWdClassId.toString()}
                                 selectedWdClassId={selectedWdClassId}
                                 rootWdClassSurroundings={rootWdClassSurroundings}
-                            />
+                                />
                         </Grid>
                     </Grid>
                 )}
             </DialogContent>
             <DialogActions>
-                <Button>
-                    {t("show selected")} ({0})
-                </Button>
                 <Button onClick={close}>{t("close button")}</Button>
                 <Button
                     onClick={async () => {
                         close();
                     }}
                     disabled={true}
-                >
+                    >
                     {t("confirm button")}
                 </Button>
             </DialogActions>
-        </>
+        </PropertySelectionContext.Provider>
     );
 };

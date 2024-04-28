@@ -1,6 +1,5 @@
 import {
     WdClassHierarchyDescOnly,
-    WdClassHierarchySurroundingsDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
 import {
     ListItem,
@@ -9,7 +8,6 @@ import {
     ListItemText,
     Box,
     ListItemIcon,
-    Checkbox,
     Radio,
 } from "@mui/material";
 import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";

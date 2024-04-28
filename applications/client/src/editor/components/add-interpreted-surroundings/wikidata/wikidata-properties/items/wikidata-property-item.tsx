@@ -1,4 +1,4 @@
-import { WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassHierarchyDescOnly, WdClassSurroundings, WdFilterByInstance, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { ListItem, Typography, IconButton, ListItemText, Box } from "@mui/material";
 import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
@@ -9,6 +9,11 @@ import {
 } from "../../../../helper/LanguageStringComponents";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { UseDialogOpenFunction } from "../../../../../dialog";
+import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
+import { useCallback, useContext } from "react";
+import { PropertySelectionContext } from "../../contexts/property-selection-context";
+import { PropertySelectionRecord } from "../../property-selection-record";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {
@@ -18,18 +23,45 @@ export enum WikidataPropertyType {
     BACKWARD_ASSOCIATIONS = "backward associations",
 }
 
+export function isWdPropertyTypeAttribute(wdPropertyType: WikidataPropertyType): boolean {
+    return wdPropertyType === WikidataPropertyType.ATTRIBUTES || wdPropertyType === WikidataPropertyType.EXTERNAL_IDENTIFIERS_ATTRIBUTES;
+}
+
 export interface WikidataPropertyItemProps {
     wdProperty: WdPropertyDescOnly;
     wdPropertyType: WikidataPropertyType;
-    openSelectionDialog: () => void;
+    selectedWdClassSurroundings: WdClassSurroundings;
+    includeInheritedProperties: boolean;
+    wdFilterByInstance: WdFilterByInstance | undefined;
+    openSelectionDialogFunc: UseDialogOpenFunction<typeof WikidataPropertySelectionDialog>;
 }
 
 export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
     wdProperty,
     wdPropertyType,
-    openSelectionDialog,
+    selectedWdClassSurroundings,
+    includeInheritedProperties,
+    wdFilterByInstance,
+    openSelectionDialogFunc,
 }) => {
     const { t } = useTranslation("ui");
+    const propertySelectionContext = useContext(PropertySelectionContext);
+
+    // Do not open property selection dialog when on an attribute with disabled inheritance.
+    const onClickCallback = useCallback(() => { 
+        if (!includeInheritedProperties && isWdPropertyTypeAttribute(wdPropertyType)) {
+            const selectedWdClass = selectedWdClassSurroundings.classesMap.get(selectedWdClassSurroundings.startClassId) as WdClassHierarchyDescOnly;
+            propertySelectionContext.addPropertySelectionRecord(new PropertySelectionRecord(wdPropertyType, wdProperty, selectedWdClass))
+        } else {
+            openSelectionDialogFunc({ 
+                wdProperty, 
+                wdPropertyType, 
+                wdFilterByInstance,
+                selectedWdClassSurroundings,
+                includeInheritedProperties
+            });
+        }
+    }, [includeInheritedProperties, openSelectionDialogFunc, propertySelectionContext, selectedWdClassSurroundings, wdFilterByInstance, wdProperty, wdPropertyType]);
 
     return (
         <>
@@ -38,7 +70,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                 role={undefined}
                 dense
                 button
-                onClick={() => openSelectionDialog()}
+                onClick={onClickCallback}
             >
                 <ListItemText
                     secondary={

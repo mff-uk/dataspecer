@@ -1,6 +1,5 @@
 import {
-    WdClassHierarchyDescOnly,
-    WdClassHierarchySurroundingsDescOnly,
+    WdClassHierarchyDescOnly
 } from "@dataspecer/wikidata-experimental-adapter";
 import { Stack, TextField, Typography } from "@mui/material";
 import { useState, useMemo, useCallback } from "react";

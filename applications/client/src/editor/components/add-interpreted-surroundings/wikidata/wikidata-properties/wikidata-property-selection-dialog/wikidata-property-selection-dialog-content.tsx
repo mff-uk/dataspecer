@@ -1,15 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import {
     WdBaseOrInheritOrder,
     WdClassHierarchyDescOnly,
-    WdClassHierarchySurroundingsDescOnly,
     WdDomainsOrRanges,
     WdEntityId,
     WdEntityIdsList,
     WdFilterByInstance,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType } from "../items/wikidata-property-item";
+import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../items/wikidata-property-item";
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../../detail/common";
 import {
@@ -31,6 +30,8 @@ import { useWdGetEndpoints } from "../../hooks/use-wd-get-endpoints";
 import { WikidataClassListWithSelection } from "./wikidata-class-list-with-selection";
 import { getAncestorsContainingProperty } from "../../helpers/ancestors-containing-property";
 import { WikidataPropertySelectionDialogProps } from "./wikidata-property-selection-dialog";
+import { PropertySelectionContext } from "../../contexts/property-selection-context";
+import { PropertySelectionRecord } from "../../property-selection-record";
 
 const SCROLLABLE_CLASS_CONTENT_ID = "selection_scrollable_class_content";
 
@@ -81,6 +82,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
     WikidaPropertySelectionStepperProcessProps
 > = (props) => {
     const { t } = useTranslation("interpretedSurrounding");
+    const propertySelectionContext = useContext(PropertySelectionContext);
     const [activeStep, setActiveStep] = useState(0);
     const [selection, setSelection] = useState<Array<WdClassHierarchyDescOnly | undefined>>(
         Array(props.stepsNames.length).fill(undefined),
@@ -99,6 +101,20 @@ const WikidataPropertySelectionStepperProcess: React.FC<
         setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly) =>
             setSelectionHandle(wdClass, activeStep),
     };
+
+    function confirmHandle() {
+        let subjectWdClass = props.selectedWdClassSurroundings.classesMap.get(props.selectedWdClassSurroundings.startClassId) as WdClassHierarchyDescOnly;
+        let objectWdClass: WdClassHierarchyDescOnly | undefined = undefined;
+        if (props.includeInheritedProperties) {
+            subjectWdClass = selection[0];
+        }
+        if (!isWdPropertyTypeAttribute(props.wdPropertyType)) {
+            objectWdClass = selection[(selection.length - 1)];
+        }
+        propertySelectionContext.addPropertySelectionRecord(
+            new PropertySelectionRecord(props.wdPropertyType, props.wdProperty, subjectWdClass, objectWdClass)
+        );
+    }
 
     return (
         <>
@@ -160,7 +176,13 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                     </>
                 )}
                 <Button onClick={props.close}>{t("close button")}</Button>
-                <Button onClick={props.close} disabled={selection.indexOf(undefined) !== -1}>
+                <Button 
+                    onClick={() => { 
+                        confirmHandle(); 
+                        props.close(); 
+                    }} 
+                    disabled={selection.indexOf(undefined) !== -1}
+                >
                     {t("confirm button")}
                 </Button>
             </DialogActions>

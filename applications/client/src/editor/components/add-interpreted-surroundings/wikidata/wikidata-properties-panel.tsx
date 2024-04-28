@@ -15,9 +15,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { WikidataProperties } from "./wikidata-properties/wikidata-properties";
 import { WikidataLoadedProperties } from "./wikidata-properties/wikidata-loaded-properties";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useDialog } from "../../../dialog";
 import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
+import { PropertySelectionContext } from "./contexts/property-selection-context";
 
 export interface WikidataPropertiesPanelProps {
     selectedWdClassId: WdEntityId;
@@ -29,6 +30,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
     rootWdClassSurroundings,
 }) => {
     const { t } = useTranslation("interpretedSurrounding");
+    const propertySelectionContext = useContext(PropertySelectionContext);
     const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, [
         "setWdFilterByInstance",
     ]);
@@ -45,18 +47,23 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
             <Typography variant='subtitle1' component='h2'>
                 {t("associations attributes")}
             </Typography>
-            <Stack direction='column' spacing={0.4} marginBottom={0.4}>
-                <TextField
-                    placeholder={t("type to search")}
-                    style={{ width: 247 }}
-                    onChange={(e) => {
-                        e.stopPropagation();
-                        setSearchText(e.target.value);
-                    }}
-                    variant={"standard"}
-                    autoComplete='off'
-                    value={searchText}
-                />
+            <Stack direction='column' spacing={0.4} marginBottom={0.4} >
+                <Stack direction='row' justifyContent="space-between">
+                    <TextField
+                        placeholder={t("type to search")}
+                        style={{ width: 247 }}
+                        onChange={(e) => {
+                            e.stopPropagation();
+                            setSearchText(e.target.value);
+                        }}
+                        variant={"standard"}
+                        autoComplete='off'
+                        value={searchText}
+                        />
+                    <Button variant="contained" size="small" sx={{width: "247px"}}>
+                            {t("show selected")} ({propertySelectionContext.propertySelectionRecords.length})
+                    </Button>
+                </Stack>
                 <Stack flexDirection='row' alignItems='center'>
                     <FormGroup>
                         <FormControlLabel
@@ -67,10 +74,10 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                                         e.stopPropagation();
                                         setIncludeInheritedProperties(e.target.checked);
                                     }}
-                                />
+                                    />
                             }
                             label={t("include inherited")}
-                        />
+                            />
                     </FormGroup>
                     <Button
                         style={{
@@ -80,7 +87,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                             minHeight: "30px",
                         }}
                         size='small'
-                        color={isInstanceFilterEmpty ? "primary" : "error"}
+                        color={isInstanceFilterEmpty ? "inherit" : "error"}
                         variant='contained'
                         onClick={() =>
                             isInstanceFilterEmpty

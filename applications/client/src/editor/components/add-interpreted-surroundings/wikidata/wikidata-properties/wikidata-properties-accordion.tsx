@@ -38,28 +38,15 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     key={wdProperty.iri}
                     wdProperty={wdProperty}
                     wdPropertyType={wdPropertyType}
-                    openSelectionDialog={() => {
-                        PropertySelectionDialog.open({
-                            wdProperty,
-                            wdPropertyType,
-                            includeInheritedProperties,
-                            wdFilterByInstance,
-                            selectedWdClassSurroundings,
-                        });
-                    }}
+                    includeInheritedProperties={includeInheritedProperties}
+                    wdFilterByInstance={wdFilterByInstance}
+                    selectedWdClassSurroundings={selectedWdClassSurroundings}
+                    openSelectionDialogFunc={PropertySelectionDialog.open}
                 />
             );
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [
-            PropertySelectionDialog,
-            PropertySelectionDialog.open,
-            includeInheritedProperties,
-            selectedWdClassSurroundings,
-            wdFilterByInstance,
-            wdPropertyType,
-        ],
-    );
+        [ PropertySelectionDialog, PropertySelectionDialog.open, includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance, wdPropertyType,]);
 
     return (
         <>
