@@ -10,7 +10,6 @@ import {
     ListItemIcon,
     Radio,
 } from "@mui/material";
-import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import { useTranslation } from "react-i18next";
 import {
@@ -79,7 +78,6 @@ export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({
                             fallback={<i>{t("no title")}</i>}
                         />
                     </strong>
-                    <SlovnikGovCzGlossary cimResourceIri={wdClass.iri as string} />
                 </ListItemText>
                 <IconButton size='small'>
                     <InfoTwoToneIcon fontSize='inherit' />

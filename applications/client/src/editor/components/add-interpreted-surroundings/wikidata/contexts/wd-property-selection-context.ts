@@ -4,9 +4,9 @@ import { WdClassHierarchyDescOnly } from "@dataspecer/wikidata-experimental-adap
 
 export interface WdPropertySelectionContextValue {
     wdPropertySelectionRecords: WdPropertySelectionRecord[];
-    addWdPropertySelectionRecord: (newRecord: WdPropertySelectionRecord) => void;
+    addWdPropertySelectionRecord: (newRecord: WdPropertySelectionRecord) => boolean;
     removeWdPropertySelectionRecord: (record: WdPropertySelectionRecord) => void;
-    changeWdPropertySelectionRecord: (id: number, subjectWdClass: WdClassHierarchyDescOnly, objectWdClass: WdClassHierarchyDescOnly | undefined) => void;
+    changeWdPropertySelectionRecord: (id: number, subjectWdClass: WdClassHierarchyDescOnly, objectWdClass: WdClassHierarchyDescOnly | undefined) => boolean;
 }
 
 export const WdPropertySelectionContext = createContext<WdPropertySelectionContextValue | undefined>(undefined);

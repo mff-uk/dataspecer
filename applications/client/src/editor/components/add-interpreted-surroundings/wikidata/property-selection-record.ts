@@ -3,11 +3,11 @@ import { WikidataPropertyType } from "./wikidata-properties/items/wikidata-prope
 
 export class WdPropertySelectionRecord {
     private static idIncrement: number = 0;
-    public id: number;
-    public wdPropertyType: WikidataPropertyType;
-    public wdProperty: WdPropertyDescOnly;
-    public subjectWdClass: WdClassHierarchyDescOnly;
-    public objectWdClass: WdClassHierarchyDescOnly | undefined;
+    public readonly id: number;
+    public readonly wdPropertyType: WikidataPropertyType;
+    public readonly wdProperty: WdPropertyDescOnly;
+    public readonly subjectWdClass: WdClassHierarchyDescOnly;
+    public readonly objectWdClass: WdClassHierarchyDescOnly | undefined;
 
     private static createNewId(): number {
         WdPropertySelectionRecord.idIncrement += 1;
@@ -53,18 +53,25 @@ export function isWdPropertySelectionRecordPresent(record: WdPropertySelectionRe
 }
 
 export function findIndexOfWdPropertySelectionRecord(record: WdPropertySelectionRecord | number, propertySelectionRecords: WdPropertySelectionRecord[]): number {
-    const recordId = (typeof record === 'number') ? record : record.id;
-    return propertySelectionRecords.findIndex((element) => element.id === recordId);
+    if (typeof record === "number") {
+        return propertySelectionRecords.findIndex((element) => element.id === record);
+    } else {
+        return propertySelectionRecords.findIndex((element) => 
+            element.wdProperty.id === record.wdProperty.id &&
+            element.subjectWdClass.id === record.subjectWdClass.id &&
+            element.wdPropertyType === record.wdPropertyType &&
+            element?.objectWdClass?.id === record?.objectWdClass?.id
+        );
+    }
 }
 
-export function isWdPropertySelected(
+export function getAllWdPropertySelections(
     wdProperty: WdPropertyDescOnly, 
-    wdPropertyType: WikidataPropertyType, 
+    wdPropertyType: WikidataPropertyType,
     propertySelectionRecords: WdPropertySelectionRecord[]
-): boolean {
-    const index = propertySelectionRecords.findIndex((element) => 
+): WdPropertySelectionRecord[] {
+    return propertySelectionRecords.filter((element) => 
         element.wdProperty.id === wdProperty.id && 
         element.wdPropertyType === wdPropertyType
     );
-    return index !== -1;
 }

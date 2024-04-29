@@ -85,6 +85,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
     const [selection, setSelection] = useState<Array<WdClassHierarchyDescOnly | undefined>>(
         Array(props.stepsNames.length).fill(undefined),
     );
+    const [selectionExists, setSelectionExists] = useState(false);
 
     function setSelectionHandle(wdClass: WdClassHierarchyDescOnly | undefined, idx: number): void {
         const newSelection = [...selection];
@@ -100,7 +101,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
             setSelectionHandle(wdClass, activeStep),
     };
 
-    function confirmHandle() {
+    function confirmHandle(): boolean {
         let subjectWdClass = props.selectedWdClassSurroundings.classesMap.get(props.selectedWdClassSurroundings.startClassId) as WdClassHierarchyDescOnly;
         let objectWdClass: WdClassHierarchyDescOnly | undefined = undefined;
         if (props.includeInheritedProperties) {
@@ -110,13 +111,20 @@ const WikidataPropertySelectionStepperProcess: React.FC<
             objectWdClass = selection[(selection.length - 1)];
         }
 
+        let success = false;
         if (props.editingWdPropertySelectionId === undefined) {
-            wdPropertySelectionContext.addWdPropertySelectionRecord(
+            success = wdPropertySelectionContext.addWdPropertySelectionRecord(
                 WdPropertySelectionRecord.createNew(props.wdPropertyType, props.wdProperty, subjectWdClass, objectWdClass)
             );
         } else {
-            wdPropertySelectionContext.changeWdPropertySelectionRecord(props.editingWdPropertySelectionId, subjectWdClass, objectWdClass);
+            success = wdPropertySelectionContext.changeWdPropertySelectionRecord(props.editingWdPropertySelectionId, subjectWdClass, objectWdClass);
         }
+
+        if (!success) {
+            setSelectionExists(true);
+        } else setSelectionExists(false);
+
+        return success;
     }
 
     return (
@@ -146,6 +154,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                         ))}
                     </Stepper>
                 </Box>
+                {selectionExists && <SelectionExistsErrorBox />}
                 {props.stepsNames[activeStep] === ANCESTORS_SELECTION_STEP ? (
                     <WikidaPropertySelectionAncestorsStep {...stepProps} />
                 ) : (
@@ -181,8 +190,8 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                 <Button onClick={props.close}>{t("close button")}</Button>
                 <Button 
                     onClick={() => { 
-                        confirmHandle(); 
-                        props.close(); 
+                        if (confirmHandle()) 
+                            props.close(); 
                     }} 
                     disabled={selection.indexOf(undefined) !== -1}
                 >
@@ -192,6 +201,21 @@ const WikidataPropertySelectionStepperProcess: React.FC<
         </>
     );
 };
+
+const SelectionExistsErrorBox: React.FC = () => {
+    const { t } = useTranslation("interpretedSurrounding");
+    return (
+        <>
+            <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
+                <HelpOutlineIcon color='error' />
+                <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
+                    {t("ancestor selection exists error")} 
+                </Typography>
+            </Box>
+        </>
+    );
+};
+
 
 const WikidaPropertySelectionAncestorsStep: React.FC<WikidataPropertySelectionStepProps> = (
     props,

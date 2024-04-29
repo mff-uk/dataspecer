@@ -1,26 +1,33 @@
 import { WdClassHierarchyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { useState, useMemo, useCallback } from "react";
 import { WdPropertySelectionContextValue } from "../contexts/wd-property-selection-context";
-import { WdPropertySelectionRecord, findIndexOfWdPropertySelectionRecord } from "../property-selection-record";
+import { WdPropertySelectionRecord, findIndexOfWdPropertySelectionRecord, isWdPropertySelectionRecordPresent } from "../property-selection-record";
 
 export function useWdPropertySelection() {
     const [wdPropertySelectionRecords, setWdPropertySelectionRecords] = useState<WdPropertySelectionRecord[]>([]);
 
-    const addWdPropertySelectionRecord = useCallback((newRecord: WdPropertySelectionRecord) => {
-        setWdPropertySelectionRecords([...wdPropertySelectionRecords, newRecord]);
+    const addWdPropertySelectionRecord = useCallback((newRecord: WdPropertySelectionRecord): boolean => {
+        if (!isWdPropertySelectionRecordPresent(newRecord, wdPropertySelectionRecords)) {
+            setWdPropertySelectionRecords([...wdPropertySelectionRecords, newRecord]);
+            return true;
+        }
+        return false;
     }, [wdPropertySelectionRecords]);
     
     const removeWdPropertySelectionRecord = useCallback((record: WdPropertySelectionRecord) => {
         setWdPropertySelectionRecords([...(wdPropertySelectionRecords.filter((e) => e.id !== record.id))]);    
     }, [wdPropertySelectionRecords]);
 
-    const changeWdPropertySelectionRecord = useCallback((id: number, subjectWdClass: WdClassHierarchyDescOnly, objectWdClass: WdClassHierarchyDescOnly | undefined) => {
+    const changeWdPropertySelectionRecord = useCallback((id: number, subjectWdClass: WdClassHierarchyDescOnly, objectWdClass: WdClassHierarchyDescOnly | undefined): boolean => {
         const indexOf = findIndexOfWdPropertySelectionRecord(id, wdPropertySelectionRecords);
-        if (indexOf !== -1) {
-            const record = wdPropertySelectionRecords[indexOf];
-            const editedCopy = WdPropertySelectionRecord.createEditedCopy(record, subjectWdClass, objectWdClass);
+        const record = wdPropertySelectionRecords[indexOf];
+        const editedCopy = WdPropertySelectionRecord.createEditedCopy(record, subjectWdClass, objectWdClass);
+        if (isWdPropertySelectionRecordPresent(editedCopy, wdPropertySelectionRecords)) {
+            return false;
+        } else {
             wdPropertySelectionRecords[indexOf] = editedCopy;
             setWdPropertySelectionRecords([...wdPropertySelectionRecords]);
+            return true;   
         }
     }, [wdPropertySelectionRecords]);
 

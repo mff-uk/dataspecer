@@ -38,5 +38,9 @@
   "ancestor selection help 3": "Please, choose one before continuing.",
   "endpoint selection instance help": "Filter by instance is set:",
   "turn on": "Turn on",
-  "turn off": "Turn off"
+  "turn off": "Turn off",
+  "selected from ancestor": "Selected from ancestor:",
+  "selected from ancestor current": "Current",
+  "ancestor selection exists error": "Current selection already exists, please choose a different one."
+
 }
