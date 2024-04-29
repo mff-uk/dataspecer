@@ -54,7 +54,7 @@ const WikidataShowSelectedDialogContent: React.FC<WikidataShowSelectedDialogProp
                     Object.entries(selectionGroups).map(([key, value], idx) => {
                         if (value.length === 0) return <></>
                         else return (
-                            <>  
+                            <div key={key}>  
                                 <Typography variant="subtitle1" component="h2"> <>{t(GROUPS[idx])}</></Typography>
                                 <WikidataPropertySelectionList 
                                     selectionRecords={value} 
@@ -69,7 +69,7 @@ const WikidataShowSelectedDialogContent: React.FC<WikidataShowSelectedDialogProp
                                         })
                                     }}
                                 />
-                            </>
+                            </div>
                         );
                     })
                 }

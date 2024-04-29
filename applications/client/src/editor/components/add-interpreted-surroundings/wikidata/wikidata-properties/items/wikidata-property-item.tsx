@@ -123,7 +123,7 @@ interface SelectedWdPropertiesChipsProps {
 }
 
 const SelectedWdPropertiesChips: React.FC<SelectedWdPropertiesChipsProps> = (props) => {
-    const { t: tis } = useTranslation("interpretedSurrounding");
+    const { t } = useTranslation("interpretedSurrounding");
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
 
     const propertySelections = getAllWdPropertySelections(props.wdProperty, props.wdPropertyType, wdPropertySelectionContext.wdPropertySelectionRecords);
@@ -133,13 +133,17 @@ const SelectedWdPropertiesChips: React.FC<SelectedWdPropertiesChipsProps> = (pro
             {
                 propertySelections.length !== 0 &&
                 <Box fontSize="13px" fontStyle="italic">
-                    {tis("selected from ancestor")}
+                    {t("selected from ancestor")}
                     {propertySelections.map((selection) => {
                         const isCurrent = selection.subjectWdClass.id ===  props.selectedWdClassId;
                         return (
                             <Chip
                             key={selection.subjectWdClass.id}
-                            label={isCurrent ? tis("selected from ancestor current") : <LanguageStringFallback from={selection.subjectWdClass.labels} /> } 
+                            label={
+                                <>
+                                    <LanguageStringFallback from={selection.subjectWdClass.labels} /> {isCurrent && "(" + t("selected from ancestor current") + ")"} 
+                                </>
+                            } 
                             size="small" 
                             sx={{marginLeft: 2}}
                             color={isCurrent ? "info" : "secondary"}

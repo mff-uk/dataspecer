@@ -7,9 +7,13 @@ import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
 import { WdConnector } from "./wikidata-backend-connector/wd-connector";
 import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
 import { isWdErrorResponse } from "./wikidata-backend-connector/api-types/error";
-import { WdEntityId, WdEntityIdsList, wdIriToNumId } from "./wikidata-entities/wd-entity";
+import { WdEntityId, WdEntityIdsList, WdEntityIri, wdIriToNumId } from "./wikidata-entities/wd-entity";
 import { WdClassHierarchy } from "./wikidata-backend-connector/api-types/get-class-hierarchy";
 import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
+import { WdPropertyDescOnly } from "./wikidata-entities/wd-property";
+import { loadWikidataAssociation, loadWikidataAttribute } from "./wikidata-to-dataspecer-entity-adapters/wd-property-adapter";
+import { PimAttribute } from "@dataspecer/core/pim/model/pim-attribute";
+import { PimAssociation } from "@dataspecer/core/pim/model/pim-association";
 
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
@@ -145,7 +149,7 @@ export class WikidataAdapter implements CimAdapter {
         return resources;
     }
 
-    private tryLoadClassesToResources(
+    public tryLoadClassesToResources(
         classesIds: WdEntityIdsList,
         resources: { [iri: string]: CoreResource },
         loadedClassesSet: Set<WdEntityId>,
@@ -159,5 +163,51 @@ export class WikidataAdapter implements CimAdapter {
                 resources[newPimClass.iri] = newPimClass;
             }
         }
+    }
+
+    public tryLoadClassToResource(
+        cls: WdClassHierarchyDescOnly,
+        resources: { [iri: string]: CoreResource },
+        loadedClassesSet: Set<WdEntityId>,
+    ): void {
+        if (!loadedClassesSet.has(cls.id)) {
+            loadedClassesSet.add(cls.id);
+            const newPimClass = loadWikidataClass(cls, this.iriProvider);
+            resources[newPimClass.iri] = newPimClass;
+        }
+    }
+
+    public tryLoadAssociationToResource(
+        property: WdPropertyDescOnly,
+        subjectClass: WdClassHierarchyDescOnly,
+        objectClass: WdClassHierarchyDescOnly,
+        isInward: boolean,
+        resources: { [iri: string]: CoreResource },
+        loadedPropertiesSet: Set<WdEntityIri>,
+    ): PimAssociation | undefined {
+        const [pimMediate1, pimAssociation, pimMediate2] = loadWikidataAssociation(property, subjectClass, objectClass, isInward, this.iriProvider);
+        if (!loadedPropertiesSet.has(pimAssociation.iri)) {
+            loadedPropertiesSet.add(pimAssociation.iri);
+            resources[pimAssociation.iri] = pimAssociation;
+            resources[pimMediate1.iri] = pimMediate1;
+            resources[pimMediate2.iri] = pimMediate2;
+            return pimAssociation;
+        }
+        return undefined;
+    }
+
+    public tryLoadAttributeToResource(
+        property: WdPropertyDescOnly,
+        subjectClass: WdClassHierarchyDescOnly,
+        resources: { [iri: string]: CoreResource },
+        loadedPropertiesSet: Set<WdEntityIri>,
+    ): PimAttribute | undefined {
+        const pimAttribute= loadWikidataAttribute(property, subjectClass, this.iriProvider);
+        if (!loadedPropertiesSet.has(pimAttribute.iri)) {
+            loadedPropertiesSet.add(pimAttribute.iri);
+            resources[pimAttribute.iri] = pimAttribute;
+            return pimAttribute;
+        }
+        return undefined;
     }
 }
