@@ -12,8 +12,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { UseDialogOpenFunction } from "../../../../../dialog";
 import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useCallback, useContext } from "react";
-import { PropertySelectionContext } from "../../contexts/property-selection-context";
-import { PropertySelectionRecord } from "../../property-selection-record";
+import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
+import { WdPropertySelectionRecord } from "../../property-selection-record";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {
@@ -45,23 +45,24 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
     openSelectionDialogFunc,
 }) => {
     const { t } = useTranslation("ui");
-    const propertySelectionContext = useContext(PropertySelectionContext);
+    const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
 
     // Do not open property selection dialog when on an attribute with disabled inheritance.
     const onClickCallback = useCallback(() => { 
         if (!includeInheritedProperties && isWdPropertyTypeAttribute(wdPropertyType)) {
             const selectedWdClass = selectedWdClassSurroundings.classesMap.get(selectedWdClassSurroundings.startClassId) as WdClassHierarchyDescOnly;
-            propertySelectionContext.addPropertySelectionRecord(new PropertySelectionRecord(wdPropertyType, wdProperty, selectedWdClass))
+            wdPropertySelectionContext.addWdPropertySelectionRecord(WdPropertySelectionRecord.createNew(wdPropertyType, wdProperty, selectedWdClass))
         } else {
             openSelectionDialogFunc({ 
                 wdProperty, 
                 wdPropertyType, 
                 wdFilterByInstance,
                 selectedWdClassSurroundings,
-                includeInheritedProperties
+                includeInheritedProperties,
+                editingWdPropertySelectionId: undefined,
             });
         }
-    }, [includeInheritedProperties, openSelectionDialogFunc, propertySelectionContext, selectedWdClassSurroundings, wdFilterByInstance, wdProperty, wdPropertyType]);
+    }, [includeInheritedProperties, openSelectionDialogFunc, selectedWdClassSurroundings, wdFilterByInstance, wdProperty, wdPropertySelectionContext, wdPropertyType]);
 
     return (
         <>

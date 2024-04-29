@@ -17,6 +17,7 @@ export interface WikidataPropertySelectionDialogProps {
     includeInheritedProperties: boolean;
     wdFilterByInstance: WdFilterByInstance | undefined;
     wdPropertyType: WikidataPropertyType | undefined;
+    editingWdPropertySelectionId: number | undefined
 }
 
 // Upon call to this function, all props should be non null/undefined, except filter by instance (which is set by the user).

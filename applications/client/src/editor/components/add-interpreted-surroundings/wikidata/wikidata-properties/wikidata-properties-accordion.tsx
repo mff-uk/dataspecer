@@ -29,7 +29,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
 }) => {
     const { t } = useTranslation("interpretedSurrounding");
     const [expanded, setExpanded] = useState(false);
-    const PropertySelectionDialog = useDialog(WikidataPropertySelectionDialog);
+    const WdPropertySelectionDialog = useDialog(WikidataPropertySelectionDialog);
 
     const mapWdPropertyFunc = useCallback(
         (wdProperty) => {
@@ -41,12 +41,12 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     includeInheritedProperties={includeInheritedProperties}
                     wdFilterByInstance={wdFilterByInstance}
                     selectedWdClassSurroundings={selectedWdClassSurroundings}
-                    openSelectionDialogFunc={PropertySelectionDialog.open}
+                    openSelectionDialogFunc={WdPropertySelectionDialog.open}
                 />
             );
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [ PropertySelectionDialog, PropertySelectionDialog.open, includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance, wdPropertyType,]);
+        [ WdPropertySelectionDialog, WdPropertySelectionDialog.open, includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance, wdPropertyType,]);
 
     return (
         <>
@@ -91,7 +91,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     />
                 </AccordionDetails>
             </Accordion>
-            <PropertySelectionDialog.Component />
+            <WdPropertySelectionDialog.Component />
         </>
     );
 };

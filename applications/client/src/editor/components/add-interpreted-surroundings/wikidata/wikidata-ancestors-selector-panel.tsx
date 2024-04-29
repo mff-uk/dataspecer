@@ -20,7 +20,6 @@ import {
 import { entitySearchTextFilterWithMap } from "./helpers/search-text-filter";
 import { useTranslation } from "react-i18next";
 import { LanguageStringFallback, LanguageStringText } from "../../helper/LanguageStringComponents";
-import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 
 export interface AncestorsSelectorPanelProps {
     rootWdClassSurroundings: WdClassSurroundings;
@@ -74,6 +73,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                     const isSelected = selectedWdClassId === cls.id;
                     return (
                         <Tooltip
+                            key={"tooltip" + cls.iri}
                             open={
                                 Object.values(cls.descriptions).some((s) => s.length > 0)
                                     ? undefined
@@ -81,7 +81,6 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                             }
                             title={<LanguageStringText from={cls.descriptions} />}
                             placement='left'
-                            key={"tooltip" + cls.iri}
                         >
                             <ListItem
                                 button
@@ -90,12 +89,13 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                             >
                                 <ListItemText
                                     primary={
-                                        <LanguageStringFallback
-                                            from={cls.labels}
-                                            fallback={<i>unnamed</i>}
-                                        />
+                                        <>
+                                            <LanguageStringFallback
+                                                from={cls.labels}
+                                                fallback={<i>unnamed</i>}
+                                            />
+                                        </>
                                     }
-                                    secondary={<SlovnikGovCzGlossary cimResourceIri={cls.iri} />}
                                 />
                                 <IconButton size='small'>
                                     <InfoTwoToneIcon fontSize='inherit' />

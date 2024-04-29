@@ -1,51 +1,71 @@
 import { WdClassHierarchyDescOnly, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { WikidataPropertyType } from "./wikidata-properties/items/wikidata-property-item";
 
-export class PropertySelectionRecord {
-    public id: string;
+export class WdPropertySelectionRecord {
+    private static idIncrement: number = 0;
+    public id: number;
     public wdPropertyType: WikidataPropertyType;
     public wdProperty: WdPropertyDescOnly;
     public subjectWdClass: WdClassHierarchyDescOnly;
     public objectWdClass: WdClassHierarchyDescOnly | undefined;
 
-    constructor(
+    private static createNewId(): number {
+        WdPropertySelectionRecord.idIncrement += 1;
+        return WdPropertySelectionRecord.idIncrement;
+    }
+
+    private constructor(
+        id: number,
         wdPropertyType: WikidataPropertyType, 
         wdProperty: WdPropertyDescOnly, 
         subjectWdClass: WdClassHierarchyDescOnly, 
         objectWdClass: WdClassHierarchyDescOnly | undefined = undefined
     ) {
-        this.id = 
-            wdProperty.id.toString() + 
-            " " + wdPropertyType + 
-            " " + subjectWdClass.id.toString() +
-            (objectWdClass ? (" " + objectWdClass.id.toString()) : "");
+        this.id = id;
         this.wdPropertyType = wdPropertyType;
         this.wdProperty = wdProperty;
         this.subjectWdClass = subjectWdClass;
         this.objectWdClass = objectWdClass;
     }
+
+    public static createNew(
+        wdPropertyType: WikidataPropertyType, 
+        wdProperty: WdPropertyDescOnly, 
+        subjectWdClass: WdClassHierarchyDescOnly, 
+        objectWdClass: WdClassHierarchyDescOnly | undefined = undefined,
+    ): WdPropertySelectionRecord {
+        const id = WdPropertySelectionRecord.createNewId();
+        return new WdPropertySelectionRecord(id, wdPropertyType, wdProperty, subjectWdClass, objectWdClass);
+    }
+
+    public static createEditedCopy(
+        record: WdPropertySelectionRecord,
+        newSubjectWdClass: WdClassHierarchyDescOnly, 
+        newObjectWdClass: WdClassHierarchyDescOnly | undefined = undefined,
+    ): WdPropertySelectionRecord {
+        return new WdPropertySelectionRecord(record.id, record.wdPropertyType, record.wdProperty, newSubjectWdClass, newObjectWdClass);
+    }
 }
 
-export function isPropertySelectionRecordPresent(record: PropertySelectionRecord, propertySelectionRecords: PropertySelectionRecord[]): boolean {
-    const idx = findIndexOfPropertySelectionRecord(record, propertySelectionRecords);
+export function isWdPropertySelectionRecordPresent(record: WdPropertySelectionRecord, propertySelectionRecords: WdPropertySelectionRecord[]): boolean {
+    const idx = findIndexOfWdPropertySelectionRecord(record, propertySelectionRecords);
     return idx !== -1;
 }
 
-export function findIndexOfPropertySelectionRecord(record: PropertySelectionRecord, propertySelectionRecords: PropertySelectionRecord[]): number {
-    return propertySelectionRecords.findIndex((element) => element.id === record.id);
+export function findIndexOfWdPropertySelectionRecord(record: WdPropertySelectionRecord | number, propertySelectionRecords: WdPropertySelectionRecord[]): number {
+    const recordId = (typeof record === 'number') ? record : record.id;
+    return propertySelectionRecords.findIndex((element) => element.id === recordId);
 }
 
-export function isPropertySelected(
+export function isWdPropertySelected(
     wdProperty: WdPropertyDescOnly, 
     wdPropertyType: WikidataPropertyType, 
-    subjectWdClass: WdClassHierarchyDescOnly, 
-    propertySelectionRecords: PropertySelectionRecord[]
+    propertySelectionRecords: WdPropertySelectionRecord[]
 ): number {
     return propertySelectionRecords.findIndex((element) => { 
         return (
             element.wdProperty.id === wdProperty.id &&
-            element.wdPropertyType === wdPropertyType &&
-            element.subjectWdClass.id === subjectWdClass.id
+            element.wdPropertyType === wdPropertyType
         );
     });
 }

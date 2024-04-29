@@ -1,5 +1,5 @@
 import { Button, DialogActions, Grid } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
@@ -21,8 +21,8 @@ import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";
 import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
 import { WikidataLoading } from "./helpers/wikidata-loading";
 import { WikidataLoadingError } from "./helpers/wikidata-loading-error";
-import { PropertySelectionContext, PropertySelectionContextValue } from "./contexts/property-selection-context";
-import { PropertySelectionRecord, isPropertySelectionRecordPresent } from "./property-selection-record";
+import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
+import { useWdPropertySelection } from "./hooks/use-wd-property-selection";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {
@@ -63,7 +63,7 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
     WikidataAddInterpretedSurroundingDialogContentProps
 > = ({ isOpen, close, selected, pimClass, dataPsmClass, wdRootClassId }) => {
     const { t } = useTranslation("interpretedSurrounding");
-    const [propertySelectionRecords, setPropertySelectionRecords] = useState<PropertySelectionRecord[]>([]);
+    const propertyWdSelectionContextValue = useWdPropertySelection();
     const [selectedWdClassId, setSelectedWdClassId] = useState<WdEntityId>(wdRootClassId);
     const {
         wdClassSurroundings: rootWdClassSurroundings,
@@ -71,22 +71,8 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
         isError,
     } = useWdGetSurroundings(wdRootClassId);
 
-    const propertySelectionContextValue = useMemo((): PropertySelectionContextValue => {
-        return {
-            propertySelectionRecords: propertySelectionRecords,
-            addPropertySelectionRecord: (newRecord: PropertySelectionRecord) => {
-                if (!isPropertySelectionRecordPresent(newRecord, propertySelectionRecords)) {
-                    setPropertySelectionRecords([...propertySelectionRecords, newRecord]);
-                }
-            },
-            removePropertySelectionRecord: (record: PropertySelectionRecord) => {
-                setPropertySelectionRecords([...(propertySelectionRecords.filter((e) => e.id !== record.id))]);    
-            }
-        }
-    }, [propertySelectionRecords, setPropertySelectionRecords]);
-
     return (
-        <PropertySelectionContext.Provider value={propertySelectionContextValue}>
+        <WdPropertySelectionContext.Provider value={propertyWdSelectionContextValue}>
             <DialogTitle id='customized-dialog-title' close={close}>
                 {t("title")}
             </DialogTitle>
@@ -131,6 +117,6 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
                     {t("confirm button")}
                 </Button>
             </DialogActions>
-        </PropertySelectionContext.Provider>
+        </WdPropertySelectionContext.Provider>
     );
 };

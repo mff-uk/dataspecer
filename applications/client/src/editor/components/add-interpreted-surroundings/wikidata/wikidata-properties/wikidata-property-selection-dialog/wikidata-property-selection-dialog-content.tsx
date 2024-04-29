@@ -30,8 +30,8 @@ import { useWdGetEndpoints } from "../../hooks/use-wd-get-endpoints";
 import { WikidataClassListWithSelection } from "./wikidata-class-list-with-selection";
 import { getAncestorsContainingProperty } from "../../helpers/ancestors-containing-property";
 import { WikidataPropertySelectionDialogProps } from "./wikidata-property-selection-dialog";
-import { PropertySelectionContext } from "../../contexts/property-selection-context";
-import { PropertySelectionRecord } from "../../property-selection-record";
+import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
+import { WdPropertySelectionRecord } from "../../property-selection-record";
 
 const SCROLLABLE_CLASS_CONTENT_ID = "selection_scrollable_class_content";
 
@@ -61,9 +61,7 @@ export const WikidaPropertySelectionDialogContent: React.FC<
         if (
             props.wdPropertyType === WikidataPropertyType.ASSOCIATIONS ||
             props.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS
-        ) {
-            names.push(ENDPOINTS_SELECTION_STEP);
-        }
+        ) names.push(ENDPOINTS_SELECTION_STEP);
         return names;
     }, [props.includeInheritedProperties, props.wdPropertyType]);
 
@@ -82,7 +80,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
     WikidaPropertySelectionStepperProcessProps
 > = (props) => {
     const { t } = useTranslation("interpretedSurrounding");
-    const propertySelectionContext = useContext(PropertySelectionContext);
+    const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
     const [activeStep, setActiveStep] = useState(0);
     const [selection, setSelection] = useState<Array<WdClassHierarchyDescOnly | undefined>>(
         Array(props.stepsNames.length).fill(undefined),
@@ -111,9 +109,14 @@ const WikidataPropertySelectionStepperProcess: React.FC<
         if (!isWdPropertyTypeAttribute(props.wdPropertyType)) {
             objectWdClass = selection[(selection.length - 1)];
         }
-        propertySelectionContext.addPropertySelectionRecord(
-            new PropertySelectionRecord(props.wdPropertyType, props.wdProperty, subjectWdClass, objectWdClass)
-        );
+
+        if (props.editingWdPropertySelectionId === undefined) {
+            wdPropertySelectionContext.addWdPropertySelectionRecord(
+                WdPropertySelectionRecord.createNew(props.wdPropertyType, props.wdProperty, subjectWdClass, objectWdClass)
+            );
+        } else {
+            wdPropertySelectionContext.changeWdPropertySelectionRecord(props.editingWdPropertySelectionId, subjectWdClass, objectWdClass);
+        }
     }
 
     return (
@@ -220,12 +223,12 @@ const AncestorsHelpBox: React.FC = () => {
         <>
             <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
                 <HelpOutlineIcon color='info' />
-                <Typography sx={{ marginLeft: 2 }} fontSize='15px'>
-                    {t("ancestor selection help 0")}
-                    <br />
-                    {t("ancestor selection help 1")}
-                    <br />
+                <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
+                    {t("ancestor selection help 0")} 
+                    {t("ancestor selection help 1")} 
                     {t("ancestor selection help 2")}
+                    <br />
+                    {t("ancestor selection help 3")}
                 </Typography>
             </Box>
         </>

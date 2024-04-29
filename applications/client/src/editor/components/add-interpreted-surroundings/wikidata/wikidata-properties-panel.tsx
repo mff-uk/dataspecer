@@ -18,7 +18,8 @@ import { WikidataLoadedProperties } from "./wikidata-properties/wikidata-loaded-
 import { useContext, useState } from "react";
 import { useDialog } from "../../../dialog";
 import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
-import { PropertySelectionContext } from "./contexts/property-selection-context";
+import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
+import { WikidataShowSelectedDialog } from "./wikidata-show-selected-dialog/wikidata-show-selected-dialog";
 
 export interface WikidataPropertiesPanelProps {
     selectedWdClassId: WdEntityId;
@@ -30,14 +31,11 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
     rootWdClassSurroundings,
 }) => {
     const { t } = useTranslation("interpretedSurrounding");
-    const propertySelectionContext = useContext(PropertySelectionContext);
-    const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, [
-        "setWdFilterByInstance",
-    ]);
+    const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
+    const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, ["setWdFilterByInstance"]);
+    const WdShowSelectedDialog = useDialog(WikidataShowSelectedDialog);
     const [includeInheritedProperties, setIncludeInheritedProperties] = useState(false);
-    const [wdFilterByInstance, setWdFilterByInstance] = useState<WdFilterByInstance | undefined>(
-        undefined,
-    );
+    const [wdFilterByInstance, setWdFilterByInstance] = useState<WdFilterByInstance | undefined>(undefined);
     const [searchText, setSearchText] = useState("");
 
     const rootWdClassIsSelected = selectedWdClassId === rootWdClassSurroundings.startClassId;
@@ -60,8 +58,12 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                         autoComplete='off'
                         value={searchText}
                         />
-                    <Button variant="contained" size="small" sx={{width: "247px"}}>
-                            {t("show selected")} ({propertySelectionContext.propertySelectionRecords.length})
+                    <Button onClick={() => WdShowSelectedDialog.open({rootWdClassSurroundings})}
+                        variant="contained" 
+                        size="small" 
+                        sx={{width: "247px"}}
+                    >
+                        {t("show selected")} ({wdPropertySelectionContext.wdPropertySelectionRecords.length})
                     </Button>
                 </Stack>
                 <Stack flexDirection='row' alignItems='center'>
@@ -74,7 +76,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                                         e.stopPropagation();
                                         setIncludeInheritedProperties(e.target.checked);
                                     }}
-                                    />
+                                />
                             }
                             label={t("include inherited")}
                             />
@@ -117,6 +119,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                 />
             )}
             <WdFilterByInstanceDialog.Component setWdFilterByInstance={setWdFilterByInstance} />
+            <WdShowSelectedDialog.Component />
         </>
     );
 };
