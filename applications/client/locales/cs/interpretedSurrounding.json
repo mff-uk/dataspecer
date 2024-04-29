@@ -20,7 +20,7 @@
   "input instance uri": "Vložte URI instance",
   "input filter by instance uri help": "Vložené URI instance musí splňovat regulární výraz: https?://www.wikidata.org/(entity|wiki)/[Q][1-9][0-9]*",
   "input filter by instance uri help error": "Neplatná instance: neexistuje, nebo její třída není součásti ontologie, nebo neobsahuje vlastnost instance of.",
-  "show selected": "Zobrazit vybrané",
+  "show selected": "Zpravovat vybrané",
   "show selected title": "Vybrané asociace a atributy",
   "selecting attributes": "Přidání atributu",
   "selecting external identifiers attributes": "Přidání externího identifikátoru",

@@ -61,11 +61,10 @@ export function isWdPropertySelected(
     wdProperty: WdPropertyDescOnly, 
     wdPropertyType: WikidataPropertyType, 
     propertySelectionRecords: WdPropertySelectionRecord[]
-): number {
-    return propertySelectionRecords.findIndex((element) => { 
-        return (
-            element.wdProperty.id === wdProperty.id &&
-            element.wdPropertyType === wdPropertyType
-        );
-    });
+): boolean {
+    const index = propertySelectionRecords.findIndex((element) => 
+        element.wdProperty.id === wdProperty.id && 
+        element.wdPropertyType === wdPropertyType
+    );
+    return index !== -1;
 }

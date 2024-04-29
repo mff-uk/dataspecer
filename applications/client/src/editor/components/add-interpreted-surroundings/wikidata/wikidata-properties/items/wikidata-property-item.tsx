@@ -1,5 +1,5 @@
 import { WdClassHierarchyDescOnly, WdClassSurroundings, WdFilterByInstance, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
-import { ListItem, Typography, IconButton, ListItemText, Box } from "@mui/material";
+import { ListItem, Typography, IconButton, ListItemText, Box, Chip } from "@mui/material";
 import { SlovnikGovCzGlossary } from "../../../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import { useTranslation } from "react-i18next";
@@ -13,7 +13,7 @@ import { UseDialogOpenFunction } from "../../../../../dialog";
 import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useCallback, useContext } from "react";
 import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
-import { WdPropertySelectionRecord } from "../../property-selection-record";
+import { WdPropertySelectionRecord, isWdPropertySelected } from "../../property-selection-record";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {
@@ -64,6 +64,8 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
         }
     }, [includeInheritedProperties, openSelectionDialogFunc, selectedWdClassSurroundings, wdFilterByInstance, wdProperty, wdPropertySelectionContext, wdPropertyType]);
 
+    const isSelected = isWdPropertySelected(wdProperty, wdPropertyType, wdPropertySelectionContext.wdPropertySelectionRecords);
+
     return (
         <>
             <ListItem
@@ -103,6 +105,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                         />
                     </strong>
                     <SlovnikGovCzGlossary cimResourceIri={wdProperty.iri as string} />
+                    {isSelected && <Chip label="in selection" color="info" size="small" sx={{marginLeft: 2}}/>}
                     {wdPropertyType === WikidataPropertyType.ASSOCIATIONS && (
                         <ArrowForwardIcon
                             fontSize={"small"}
