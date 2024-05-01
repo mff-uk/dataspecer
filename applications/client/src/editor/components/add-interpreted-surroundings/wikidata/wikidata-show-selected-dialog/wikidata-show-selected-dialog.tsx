@@ -6,7 +6,7 @@ import { dialog, useDialog } from "../../../../dialog";
 import { useTranslation } from "react-i18next";
 import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
 import { WikidataPropertySelectionDialog } from "../wikidata-properties/wikidata-property-selection-dialog/wikidata-property-selection-dialog";
-import { WikidataPropertyType } from "../wikidata-properties/items/wikidata-property-item";
+import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
 import { WikidataPropertySelectionList } from "./wikidata-property-selection-list";
 import { WdPropertySelectionRecord } from "../property-selection-record";
 

@@ -5,12 +5,12 @@ import { useTranslation } from "react-i18next";
 import {
     LanguageStringFallback,
     LanguageStringUndefineable,
-} from "../../../../helper/LanguageStringComponents";
-import { UseDialogOpenFunction } from "../../../../../dialog";
-import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
+} from "../../../helper/LanguageStringComponents";
+import { UseDialogOpenFunction } from "../../../../dialog";
+import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useCallback, useContext } from "react";
-import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
-import { WdPropertySelectionRecord, getAllWdPropertySelections } from "../../property-selection-record";
+import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
+import { WdPropertySelectionRecord, getAllWdPropertySelections } from "../property-selection-record";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {

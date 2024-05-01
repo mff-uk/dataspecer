@@ -10,7 +10,7 @@ import {
 import { entitySearchTextFilter } from "../helpers/search-text-filter";
 import { useMemo } from "react";
 import { WikidataPropertiesAccordion } from "./wikidata-properties-accordion";
-import { WikidataPropertyType } from "./items/wikidata-property-item";
+import { WikidataPropertyType } from "./wikidata-property-item";
 
 export interface WikidataPropertiesProps {
     selectedWdClassSurroundings: WdClassSurroundings;

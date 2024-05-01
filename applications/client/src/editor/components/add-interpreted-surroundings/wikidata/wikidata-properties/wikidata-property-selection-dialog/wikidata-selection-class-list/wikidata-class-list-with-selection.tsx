@@ -4,9 +4,9 @@ import {
 import { Stack, TextField, Typography } from "@mui/material";
 import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { entitySearchTextFilter } from "../../helpers/search-text-filter";
-import { WikidataClassItem } from "../items/wikidata-class-item";
-import { WikidataInfinityScrollList } from "../../helpers/wikidata-infinity-scroll-list";
+import { entitySearchTextFilter } from "../../../helpers/search-text-filter";
+import { WikidataInfinityScrollList } from "../../../helpers/wikidata-infinity-scroll-list";
+import { WikidataClassItem } from "./wikidata-class-item";
 
 export interface ClassListProperties {
     wdClasses: WdClassHierarchyDescOnly[];

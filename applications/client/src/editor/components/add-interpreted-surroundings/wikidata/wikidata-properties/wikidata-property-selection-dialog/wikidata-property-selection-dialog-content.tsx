@@ -8,7 +8,7 @@ import {
     WdFilterByInstance,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../items/wikidata-property-item";
+import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../wikidata-property-item";
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../../detail/common";
 import {
@@ -27,11 +27,11 @@ import { WikidataLoadingError } from "../../helpers/wikidata-loading-error";
 import { WikidataLoading } from "../../helpers/wikidata-loading";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useWdGetEndpoints } from "../../hooks/use-wd-get-endpoints";
-import { WikidataClassListWithSelection } from "./wikidata-class-list-with-selection";
 import { getAncestorsContainingProperty } from "../../helpers/ancestors-containing-property";
 import { WikidataPropertySelectionDialogProps } from "./wikidata-property-selection-dialog";
 import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
 import { WdPropertySelectionRecord } from "../../property-selection-record";
+import { WikidataClassListWithSelection } from "./wikidata-selection-class-list/wikidata-class-list-with-selection";
 
 const SCROLLABLE_CLASS_CONTENT_ID = "selection_scrollable_class_content";
 

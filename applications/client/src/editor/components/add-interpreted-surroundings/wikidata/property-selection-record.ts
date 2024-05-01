@@ -1,5 +1,5 @@
 import { WdClassHierarchyDescOnly, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType } from "./wikidata-properties/items/wikidata-property-item";
+import { WikidataPropertyType } from "./wikidata-properties/wikidata-property-item";
 
 export class WdPropertySelectionRecord {
     private static idIncrement: number = 0;

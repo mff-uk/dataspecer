@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import {
     LanguageStringFallback,
     LanguageStringUndefineable,
-} from "../../../../helper/LanguageStringComponents";
+} from "../../../../../helper/LanguageStringComponents";
 import React from "react";
 
 export interface WikidataClassItemProps {

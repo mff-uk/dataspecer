@@ -29,7 +29,7 @@ import { useWdPropertySelection } from "./hooks/use-wd-property-selection";
 import { WdPropertySelectionRecord } from "./property-selection-record";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
 import { ReadOnlyMemoryStore } from "@dataspecer/core/core/index";
-import { WikidataPropertyType } from "./wikidata-properties/items/wikidata-property-item";
+import { WikidataPropertyType } from "./wikidata-properties/wikidata-property-item";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {

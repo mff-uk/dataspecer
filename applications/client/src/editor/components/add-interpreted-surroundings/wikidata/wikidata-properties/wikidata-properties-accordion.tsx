@@ -7,7 +7,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Typography } from "@mui/
 import { useCallback, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTranslation } from "react-i18next";
-import { WikidataPropertyItem, WikidataPropertyType } from "./items/wikidata-property-item";
+import { WikidataPropertyItem, WikidataPropertyType } from "./wikidata-property-item";
 import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useDialog } from "../../../../dialog";
 import { WikidataInfinityScrollList } from "../helpers/wikidata-infinity-scroll-list";

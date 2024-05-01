@@ -6,7 +6,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import React, { useContext } from "react";
-import { WikidataPropertyType } from "../wikidata-properties/items/wikidata-property-item";
+import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
 import { WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
 
