@@ -5,7 +5,7 @@ import {
     WdFilterByInstance,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType } from "../wikidata-property-item";
+import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../wikidata-property-item";
 import { WikidaPropertySelectionDialogContent } from "./wikidata-property-selection-dialog-content";
 
 export interface WikidataPropertySelectionDialogProps {
@@ -33,9 +33,7 @@ export const WikidataPropertySelectionDialog: React.FC<WikidataPropertySelection
             props.wdPropertyType
         ) {
             if (
-                props.includeInheritedProperties ||
-                props.wdPropertyType === WikidataPropertyType.ASSOCIATIONS ||
-                props.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS
+                props.includeInheritedProperties || !isWdPropertyTypeAttribute(props.wdPropertyType)
             )
                 return <WikidaPropertySelectionDialogContent {...props} />;
         }

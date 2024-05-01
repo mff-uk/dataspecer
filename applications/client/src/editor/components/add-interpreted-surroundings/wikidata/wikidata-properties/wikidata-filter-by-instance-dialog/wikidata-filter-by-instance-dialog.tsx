@@ -57,14 +57,14 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
         return (
             <>
                 <DialogTitle id='customized-dialog-title' close={close}>
-                    {t("add filter by instance")}
+                    {t("wikidata.add filter by instance")}
                 </DialogTitle>
                 <DialogContent dividers style={{ textAlign: "center" }}>
                     {isLoading && <CircularProgress style={{ margin: "3rem auto" }} />}
                     {!isLoading && (
                         <TextField
                             style={{ margin: "2rem auto" }}
-                            label={t("input filter by instance uri")}
+                            label={t("wikidata.input filter by instance uri")}
                             autoFocus
                             fullWidth
                             onChange={(e) => {
@@ -78,9 +78,9 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
                             error={queryFailed}
                             helperText={
                                 <>
-                                    {queryFailed && t("input filter by instance uri help error")}
+                                    {queryFailed && t("wikidata.input filter by instance uri help error")}
                                     {queryFailed && <br />}
-                                    {t("input filter by instance uri help")}
+                                    {t("wikidata.input filter by instance uri help")}
                                 </>
                             }
                         />

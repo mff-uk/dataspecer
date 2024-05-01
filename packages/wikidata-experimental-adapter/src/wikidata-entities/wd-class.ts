@@ -1,10 +1,10 @@
-import { WdEntity, WdEntityIdsList, WdExternalOntologyMapping } from "./wd-entity";
+import { WdEntity, WdEntityIdsList, WdExternalOntologyMappings } from "./wd-entity";
 
 export const ROOT_CLASS_ID = 35120;
 
 export interface WdClass extends WdEntity {
     readonly subclassOf: WdEntityIdsList;
-    readonly equivalentExternalOntologyClasses: WdExternalOntologyMapping;
+    readonly equivalentExternalOntologyClasses: WdExternalOntologyMappings;
 
     readonly subjectOfProperty: WdEntityIdsList;
     readonly valueOfProperty: WdEntityIdsList;

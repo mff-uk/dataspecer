@@ -11,7 +11,7 @@ export type WdEntityIdsList = readonly WdEntityId[];
 export type WdEntityIriList = readonly WdEntityIri[];
 
 export type WdExternalEntityId = string;
-export type WdExternalOntologyMapping = readonly WdExternalEntityId[];
+export type WdExternalOntologyMappings = readonly WdExternalEntityId[];
 
 export const WIKIDATA_URI_PREFIX = "http://www.wikidata.org/entity/";
 

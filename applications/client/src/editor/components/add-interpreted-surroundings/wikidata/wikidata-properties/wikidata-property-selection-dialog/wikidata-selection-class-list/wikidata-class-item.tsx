@@ -11,25 +11,27 @@ import {
     Radio,
 } from "@mui/material";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
-import { useTranslation } from "react-i18next";
 import {
-    LanguageStringFallback,
+    LanguageStringText,
     LanguageStringUndefineable,
 } from "../../../../../helper/LanguageStringComponents";
 import React from "react";
+import { UseDialogOpenFunction } from "../../../../../../dialog";
+import { WikidataEntityDetailDialog } from "../../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
 
 export interface WikidataClassItemProps {
     wdClass: WdClassHierarchyDescOnly;
     selectedWdClass: WdClassHierarchyDescOnly | undefined;
     setSelectedWdClass: (wdClass: WdClassHierarchyDescOnly | undefined) => void;
+    openDetailDialogFunc: UseDialogOpenFunction<typeof WikidataEntityDetailDialog>;
 }
 
 export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({
     wdClass,
     selectedWdClass,
     setSelectedWdClass,
+    openDetailDialogFunc
 }) => {
-    const { t } = useTranslation("ui");
     const currentClassIsSelected = wdClass.id === selectedWdClass?.id;
 
     return (
@@ -73,13 +75,15 @@ export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({
                     }
                 >
                     <strong>
-                        <LanguageStringFallback
-                            from={wdClass.labels}
-                            fallback={<i>{t("no title")}</i>}
-                        />
+                        <LanguageStringText from={wdClass.labels} />
                     </strong>
                 </ListItemText>
-                <IconButton size='small'>
+                <IconButton 
+                    size='small'
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        openDetailDialogFunc({wdEntity: wdClass})
+                    }}>
                     <InfoTwoToneIcon fontSize='inherit' />
                 </IconButton>
             </ListItem>

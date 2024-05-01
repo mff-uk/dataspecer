@@ -3,7 +3,7 @@ import { ListItem, Typography, IconButton, ListItemText, Box, Chip, Stack } from
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import { useTranslation } from "react-i18next";
 import {
-    LanguageStringFallback,
+    LanguageStringText,
     LanguageStringUndefineable,
 } from "../../../helper/LanguageStringComponents";
 import { UseDialogOpenFunction } from "../../../../dialog";
@@ -11,6 +11,7 @@ import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-d
 import { useCallback, useContext } from "react";
 import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
 import { WdPropertySelectionRecord, getAllWdPropertySelections } from "../property-selection-record";
+import { WikidataEntityDetailDialog } from "../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {
@@ -31,6 +32,7 @@ export interface WikidataPropertyItemProps {
     includeInheritedProperties: boolean;
     wdFilterByInstance: WdFilterByInstance | undefined;
     openSelectionDialogFunc: UseDialogOpenFunction<typeof WikidataPropertySelectionDialog>;
+    openDetailDialogFunc: UseDialogOpenFunction<typeof WikidataEntityDetailDialog>;
 }
 
 export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
@@ -40,8 +42,8 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
     includeInheritedProperties,
     wdFilterByInstance,
     openSelectionDialogFunc,
+    openDetailDialogFunc
 }) => {
-    const { t: tui } = useTranslation("ui");
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
 
     // Do not open property selection dialog when on an attribute with disabled inheritance.
@@ -95,10 +97,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                 >
                     <Stack direction="row" spacing={4}>
                     <strong>
-                        <LanguageStringFallback
-                            from={wdProperty.labels}
-                            fallback={<i>{tui("no title")}</i>}
-                        />
+                        <LanguageStringText from={wdProperty.labels} />
                     </strong>
                     <SelectedWdPropertiesChips 
                         wdProperty={wdProperty} 
@@ -107,7 +106,13 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                     />
                     </Stack>
                 </ListItemText>
-                <IconButton size='small'>
+                <IconButton 
+                    size='small'
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        openDetailDialogFunc({wdEntity: wdProperty})
+                    }}
+                >
                     <InfoTwoToneIcon fontSize='inherit' />
                 </IconButton>
             </ListItem>
@@ -127,26 +132,27 @@ const SelectedWdPropertiesChips: React.FC<SelectedWdPropertiesChipsProps> = (pro
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
 
     const propertySelections = getAllWdPropertySelections(props.wdProperty, props.wdPropertyType, wdPropertySelectionContext.wdPropertySelectionRecords);
+    const isPropertyAttribute = isWdPropertyTypeAttribute(props.wdPropertyType);
 
     return (
         <>
             {
                 propertySelections.length !== 0 &&
                 <Box fontSize="13px" fontStyle="italic">
-                    {t("selected from ancestor")}
+                    {isPropertyAttribute ? t("wikidata.selection.selected from ancestor from") : t("wikidata.selection.selected from ancestor from to")}
                     {propertySelections.map((selection) => {
-                        const isCurrent = selection.subjectWdClass.id ===  props.selectedWdClassId;
                         return (
                             <Chip
                             key={selection.subjectWdClass.id}
                             label={
-                                <>
-                                    <LanguageStringFallback from={selection.subjectWdClass.labels} /> {isCurrent && "(" + t("selected from ancestor current") + ")"} 
+                                <>  
+                                    <LanguageStringText from={selection.subjectWdClass.labels} />
+                                    {!isPropertyAttribute && <>{" -> "}<LanguageStringText from={selection.objectWdClass.labels} /></>}
                                 </>
                             } 
                             size="small" 
                             sx={{marginLeft: 2}}
-                            color={isCurrent ? "info" : "secondary"}
+                            color={"info"}
                             onDelete={() => {wdPropertySelectionContext.removeWdPropertySelectionRecord(selection)}}
                             />
                         );

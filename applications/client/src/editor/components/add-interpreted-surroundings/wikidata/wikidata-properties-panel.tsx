@@ -19,7 +19,7 @@ import { useContext, useState } from "react";
 import { useDialog } from "../../../dialog";
 import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
 import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
-import { WikidataShowSelectedDialog } from "./wikidata-show-selected-dialog/wikidata-show-selected-dialog";
+import { WikidataManageSelectedDialog } from "./wikidata-manage-selected-dialog/wikidata-manage-selected-dialog";
 
 export interface WikidataPropertiesPanelProps {
     selectedWdClassId: WdEntityId;
@@ -33,7 +33,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
     const { t } = useTranslation("interpretedSurrounding");
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
     const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, ["setWdFilterByInstance"]);
-    const WdShowSelectedDialog = useDialog(WikidataShowSelectedDialog);
+    const WdManageSelectedDialog = useDialog(WikidataManageSelectedDialog);
     const [includeInheritedProperties, setIncludeInheritedProperties] = useState(false);
     const [wdFilterByInstance, setWdFilterByInstance] = useState<WdFilterByInstance | undefined>(undefined);
     const [searchText, setSearchText] = useState("");
@@ -48,7 +48,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
             <Stack direction='column' spacing={0.4} marginBottom={0.4} >
                 <Stack direction='row' justifyContent="space-between">
                     <TextField
-                        placeholder={t("type to search")}
+                        placeholder={t("wikidata.type to search")}
                         style={{ width: 247 }}
                         onChange={(e) => {
                             e.stopPropagation();
@@ -57,13 +57,13 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                         variant={"standard"}
                         autoComplete='off'
                         value={searchText}
-                        />
-                    <Button onClick={() => WdShowSelectedDialog.open({rootWdClassSurroundings})}
+                    />
+                    <Button onClick={() => WdManageSelectedDialog.open({rootWdClassSurroundings})}
                         variant="contained" 
                         size="small" 
                         sx={{width: "247px"}}
                     >
-                        {t("show selected")} ({wdPropertySelectionContext.wdPropertySelectionRecords.length})
+                        {t("wikidata.show selected")} ({wdPropertySelectionContext.wdPropertySelectionRecords.length})
                     </Button>
                 </Stack>
                 <Stack flexDirection='row' alignItems='center'>
@@ -78,7 +78,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                                     }}
                                 />
                             }
-                            label={t("include inherited")}
+                            label={t("wikidata.include inherited")}
                             />
                     </FormGroup>
                     <Button
@@ -98,8 +98,8 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                         }
                     >
                         {isInstanceFilterEmpty
-                            ? t("add filter by instance")
-                            : t("remove filter by instance")}
+                            ? t("wikidata.add filter by instance")
+                            : t("wikidata.remove filter by instance")}
                     </Button>
                 </Stack>
             </Stack>
@@ -119,7 +119,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                 />
             )}
             <WdFilterByInstanceDialog.Component setWdFilterByInstance={setWdFilterByInstance} />
-            <WdShowSelectedDialog.Component />
+            <WdManageSelectedDialog.Component />
         </>
     );
 };

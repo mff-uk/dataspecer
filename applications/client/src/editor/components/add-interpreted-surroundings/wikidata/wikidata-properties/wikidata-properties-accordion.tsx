@@ -11,6 +11,7 @@ import { WikidataPropertyItem, WikidataPropertyType } from "./wikidata-property-
 import { WikidataPropertySelectionDialog } from "./wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useDialog } from "../../../../dialog";
 import { WikidataInfinityScrollList } from "../helpers/wikidata-infinity-scroll-list";
+import { WikidataEntityDetailDialog } from "../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
 
 export interface WikidataPropertiesAccordionProps {
     wdProperties: WdPropertyDescOnly[];
@@ -30,6 +31,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
     const { t } = useTranslation("interpretedSurrounding");
     const [expanded, setExpanded] = useState(false);
     const WdPropertySelectionDialog = useDialog(WikidataPropertySelectionDialog);
+    const WdPropertyDetailDialog = useDialog(WikidataEntityDetailDialog);
 
     const mapWdPropertyFunc = useCallback(
         (wdProperty) => {
@@ -42,11 +44,11 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                     wdFilterByInstance={wdFilterByInstance}
                     selectedWdClassSurroundings={selectedWdClassSurroundings}
                     openSelectionDialogFunc={WdPropertySelectionDialog.open}
+                    openDetailDialogFunc={WdPropertyDetailDialog.open}
                 />
             );
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [ WdPropertySelectionDialog, WdPropertySelectionDialog.open, includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance, wdPropertyType,]);
+        [WdPropertyDetailDialog.open, WdPropertySelectionDialog.open, includeInheritedProperties, selectedWdClassSurroundings, wdFilterByInstance, wdPropertyType]);
 
     return (
         <>
@@ -92,6 +94,7 @@ export const WikidataPropertiesAccordion: React.FC<WikidataPropertiesAccordionPr
                 </AccordionDetails>
             </Accordion>
             <WdPropertySelectionDialog.Component />
+            <WdPropertyDetailDialog.Component />
         </>
     );
 };

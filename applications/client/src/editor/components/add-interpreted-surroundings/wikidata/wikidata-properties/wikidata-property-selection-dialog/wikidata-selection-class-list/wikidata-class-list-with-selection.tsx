@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next";
 import { entitySearchTextFilter } from "../../../helpers/search-text-filter";
 import { WikidataInfinityScrollList } from "../../../helpers/wikidata-infinity-scroll-list";
 import { WikidataClassItem } from "./wikidata-class-item";
+import { useDialog } from "../../../../../../dialog";
+import { WikidataEntityDetailDialog } from "../../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
 
 export interface ClassListProperties {
     wdClasses: WdClassHierarchyDescOnly[];
@@ -23,7 +25,7 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({
 }) => {
     const { t } = useTranslation("interpretedSurrounding");
     const [searchText, setSearchText] = useState("");
-
+    const WdEntityDetailDialog = useDialog(WikidataEntityDetailDialog);    
     const classesToDisplay = useMemo(() => {
         return entitySearchTextFilter(searchText, wdClasses);
     }, [wdClasses, searchText]);
@@ -36,17 +38,18 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({
                     wdClass={wdClass}
                     selectedWdClass={selectedWdClass}
                     setSelectedWdClass={setSelectedWdClass}
+                    openDetailDialogFunc={WdEntityDetailDialog.open}
                 />
             );
         },
-        [selectedWdClass, setSelectedWdClass],
+        [WdEntityDetailDialog.open, selectedWdClass, setSelectedWdClass],
     );
 
     return (
         <>
             <Stack direction='row' alignItems='center' spacing={2}>
                 <TextField
-                    placeholder={t("type to search")}
+                    placeholder={t("wikidata.type to search")}
                     sx={{ width: "35%" }}
                     onChange={(e) => {
                         e.stopPropagation();
@@ -57,7 +60,7 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({
                     value={searchText}
                 />
                 <Typography variant='body2' color='textSecondary'>
-                    {t("number of classes")}: {classesToDisplay.length}
+                    {t("wikidata.selection.number of classes")}: {classesToDisplay.length}
                 </Typography>
             </Stack>
             <WikidataInfinityScrollList<WdClassHierarchyDescOnly>
@@ -65,6 +68,7 @@ export const WikidataClassListWithSelection: React.FC<ClassListProperties> = ({
                 scrollableTargetId={scrollableClassContentId}
                 mapWdEntityFunc={mapWdClassFunc}
             />
+            <WdEntityDetailDialog.Component />
         </>
     );
 };

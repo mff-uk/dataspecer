@@ -101,5 +101,16 @@
   "title to class": "Odkazovaná třída",
   "XML attributes": "XML specifické atributy",
   "XML namespace": "namespace",
-  "XML prefix": "prefix"
+  "XML prefix": "prefix",
+  "wikidata": {
+    "error": "Detail není dostupný.",
+    "subclass of": "Přímé nadtřídy",
+    "subject of property": "Je doménou vlastností",
+    "value of property": "Je hodnotou vlastností",
+    "external identifier": "Ekvivalentní externí třídy",
+    "domain classes": "Třídy domény",
+    "range classes": "Třídy hodnot",
+    "class": "Třída",
+    "property": "Vlastnost"
+  }
 }

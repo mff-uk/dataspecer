@@ -10,17 +10,17 @@ import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-i
 import { WikidataPropertySelectionList } from "./wikidata-property-selection-list";
 import { WdPropertySelectionRecord } from "../property-selection-record";
 
-export interface WikidataShowSelectedDialogProps {
+export interface WikidataManageSelectedDialogProps {
     isOpen: boolean;
     close: () => void;
 
     rootWdClassSurroundings: WdClassSurroundings | undefined;
 }
 
-export const WikidataShowSelectedDialog: React.FC<WikidataShowSelectedDialogProps> =
+export const WikidataManageSelectedDialog: React.FC<WikidataManageSelectedDialogProps> =
     dialog({ fullWidth: true, maxWidth: "md", PaperProps: { sx: { height: "90%" } } }, (props) => {
         if (props.isOpen && props.rootWdClassSurroundings) {
-            return <WikidataShowSelectedDialogContent {...props} />
+            return <WikidataManageSelectedDialogContent {...props} />
         }
         return null;
     });
@@ -30,7 +30,7 @@ function filterSelectionGroup(propertySelections: WdPropertySelectionRecord[], w
 }
 
 const GROUPS = ['attributes', 'external identifiers attributes', 'associations', 'backward associations']
-const WikidataShowSelectedDialogContent: React.FC<WikidataShowSelectedDialogProps> = ({close, rootWdClassSurroundings}) => {
+const WikidataManageSelectedDialogContent: React.FC<WikidataManageSelectedDialogProps> = ({close, rootWdClassSurroundings}) => {
     const { t } = useTranslation("interpretedSurrounding");
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
     const WdPropertySelectionDialog = useDialog(WikidataPropertySelectionDialog);
@@ -47,7 +47,7 @@ const WikidataShowSelectedDialogContent: React.FC<WikidataShowSelectedDialogProp
     return (
         <>
             <DialogTitle id='customized-dialog-title' close={close}>
-                {t("show selected title")}
+                {t("wikidata.show selected title")}
             </DialogTitle>
             <DialogContent dividers>
                 {

@@ -1,0 +1,103 @@
+import { Button, DialogActions, DialogContentText, Divider, Grid, Tab, Tabs } from "@mui/material";
+import React, { useState } from "react";
+import { DialogContent, DialogTitle } from "../../../detail/common";
+import { WdClassDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
+import { dialog } from "../../../../dialog";
+import { useTranslation } from "react-i18next";
+import { selectLanguage } from "../../../../utils/select-language";
+import { CimLinks } from "../../../detail/components/cim-links";
+import { LanguageStringFallback } from "../../../helper/LanguageStringComponents";
+import { InDifferentLanguages } from "../../../detail/components/InDifferentLanguages";
+import { WikidataClassDetailTab } from "./wikidata-class-detail-tab";
+import { DETAIL_SCROLLABLE_TARGET_ID } from "./wikidata-entity-detail-grid";
+import { WikidataPropertyDetailTab } from "./wikidata-property-detail-tab";
+
+export interface WikidataShowSelectedDialogProps {
+    isOpen: boolean;
+    close: () => void;
+
+    wdEntity: WdEntityDescOnly | undefined;
+}
+
+export const WikidataEntityDetailDialog: React.FC<WikidataShowSelectedDialogProps> =
+    dialog({ fullWidth: true, maxWidth: "xl", PaperProps: { sx: { height: "90%" } } }, (props) => {
+        if (props.isOpen && props.wdEntity) {
+            return <WikidataEntityDetailDialogClickThroughContent {...props} />
+        }
+        return null;
+    });
+
+const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelectedDialogProps> = ({close, wdEntity}) => {
+    const { t: tUI, i18n } = useTranslation("ui");
+    const { t: tDetail } = useTranslation("detail");
+    const [entitiesHistory, setEntitiesHistory] = useState<WdEntityDescOnly[]>([]);
+    const [tab, setTab] = useState(0);
+
+    let wdEntityForDetail = wdEntity;
+    if (entitiesHistory.length !== 0) {
+        wdEntityForDetail = entitiesHistory[entitiesHistory.length - 1];
+    }
+
+    function onNewEntityHandle(newWdEntity: WdEntityDescOnly) {
+        setEntitiesHistory([...entitiesHistory, newWdEntity]);
+    }
+
+    function onBackEntityHandle() {
+        setEntitiesHistory(entitiesHistory.slice(0, -1)); 
+    }
+
+    const isEntityProperty = isEntityPropertyDesc(wdEntityForDetail);
+
+    return (
+        <>
+            <DialogTitle id='customized-dialog-title' close={close}>
+                <div>
+                    {tDetail(isEntityProperty ? "wikidata.property" : "wikidata.class")}: {" "} 
+                    <strong>
+                        {selectLanguage(wdEntityForDetail.labels, i18n.languages)}
+                    </strong>
+                    <CimLinks iri={wdEntityForDetail.iri} />
+                </div>
+                <DialogContentText>
+                    <LanguageStringFallback from={wdEntityForDetail.descriptions} fallback={<i>{tUI("no description")}</i>}/>
+                </DialogContentText>
+            </DialogTitle>
+            <DialogContent dividers id={DETAIL_SCROLLABLE_TARGET_ID} key={wdEntity.iri}>
+                <Tabs centered value={tab} onChange={(e, ch) => setTab(ch)}>
+                    <Tab label={tDetail('tab basic info')} />
+                    <Tab label={"Wikidata"} />
+                </Tabs>
+                {tab === 0 &&
+                    <Grid container spacing={5} sx={{pt: 3}}>
+                        <Grid item xs={6}>
+                            <InDifferentLanguages
+                                label={wdEntityForDetail.labels}
+                                description={wdEntityForDetail.descriptions}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+
+                        </Grid>
+                    </Grid>
+                }
+                {tab === 1 && 
+                    <>
+                        {
+                            isEntityProperty ? 
+                            <WikidataPropertyDetailTab wdProperty={wdEntityForDetail as WdPropertyDescOnly} onNewDetailEntity={onNewEntityHandle} /> :
+                            <WikidataClassDetailTab wdClass={wdEntityForDetail as WdClassDescOnly} onNewDetailEntity={onNewEntityHandle} />
+                        }   
+                    </>
+                }
+            </DialogContent>
+            <DialogActions>
+                <Button disabled={entitiesHistory.length === 0} onClick={onBackEntityHandle} variant="contained" size="medium">
+                    {tUI("return back button unnamed tool")} ({entitiesHistory.length})
+                </Button>
+                <Divider orientation="vertical"/>
+                <Button onClick={close}>{tUI("close")}</Button>
+            </DialogActions>
+        </>
+    );
+}
+

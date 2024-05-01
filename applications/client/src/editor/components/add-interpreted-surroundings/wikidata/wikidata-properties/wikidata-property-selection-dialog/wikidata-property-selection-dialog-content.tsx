@@ -68,7 +68,7 @@ export const WikidaPropertySelectionDialogContent: React.FC<
     return (
         <>
             <DialogTitle id='customized-dialog-title' close={props.close}>
-                {t("selecting".concat(" ", props.wdPropertyType))}:{" "}
+                {t("wikidata.selection.selecting".concat(" ", props.wdPropertyType))}:{" "}
                 <b>{<LanguageStringFallback from={props.wdProperty.labels} />}</b>
             </DialogTitle>
             <WikidataPropertySelectionStepperProcess {...props} stepsNames={stepsNames} />
@@ -149,7 +149,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                                     selection.indexOf(undefined) === -1
                                 }
                             >
-                                <StepLabel>{t(step)}</StepLabel>
+                                <StepLabel>{t("wikidata.selection." + step)}</StepLabel>
                             </Step>
                         ))}
                     </Stepper>
@@ -172,7 +172,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                                     setActiveStep((previous) => previous - 1);
                                 }}
                             >
-                                {t("selecting back button")}
+                                {t("wikidata.selection.selecting back button")}
                             </Button>
                             <Button
                                 disabled={
@@ -181,7 +181,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                                 }
                                 onClick={() => setActiveStep((previous) => previous + 1)}
                             >
-                                {t("selecting next button")}
+                                {t("wikidata.selection.selecting next button")}
                             </Button>
                         </Stack>
                         <Divider orientation='vertical' flexItem />
@@ -209,7 +209,7 @@ const SelectionExistsErrorBox: React.FC = () => {
             <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
                 <HelpOutlineIcon color='error' />
                 <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
-                    {t("ancestor selection exists error")} 
+                    {t("wikidata.selection.ancestor selection exists error")} 
                 </Typography>
             </Box>
         </>
@@ -248,11 +248,11 @@ const AncestorsHelpBox: React.FC = () => {
             <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
                 <HelpOutlineIcon color='info' />
                 <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
-                    {t("ancestor selection help 0")} 
-                    {t("ancestor selection help 1")} 
-                    {t("ancestor selection help 2")}
+                    {t("wikidata.selection.ancestor selection help 0")} 
+                    {t("wikidata.selection.ancestor selection help 1")} 
+                    {t("wikidata.selection.ancestor selection help 2")}
                     <br />
-                    {t("ancestor selection help 3")}
+                    {t("wikidata.selection.ancestor selection help 3")}
                 </Typography>
             </Box>
         </>
@@ -337,7 +337,7 @@ const WikidaPropertySelectionEndpointsStep: React.FC<WikidataPropertySelectionSt
     return (
         <>
             {isLoading && <WikidataLoading />}
-            {isError && <WikidataLoadingError errorMessage={t("no endpoints")} />}
+            {isError && <WikidataLoadingError errorMessage={t("wikidata.selection.no endpoints")} />}
             {querySuccess && (
                 <>
                     {props.wdFilterByInstance && (
@@ -371,7 +371,7 @@ const FilterByInstaceHelpBox: React.FC<FilterByInstaceHelpBoxProps> = ({ turnedO
             <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
                 <HelpOutlineIcon color='info' />
                 <Typography sx={{ marginLeft: 2 }} fontSize='15px'>
-                    {t("endpoint selection instance help")}
+                    {t("wikidata.selection.endpoint selection instance help")}
                 </Typography>
                 <Button
                     onClick={() => toggle((previous) => !previous)}

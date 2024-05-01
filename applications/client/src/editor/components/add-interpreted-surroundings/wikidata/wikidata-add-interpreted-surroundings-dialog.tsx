@@ -9,15 +9,12 @@ import { dialog } from "../../../dialog";
 import { DialogContent, DialogTitle } from "../../detail/common";
 import { AddInterpretedSurroundingDialogProperties } from "../default/add-interpreted-surroundings-dialog";
 import {
-    WdClassSurroundings,
     WdEntityId,
-    WdEntityIri,
-    WdUnderlyingType,
     WikidataAdapter,
     wdIriToNumId,
 } from "@dataspecer/wikidata-experimental-adapter";
 import { QueryClientProvider } from "react-query";
-import { WikidataAdapterContext, WikidataAdapterContextValue } from "./contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "./contexts/wikidata-adapter-context";
 import { queryClient } from "./contexts/react-query-context";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
 import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";
@@ -26,10 +23,8 @@ import { WikidataLoading } from "./helpers/wikidata-loading";
 import { WikidataLoadingError } from "./helpers/wikidata-loading-error";
 import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
 import { useWdPropertySelection } from "./hooks/use-wd-property-selection";
-import { WdPropertySelectionRecord } from "./property-selection-record";
-import { CoreResource } from "@dataspecer/core/core/core-resource";
 import { ReadOnlyMemoryStore } from "@dataspecer/core/core/index";
-import { WikidataPropertyType } from "./wikidata-properties/wikidata-property-item";
+import { transformSelectedSurroundings } from "./transform-selected-surroundings";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {
@@ -39,7 +34,7 @@ interface WikidataAddInterpretedSurroundingDialogContentProps
 }
 
 export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> =
-    dialog({ fullWidth: true, maxWidth: "lg", PaperProps: { sx: { height: "90%" } } }, (props) => {
+    dialog({ fullWidth: true, maxWidth: "xl", PaperProps: { sx: { height: "90%" } } }, (props) => {
         const { cim } = React.useContext(ConfigurationContext);
         const { pimResource: pimClass, dataPsmResource: dataPsmClass } =
             useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.dataPsmClassIri);
@@ -136,72 +131,3 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
     );
 };
 
-function transformSelectedSurroundings(
-    selection: WdPropertySelectionRecord[], adapterContext: WikidataAdapterContextValue, surroundings: WdClassSurroundings
-): [[string, boolean][], { [iri: string]: CoreResource }] {
-    const resourcesToAdd: [string, boolean][] = [];
-    const resources: { [iri: string]: CoreResource } = {};
-    const loadedClassesSet = new Set<WdEntityId>();
-    const loadedPropertiesSet = new Set<WdEntityIri>();
-
-    // Load hierarchy
-    adapterContext.wdAdapter.tryLoadClassesToResources(
-        [surroundings.startClassId, ...surroundings.parentsIds], 
-        resources, 
-        loadedClassesSet, 
-        surroundings.classesMap
-    );
-
-    // Load Properties with endpoints
-    selection.forEach((record) => {
-        if (record.wdProperty.underlyingType !== WdUnderlyingType.ENTITY) {
-            transformSelectedAttribute(record, adapterContext, resources, resourcesToAdd, loadedClassesSet, loadedPropertiesSet);
-        } else {
-            transformSelectedAssociation(record, adapterContext, resources, resourcesToAdd, loadedClassesSet, loadedPropertiesSet);
-        }
-    });
-
-    return [resourcesToAdd, resources];
-}
-
-function transformSelectedAttribute(
-    record: WdPropertySelectionRecord, 
-    adapterContext: WikidataAdapterContextValue, 
-    resources: { [iri: string]: CoreResource }, 
-    resourcesToAdd: [string, boolean][],
-    loadedClassesSet: Set<WdEntityId>,
-    loadedPropertiesSet: Set<WdEntityIri>
-): void {
-    const attribute = adapterContext.wdAdapter.tryLoadAttributeToResource(
-        record.wdProperty, record.subjectWdClass, resources, loadedPropertiesSet
-    );
-    if (attribute !== undefined) {
-        adapterContext.wdAdapter.tryLoadClassToResource(record.subjectWdClass, resources, loadedClassesSet);
-        resourcesToAdd.push([attribute.iri, true]); 
-    }
-}
-
-function transformSelectedAssociation(
-    record: WdPropertySelectionRecord, 
-    adapterContext: WikidataAdapterContextValue, 
-    resources: { [iri: string]: CoreResource }, 
-    resourcesToAdd: [string, boolean][],
-    loadedClassesSet: Set<WdEntityId>,
-    loadedPropertiesSet: Set<WdEntityIri>
-): void {
-    const isInward = record.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS;
-    let subject = record.subjectWdClass;
-    let object = record.objectWdClass;
-    if (isInward) {
-        [subject, object] = [object, subject];
-    }
-    
-    const association = adapterContext.wdAdapter.tryLoadAssociationToResource(
-        record.wdProperty, subject, object, isInward, resources, loadedPropertiesSet
-    );
-    if (association !== undefined) {
-        adapterContext.wdAdapter.tryLoadClassToResource(record.subjectWdClass, resources, loadedClassesSet);
-        adapterContext.wdAdapter.tryLoadClassToResource(record.objectWdClass, resources, loadedClassesSet);
-        resourcesToAdd.push([association.iri, !isInward]);
-    }
-}

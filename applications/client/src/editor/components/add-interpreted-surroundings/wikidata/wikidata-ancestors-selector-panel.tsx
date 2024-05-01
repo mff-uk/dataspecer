@@ -19,7 +19,9 @@ import {
 } from "@dataspecer/wikidata-experimental-adapter";
 import { entitySearchTextFilterWithMap } from "./helpers/search-text-filter";
 import { useTranslation } from "react-i18next";
-import { LanguageStringFallback, LanguageStringText } from "../../helper/LanguageStringComponents";
+import { LanguageStringText } from "../../helper/LanguageStringComponents";
+import { useDialog } from "../../../dialog";
+import { WikidataEntityDetailDialog } from "./wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
 
 export interface AncestorsSelectorPanelProps {
     rootWdClassSurroundings: WdClassSurroundings;
@@ -34,6 +36,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
 }) => {
     const { t } = useTranslation("interpretedSurrounding");
     const [searchText, setSearchText] = useState("");
+    const WdEntityDetail = useDialog(WikidataEntityDetailDialog);
 
     const classesIdsToDisplay = useMemo<WdEntityIdsList>(() => {
         const classes = [
@@ -90,14 +93,17 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                                 <ListItemText
                                     primary={
                                         <>
-                                            <LanguageStringFallback
-                                                from={cls.labels}
-                                                fallback={<i>unnamed</i>}
-                                            />
+                                            <LanguageStringText from={cls.labels} />
                                         </>
                                     }
                                 />
-                                <IconButton size='small'>
+                                <IconButton 
+                                    size='small' 
+                                    onClick={(event) => { 
+                                        event.stopPropagation();
+                                        WdEntityDetail.open({wdEntity: cls})
+                                    }}
+                                >
                                     <InfoTwoToneIcon fontSize='inherit' />
                                 </IconButton>
                             </ListItem>
@@ -105,6 +111,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                     );
                 })}
             </List>
+            <WdEntityDetail.Component />
         </>
     );
 };

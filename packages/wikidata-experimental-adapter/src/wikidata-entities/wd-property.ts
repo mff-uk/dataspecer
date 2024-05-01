@@ -1,4 +1,4 @@
-import { WdEntityIdsList, WdExternalOntologyMapping, WdEntity } from "./wd-entity";
+import { WdEntityIdsList, WdExternalOntologyMappings, WdEntity } from "./wd-entity";
 
 export enum WdUnderlyingType {
     ENTITY = 0,
@@ -33,7 +33,7 @@ export interface WdProperty extends WdEntity {
     readonly underlyingType: WdUnderlyingType;
     readonly subpropertyOf: WdEntityIdsList;
     readonly relatedProperty: WdEntityIdsList;
-    readonly equivalentExternalOntologyProperties: WdExternalOntologyMapping;
+    readonly equivalentExternalOntologyProperties: WdExternalOntologyMappings;
     readonly inverseProperty: WdEntityIdsList;
     readonly complementaryProperty: WdEntityIdsList;
     readonly negatesProperty: WdEntityIdsList;
