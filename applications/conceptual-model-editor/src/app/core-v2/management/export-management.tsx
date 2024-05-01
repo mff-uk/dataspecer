@@ -5,9 +5,12 @@ import { getRandomName } from "../../utils/random-gen";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useEffect, useMemo, useState } from "react";
-import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../util/export-utils";
+import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { useDownload } from "../util/download";
+import { usePackageSearch } from "../util/package-search";
+import { useQueryParams } from "../util/query-params";
 
 export const ExportManagement = () => {
     const {
@@ -20,10 +23,13 @@ export const ExportManagement = () => {
         addVisualModelToGraph,
         cleanModels,
     } = useModelGraphContext();
+    const { download } = useDownload();
     const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
     const { getWorkspaceState, saveWorkspaceState } = useLocalStorage();
     const [autosaveActive, setAutosaveActive] = useState(false);
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
+    const { setPackage } = usePackageSearch();
+    const { clearQueryParams } = useQueryParams();
 
     useEffect(() => {
         if (autosaveActive) {
@@ -69,17 +75,11 @@ export const ExportManagement = () => {
         });
     };
 
-    const download = (content: string, name: string, type: string) => {
-        const element = document.createElement("a");
-        const file = new Blob([content], { type: type });
-        element.href = URL.createObjectURL(file);
-        element.download = name;
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-    };
-
-    const useConfiguration = (entityModels: EntityModel[], visualModels: VisualEntityModel[], activeView?: string) => {
+    const loadWorkSpaceConfiguration = (
+        entityModels: EntityModel[],
+        visualModels: VisualEntityModel[],
+        activeView?: string
+    ) => {
         cleanModels();
 
         addVisualModelToGraph(...visualModels);
@@ -88,6 +88,7 @@ export const ExportManagement = () => {
         addModelToGraph(...entityModels);
 
         setAggregatorView(aggregator.getView());
+        console.log("export-management: use configuration finished");
     };
 
     return (
@@ -107,9 +108,13 @@ export const ExportManagement = () => {
                                 modelDescriptors
                             );
 
-                            useConfiguration(entityModels, visualModels, activeView);
+                            loadWorkSpaceConfiguration(entityModels, visualModels, activeView);
                         };
+
                         if (configuration) {
+                            console.log("configuration is gonna be used");
+                            clearQueryParams();
+                            setPackage(null);
                             loadConfiguration(configuration);
                         }
                     }}
@@ -127,7 +132,7 @@ export const ExportManagement = () => {
                             return;
                         }
                         const { packageId, entityModels, visualModels, activeView } = result;
-                        useConfiguration(entityModels, visualModels, activeView);
+                        loadWorkSpaceConfiguration(entityModels, visualModels, activeView);
                     }}
                 >
                     📥autosave

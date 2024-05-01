@@ -42,7 +42,7 @@ export const useBaseDialog = () => {
                 }}
             >
                 <div>
-                    <h1>{heading}</h1>
+                    <h1 className="text-xl">{heading}</h1>
                 </div>
                 {children}
             </dialog>

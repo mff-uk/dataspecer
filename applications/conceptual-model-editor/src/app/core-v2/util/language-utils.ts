@@ -1,5 +1,14 @@
-import { LanguageString, NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Nullable } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    LanguageString,
+    SemanticModelClass,
+    SemanticModelGeneralization,
+    SemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "./name-utils";
 
 export const getStringFromLanguageStringInLang = (languageString: LanguageString | null, lang: string = "en") => {
     if (!languageString) {
@@ -64,9 +73,20 @@ const nextLanguageInHierarchy = (lang: string) => {
     }
 };
 
-export const getLanguagesForNamedThing = (thing: Nullable<NamedThing>) => {
-    const langs = new Set<string>(Object.keys(thing?.name ?? {}));
-    Object.keys(thing?.description ?? {}).forEach((lang) => langs.add(lang));
+export const getLanguagesForNamedThing = (
+    thing:
+        | null
+        | SemanticModelClass
+        | SemanticModelRelationship
+        | SemanticModelClassUsage
+        | SemanticModelRelationshipUsage
+        | SemanticModelGeneralization
+) => {
+    const nameLs = getNameLanguageString(thing) ?? {};
+    const descriptionLs = getDescriptionLanguageString(thing) ?? {};
+    const usageNoteLs = getUsageNoteLanguageString(thing) ?? {};
+
+    const langs = new Set([...Object.keys(nameLs), ...Object.keys(descriptionLs), ...Object.keys(usageNoteLs)]);
     return [...langs];
 };
 

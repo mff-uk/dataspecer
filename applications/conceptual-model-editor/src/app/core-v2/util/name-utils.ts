@@ -1,5 +1,3 @@
-// inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
-
 import {
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -16,6 +14,8 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getIri } from "./model-utils";
+import { EntityModel } from "@dataspecer/core-v2";
+import { temporaryDomainRangeHelper } from "./relationship-utils";
 
 export const getNameLanguageString = (
     resource:
@@ -59,8 +59,9 @@ export const getDescriptionLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.description ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
-        return resource.description;
+        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
+        const description = temporaryDomainRangeHelper(r)?.range.description;
+        return description ?? resource.description;
     } else {
         return null;
     }
@@ -76,12 +77,9 @@ export const getUsageNoteLanguageString = (
         | SemanticModelGeneralization
 ) => {
     if (isSemanticModelClassUsage(resource)) {
-        return resource.usageNote ?? null;
-    } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
         return resource.usageNote;
-        // const usageNote = resource.ends.at(1)?.usageNote;
-        // return usageNote ?? null;
+    } else if (isSemanticModelRelationshipUsage(resource)) {
+        return resource.usageNote;
     } else {
         return null;
     }
@@ -94,12 +92,28 @@ export const getFallbackDisplayName = (
         | SemanticModelRelationship
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
+        | SemanticModelGeneralization,
+    modelBaseIri?: string
 ) => {
-    return getIri(resource) ?? resource?.id ?? null;
+    return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
 };
 
-const capFirst = (what: string) => {
+export const getModelDisplayName = (model: EntityModel | null | undefined) => {
+    if (!model) {
+        return null;
+    }
+
+    if (model.getAlias()) {
+        return `${model.getAlias()} (${model.getId()})`;
+    } else {
+        return model.getId();
+    }
+};
+
+// --- GENERATE NAMES --- --- ---
+// inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
+
+export const capFirst = (what: string) => {
     return what.charAt(0).toUpperCase() + what.slice(1);
 };
 

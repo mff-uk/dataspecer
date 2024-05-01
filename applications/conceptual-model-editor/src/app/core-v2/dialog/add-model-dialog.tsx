@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
-import { useBaseDialog } from "./base-dialog";
+import { useBaseDialog } from "../components/base-dialog";
+import { IRI } from "iri";
 
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -25,11 +26,23 @@ export const useAddModelDialog = () => {
     };
 
     const AddModelDialog = () => {
-        const [modelTtlFiles, setModelTtlFiles] = useState(["https://www.w3.org/ns/dcat.ttl"]); // FIXME: sanitize
+        const [modelTtlFiles, setModelTtlFiles] = useState([
+            "https://www.w3.org/ns/dcat.ttl",
+            // "https://schema.org/version/latest/schemaorg-current-https.ttl",
+        ]); // FIXME: sanitize
+
+        const handleAddModels = () => {
+            save(modelTtlFiles.filter((row) => row.length > 0));
+        };
 
         return (
             <BaseDialog heading="Add semantic model">
                 <label>Model .ttl file urls:</label>
+
+                <div className="text-sm italic">
+                    Yo yo, be informed that we <strong>did not</strong> optimize for really large models.
+                </div>
+
                 <textarea
                     name="ttl-files"
                     rows={4}
@@ -39,21 +52,7 @@ export const useAddModelDialog = () => {
                 />
 
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    <button
-                        onClick={() =>
-                            save(
-                                modelTtlFiles.filter(() => {
-                                    try {
-                                        return true;
-                                    } catch (_) {
-                                        return false;
-                                    }
-                                })
-                            )
-                        }
-                    >
-                        confirm
-                    </button>
+                    <button onClick={handleAddModels}>confirm</button>
                     <button onClick={close}>close</button>
                 </div>
             </BaseDialog>

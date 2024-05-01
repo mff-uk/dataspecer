@@ -6,7 +6,8 @@ import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { shortenStringTo } from "../util/utils";
 import { useState } from "react";
-import { IriLink } from "./entity-catalog-row";
+import { IriLink } from "./components/entity-catalog-row";
+import { getModelIri } from "../util/model-utils";
 
 export const ModelCatalog = () => {
     const {
@@ -104,7 +105,7 @@ export const ModelCatalog = () => {
         const [editing, setEditing] = useState(false);
         const [newAlias, setNewAlias] = useState(modelAlias);
         const [editingIri, setEditingIri] = useState(false);
-        const [newIri, setNewIri] = useState(modelBaseIri);
+        const [newIri, setNewIri] = useState(modelBaseIri?.length == 0 ? getModelIri(model) : modelBaseIri);
 
         const reset = () => {
             setNewIri(modelBaseIri);
@@ -131,12 +132,12 @@ export const ModelCatalog = () => {
 
         return (
             <div className="m-2 flex flex-row justify-between">
-                <div className="flex flex-row overflow-x-clip">
+                <div className="flex flex-grow flex-row overflow-x-clip">
                     <div className="mr-2">Ⓜ{modelType}</div>
                     {editing || editingIri ? (
-                        <div>
+                        <div className="flex-grow">
                             <input
-                                className="w-full flex-grow"
+                                className="w-full"
                                 autoFocus
                                 onFocus={(e) => e.target.select()}
                                 value={editing ? newAlias ?? displayName ?? undefined : newIri ?? undefined}
@@ -165,7 +166,7 @@ export const ModelCatalog = () => {
                             />
                         </div>
                     ) : (
-                        <div className="text-nowrap">{displayName}</div>
+                        <div className="flex-grow text-nowrap">{displayName}</div>
                     )}
                 </div>
                 <div className="flex flex-row">

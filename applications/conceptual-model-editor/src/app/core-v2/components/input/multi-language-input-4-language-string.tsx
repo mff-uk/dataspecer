@@ -1,6 +1,6 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useState } from "react";
-import { getAvailableLanguagesForLanguageString } from "../util/language-utils";
+import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 
 export const MultiLanguageInputForLanguageString = (props: {
     ls: LanguageString;
@@ -66,6 +66,7 @@ export const MultiLanguageInputForLanguageString = (props: {
 
     const languageDeletedHandler = () => {
         setLs((prev) => Object.fromEntries(Object.entries(prev).filter(([l, _]) => l != currentLang)));
+        props.onChange?.();
     };
 
     const { ls, setLs } = props;

@@ -19,6 +19,7 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -35,6 +36,8 @@ export type ClassesContextType = {
     setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
     sourceModelOfEntityMap: Map<string, string>; // was an array, [classId, classWithOrigin]
     setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
+    rawEntities: (Entity | null)[];
+    setRawEntities: React.Dispatch<React.SetStateAction<(Entity | null)[]>>;
 };
 
 export type SemanticModelClassWithOrigin = {
@@ -60,6 +63,8 @@ export const useClassesContext = () => {
         setProfiles,
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
+        rawEntities,
+        setRawEntities,
     } = useContext(ClassesContext);
 
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
@@ -141,5 +146,6 @@ export const useClassesContext = () => {
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
         executeMultipleOperations,
+        rawEntities,
     };
 };

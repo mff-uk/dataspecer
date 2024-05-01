@@ -16,6 +16,8 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
+import { IRI } from "iri";
+import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 
 export const sourceModelOfEntity = (entityId: string, models: EntityModel[]) => {
     return models.find((m) => Object.keys(m.getEntities()).find((eId) => eId == entityId));
@@ -33,20 +35,37 @@ export const getIri = (
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
         | null
+        | undefined,
+    modelBaseIri?: string
 ) => {
+    if (!entity) {
+        return null;
+    }
+
+    let iri: string | null;
     if (isSemanticModelClass(entity)) {
-        return entity.iri;
+        iri = entity.iri;
     } else if (isSemanticModelRelationship(entity)) {
         const range = getDomainAndRange(entity)?.range;
-        return range?.iri ?? null;
+        iri = range?.iri ?? null;
     } else if (isSemanticModelGeneralization(entity)) {
-        return entity.iri;
+        iri = entity.iri;
     } else if (isSemanticModelClassUsage(entity)) {
-        return (entity as SemanticModelClass & SemanticModelClassUsage)?.iri ?? null;
+        iri = (entity as SemanticModelClass & SemanticModelClassUsage)?.iri ?? null;
     } else if (isSemanticModelRelationshipUsage(entity)) {
-        return temporaryDomainRangeHelper(entity)?.range?.iri ?? null;
+        iri = temporaryDomainRangeHelper(entity)?.range?.iri ?? null;
     } else {
+        iri = null;
+    }
+
+    if (!iri) {
         return null;
+    }
+
+    if (new IRI(iri).scheme()) {
+        return iri;
+    } else {
+        return (modelBaseIri ?? "") + iri;
     }
 };
 
@@ -59,4 +78,14 @@ export const getModelIri = (model: EntityModel | undefined | null) => {
         return `https://my-model-${model?.getId() ?? "undefined-model"}.iri.todo.com/entities/`;
     }
     return "";
+};
+
+export const getModelType = (model: EntityModel | undefined | null) => {
+    if (model instanceof InMemorySemanticModel) {
+        return "local model";
+    } else if (model instanceof ExternalSemanticModel) {
+        return "external (sgov)";
+    } else {
+        return "from .ttl";
+    }
 };

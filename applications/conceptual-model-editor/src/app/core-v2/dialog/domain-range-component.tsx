@@ -4,7 +4,8 @@ import {
     isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getLocalizedString, getStringFromLanguageStringInLang } from "../util/language-utils";
-import { CardinalityOptions, semanticCardinalityToOption } from "./cardinality-options";
+import { CardinalityOptions } from "../components/cardinality-options";
+import { semanticCardinalityToOption } from "../util/relationship-utils";
 import {
     SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
@@ -13,7 +14,7 @@ import {
 import { Dispatch, SetStateAction } from "react";
 import { useConfigurationContext } from "../context/configuration-context";
 import { useClassesContext } from "../context/classes-context";
-import { OverrideFieldCheckbox } from "./override-field-checkbox";
+import { OverrideFieldCheckbox } from "../components/input/override-field-checkbox";
 import { getFallbackDisplayName } from "../util/name-utils";
 
 export const DomainRangeComponent = (props: {
@@ -87,7 +88,7 @@ export const DomainRangeComponent = (props: {
                     <CardinalityOptions
                         disabled={(props.withCheckEnabling && !props.enabledFields?.domainCardinality) ?? false}
                         group="source"
-                        defaultCard={semanticCardinalityToOption(domain?.cardinality ?? null)}
+                        defaultCard={domain.cardinality}
                         setCardinality={setDomain}
                         onChange={props.onDomainCardinalityChange}
                     />
@@ -162,7 +163,7 @@ export const DomainRangeComponent = (props: {
                             <CardinalityOptions
                                 disabled={(props.withCheckEnabling && !props.enabledFields?.rangeCardinality) ?? false}
                                 group="target"
-                                defaultCard={semanticCardinalityToOption(range?.cardinality ?? null)}
+                                defaultCard={range.cardinality}
                                 setCardinality={setRange}
                                 onChange={props.onRangeCardinalityChange}
                             />

@@ -1,32 +1,33 @@
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
-import { useBaseDialog } from "./base-dialog";
+import { useBaseDialog } from "../components/base-dialog";
 import { filterInMemoryModels } from "../util/utils";
-import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
+import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import {
     LanguageString,
     SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
-    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipEndUsage,
     SemanticModelRelationshipUsage,
-    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
 import { DomainRangeComponent } from "./domain-range-component";
-import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
+import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
-import { OverrideFieldCheckbox } from "./override-field-checkbox";
-import { ProfileModificationWarning } from "./profile-modification-warning";
+import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
+import { DialogDetailRow } from "../components/dialog-detail-row";
+import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
+import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog-colored-model-header";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -55,6 +56,12 @@ export const useCreateProfileDialog = () => {
             useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
+        if (inMemoryModels.length == 0) {
+            alert("Create a local model first, please");
+            localClose();
+            return;
+        }
+
         const [usageNote, setUsageNote] = useState<LanguageString>({});
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
         const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
@@ -81,67 +88,109 @@ export const useCreateProfileDialog = () => {
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
 
-        const displayNameOfProfiledEntity =
-            getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ??
-            getFallbackDisplayName(entity);
+        const displayNameOfProfiledEntity = entity ? EntityProxy(entity, preferredLanguage).name : null;
 
-        if (inMemoryModels.length == 0) {
-            alert("Create a local model first, please");
+        const hasDomainAndRange = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
+
+        const changedFieldsAsStringArray = Object.entries(changedFields)
+            .filter(([key, _]) => key != "name" && key != "description")
+            .filter(([_, v]) => v == true)
+            .map(([key, _]) => key);
+
+        const handleSaveClassProfile = (e: SemanticModelClass | SemanticModelClassUsage, m: InMemorySemanticModel) => {
+            const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {
+                usageOf: e.id,
+                usageNote: usageNote,
+                description: changedFields.description ? description : null,
+                name: changedFields.name ? name : null,
+            });
+
+            if (classUsageId) {
+                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: classUsageId });
+            }
+        };
+
+        const handleSaveRelationshipProfile = (
+            e: SemanticModelRelationship | SemanticModelRelationshipUsage,
+            m: InMemorySemanticModel
+        ) => {
+            const domainEnd = {
+                concept: changedFields.domain ? newDomain.concept : null,
+                name: null,
+                description: null,
+                cardinality: changedFields.domainCardinality ? newDomain.cardinality ?? null : null,
+                usageNote: null,
+            } satisfies SemanticModelRelationshipEndUsage;
+            const rangeEnd = {
+                concept: changedFields.range ? newRange.concept : null,
+                name: changedFields.name ? name : null,
+                description: changedFields.description ? description : null,
+                cardinality: changedFields.rangeCardinality ? newRange.cardinality ?? null : null,
+                usageNote: null,
+            } as SemanticModelRelationshipEndUsage;
+
+            let ends: SemanticModelRelationshipEndUsage[];
+            if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
+                ends = [rangeEnd, domainEnd];
+            } else {
+                ends = [domainEnd, rangeEnd];
+            }
+
+            createRelationshipEntityUsage(m, e.type[0], {
+                usageOf: e.id,
+                usageNote: usageNote,
+                ends: ends,
+            });
+        };
+
+        const handleSavingProfile = (m: InMemorySemanticModel) => {
+            console.log("saving profile", changedFields, name, description, usageNote, newDomain, newRange);
+
+            if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+                handleSaveClassProfile(entity, m);
+            } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+                handleSaveRelationshipProfile(entity, m);
+            }
             localClose();
-            return;
-        }
-        console.log(model, entity, currentDomainAndRange);
+        };
+
         return (
             <BaseDialog
                 heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
             >
-                <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
-                    <div className="font-semibold">active model:</div>
-                    <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
-                        {inMemoryModels
-                            .map((m) => ({ mId: m.getId(), mAlias: m.getAlias() }))
-                            .map(({ mId, mAlias }) => (
-                                <option value={mId}>
-                                    {mAlias ? mAlias + ":" : null}
-                                    {mId}
-                                </option>
-                            ))}
-                    </select>
-                    <div className="font-semibold">profiled entity:</div>
-                    <div>{displayNameOfProfiledEntity}</div>
-                    <div className="font-semibold">profiled entity type:</div>
-                    <div>
-                        {entity?.type +
-                            (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)
-                                ? " (attribute)"
-                                : "")}
+                <div>
+                    <DialogColoredModelHeaderWithModelSelector
+                        style="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2"
+                        activeModel={activeModel}
+                        onModelSelected={(m) => setActiveModel(m)}
+                    />
+                    <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
+                        <DialogDetailRow detailKey="profiled entity" detailValue={displayNameOfProfiledEntity} />
+                        <DialogDetailRow detailKey="profiled entity type" detailValue={getEntityTypeString(entity)} />
                     </div>
-
+                </div>
+                <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
                     {/* 
                     ------------
                     Profile name
                     ------------
                     */}
 
-                    <div className="font-semibold">name:</div>
-                    <div className="flex flex-row">
-                        <div className="flex-grow">
-                            <MultiLanguageInputForLanguageString
+                    <DialogDetailRow
+                        detailKey="name"
+                        detailValue={
+                            <MultiLanguageInputForLanguageStringWithOverride
+                                forElement="create-profile-name"
                                 ls={name}
                                 setLs={setName}
                                 defaultLang={preferredLanguage}
                                 inputType="text"
+                                withOverride={true}
                                 disabled={!changedFields.name}
+                                onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                             />
-                        </div>
-                        <div className="ml-2">
-                            <OverrideFieldCheckbox
-                                forElement="create-profile-name"
-                                disabled={changedFields.name}
-                                onChecked={() => setChangedFields((prev) => ({ ...prev, name: true }))}
-                            />
-                        </div>
-                    </div>
+                        }
+                    />
 
                     {/* 
                     -------------------
@@ -149,25 +198,21 @@ export const useCreateProfileDialog = () => {
                     -------------------
                     */}
 
-                    <div className="font-semibold">description:</div>
-                    <div className="flex flex-row">
-                        <div className="flex-grow">
-                            <MultiLanguageInputForLanguageString
+                    <DialogDetailRow
+                        detailKey="description"
+                        detailValue={
+                            <MultiLanguageInputForLanguageStringWithOverride
+                                forElement="create-profile-description"
                                 ls={description}
                                 setLs={setDescription}
                                 defaultLang={preferredLanguage}
                                 inputType="textarea"
+                                withOverride={true}
                                 disabled={!changedFields.description}
+                                onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                             />
-                        </div>
-                        <div className="ml-2">
-                            <OverrideFieldCheckbox
-                                forElement="create-profile-description"
-                                disabled={changedFields.description}
-                                onChecked={() => setChangedFields((prev) => ({ ...prev, description: true }))}
-                            />
-                        </div>
-                    </div>
+                        }
+                    />
 
                     {/* 
                     ----------
@@ -175,36 +220,32 @@ export const useCreateProfileDialog = () => {
                     ----------
                     */}
 
-                    <div className="font-semibold">usage (profile?) note:</div>
-                    <div>
-                        <MultiLanguageInputForLanguageString
-                            ls={usageNote}
-                            setLs={setUsageNote}
-                            defaultLang={preferredLanguage}
-                            inputType="textarea"
-                        />
-                    </div>
+                    <DialogDetailRow
+                        detailKey="usage (profile?) note"
+                        detailValue={
+                            <MultiLanguageInputForLanguageString
+                                ls={usageNote}
+                                setLs={setUsageNote}
+                                defaultLang={preferredLanguage}
+                                inputType="textarea"
+                            />
+                        }
+                    />
 
                     {/* 
                     -----------------------------------------------------------
                     Range and domain for a relationship or relationship profile
                     -----------------------------------------------------------
                     */}
-                    {(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && (
+                    {hasDomainAndRange && (
                         <>
-                            {(changedFields.domain ||
-                                changedFields.range ||
-                                changedFields.domainCardinality ||
-                                changedFields.rangeCardinality) && (
+                            {changedFieldsAsStringArray.length > 0 && (
                                 <>
-                                    <div />
-                                    <ProfileModificationWarning
-                                        changedFields={([] as string[])
-                                            .concat(changedFields.domain ? "domain" : "")
-                                            .concat(changedFields.range ? "range" : "")
-                                            .concat(changedFields.domainCardinality ? "domain cardinality" : "")
-                                            .concat(changedFields.rangeCardinality ? "range cardinality" : "")
-                                            .filter((s) => s.length > 0)}
+                                    <DialogDetailRow
+                                        detailKey="warning"
+                                        detailValue={
+                                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                                        }
                                     />
                                 </>
                             )}
@@ -228,64 +269,9 @@ export const useCreateProfileDialog = () => {
                         </>
                     )}
                 </div>
-
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (
-                        <button
-                            onClick={() => {
-                                if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                                    const { id: classUsageId } = createClassEntityUsage(model, entity.type[0], {
-                                        usageOf: entity.id,
-                                        usageNote: usageNote,
-                                        description: changedFields.description ? description : null,
-                                        name: changedFields.name ? name : null,
-                                    });
-
-                                    if (classUsageId) {
-                                        aggregatorView
-                                            .getActiveVisualModel()
-                                            ?.addEntity({ sourceEntityId: classUsageId });
-                                    }
-                                } else if (
-                                    isSemanticModelRelationship(entity) ||
-                                    isSemanticModelRelationshipUsage(entity)
-                                ) {
-                                    const domainEnd = {
-                                        concept: changedFields.domain ? newDomain.concept : null,
-                                        name: null,
-                                        description: null,
-                                        cardinality: changedFields.domainCardinality ? newDomain.cardinality : null,
-                                        usageNote: null,
-                                    } as SemanticModelRelationshipEndUsage;
-                                    const rangeEnd = {
-                                        concept: changedFields.range ? newRange.concept : null,
-                                        name: changedFields.name ? name : null,
-                                        description: changedFields.description ? description : null,
-                                        cardinality: changedFields.rangeCardinality ? newRange.cardinality : null,
-                                        usageNote: null,
-                                    } as SemanticModelRelationshipEndUsage;
-
-                                    let ends: SemanticModelRelationshipEndUsage[];
-                                    if (
-                                        currentDomainAndRange?.domainIndex == 1 &&
-                                        currentDomainAndRange.rangeIndex == 0
-                                    ) {
-                                        ends = [rangeEnd, domainEnd];
-                                    } else {
-                                        ends = [domainEnd, rangeEnd];
-                                    }
-
-                                    createRelationshipEntityUsage(model, entity.type[0], {
-                                        usageOf: entity.id,
-                                        usageNote: usageNote,
-                                        ends: ends,
-                                    });
-                                }
-                                localClose();
-                            }}
-                        >
-                            save
-                        </button>
+                        <button onClick={() => handleSavingProfile(model)}>save</button>
                     ) : (
                         <button disabled title="model probably not selected" className="cursor-not-allowed">
                             save

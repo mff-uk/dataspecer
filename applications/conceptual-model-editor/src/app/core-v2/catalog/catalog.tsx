@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { EntityCatalog } from "./entity-catalog";
 import { ModelCatalog } from "./model-catalog";
-import { AttributeCatalog, RelationshipCatalog } from "./attribute-relationship-catalog";
+import { AttributeCatalog } from "./attribute-catalog";
+import { RelationshipCatalog } from "./relationship-catalog";
 import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";

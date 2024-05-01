@@ -6,6 +6,27 @@ import {
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
+export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
+
+export const semanticCardinalityToOption = (v: null | [number, number | null]): CardinalityOption => {
+    if (v == null) {
+        return "unset";
+    } else if (v[0] == 0 && v[1] == null) {
+        return "0x";
+    } else if (v[0] == 1 && v[1] == null) {
+        return "1x";
+    } else if (v[0] == 0 && v[1] == 1) {
+        return "01";
+    } else if (v[0] == 1 && v[1] == 1) {
+        return "11";
+    } else if (v[0] == null && v[1] == null) {
+        return "xx";
+    } else {
+        alert("unknown cardinality option for [" + v[0] + "," + v[1]);
+        return "unset";
+    }
+};
+
 export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
     if (isSemanticModelRelationship(entity)) {
         const [end1, end2] = entity.ends;

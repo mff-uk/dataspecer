@@ -1,4 +1,3 @@
-import { off } from "process";
 import { Node, Position, internalsSymbol } from "reactflow";
 
 // returns the position (top,right,bottom or right) passed node compared to

@@ -1,34 +1,17 @@
 import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Dispatch, SetStateAction } from "react";
-
-export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
-
-export const semanticCardinalityToOption = (v: null | [number, number | null]): CardinalityOption => {
-    if (v == null) {
-        return "unset";
-    } else if (v[0] == 0 && v[1] == null) {
-        return "0x";
-    } else if (v[0] == 1 && v[1] == null) {
-        return "1x";
-    } else if (v[0] == 0 && v[1] == 1) {
-        return "01";
-    } else if (v[0] == 1 && v[1] == 1) {
-        return "11";
-    } else if (v[0] == null && v[1] == null) {
-        return "xx";
-    } else {
-        alert("unknown cardinality option for [" + v[0] + "," + v[1]);
-        return "unset";
-    }
-};
+import { CardinalityOption, semanticCardinalityToOption } from "../util/relationship-utils";
 
 export const CardinalityOptions = (props: {
     group: "source" | "target";
-    defaultCard: CardinalityOption;
+    defaultCard?: [number, number | null];
     setCardinality: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
     disabled: boolean;
     onChange?: () => void;
 }) => {
+    const { defaultCard } = props;
+    const defaultCardinality = semanticCardinalityToOption(defaultCard ?? null);
+
     const cardinalitySelected = (value: CardinalityOption) => {
         if (value == "unset") {
             props.setCardinality((prev) => ({ ...prev, cardinality: undefined }));
@@ -60,7 +43,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("unset");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "unset"}
+                    checked={defaultCardinality == "unset"}
                 />
                 <label htmlFor="unset">unset</label>
                 <input
@@ -72,7 +55,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("0x");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "0x"}
+                    checked={defaultCardinality == "0x"}
                 />
                 <label htmlFor="0x">0..*</label>
                 <input
@@ -84,7 +67,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("01");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "01"}
+                    checked={defaultCardinality == "01"}
                 />
                 <label htmlFor="01">0..1</label>
                 <input
@@ -96,7 +79,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("11");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "11"}
+                    checked={defaultCardinality == "11"}
                 />
                 <label htmlFor="11">1..1</label>
                 <input
@@ -108,7 +91,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("1x");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "1x"}
+                    checked={defaultCardinality == "1x"}
                 />
                 <label htmlFor="1x">1..*</label>
                 <input
@@ -120,7 +103,7 @@ export const CardinalityOptions = (props: {
                         cardinalitySelected("xx");
                         props.onChange?.();
                     }}
-                    checked={props.defaultCard == "xx"}
+                    checked={defaultCardinality == "xx"}
                 />
                 <label htmlFor="xx">*..*</label>
             </fieldset>
