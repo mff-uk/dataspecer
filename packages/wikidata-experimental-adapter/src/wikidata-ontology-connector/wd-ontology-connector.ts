@@ -43,10 +43,6 @@ export class WdOntologyConnector {
 
     public async getSearch(query: string): Promise<WdSearchResults | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getSearchUrl(query);
-        console.log(this.BASE_URL)
-        console.log(this.BASE_URL)
-        console.log(url)
-        console.log(process.env.REACT_APP_WIKIDATA_ONTOLOGY_BACKEND);
         return await this.callFetch<WdGetSearchResponse, WdSearchResults>(url, WdSearchResults);
     }
 

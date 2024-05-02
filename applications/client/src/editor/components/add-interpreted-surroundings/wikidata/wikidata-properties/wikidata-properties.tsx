@@ -8,15 +8,17 @@ import {
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
 import { entitySearchTextFilter } from "../helpers/search-text-filter";
-import { useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { WikidataPropertiesAccordion } from "./wikidata-properties-accordion";
 import { WikidataPropertyType } from "./wikidata-property-item";
+import { isValidSubclassingOfWdFilterByInstance } from "./wikidata-filter-by-instance-dialog/check-subclassing-of-instance";
 
 export interface WikidataPropertiesProps {
     selectedWdClassSurroundings: WdClassSurroundings;
     wdFilterByInstance: WdFilterByInstance | undefined;
     searchText: string;
     includeInheritedProperties: boolean;
+    setIsValidSubclassingOfWdFilterByInstance: Dispatch<SetStateAction<boolean>>;
 }
 
 interface WdPropertiesGroups {
@@ -104,6 +106,7 @@ export const WikidataProperties: React.FC<WikidataPropertiesProps> = ({
     wdFilterByInstance,
     searchText,
     includeInheritedProperties,
+    setIsValidSubclassingOfWdFilterByInstance
 }) => {
     const wdPropertiesGroups = useMemo<WdPropertiesGroups>(() => {
         const selectedWdClass = selectedWdClassSurroundings.classesMap.get(
@@ -138,6 +141,15 @@ export const WikidataProperties: React.FC<WikidataPropertiesProps> = ({
             ),
         };
     }, [searchText, wdPropertiesGroups]);
+
+    useEffect(() => {
+        if (wdFilterByInstance !== undefined) {
+            setIsValidSubclassingOfWdFilterByInstance(
+                isValidSubclassingOfWdFilterByInstance(selectedWdClassSurroundings, wdFilterByInstance)
+            );
+        }
+    }, [selectedWdClassSurroundings, setIsValidSubclassingOfWdFilterByInstance, wdFilterByInstance]);
+
 
     return (
         <>

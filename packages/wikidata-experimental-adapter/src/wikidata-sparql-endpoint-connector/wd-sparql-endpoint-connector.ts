@@ -2,11 +2,13 @@ import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { WdClassDescOnly } from "../wikidata-entities/wd-class";
 import { WdExampleInstance } from "./api-types/get-example-instances";
 import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
-import getExampleInstances from "./sparql-queries/get-example-instances.sparql";
+import getExampleInstancesChildren from "./sparql-queries/get-example-instances-children.sparql";
+import getExampleInstancesAncestors from "./sparql-queries/get-example-instances-ancestors.sparql";
 import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf/rdf-source-wrap";
 import { RDFS } from "../vocabulary";
 
-const getExampleInstancesQuery = (wdClassIri: string) => getExampleInstances({ class: `<${wdClassIri}>`})
+const getExampleInstancesChildrenQuery = (wdClassIri: string) => getExampleInstancesChildren({ class: `<${wdClassIri}>`});
+const getExampleInstancesAncestorsQuery = (wdClassIri: string) => getExampleInstancesAncestors({ class: `<${wdClassIri}>`});
 
 export class WdSparqlEndpointConnector {
     private WIKIDATA_SPARQL_FREE_VAR_PREFIX = "http://query.wikidata.org/bigdata/namespace/wdq/";
@@ -22,15 +24,24 @@ export class WdSparqlEndpointConnector {
     }
 
     public async getExampleInstances(wdClass: WdClassDescOnly): Promise<WdExampleInstance[]> {
-        let instanceExamples: WdExampleInstance[] = []
-        
+        const childrenResults = this.getExampleInstancesInternal(getExampleInstancesChildrenQuery(wdClass.iri));
+        const ancestorsResults = this.getExampleInstancesInternal(getExampleInstancesAncestorsQuery(wdClass.iri));
+        const results = [...(await childrenResults), ...(await ancestorsResults)];
+        console.log(results);
+        console.log(results);
+        return results 
+    }
+
+    private async getExampleInstancesInternal(query: string): Promise<WdExampleInstance[]> {
+        let instanceExamples: WdExampleInstance[] = [];
+
         const source = new SparqlQueryRdfSource(
             this.httpFetch, 
             this.WIKIDATA_SPARQL_ENDPOINT, 
-            getExampleInstancesQuery(wdClass.iri)
+            query
         );
         await source.query();
-
+        
         const results = await source.property(
             this.freeVarToWikidataVar("__search_results"), 
             this.freeVarToWikidataVar("__has_search_result")
@@ -47,7 +58,8 @@ export class WdSparqlEndpointConnector {
                 label: instanceLabels.length === 0 ? undefined : instanceLabels[0]
             });
         }
+
         return instanceExamples;
-    } 
+    }
 
 }

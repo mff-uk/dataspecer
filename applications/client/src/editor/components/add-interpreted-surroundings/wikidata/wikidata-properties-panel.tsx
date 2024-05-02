@@ -1,9 +1,11 @@
 import {
+    WdClassDescOnly,
     WdClassSurroundings,
     WdEntityId,
     WdFilterByInstance,
 } from "@dataspecer/wikidata-experimental-adapter";
 import {
+    Box,
     Button,
     Checkbox,
     FormControlLabel,
@@ -20,6 +22,7 @@ import { useDialog } from "../../../dialog";
 import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
 import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
 import { WikidataManageSelectedDialog } from "./wikidata-manage-selected-dialog/wikidata-manage-selected-dialog";
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 export interface WikidataPropertiesPanelProps {
     selectedWdClassId: WdEntityId;
@@ -33,6 +36,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
     const { t } = useTranslation("interpretedSurrounding");
     const wdPropertySelectionContext = useContext(WdPropertySelectionContext);
     const WdFilterByInstanceDialog = useDialog(WikidataFilterByInstanceDialog, ["setWdFilterByInstance"]);
+    const [isValidSubclassingOfWdFilterByInstance, setIsValidSubclassingOfWdFilterByInstance] = useState(true);
     const WdManageSelectedDialog = useDialog(WikidataManageSelectedDialog);
     const [includeInheritedProperties, setIncludeInheritedProperties] = useState(false);
     const [wdFilterByInstance, setWdFilterByInstance] = useState<WdFilterByInstance | undefined>(undefined);
@@ -91,16 +95,28 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                         size='small'
                         color={isInstanceFilterEmpty ? "inherit" : "error"}
                         variant='contained'
-                        onClick={() =>
-                            isInstanceFilterEmpty
-                                ? WdFilterByInstanceDialog.open({})
-                                : setWdFilterByInstance(undefined)
-                        }
+                        onClick={() => {
+                            const selectedWdClass = rootWdClassSurroundings.classesMap.get(selectedWdClassId) as WdClassDescOnly;
+                            if (isInstanceFilterEmpty) {
+                                WdFilterByInstanceDialog.open({selectedWdClass})
+                            } else {
+                                setWdFilterByInstance(undefined)
+                                setIsValidSubclassingOfWdFilterByInstance(true);
+                            }
+                        }}
                     >
                         {isInstanceFilterEmpty
                             ? t("wikidata.add filter by instance")
                             : t("wikidata.remove filter by instance")}
                     </Button>
+                    {!isValidSubclassingOfWdFilterByInstance && 
+                            <Box marginLeft={2} display={"flex"}>
+                                <WarningAmberIcon color='error' />
+                                <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
+                                    {t("wikidata.filter.subclassing error")} 
+                                </Typography>
+                            </Box>
+                    }
                 </Stack>
             </Stack>
             {rootWdClassIsSelected ? (
@@ -109,6 +125,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                     wdFilterByInstance={wdFilterByInstance}
                     searchText={searchText}
                     includeInheritedProperties={includeInheritedProperties}
+                    setIsValidSubclassingOfWdFilterByInstance={setIsValidSubclassingOfWdFilterByInstance}
                 />
             ) : (
                 <WikidataLoadedProperties
@@ -116,6 +133,7 @@ export const WikidataPropertiesPanel: React.FC<WikidataPropertiesPanelProps> = (
                     wdFilterByInstance={wdFilterByInstance}
                     searchText={searchText}
                     includeInheritedProperties={includeInheritedProperties}
+                    setIsValidSubclassingOfWdFilterByInstance={setIsValidSubclassingOfWdFilterByInstance}
                 />
             )}
             <WdFilterByInstanceDialog.Component setWdFilterByInstance={setWdFilterByInstance} />

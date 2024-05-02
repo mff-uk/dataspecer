@@ -4,12 +4,14 @@ import { WikidataLoadingError } from "../helpers/wikidata-loading-error";
 import { WikidataProperties } from "./wikidata-properties";
 import { useTranslation } from "react-i18next";
 import { WikidataLoading } from "../helpers/wikidata-loading";
+import { Dispatch, SetStateAction } from "react";
 
 export interface WikidataLoadedAssociationsPropertiesProps {
     selectedWdClassId: WdEntityId;
     wdFilterByInstance: WdFilterByInstance | undefined;
     searchText: string;
     includeInheritedProperties: boolean;
+    setIsValidSubclassingOfWdFilterByInstance: Dispatch<SetStateAction<boolean>>;
 }
 
 export const WikidataLoadedProperties: React.FC<WikidataLoadedAssociationsPropertiesProps> = (
@@ -32,6 +34,7 @@ export const WikidataLoadedProperties: React.FC<WikidataLoadedAssociationsProper
                     wdFilterByInstance={props.wdFilterByInstance}
                     searchText={props.searchText}
                     includeInheritedProperties={props.includeInheritedProperties}
+                    setIsValidSubclassingOfWdFilterByInstance={props.setIsValidSubclassingOfWdFilterByInstance}
                 />
             )}
         </>
