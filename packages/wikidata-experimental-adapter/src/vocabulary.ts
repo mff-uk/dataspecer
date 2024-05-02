@@ -40,3 +40,5 @@ export const RDFS = {
 export const SCHEMA = {
   description: "http://schema.org/description",
 }
+
+export const WIKIDATA_ENTITY_PREFIX = "http://www.wikidata.org/entity/";

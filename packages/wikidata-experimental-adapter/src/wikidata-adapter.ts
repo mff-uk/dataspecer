@@ -1,19 +1,19 @@
 import { CimAdapter, IriProvider } from "@dataspecer/core/cim";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { OFN, XSD } from "./vocabulary";
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
 import { CoreResource, ReadOnlyMemoryStore } from "@dataspecer/core/core";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { WdConnector } from "./wikidata-backend-connector/wd-connector";
-import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
-import { isWdErrorResponse } from "./wikidata-backend-connector/api-types/error";
 import { WdEntityId, WdEntityIdsList, WdEntityIri, wdIriToNumId } from "./wikidata-entities/wd-entity";
-import { WdClassHierarchy } from "./wikidata-backend-connector/api-types/get-class-hierarchy";
 import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
 import { WdPropertyDescOnly } from "./wikidata-entities/wd-property";
 import { loadWikidataAssociation, loadWikidataAttribute } from "./wikidata-to-dataspecer-entity-adapters/wd-property-adapter";
 import { PimAttribute } from "@dataspecer/core/pim/model/pim-attribute";
 import { PimAssociation } from "@dataspecer/core/pim/model/pim-association";
+import { WdOntologyConnector } from "./wikidata-ontology-connector/wd-ontology-connector";
+import { isWdErrorResponse } from "./wikidata-ontology-connector/api-types/error";
+import { WdClassHierarchy } from "./wikidata-ontology-connector/api-types/get-class-hierarchy";
+import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
+import { WdSparqlEndpointConnector } from "./wikidata-sparql-endpoint-connector/wd-sparql-endpoint-connector";
 
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
@@ -21,38 +21,17 @@ export class WikidataAdapter implements CimAdapter {
     public static readonly ENTITY_URI_REGEXP = new RegExp(
         "^https?://www.wikidata.org/(entity|wiki)/Q[1-9][0-9]*$",
     );
-    public readonly connector: WdConnector;
+    public readonly wdOntologyConnector: WdOntologyConnector;
+    public readonly wdSparqlEndpointConnector: WdSparqlEndpointConnector;
 
-    constructor(httpFetch: HttpFetch) {
+    constructor(httpFetch: HttpFetch, baseUrl: string) {
         this.httpFetch = httpFetch;
-        this.connector = new WdConnector(this.httpFetch);
+        this.wdOntologyConnector = new WdOntologyConnector(this.httpFetch, baseUrl);
+        this.wdSparqlEndpointConnector = new WdSparqlEndpointConnector(this.httpFetch);
     }
 
     setIriProvider(iriProvider: IriProvider): void {
         this.iriProvider = iriProvider;
-    }
-
-    /**
-     * Maps IRI to a datatype used in Dataspecer. If the IRI does not represent a datatype, undefined is returned.
-     * If the datatype is unknown, null is returned.
-     */
-    protected mapDatatype(iri: string): string | null | undefined {
-        const mapping = {
-            [XSD.boolean]: OFN.boolean,
-            [XSD.date]: OFN.date,
-            [XSD.time]: OFN.time,
-            [XSD.dateTimeStamp]: OFN.dateTime,
-            [XSD.integer]: OFN.integer,
-            [XSD.decimal]: OFN.decimal,
-            [XSD.anyURI]: OFN.url,
-            [XSD.string]: OFN.string,
-        };
-
-        if (Object.hasOwn(mapping, iri)) {
-            return mapping[iri];
-        }
-
-        return undefined;
     }
 
     async search(query: string): Promise<PimClass[]> {
@@ -61,7 +40,7 @@ export class WikidataAdapter implements CimAdapter {
         }
 
         const results: PimClass[] = [];
-        const response = await this.connector.getSearch(query);
+        const response = await this.wdOntologyConnector.getSearch(query);
         if (!isWdErrorResponse(response)) {
             for (const cls of response.classes) {
                 results.push(loadWikidataClass(cls, this.iriProvider));
@@ -77,7 +56,7 @@ export class WikidataAdapter implements CimAdapter {
 
         let result: PimClass | null = null;
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
-            const response = await this.connector.getSearch(cimIri);
+            const response = await this.wdOntologyConnector.getSearch(cimIri);
             if (!isWdErrorResponse(response) && response.classes.length === 1) {
                 const cls = response.classes[0];
                 result = loadWikidataClass(cls, this.iriProvider);
@@ -92,7 +71,7 @@ export class WikidataAdapter implements CimAdapter {
         }
 
         if (WikidataAdapter.ENTITY_URI_REGEXP.test(cimIri)) {
-            const response = await this.connector.getClassHierarchy(wdIriToNumId(cimIri), "full");
+            const response = await this.wdOntologyConnector.getClassHierarchy(wdIriToNumId(cimIri), "full");
             if (!isWdErrorResponse(response)) {
                 const resources = this.loadParentsChildrenHierarchy(response);
                 return ReadOnlyMemoryStore.create(resources);
@@ -210,4 +189,5 @@ export class WikidataAdapter implements CimAdapter {
         }
         return undefined;
     }
+
 }

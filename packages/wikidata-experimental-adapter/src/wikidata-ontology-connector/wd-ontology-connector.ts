@@ -14,9 +14,9 @@ import { WdClassHierarchy, WdGetClassHierarchyResponse, WdHierarchyPart } from "
 import { WdClassSurroundings, WdGetClassSurroundingsResponse } from "./api-types/get-class-surroundings";
 import { WdFilterByInstance, WdGetFilterByInstanceResponse } from "./api-types/get-filter-by-instance";
 
-export class WdConnector {
+export class WdOntologyConnector {
     private readonly httpFetch: HttpFetch;
-    private readonly BASE_URL = "http://localhost:3042/api/v3";
+    public readonly BASE_URL: string;
     private addBaseUrlPrefix = (urlPath: string) => this.BASE_URL + urlPath;
     private readonly API_ENDPOINTS = {
         getSearchUrl: (query: string) => this.addBaseUrlPrefix(`/search?query=${encodeURI(query)}&searchClasses=true`),
@@ -29,8 +29,9 @@ export class WdConnector {
             this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?order=${order}`),
     };
 
-    constructor(httpFetch: HttpFetch) {
+    constructor(httpFetch: HttpFetch, baseUrl: string) {
         this.httpFetch = httpFetch;
+        this.BASE_URL = baseUrl;
     }
 
     private async callFetch<RespType, RetType>(url, RetCreator: { new (response: RespType): RetType }): Promise<RetType | WdErrorResponse> {
@@ -42,6 +43,10 @@ export class WdConnector {
 
     public async getSearch(query: string): Promise<WdSearchResults | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getSearchUrl(query);
+        console.log(this.BASE_URL)
+        console.log(this.BASE_URL)
+        console.log(url)
+        console.log(process.env.REACT_APP_WIKIDATA_ONTOLOGY_BACKEND);
         return await this.callFetch<WdGetSearchResponse, WdSearchResults>(url, WdSearchResults);
     }
 
@@ -66,7 +71,8 @@ export class WdConnector {
     }
 
     public async getFilterByInstance(instanceUri: string): Promise<WdFilterByInstance | WdErrorResponse> {
-        const url = this.API_ENDPOINTS.getFilterByInstanceUrl(instanceUri);
+        const clearedInstanceUri = instanceUri.split(/[?#]/)[0];
+        const url = this.API_ENDPOINTS.getFilterByInstanceUrl(clearedInstanceUri);
         return await this.callFetch<WdGetFilterByInstanceResponse, WdFilterByInstance>(url, WdFilterByInstance);
     }
 

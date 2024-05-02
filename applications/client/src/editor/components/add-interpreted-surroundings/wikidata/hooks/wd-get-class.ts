@@ -12,7 +12,7 @@ export interface UseWdGetClassReturnValue {
 export function useWdGetClass(wdClass: WdClassDescOnly): UseWdGetClassReturnValue {
     const adapterContext = useContext(WikidataAdapterContext);
     const { data, isError, isLoading } = useQuery([ "class", wdClass.iri], async () => {
-            return await adapterContext.wdAdapter.connector.getClass(wdClass.id);
+            return await adapterContext.wdAdapter.wdOntologyConnector.getClass(wdClass.id);
         },
     );
 

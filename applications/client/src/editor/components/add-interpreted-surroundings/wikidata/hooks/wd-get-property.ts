@@ -12,7 +12,7 @@ export interface UseWdGetPropertyReturnValue {
 export function useWdGetProperty(wdProperty: WdPropertyDescOnly): UseWdGetPropertyReturnValue {
     const adapterContext = useContext(WikidataAdapterContext);
     const { data, isError, isLoading } = useQuery([ "property", wdProperty.iri], async () => {
-            return await adapterContext.wdAdapter.connector.getProperty(wdProperty.id);
+            return await adapterContext.wdAdapter.wdOntologyConnector.getProperty(wdProperty.id);
         },
     );
 

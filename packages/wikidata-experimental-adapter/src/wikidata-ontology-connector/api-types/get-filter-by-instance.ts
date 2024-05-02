@@ -9,6 +9,7 @@ export interface WdGetFilterByInstanceResponseResults {
     readonly instanceOfIds: WdEntityIdsList;
     readonly subjectOfFilterRecords: WdGetFilterPropertyRecordResponseResults[];
     readonly valueOfFilterRecords: WdGetFilterPropertyRecordResponseResults[];
+    readonly classIdsHierarchy: WdEntityIdsList;
 }
 
 export interface WdGetFilterByInstanceResponse {
@@ -19,6 +20,7 @@ export class WdFilterByInstance {
     readonly instanceOfIds: WdEntityIdsList;
     readonly subjectOfFilterRecordsMap: ReadonlyMap<WdEntityId, WdEntityIdsList>;
     readonly valueOfFilterRecordsMap: ReadonlyMap<WdEntityId, WdEntityIdsList>;
+    readonly classIdsHierarchy: WdEntityIdsList;
 
     constructor(response: WdGetFilterByInstanceResponse) {
         this.instanceOfIds = response.results.instanceOfIds;
@@ -28,6 +30,7 @@ export class WdFilterByInstance {
         this.valueOfFilterRecordsMap = WdFilterByInstance.buildFilterPropertyRecordsMap(
             response.results.valueOfFilterRecords,
         );
+        this.classIdsHierarchy = response.results.classIdsHierarchy;
     }
 
     private static buildFilterPropertyRecordsMap(

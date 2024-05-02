@@ -32,7 +32,7 @@ export function useWdGetEndpoints(
             ownOrInherited,
         ],
         async () => {
-            return await adapterContext.wdAdapter.connector.getClassPropertyEndpoints(
+            return await adapterContext.wdAdapter.wdOntologyConnector.getClassPropertyEndpoints(
                 wdClassId,
                 wdPropertyId,
                 domainsOrRanges,

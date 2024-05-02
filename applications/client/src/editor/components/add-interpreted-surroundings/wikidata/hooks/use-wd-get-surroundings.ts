@@ -18,7 +18,7 @@ export function useWdGetSurroundings(wdClassId: WdEntityId): UseWdGetSurrounding
     const { data, isError, isLoading } = useQuery(
         ["surroundings", wdClassId.toString()],
         async () => {
-            return await adapterContext.wdAdapter.connector.getClassSurroundings(wdClassId);
+            return await adapterContext.wdAdapter.wdOntologyConnector.getClassSurroundings(wdClassId);
         },
     );
 

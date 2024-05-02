@@ -15,7 +15,7 @@ export const getAdapter = (urls: string[]) => {
     }
 
     if (urls.length === 1 && urls[0] === "https://dataspecer.com/adapters/wikidata") {
-        const cimAdapter = new WikidataAdapter(httpFetch);
+        const cimAdapter = new WikidataAdapter(httpFetch, process.env.REACT_APP_WIKIDATA_ONTOLOGY_BACKEND);
         cimAdapter.setIriProvider(iriProvider);
         return {iriProvider, cimAdapter};
     }

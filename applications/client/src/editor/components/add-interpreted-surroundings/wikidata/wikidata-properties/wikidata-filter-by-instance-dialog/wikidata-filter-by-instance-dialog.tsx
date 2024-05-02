@@ -24,7 +24,7 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
         const { isLoading, isError, data, refetch } = useQuery(
             ["filterByInstance", instanceUri],
             async () => {
-                return await wikidataAdapter.wdAdapter.connector.getFilterByInstance(instanceUri);
+                return await wikidataAdapter.wdAdapter.wdOntologyConnector.getFilterByInstance(instanceUri);
             },
             { refetchOnWindowFocus: false, enabled: false },
         );
