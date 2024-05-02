@@ -1,7 +1,5 @@
 import {
     WdClassDescOnly,
-    WdClassSurroundings,
-    WdEntityId,
     isWdErrorResponse,
 } from "@dataspecer/wikidata-experimental-adapter";
 import { useContext } from "react";
