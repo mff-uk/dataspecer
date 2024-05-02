@@ -54,7 +54,6 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
         // Assign data upon refetch finish.
         useEffect(() => {
             if (wasApplied && data != null && !queryFailed) {
-                console.log(data);
                 setWdFilterByInstance(data as WdFilterByInstance);
                 close();
             }

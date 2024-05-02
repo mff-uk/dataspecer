@@ -27,8 +27,6 @@ export class WdSparqlEndpointConnector {
         const childrenResults = this.getExampleInstancesInternal(getExampleInstancesChildrenQuery(wdClass.iri));
         const ancestorsResults = this.getExampleInstancesInternal(getExampleInstancesAncestorsQuery(wdClass.iri));
         const results = [...(await childrenResults), ...(await ancestorsResults)];
-        console.log(results);
-        console.log(results);
         return results 
     }
 
