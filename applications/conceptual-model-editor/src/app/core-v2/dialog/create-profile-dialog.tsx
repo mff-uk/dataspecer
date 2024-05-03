@@ -8,16 +8,25 @@ import {
     SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
+    SemanticModelRelationshipEndUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { useConfigurationContext } from "../context/configuration-context";
+import { DomainRangeComponent } from "./domain-range-component";
+import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString } from "../util/name-utils";
+import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { OverrideFieldCheckbox } from "./override-field-checkbox";
+import { ProfileModificationWarning } from "./profile-modification-warning";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -40,83 +49,236 @@ export const useCreateProfileDialog = () => {
     };
 
     const CreateProfileDialog = () => {
-        const { models, createClassEntityUsage, createRelationshipEntityUsage } = useModelGraphContext();
+        const { language: preferredLanguage } = useConfigurationContext();
+
+        const { models, createClassEntityUsage, createRelationshipEntityUsage, aggregatorView } =
+            useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
-        const [name, setName] = useState<LanguageString>({});
-        const [description, setDescription] = useState<LanguageString>({});
+        const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
+        const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
-        const [domain, setDomain] = useState<SemanticModelRelationshipEnd | null>(null);
+        const [changedFields, setChangedFields] = useState({
+            name: false,
+            description: false,
+            domain: false,
+            domainCardinality: false,
+            range: false,
+            rangeCardinality: false,
+        });
+
+        // Relationships and relationship profiles
+        const currentDomainAndRange =
+            isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
+                ? temporaryDomainRangeHelper(entity)
+                : null;
+
+        const [newDomain, setNewDomain] = useState(
+            currentDomainAndRange?.domain ?? ({} as SemanticModelRelationshipEnd)
+        );
+        const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
-        const entityName2 = getStringFromLanguageStringInLang(entity?.name ?? {}) ?? entity?.id;
+
+        const displayNameOfProfiledEntity =
+            getLocalizedStringFromLanguageString(getNameLanguageString(entity), preferredLanguage) ??
+            getFallbackDisplayName(entity);
 
         if (inMemoryModels.length == 0) {
-            alert("Create a local model first, pls");
+            alert("Create a local model first, please");
             localClose();
             return;
         }
-        console.log(model, entity);
+        console.log(model, entity, currentDomainAndRange);
         return (
-            <BaseDialog heading={`Create a profile ${entityName2 ? "of " + entityName2 : ""}`}>
-                <div className="flex flex-row justify-evenly bg-slate-50">
-                    <p>type: {entity?.type}</p>
-                    <p>
-                        active model:
-                        <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
-                            {inMemoryModels
-                                .map((m) => m.getId())
-                                .map((mId) => (
-                                    <option value={mId}>{mId}</option>
-                                ))}
-                        </select>
-                    </p>
-                </div>
-                <p className="bg-slate-50 p-2">
-                    usage (profile?) note:
-                    <MultiLanguageInputForLanguageString
-                        ls={usageNote}
-                        setLs={setUsageNote}
-                        defaultLang="en"
-                        inputType="text"
-                    />
-                </p>
+            <BaseDialog
+                heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
+            >
+                <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
+                    <div className="font-semibold">active model:</div>
+                    <select name="models" id="models" onChange={(e) => setActiveModel(e.target.value)}>
+                        {inMemoryModels
+                            .map((m) => ({ mId: m.getId(), mAlias: m.getAlias() }))
+                            .map(({ mId, mAlias }) => (
+                                <option value={mId}>
+                                    {mAlias ? mAlias + ":" : null}
+                                    {mId}
+                                </option>
+                            ))}
+                    </select>
+                    <div className="font-semibold">profiled entity:</div>
+                    <div>{displayNameOfProfiledEntity}</div>
+                    <div className="font-semibold">profiled entity type:</div>
+                    <div>
+                        {entity?.type +
+                            (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)
+                                ? " (attribute)"
+                                : "")}
+                    </div>
 
-                <p className="bg-slate-50 p-2">
-                    name:
-                    <MultiLanguageInputForLanguageString ls={name} setLs={setName} defaultLang="en" inputType="text" />
-                </p>
-                <p className="bg-slate-50 p-2">
-                    description:
-                    <MultiLanguageInputForLanguageString
-                        ls={description}
-                        setLs={setDescription}
-                        defaultLang="en"
-                        inputType="textarea"
-                    />
-                </p>
-                {(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && <p>domain: </p>}
-                <div className="flex flex-row justify-evenly">
+                    {/* 
+                    ------------
+                    Profile name
+                    ------------
+                    */}
+
+                    <div className="font-semibold">name:</div>
+                    <div className="flex flex-row">
+                        <div className="flex-grow">
+                            <MultiLanguageInputForLanguageString
+                                ls={name}
+                                setLs={setName}
+                                defaultLang={preferredLanguage}
+                                inputType="text"
+                                disabled={!changedFields.name}
+                            />
+                        </div>
+                        <div className="ml-2">
+                            <OverrideFieldCheckbox
+                                forElement="create-profile-name"
+                                disabled={changedFields.name}
+                                onChecked={() => setChangedFields((prev) => ({ ...prev, name: true }))}
+                            />
+                        </div>
+                    </div>
+
+                    {/* 
+                    -------------------
+                    Profile description
+                    -------------------
+                    */}
+
+                    <div className="font-semibold">description:</div>
+                    <div className="flex flex-row">
+                        <div className="flex-grow">
+                            <MultiLanguageInputForLanguageString
+                                ls={description}
+                                setLs={setDescription}
+                                defaultLang={preferredLanguage}
+                                inputType="textarea"
+                                disabled={!changedFields.description}
+                            />
+                        </div>
+                        <div className="ml-2">
+                            <OverrideFieldCheckbox
+                                forElement="create-profile-description"
+                                disabled={changedFields.description}
+                                onChecked={() => setChangedFields((prev) => ({ ...prev, description: true }))}
+                            />
+                        </div>
+                    </div>
+
+                    {/* 
+                    ----------
+                    Usage note
+                    ----------
+                    */}
+
+                    <div className="font-semibold">usage (profile?) note:</div>
+                    <div>
+                        <MultiLanguageInputForLanguageString
+                            ls={usageNote}
+                            setLs={setUsageNote}
+                            defaultLang={preferredLanguage}
+                            inputType="textarea"
+                        />
+                    </div>
+
+                    {/* 
+                    -----------------------------------------------------------
+                    Range and domain for a relationship or relationship profile
+                    -----------------------------------------------------------
+                    */}
+                    {(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && (
+                        <>
+                            {(changedFields.domain ||
+                                changedFields.range ||
+                                changedFields.domainCardinality ||
+                                changedFields.rangeCardinality) && (
+                                <>
+                                    <div />
+                                    <ProfileModificationWarning
+                                        changedFields={([] as string[])
+                                            .concat(changedFields.domain ? "domain" : "")
+                                            .concat(changedFields.range ? "range" : "")
+                                            .concat(changedFields.domainCardinality ? "domain cardinality" : "")
+                                            .concat(changedFields.rangeCardinality ? "range cardinality" : "")
+                                            .filter((s) => s.length > 0)}
+                                    />
+                                </>
+                            )}
+                            <DomainRangeComponent
+                                enabledFields={changedFields}
+                                withCheckEnabling={true}
+                                entity={entity}
+                                range={newRange}
+                                setRange={setNewRange}
+                                domain={newDomain}
+                                setDomain={setNewDomain}
+                                onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}
+                                onDomainCardinalityChange={() =>
+                                    setChangedFields((prev) => ({ ...prev, domainCardinality: true }))
+                                }
+                                onRangeChange={() => setChangedFields((prev) => ({ ...prev, range: true }))}
+                                onRangeCardinalityChange={() =>
+                                    setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
+                                }
+                            />
+                        </>
+                    )}
+                </div>
+
+                <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (
                         <button
                             onClick={() => {
                                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                                    createClassEntityUsage(model, entity.type[0], {
+                                    const { id: classUsageId } = createClassEntityUsage(model, entity.type[0], {
                                         usageOf: entity.id,
                                         usageNote: usageNote,
-                                        description,
-                                        name,
+                                        description: changedFields.description ? description : null,
+                                        name: changedFields.name ? name : null,
                                     });
+
+                                    if (classUsageId) {
+                                        aggregatorView
+                                            .getActiveVisualModel()
+                                            ?.addEntity({ sourceEntityId: classUsageId });
+                                    }
                                 } else if (
                                     isSemanticModelRelationship(entity) ||
                                     isSemanticModelRelationshipUsage(entity)
                                 ) {
+                                    const domainEnd = {
+                                        concept: changedFields.domain ? newDomain.concept : null,
+                                        name: null,
+                                        description: null,
+                                        cardinality: changedFields.domainCardinality ? newDomain.cardinality : null,
+                                        usageNote: null,
+                                    } as SemanticModelRelationshipEndUsage;
+                                    const rangeEnd = {
+                                        concept: changedFields.range ? newRange.concept : null,
+                                        name: changedFields.name ? name : null,
+                                        description: changedFields.description ? description : null,
+                                        cardinality: changedFields.rangeCardinality ? newRange.cardinality : null,
+                                        usageNote: null,
+                                    } as SemanticModelRelationshipEndUsage;
+
+                                    let ends: SemanticModelRelationshipEndUsage[];
+                                    if (
+                                        currentDomainAndRange?.domainIndex == 1 &&
+                                        currentDomainAndRange.rangeIndex == 0
+                                    ) {
+                                        ends = [rangeEnd, domainEnd];
+                                    } else {
+                                        ends = [domainEnd, rangeEnd];
+                                    }
+
                                     createRelationshipEntityUsage(model, entity.type[0], {
                                         usageOf: entity.id,
                                         usageNote: usageNote,
-                                        description,
-                                        name,
+                                        ends: ends,
                                     });
                                 }
                                 localClose();

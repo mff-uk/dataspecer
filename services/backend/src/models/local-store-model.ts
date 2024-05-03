@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
+import { readFile, rm, writeFile } from "fs/promises";
 import path from "path";
-import {rm, readFile, writeFile} from "fs/promises";
-import {LocalStoreDescriptor} from "./local-store-descriptor";
+import { v4 as uuidv4 } from 'uuid';
+import { LocalStoreDescriptor } from "./local-store-descriptor";
 
 /**
  * Manages creating, reading, updating and deleting of the store files.
@@ -50,6 +50,10 @@ export class LocalStoreModel {
         return new LocalStoreDescriptor(uuid);
     }
 
+    getModelStore(uuid: string, onChangeListeners: (() => Promise<unknown>)[] = []): ModelStore {
+        return new ModelStore(uuid, this, onChangeListeners);
+    }
+
     /**
      * Returns the content of the store
      * @internal used only by MemoryStoreHandle
@@ -81,6 +85,45 @@ export class LocalStoreModel {
             return null;
         } else {
             return path.join(this.storage, unsafeId);
+        }
+    }
+}
+
+export class ModelStore {
+    private readonly uuid: string;
+    private readonly storeModel: LocalStoreModel;
+    private readonly onChangeListeners: (() => Promise<unknown>)[];
+
+    constructor(uuid: string, storeModel: LocalStoreModel, onChangeListeners: (() => Promise<unknown>)[] = []) {
+        this.uuid = uuid;
+        this.storeModel = storeModel;
+        this.onChangeListeners = onChangeListeners;
+    }
+
+    async getBuffer(): Promise<Buffer> {
+        return this.storeModel.get(this.uuid) as Promise<Buffer>;
+    }
+
+    async getString(): Promise<string> {
+        return this.getBuffer().then(buffer => buffer?.toString());
+    }
+
+    async getJson(): Promise<any> {
+        return this.getString().then(str => JSON.parse(str));
+    }
+
+    async setString(payload: string): Promise<void> {
+        await this.notifyChangeListeners();
+        return this.storeModel.set(this.uuid, payload);
+    }
+
+    async setJson(payload: any): Promise<void> {
+        return this.setString(JSON.stringify(payload));
+    }
+
+    async notifyChangeListeners() {
+        for (const listener of this.onChangeListeners) {
+            await listener();
         }
     }
 }

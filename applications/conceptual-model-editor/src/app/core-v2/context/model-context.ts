@@ -71,6 +71,20 @@ export const useModelGraphContext = () => {
         }
     };
 
+    const setModelAlias = (alias: string | null, model: EntityModel) => {
+        model.setAlias(alias);
+        setModels((prev) => {
+            return new Map(prev.set(model.getId(), model));
+        });
+    };
+
+    const setModelIri = (iri: string, model: InMemorySemanticModel) => {
+        model.setBaseIri(iri);
+        setModels((prev) => {
+            return new Map(prev.set(model.getId(), model));
+        });
+    };
+
     // FIXME: zas to vymysli nejak lip
     const addClassToModel = (
         model: InMemorySemanticModel,
@@ -85,7 +99,7 @@ export const useModelGraphContext = () => {
                 description: description,
             })
         );
-        return result.success;
+        return result;
     };
 
     const modifyClassInAModel = (
@@ -118,7 +132,7 @@ export const useModelGraphContext = () => {
         if (entityType == "class" || entityType == "class-usage") {
             const result = model.executeOperation(createClassUsage(entity));
             console.log(result);
-            return result.success;
+            return result;
         } else {
             console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
@@ -203,5 +217,7 @@ export const useModelGraphContext = () => {
         visualModels,
         addVisualModelToGraph,
         setVisualModels,
+        setModelAlias,
+        setModelIri,
     };
 };

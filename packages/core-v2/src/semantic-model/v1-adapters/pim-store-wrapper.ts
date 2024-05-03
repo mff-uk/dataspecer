@@ -30,9 +30,10 @@ function deepEqual(a: any, b: any): boolean {
 export class PimStoreWrapper extends InMemoryEntityModel {
     private pimStore: CoreResourceReader;
 
-    constructor(pimStore: CoreResourceReader, id?: string) {
+    constructor(pimStore: CoreResourceReader, id?: string, alias?: string) {
         super(id);
         this.pimStore = pimStore;
+        this.alias = alias;
     }
 
     public fetchFromPimStore() {
@@ -67,6 +68,7 @@ export class PimStoreWrapper extends InMemoryEntityModel {
             // todo fix
             type: "https://dataspecer.com/core/model-descriptor/pim-store-wrapper",
             id: this.id,
+            alias: this.alias,
             pimStore: this.pimStore,
         };
     }

@@ -13,6 +13,9 @@ export const ViewManagement = () => {
     const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
 
     useEffect(() => {
+        if (!activeViewId) {
+            console.log("setting activeViewId to null");
+        }
         setViedIdSearchParam(activeViewId ?? null);
     }, [activeViewId]);
 
@@ -23,14 +26,23 @@ export const ViewManagement = () => {
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
         setAggregatorView(aggregator.getView());
+        setViedIdSearchParam(activeViewId ?? null);
         toggleDropdown();
     };
 
     const handleCreateNewView = () => {
+        // FIXME: workaround for having the same color for different views
+        const activeVisualModel = aggregatorView.getActiveVisualModel();
         const model = new VisualEntityModelImpl(undefined);
+        if (activeVisualModel) {
+            for (const [mId, mColor] of activeVisualModel?.getModelColorPairs()) {
+                model.setColor(mId, mColor);
+            }
+        }
         addVisualModelToGraph(model);
         aggregatorView.changeActiveVisualModel(model.getId());
         setAggregatorView(aggregator.getView());
+        setViedIdSearchParam(activeViewId ?? null);
     };
 
     const handleViewDeleted = (viewId: string) => {

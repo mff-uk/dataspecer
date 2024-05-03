@@ -18,6 +18,7 @@ import type {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -28,8 +29,6 @@ export type ClassesContextType = {
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];
     setRelationships: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>;
-    // attributes: SemanticModelRelationship[]; // Map<string, SemanticModelRelationship[]>;
-    // setAttributes: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>; // React.Dispatch<React.SetStateAction<Map<string, SemanticModelRelationship[]>>>;
     generalizations: SemanticModelGeneralization[];
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
     profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
@@ -55,8 +54,6 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
-        // attributes,
-        // setAttributes,
         generalizations,
         setGeneralizations,
         profiles,
@@ -118,6 +115,11 @@ export const useClassesContext = () => {
         return result.success;
     };
 
+    const executeMultipleOperations = (model: InMemorySemanticModel, operations: Operation[]) => {
+        console.log("classes-context: bout to execute multiple operations", operations);
+        const result = model.executeOperations(operations);
+    };
+
     return {
         classes,
         setClasses,
@@ -127,8 +129,6 @@ export const useClassesContext = () => {
         setAllowedClasses,
         relationships,
         setRelationships,
-        // attributes,
-        // setAttributes,
         generalizations,
         setGeneralizations,
         createConnection,
@@ -140,5 +140,6 @@ export const useClassesContext = () => {
         setProfiles,
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
+        executeMultipleOperations,
     };
 };

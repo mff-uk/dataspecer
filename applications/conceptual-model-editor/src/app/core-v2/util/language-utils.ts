@@ -1,59 +1,7 @@
 import { LanguageString, NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
-import { shortenStringTo } from "./utils";
-import { SemanticModelUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { Nullable } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-export const getNameOrIriAndDescription = (thing: NamedThing | undefined | null, iri: string, lang: string = "en") => {
-    if (!thing) {
-        return [null, null] as const;
-    }
-
-    const [name, fallbackLang] = getStringFromLanguageStringInLang(thing.name, lang);
-    const [description, fallbackDescriptionLang] = getStringFromLanguageStringInLang(thing.description, lang);
-
-    let displayName: string;
-    if (name && !fallbackLang) {
-        displayName = name;
-    } else if (name && fallbackLang) {
-        displayName = `${name}@${fallbackLang}`;
-    } else {
-        displayName = shortenStringTo(iri, 30) || "no-name";
-    }
-
-    let descr = "";
-
-    if (description && !fallbackDescriptionLang) {
-        descr = description;
-    } else if (description && fallbackDescriptionLang) {
-        descr = `${description}@${fallbackDescriptionLang}`;
-    }
-    return [displayName, descr] as const;
-};
-
-export const getNameOfThingInLangOrIri = (thing: NamedThing, iri: string, lang: string = "en") => {
-    const [name, fallbackNameLang] = getStringFromLanguageStringInLang("name", thing, lang);
-
-    if (!name && !fallbackNameLang) {
-        return [iri, null] as const;
-    } else {
-        return [name, fallbackNameLang] as const;
-    }
-};
-
-export const getUsageNote = (thing: SemanticModelUsage, lang: string = "en") => {
-    if (!thing.usageNote) {
-        return null;
-    }
-    const [note, fallbackLang] = getStringFromLanguageStringInLang(thing.usageNote, lang);
-    if (note && !fallbackLang) {
-        return note;
-    } else if (note && fallbackLang) {
-        return `${note}@${fallbackLang}`;
-    } else {
-        return null;
-    }
-};
-
-export const getStringFromLanguageStringInLang = (languageString: LanguageString, lang: string = "en") => {
+export const getStringFromLanguageStringInLang = (languageString: LanguageString | null, lang: string = "en") => {
     if (!languageString) {
         return [null, null] as const;
     }
@@ -86,6 +34,23 @@ export const getStringFromLanguageStringInLang = (languageString: LanguageString
     return [null, null] as const;
 };
 
+export const getLocalizedString = (
+    stringAndLang: readonly [null, null] | readonly [string, string] | readonly [string, null]
+) => {
+    if (stringAndLang[0] == null && stringAndLang[1] == null) {
+        return null;
+    } else if (stringAndLang[1] != null) {
+        return stringAndLang[0] + "@" + stringAndLang[1];
+    } else {
+        // [string, null]
+        return stringAndLang[0];
+    }
+};
+
+export const getLocalizedStringFromLanguageString = (ls: LanguageString | null, lang: string = "en") => {
+    return getLocalizedString(getStringFromLanguageStringInLang(ls, lang));
+};
+
 const nextLanguageInHierarchy = (lang: string) => {
     switch (lang) {
         case "en":
@@ -97,11 +62,6 @@ const nextLanguageInHierarchy = (lang: string) => {
         default:
             return [];
     }
-};
-
-// TODO: export from concepts
-type Nullable<T> = {
-    [P in keyof T]: T[P] | null;
 };
 
 export const getLanguagesForNamedThing = (thing: Nullable<NamedThing>) => {

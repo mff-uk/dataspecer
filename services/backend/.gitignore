@@ -7,3 +7,5 @@ node_modules
 .env.local
 !.env
 *.config.js
+
+lov.nq

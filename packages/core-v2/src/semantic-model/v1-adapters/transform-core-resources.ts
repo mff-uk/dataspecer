@@ -1,13 +1,13 @@
-import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts";
-import {Entities} from "../../entity-model";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
+import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "../concepts";
+import { Entities } from "../../entity-model";
+import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { CoreResource } from "@dataspecer/core/core";
-import {SemanticModelEntity} from "../concepts/concepts";
+import { SemanticModelEntity } from "../concepts/concepts";
 
 const GENERALIZATION_PREFIX = "https://dataspecer.com/semantic-models/generalization";
 
 function getGeneralizationIri(fromIri: string, toIri: string): string {
-    const url = new URLSearchParams({fromIri, toIri});
+    const url = new URLSearchParams({ fromIri, toIri });
     return GENERALIZATION_PREFIX + url.toString();
 }
 
@@ -18,7 +18,7 @@ function createGeneralization(fromIri: string, toIri: string): SemanticModelGene
         type: ["generalization"],
         child: fromIri,
         parent: toIri,
-    }
+    };
 }
 
 export function transformPimClass(cls: PimClass) {
@@ -33,8 +33,8 @@ export function transformPimClass(cls: PimClass) {
     } as SemanticModelClass;
 
     cls.pimExtends
-        .map(to => createGeneralization(cls.iri as string, to))
-        .forEach(generalization => result[generalization.id] = generalization);
+        .map((to) => createGeneralization(cls.iri as string, to))
+        .forEach((generalization) => (result[generalization.id] = generalization));
 
     return result;
 }
@@ -46,14 +46,14 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
     for (const resource of Object.values(resources)) {
         if (PimClass.is(resource)) {
             // Merge transform pim class into result
-            result = {...result, ...transformPimClass(resource)};
+            result = { ...result, ...transformPimClass(resource) };
         }
         if (PimAssociation.is(resource)) {
             const left = resources[resource.pimEnd[0]!] as PimAssociationEnd;
             const right = resources[resource.pimEnd[1]!] as PimAssociationEnd;
             const association = {
                 id: resource.iri as string,
-                iri: resource.pimInterpretation ?? null,
+                iri: null,
                 type: ["relationship"],
                 name: resource.pimHumanLabel ?? {},
                 description: resource.pimHumanDescription ?? {},
@@ -66,11 +66,12 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                     },
                     {
                         cardinality: [right.pimCardinalityMin, right.pimCardinalityMax],
-                        name: right.pimHumanLabel ?? {},
-                        description: right.pimHumanDescription ?? {},
+                        name: right.pimHumanLabel ?? resource.pimHumanLabel ?? {},
+                        description: right.pimHumanDescription ?? resource.pimHumanDescription ?? {},
                         concept: right.pimPart,
-                    }
-                ]
+                        iri: resource.pimInterpretation ?? null,
+                    },
+                ],
             } as SemanticModelRelationship;
 
             result[association.id] = association;
@@ -78,7 +79,7 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
         if (PimAttribute.is(resource)) {
             const attribute = {
                 id: resource.iri as string,
-                iri: resource.pimInterpretation ?? null,
+                iri: null,
                 type: ["relationship"],
                 name: {},
                 description: {},
@@ -94,8 +95,9 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                         name: resource.pimHumanLabel ?? {},
                         description: resource.pimHumanDescription ?? {},
                         concept: resource.pimDatatype,
-                    }
-                ]
+                        iri: resource.pimInterpretation ?? null,
+                    },
+                ],
             } as SemanticModelRelationship;
 
             result[attribute.id] = attribute;

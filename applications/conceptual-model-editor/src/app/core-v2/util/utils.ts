@@ -35,7 +35,7 @@ export const cardinalityToString = (cardinality: [number, number | null] | undef
     if (!cardinality) {
         return undefined;
     }
-    return `[${cardinality[0] || "*"}..${cardinality[1] || "*"}]`;
+    return `[${cardinality.at(0) ?? "*"}..${cardinality[1] ?? "*"}]`;
 };
 
 // --- dialogs --- --- ---

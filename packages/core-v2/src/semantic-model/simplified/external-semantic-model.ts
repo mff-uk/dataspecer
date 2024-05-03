@@ -13,8 +13,8 @@ export class ExternalSemanticModel implements EntityModel {
     private model: AsyncQueryableEntityModel;
     private observableModel: AsyncQueryableObservableEntityModel;
 
-    constructor(model: AsyncQueryableEntityModel, observableModel: AsyncQueryableObservableEntityModel) {
-        this.id = "https://dataspecer.com/core/model-descriptor/sgov";
+    constructor(model: AsyncQueryableEntityModel, observableModel: AsyncQueryableObservableEntityModel, id?: string) {
+        this.id = id ?? (Math.random() + 1).toString(36).substring(7);
         this.model = model;
         this.observableModel = observableModel;
     }
@@ -39,6 +39,14 @@ export class ExternalSemanticModel implements EntityModel {
 
     getId(): string {
         return this.id;
+    }
+
+    getAlias(): string | null {
+        return this.id;
+    }
+
+    setAlias(alias: string): void {
+        return;
     }
 
     getEntities(): Record<string, Entity> {

@@ -8,6 +8,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     defaultLang: string;
     inputType: "text" | "textarea";
     disabled?: boolean;
+    onChange?: () => void;
 }) => {
     const { disabled, defaultLang: preferredLanguage } = props;
 
@@ -38,17 +39,33 @@ export const MultiLanguageInputForLanguageString = (props: {
                             if (e.key === "Enter") {
                                 props.onEnterCallback(l);
                                 reset();
+                                e.stopPropagation();
                             }
                             if (e.key === "Escape") {
                                 reset();
+                                e.stopPropagation();
                             }
                         }}
                     />
                 </li>
             );
         } else {
-            return <li onClick={() => setActive(true)}>+lang</li>;
+            return (
+                <li
+                    onClick={() => {
+                        if (!disabled) {
+                            setActive(true);
+                        }
+                    }}
+                >
+                    +lang
+                </li>
+            );
         }
+    };
+
+    const languageDeletedHandler = () => {
+        setLs((prev) => Object.fromEntries(Object.entries(prev).filter(([l, _]) => l != currentLang)));
     };
 
     const { ls, setLs } = props;
@@ -57,7 +74,10 @@ export const MultiLanguageInputForLanguageString = (props: {
 
     if (!languages.includes(currentLang) && languages.length) {
         setCurrentLang(languages.at(0)!);
+        props.onChange?.();
     }
+
+    const displayString = ls[currentLang] ?? "";
 
     return (
         <div>
@@ -72,17 +92,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                         >
                             {lang}
                             {lang == currentLang && (
-                                <button
-                                    disabled={disabled}
-                                    className="text-xs"
-                                    onClick={() => {
-                                        setLs((prev) =>
-                                            Object.fromEntries(
-                                                Object.entries(prev).filter(([l, _]) => l != currentLang)
-                                            )
-                                        );
-                                    }}
-                                >
+                                <button disabled={disabled} className="text-xs" onClick={languageDeletedHandler}>
                                     🗑
                                 </button>
                             )}
@@ -93,6 +103,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                             onEnterCallback={(l) => {
                                 setLs((prev) => ({ ...prev, [l]: "" }));
                                 setCurrentLang(l);
+                                props.onChange?.();
                             }}
                         />
                     )}
@@ -102,15 +113,21 @@ export const MultiLanguageInputForLanguageString = (props: {
                     disabled={disabled}
                     type="text"
                     className="w-full"
-                    value={ls[currentLang]!}
-                    onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
+                    value={displayString}
+                    onChange={(e) => {
+                        setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
+                        props.onChange?.();
+                    }}
                 />
             ) : (
                 <textarea
                     disabled={disabled}
-                    value={ls[currentLang]!}
+                    value={displayString}
                     className="w-full"
-                    onChange={(e) => setLs((prev) => ({ ...prev, [currentLang]: e.target.value }))}
+                    onChange={(e) => {
+                        setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
+                        props.onChange?.();
+                    }}
                 />
             )}
         </div>

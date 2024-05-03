@@ -10,10 +10,10 @@ class IdentityIriProvider implements IriProvider {
     pimToCim = (pimIri: string) => pimIri;
 }
 
-export function createSgovModel(endpoint: string, httpFetch: HttpFetch) {
+export function createSgovModel(endpoint: string, httpFetch: HttpFetch, id?: string) {
     const adapter = new SgovAdapter("https://slovník.gov.cz/sparql", httpFetch);
     adapter.setIriProvider(new IdentityIriProvider());
     const queryableWrapper = new CimAdapterWrapper(adapter);
     const observableWrapper = new SimpleAsyncQueryableObservableEntityModel(queryableWrapper);
-    return new ExternalSemanticModel(queryableWrapper, observableWrapper);
+    return new ExternalSemanticModel(queryableWrapper, observableWrapper, id);
 }

@@ -1,15 +1,6 @@
 import { Handle, Position, XYPosition, Node } from "reactflow";
-import {
-    SemanticModelClass,
-    SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
-    isSemanticModelClass,
-} from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    getStringFromLanguageStringInLang,
-    getNameOfThingInLangOrIri,
-    getNameOrIriAndDescription,
-} from "../util/language-utils";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -17,113 +8,250 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { shortenStringTo } from "../util/utils";
 import { useConfigurationContext } from "../context/configuration-context";
+import {
+    getNameLanguageString,
+    getDescriptionLanguageString,
+    getUsageNoteLanguageString,
+    getFallbackDisplayName,
+} from "../util/name-utils";
+import { getIri, getModelIri, sourceModelOfEntity } from "../util/model-utils";
+import { useModelGraphContext } from "../context/model-context";
+import { useMemo, useState } from "react";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { useClassesContext } from "../context/classes-context";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
     color: string | undefined;
     attributes: SemanticModelRelationship[];
-    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void;
-    openModifyDialog: (cls: SemanticModelClass) => void;
-    usagesOfAttributes: SemanticModelClassUsage[];
+    openEntityDetailDialog: () => void;
+    openModifyDialog: () => void;
+    openProfileDialog: () => void;
     attributeUsages: SemanticModelRelationshipUsage[];
 };
 
 export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { language: preferredLanguage } = useConfigurationContext();
-    const cls = props.data.cls;
-    const { id } = cls;
+    const { models, aggregatorView } = useModelGraphContext();
+    const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
+    const { classes2: c, profiles, deleteEntityFromModel } = useClassesContext();
+
+    const { cls, attributes, attributeUsages } = props.data;
 
     const clr = props.data.color ?? "#ffffff";
-    const attributes = props.data.attributes;
 
-    let name: null | string = null,
-        description: null | string = null,
-        iri: null | string = null,
-        isUsage = false;
+    const model = useMemo(() => sourceModelOfEntity(cls.id, [...models.values()]), [models]);
+    const modelIri = getModelIri(model);
 
-    if (isSemanticModelClass(cls)) {
-        [name, description] = getNameOrIriAndDescription(cls, cls.iri ?? id, preferredLanguage);
-    } else if (isSemanticModelClassUsage(cls)) {
-        const [a, b] = getStringFromLanguageStringInLang(cls.name ?? {}, preferredLanguage);
-        const [c, d] = getStringFromLanguageStringInLang(cls.description ?? cls.usageNote ?? {}, preferredLanguage);
-        [name, description, isUsage] = [
-            (a ?? cls.id) + (b != null ? `@${b}` : ""),
-            c ?? "" + (d != null ? `@${d}` : ""),
-            true,
-        ];
+    let isUsage = false;
+
+    const name =
+        getLocalizedStringFromLanguageString(getNameLanguageString(cls), preferredLanguage) ??
+        getFallbackDisplayName(cls);
+    const description = getLocalizedStringFromLanguageString(getDescriptionLanguageString(cls), preferredLanguage);
+    const usageNote = getLocalizedStringFromLanguageString(getUsageNoteLanguageString(cls), preferredLanguage);
+    const iri = getIri(cls);
+    if (isSemanticModelClassUsage(cls)) {
+        isUsage = true;
     }
+    const profiledClass = isSemanticModelClassUsage(cls) ? [...c, ...profiles].find((e) => e.id == cls.usageOf) : null;
+
+    const MenuOptions = () => {
+        return (
+            <div
+                style={{ pointerEvents: "all" }}
+                className="absolute right-2 top-2 z-10 flex w-max flex-col bg-white [&>*]:px-5 [&>*]:text-left"
+                onBlur={(e) => {
+                    setIsMenuOptionsOpen(false);
+                    e.stopPropagation();
+                }}
+            >
+                <button
+                    type="button"
+                    className="text-red-700 hover:shadow"
+                    onClick={(e) => {
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    close
+                </button>
+                <button
+                    type="button"
+                    className="hover:shadow"
+                    onClick={(e) => {
+                        props.data.openEntityDetailDialog();
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    open detail
+                </button>
+                <button
+                    type="button"
+                    className="hover:shadow"
+                    onClick={(e) => {
+                        props.data.openProfileDialog();
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    create profile
+                </button>
+                <button
+                    type="button"
+                    className="hover:shadow"
+                    onClick={(e) => {
+                        aggregatorView.getActiveVisualModel()?.updateEntity(cls.id, { visible: false });
+                        setIsMenuOptionsOpen(false);
+                        e.stopPropagation();
+                    }}
+                >
+                    remove from view
+                </button>
+                {model instanceof InMemorySemanticModel && (
+                    <>
+                        <button
+                            type="button"
+                            className="hover:shadow"
+                            onClick={(e) => {
+                                props.data.openModifyDialog();
+                                setIsMenuOptionsOpen(false);
+                                e.stopPropagation();
+                            }}
+                        >
+                            modify
+                        </button>
+                        <button
+                            type="button"
+                            className="hover:shadow"
+                            onClick={(e) => {
+                                deleteEntityFromModel(model, cls.id);
+                                setIsMenuOptionsOpen(false);
+                                e.stopPropagation();
+                            }}
+                        >
+                            delete
+                        </button>
+                    </>
+                )}
+            </div>
+        );
+    };
 
     return (
         <>
-            <div className={`m-1 min-w-56 border border-black bg-white [&]:text-sm`}>
+            <div
+                className="relative m-1 min-h-14 min-w-56 border border-black bg-white [&]:text-sm"
+                onDoubleClick={(e) => {
+                    setIsMenuOptionsOpen(true);
+                    e.stopPropagation();
+                }}
+            >
                 <h1
                     className="flex flex-col overflow-x-hidden whitespace-nowrap border border-b-black"
                     style={{ backgroundColor: clr }}
                     title={description ?? ""}
                 >
-                    {isUsage && <span className="text-center">profile</span>}
-                    <span>{name}</span>
+                    {isUsage && (
+                        <span className="text-gray-600">
+                            profile
+                            {profiledClass
+                                ? ` of ${
+                                      getLocalizedStringFromLanguageString(
+                                          getNameLanguageString(profiledClass),
+                                          preferredLanguage
+                                      ) ?? getFallbackDisplayName(profiledClass)
+                                  }`
+                                : ""}
+                        </span>
+                    )}
+                    <div className="relative flex w-full flex-row justify-between">{name}</div>
                 </h1>
 
-                <p className="overflow-x-clip text-gray-500">{iri}</p>
+                <p className="overflow-x-clip text-gray-500">
+                    {modelIri}
+                    {iri}
+                </p>
 
-                {attributes?.map((attr) => {
-                    const end = attr.ends[1]!;
-                    const [n, d] = getNameOrIriAndDescription(end, "no-iri", preferredLanguage);
+                <div key={"attributes" + attributes.length} className="max-h-44 overflow-x-auto ">
+                    <>
+                        {attributes?.slice(0, 5).map((attr) => {
+                            const n =
+                                getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                                getFallbackDisplayName(attr);
+                            const d = getLocalizedStringFromLanguageString(
+                                getDescriptionLanguageString(attr),
+                                preferredLanguage
+                            );
+                            const un = getLocalizedStringFromLanguageString(
+                                getUsageNoteLanguageString(attr),
+                                preferredLanguage
+                            );
 
-                    const usage = props.data.usagesOfAttributes.find((u) => u.usageOf == attr.id);
-                    const [usageNote, l] = getStringFromLanguageStringInLang(usage?.usageNote ?? {}, preferredLanguage);
+                            return (
+                                <p key={attr.id} title={d ?? ""} className="flex flex-row">
+                                    <span>- {n} </span>
+                                    {un && (
+                                        <div className="ml-2 rounded-sm bg-blue-300" title={un}>
+                                            usage info
+                                        </div>
+                                    )}
+                                </p>
+                            );
+                        })}
+                        {attributes.length >= 5 && (
+                            <p
+                                key="more-than-5-attributes"
+                                className="flex flex-row"
+                                onClick={props.data.openEntityDetailDialog}
+                            >
+                                <span>- ...</span>
+                            </p>
+                        )}
+                        {attributeUsages?.slice(0, 5).map((attr) => {
+                            const n =
+                                getLocalizedStringFromLanguageString(getNameLanguageString(attr), preferredLanguage) ??
+                                getFallbackDisplayName(attr);
+                            const d = getLocalizedStringFromLanguageString(
+                                getDescriptionLanguageString(attr),
+                                preferredLanguage
+                            );
+                            const un = getLocalizedStringFromLanguageString(
+                                getUsageNoteLanguageString(attr),
+                                preferredLanguage
+                            );
 
-                    return (
-                        <p key={`${n}.${attr.id}`} title={d ?? ""} className="flex flex-row">
-                            <span>- {n} </span>
-                            {usage && (
-                                <div className="ml-2 rounded-sm bg-blue-300" title={usageNote ?? ""}>
-                                    usage info
-                                </div>
-                            )}
-                        </p>
-                    );
-                })}
+                            const usageOf = attr.usageOf;
 
-                {props.data.attributeUsages?.map((attr) => {
-                    const end = attr.ends[1]!;
-                    const n = getStringFromLanguageStringInLang(end.name ?? {}, preferredLanguage) ?? attr.id;
-                    const d = getStringFromLanguageStringInLang(end.description ?? {}, preferredLanguage)[0] ?? "";
-
-                    const usageOf = attr.usageOf;
-                    const [usageNote, l] = getStringFromLanguageStringInLang(attr.usageNote ?? {});
-
-                    return (
-                        <p key={`${n}.${attr.id}`} title={d} className="flex flex-row">
-                            <span>
-                                - {n}, usage of: {shortenStringTo(usageOf, 8)}{" "}
-                            </span>
-                            <div className="ml-2 rounded-sm bg-blue-300" title={usageNote ?? "usage note missing"}>
-                                usage note
-                            </div>
-                        </p>
-                    );
-                })}
-
-                <div className="flex flex-row justify-between">
-                    <button
-                        className="text-slate-500"
-                        onClick={() => {
-                            alert("FIXME: editing class");
-                        }}
-                    >
-                        edit
-                    </button>
-                    <button
-                        className="text-slate-500"
-                        onClick={() => {
-                            props.data.openEntityDetailDialog(cls);
-                        }}
-                    >
-                        detail
-                    </button>
+                            return (
+                                <p key={attr.id} title={d ?? ""} className="flex flex-row">
+                                    <span>
+                                        - {n}, profile of: {shortenStringTo(usageOf, 8)}{" "}
+                                    </span>
+                                    {un && (
+                                        <div className="ml-2 rounded-sm bg-blue-300" title={un}>
+                                            usage note
+                                        </div>
+                                    )}
+                                </p>
+                            );
+                        })}
+                        {attributeUsages.length >= 5 && (
+                            <p
+                                key="more-than-5-attribute-profiles"
+                                className="flex flex-row"
+                                onClick={props.data.openEntityDetailDialog}
+                            >
+                                <span>- ...</span>
+                            </p>
+                        )}
+                    </>
                 </div>
+
+                <div key={"attributeProfiles" + attributeUsages.length}></div>
+
+                {isMenuOptionsOpen && <MenuOptions />}
             </div>
 
             <Handle type="source" position={Position.Top} id="sa">
@@ -158,9 +286,10 @@ export const semanticModelClassToReactFlowNode = (
     position: XYPosition,
     color: string | undefined, // FIXME: vymysli lip
     attributes: SemanticModelRelationship[],
-    openEntityDetailDialog: (cls: SemanticModelClass | SemanticModelClassUsage) => void,
-    openModifyDialog: (cls: SemanticModelClass) => void,
-    usagesOfAttributes: SemanticModelClassUsage[],
+    openEntityDetailDialog: () => void,
+    openModifyDialog: () => void,
+    openProfileDialog: () => void,
+
     attributeUsages: SemanticModelRelationshipUsage[]
 ) =>
     ({
@@ -172,7 +301,7 @@ export const semanticModelClassToReactFlowNode = (
             attributes,
             openEntityDetailDialog,
             openModifyDialog,
-            usagesOfAttributes,
+            openProfileDialog,
             attributeUsages,
         } satisfies ClassCustomNodeDataType,
         type: "classCustomNode",

@@ -14,10 +14,10 @@ import { ModelGraphContext } from "./context/model-context";
 import Header from "./header";
 import { Visualization } from "./visualization";
 import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
-import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemoryEntityModel, type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBackendConnection } from "./backend-connection";
 import { usePackageSearch } from "./util/package-search";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { Catalog } from "./catalog/catalog";
 import {
     type SemanticModelClassUsage,
@@ -27,6 +27,10 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useViewParam } from "./util/view-param";
 import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { bothEndsHaveAnIri } from "./util/relationship-utils";
+import { Warning, WarningsContext } from "./context/warnings-context";
+import { getRandomName } from "../utils/random-gen";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -41,11 +45,13 @@ const Page = () => {
     const [classes2, setClasses2] = useState<SemanticModelClass[]>([]); //<SemanticModelClassWithOrigin[]>([]);
     const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
-    // const [attributes, setAttributes] = useState<SemanticModelRelationship[]>([]); // useState(new Map<string, SemanticModelRelationship[]>()); // conceptId -> relationship[]
+    const [warnings, setWarnings] = useState<Warning[]>([]);
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
     const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
     const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
+
+    const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
 
     const { packageId, setPackage } = usePackageSearch();
     const { viewId: viewIdFromURLParams } = useViewParam();
@@ -56,15 +62,53 @@ const Page = () => {
             "getModelsFromBackend is going to be called from useEffect in ModelsComponent, packageId:",
             packageId
         );
-        if (!packageId) return;
+
+        if (!packageId) {
+            if (defaultModelAlreadyCreated) {
+                return;
+            }
+            const visualModel = new VisualEntityModelImpl(undefined);
+            setVisualModels((prev) => prev.set(visualModel.getId(), visualModel));
+            aggregator.addModel(visualModel);
+            aggregatorView.changeActiveVisualModel(visualModel.getId());
+
+            const model = new InMemorySemanticModel();
+            model.setAlias("default local model");
+            setModels((previous) => previous.set(model.getId(), model));
+            aggregator.addModel(model);
+
+            setDefaultModelAlreadyCreated(true);
+            return () => {
+                aggregator.deleteModel(visualModel);
+                aggregator.deleteModel(model);
+                setDefaultModelAlreadyCreated(false);
+                setModels(() => new Map<string, EntityModel>());
+                setVisualModels(() => new Map<string, VisualEntityModel>());
+            };
+        }
 
         const getModels = () => getModelsFromBackend(packageId);
 
         getModels()
             .then((models) => {
                 console.log("getModels: then: models:", models);
-                const [entityModels, visualModels] = models;
-                for (const model of visualModels) {
+                const [entityModels, visualModels2] = models;
+                if (entityModels.length == 0 && visualModels2.length == 0) {
+                    console.log("empty models from backend", entityModels, visualModels2);
+
+                    const visualModel = new VisualEntityModelImpl(undefined);
+                    visualModels2.push(visualModel);
+
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {
+                    const model = new InMemorySemanticModel();
+                    model.setAlias("default local model");
+                    entityModels.push(model);
+                }
+                for (const model of visualModels2) {
                     aggregator.addModel(model);
                     setVisualModels((prev) => prev.set(model.getId(), model));
                 }
@@ -73,14 +117,15 @@ const Page = () => {
                     setModels((previous) => previous.set(model.getId(), model));
                 }
                 setAggregatorView(aggregator.getView());
+                return visualModels2;
             })
-            .then(() => {
-                const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+            .then((vm: VisualEntityModel[]) => {
+                const availableVisualModelIds = vm.map((m) => m.getId());
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
                     aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
                 } else {
                     // choose the first available model
-                    const modelId = [...visualModels.keys()].at(0);
+                    const modelId = vm.at(0)?.getId();
                     if (modelId) {
                         aggregatorView.changeActiveVisualModel(modelId);
                     }
@@ -91,7 +136,10 @@ const Page = () => {
                 console.error(reason);
                 setPackage(null);
             });
-        return () => setModels(new Map<string, EntityModel>());
+        return () => {
+            console.log("models cleanup in package effect");
+            setModels(new Map<string, EntityModel>());
+        };
     }, [packageId]);
 
     useEffect(() => {
@@ -102,7 +150,6 @@ const Page = () => {
             setClasses((prev) => new Map([...prev.entries()].filter((v) => !removedIds.has(v[1].cls.id))));
             setClasses2((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setRelationships((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            // setAttributes((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setUsages((prev) => prev.filter((v) => !removedIds.has(v.id)));
 
             const { clsses, rels, gens, prfiles } = updated.reduce(
@@ -110,19 +157,23 @@ const Page = () => {
                     if (isSemanticModelClass(curr.aggregatedEntity)) {
                         return { clsses: clsses.concat(curr.aggregatedEntity), rels, /*  atts, */ gens, prfiles };
                     } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
+                        if (bothEndsHaveAnIri(curr.aggregatedEntity)) {
+                            console.warn(
+                                "both ends have an IRI, skipping",
+                                curr.aggregatedEntity,
+                                curr.aggregatedEntity.ends
+                            );
+                            setWarnings((prev) =>
+                                prev.concat({
+                                    id: getRandomName(10),
+                                    type: "unsupported-relationship",
+                                    message: "both ends have an IRI",
+                                    object: curr.aggregatedEntity,
+                                })
+                            );
+                            return { clsses, rels, gens, prfiles };
+                        }
                         return { clsses, rels: rels.concat(curr.aggregatedEntity), /* atts, */ gens, prfiles };
-
-                        // if (
-                        //     curr.aggregatedEntity.ends[1]?.concept == null ||
-                        //     /* TODO: tohle vykuchej, az zjistis, jak to pridat spravne */ curr.aggregatedEntity.ends[1]
-                        //         ?.concept == ""
-                        // ) {
-                        //     // attribute
-                        //     return { clsses, rels, atts: atts.concat(curr.aggregatedEntity), gens, prfiles };
-                        // } else {
-                        //     // relationship
-                        //     return { clsses, rels: rels.concat(curr.aggregatedEntity), atts, gens, prfiles };
-                        // }
                     } else if (
                         isSemanticModelClassUsage(curr.aggregatedEntity) ||
                         isSemanticModelRelationshipUsage(curr.aggregatedEntity)
@@ -139,7 +190,6 @@ const Page = () => {
                 {
                     clsses: [] as SemanticModelClass[],
                     rels: [] as SemanticModelRelationship[],
-                    // atts: [] as SemanticModelRelationship[],
                     gens: [] as SemanticModelGeneralization[],
                     prfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
                 }
@@ -151,66 +201,16 @@ const Page = () => {
             }
             setSourceModelOfEntityMap(new Map(localSourceMap));
 
-            console.log(clsses, rels, /* atts, */ prfiles);
             const [clssesIds, relsIds, /* attsIds, */ gensIds, prfilesIds] = [
                 new Set(clsses.map((c) => c.id)),
                 new Set(rels.map((r) => r.id)),
-                // new Set(atts.map((a) => a.id)),
                 new Set(gens.map((g) => g.id)),
                 new Set(prfiles.map((p) => p.id)),
             ];
 
-            // const clsses = new Map(
-            //     [...models.keys()]
-            //         .map((modelId) =>
-            //             Object.values(models.get(modelId)!.getEntities())
-            //                 .filter(isSemanticModelClass)
-            //                 .map((c) => ({ cls: c, origin: modelId }))
-            //         )
-            //         .flat()
-            //         .map((cls) => [cls.cls.id, cls])
-            // );
-            // const { rels, atts } = [...models.keys()]
-            //     .map((modelId) => Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelRelationship))
-            //     .flat()
-            //     .reduce(
-            //         ({ rels, atts }, curr, i, arr) => {
-            //             if (
-            //                 curr.ends[1]?.concept == null ||
-            //                 /* TODO: tohle vykuchej, az zjistis, jak to pridat spravne */ curr.ends[1]?.concept == ""
-            //             ) {
-            //                 return { rels, atts: atts.concat(curr) };
-            //             }
-            //             return { rels: rels.concat(curr), atts };
-            //         },
-            //         { rels: [] as SemanticModelRelationship[], atts: [] as SemanticModelRelationship[] }
-            //     );
-            // const usges = [...models.values()]
-            //     .map((model) => Object.values(model.getEntities()))
-            //     .map((entities) =>
-            //         (
-            //             entities.filter(isSemanticModelClassUsage) as (
-            //                 | SemanticModelClassUsage
-            //                 | SemanticModelRelationshipUsage
-            //             )[]
-            //         ).concat(entities.filter(isSemanticModelRelationshipUsage))
-            //     )
-            //     .flat();
-            // console.log(usges);
-
-            // setClasses(prev => new Map([
-            // ]));
             setClasses2((prev) => prev.filter((v) => !clssesIds.has(v.id)).concat(clsses));
             setRelationships((prev) => prev.filter((v) => !relsIds.has(v.id)).concat(rels));
-            // setAttributes((prev) => prev.filter((v) => !attsIds.has(v.id)).concat(atts));
             setGeneralizations((prev) => prev.filter((v) => !gensIds.has(v.id)).concat(gens));
-            // setGeneralizations(
-            //     [...models.keys()]
-            //         .map((modelId) =>
-            //             Object.values(models.get(modelId)!.getEntities()).filter(isSemanticModelGeneralization)
-            //         )
-            //         .flat()
-            // );
             setUsages((prev) => prev.filter((v) => !prfilesIds.has(v.id)).concat(prfiles));
         };
         // TODO: tady udelej nejakej chytrejsi callback
@@ -221,7 +221,7 @@ const Page = () => {
         return () => {
             callToUnsubscribe();
         };
-    }, [models, aggregatorView]);
+    }, [, /* models */ aggregatorView]);
 
     return (
         <>
@@ -247,8 +247,6 @@ const Page = () => {
                             setAllowedClasses,
                             relationships,
                             setRelationships,
-                            // attributes,
-                            // setAttributes,
                             generalizations,
                             setGeneralizations,
                             profiles: usages,
@@ -257,14 +255,15 @@ const Page = () => {
                             setSourceModelOfEntityMap,
                         }}
                     >
-                        <Header />
-                        {/* <MultiLanguageInputForLanguageString ls={ls} setLs={setLs} defaultLang="en" inputType="textarea" /> */}
-                        <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                            <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                                <Catalog />
-                                <Visualization />
-                            </div>
-                        </main>
+                        <WarningsContext.Provider value={{ warnings, setWarnings }}>
+                            <Header />
+                            <main className="h-[calc(100%-48px)] w-full bg-teal-50">
+                                <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                                    <Catalog />
+                                    <Visualization />
+                                </div>
+                            </main>
+                        </WarningsContext.Provider>
                     </ClassesContext.Provider>
                 </ModelGraphContext.Provider>
             </ConfigurationContext.Provider>

@@ -9,7 +9,6 @@ import { JSON_LD_GENERATOR } from "@dataspecer/json/json-ld";
 import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
 import { OpenapiGenerator } from "@dataspecer/openapi";
 import { ShaclGenerator } from "@dataspecer/shacl";
-import { LDkitGenerator } from "@dataspecer/ldkit";
 import { ShexGenerator, ShexMapGenerator } from "@dataspecer/shex";
 import { SPARQL } from "@dataspecer/sparql-query";
 import { XML_SCHEMA } from "@dataspecer/xml/xml-schema";
@@ -211,10 +210,6 @@ const items = [
     {
         title: "SPARQL",
         generator: SPARQL.Generator,
-    },
-    {
-        title: "LDkit Schema",
-        generator: LDkitGenerator.IDENTIFIER
     },
     DIVIDER,
     {

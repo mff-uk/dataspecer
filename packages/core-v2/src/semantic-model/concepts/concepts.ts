@@ -1,5 +1,5 @@
-import {Entity} from "../../entity-model/entity";
-import {SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP} from "./concepts-utils";
+import { Entity } from "../../entity-model/entity";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP } from "./concepts-utils";
 
 /**
  * A human text that is translated into multiple languages.
@@ -40,23 +40,24 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
 export interface SemanticModelRelationship extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_RELATIONSHIP];
 
-    ends: SemanticModelRelationshipEnd[]
+    ends: SemanticModelRelationshipEnd[];
 
     // todo: is it attribute or association
 }
 
 export interface SemanticModelRelationshipEnd extends NamedThing {
-    cardinality?: [number, number|null];
+    iri: string | null;
+    cardinality?: [number, number | null];
 
     /** {@link SemanticModelClass} */
-    concept: string;
+    concept: string | null;
 }
 
 /**
  * Inheritance hierarchy.
  */
 export interface SemanticModelGeneralization extends SemanticModelEntity {
-    type: [typeof SEMANTIC_MODEL_GENERALIZATION]
+    type: [typeof SEMANTIC_MODEL_GENERALIZATION];
 
     /** {@link SemanticModelClass} */
     child: string;
@@ -64,4 +65,3 @@ export interface SemanticModelGeneralization extends SemanticModelEntity {
     /** {@link SemanticModelClass} */
     parent: string;
 }
-
