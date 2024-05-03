@@ -1,5 +1,5 @@
 import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
-import { RdfsAdapter } from '@dataspecer/rdfs-adapter';
+import { RdfsAdapter } from '@dataspecer/core-v2/rdfs-adapter';
 import { PrismaClient } from '@prisma/client';
 import cliProgress from 'cli-progress';
 import { readFileSync } from 'fs';

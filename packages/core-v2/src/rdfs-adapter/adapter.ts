@@ -1,8 +1,6 @@
-import { LanguageString, NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from '@dataspecer/core-v2/semantic-model/concepts';
-import { RdfMemorySource } from '@dataspecer/core/io/rdf/rdf-memory-source';
-import { Literal, NamedNode, Quad, Store } from 'n3';
-import { Entity } from '../../core-v2/lib/entity-model/entity';
-import { RDFS, OWL, SCHEMAORG, RDF } from './rdfs-vocabulary';
+import { OWL, RDF, RDFS, SCHEMAORG } from '@dataspecer/rdfs-adapter/';
+import { NamedNode, Store } from 'n3';
+import { NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from '../semantic-model/concepts';
 import { getQuadsByMany, objectsToLanguageString } from './better-n3-store';
 
 /**
@@ -68,7 +66,7 @@ export class RdfsAdapter {
         if (domain.length === 0) {
             domainIri = OWL.Thing;
         } else {
-            domainIri = domain[0].value;
+            domainIri = domain[0]!.value;
             // todo
         }
 
@@ -76,7 +74,7 @@ export class RdfsAdapter {
         if (range.length === 0) {
             rangeIri = OWL.Thing;
         } else {
-            rangeIri = range[0].value;
+            rangeIri = range[0]!.value;
             // todo
         }
 

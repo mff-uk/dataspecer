@@ -1,2 +1,2 @@
 export * from "./rdfs-file-adapter";
-export * from "./adapter";
+export * from "./rdfs-vocabulary";
