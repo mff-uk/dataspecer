@@ -1,14 +1,13 @@
-import { createContext, useEffect, useRef, useState } from "react";
-import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
+import { createContext, useRef, useState } from "react";
+import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
 type ResourceWithIris = Package & { subResourcesIri: string[] };
 
 export const ResourcesContext = createContext<Record<string, ResourceWithIris>>({});
-export const RootResourcesContext = createContext<string[]>([]);
 
 export const packageService = new BackendPackageService(backendUrl, (...p) => fetch(...p));
 
@@ -19,12 +18,17 @@ let resourcesMemory:  React.MutableRefObject<Record<string, ResourceWithIris>>;
 let setResourcesReact: (resources: Record<string, ResourceWithIris>) => void;
 
 export async function requestLoadPackage(iri: string, forceUpdate = false) {
-    if (resourcesBeingFetched.has(iri) || ((resourcesMemory.current[iri] as ResourceWithIris).subResourcesIri && !forceUpdate)) {
+    if (resourcesBeingFetched.has(iri) || ((resourcesMemory.current[iri] as ResourceWithIris)?.subResourcesIri && !forceUpdate)) {
         return;
     }
     resourcesBeingFetched.add(iri);
     
     const pckg = await packageService.getPackage(iri) as ResourceWithIris;
+    resourcesBeingFetched.delete(iri);
+
+    if (!pckg) {
+        return;
+    }
 
     const copiedResourcesMemory = {...resourcesMemory.current};
 
@@ -37,7 +41,6 @@ export async function requestLoadPackage(iri: string, forceUpdate = false) {
     }
     delete pckg.subResources;
     copiedResourcesMemory[iri] = pckg;
-    resourcesBeingFetched.delete(iri);
     setResourcesReact(copiedResourcesMemory);
     resourcesMemory.current = copiedResourcesMemory;
 }
@@ -66,26 +69,11 @@ export async function deleteResource(iri: string) {
 export const useResourcesContext = () => {
     resourcesMemory = useRef<Record<string, ResourceWithIris>>({});
 
-    const [rootResources, setRootResources] = useState<string[]>([]);
     const [resources, setResources] = useState<Record<string, ResourceWithIris>>({});
     setResourcesReact = setResources;
     resourcesMemory.current = resources;
 
-    useEffect(() => {
-        (async () => {
-            const response = await fetch(backendUrl + "/resources/root-resources");
-            const rootResources = await response.json() as ResourceWithIris[];
-
-            setRootResources(rootResources.map((resource) => resource.iri));
-
-            resourcesMemory.current = {...Object.fromEntries(rootResources.map((resource) => [resource.iri, resource])), ...resourcesMemory.current};
-            setResourcesReact(resourcesMemory.current);
-        })();
-    }, []);
-
-
     return {
-        rootResources,
         resources,
     };
 }

@@ -12,11 +12,10 @@ import { CreateNew } from "./dialog/create-new";
 import { DeleteResource } from "./dialog/delete-resource";
 import { RenameResourceDialog } from "./dialog/rename-resource";
 import { ResourceDetail } from "./dialog/resource-detail";
-import { useIsMobile } from "./hooks/use-is-mobile";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
-import { ResourcesContext, RootResourcesContext, modifyUserMetadata, requestLoadPackage } from "./package";
+import { ResourcesContext, modifyUserMetadata, requestLoadPackage } from "./package";
 
 
 export function lng(text: LanguageString | undefined): string | undefined {
@@ -49,13 +48,12 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
     setIsOpen(true);
   }, [iri]);
 
-  const isMobile = useIsMobile();
   const detailModalToggle = useToggle();
 
   const openModal = useBetterModal();
 
   return <li className="first:border-y last:border-none border-b border-gray-200">
-    <div className="flex items-center space-x-4 transition-all hover:bg-accent" onClick={isMobile ? detailModalToggle.open : undefined}>
+    <div className="flex items-center space-x-4 transition-all hover:bg-accent">
        {resource.types.includes(LOCAL_PACKAGE) ? <div className="flex"><button onClick={stopPropagation(() => isOpen ? setIsOpen(false) : open())}>
         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
       </button><Folder className="text-gray-400 ml-1" /></div> : <div><ModelIcon type={resource.types} /></div>}       
@@ -118,34 +116,22 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
 };
 
 export default function Component() {
-  const rootPackages = useContext(RootResourcesContext);
-
   return (
     <div>
-      {rootPackages.length === 0 && <div>
-        {[1, 2, 3].map((i) => 
-          <div className="my-2 flex" key={i}>
-            <Skeleton className="w-[44px] h-[44px] rounded-full" />
-            <div className="ml-3">
-              <Skeleton className="w-[200px] h-6 mb-1" />
-              <Skeleton className="w-[100px] h-4" />
-            </div>
-          </div>
-        )}
-      </div>}
-
-      {rootPackages.map(rootIri => <RootPackage iri={rootIri} key={rootIri} />)}
+      <RootPackage iri={"http://dataspecer.com/packages/local-root"} />
+      <RootPackage iri={"http://dataspecer.com/packages/v1"} />
+      <RootPackage iri={"https://dataspecer.com/resources/import/lod"} defaultToggle={false} />
     </div>
   )
 }
 
-function RootPackage({iri}: {iri: string}) {
+function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean}) {
   const openModal = useBetterModal();
   const resources = useContext(ResourcesContext);
   const pckg = resources[iri];
 
   // Whether the package is open or not
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isOpen, setIsOpen] = useState<boolean>(defaultToggle ?? true);
 
   useEffect(() => {
     requestLoadPackage(iri);
