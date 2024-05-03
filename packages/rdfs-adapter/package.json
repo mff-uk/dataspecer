@@ -11,6 +11,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@dataspecer/core": "*",
+    "@dataspecer/core-v2": "*",
     "@types/n3": "^1.16.4",
     "js-string-escape": "^1.0.1",
     "n3": "^1.17.3"
