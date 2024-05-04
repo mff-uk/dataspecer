@@ -54,7 +54,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
     
     
     return (
-        <div className="p-1 flex items-center">
+        <div className="p-1 flex items-center justify-between mr-5">
             <div>
                 <label>Association Mode: </label>
                 <Switch 

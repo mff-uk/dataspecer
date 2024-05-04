@@ -56,9 +56,9 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                     </div>
                 </div>
                 {/* Form fields for operation details */}
-                <Card className="justify-end">
+                <Card className="p-2 justify-end">
                     {/* Association Mode*/}
-                    <Association
+                    <Association 
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
