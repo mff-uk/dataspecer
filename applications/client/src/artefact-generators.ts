@@ -15,6 +15,7 @@ import {ShexGenerator, ShexMapGenerator} from "@dataspecer/shex"
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
 import {TemplateArtifactGenerator} from "@dataspecer/template-artifact";
+import {LDkitGenerator} from "@dataspecer/ldkit";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -38,6 +39,7 @@ export function getArtefactGenerators() {
         new ShaclGenerator(),
         new OpenapiGenerator(),
         new TemplateArtifactGenerator(),
+        new LDkitGenerator(),
 
         // Generators that need backend support
         new ShexGenerator(),
