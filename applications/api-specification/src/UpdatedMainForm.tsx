@@ -9,6 +9,8 @@ import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OpenAPIGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
+import { DataStructure, Field } from '@/Models/DataStructureNex';
+
 
 type Operation = {
     name: string;
@@ -118,7 +120,7 @@ export const ApiSpecificationForm = () => {
         fetchData();
     }, [fetchDataStructures]);
 
-    console.log(fetchedDataStructuresArr);
+    //console.log(fetchedDataStructuresArr);
 
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
@@ -136,6 +138,14 @@ export const ApiSpecificationForm = () => {
     };
 
     const addOperation = (index: number) => {
+        
+        const defaultDataStructure: DataStructure = {
+            id: '', 
+            name: '', 
+            givenName: '', 
+            fields: []
+        };
+
         const newOperation = {
             name: '',
             isCollection: false,
@@ -146,7 +156,7 @@ export const ApiSpecificationForm = () => {
             oComment: '',
             oResponse: '',
             oRequestBody: {},
-            oResponseObject: {}
+            oResponseObject: defaultDataStructure
         };
 
         update(index, {
@@ -203,7 +213,7 @@ export const ApiSpecificationForm = () => {
                                     dataStructures={fetchedDataStructuresArr}
                                     isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
-                                        console.log("here I am " + JSON.stringify(selectedDataStructure));
+                                        //console.log("here I am " + JSON.stringify(selectedDataStructure));
                                         register(`dataStructures.${index}.name`).onChange({
                                             target: {
                                                 value: selectedDataStructure.name,
@@ -212,7 +222,7 @@ export const ApiSpecificationForm = () => {
 
                                         setSelectedDataStructures((prevState) => {
                                             const newState = [...prevState];
-                                            console.log(selectedDataStructure)
+                                            //console.log(selectedDataStructure)
                                             newState[index] = selectedDataStructure;
                                             return newState;
                                         });

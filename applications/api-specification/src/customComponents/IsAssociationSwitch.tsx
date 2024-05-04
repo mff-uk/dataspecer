@@ -1,6 +1,8 @@
 import { Switch } from "../components/ui/switch.tsx";
 import ResponseObjectSelect from './ResponseObjectSelect';
 import React, { useState } from 'react';
+import { DataStructure} from '@/Models/DataStructureNex';
+
 
 
 interface IsAssociationSwitchProps {
@@ -27,7 +29,17 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
     const [selectedAssociationMode, setSelectedAssociationMode] = useState(register(`dataStructures.${index}.operations.${operationIndex}.oAssociationMode`).value);
 
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
-    const objectFields: DataStructure[] = selectedDataStructure ? selectedDataStructure.fields.filter(field => field.type === 'Object') : [];
+    //console.log("selected data structure is" + JSON.stringify(selectedDataStructure))
+    //const objectFields: DataStructure[] = selectedDataStructure ? selectedDataStructure.fields.filter(field => field.type === 'Object') : [];
+    const objectFields: DataStructure[] = selectedDataStructure ? selectedDataStructure.fields
+    .filter(field => field.type === 'Object' && field.nestedFields) // Filter fields that are of type 'Object' and have nestedFields
+    .map(field => ({
+        id: field.nestedFields.id, // Use the ID from nestedFields
+        givenName: field.nestedFields.name, // Use the name as the givenName from nestedFields
+        name: field.name, // Use the field's name
+        fields: field.nestedFields.fields, // Use the fields from nestedFields
+    }))
+    : [];
 
     React.useEffect(() => {
         setResponseObjectFields(objectFields);
@@ -37,7 +49,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
         <div className="p-1 flex items-center">
             <div>
                 <label>Association Mode: </label>
-                <Switch className
+                <Switch 
                     checked={selectedAssociationMode}
                     onCheckedChange={(checked) => handleAssociationModeChecked(checked, index, operationIndex, setValue, setSelectedAssociationMode)}
                 />

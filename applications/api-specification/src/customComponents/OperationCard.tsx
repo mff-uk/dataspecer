@@ -10,6 +10,7 @@ import StatusCodeSelect from './HttpStatusCode';
 import RequestBodyComponent from './RequestBodyComponent';
 import DataStructuresSelect from './DataStructSelect';
 import Association from '../customComponents/IsAssociationSwitch.tsx';
+import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 
 //import ResponseObjectComponent from './ResponseObjectSelect';
 
@@ -30,6 +31,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
+    const [isCollection, setIsCollection] = useState(false);
+
 
     return (
         <div key={operationIndex}>
@@ -61,6 +64,18 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}
                         setResponseObjectFields={setResponseObjectFields}
+                    />
+                    {/* Switch to treat Resource as a collection*/}
+                    <IsCollection
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        setValue={setValue}
+                        dataStructureName={selectedDataStructure}
+                        dataStructures={fetchedDataStructures}
+                        setSelectedResponseObject={() => {}}
+                        setResponseObjectFields={() => {}}
+                        setIsCollection={setIsCollection} // Pass the state setter function to IsCollection
                     />
                     {/* Operation Name */}
                     <OperationNameInput

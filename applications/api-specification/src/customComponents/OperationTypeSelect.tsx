@@ -1,95 +1,194 @@
+// import React, { useState } from 'react';
+// import RequestBodyComponent from './RequestBodyComponent';
+
+
+// interface OperationType {
+//     value: string;
+//     label: string;
+// }
+
+// /* Predefined http methods */
+// const httpMethods: OperationType[] =
+//     [
+//         { value: 'GET', label: 'GET' }, // retrieve data
+//         { value: 'POST', label: 'POST' }, // create new instance 
+//         { value: 'PUT', label: 'PUT' }, // update instance - particular fields/properties
+//         { value: 'PATCH', label: 'PATCH' }, // update WHOLE instance
+//         { value: 'DELETE', label: 'DELETE' }, // delete instance
+//     ];
+
+// /*
+//  * Props which are passed to the functional component -  OperationTypeSelect
+//  */
+// interface OperationTypeSelectProps {
+//     index: number;
+//     operationIndex: number;
+//     register: any;
+//     setValue: any;
+//     // collectionLogicEnabled: boolean;
+//     // singleResourceLogicEnabled: boolean;
+//     dataStructure: string;
+//     allDataStructures: DataStructure[]
+//     responseObjectFields?: any;
+//     selectedResponseObject?: string;
+//     isCollection: boolean
+
+// }
+
+// const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operationIndex, register, setValue, dataStructure, allDataStructures, responseObjectFields, selectedResponseObject}) => {
+
+
+//     // let path = ''
+
+//     // if (collectionLogicEnabled) {
+//     //     path = `dataStructures.${index}.collectionOperations.${operationIndex}.oType`;
+//     // }
+//     // else if (singleResourceLogicEnabled) {
+//     //     path = `dataStructures.${index}.singleResOperation.${operationIndex}.oType`;
+//     // }
+//     // else {
+//     //     path = `dataStructures.${index}.operations.${operationIndex}.oType`;
+//     // }
+
+//     const path = `dataStructures.${index}.operations.${operationIndex}.oType`;
+//     // Local state to track the selected operation type
+//     const [selectedOperationType, setSelectedOperationType] = useState('');
+
+//     // Event handler for changing the operation type
+//     const handleChange = (event) => {
+//         const selectedValue = event.target.value;
+//         setSelectedOperationType(selectedValue);
+//     };
+
+//     // return (
+//     //     <>
+//     //         {/* Operation Type Label*/}
+//     //         <label htmlFor = {`operationType_${index}_${operationIndex}`}>
+//     //             Operation Type:
+//     //             </label>
+//     //         <select
+//     //             id = {`operationType_${index}_${operationIndex}`}
+//     //             {...register(`dataStructures.${index}.collectionOperations.${operationIndex}.oType`)}
+//     //             required>
+//     //             <option value = "">
+//     //                 Select Operation Type
+//     //                 </option>
+//     //             {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
+//     //             {httpMethods.map(httpMethod => (
+//     //                 <option key = {httpMethod.value} value = {httpMethod.value}>
+//     //                     {httpMethod.label}
+//     //                 </option>
+//     //             ))}
+//     //         </select>
+//     //     </>
+//     // );
+
+//     //if (collectionLogicEnabled || singleResourceLogicEnabled) {
+//     return (
+//         <>
+//             {/* Operation Type Label*/}
+//             <label htmlFor={`operationType_${index}_${operationIndex}`}>
+//                 Operation Type:
+//             </label>
+//             <select className = "p-2"
+//                 id={`operationType_${index}_${operationIndex}`}
+//                 {...register(path)}
+//                 required
+//                 onChange={handleChange}
+//             >
+//                 <option value="">
+//                     Select Operation Type
+//                 </option>
+//                 {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
+//                 {httpMethods.map(httpMethod => (
+//                     <option key={httpMethod.value} value={httpMethod.value}>
+//                         {httpMethod.label}
+//                     </option>
+//                 ))}
+//             </select>
+
+//             {(selectedOperationType === 'POST' || selectedOperationType === 'PUT') && (
+//                 <RequestBodyComponent
+//                     index={index}
+//                     operationIndex={operationIndex}
+//                     register={register}
+//                     setValue={setValue}
+//                     dataStructure={selectedResponseObject ? selectedResponseObject : dataStructure}
+//                     //allDataStructures={allDataStructures}
+//                     allDataStructures={allDataStructures}
+//                     responseDataStructures = {responseObjectFields}
+//                      />
+//             )}
+//         </>
+//     );
+// };
+
+// export default OperationTypeSelect;
+
+
 import React, { useState } from 'react';
 import RequestBodyComponent from './RequestBodyComponent';
-
 
 interface OperationType {
     value: string;
     label: string;
 }
 
-/* Predefined http methods */
-const httpMethods: OperationType[] =
-    [
-        { value: 'GET', label: 'GET' }, // retrieve data
-        { value: 'POST', label: 'POST' }, // create new instance 
-        { value: 'PUT', label: 'PUT' }, // update instance - particular fields/properties
-        { value: 'PATCH', label: 'PATCH' }, // update WHOLE instance
-        { value: 'DELETE', label: 'DELETE' }, // delete instance
-    ];
+// Predefined http methods based on isCollection state
+const collectionHttpMethods: OperationType[] = [
+    { value: 'GET', label: 'GET - Retrieve a list of resources within the collection'},
+    { value: 'POST', label: 'POST - Create a new resource within the collection' },
+];
 
-/*
- * Props which are passed to the functional component -  OperationTypeSelect
- */
+const singleResourceHttpMethods: OperationType[] = [
+    { value: 'GET', label: 'GET - Retrieve the specific entity'},
+    { value: 'PUT', label: 'PUT - Full replacement of the entity' },
+    { value: 'PATCH', label: 'PATCH - Partially update existing entity' },
+    { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
+];
+
 interface OperationTypeSelectProps {
     index: number;
     operationIndex: number;
     register: any;
     setValue: any;
-    // collectionLogicEnabled: boolean;
-    // singleResourceLogicEnabled: boolean;
     dataStructure: string;
-    allDataStructures: DataStructure[]
-    responseObjectFields?: any;
+    allDataStructures: DataStructure[];
+    responseObjectFields?: DataStructure[];
     selectedResponseObject?: string;
-
+    isCollection: boolean; 
 }
 
-const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operationIndex, register, setValue, dataStructure, allDataStructures, responseObjectFields, selectedResponseObject}) => {
-
-
-    // let path = ''
-
-    // if (collectionLogicEnabled) {
-    //     path = `dataStructures.${index}.collectionOperations.${operationIndex}.oType`;
-    // }
-    // else if (singleResourceLogicEnabled) {
-    //     path = `dataStructures.${index}.singleResOperation.${operationIndex}.oType`;
-    // }
-    // else {
-    //     path = `dataStructures.${index}.operations.${operationIndex}.oType`;
-    // }
-
+const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
+    index,
+    operationIndex,
+    register,
+    setValue,
+    dataStructure,
+    allDataStructures,
+    responseObjectFields,
+    selectedResponseObject,
+    isCollection, 
+}) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oType`;
-    // Local state to track the selected operation type
+
     const [selectedOperationType, setSelectedOperationType] = useState('');
 
-    // Event handler for changing the operation type
     const handleChange = (event) => {
         const selectedValue = event.target.value;
         setSelectedOperationType(selectedValue);
     };
 
-    // return (
-    //     <>
-    //         {/* Operation Type Label*/}
-    //         <label htmlFor = {`operationType_${index}_${operationIndex}`}>
-    //             Operation Type:
-    //             </label>
-    //         <select
-    //             id = {`operationType_${index}_${operationIndex}`}
-    //             {...register(`dataStructures.${index}.collectionOperations.${operationIndex}.oType`)}
-    //             required>
-    //             <option value = "">
-    //                 Select Operation Type
-    //                 </option>
-    //             {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
-    //             {httpMethods.map(httpMethod => (
-    //                 <option key = {httpMethod.value} value = {httpMethod.value}>
-    //                     {httpMethod.label}
-    //                 </option>
-    //             ))}
-    //         </select>
-    //     </>
-    // );
+    const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
 
-    //if (collectionLogicEnabled || singleResourceLogicEnabled) {
     return (
         <>
-            {/* Operation Type Label*/}
+            {/* Operation Type Label */}
             <label htmlFor={`operationType_${index}_${operationIndex}`}>
                 Operation Type:
             </label>
-            <select className = "p-2"
+            <select
+                className="p-2"
                 id={`operationType_${index}_${operationIndex}`}
                 {...register(path)}
                 required
@@ -98,26 +197,32 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({ index, operat
                 <option value="">
                     Select Operation Type
                 </option>
-                {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
-                {httpMethods.map(httpMethod => (
+                {/* Render available options based on isCollection state */}
+                {availableHttpMethods.map(httpMethod => (
                     <option key={httpMethod.value} value={httpMethod.value}>
                         {httpMethod.label}
                     </option>
                 ))}
             </select>
 
-            {(selectedOperationType === 'POST' || selectedOperationType === 'PUT') && (
+            {/* Query Parameters Input */}
+            {isCollection && selectedOperationType === 'GET' && (
+                <h2>Query Parameter Logic</h2>
+            )}
+
+            {/* Request Body Component */}
+            {(isCollection && selectedOperationType === 'POST') ||
+            (!isCollection && selectedOperationType === 'PUT') ? (
                 <RequestBodyComponent
                     index={index}
                     operationIndex={operationIndex}
                     register={register}
                     setValue={setValue}
                     dataStructure={selectedResponseObject ? selectedResponseObject : dataStructure}
-                    //allDataStructures={allDataStructures}
                     allDataStructures={allDataStructures}
-                    responseDataStructures = {responseObjectFields}
-                     />
-            )}
+                    responseDataStructures={responseObjectFields}
+                />
+            ) : null}
         </>
     );
 };
