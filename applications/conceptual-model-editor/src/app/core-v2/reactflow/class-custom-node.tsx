@@ -5,7 +5,7 @@ import {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getIri, getModelIri, sourceModelOfEntity } from "../util/model-utils";
+import { sourceModelOfEntity } from "../util/model-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useMemo } from "react";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -37,13 +37,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     const model = useMemo(() => sourceModelOfEntity(cls.id, [...models.values()]), [models]);
 
-    const { name, description, iri, profileOf, originalProfile } = EntityProxy(cls, preferredLanguage);
-
-    const profileIri = useMemo(() => {
-        if (originalProfile) {
-            return getIri(originalProfile, getModelIri(sourceModelOfEntity(originalProfile.id, [...models.values()])));
-        } else return null;
-    }, [models]);
+    const { name, description, iri, profileOf } = EntityProxy(cls, preferredLanguage);
 
     const handleRemoveEntityFromActiveView = () => {
         aggregatorView.getActiveVisualModel()?.updateEntity(cls.id, { visible: false });
@@ -63,7 +57,6 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                 <ClassNodeHeader name={name} description={description} isProfileOf={profileOf} color={clr} />
 
                 <p className="overflow-x-clip text-gray-500">{iri}</p>
-                {profileIri && profileIri != iri && <p className="overflow-x-clip text-gray-500">o: {profileIri}</p>}
 
                 <div key={"attributes" + attributes.length} className="max-h-44 overflow-x-auto ">
                     <>
