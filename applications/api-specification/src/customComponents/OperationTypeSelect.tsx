@@ -128,20 +128,26 @@
 
 import React, { useState } from 'react';
 import RequestBodyComponent from './RequestBodyComponent';
+import pluralize from 'pluralize';
 
 interface OperationType {
     value: string;
     label: string;
 }
 
+const pluralizeAndNoSpaces = (word: string): string => {
+    const pluralWord = pluralize(word);
+    return pluralWord.replace(/\s+/g, '');
+};
+
 // Predefined http methods based on isCollection state
 const collectionHttpMethods: OperationType[] = [
-    { value: 'GET', label: 'GET - Retrieve a list of resources within the collection'},
+    { value: 'GET', label: 'GET - Retrieve a list of resources within the collection' },
     { value: 'POST', label: 'POST - Create a new resource within the collection' },
 ];
 
 const singleResourceHttpMethods: OperationType[] = [
-    { value: 'GET', label: 'GET - Retrieve the specific entity'},
+    { value: 'GET', label: 'GET - Retrieve the specific entity' },
     { value: 'PUT', label: 'PUT - Full replacement of the entity' },
     { value: 'PATCH', label: 'PATCH - Partially update existing entity' },
     { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
@@ -156,7 +162,9 @@ interface OperationTypeSelectProps {
     allDataStructures: DataStructure[];
     responseObjectFields?: DataStructure[];
     selectedResponseObject?: string;
-    isCollection: boolean; 
+    isCollection: boolean;
+    associationModeOn: boolean;
+
 }
 
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
@@ -168,7 +176,9 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     allDataStructures,
     responseObjectFields,
     selectedResponseObject,
-    isCollection, 
+    isCollection,
+    associationModeOn
+
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oType`;
 
@@ -205,22 +215,48 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 ))}
             </select>
 
-            {/* Query Parameters Input */}
-            {isCollection && selectedOperationType === 'GET' && (
-                <h2>Query Parameter Logic</h2>
-            )}
+
+            {
+                isCollection && associationModeOn && selectedResponseObject ? (
+                    <div>
+                        {/* <h2>Association mode combined with collection</h2> */}
+                        <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}</p>
+                    </div>
+                ) : !isCollection && associationModeOn && selectedResponseObject ? (
+                    <div>
+                        {/* <h2>Association mode combined with singleton</h2> */}
+                        <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{`{id}`}</p>
+                    </div>
+
+                ) : isCollection && !associationModeOn ? (
+                    
+                    <div>
+                        {/* <h2>Collection with main data structure</h2> */ }
+                        <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)} </p>
+                    </div>
+                ) : !isCollection && !associationModeOn ? (
+                    <div>
+                        {/* <h2>Singleton with main data structure</h2> */ }
+                        <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`} </p>
+                    </div>
+                    
+                ) : (
+                    <h2>Default case</h2>
+                )
+            }
 
             {/* Request Body Component */}
             {(isCollection && selectedOperationType === 'POST') ||
-            (!isCollection && selectedOperationType === 'PUT') ? (
+                (!isCollection && selectedOperationType === 'PATCH') ? (
                 <RequestBodyComponent
                     index={index}
                     operationIndex={operationIndex}
                     register={register}
                     setValue={setValue}
-                    dataStructure={selectedResponseObject ? selectedResponseObject : dataStructure}
+                    dataStructure={selectedResponseObject && associationModeOn ? selectedResponseObject : dataStructure}
                     allDataStructures={allDataStructures}
                     responseDataStructures={responseObjectFields}
+                    associationModeOn={associationModeOn}
                 />
             ) : null}
         </>

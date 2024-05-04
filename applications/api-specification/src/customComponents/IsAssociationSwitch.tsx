@@ -14,6 +14,7 @@ interface IsAssociationSwitchProps {
     dataStructures: DataStructure[]
     setSelectedResponseObject: React.Dispatch<React.SetStateAction<any>>;
     setResponseObjectFields: React.Dispatch<React.SetStateAction<DataStructure[]>>;
+    setAssociationModeOn: React.Dispatch<React.SetStateAction<boolean>>; 
 }
 
 
@@ -25,7 +26,7 @@ const handleAssociationModeChecked = (checked, index, operationIndex, setValue, 
 }
 
 /* LabeledInput - react functional component */
-const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex, register, setValue, dataStructureName, dataStructures, setSelectedResponseObject, setResponseObjectFields }) => {
+const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex, register, setValue, dataStructureName, dataStructures, setSelectedResponseObject, setResponseObjectFields, setAssociationModeOn }) => {
     const [selectedAssociationMode, setSelectedAssociationMode] = useState(register(`dataStructures.${index}.operations.${operationIndex}.oAssociationMode`).value);
 
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
@@ -44,6 +45,13 @@ const Association: React.FC<IsAssociationSwitchProps> = ({ index, operationIndex
     React.useEffect(() => {
         setResponseObjectFields(objectFields);
     }, [objectFields, setResponseObjectFields]);
+
+    React.useEffect(() => {
+        setSelectedAssociationMode(selectedAssociationMode);
+        setAssociationModeOn(selectedAssociationMode);
+
+}, [register(`dataStructures.${index}.operations.${operationIndex}.isCollection`).value, selectedAssociationMode, setAssociationModeOn, index, operationIndex]);
+    
     
     return (
         <div className="p-1 flex items-center">

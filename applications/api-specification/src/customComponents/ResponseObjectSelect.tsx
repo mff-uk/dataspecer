@@ -5,7 +5,7 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange,  isRe
     let path = '';
     
     path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-    console.log(dataStructures)
+    //console.log(dataStructures)
     
     const handleChange = (event) => {
         

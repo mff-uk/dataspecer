@@ -32,6 +32,9 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
     const [isCollection, setIsCollection] = useState(false);
+    const [associationModeOn, setAssotiationMode] = useState(false);
+
+    //console.log("Association in OperationCard has value " + associationModeOn)
 
 
     return (
@@ -56,15 +59,15 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                 <Card className="justify-end">
                     {/* Association Mode*/}
                     <Association
-                        index = {index}
-                        operationIndex = {operationIndex}
-                        register = {register}
-                        setValue = {setValue}
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        setValue={setValue}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}
-                        setResponseObjectFields={setResponseObjectFields}
-                    />
+                        setResponseObjectFields={setResponseObjectFields} 
+                        setAssociationModeOn = {setAssotiationMode}                    />
                     {/* Switch to treat Resource as a collection*/}
                     <IsCollection
                         index={index}
@@ -75,7 +78,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={() => {}}
                         setResponseObjectFields={() => {}}
-                        setIsCollection={setIsCollection} // Pass the state setter function to IsCollection
+                        setIsCollection={setIsCollection} 
                     />
                     {/* Operation Name */}
                     <OperationNameInput
@@ -95,6 +98,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         setValue={setValue}
                         responseObjectFields = {responseObjectFields}
                         selectedResponseObject = {selectedResponseObject}
+                        isCollection = {isCollection}
+                        associationModeOn = {associationModeOn}
                     //collectionLogicEnabled={collectionLogicEnabled}
                     //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />

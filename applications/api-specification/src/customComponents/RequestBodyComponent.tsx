@@ -73,6 +73,7 @@ interface RequestBodyProps {
     setValue: any;
     allDataStructures?: DataStructure[];
     responseDataStructures?: DataStructure[];
+    associationModeOn: boolean
 }
 
 const handleCheckboxChange = (fieldPath, checked, setValue) => {
@@ -86,27 +87,26 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     register,
     setValue,
     allDataStructures,
-    responseDataStructures
+    responseDataStructures, 
+    associationModeOn
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oRequestBody`;
 
     let targetDataStructure = allDataStructures?.find((ds) => ds.givenName === dataStructure);
 
+    //console.log(dataStructure)
+    //console.log("targetDataStructure is " + JSON.stringify(targetDataStructure))
     let responseDataStructure;
+
+    //console.log("associationModeOn req body "  + associationModeOn)
     
     if(responseDataStructures)
     {
-        //responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataField).classType);
         responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).givenName);
-        console.log("responseDataStructure is" + JSON.stringify(responseDataStructure))
+        //console.log("responseDataStructure is" + JSON.stringify(responseDataStructure))
     }
 
-    //console.log('Response Data Structure:', JSON.stringify(responseDataStructure));
-    //console.log('Target Data Structure:', JSON.stringify(targetDataStructure));
-    //console.log('Data Structure:', JSON.stringify(dataStructure));
-
-    if (responseDataStructure && responseDataStructure.fields) {
-        //console.log('Using responseDataStructure:', JSON.stringify(responseDataStructure));
+    if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
@@ -126,8 +126,10 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                 </Card>
             </div>
         );
-    } else if (targetDataStructure) {
-        console.log('Using targetDataStructure:', JSON.stringify(targetDataStructure));
+    } 
+
+    if (!associationModeOn && targetDataStructure) {
+        //console.log('Using targetDataStructure:', JSON.stringify(targetDataStructure));
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
