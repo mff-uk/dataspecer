@@ -16,16 +16,17 @@ export const IriInput = (props: {
     iriHasChanged: boolean;
     onChange?: () => void;
     disabled?: boolean;
+    withNameSuggestionsDisabled?: boolean;
 }) => {
     const { language: preferredLanguage } = useConfigurationContext();
-    const { name, baseIri, newIri, iriHasChanged, setNewIri, disabled } = props;
+    const { name, baseIri, newIri, iriHasChanged, setNewIri, disabled, withNameSuggestionsDisabled } = props;
     const absoluteIri = (new IRI(newIri ?? "").scheme()?.length ?? 0) > 0;
 
     const [workingWithAbsoluteIri, setWorkingWithAbsoluteIri] = useState(absoluteIri);
     const [shouldIncludeBaseIri, setShouldIncludeBaseIri] = useState(!absoluteIri ?? true);
 
     useEffect(() => {
-        if (iriHasChanged || workingWithAbsoluteIri) {
+        if (iriHasChanged || workingWithAbsoluteIri || withNameSuggestionsDisabled) {
             return;
         }
 

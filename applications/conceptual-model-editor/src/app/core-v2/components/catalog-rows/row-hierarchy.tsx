@@ -11,7 +11,7 @@ import {
     isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityRow } from "./entity-catalog-row";
+import { EntityRow } from "../../components/catalog-rows/entity-catalog-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";

@@ -3,8 +3,9 @@ import { useState } from "react";
 export const InputEntityRow = (props: { onClickHandler: (search: string) => void }) => {
     const [searchInput, setSearchInput] = useState("vozidlo");
     return (
-        <div className="flex flex-row justify-between whitespace-nowrap pb-1 hover:shadow">
+        <div className="flex flex-row justify-between whitespace-nowrap pb-1 pt-0.5 hover:shadow">
             <input
+                className="flex-grow "
                 onFocus={(e) => {
                     e.target.select();
                 }}

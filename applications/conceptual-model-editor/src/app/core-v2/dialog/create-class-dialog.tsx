@@ -5,12 +5,11 @@ import { useBaseDialog } from "../components/base-dialog";
 import { generateName } from "../util/name-utils";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
-import { getModelIri } from "../util/model-utils";
+import { getModelIri, filterInMemoryModels } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
-import { filterInMemoryModels } from "../util/utils";
-import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog-colored-model-header";
-import { DialogDetailRow } from "../components/dialog-detail-row";
+import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
+import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -68,42 +67,32 @@ export const useCreateClassDialog = () => {
                             onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
                         />
                         <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16 pt-2">
-                            <DialogDetailRow
-                                detailKey="name"
-                                detailValue={
-                                    <MultiLanguageInputForLanguageString
-                                        ls={newName}
-                                        setLs={setNewName}
-                                        defaultLang={preferredLanguage}
-                                        inputType="text"
-                                    />
-                                }
-                                style="text-xl"
-                            />
-                            <DialogDetailRow
-                                detailKey="iri"
-                                detailValue={
-                                    <IriInput
-                                        name={newName}
-                                        newIri={newIri}
-                                        setNewIri={(i) => setNewIri(i)}
-                                        iriHasChanged={iriHasChanged}
-                                        onChange={() => setIriHasChanged(true)}
-                                        baseIri={modelIri}
-                                    />
-                                }
-                            />
-                            <DialogDetailRow
-                                detailKey="description"
-                                detailValue={
-                                    <MultiLanguageInputForLanguageString
-                                        ls={newDescription}
-                                        setLs={setNewDescription}
-                                        defaultLang={preferredLanguage}
-                                        inputType="textarea"
-                                    />
-                                }
-                            />
+                            <DialogDetailRow2 detailKey="name" style="text-xl">
+                                <MultiLanguageInputForLanguageString
+                                    ls={newName}
+                                    setLs={setNewName}
+                                    defaultLang={preferredLanguage}
+                                    inputType="text"
+                                />
+                            </DialogDetailRow2>
+                            <DialogDetailRow2 detailKey="iri">
+                                <IriInput
+                                    name={newName}
+                                    newIri={newIri}
+                                    setNewIri={(i) => setNewIri(i)}
+                                    iriHasChanged={iriHasChanged}
+                                    onChange={() => setIriHasChanged(true)}
+                                    baseIri={modelIri}
+                                />
+                            </DialogDetailRow2>
+                            <DialogDetailRow2 detailKey="description">
+                                <MultiLanguageInputForLanguageString
+                                    ls={newDescription}
+                                    setLs={setNewDescription}
+                                    defaultLang={preferredLanguage}
+                                    inputType="textarea"
+                                />
+                            </DialogDetailRow2>
                         </div>
                     </div>
                 </div>

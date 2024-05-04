@@ -1,11 +1,8 @@
 import { useModelGraphContext } from "../context/model-context";
-import { EntitiesOfModel } from "./components/entities-of-model";
+import { EntitiesOfModel } from "./entities-of-model";
 
 export const EntityCatalog = () => {
     const { models } = useModelGraphContext();
-
-    // console.log("rerender");
-    // console.log("entity-catalog: in-return: mapping models to EntitiesOfModel");
 
     return (
         <>

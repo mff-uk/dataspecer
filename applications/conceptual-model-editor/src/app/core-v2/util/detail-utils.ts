@@ -72,6 +72,8 @@ export interface EntityDetailProxy {
         entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage | undefined;
         cardinality: string | undefined;
     };
+    canHaveAttributes: boolean;
+    canHaveDomainAndRange: boolean;
 }
 
 export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
@@ -109,6 +111,10 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
                 return getDomain();
             } else if (property === "range") {
                 return getRange();
+            } else if (property === "canHaveAttributes") {
+                return canHaveAttributes();
+            } else if (property === "canHaveDomainAndRange") {
+                return canHaveDomainAndRange();
             }
         },
     });
@@ -204,6 +210,10 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
         entity: c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept),
         cardinality: cardinalityToString(ends?.range?.cardinality),
     });
+
+    const canHaveAttributes = () => isSemanticModelClass(viewedEntity) || isSemanticModelClassUsage(viewedEntity);
+    const canHaveDomainAndRange = () =>
+        isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity);
 
     return proxy;
 };

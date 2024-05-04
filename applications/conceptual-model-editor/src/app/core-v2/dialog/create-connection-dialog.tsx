@@ -19,9 +19,9 @@ import { getModelIri } from "../util/model-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
 
 import { EntityProxy } from "../util/detail-utils";
-import { DialogDetailRow } from "../components/dialog-detail-row";
+import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { TwoWaySwitch } from "../components/input/two-way-switch";
-import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog-colored-model-header";
+import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 
 const AssociationComponent = (props: {
     from: string;
@@ -50,55 +50,46 @@ const AssociationComponent = (props: {
 
     return (
         <>
-            <DialogDetailRow
-                detailKey="name"
-                detailValue={
-                    <MultiLanguageInputForLanguageString
-                        ls={name}
-                        setLs={setName}
-                        inputType="text"
-                        defaultLang={preferredLanguage}
-                        disabled={props.disabled}
-                    />
-                }
-            />
-            <DialogDetailRow
-                detailKey="description"
-                detailValue={
-                    <MultiLanguageInputForLanguageString
-                        ls={description}
-                        setLs={setDescription}
-                        inputType="textarea"
-                        defaultLang={preferredLanguage}
-                        disabled={props.disabled}
-                    />
-                }
-            />
-            <DialogDetailRow
-                detailKey="cardinalities"
-                detailValue={
+            <DialogDetailRow2 detailKey="name">
+                <MultiLanguageInputForLanguageString
+                    ls={name}
+                    setLs={setName}
+                    inputType="text"
+                    defaultLang={preferredLanguage}
+                    disabled={props.disabled}
+                />
+            </DialogDetailRow2>
+            <DialogDetailRow2 detailKey="description">
+                <MultiLanguageInputForLanguageString
+                    ls={description}
+                    setLs={setDescription}
+                    inputType="textarea"
+                    defaultLang={preferredLanguage}
+                    disabled={props.disabled}
+                />
+            </DialogDetailRow2>
+            <DialogDetailRow2 detailKey="cardinalities">
+                <div>
                     <div>
-                        <div>
-                            cardinality-source:
-                            <CardinalityOptions
-                                disabled={props.disabled}
-                                group="source"
-                                defaultCard={source.cardinality}
-                                setCardinality={setSource}
-                            />
-                        </div>
-                        <div>
-                            cardinality-target:
-                            <CardinalityOptions
-                                disabled={props.disabled}
-                                group="target"
-                                defaultCard={target.cardinality}
-                                setCardinality={setTarget}
-                            />
-                        </div>
+                        cardinality-source:
+                        <CardinalityOptions
+                            disabled={props.disabled}
+                            group="source"
+                            defaultCard={source.cardinality}
+                            setCardinality={setSource}
+                        />
                     </div>
-                }
-            />
+                    <div>
+                        cardinality-target:
+                        <CardinalityOptions
+                            disabled={props.disabled}
+                            group="target"
+                            defaultCard={target.cardinality}
+                            setCardinality={setTarget}
+                        />
+                    </div>
+                </div>
+            </DialogDetailRow2>
         </>
     );
 };
@@ -141,7 +132,7 @@ export const useCreateConnectionDialog = () => {
         }
         const { language: preferredLanguage } = useConfigurationContext();
         const { classes2: c, profiles: p } = useClassesContext();
-        const { models } = useModelGraphContext();
+        const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
 
         const source = c.find((cls) => cls.id == sourceId) ?? p.find((prof) => prof.id == sourceId);
@@ -177,8 +168,18 @@ export const useCreateConnectionDialog = () => {
                 return;
             }
 
+            let result:
+                | {
+                      success: boolean;
+                      id?: undefined;
+                  }
+                | {
+                      success: true;
+                      id: string;
+                  }
+                | null = null;
             if (connectionType == "generalization") {
-                const result = createConnection(saveModel, {
+                result = createConnection(saveModel, {
                     type: "generalization",
                     child: sourceId,
                     parent: targetId,
@@ -186,7 +187,7 @@ export const useCreateConnectionDialog = () => {
                 } as GeneralizationConnectionType);
                 console.log("creating generalization ", result, target, source);
             } else if (connectionType == "association") {
-                const result = createConnection(saveModel, {
+                result = createConnection(saveModel, {
                     type: "association",
                     ends: [
                         {
@@ -205,7 +206,11 @@ export const useCreateConnectionDialog = () => {
                 console.log("creating association ", result, target, source);
             }
 
-            console.log("create-connection-dialog: created successfully(?)");
+            if (result && result.id) {
+                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: result.id });
+            }
+
+            console.log("create-connection-dialog: created successfully(?)", result);
             close();
         };
 
@@ -218,48 +223,36 @@ export const useCreateConnectionDialog = () => {
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
-                        <DialogDetailRow
-                            detailKey="source"
-                            detailValue={
-                                <span>
-                                    {sourceName} -- ({sourceId})
-                                </span>
-                            }
-                        />
-                        <DialogDetailRow
-                            detailKey="target"
-                            detailValue={
-                                <span>
-                                    {targetName} -- ({targetId})
-                                </span>
-                            }
-                        />
-                        <DialogDetailRow
-                            detailKey="iri"
-                            detailValue={
-                                <IriInput
-                                    name={association.name}
-                                    newIri={newIri}
-                                    setNewIri={(i) => setNewIri(i)}
-                                    iriHasChanged={iriHasChanged}
-                                    onChange={() => setIriHasChanged(true)}
-                                    baseIri={modelIri}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="source">
+                            <span>
+                                {sourceName} -- ({sourceId})
+                            </span>
+                        </DialogDetailRow2>
+                        <DialogDetailRow2 detailKey="target">
+                            <span>
+                                {targetName} -- ({targetId})
+                            </span>
+                        </DialogDetailRow2>
+                        <DialogDetailRow2 detailKey="iri">
+                            <IriInput
+                                name={association.name}
+                                newIri={newIri}
+                                setNewIri={(i) => setNewIri(i)}
+                                iriHasChanged={iriHasChanged}
+                                onChange={() => setIriHasChanged(true)}
+                                baseIri={modelIri}
+                            />
+                        </DialogDetailRow2>
                     </div>
 
                     <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
-                        <DialogDetailRow
-                            detailKey="type"
-                            detailValue={
-                                <TwoWaySwitch
-                                    choices={["association", "generalization"]}
-                                    selected={connectionType}
-                                    onChoiceSelected={(c) => setConnectionType(c as typeof connectionType)}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="type">
+                            <TwoWaySwitch
+                                choices={["association", "generalization"]}
+                                selected={connectionType}
+                                onChoiceSelected={(c) => setConnectionType(c as typeof connectionType)}
+                            />
+                        </DialogDetailRow2>
                     </div>
                     <div
                         className={

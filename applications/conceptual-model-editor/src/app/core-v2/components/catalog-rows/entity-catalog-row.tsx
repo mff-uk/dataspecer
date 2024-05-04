@@ -12,7 +12,7 @@ import {
 import { useConfigurationContext } from "../../context/configuration-context";
 import { EntityModel } from "@dataspecer/core-v2";
 import { EntityProxy } from "../../util/detail-utils";
-import { IriLink } from "./iri-link";
+import { IriLink } from "../iri-link";
 import {
     CreateProfileButton,
     DrawOnCanvasButton,
@@ -20,7 +20,7 @@ import {
     ModifyButton,
     OpenDetailButton,
     RemoveButton,
-} from "./buttons";
+} from "../buttons";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;

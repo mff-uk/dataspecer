@@ -5,8 +5,8 @@ import Link from "next/link";
 import Header from "../components/header";
 import { BackendPackageService, Package, ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { getOneNameFromLanguageString } from "../core-v2/util/utils";
 import { getRandomName } from "../utils/random-gen";
+import { getLocalizedStringFromLanguageString } from "../core-v2/util/language-utils";
 
 const Page = () => {
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
@@ -27,7 +27,7 @@ const Page = () => {
             userMetadata: {
                 name: { cs: packageNameCs },
                 tags: [],
-            }
+            },
         } as ResourceEditable);
         console.log(pkg);
         alert(`package ${pkg.iri}-${packageNameCs} logged to console`);
@@ -71,7 +71,8 @@ const Page = () => {
                         return (
                             <li key={"package-" + pkg.iri}>
                                 <Link href={"/core-v2" + query} className="hover:text-cyan-700">
-                                    core-v2: {getOneNameFromLanguageString(pkg.userMetadata.name ?? {})?.t || pkg.iri}
+                                    core-v2:{" "}
+                                    {getLocalizedStringFromLanguageString(pkg.userMetadata.label ?? {}) ?? pkg.iri}
                                 </Link>
                             </li>
                         );

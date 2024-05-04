@@ -12,6 +12,16 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { EntityDetailSupportedType } from "./detail-utils";
+
+export const isSemanticProfile = (
+    resource: EntityDetailSupportedType | null
+): resource is SemanticModelClassUsage | SemanticModelRelationshipUsage => {
+    if (isSemanticModelClassUsage(resource) || isSemanticModelRelationshipUsage(resource)) {
+        return true;
+    }
+    return false;
+};
 
 export const getTheOriginalProfiledEntity = (
     resource: SemanticModelClassUsage | SemanticModelRelationshipUsage,

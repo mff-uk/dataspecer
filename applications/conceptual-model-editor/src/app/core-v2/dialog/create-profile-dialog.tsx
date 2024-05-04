@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useBaseDialog } from "../components/base-dialog";
-import { filterInMemoryModels } from "../util/utils";
+import { filterInMemoryModels } from "../util/model-utils";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import {
     LanguageString,
@@ -23,11 +23,14 @@ import { DomainRangeComponent } from "./domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
-import { DialogDetailRow } from "../components/dialog-detail-row";
+import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog-colored-model-header";
+import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
+import { getIri, getModelIri } from "../util/model-utils";
+import { getRandomName } from "~/app/utils/random-gen";
+import { IriInput } from "../components/input/iri-input";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -66,9 +69,11 @@ export const useCreateProfileDialog = () => {
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
         const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
+        const [newIri, setNewIri] = useState(getIri(entity)?.concat("-profile") ?? getRandomName(8));
         const [changedFields, setChangedFields] = useState({
             name: false,
             description: false,
+            iri: false,
             domain: false,
             domainCardinality: false,
             range: false,
@@ -87,6 +92,7 @@ export const useCreateProfileDialog = () => {
         const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
 
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
+        const modelIri = getModelIri(model);
 
         const displayNameOfProfiledEntity = entity ? EntityProxy(entity, preferredLanguage).name : null;
 
@@ -103,6 +109,7 @@ export const useCreateProfileDialog = () => {
                 usageNote: usageNote,
                 description: changedFields.description ? description : null,
                 name: changedFields.name ? name : null,
+                iri: newIri,
             });
 
             if (classUsageId) {
@@ -120,6 +127,7 @@ export const useCreateProfileDialog = () => {
                 description: null,
                 cardinality: changedFields.domainCardinality ? newDomain.cardinality ?? null : null,
                 usageNote: null,
+                iri: null,
             } satisfies SemanticModelRelationshipEndUsage;
             const rangeEnd = {
                 concept: changedFields.range ? newRange.concept : null,
@@ -127,6 +135,7 @@ export const useCreateProfileDialog = () => {
                 description: changedFields.description ? description : null,
                 cardinality: changedFields.rangeCardinality ? newRange.cardinality ?? null : null,
                 usageNote: null,
+                iri: newIri,
             } as SemanticModelRelationshipEndUsage;
 
             let ends: SemanticModelRelationshipEndUsage[];
@@ -165,8 +174,10 @@ export const useCreateProfileDialog = () => {
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
-                        <DialogDetailRow detailKey="profiled entity" detailValue={displayNameOfProfiledEntity} />
-                        <DialogDetailRow detailKey="profiled entity type" detailValue={getEntityTypeString(entity)} />
+                        <DialogDetailRow2 detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow2>
+                        <DialogDetailRow2 detailKey="profiled entity type">
+                            {getEntityTypeString(entity)}
+                        </DialogDetailRow2>
                     </div>
                 </div>
                 <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
@@ -176,21 +187,36 @@ export const useCreateProfileDialog = () => {
                     ------------
                     */}
 
-                    <DialogDetailRow
-                        detailKey="name"
-                        detailValue={
-                            <MultiLanguageInputForLanguageStringWithOverride
-                                forElement="create-profile-name"
-                                ls={name}
-                                setLs={setName}
-                                defaultLang={preferredLanguage}
-                                inputType="text"
-                                withOverride={true}
-                                disabled={!changedFields.name}
-                                onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
-                            />
-                        }
-                    />
+                    <DialogDetailRow2 detailKey="name">
+                        <MultiLanguageInputForLanguageStringWithOverride
+                            forElement="create-profile-name"
+                            ls={name}
+                            setLs={setName}
+                            defaultLang={preferredLanguage}
+                            inputType="text"
+                            withOverride={true}
+                            disabled={!changedFields.name}
+                            onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
+                        />
+                    </DialogDetailRow2>
+
+                    {/* 
+                    -----------
+                    Profile IRI
+                    -----------
+                    */}
+
+                    <DialogDetailRow2 detailKey="iri">
+                        <IriInput
+                            name={name}
+                            newIri={newIri}
+                            setNewIri={(i) => setNewIri(i)}
+                            iriHasChanged={changedFields.iri}
+                            onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
+                            baseIri={modelIri}
+                            withNameSuggestionsDisabled={true}
+                        />
+                    </DialogDetailRow2>
 
                     {/* 
                     -------------------
@@ -198,21 +224,18 @@ export const useCreateProfileDialog = () => {
                     -------------------
                     */}
 
-                    <DialogDetailRow
-                        detailKey="description"
-                        detailValue={
-                            <MultiLanguageInputForLanguageStringWithOverride
-                                forElement="create-profile-description"
-                                ls={description}
-                                setLs={setDescription}
-                                defaultLang={preferredLanguage}
-                                inputType="textarea"
-                                withOverride={true}
-                                disabled={!changedFields.description}
-                                onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
-                            />
-                        }
-                    />
+                    <DialogDetailRow2 detailKey="description">
+                        <MultiLanguageInputForLanguageStringWithOverride
+                            forElement="create-profile-description"
+                            ls={description}
+                            setLs={setDescription}
+                            defaultLang={preferredLanguage}
+                            inputType="textarea"
+                            withOverride={true}
+                            disabled={!changedFields.description}
+                            onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
+                        />
+                    </DialogDetailRow2>
 
                     {/* 
                     ----------
@@ -220,17 +243,14 @@ export const useCreateProfileDialog = () => {
                     ----------
                     */}
 
-                    <DialogDetailRow
-                        detailKey="usage (profile?) note"
-                        detailValue={
-                            <MultiLanguageInputForLanguageString
-                                ls={usageNote}
-                                setLs={setUsageNote}
-                                defaultLang={preferredLanguage}
-                                inputType="textarea"
-                            />
-                        }
-                    />
+                    <DialogDetailRow2 detailKey="usage (profile?) note">
+                        <MultiLanguageInputForLanguageString
+                            ls={usageNote}
+                            setLs={setUsageNote}
+                            defaultLang={preferredLanguage}
+                            inputType="textarea"
+                        />
+                    </DialogDetailRow2>
 
                     {/* 
                     -----------------------------------------------------------
@@ -241,30 +261,27 @@ export const useCreateProfileDialog = () => {
                         <>
                             {changedFieldsAsStringArray.length > 0 && (
                                 <>
-                                    <DialogDetailRow
-                                        detailKey="warning"
-                                        detailValue={
-                                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                        }
-                                    />
+                                    <DialogDetailRow2 detailKey="warning">
+                                        <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                                    </DialogDetailRow2>
                                 </>
                             )}
                             <DomainRangeComponent
-                                enabledFields={changedFields}
-                                withCheckEnabling={true}
                                 entity={entity}
-                                range={newRange}
-                                setRange={setNewRange}
+                                enabledFields={changedFields}
                                 domain={newDomain}
                                 setDomain={setNewDomain}
                                 onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}
                                 onDomainCardinalityChange={() =>
                                     setChangedFields((prev) => ({ ...prev, domainCardinality: true }))
                                 }
+                                range={newRange}
+                                setRange={setNewRange}
                                 onRangeChange={() => setChangedFields((prev) => ({ ...prev, range: true }))}
                                 onRangeCardinalityChange={() =>
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
+                                withOverride={true}
                             />
                         </>
                     )}

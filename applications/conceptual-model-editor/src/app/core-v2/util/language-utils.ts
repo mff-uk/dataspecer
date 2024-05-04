@@ -43,7 +43,7 @@ export const getStringFromLanguageStringInLang = (languageString: LanguageString
     return [null, null] as const;
 };
 
-export const getLocalizedString = (
+const getLocalizedString = (
     stringAndLang: readonly [null, null] | readonly [string, string] | readonly [string, null]
 ) => {
     if (stringAndLang[0] == null && stringAndLang[1] == null) {

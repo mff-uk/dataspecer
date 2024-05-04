@@ -1,12 +1,11 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { useModelGraphContext } from "../context/model-context";
-import { DialogDetailRow } from "./dialog-detail-row";
-import { getModelDisplayName } from "../util/name-utils";
-import { SemanticModelClass, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityDetailSupportedType } from "../util/detail-utils";
-import { getLanguagesForNamedThing } from "../util/language-utils";
+import { useModelGraphContext } from "../../context/model-context";
+import { DialogDetailRow2 } from "./dialog-detail-row";
+import { getModelDisplayName } from "../../util/name-utils";
+import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { EntityDetailSupportedType } from "../../util/detail-utils";
+import { getLanguagesForNamedThing } from "../../util/language-utils";
 
 const filterInMemoryModels = (models: Map<string, EntityModel>) => {
     return [...models.entries()]
@@ -23,7 +22,7 @@ export const DialogColoredModelHeader = (props: { activeModel: EntityModel | nul
             className={style}
             style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel?.getId() ?? "") }}
         >
-            <DialogDetailRow detailKey="source model" detailValue={getModelDisplayName(activeModel)} />
+            <DialogDetailRow2 detailKey="source model">{getModelDisplayName(activeModel)}</DialogDetailRow2>
         </div>
     );
 };
@@ -82,25 +81,22 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
             className={style}
             style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel ?? "") }}
         >
-            <DialogDetailRow
-                detailKey="active model"
-                detailValue={
-                    <select
-                        className="w-full"
-                        name="models"
-                        id="models"
-                        onChange={(e) => onModelSelected(e.target.value)}
-                        defaultValue={activeModel}
-                    >
-                        {inMemoryModels.map(({ id, alias }) => (
-                            <option value={id}>
-                                {alias ? alias + ":" : null}
-                                {id}
-                            </option>
-                        ))}
-                    </select>
-                }
-            />
+            <DialogDetailRow2 detailKey="active model">
+                <select
+                    className="w-full"
+                    name="models"
+                    id="models"
+                    onChange={(e) => onModelSelected(e.target.value)}
+                    defaultValue={activeModel}
+                >
+                    {inMemoryModels.map(({ id, alias }) => (
+                        <option value={id}>
+                            {alias ? alias + ":" : null}
+                            {id}
+                        </option>
+                    ))}
+                </select>
+            </DialogDetailRow2>
         </div>
     );
 };

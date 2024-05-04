@@ -1,6 +1,6 @@
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import { useModelGraphContext } from "../context/model-context";
-import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getRandomName } from "../../utils/random-gen";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { useDownload } from "../util/download";
+import { useDownload } from "../features/export/download";
 import { usePackageSearch } from "../util/package-search";
 import { useQueryParams } from "../util/query-params";
 
@@ -172,13 +172,9 @@ export const ExportManagement = () => {
                         const generatedLightweightOwl = await generate(
                             Object.values(aggregatorView.getEntities())
                                 .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
-                                .filter(
-                                    (
-                                        entityOrNull
-                                    ): entityOrNull is /* FIXME: jak dostat spravnej typ, tzn SemEntity a ne Entity? */ SemanticModelEntity => {
-                                        return entityOrNull != null;
-                                    }
-                                )
+                                .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
+                                    return entityOrNull != null;
+                                })
                         );
                         download(generatedLightweightOwl, `dscme-lw-ontology-${getRandomName(8)}.ttl`, "text/plain");
                     }}

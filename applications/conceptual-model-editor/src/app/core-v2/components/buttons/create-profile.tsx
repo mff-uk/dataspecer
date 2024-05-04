@@ -4,7 +4,9 @@ export const CreateProfileButton = (props: { onClickHandler?: () => void }) => {
         <button
             className={`hover:bg-teal-400 ${onClickHandler ? "" : "opacity-30"}`}
             title={
-                onClickHandler ? "" : "don't make profiles here, possibly find the entity and make the profile there"
+                onClickHandler
+                    ? "create profile"
+                    : "don't make profiles here, possibly find the entity and make the profile there"
             }
             onClick={onClickHandler}
         >

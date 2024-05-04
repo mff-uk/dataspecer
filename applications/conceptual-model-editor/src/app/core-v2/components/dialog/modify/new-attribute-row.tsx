@@ -1,14 +1,13 @@
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { EntityProxy } from "../util/detail-utils";
-import { useConfigurationContext } from "../context/configuration-context";
+import { EntityProxy } from "../../../util/detail-utils";
+import { useConfigurationContext } from "../../../context/configuration-context";
 import {
-    SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getLocalizedStringFromLanguageString } from "../util/language-utils";
-import { getProfiledEntity } from "../util/profile-utils";
-import { useClassesContext } from "../context/classes-context";
+import { getLocalizedStringFromLanguageString } from "../../../util/language-utils";
+import { getProfiledEntity } from "../../../util/profile-utils";
+import { useClassesContext } from "../../../context/classes-context";
 
 export const NewRemovableAttributeRow = (props: {
     attribute: Partial<Omit<SemanticModelRelationship, "type">>;

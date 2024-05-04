@@ -4,7 +4,11 @@ import {
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    SemanticModelRelationshipUsage,
+    isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { EntityDetailSupportedType } from "./detail-utils";
 
 export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 
@@ -36,11 +40,13 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
     }
 };
 
-export const temporaryDomainRangeHelper = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
+export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) => {
     if (isSemanticModelRelationship(entity)) {
         return getDomainAndRange(entity);
-    } else {
+    } else if (isSemanticModelRelationshipUsage(entity)) {
         const e = entity as SemanticModelRelationship & SemanticModelRelationshipUsage;
         return getDomainAndRange(e);
+    } else {
+        return null;
     }
 };

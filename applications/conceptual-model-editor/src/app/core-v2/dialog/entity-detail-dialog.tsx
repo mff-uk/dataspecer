@@ -5,7 +5,7 @@ import {
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
-import { IriLink } from "../catalog/components/iri-link";
+import { IriLink } from "../components/iri-link";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -18,9 +18,9 @@ import { useModelGraphContext } from "../context/model-context";
 import { capFirst } from "../util/name-utils";
 import { ResourceDetailClickThrough } from "../components/entity-detail-dialog-clicktrough-component";
 import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
-import { DialogDetailRow } from "../components/dialog-detail-row";
+import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { ScrollableResourceDetailClickThroughList } from "../components/scrollable-detail-click-through";
-import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dialog-colored-model-header";
+import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dialog/dialog-colored-model-header";
 
 type EntityDialogSupportedType =
     | SemanticModelClass
@@ -129,117 +129,88 @@ export const useEntityDetailDialog = () => {
                     <div className="grid grid-cols-[20%_80%]  pl-8">
                         <>
                             {profileOf && (
-                                <DialogDetailRow
-                                    detailKey="direct profile of"
-                                    detailValue={
-                                        <ResourceDetailClickThrough
-                                            resource={profileOf}
-                                            onClick={() => handleResourceClickThroughClicked(profileOf)}
-                                            withIri={true}
-                                        />
-                                    }
-                                />
+                                <DialogDetailRow2 detailKey="direct profile of">
+                                    <ResourceDetailClickThrough
+                                        resource={profileOf}
+                                        onClick={() => handleResourceClickThroughClicked(profileOf)}
+                                        withIri={true}
+                                    />
+                                </DialogDetailRow2>
                             )}
                             {originalProfile && originalProfile.id != profileOf?.id && (
-                                <DialogDetailRow
-                                    detailKey="the original profiled entity"
-                                    detailValue={
-                                        <ResourceDetailClickThrough
-                                            resource={originalProfile}
-                                            onClick={() => handleResourceClickThroughClicked(originalProfile)}
-                                            withIri={true}
-                                        />
-                                    }
-                                />
+                                <DialogDetailRow2 detailKey="the original profiled entity">
+                                    <ResourceDetailClickThrough
+                                        resource={originalProfile}
+                                        onClick={() => handleResourceClickThroughClicked(originalProfile)}
+                                        withIri={true}
+                                    />
+                                </DialogDetailRow2>
                             )}
                             {profiledBy.length > 0 && (
-                                <DialogDetailRow
-                                    detailKey="profiled by"
-                                    detailValue={
-                                        <ScrollableResourceDetailClickThroughList
-                                            resources={profiledBy}
-                                            onResourceClicked={(resource) =>
-                                                handleResourceClickThroughClicked(resource)
-                                            }
-                                        />
-                                    }
-                                />
+                                <DialogDetailRow2 detailKey="profiled by">
+                                    <ScrollableResourceDetailClickThroughList
+                                        resources={profiledBy}
+                                        onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
+                                    />
+                                </DialogDetailRow2>
                             )}
                         </>
                         {specializationOf.length > 0 && (
-                            <DialogDetailRow
-                                detailKey="specialization of"
-                                detailValue={
-                                    <ScrollableResourceDetailClickThroughList
-                                        resources={specializationOf}
-                                        onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
-                                    />
-                                }
-                            />
+                            <DialogDetailRow2 detailKey="specialization of">
+                                <ScrollableResourceDetailClickThroughList
+                                    resources={specializationOf}
+                                    onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
+                                />
+                            </DialogDetailRow2>
                         )}
                         {generalizationOf.length > 0 && (
-                            <DialogDetailRow
-                                detailKey="generalization of"
-                                detailValue={
-                                    <ScrollableResourceDetailClickThroughList
-                                        resources={generalizationOf}
-                                        onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
-                                    />
-                                }
-                            />
+                            <DialogDetailRow2 detailKey="generalization of">
+                                <ScrollableResourceDetailClickThroughList
+                                    resources={generalizationOf}
+                                    onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
+                                />
+                            </DialogDetailRow2>
                         )}
                     </div>
                 </div>
                 <div className="grid grid-cols-[20%_80%] gap-y-3 bg-slate-100 pl-8">
-                    <DialogDetailRow detailKey="type" detailValue={getEntityTypeString(viewedEntity)} />
-                    <DialogDetailRow detailKey="description" detailValue={description} />
+                    <DialogDetailRow2 detailKey="type">{getEntityTypeString(viewedEntity)}</DialogDetailRow2>
+                    <DialogDetailRow2 detailKey="description">{description}</DialogDetailRow2>
                     {attributes.length > 0 && (
-                        <DialogDetailRow
-                            detailKey="attributes"
-                            detailValue={
-                                <ScrollableResourceDetailClickThroughList
-                                    resources={attributes}
-                                    onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="attributes">
+                            <ScrollableResourceDetailClickThroughList
+                                resources={attributes}
+                                onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
+                            />
+                        </DialogDetailRow2>
                     )}
 
                     {attributeProfiles.length > 0 && (
-                        <DialogDetailRow
-                            detailKey="attribute profiles"
-                            detailValue={
-                                <ScrollableResourceDetailClickThroughList
-                                    resources={attributeProfiles}
-                                    onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="attribute profiles">
+                            <ScrollableResourceDetailClickThroughList
+                                resources={attributeProfiles}
+                                onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
+                            />
+                        </DialogDetailRow2>
                     )}
-                    {usageNote && <DialogDetailRow detailKey="usage note" detailValue={usageNote} />}
+                    {usageNote && <DialogDetailRow2 detailKey="usage note">{usageNote}</DialogDetailRow2>}
                     {domain.entity && (
-                        <DialogDetailRow
-                            detailKey="domain"
-                            detailValue={
-                                <ResourceDetailClickThrough
-                                    resource={domain.entity}
-                                    onClick={() => handleResourceClickThroughClicked(domain.entity!)}
-                                    withCardinality={domain.cardinality}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="domain">
+                            <ResourceDetailClickThrough
+                                resource={domain.entity}
+                                onClick={() => handleResourceClickThroughClicked(domain.entity!)}
+                                withCardinality={domain.cardinality}
+                            />
+                        </DialogDetailRow2>
                     )}
                     {range.entity && (
-                        <DialogDetailRow
-                            detailKey="range"
-                            detailValue={
-                                <ResourceDetailClickThrough
-                                    resource={range.entity}
-                                    onClick={() => handleResourceClickThroughClicked(range.entity!)}
-                                    withCardinality={range.cardinality}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="range">
+                            <ResourceDetailClickThrough
+                                resource={range.entity}
+                                onClick={() => handleResourceClickThroughClicked(range.entity!)}
+                                withCardinality={range.cardinality}
+                            />
+                        </DialogDetailRow2>
                     )}
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">

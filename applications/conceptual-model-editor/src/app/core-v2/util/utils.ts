@@ -1,29 +1,3 @@
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { LanguageString } from "@dataspecer/core/core";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-
-export const getOneNameFromLanguageString = (ls: LanguageString) => {
-    const key = Object.keys(ls).at(0);
-    if (key) {
-        return { t: ls[key]!, l: key };
-    } else {
-        console.log("get-one-name-from-ls: no name found", ls);
-        return null;
-    }
-};
-
-export const isAttribute = (relationship: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
-    return (
-        (relationship.ends[1] && relationship.ends[1].concept == null) ||
-        (relationship.ends[1] && relationship.ends[1].concept == "") // FIXME: tadyto se deje, protoze neumim vytvorit atribut, ktery by mel jako concept null
-    );
-};
-export const filterInMemoryModels = (models: EntityModel[]) => {
-    return models.filter((m): m is InMemorySemanticModel => m instanceof InMemorySemanticModel);
-};
-
 export const shortenStringTo = (modelId: string | null, length: number = 20) => {
     if (!modelId) {
         return modelId;
@@ -38,11 +12,6 @@ export const cardinalityToString = (cardinality: [number, number | null] | undef
     }
     return `[${cardinality.at(0) ?? "*"}..${cardinality[1] ?? "*"}]`;
 };
-
-// Helper function to extract possible values of a union type
-export function getPossibleValues<T extends string>(input: T): T[] {
-    return [input]; // Return an array containing the input value
-}
 
 // --- dialogs --- --- ---
 

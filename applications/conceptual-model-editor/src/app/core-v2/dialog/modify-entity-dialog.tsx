@@ -5,7 +5,6 @@ import {
     isSemanticModelRelationship,
     isSemanticModelClass,
     SemanticModelRelationshipEnd,
-    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
@@ -23,20 +22,26 @@ import {
 import { useConfigurationContext } from "../context/configuration-context";
 import { getIri, getModelIri } from "../util/model-utils";
 import { IriInput } from "../components/input/iri-input";
-import { AddAttributesComponent } from "../components/attributes-component";
+import { AddAttributesComponent } from "../components/dialog/attributes-component";
 import { DomainRangeComponent } from "./domain-range-component";
 import { createRelationship, deleteEntity, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { createRelationshipUsage, modifyClassUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
-import { RemovableAttributeProfileRow, RemovableAttributeRow } from "../components/removable-attribute-row";
-import { DialogColoredModelHeader } from "../components/dialog-colored-model-header";
-import { DialogDetailRow } from "../components/dialog-detail-row";
+import {
+    RemovableAttributeProfileRow,
+    RemovableAttributeRow,
+} from "../components/dialog/modify/removable-attribute-row";
+import { DialogColoredModelHeader } from "../components/dialog/dialog-colored-model-header";
+import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
-import { NewRemovableAttributeProfileRow, NewRemovableAttributeRow } from "../components/new-attribute-row";
+import {
+    NewRemovableAttributeProfileRow,
+    NewRemovableAttributeRow,
+} from "../components/dialog/modify/new-attribute-row";
+import { isSemanticProfile } from "../util/profile-utils";
+import { EntityProxy } from "../util/detail-utils";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -56,6 +61,7 @@ export const useModifyEntityDialog = () => {
         setModel(null as unknown as InMemorySemanticModel);
         close();
     };
+
     const localOpen = (entity: SupportedTypes, model: InMemorySemanticModel | null = null) => {
         if (!model) {
             localClose();
@@ -68,16 +74,19 @@ export const useModifyEntityDialog = () => {
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
 
-        const { modifyRelationship, updateEntityUsage, aggregatorView } = useModelGraphContext();
+        const { modifyRelationship, updateEntityUsage } = useModelGraphContext();
 
         const currentIri = getIri(modifiedEntity);
 
         const [name2, setName2] = useState(getNameLanguageString(modifiedEntity) ?? {});
-        const [description2, setDescription2] = useState(getDescriptionLanguageString(modifiedEntity) ?? {}); // descriptionLanguageString ?? modifiedEntity.description ?? {});
+        const [description2, setDescription2] = useState(getDescriptionLanguageString(modifiedEntity) ?? {});
         const [usageNote2, setUsageNote2] = useState<LanguageString>(
-            isSemanticModelRelationshipUsage(modifiedEntity) ? modifiedEntity.usageNote ?? {} : {}
+            isSemanticProfile(modifiedEntity) ? modifiedEntity.usageNote ?? {} : {}
         );
-        const isProfile = isSemanticModelClassUsage(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity);
+
+        const { attributes, attributeProfiles, canHaveAttributes, canHaveDomainAndRange } = EntityProxy(modifiedEntity);
+
+        const isProfile = isSemanticProfile(modifiedEntity);
 
         const [newIri, setNewIri] = useState(currentIri ?? undefined);
         const [changedFields, setChangedFields] = useState({
@@ -91,10 +100,7 @@ export const useModifyEntityDialog = () => {
             rangeCardinality: false,
         });
 
-        const currentDomainAndRange =
-            isSemanticModelRelationship(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity)
-                ? temporaryDomainRangeHelper(modifiedEntity)
-                : null;
+        const currentDomainAndRange = canHaveDomainAndRange ? temporaryDomainRangeHelper(modifiedEntity) : null;
 
         const [newDomain, setNewDomain] = useState(
             currentDomainAndRange?.domain ?? ({} as SemanticModelRelationshipEnd)
@@ -103,27 +109,12 @@ export const useModifyEntityDialog = () => {
 
         const modelIri = getModelIri(model);
 
-        const { relationships: r, profiles: p } = useClassesContext();
-        const attributes = r
-            .filter(isSemanticModelAttribute)
-            .filter((v) => getDomainAndRange(v)?.domain.concept == modifiedEntity.id);
-        const attributeProfiles = p
-            .filter(isSemanticModelRelationshipUsage)
-            .filter((a) =>
-                isSemanticModelAttributeUsage(a as SemanticModelRelationshipUsage & SemanticModelRelationship)
-            )
-            .filter((v) => temporaryDomainRangeHelper(v)?.domain.concept == modifiedEntity.id);
-
         const [wantsToAddNewAttributes, setWantsToAddNewAttributes] = useState(false);
         const [newAttributes, setNewAttributes] = useState<Partial<Omit<SemanticModelRelationship, "type">>[]>([]);
         const [newAttributeProfiles, setNewAttributeProfiles] = useState<
             (Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">)[]
         >([]);
         const [toBeRemovedAttributes, setToBeRemovedAttributes] = useState<string[]>([]);
-
-        const canHaveAttributes = isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity);
-        const canHaveDomainAndRange =
-            isSemanticModelRelationship(modifiedEntity) || isSemanticModelRelationshipUsage(modifiedEntity);
 
         const changedFieldsAsStringArray = Object.entries(changedFields)
             .filter(([key, _]) => key != "name" && key != "description" && key != "iri" && key != "usageNote")
@@ -133,23 +124,20 @@ export const useModifyEntityDialog = () => {
         const handleSaveClassOrClassProfile = (m: InMemorySemanticModel) => {
             // TODO: something broken with attribute profiles
             const operations = [];
-            if (isSemanticModelClass(modifiedEntity)) {
-                let c = {} as Partial<Omit<SemanticModelClass, "type" | "id">>;
-                c = changedFields.name ? { ...c, name: name2, iri: newIri } : c;
-                c = changedFields.description ? { ...c, description: description2 } : c;
-                c = changedFields.iri ? { ...c, iri: newIri } : c;
+            let changedCls = {} as Partial<
+                Omit<SemanticModelClass & SemanticModelClassUsage, "type" | "usageOf" | "id">
+            >;
+            changedCls = changedFields.name ? { ...changedCls, name: name2, iri: newIri } : changedCls;
+            changedCls = changedFields.description ? { ...changedCls, description: description2 } : changedCls;
+            changedCls = changedFields.iri ? { ...changedCls, iri: newIri } : changedCls;
 
-                if (Object.entries(c).length > 0) {
-                    operations.push(modifyClass(modifiedEntity.id, c));
-                }
+            if (isSemanticModelClass(modifiedEntity) && Object.entries(changedCls).length > 0) {
+                operations.push(modifyClass(modifiedEntity.id, changedCls));
             } else {
-                let cu = {} as Partial<Omit<SemanticModelClassUsage, "type" | "usageOf">>;
-                cu = changedFields.name ? { ...cu, name: name2 } : cu;
-                cu = changedFields.description ? { ...cu, description: description2 } : cu;
-                cu = changedFields.usageNote ? { ...cu, usageNote: usageNote2 } : cu;
+                changedCls = changedFields.usageNote ? { ...changedCls, usageNote: usageNote2 } : changedCls;
 
-                if (Object.entries(cu).length > 0) {
-                    operations.push(modifyClassUsage(modifiedEntity.id, cu));
+                if (Object.entries(changedCls).length > 0) {
+                    operations.push(modifyClassUsage(modifiedEntity.id, changedCls));
                 }
             }
 
@@ -168,28 +156,34 @@ export const useModifyEntityDialog = () => {
             executeMultipleOperations(m, operations);
         };
 
-        const handleSaveRelationship = (entity: SemanticModelRelationship, m: InMemorySemanticModel) => {
-            const domainCard =
-                newDomain.cardinality != currentDomainAndRange?.domain?.cardinality
-                    ? newDomain.cardinality
-                    : currentDomainAndRange?.domain?.cardinality;
-            const rangeCard =
-                newRange.cardinality != currentDomainAndRange?.range?.cardinality
-                    ? newRange.cardinality
-                    : currentDomainAndRange?.range?.cardinality;
+        const getDomainAndRangeEndChanges = () => {
+            let de = {} as Partial<
+                Omit<SemanticModelRelationshipEnd & SemanticModelRelationshipEndUsage, "type" | "id">
+            >;
+            de = changedFields.domainCardinality ? { ...de, cardinality: newDomain.cardinality } : de;
+            de = changedFields.domain ? { ...de, concept: newDomain.concept } : de;
+
+            let re = {} as Partial<
+                Omit<SemanticModelRelationshipEnd & SemanticModelRelationshipEndUsage, "type" | "id">
+            >;
+            re = changedFields.name ? { ...re, name: name2 } : re;
+            re = changedFields.description ? { ...re, description: description2 } : re;
+            re = changedFields.iri ? { ...re, iri: newIri } : re;
+            re = changedFields.range ? { ...re, concept: newRange.concept } : re;
+            re = changedFields.rangeCardinality ? { ...re, cardinality: newRange.cardinality } : re;
+            return { domainChanges: de, rangeChanges: re };
+        };
+
+        const handleSaveRelationship = (m: InMemorySemanticModel) => {
+            const { domainChanges, rangeChanges } = getDomainAndRangeEndChanges();
 
             const domainEnd = {
                 ...currentDomainAndRange!.domain,
-                concept: newDomain.concept ?? currentDomainAndRange?.domain.concept ?? null,
-                cardinality: domainCard,
+                ...domainChanges,
             } as SemanticModelRelationshipEnd;
             const rangeEnd = {
                 ...currentDomainAndRange!.range,
-                concept: newRange.concept ?? currentDomainAndRange?.range.concept ?? null,
-                name: name2,
-                iri: newIri ?? null,
-                description: description2,
-                cardinality: rangeCard,
+                ...rangeChanges,
             } as SemanticModelRelationshipEnd;
 
             let ends: SemanticModelRelationshipEnd[];
@@ -202,23 +196,20 @@ export const useModifyEntityDialog = () => {
             const result = modifyRelationship(m, modifiedEntity.id, {
                 ends,
             });
+            console.log("modifying relationship: ", modifiedEntity.id, ends);
             return result;
         };
 
         const handleSaveRelationshipProfile = (m: InMemorySemanticModel) => {
+            const { domainChanges, rangeChanges } = getDomainAndRangeEndChanges();
+
             const domainEnd = {
-                concept: changedFields.domain ? newDomain.concept : null,
-                name: null,
-                description: null,
-                cardinality: changedFields.domain ? newDomain.cardinality : null,
-                usageNote: null,
+                ...currentDomainAndRange?.domain,
+                ...domainChanges,
             } as SemanticModelRelationshipEndUsage;
             const rangeEnd = {
-                concept: changedFields.range ? newRange.concept : null,
-                name: changedFields.name ? name2 : null,
-                description: changedFields.description ? description2 : null,
-                cardinality: changedFields.range ? newRange.cardinality : null,
-                usageNote: changedFields.usageNote ? usageNote2 : null,
+                ...currentDomainAndRange?.range,
+                ...rangeChanges,
             } as SemanticModelRelationshipEndUsage;
 
             let ends: SemanticModelRelationshipEndUsage[];
@@ -232,7 +223,16 @@ export const useModifyEntityDialog = () => {
                 usageNote: changedFields.usageNote ? usageNote2 : null,
                 ends,
             });
-            console.log(res, "relationship profile updated", usageNote2, description2, name2, newRange, newDomain);
+            console.log(
+                res,
+                "relationship profile updated",
+                ends,
+                usageNote2,
+                description2,
+                name2,
+                newRange,
+                newDomain
+            );
         };
 
         const handleSaveButtonClicked = () => {
@@ -246,7 +246,7 @@ export const useModifyEntityDialog = () => {
             if (isSemanticModelClass(modifiedEntity) || isSemanticModelClassUsage(modifiedEntity)) {
                 handleSaveClassOrClassProfile(model);
             } else if (isSemanticModelRelationship(modifiedEntity)) {
-                handleSaveRelationship(modifiedEntity, model);
+                handleSaveRelationship(model);
             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
                 handleSaveRelationshipProfile(model);
             }
@@ -262,22 +262,19 @@ export const useModifyEntityDialog = () => {
                         style="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16 pb-4 pt-2"
                     />
                     <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
-                        <DialogDetailRow
-                            detailKey="name"
-                            detailValue={
-                                <MultiLanguageInputForLanguageStringWithOverride
-                                    style="text-xl"
-                                    forElement="modify-entity-name"
-                                    inputType="text"
-                                    ls={name2}
-                                    setLs={setName2}
-                                    defaultLang={preferredLanguage}
-                                    disabled={isProfile && !changedFields.name}
-                                    onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
-                                    withOverride={isProfile}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="name">
+                            <MultiLanguageInputForLanguageStringWithOverride
+                                style="text-xl"
+                                forElement="modify-entity-name"
+                                inputType="text"
+                                ls={name2}
+                                setLs={setName2}
+                                defaultLang={preferredLanguage}
+                                disabled={isProfile && !changedFields.name}
+                                onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
+                                withOverride={isProfile}
+                            />
+                        </DialogDetailRow2>
 
                         {/* 
                         ---------
@@ -285,7 +282,7 @@ export const useModifyEntityDialog = () => {
                         ---------
                         */}
 
-                        <DialogDetailRow detailKey="id" detailValue={modifiedEntity.id} />
+                        <DialogDetailRow2 detailKey="id">{modifiedEntity.id}</DialogDetailRow2>
 
                         {/* 
                         ----------
@@ -293,21 +290,16 @@ export const useModifyEntityDialog = () => {
                         ----------
                         */}
 
-                        {!isProfile && (
-                            <DialogDetailRow
-                                detailKey="iri"
-                                detailValue={
-                                    <IriInput
-                                        name={name2}
-                                        iriHasChanged={changedFields.iri}
-                                        newIri={newIri}
-                                        setNewIri={(i) => setNewIri(i)}
-                                        onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
-                                        baseIri={modelIri}
-                                    />
-                                }
+                        <DialogDetailRow2 detailKey="iri">
+                            <IriInput
+                                name={name2}
+                                iriHasChanged={changedFields.iri}
+                                newIri={newIri}
+                                setNewIri={(i) => setNewIri(i)}
+                                onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
+                                baseIri={modelIri}
                             />
-                        )}
+                        </DialogDetailRow2>
 
                         {/* 
                         ------------------
@@ -315,35 +307,29 @@ export const useModifyEntityDialog = () => {
                         ------------------
                         */}
 
-                        <DialogDetailRow
-                            detailKey="description"
-                            detailValue={
-                                <MultiLanguageInputForLanguageStringWithOverride
-                                    forElement="modify-entity-description"
-                                    inputType="textarea"
-                                    ls={description2}
-                                    setLs={setDescription2}
-                                    defaultLang={preferredLanguage}
-                                    disabled={isProfile && !changedFields.description}
-                                    onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
-                                    withOverride={isProfile}
-                                />
-                            }
-                        />
+                        <DialogDetailRow2 detailKey="description">
+                            <MultiLanguageInputForLanguageStringWithOverride
+                                forElement="modify-entity-description"
+                                inputType="textarea"
+                                ls={description2}
+                                setLs={setDescription2}
+                                defaultLang={preferredLanguage}
+                                disabled={isProfile && !changedFields.description}
+                                onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
+                                withOverride={isProfile}
+                            />
+                        </DialogDetailRow2>
 
                         {isProfile && (
-                            <DialogDetailRow
-                                detailKey="usage (profile?) note"
-                                detailValue={
-                                    <MultiLanguageInputForLanguageString
-                                        inputType="text"
-                                        ls={usageNote2}
-                                        setLs={setUsageNote2}
-                                        defaultLang={preferredLanguage}
-                                        onChange={() => setChangedFields((prev) => ({ ...prev, usageNote: true }))}
-                                    />
-                                }
-                            />
+                            <DialogDetailRow2 detailKey="usage (profile?) note">
+                                <MultiLanguageInputForLanguageString
+                                    inputType="text"
+                                    ls={usageNote2}
+                                    setLs={setUsageNote2}
+                                    defaultLang={preferredLanguage}
+                                    onChange={() => setChangedFields((prev) => ({ ...prev, usageNote: true }))}
+                                />
+                            </DialogDetailRow2>
                         )}
 
                         {/* 
@@ -354,59 +340,51 @@ export const useModifyEntityDialog = () => {
 
                         {canHaveAttributes && (
                             <>
-                                <DialogDetailRow
-                                    detailKey="attributes"
-                                    detailValue={
-                                        <>
-                                            {attributes.map((v) => (
-                                                <RemovableAttributeRow
-                                                    attribute={v}
-                                                    toBeRemoved={toBeRemovedAttributes.includes(v.id)}
-                                                    addToToBeRemoved={() =>
-                                                        setToBeRemovedAttributes((prev) => prev.concat(v.id))
-                                                    }
-                                                    key={"to-be-removed" + v.id}
-                                                />
-                                            ))}
-                                            {newAttributes.map((a) => (
-                                                <NewRemovableAttributeRow
-                                                    attribute={a}
-                                                    deleteButtonClicked={() => {
-                                                        setNewAttributes((prev) => prev.filter((v1) => v1 != a));
-                                                    }}
-                                                />
-                                            ))}
-                                        </>
-                                    }
-                                    style="flex flex-col"
-                                />
-                                <DialogDetailRow
-                                    detailKey="attributes profiles"
-                                    detailValue={
-                                        <>
-                                            {attributeProfiles.map((ap) => (
-                                                <RemovableAttributeProfileRow
-                                                    attribute={ap}
-                                                    toBeRemoved={toBeRemovedAttributes.includes(ap.id)}
-                                                    addToToBeRemoved={() =>
-                                                        setToBeRemovedAttributes((prev) => prev.concat(ap.id))
-                                                    }
-                                                    key={"removable-attribute-profile" + ap.id}
-                                                />
-                                            ))}
+                                <DialogDetailRow2 style="flex flex-col" detailKey="attributes">
+                                    <>
+                                        {attributes.map((v) => (
+                                            <RemovableAttributeRow
+                                                attribute={v}
+                                                toBeRemoved={toBeRemovedAttributes.includes(v.id)}
+                                                addToToBeRemoved={() =>
+                                                    setToBeRemovedAttributes((prev) => prev.concat(v.id))
+                                                }
+                                                key={"to-be-removed" + v.id}
+                                            />
+                                        ))}
+                                        {newAttributes.map((a) => (
+                                            <NewRemovableAttributeRow
+                                                attribute={a}
+                                                deleteButtonClicked={() => {
+                                                    setNewAttributes((prev) => prev.filter((v1) => v1 != a));
+                                                }}
+                                            />
+                                        ))}
+                                    </>
+                                </DialogDetailRow2>
+                                <DialogDetailRow2 style="flex flex-col" detailKey="attributes profiles">
+                                    <>
+                                        {attributeProfiles.map((ap) => (
+                                            <RemovableAttributeProfileRow
+                                                attribute={ap}
+                                                toBeRemoved={toBeRemovedAttributes.includes(ap.id)}
+                                                addToToBeRemoved={() =>
+                                                    setToBeRemovedAttributes((prev) => prev.concat(ap.id))
+                                                }
+                                                key={"removable-attribute-profile" + ap.id}
+                                            />
+                                        ))}
 
-                                            {newAttributeProfiles.map((ap) => (
-                                                <NewRemovableAttributeProfileRow
-                                                    resource={ap}
-                                                    deleteButtonClicked={() =>
-                                                        setNewAttributeProfiles((prev) => prev.filter((v1) => v1 != ap))
-                                                    }
-                                                />
-                                            ))}
-                                        </>
-                                    }
-                                    style="flex flex-col"
-                                />
+                                        {newAttributeProfiles.map((ap) => (
+                                            <NewRemovableAttributeProfileRow
+                                                resource={ap}
+                                                deleteButtonClicked={() =>
+                                                    setNewAttributeProfiles((prev) => prev.filter((v1) => v1 != ap))
+                                                }
+                                            />
+                                        ))}
+                                    </>
+                                </DialogDetailRow2>
                             </>
                         )}
 
@@ -420,20 +398,17 @@ export const useModifyEntityDialog = () => {
                             <>
                                 {isProfile && changedFieldsAsStringArray.length > 0 && (
                                     <>
-                                        <DialogDetailRow
-                                            detailKey="warning"
-                                            detailValue={
-                                                <ProfileModificationWarning
-                                                    changedFields={changedFieldsAsStringArray}
-                                                />
-                                            }
-                                        />
+                                        <DialogDetailRow2 detailKey="warning">
+                                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                                        </DialogDetailRow2>
                                     </>
                                 )}
                                 <DomainRangeComponent
                                     enabledFields={changedFields}
-                                    withCheckEnabling={isProfile}
-                                    entity={modifiedEntity}
+                                    withOverride={isProfile}
+                                    entity={
+                                        modifiedEntity as SemanticModelRelationship | SemanticModelRelationshipUsage
+                                    }
                                     range={newRange}
                                     setRange={setNewRange}
                                     domain={newDomain}

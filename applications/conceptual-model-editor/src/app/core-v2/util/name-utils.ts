@@ -112,7 +112,6 @@ export const getModelDisplayName = (model: EntityModel | null | undefined) => {
 
 // --- GENERATE NAMES --- --- ---
 // inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
-
 export const capFirst = (what: string) => {
     return what.charAt(0).toUpperCase() + what.slice(1);
 };

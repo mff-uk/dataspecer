@@ -23,7 +23,6 @@ import {
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
 } from "./reactflow/simple-floating-edge";
-import { isAttribute } from "./util/utils";
 import { tailwindColorToHex } from "../utils/color-utils";
 
 import "reactflow/dist/style.css";
@@ -58,7 +57,7 @@ import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
-import { useDownload } from "./util/download";
+import { useDownload } from "./features/export/download";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -70,8 +69,7 @@ export const Visualization = () => {
     const { CreateProfileDialog, isCreateProfileDialogOpen, openCreateProfileDialog } = useCreateProfileDialog();
     const { downloadImage } = useDownload();
 
-    const { classes, classes2, relationships, generalizations, profiles, sourceModelOfEntityMap, setVisibleOnCanvas } =
-        useClassesContext();
+    const { classes, classes2, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -307,7 +305,7 @@ export const Visualization = () => {
             }
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
-                const visualEntity = ve ?? entities[id]?.visualEntity ?? null; // FIXME: tohle je debilni, v updated by uz mohla behat visual informace
+                const visualEntity = ve ?? entities[id]?.visualEntity ?? null;
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {

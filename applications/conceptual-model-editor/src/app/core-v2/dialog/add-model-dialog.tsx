@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import { useBaseDialog } from "../components/base-dialog";
-import { IRI } from "iri";
 
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();

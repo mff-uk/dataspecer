@@ -41,7 +41,7 @@ export const PackageManagement = () => {
                         return;
                     }
                     await updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
-                    router.push("/manager");
+                    router.push("../manager");
                 }}
             >
                 💾pkg & 👋
