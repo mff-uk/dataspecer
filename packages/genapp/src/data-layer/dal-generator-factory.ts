@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 import { DataSourceType, DatasourceConfig } from "../application-config";
-import { CodeGenerationArtifactMetadata, GeneratorArtifactProvider } from "@dataspecer/genapp-artifact-provider";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGenerator: (datasourceConfig: DatasourceConfig) => DalGenerator;
@@ -44,13 +43,6 @@ export class DalGenerator {
         console.log("       Calling the backend for DAL with: ", aggregateName);
 
         return api.generateDalLayerArtifact(this.dalGeneratorName, aggregateName);
-
-        //let result = new CodeGenerationArtifactMetadata({ "anObjectName": "./anObjectPath.ts" });
-        // setTimeout(() => {
-        //     console.log("Waited");
-        // }, 5000)
-
-        //return result;
     }
 }
 

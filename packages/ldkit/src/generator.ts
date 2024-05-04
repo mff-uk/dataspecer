@@ -13,7 +13,32 @@ import { StructureModel } from "@dataspecer/core/structure-model/model/structure
 import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
-import { CodeGenerationArtifactMetadata, GeneratorArtifactProvider } from "@dataspecer/genapp-artifact-provider";
+
+class CodeGenerationArtifactMetadata {
+    //private readonly map: { [key: string]: string; }
+    objectName: string;
+    objectFilepath: string;
+
+    constructor(map: {[objectName: string]: string; }) {
+        const entries = Object.entries(map);
+        console.log("Entries: ", entries); 
+        if (entries.length !== 1 || !entries[0]) {
+            throw new Error("Incorrect mapping of generated objects");
+        }
+
+        const entry = entries[0];
+        [this.objectName, this.objectFilepath] = entry;
+
+        if (!this.objectName || !this.objectFilepath) {
+            throw new Error("Incorrectly generated object");
+        }
+    }
+}
+
+interface GeneratorArtifactProvider {
+    generateArtifact: () => void;
+    getGeneratedArtifactMapping: () => CodeGenerationArtifactMetadata;
+}
 
 export class LDkitGenerator implements ArtefactGenerator, GeneratorArtifactProvider {
     
