@@ -71,6 +71,7 @@ export const useEntityDetailDialog = () => {
             profileOf,
             profiledBy,
             originalProfile,
+            datatype,
         } = EntityProxy(viewedEntity, currentLang);
 
         const [addToActiveViewButtonClicked, setAddToActiveViewButtonClicked] = useState(
@@ -210,6 +211,11 @@ export const useEntityDetailDialog = () => {
                                 onClick={() => handleResourceClickThroughClicked(range.entity!)}
                                 withCardinality={range.cardinality}
                             />
+                        </DialogDetailRow2>
+                    )}
+                    {datatype && (
+                        <DialogDetailRow2 detailKey="datatype">
+                            {datatype.label ? `${datatype.label} (${datatype.uri})` : datatype.uri}
                         </DialogDetailRow2>
                     )}
                 </div>

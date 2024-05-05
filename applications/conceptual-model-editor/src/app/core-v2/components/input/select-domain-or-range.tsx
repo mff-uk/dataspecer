@@ -21,24 +21,15 @@ export const SelectDomainOrRange = (props: {
     onChange?: () => void;
     disabled?: boolean;
     withOverride?: boolean;
-    withAttributeInfo?: boolean;
     withNullValueEnabled?: boolean;
 }) => {
-    const { concept, setConcept, onChange, disabled, withOverride, withAttributeInfo, withNullValueEnabled } = props;
+    const { concept, setConcept, onChange, disabled, withOverride, withNullValueEnabled } = props;
     const { classes2, profiles } = useClassesContext();
 
     const classesOrProfiles = [...classes2, ...profiles.filter(isSemanticModelClassUsage)];
 
     return (
         <div className="flex flex-row">
-            {withAttributeInfo && (
-                <div className="mr-4">
-                    attribute
-                    <span className="ml-1" title="setting a range makes this attribute more of a relationship">
-                        ❓
-                    </span>
-                </div>
-            )}
             <select
                 className="flex-grow"
                 disabled={disabled}

@@ -12,6 +12,7 @@ import { CardinalityOptions } from "../cardinality-options";
 import { IriInput } from "../input/iri-input";
 import { MultiLanguageInputForLanguageString } from "../input/multi-language-input-4-language-string";
 import { DialogDetailRow2 } from "./dialog-detail-row";
+import { SelectDatatype } from "../input/select-datatype";
 
 export const AddAttributesComponent = (props: {
     preferredLanguage: string;
@@ -26,12 +27,14 @@ export const AddAttributesComponent = (props: {
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
     const [cardinality, setCardinality] = useState({} as SemanticModelRelationshipEnd);
+    const [dataType, setDataType] = useState<string | null>(null);
     const [iri, setIri] = useState(getRandomName(7));
     const [changedFields, setChangedFields] = useState({
+        iri: false,
         name: false,
         description: false,
         cardinality: false,
-        iri: false,
+        dataType: false,
     });
 
     const modelIri = getModelIri(props.sourceModel);
@@ -49,13 +52,12 @@ export const AddAttributesComponent = (props: {
                 {
                     name,
                     description,
-                    // @ts-ignore
-                    concept: null, // TODO dataType
                     iri,
+                    concept: dataType, // TODO dataType
                 },
             ],
         });
-    }, [name, description, cardinality, iri]);
+    }, [name, description, cardinality, iri, dataType]);
 
     const handleSave = () => {
         props.saveNewAttribute(newAttribute);
@@ -103,6 +105,13 @@ export const AddAttributesComponent = (props: {
                         setCardinality={setCardinality}
                         disabled={false}
                         onChange={() => setChangedFields((prev) => ({ ...prev, cardinality: true }))}
+                    />
+                </DialogDetailRow2>
+                <DialogDetailRow2 detailKey="datatype">
+                    <SelectDatatype
+                        valueSelected={null}
+                        onOptionSelected={(value) => setDataType(value)}
+                        onChange={() => setChangedFields((prev) => ({ ...prev, dataType: true }))}
                     />
                 </DialogDetailRow2>
             </div>

@@ -28,7 +28,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
                 />
             </div>
             {withOverride && (
-                <div className="ml-2">
+                <div className="my-auto ml-2">
                     <OverrideFieldCheckbox forElement={forElement} disabled={!disabled} onChecked={onChange} />
                 </div>
             )}

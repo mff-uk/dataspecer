@@ -29,6 +29,7 @@ import { getProfiledEntity, getTheOriginalProfiledEntity } from "./profile-utils
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";
+import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass
@@ -72,6 +73,10 @@ export interface EntityDetailProxy {
         entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage | undefined;
         cardinality: string | undefined;
     };
+    datatype: {
+        label: string | null;
+        uri: string;
+    } | null;
     canHaveAttributes: boolean;
     canHaveDomainAndRange: boolean;
 }
@@ -115,6 +120,8 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
                 return canHaveAttributes();
             } else if (property === "canHaveDomainAndRange") {
                 return canHaveDomainAndRange();
+            } else if (property === "datatype") {
+                return getDataType();
             }
         },
     });
@@ -210,6 +217,20 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
         entity: c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept),
         cardinality: cardinalityToString(ends?.range?.cardinality),
     });
+
+    const getDataType = () => {
+        if (!(isSemanticModelAttribute(viewedEntity) || isSemanticModelAttributeUsage(viewedEntity))) {
+            return null;
+        }
+        const concept = ends?.range.concept ?? null;
+        if (isDataType(concept)) {
+            return {
+                label: dataTypeUriToName(concept),
+                uri: concept,
+            };
+        }
+        return null;
+    };
 
     const canHaveAttributes = () => isSemanticModelClass(viewedEntity) || isSemanticModelClassUsage(viewedEntity);
     const canHaveDomainAndRange = () =>
