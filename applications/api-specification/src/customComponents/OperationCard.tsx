@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Switch } from "../components/ui/switch.tsx";
 import { Card } from '../components/ui/card';
@@ -11,6 +11,7 @@ import RequestBodyComponent from './RequestBodyComponent';
 import DataStructuresSelect from './DataStructSelect';
 import Association from '../customComponents/IsAssociationSwitch.tsx';
 import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
+import { DataStructure } from '@/Models/DataStructureNex.tsx';
 
 //import ResponseObjectComponent from './ResponseObjectSelect';
 
@@ -20,6 +21,7 @@ interface OperationCardProps {
     index: number;
     register: any;
     setValue: any;
+    getValues: any;
     collectionLogicEnabled: boolean;
     singleResourceLogicEnabled: boolean;
     baseUrl: string;
@@ -27,15 +29,12 @@ interface OperationCardProps {
     fetchedDataStructures: DataStructure[]
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures }) => {
-    
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues }) => {
+
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
-
-    //console.log("Association in OperationCard has value " + associationModeOn)
-
 
     return (
         <div key={operationIndex}>
@@ -58,7 +57,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                 {/* Form fields for operation details */}
                 <Card className="p-2 justify-end">
                     {/* Association Mode*/}
-                    <Association 
+                    <Association
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
@@ -66,20 +65,21 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}
-                        setResponseObjectFields={setResponseObjectFields} 
-                        setAssociationModeOn = {setAssotiationMode}                    />
+                        setResponseObjectFields={setResponseObjectFields}
+                        setAssociationModeOn={setAssotiationMode} />
                     {/* Switch to treat Resource as a collection*/}
                     <IsCollection
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
                         setValue={setValue}
+                        getValues = {getValues}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
-                        setSelectedResponseObject={() => {}}
-                        setResponseObjectFields={() => {}}
-                        setIsCollection={setIsCollection} 
-                    />
+                        //setSelectedResponseObject={() => { }}
+                        //setResponseObjectFields={() => { }}
+                        setIsCollection={setIsCollection}
+                         />
                     {/* Operation Name */}
                     <OperationNameInput
                         index={index}
@@ -96,10 +96,10 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructure={selectedDataStructure}
                         allDataStructures={fetchedDataStructures}
                         setValue={setValue}
-                        responseObjectFields = {responseObjectFields}
-                        selectedResponseObject = {selectedResponseObject}
-                        isCollection = {isCollection}
-                        associationModeOn = {associationModeOn}
+                        responseObjectFields={responseObjectFields}
+                        selectedResponseObject={selectedResponseObject}
+                        isCollection={isCollection}
+                        associationModeOn={associationModeOn}
                     //collectionLogicEnabled={collectionLogicEnabled}
                     //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
