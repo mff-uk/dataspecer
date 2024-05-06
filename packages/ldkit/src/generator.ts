@@ -7,40 +7,15 @@ import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/ge
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary.js";
 import { transformStructureModel } from "@dataspecer/core/structure-model/transformation/default-transformation";
 import { LdkitSchema } from "./ldkit-schema-model";
-import { assertFailed, assertNot } from "@dataspecer/core/core/index";
-import { ConceptualModel } from "@dataspecer/core/conceptual-model/index";
+import { CoreResourceReader, LanguageString, assertFailed, assertNot } from "@dataspecer/core/core/index";
+import { ConceptualModel, ConceptualModelClass, ConceptualModelProperty } from "@dataspecer/core/conceptual-model/index";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
 
-class CodeGenerationArtifactMetadata {
-    //private readonly map: { [key: string]: string; }
-    objectName: string;
-    objectFilepath: string;
 
-    constructor(map: {[objectName: string]: string; }) {
-        const entries = Object.entries(map);
-        console.log("Entries: ", entries); 
-        if (entries.length !== 1 || !entries[0]) {
-            throw new Error("Incorrect mapping of generated objects");
-        }
-
-        const entry = entries[0];
-        [this.objectName, this.objectFilepath] = entry;
-
-        if (!this.objectName || !this.objectFilepath) {
-            throw new Error("Incorrectly generated object");
-        }
-    }
-}
-
-interface GeneratorArtifactProvider {
-    generateArtifact: () => void;
-    getGeneratedArtifactMapping: () => CodeGenerationArtifactMetadata;
-}
-
-export class LDkitGenerator implements ArtefactGenerator, GeneratorArtifactProvider {
+export class LDkitGenerator implements ArtefactGenerator {
     
     static readonly IDENTIFIER = "https://schemas.dataspecer.com/generator/LDkit";
 
@@ -134,11 +109,8 @@ export class LDkitGenerator implements ArtefactGenerator, GeneratorArtifactProvi
         }
     }
 
-    generateArtifact() {
+    generateDalLayerArtifact() {
+        console.log("Called LDKit generator");
         //this.generateToStream(undefined, undefined, undefined, undefined);
-    }
-
-    getGeneratedArtifactMapping(): CodeGenerationArtifactMetadata{
-        return new CodeGenerationArtifactMetadata({ "anObjectName": "./anObjectPath.ts" });
     }
 }

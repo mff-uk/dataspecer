@@ -8,13 +8,22 @@ ldkitRouter.get("/:aggregateName", (req, res) => {
   
   const aggregateName = req.params["aggregateName"];
 
-  //new LDkitGenerator().generateToStream();
+  //new LDkitGenerator().generateDalLayerArtifact();
 
-  res.json(JSON.stringify({
-    objectName: "CatalogSchema",
-    objectFilepath: "./generated/src/dal/CatalogSchema.ts"
-  }));
+  const result = {
+    fileName: "Dataset.ts",
+    exportedObjectName: "DatasetSchema",
+    sourceText: `
+    const DatasetSchema = {
+        iri: "",
+        klicove_slovo: ""
+    }
 
+    export default DatasetSchema;
+    `
+  };
+
+  res.json(result);
 });
 
 export default ldkitRouter;
