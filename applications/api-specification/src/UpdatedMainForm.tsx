@@ -68,7 +68,7 @@ type FormValues = {
 // });
 
 export const ApiSpecificationForm = () => {
-    const { register, handleSubmit, control, watch, setValue } = useForm<FormValues>();
+    const { register, handleSubmit, control, watch, setValue, getValues } = useForm<FormValues>();
 
     const { fields, append, remove, update } = useFieldArray({
         control,
@@ -159,16 +159,19 @@ export const ApiSpecificationForm = () => {
             oResponseObject: defaultDataStructure
         };
 
+        
         update(index, {
             ...fields[index],
             operations: [...fields[index].operations, newOperation],
         });
-
+        
         setSelectedDataStructures((prevState) => {
             const newState = [...prevState];
             newState[index] = { ...newState[index], operations: newOperation };
             return newState;
         });
+
+        console.log(...fields[index].operations)
     };
 
     // Function to remove an operation from a data structure
@@ -250,6 +253,7 @@ export const ApiSpecificationForm = () => {
                                     index={index}
                                     register={register}
                                     setValue = {setValue}
+                                    getValues = {getValues}
                                     collectionLogicEnabled={false}
                                     singleResourceLogicEnabled={false}
                                     baseUrl={baseUrl}

@@ -62,6 +62,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         operationIndex={operationIndex}
                         register={register}
                         setValue={setValue}
+                        getValues = {getValues}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}

@@ -37,6 +37,10 @@ export function useDataSpecificationInfo() {
             resource.types.includes("http://dataspecer.com/resources/v1/psm")
         ).map((resource: { iri: any; }) => resource.iri);
 
+        // const test = data?.subResources?.filter((resource: { types: string | string[]; }) =>
+        // resource.types.includes("http://dataspecer.com/resources/v1/pim"));
+
+        // console.log(test)
         // If dataspecification does not contain data structures, return
         if (!dsIris || dsIris.length === 0) return null;
 
@@ -54,6 +58,7 @@ export function useDataSpecificationInfo() {
 
         // wait for all fetch promises to complete (Promise.all)
         const dataStructArr = await Promise.all(fetchPromises);
+        console.log(JSON.stringify(dataStructArr))
 
         
         /* dataStructArr contains datastructures inside data specification 
