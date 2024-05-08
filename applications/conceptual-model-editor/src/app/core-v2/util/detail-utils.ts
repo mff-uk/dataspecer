@@ -22,10 +22,11 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getIri, getModelIri, sourceModelOfEntity } from "./model-utils";
+import { sourceModelOfEntity } from "./model-utils";
+import { getIri, getModelIri } from "./iri-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
-import { getProfiledEntity, getTheOriginalProfiledEntity } from "./profile-utils";
+import { getTheOriginalProfiledEntity } from "./profile-utils";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";

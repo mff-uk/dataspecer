@@ -7,7 +7,8 @@ import { EntityProxy } from "../util/detail-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getIri, getModelIri, sourceModelOfEntity } from "../util/model-utils";
+import { getIri, getModelIri } from "../util/iri-utils";
+import { sourceModelOfEntity } from "../util/model-utils";
 
 export const ResourceDetailClickThrough = (props: {
     resource: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;

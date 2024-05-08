@@ -15,7 +15,7 @@ import { MultiLanguageInputForLanguageString } from "../components/input/multi-l
 import { getRandomName } from "~/app/utils/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "../components/input/iri-input";
-import { getModelIri } from "../util/model-utils";
+import { getModelIri } from "../util/iri-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
 
 import { EntityProxy } from "../util/detail-utils";

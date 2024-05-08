@@ -1,7 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { getModelIri } from "../util/model-utils";
+import { getModelIri } from "../util/iri-utils";
 
 export const ModelTypeIcon = (props: { model: EntityModel | undefined; onClick: (baseIri: string | null) => void }) => {
     const { model, onClick } = props;

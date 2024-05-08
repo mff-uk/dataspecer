@@ -28,7 +28,7 @@ import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
-import { getIri, getModelIri } from "../util/model-utils";
+import { getIri, getModelIri } from "../util/iri-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { IriInput } from "../components/input/iri-input";
 

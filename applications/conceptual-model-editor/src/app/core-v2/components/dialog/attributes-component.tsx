@@ -7,7 +7,7 @@ import {
 import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useState, useEffect } from "react";
 import { getRandomName } from "~/app/utils/random-gen";
-import { getModelIri } from "../../util/model-utils";
+import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../cardinality-options";
 import { IriInput } from "../input/iri-input";
 import { MultiLanguageInputForLanguageString } from "../input/multi-language-input-4-language-string";

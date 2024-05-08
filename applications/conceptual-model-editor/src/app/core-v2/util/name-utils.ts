@@ -13,7 +13,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getIri } from "./model-utils";
+import { getIri } from "./iri-utils";
 import { EntityModel } from "@dataspecer/core-v2";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 

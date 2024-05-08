@@ -20,7 +20,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
-import { getIri, getModelIri } from "../util/model-utils";
+import { getIri, getModelIri } from "../util/iri-utils";
 import { IriInput } from "../components/input/iri-input";
 import { AddAttributesComponent } from "../components/dialog/attributes-component";
 import { DomainRangeComponent } from "./domain-range-component";
