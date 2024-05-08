@@ -240,7 +240,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
     // Sync local state and form state
     useEffect(() => {
         const currentFormValue = getValues(path);
-        console.log(`Form state value for ${path}:`, currentFormValue);
+        //console.log(`Form state value for ${path}:`, currentFormValue);
         if (currentFormValue !== selectedAssociationMode) {
             setSelectedAssociationMode(currentFormValue);
             setAssociationModeOn(currentFormValue);
@@ -249,7 +249,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 
     // Handle changes to the switch
     const handleSwitchChange = (checked: boolean) => {
-        console.log(`Switch changed to: ${checked}`);
+        //console.log(`Switch changed to: ${checked}`);
         setValue(path, checked);
         setSelectedAssociationMode(checked);
         setAssociationModeOn(checked);
@@ -268,7 +268,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 
     // Set response object fields
     useEffect(() => {
-        console.log('Setting response object fields:', objectFields);
+        //console.log('Setting response object fields:', objectFields);
         setResponseObjectFields(objectFields);
     }, [objectFields, setResponseObjectFields]);
 
