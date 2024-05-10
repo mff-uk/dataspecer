@@ -1,18 +1,12 @@
-import {
-    SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
-    isSemanticModelAttribute,
-} from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { CardinalityOptions } from "../components/cardinality-options";
-import {
-    SemanticModelRelationshipUsage,
-    isSemanticModelAttributeUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { Dispatch, SetStateAction } from "react";
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { SelectDomainOrRange } from "../components/input/select-domain-or-range";
 import { isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { SelectAttributeRange } from "../components/input/select-attribute-range";
+import { isAnAttribute, isAnEdge } from "../util/relationship-utils";
 
 export const DomainRangeComponent = (props: {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -35,7 +29,8 @@ export const DomainRangeComponent = (props: {
     withOverride?: boolean;
 }) => {
     const { entity, range, setRange, domain, setDomain, enabledFields, withOverride } = props;
-    const isAttribute = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+    const isAttribute = isAnAttribute(entity);
+    const isEdge = isAnEdge(entity);
 
     console.log(entity, range, domain);
 

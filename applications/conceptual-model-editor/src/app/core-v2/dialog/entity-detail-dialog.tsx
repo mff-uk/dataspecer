@@ -21,6 +21,7 @@ import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { ScrollableResourceDetailClickThroughList } from "../components/scrollable-detail-click-through";
 import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dialog/dialog-colored-model-header";
+import { CloseButton } from "../components/dialog/buttons/close-button";
 
 type EntityDialogSupportedType =
     | SemanticModelClass
@@ -220,7 +221,7 @@ export const useEntityDetailDialog = () => {
                     )}
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    <button onClick={close}>close</button>
+                    <CloseButton onClick={close} />
                 </div>
             </BaseDialog>
         );

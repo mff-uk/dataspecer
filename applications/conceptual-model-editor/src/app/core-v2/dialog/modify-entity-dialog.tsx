@@ -42,6 +42,8 @@ import {
 } from "../components/dialog/modify/new-attribute-row";
 import { isSemanticProfile } from "../util/profile-utils";
 import { EntityProxy } from "../util/detail-utils";
+import { CancelButton } from "../components/dialog/buttons/cancel-button";
+import { ModifyButton } from "../components/dialog/buttons/modify-button";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -473,15 +475,13 @@ export const useModifyEntityDialog = () => {
                 */}
 
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    <button
-                        disabled={wantsToAddNewAttributes}
-                        className=" hover:disabled:cursor-not-allowed"
-                        title={wantsToAddNewAttributes ? "first save the attribute or cancel the action" : ""}
+                    <ModifyButton
                         onClick={handleSaveButtonClicked}
-                    >
-                        save
-                    </button>
-                    <button onClick={close}>close</button>
+                        disabled={wantsToAddNewAttributes}
+                        title={wantsToAddNewAttributes ? "first save the attribute or cancel the action" : undefined}
+                        style=" hover:disabled:cursor-not-allowed"
+                    />
+                    <CancelButton onClick={close} />
                 </div>
             </BaseDialog>
         );

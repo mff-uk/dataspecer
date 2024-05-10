@@ -21,6 +21,7 @@ import {
     OpenDetailButton,
     RemoveButton,
 } from "../buttons";
+import { onDragStart } from "../../reactflow/utils";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -52,48 +53,53 @@ export const EntityRow = (props: {
     sourceModel?: EntityModel;
     offset?: number;
 }) => {
+    const { entity, offset, drawable, expandable, modifiable, profile, removable, visibleOnCanvas } = props;
+    const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+
     let defaultVisibility: boolean;
-    if (isSemanticModelClass(props.entity) || isSemanticModelClassUsage(props.entity)) {
+    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
         defaultVisibility = false;
     } else {
         defaultVisibility = true;
     }
 
-    const [isExpanded, setIsExpanded] = useState(props.expandable?.expanded());
+    const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
     const { language: preferredLanguage } = useConfigurationContext();
-
-    const entity = props.entity;
 
     const { name, iri } = EntityProxy(entity, preferredLanguage);
 
     return (
-        <div className="flex flex-row justify-between whitespace-nowrap hover:shadow">
+        <div
+            className="flex flex-row justify-between whitespace-nowrap hover:shadow"
+            draggable={isDraggable}
+            onDragStart={(e) => onDragStart(e as unknown as DragEvent, entity.id, "classNode")}
+        >
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />
-                <TreeLikeOffset offset={props.offset} />
+                <TreeLikeOffset offset={offset} />
                 {name}
             </span>
             <div className="ml-2 flex flex-row bg-teal-300 px-1 ">
-                {props.expandable && (
+                {expandable && (
                     <ExpandButton
                         onClickHandler={() => {
-                            props.expandable?.toggleHandler();
-                            setIsExpanded(props.expandable?.expanded());
+                            expandable?.toggleHandler();
+                            setIsExpanded(expandable?.expanded());
                         }}
                         isExpanded={isExpanded}
                     />
                 )}
-                {props.removable && <RemoveButton onClickHandler={props.removable.remove} />}
-                {props.modifiable && <ModifyButton onClickHandler={props.modifiable.openModificationHandler} />}
+                {removable && <RemoveButton onClickHandler={removable.remove} />}
+                {modifiable && <ModifyButton onClickHandler={modifiable.openModificationHandler} />}
                 <OpenDetailButton onClick={props.openDetailHandler} />
-                {props.drawable && (
+                {drawable && (
                     <DrawOnCanvasButton
-                        visible={props.visibleOnCanvas}
-                        addToCanvas={props.drawable?.addToViewHandler}
-                        removeFromCanvas={props.drawable?.removeFromViewHandler}
+                        visible={visibleOnCanvas}
+                        addToCanvas={drawable?.addToViewHandler}
+                        removeFromCanvas={drawable?.removeFromViewHandler}
                     />
                 )}
-                <CreateProfileButton onClickHandler={props.profile?.createProfileHandler} />
+                <CreateProfileButton onClickHandler={profile?.createProfileHandler} />
             </div>
         </div>
     );

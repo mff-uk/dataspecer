@@ -31,6 +31,8 @@ import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/
 import { getIri, getModelIri } from "../util/iri-utils";
 import { getRandomName } from "~/app/utils/random-gen";
 import { IriInput } from "../components/input/iri-input";
+import { CancelButton } from "../components/dialog/buttons/cancel-button";
+import { CreateButton } from "../components/dialog/buttons/create-button";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -288,13 +290,11 @@ export const useCreateProfileDialog = () => {
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (
-                        <button onClick={() => handleSavingProfile(model)}>save</button>
+                        <CreateButton onClick={() => handleSavingProfile(model)} />
                     ) : (
-                        <button disabled title="model probably not selected" className="cursor-not-allowed">
-                            save
-                        </button>
+                        <CreateButton style="cursor-not-allowed" disabled={true} title="model probably not selected" />
                     )}
-                    <button onClick={localClose}>close</button>
+                    <CancelButton onClick={localClose} />
                 </div>
             </BaseDialog>
         );

@@ -1,14 +1,16 @@
 import {
     SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
     SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityDetailSupportedType } from "./detail-utils";
+import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 
 export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 
@@ -40,6 +42,15 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
     }
 };
 
+export const isAnEdge = (
+    entity: EntityDetailSupportedType
+): entity is SemanticModelRelationship | SemanticModelRelationshipUsage => {
+    return !isAnAttribute(entity) && (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity));
+};
+
+export const isAnAttribute = (entity: EntityDetailSupportedType) =>
+    isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+
 export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) => {
     if (isSemanticModelRelationship(entity)) {
         return getDomainAndRange(entity);
@@ -49,4 +60,20 @@ export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) =>
     } else {
         return null;
     }
+};
+
+export const hasBothEndsOnCanvas = (
+    entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
+    visibleOnCanvasMap?: Map<string, VisualEntity>
+) => {
+    if (!visibleOnCanvasMap) {
+        return false;
+    }
+    const domainAndRange = temporaryDomainRangeHelper(entity);
+    const domainConcept = domainAndRange?.domain.concept ?? "";
+    const rangeConcept = domainAndRange?.range.concept ?? "";
+
+    const domainOnCanvas = visibleOnCanvasMap.get(domainConcept)?.visible;
+    const rangeOnCanvas = visibleOnCanvasMap.get(rangeConcept)?.visible;
+    return domainOnCanvas && rangeOnCanvas;
 };

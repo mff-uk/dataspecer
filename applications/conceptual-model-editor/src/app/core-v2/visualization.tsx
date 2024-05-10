@@ -8,14 +8,14 @@ import ReactFlow, {
     Node,
     NodeChange,
     Panel,
-    Position,
     ReactFlowInstance,
+    XYPosition,
     getRectOfNodes,
     getTransformForBounds,
     useEdgesState,
     useNodesState,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useRef, useState } from "react";
+import { useMemo, useCallback, useEffect, useState } from "react";
 import { ClassCustomNode, semanticModelClassToReactFlowNode } from "./reactflow/class-custom-node";
 import {
     SimpleFloatingEdge,
@@ -78,11 +78,51 @@ export const Visualization = () => {
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
+    const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
+    const handleAddEntityToActiveView = (entityId: string, position?: XYPosition) => {
+        const updateStatus = activeVisualModel?.updateEntity(entityId, { visible: true, position });
+        if (!updateStatus) {
+            activeVisualModel?.addEntity({ sourceEntityId: entityId, position });
+        }
+    };
+
     const onConnect = useCallback(
         (connection: Connection) => {
             openCreateConnectionDialog(connection);
         },
         [setEdges]
+    );
+
+    const onDragOver = useCallback((event: any) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+    }, []);
+
+    const onDrop = useCallback(
+        (event: any) => {
+            event.preventDefault();
+
+            const type = event.dataTransfer.getData("application/reactflow");
+            const entityId = event.dataTransfer.getData("application/reactflow-entityId");
+
+            // check if the dropped element is valid
+            if (typeof type === "undefined" || !type) {
+                return;
+            }
+
+            // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
+            // and you don't need to subtract the reactFlowBounds.left/top anymore
+            // details: https://reactflow.dev/whats-new/2023-11-10
+            const position = reactFlowInstance?.screenToFlowPosition({
+                x: event.clientX,
+                y: event.clientY,
+            });
+
+            console.log("on drop handler", event, reactFlowInstance, event.dataTransfer, type, entityId, position);
+            handleAddEntityToActiveView(entityId, position);
+        },
+        [reactFlowInstance, activeVisualModel]
     );
 
     const getCurrentClassesRelationshipsGeneralizationsAndProfiles = () => {
@@ -453,8 +493,6 @@ export const Visualization = () => {
         }
     };
 
-    const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
-
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
@@ -478,6 +516,8 @@ export const Visualization = () => {
                     }}
                     onConnect={onConnect}
                     snapGrid={[20, 20]}
+                    onDragOver={onDragOver}
+                    onDrop={onDrop}
                     snapToGrid={true}
                     onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}
                     onPaneClick={(e) => {

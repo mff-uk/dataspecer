@@ -71,7 +71,7 @@ export const ModelCatalog = () => {
     return (
         <>
             <div className="min-w-24 overflow-y-scroll bg-teal-100 px-1">
-                <h3 className="font-semibold">Add Model Section</h3>
+                <h3 className="font-semibold">Model catalog</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index}>

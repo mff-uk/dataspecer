@@ -11,6 +11,8 @@ import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { CreateButton } from "../components/dialog/buttons/create-button";
+import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -99,8 +101,8 @@ export const useCreateClassDialog = () => {
                 </div>
 
                 <div className="flex flex-row justify-evenly font-semibold">
-                    <button onClick={handleCreateClass}>save</button>
-                    <button onClick={close}>close</button>
+                    <CreateButton onClick={handleCreateClass} />
+                    <CancelButton onClick={close} />
                 </div>
             </BaseDialog>
         );

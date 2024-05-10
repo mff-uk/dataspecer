@@ -22,6 +22,8 @@ import { EntityProxy } from "../util/detail-utils";
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { TwoWaySwitch } from "../components/input/two-way-switch";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
+import { CreateButton } from "../components/dialog/buttons/create-button";
+import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
 const AssociationComponent = (props: {
     from: string;
@@ -271,8 +273,8 @@ export const useCreateConnectionDialog = () => {
                 </div>
 
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    <button onClick={handleSaveConnection}>confirm</button>
-                    <button onClick={close}>close</button>
+                    <CreateButton onClick={handleSaveConnection} />
+                    <CancelButton onClick={close} />
                 </div>
             </BaseDialog>
         );

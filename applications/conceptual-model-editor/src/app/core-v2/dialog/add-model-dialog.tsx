@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useBaseDialog } from "../components/base-dialog";
+import { AddButton } from "../components/dialog/buttons/add-button";
+import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -51,8 +53,8 @@ export const useAddModelDialog = () => {
                 />
 
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    <button onClick={handleAddModels}>confirm</button>
-                    <button onClick={close}>close</button>
+                    <AddButton onClick={handleAddModels} />
+                    <CancelButton onClick={close} />
                 </div>
             </BaseDialog>
         );

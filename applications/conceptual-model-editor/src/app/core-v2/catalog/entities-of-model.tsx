@@ -17,6 +17,7 @@ import { useCreateProfileDialog, ProfileDialogSupportedTypes } from "../dialog/c
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getModelDetails, sourceModelOfEntity } from "../util/model-utils";
 import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
@@ -47,7 +48,7 @@ export const EntitiesOfModel = (props: {
 }) => {
     const { model, entityType } = props;
 
-    const { allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
+    const { profiles, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
@@ -60,14 +61,22 @@ export const EntitiesOfModel = (props: {
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
     const entities = getEntitiesToShow(entityType, model);
+    const localGetCurrentVisibilityOnCanvas = () => {
+        const entitiesAndProfiles = [...entities, ...profiles.filter(isSemanticModelClassUsage)];
+        return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
+    };
 
     const [visibleOnCanvas, setVisibleOnCanvas] = useState(
-        new Map<string, boolean>(getCurrentVisibilityOnCanvas(entities, activeVisualModel))
+        new Map<string, boolean>(localGetCurrentVisibilityOnCanvas())
     );
 
     useEffect(() => {
+        setVisibleOnCanvas(new Map<string, boolean>(localGetCurrentVisibilityOnCanvas()));
+    }, []);
+
+    useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
-        setVisibleOnCanvas(new Map(getCurrentVisibilityOnCanvas(entities, activeVisualModel)));
+        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
 
         const getDefaultVisibility = () => {
             if (entityType == "class") {

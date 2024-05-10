@@ -1,15 +1,12 @@
 import {
     SemanticModelClass,
     SemanticModelRelationship,
-    isSemanticModelAttribute,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
-    isSemanticModelAttributeUsage,
-    isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityRow } from "../../components/catalog-rows/entity-catalog-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
@@ -19,6 +16,7 @@ import { ProfileDialogSupportedTypes } from "../../dialog/create-profile-dialog"
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useState } from "react";
+import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -49,10 +47,14 @@ export const RowHierarchy = (props: {
 }) => {
     const { models, aggregatorView } = useModelGraphContext();
     const { profiles, classes2, allowedClasses } = useClassesContext();
+    const { entity, visibleOnCanvas } = props;
 
     const [showProfiles, setShowProfiles] = useState(false);
 
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
+
+    const isOnCanvas = props.visibleOnCanvas.get(props.entity.id);
+    const isAttribute = isAnAttribute(props.entity);
 
     const modificationHandler =
         sourceModel instanceof InMemorySemanticModel
@@ -67,12 +69,14 @@ export const RowHierarchy = (props: {
               }
             : null;
 
-    const drawingHandler = !(isSemanticModelAttribute(props.entity) || isSemanticModelAttributeUsage(props.entity))
-        ? {
-              addToViewHandler: () => props.handlers.handleAddEntityToActiveView(props.entity.id),
-              removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(props.entity.id),
-          }
-        : null;
+    const drawingHandler =
+        isAttribute ||
+        (isAnEdge(entity) && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()?.getVisualEntities()))
+            ? null
+            : {
+                  addToViewHandler: () => props.handlers.handleAddEntityToActiveView(props.entity.id),
+                  removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(props.entity.id),
+              };
 
     const removalHandler =
         sourceModel instanceof InMemorySemanticModel
@@ -90,18 +94,19 @@ export const RowHierarchy = (props: {
     return (
         <>
             <div
-                className={`${thisEntityProfiles.length > 0 && props.indent == 0 ? "grid grid-cols-[auto_1fr]" : ""}`}
+                // className={`${thisEntityProfiles.length > 0 && props.indent == 0 ? "grid grid-cols-[auto_1fr]" : ""}`}
+                className="flex flex-col"
                 style={
                     props.indent > 0 && sourceModel
                         ? { backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(sourceModel?.getId()) }
                         : {}
                 }
             >
-                {thisEntityProfiles.length > 0 && props.indent == 0 && (
+                {/* {thisEntityProfiles.length > 0 && props.indent == 0 && (
                     <button title="show profiles of this entity" onClick={() => setShowProfiles((prev) => !prev)}>
                         {showProfiles ? "🍳" : "🥚"}
                     </button>
-                )}
+                )} */}
                 <EntityRow
                     offset={props.indent}
                     entity={props.entity}
@@ -113,18 +118,20 @@ export const RowHierarchy = (props: {
                     removable={removalHandler}
                     profile={profilingHandler}
                     sourceModel={sourceModel}
-                    visibleOnCanvas={props.visibleOnCanvas.get(props.entity.id)}
+                    visibleOnCanvas={isOnCanvas}
                 />
+                {
+                    /* props.indent > 0  || showProfiles  && */
+                    thisEntityProfiles.map((p) => (
+                        <RowHierarchy
+                            entity={p}
+                            indent={props.indent + 1}
+                            handlers={props.handlers}
+                            visibleOnCanvas={props.visibleOnCanvas}
+                        />
+                    ))
+                }
             </div>
-            {(props.indent > 0 || showProfiles) &&
-                thisEntityProfiles.map((p) => (
-                    <RowHierarchy
-                        entity={p}
-                        indent={props.indent + 1}
-                        handlers={props.handlers}
-                        visibleOnCanvas={props.visibleOnCanvas}
-                    />
-                ))}
         </>
     );
 };
