@@ -8,18 +8,42 @@ ldkitRouter.get("/:aggregateName", (req, res) => {
   
   const aggregateName = req.params["aggregateName"];
 
-  //new LDkitGenerator().generateDalLayerArtifact();
+  //new LDkitGenerator().generateDalLayerArtifact(aggregateName);
 
   const result = {
     fileName: "Dataset.ts",
     exportedObjectName: "DatasetSchema",
     sourceText: `
-    const DatasetSchema = {
-        iri: "",
-        klicove_slovo: ""
-    }
-
-    export default DatasetSchema;
+    export const DatasetSchema = {
+      "@type": "http://www.w3.org/ns/dcat#Dataset",
+      title: {
+          "@id": "http://purl.org/dc/terms/title",
+          "@multilang": true
+      },
+      klicove_slovo: {
+          "@id": "http://www.w3.org/ns/dcat#keyword",
+          "@array": true,
+          "@multilang": true
+      },
+      distribuce: {
+          "@id": "http://www.w3.org/ns/dcat#distribution",
+          "@array": true,
+          "@schema": {
+              "@type": "http://www.w3.org/ns/dcat#Distribution",
+              title: {
+                  "@id": "http://purl.org/dc/terms/title",
+                  "@multilang": true
+              },
+              url_souboru_ke_stazeni: {
+                  "@id": "http://www.w3.org/ns/dcat#downloadURL",
+                  "@array": true,
+                  "@schema": {
+                      "@type": "http://www.w3.org/2002/07/owl#Thing"
+                  }
+              }
+          }
+      }
+    } as const;
     `
   };
 

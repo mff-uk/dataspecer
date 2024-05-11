@@ -111,6 +111,7 @@ export class LDkitGenerator implements ArtefactGenerator {
 
     generateDalLayerArtifact() {
         console.log("Called LDKit generator");
+        // TODO: get ArtefactGeneratorContext, DataSpecification, etc ... from Dataspecer
         //this.generateToStream(undefined, undefined, undefined, undefined);
     }
 }
