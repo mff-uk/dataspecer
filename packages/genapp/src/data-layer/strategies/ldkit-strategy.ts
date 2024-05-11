@@ -7,7 +7,7 @@ import { StageGenerationContext } from "../../engine/generator-stage-interface";
 export class LDKitDalGenerator implements DalGeneratorStrategy {
     
     strategyIdentifier: string = "ldkit";
-    private readonly endpoint = "http://localhost:8888";
+    private readonly endpoint = "http://localhost:5678";
     private readonly api: DalApi;
 
     constructor() {
