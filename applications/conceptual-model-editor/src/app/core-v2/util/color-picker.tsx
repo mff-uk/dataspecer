@@ -1,33 +1,45 @@
 import { useState } from "react";
 import { ColorPalette, tailwindColorToHex } from "../../utils/color-utils";
 
+const NUMBER_COLS = 5;
+
 export const ColorPicker = (props: { currentColor: string; saveColor: (color: string) => void }) => {
     const { currentColor, saveColor } = props;
     const [isOpen, setIsOpen] = useState(false);
 
-    const numCols = 5;
     const colors = Object.keys(ColorPalette);
-    let numRows = Math.floor(colors.length / numCols);
-    const lastRowLength = colors.length % numCols;
+    let numRows = Math.floor(colors.length / NUMBER_COLS);
+    const lastRowLength = colors.length % NUMBER_COLS;
     if (lastRowLength > 0) {
         numRows += 1;
     }
 
     if (!isOpen) {
         return (
-            <div
+            <button
+                title="choose new color"
                 className="h-6 w-6 border-2 border-white"
                 style={{ backgroundColor: tailwindColorToHex(currentColor) }}
                 onClick={() => setIsOpen(true)}
-            ></div>
+            ></button>
         );
     } else {
         return (
-            <div className="grid min-w-fit grid-cols-5 border-2 border-white p-1">
+            <button
+                className="grid min-w-fit grid-cols-5 border-2 border-white p-1"
+                onBlur={(e) => {
+                    if (e.relatedTarget?.id.startsWith("button-color-picker-")) {
+                        return;
+                    }
+                    console.log("color picker on blr", e);
+                    setIsOpen(false);
+                }}
+            >
                 {colors.map((tailwindColor) => {
                     const color = tailwindColorToHex(tailwindColor);
                     return (
-                        <div
+                        <button
+                            id={`button-color-picker-${tailwindColor}`}
                             key={`color-${tailwindColor}`}
                             className={"h-6 w-6"}
                             style={{
@@ -39,10 +51,10 @@ export const ColorPicker = (props: { currentColor: string; saveColor: (color: st
                                 saveColor(color);
                                 setIsOpen(false);
                             }}
-                        ></div>
+                        ></button>
                     );
                 })}
-            </div>
+            </button>
         );
     }
 };

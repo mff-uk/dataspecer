@@ -7,16 +7,16 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
-    isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityRow } from "./entity-catalog-row";
-import { sourceModelOfEntity } from "../util/model-utils";
-import { useModelGraphContext } from "../context/model-context";
-import { useClassesContext } from "../context/classes-context";
-import { ProfileDialogSupportedTypes } from "../dialog/create-profile-dialog";
+import { EntityRow } from "../../components/catalog-rows/entity-catalog-row";
+import { sourceModelOfEntity } from "../../util/model-utils";
+import { useModelGraphContext } from "../../context/model-context";
+import { useClassesContext } from "../../context/classes-context";
+import { ProfileDialogSupportedTypes } from "../../dialog/create-profile-dialog";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useState } from "react";
+import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -36,20 +36,25 @@ export const RowHierarchy = (props: {
                 | SemanticModelRelationship
                 | SemanticModelRelationshipUsage
         ) => void;
-        handleAddClassToActiveView: (classId: string) => void;
-        handleRemoveClassFromActiveView: (classId: string) => void;
+        handleAddEntityToActiveView: (entityId: string) => void;
+        handleRemoveEntityFromActiveView: (entityId: string) => void;
         handleCreateUsage: (entity: ProfileDialogSupportedTypes) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel, entityId: string) => void;
     };
+    visibleOnCanvas: Map<string, boolean>;
     indent: number;
 }) => {
     const { models, aggregatorView } = useModelGraphContext();
     const { profiles, classes2, allowedClasses } = useClassesContext();
+    const { entity, visibleOnCanvas } = props;
 
     const [showProfiles, setShowProfiles] = useState(false);
 
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
+
+    const isOnCanvas = props.visibleOnCanvas.get(props.entity.id);
+    const isAttribute = isAnAttribute(props.entity);
 
     const modificationHandler =
         sourceModel instanceof InMemorySemanticModel
@@ -65,14 +70,13 @@ export const RowHierarchy = (props: {
             : null;
 
     const drawingHandler =
-        isSemanticModelClass(props.entity) || isSemanticModelClassUsage(props.entity)
-            ? {
-                  addToViewHandler: () => props.handlers.handleAddClassToActiveView(props.entity.id),
-                  removeFromViewHandler: () => props.handlers.handleRemoveClassFromActiveView(props.entity.id),
-                  isVisibleOnCanvas: () =>
-                      aggregatorView.getActiveVisualModel()?.getVisualEntity(props.entity.id)?.visible ?? false,
-              }
-            : null;
+        isAttribute ||
+        (isAnEdge(entity) && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()?.getVisualEntities()))
+            ? null
+            : {
+                  addToViewHandler: () => props.handlers.handleAddEntityToActiveView(props.entity.id),
+                  removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(props.entity.id),
+              };
 
     const removalHandler =
         sourceModel instanceof InMemorySemanticModel
@@ -85,25 +89,24 @@ export const RowHierarchy = (props: {
         },
     };
 
-    const thisEntityProfiles = profiles
-        .filter((p) => p.usageOf == props.entity.id)
-        .filter((p): p is SemanticModelClassUsage => isSemanticModelClassUsage(p));
+    const thisEntityProfiles = profiles.filter((p) => p.usageOf == props.entity.id);
 
     return (
         <>
             <div
-                className={`${thisEntityProfiles.length > 0 && props.indent == 0 ? "grid grid-cols-[auto_1fr]" : ""}`}
+                // className={`${thisEntityProfiles.length > 0 && props.indent == 0 ? "grid grid-cols-[auto_1fr]" : ""}`}
+                className="flex flex-col"
                 style={
                     props.indent > 0 && sourceModel
                         ? { backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(sourceModel?.getId()) }
                         : {}
                 }
             >
-                {thisEntityProfiles.length > 0 && props.indent == 0 && (
+                {/* {thisEntityProfiles.length > 0 && props.indent == 0 && (
                     <button title="show profiles of this entity" onClick={() => setShowProfiles((prev) => !prev)}>
                         {showProfiles ? "🍳" : "🥚"}
                     </button>
-                )}
+                )} */}
                 <EntityRow
                     offset={props.indent}
                     entity={props.entity}
@@ -114,12 +117,21 @@ export const RowHierarchy = (props: {
                     drawable={drawingHandler}
                     removable={removalHandler}
                     profile={profilingHandler}
+                    sourceModel={sourceModel}
+                    visibleOnCanvas={isOnCanvas}
                 />
+                {
+                    /* props.indent > 0  || showProfiles  && */
+                    thisEntityProfiles.map((p) => (
+                        <RowHierarchy
+                            entity={p}
+                            indent={props.indent + 1}
+                            handlers={props.handlers}
+                            visibleOnCanvas={props.visibleOnCanvas}
+                        />
+                    ))
+                }
             </div>
-            {(props.indent > 0 || showProfiles) &&
-                thisEntityProfiles.map((p) => (
-                    <RowHierarchy entity={p} indent={props.indent + 1} handlers={props.handlers} />
-                ))}
         </>
     );
 };

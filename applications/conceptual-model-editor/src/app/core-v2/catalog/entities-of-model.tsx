@@ -1,10 +1,9 @@
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
-import { shortenStringTo } from "../util/utils";
-import { InputEntityRow } from "./entity-catalog-row";
+import { InputEntityRow } from "../components/catalog-rows/input-row";
 import { useModelGraphContext } from "../context/model-context";
 import {
     SemanticModelClass,
@@ -13,84 +12,104 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
-import { ColorPicker } from "../util/color-picker";
-import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
 import { useCreateProfileDialog, ProfileDialogSupportedTypes } from "../dialog/create-profile-dialog";
 import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { sourceModelOfEntity } from "../util/model-utils";
-import { RowHierarchy } from "./row-hierarchy";
+import { getModelDetails, sourceModelOfEntity } from "../util/model-utils";
+import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
+import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
+import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
+import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
+
+const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | "profile", model: EntityModel) => {
+    const { classes2, relationships, profiles } = useClassesContext();
+
+    if (entityType == "class") {
+        return classes2.filter((v) => sourceModelOfEntity(v.id, [model]));
+    } else if (entityType == "relationship") {
+        return relationships
+            .filter((v) => !isSemanticModelAttribute(v))
+            .filter((v) => sourceModelOfEntity(v.id, [model]));
+    } else if (entityType == "attribute") {
+        return relationships.filter(isSemanticModelAttribute).filter((v) => sourceModelOfEntity(v.id, [model]));
+    } else {
+        // profile
+        return profiles.filter((v) => sourceModelOfEntity(v.id, [model]));
+    }
+};
 
 export const EntitiesOfModel = (props: {
     model: EntityModel;
     entityType: "class" | "relationship" | "attribute" | "profile";
 }) => {
-    const { classes2, relationships, allowedClasses, setAllowedClasses, profiles, deleteEntityFromModel } =
-        useClassesContext();
+    const { model, entityType } = props;
+
+    const { profiles, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
     const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
     const { isCreateProfileDialogOpen, CreateProfileDialog, openCreateProfileDialog } = useCreateProfileDialog();
 
-    const [isOpen, setIsOpen] = useState(true);
-    const { model, entityType } = props;
-    const activeVisualModel = aggregatorView.getActiveVisualModel();
-    const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(model.getId()) || "#000001");
+    const { ModelEntitiesList } = useModelEntitiesList(model);
 
-    const [modelDisplayName, setModelDisplayName] = useState(model.getAlias() ?? shortenStringTo(model.getId()));
+    const { id: modelId } = useMemo(() => getModelDetails(model), [models]);
+    const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
+
+    const entities = getEntitiesToShow(entityType, model);
+    const localGetCurrentVisibilityOnCanvas = () => {
+        const entitiesAndProfiles = [...entities, ...profiles.filter(isSemanticModelClassUsage)];
+        return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
+    };
+
+    const [visibleOnCanvas, setVisibleOnCanvas] = useState(
+        new Map<string, boolean>(localGetCurrentVisibilityOnCanvas())
+    );
 
     useEffect(() => {
-        console.log("entities of model, models changed");
-        const alias = models.get(model.getId())?.getAlias();
-        if (alias) {
-            setModelDisplayName(alias);
-        }
-    }, [models]);
+        setVisibleOnCanvas(new Map<string, boolean>(localGetCurrentVisibilityOnCanvas()));
+    }, []);
 
     useEffect(() => {
-        // console.log("entities-of-model, use-effect: ", activeVisualModel, model.getId());
-        // fixme: move it elsewhere
-        let color = activeVisualModel?.getColor(model.getId());
-        if (!color) {
-            color = randomColorFromPalette();
-            activeVisualModel?.setColor(model.getId(), color);
-        }
-        //
-        setBackgroundColor(color ?? "#ff00ff");
+        console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
+        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
+
+        const getDefaultVisibility = () => {
+            if (entityType == "class") {
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        const visibilityListenerUnsubscribe = activeVisualModel?.subscribeToChanges((updated, removed) => {
+            setVisibleOnCanvas((prev) => {
+                for (const visualEntityId in removed) {
+                    prev.delete(visualEntityId);
+                }
+                for (const [_, visualEntity] of Object.entries(updated)) {
+                    prev.set(visualEntity.sourceEntityId, visualEntity.visible ?? getDefaultVisibility());
+                }
+                return new Map(prev);
+            });
+        });
+
+        return () => {
+            visibilityListenerUnsubscribe?.();
+        };
     }, [activeVisualModel]);
 
-    const modelId = model.getId();
-    let entities: JSX.Element[];
-    let entitySource:
-        | SemanticModelClass[]
-        | SemanticModelRelationship[]
-        | SemanticModelRelationship[]
-        | (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
-    if (entityType == "class") {
-        entitySource = classes2;
-    } else if (entityType == "relationship") {
-        entitySource = relationships.filter((v) => !isSemanticModelAttribute(v));
-    } else if (entityType == "attribute") {
-        entitySource = relationships.filter(isSemanticModelAttribute);
-    } else {
-        // profile
-        entitySource = profiles;
-    }
-
     const toggleAllow = async (model: EntityModel, classId: string) => {
-        console.log("in toggle allow", aggregatorView, model, classId, allowedClasses);
         if (!(model instanceof ExternalSemanticModel)) return;
 
         if (allowedClasses.includes(classId)) {
-            console.log("in toggle allow, removing from allowed classes");
             setAllowedClasses(allowedClasses.filter((allowed) => allowed !== classId));
             await model.releaseClassSurroundings(classId);
         } else {
-            console.log("in toggle allow, adding to allowed classes");
             setAllowedClasses([...allowedClasses, classId]);
             await model.allowClassSurroundings(classId);
         }
@@ -110,15 +129,18 @@ export const EntitiesOfModel = (props: {
         openCreateClassDialog(model);
     };
 
-    const handleAddClassToActiveView = (classId: string) => {
-        const updateStatus = activeVisualModel?.updateEntity(classId, { visible: true });
+    const handleAddEntityToActiveView = (entityId: string) => {
+        const updateStatus = activeVisualModel?.updateEntity(entityId, { visible: true });
         if (!updateStatus) {
-            activeVisualModel?.addEntity({ sourceEntityId: classId });
+            activeVisualModel?.addEntity({ sourceEntityId: entityId });
         }
     };
 
-    const handleRemoveClassFromActiveView = (classId: string) => {
-        activeVisualModel?.updateEntity(classId, { visible: false });
+    const handleRemoveEntityFromActiveView = (entityId: string) => {
+        const updateStatus = activeVisualModel?.updateEntity(entityId, { visible: false });
+        if (!updateStatus) {
+            activeVisualModel?.addEntity({ sourceEntityId: entityId, visible: false });
+        }
     };
 
     const handleOpenModification = (
@@ -140,123 +162,56 @@ export const EntitiesOfModel = (props: {
         deleteEntityFromModel(model, entityId);
     };
 
-    if (model instanceof ExternalSemanticModel) {
-        entities = entitySource
-            .filter((v) => sourceModelOfEntity(v.id, [model]))
-            .map((v) => (
-                <RowHierarchy
-                    key={v.id}
-                    entity={v}
-                    indent={0}
-                    handlers={{
-                        handleOpenDetail,
-                        handleAddClassToActiveView,
-                        handleCreateUsage,
-                        handleOpenModification,
-                        handleRemoveClassFromActiveView,
-                        handleExpansion: toggleAllow,
-                        handleRemoval,
+    const getAppendedRow = () => {
+        if (model instanceof ExternalSemanticModel && entityType == "class") {
+            return (
+                <InputEntityRow
+                    key={modelId + "input row"}
+                    onClickHandler={(search: string) => {
+                        const callback = async () => {
+                            const result = await model.search(search);
+                            for (const cls of result) {
+                                await model.allowClass(cls.iri!);
+                            }
+                            console.log(result);
+                        };
+                        callback();
                     }}
                 />
-            ))
-            .concat(
-                entityType == "class" ? (
-                    <InputEntityRow
-                        key={model.getId() + "input row"}
-                        onClickHandler={(search: string) => {
-                            const callback = async () => {
-                                const result = await model.search(search);
-                                for (const cls of result) {
-                                    await model.allowClass(cls.iri!);
-                                }
-                                console.log(result);
-                            };
-                            callback();
-                        }}
-                    />
-                ) : (
-                    <></>
-                )
             );
-    } else if (model instanceof InMemorySemanticModel) {
-        entities = entitySource
-            .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
-            .map((v) => (
-                // modifiable-row, e.g. local
-                <RowHierarchy
-                    key={v.id}
-                    entity={v}
-                    indent={0}
-                    handlers={{
-                        handleOpenDetail,
-                        handleAddClassToActiveView,
-                        handleCreateUsage,
-                        handleOpenModification,
-                        handleRemoveClassFromActiveView,
-                        handleExpansion: toggleAllow,
-                        handleRemoval,
-                    }}
-                />
-            ))
-            .concat(
-                entityType == "class" ? (
-                    <div key="add-a-concept-" className="flex flex-row justify-between whitespace-nowrap">
-                        Add a concept
-                        <button className="ml-2 bg-teal-300 px-1" onClick={() => handleAddConcept(model)}>
-                            Add
-                        </button>
-                    </div>
-                ) : (
-                    <></>
-                )
-            );
-    } else {
-        entities = entitySource
-            .filter((v) => sourceModelOfEntity(v.id, [model]) /* v.origin == model.getId() */)
-            .map((v) => (
-                // non-expandable, e.g. dcat
-                <RowHierarchy
-                    key={v.id}
-                    entity={v}
-                    indent={0}
-                    handlers={{
-                        handleOpenDetail,
-                        handleAddClassToActiveView,
-                        handleCreateUsage,
-                        handleOpenModification,
-                        handleRemoveClassFromActiveView,
-                        handleExpansion: toggleAllow,
-                        handleRemoval,
-                    }}
-                />
-            ));
-    }
+        } else if (model instanceof InMemorySemanticModel && entityType == "class") {
+            return <AddConceptRow onClick={() => handleAddConcept(model)} />;
+        }
+        return <></>;
+    };
+
+    const entityToRowHierarchy = (
+        entity:
+            | SemanticModelClass
+            | SemanticModelRelationship
+            | SemanticModelClassUsage
+            | SemanticModelRelationshipUsage
+    ) => (
+        <RowHierarchy
+            key={entity.id}
+            entity={entity}
+            indent={0}
+            visibleOnCanvas={visibleOnCanvas}
+            handlers={{
+                handleOpenDetail,
+                handleAddEntityToActiveView,
+                handleCreateUsage,
+                handleOpenModification,
+                handleRemoveEntityFromActiveView,
+                handleExpansion: toggleAllow,
+                handleRemoval,
+            }}
+        />
+    );
 
     return (
         <>
-            <li key={modelId} style={{ backgroundColor: tailwindColorToHex(backgroundColor) }}>
-                <div className="flex flex-row justify-between">
-                    <h4>Ⓜ {modelDisplayName}</h4>
-                    <div className="flex flex-row">
-                        <ColorPicker
-                            currentColor={backgroundColor}
-                            saveColor={(color) => {
-                                console.log(color, activeVisualModel);
-                                setBackgroundColor(color);
-                                activeVisualModel?.setColor(modelId, color);
-                            }}
-                        />
-                        <button title={isOpen ? "fold" : "expand"} onClick={() => setIsOpen((prev) => !prev)}>
-                            {isOpen ? "🔼" : "🔽"}
-                        </button>
-                    </div>
-                </div>
-                {isOpen && (
-                    <ul className="ml-1" key={"entities" + modelId}>
-                        {entities}
-                    </ul>
-                )}
-            </li>
+            <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateClassDialogOpen && <CreateClassDialog />}

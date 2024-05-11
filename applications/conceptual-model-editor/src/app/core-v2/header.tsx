@@ -4,17 +4,9 @@ import { PackageManagement } from "./management/package-management";
 import { ViewManagement } from "./management/view-management";
 import { ExportManagement } from "./management/export-management";
 import { LanguageManagement } from "./management/language-management";
+import { DscmeLogo } from "../components/dscme-logo";
 
-const Logo = () => {
-    return (
-        <div className="my-auto flex flex-row">
-            <div className="text-3xl font-bold text-white">ds</div>
-            <div className="text-[15px] font-semibold text-[#ff5964]">cme</div>
-        </div>
-    );
-};
-
-const Divider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />;
+const HeaderDivider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />;
 
 const Header = () => {
     return (
@@ -22,14 +14,14 @@ const Header = () => {
             <header className="grid h-12 w-full grid-cols-3 grid-rows-1 justify-between bg-[#5438dc] text-white">
                 <div className="my-auto ml-4 flex flex-row">
                     <Link href={"/"}>
-                        <Logo />
+                        <DscmeLogo />
                     </Link>
                 </div>
                 <div className="flex flex-row justify-center">
                     <PackageManagement />
-                    <Divider />
+                    <HeaderDivider />
                     <ViewManagement />
-                    <Divider />
+                    <HeaderDivider />
                     <LanguageManagement />
                 </div>
                 <div className="my-auto flex flex-row justify-end">

@@ -85,7 +85,6 @@ export const useModelGraphContext = () => {
         });
     };
 
-    // FIXME: zas to vymysli nejak lip
     const addClassToModel = (
         model: InMemorySemanticModel,
         name: LanguageString,

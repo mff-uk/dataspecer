@@ -19,6 +19,7 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -35,6 +36,8 @@ export type ClassesContextType = {
     setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
     sourceModelOfEntityMap: Map<string, string>; // was an array, [classId, classWithOrigin]
     setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
+    rawEntities: (Entity | null)[];
+    setRawEntities: React.Dispatch<React.SetStateAction<(Entity | null)[]>>;
 };
 
 export type SemanticModelClassWithOrigin = {
@@ -60,24 +63,26 @@ export const useClassesContext = () => {
         setProfiles,
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
+        rawEntities,
+        setRawEntities,
     } = useContext(ClassesContext);
 
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
-            return;
+            return null;
         }
         if (connection.type == "association") {
             const conn = connection as AssociationConnectionType;
             const result = model.executeOperation(createRelationship({ ...conn }));
-            return result.success;
+            return result;
         } else if (connection.type == "generalization") {
             const conn = connection as GeneralizationConnectionType;
             const result = model.executeOperation(createGeneralization({ ...conn }));
-            return result.success;
+            return result;
         } else {
             alert(`classes-context: create-connection: unknown type ${connection}`);
-            return false;
+            return null;
         }
     };
 
@@ -141,5 +146,6 @@ export const useClassesContext = () => {
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
         executeMultipleOperations,
+        rawEntities,
     };
 };
