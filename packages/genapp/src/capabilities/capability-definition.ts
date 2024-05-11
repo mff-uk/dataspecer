@@ -1,9 +1,15 @@
-import { CodeGenerationArtifactMetadata } from "../utils/utils";
+import { StageGenerationContext } from "../engine/generator-stage-interface";
+import { LayerArtifact } from "../engine/layer-artifact";
+//import { CodeGenerationArtifactMetadata } from "../utils/utils";
 
 export interface Capability {
     identifier: string;
-    entryPoint?: CodeGenerationArtifactMetadata;
-    generateCapability(aggregateName: string): Promise<CodeGenerationArtifactMetadata>;
+    entryPoint?: LayerArtifact;
+    generateCapability(context: StageGenerationContext): Promise<LayerArtifact>;
+    
+    //generateCapability(aggregateName: string): Promise<CodeGenerationArtifactMetadata>;
+
+
     // implementation template
     // datasource required operations template
     // i.e. - overview              requires data read

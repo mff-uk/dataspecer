@@ -1,4 +1,4 @@
-import { TemplateSourceCodeGenerator } from "../app-logic/template-app-logic-generator";
+import { TemplateSourceCodeGenerator } from "../app-logic-layer/template-app-logic-generator";
 import {
     AggregateConfiguration,
     AlternateApplicationConfiguration,
@@ -7,7 +7,7 @@ import {
 } from "../application-config";
 import { Capability } from "../capabilities/capability-definition";
 import { OverviewCapability } from "../capabilities/overview";
-import { CodeGenerationArtifactMetadata, getRelativePath, wrapString } from "../utils/utils";
+import { StageGenerationContext } from "./generator-stage-interface";
 
 // {
 //     path: "/overview/datasets",
@@ -67,101 +67,106 @@ class ApplicationGenerator {
         return pairs;
     }
 
-    private constructImportStatements(filepath: string, groupedCapabilities: { [aggName: string]: Capability[] }): string {
-        let totalImportStatements: string[] = [];
+    // private constructImportStatements(filepath: string, groupedCapabilities: { [aggName: string]: Capability[] }): string {
+    //     let totalImportStatements: string[] = [];
 
-        Object.entries(groupedCapabilities)
-            .forEach(([aggName, aggCapabilities]) => {
+    //     Object.entries(groupedCapabilities)
+    //         .forEach(([aggName, aggCapabilities]) => {
 
-                const aggregateImports = aggCapabilities
-                    .map(({ entryPoint }) => {
-                        const x = `import ${entryPoint!.objectName} from ${wrapString(getRelativePath(filepath, entryPoint!.objectFilepath))}`;
-                        console.log(x)
+    //             const aggregateImports = aggCapabilities
+    //                 .map(({ entryPoint }) => {
+    //                     const x = `import ${entryPoint!.objectName} from ${wrapString(getRelativePath(filepath, entryPoint!.objectFilepath))}`;
+    //                     console.log(x)
 
-                        return x;
-                    })
+    //                     return x;
+    //                 })
 
-                console.log("Imports: ", aggregateImports)
+    //             console.log("Imports: ", aggregateImports)
 
-                totalImportStatements = totalImportStatements.concat(aggregateImports);
-            })
+    //             totalImportStatements = totalImportStatements.concat(aggregateImports);
+    //         })
 
-        return totalImportStatements.join("\n");
-    }
+    //     return totalImportStatements.join("\n");
+    // }
 
-    private constructEntrypointsCode(groupedCapabilities: { [aggName: string]: Capability[] }): string {
+    // private constructEntrypointsCode(groupedCapabilities: { [aggName: string]: Capability[] }): string {
 
-        let totalEntrypoints: string[] = [];
+    //     let totalEntrypoints: string[] = [];
 
-        Object.entries(groupedCapabilities)
-            .forEach(([aggName, aggCapabilities]) => {
+    //     Object.entries(groupedCapabilities)
+    //         .forEach(([aggName, aggCapabilities]) => {
 
-                const aggregateEntrypoints = aggCapabilities
-                    .map(({ identifier, entryPoint }) => {
-                        console.log("Aggregate capability: ", aggName, identifier, entryPoint);
-                        const browserRouterMember = {
-                            path: ["", aggName, identifier].map(elem => elem.toLowerCase()).join("/"),
-                            children: [] as string[],
-                            element: `<${entryPoint!.objectName} />`,
-                            errorElement: "<ErrorPage />"
-                        } as ReactRouterObject;
+    //             const aggregateEntrypoints = aggCapabilities
+    //                 .map(({ identifier, entryPoint }) => {
+    //                     console.log("Aggregate capability: ", aggName, identifier, entryPoint);
+    //                     const browserRouterMember = {
+    //                         path: ["", aggName, identifier].map(elem => elem.toLowerCase()).join("/"),
+    //                         children: [] as string[],
+    //                         element: `<${entryPoint!.objectName} />`,
+    //                         errorElement: "<ErrorPage />"
+    //                     } as ReactRouterObject;
 
-                        const routerObjectString = JSON.stringify(browserRouterMember, undefined, 4).replaceAll("&quot;", '"');
-                        console.log("Router object: ", routerObjectString);
-                        return routerObjectString
-                    });
+    //                     const routerObjectString = JSON.stringify(browserRouterMember, undefined, 4).replaceAll("&quot;", '"');
+    //                     console.log("Router object: ", routerObjectString);
+    //                     return routerObjectString
+    //                 });
 
-                totalEntrypoints = totalEntrypoints.concat(aggregateEntrypoints);
-            });
+    //             totalEntrypoints = totalEntrypoints.concat(aggregateEntrypoints);
+    //         });
 
-        return totalEntrypoints.join(",");
-    }
+    //     return totalEntrypoints.join(",");
+    // }
 
-    private generateApplicationBase(groupedCapabilities: { [aggName: string]: Capability[] }) {
+    // private generateApplicationBase(groupedCapabilities: { [aggName: string]: Capability[] }) {
 
-        const errorPageComponent = this.appBaseTemplateGenerator
-            .generateFromTemplateMetadata({
-                exportedObjectName: "ErrorPage",
-                targetSourceFilePath: "./generated/src/ErrorPage.tsx",
-                templatePath: "../templates/scaffolding/ErrorPage"
-            })
+    //     const errorPageComponent = this.appBaseTemplateGenerator
+    //         .generateFromTemplateMetadata({
+    //             exportedObjectName: "ErrorPage",
+    //             targetSourceFilePath: "./generated/src/ErrorPage.tsx",
+    //             templatePath: "../templates/scaffolding/ErrorPage"
+    //         })
 
-        const appComponentPath = "./generated/src/App.tsx";
-        const appLandingComponentMetadata = this.appBaseTemplateGenerator
-            .generateFromTemplateMetadata({
-                exportedObjectName: "App",
-                targetSourceFilePath: appComponentPath,
-                templatePath: "../templates/scaffolding/App",
-                placeHolders: {
-                    error_component: errorPageComponent.objectName,
-                    error_component_filepath: wrapString(getRelativePath(appComponentPath, errorPageComponent.objectFilepath)),
-                    componentImports: this.constructImportStatements(appComponentPath, groupedCapabilities),
-                    capability_components: this.constructEntrypointsCode(groupedCapabilities)
-                }
-            });
+    //     const appComponentPath = "./generated/src/App.tsx";
+    //     const appLandingComponentMetadata = this.appBaseTemplateGenerator
+    //         .generateFromTemplateMetadata({
+    //             exportedObjectName: "App",
+    //             targetSourceFilePath: appComponentPath,
+    //             templatePath: "../templates/scaffolding/App",
+    //             placeHolders: {
+    //                 error_component: errorPageComponent.objectName,
+    //                 error_component_filepath: wrapString(getRelativePath(appComponentPath, errorPageComponent.objectFilepath)),
+    //                 componentImports: this.constructImportStatements(appComponentPath, groupedCapabilities),
+    //                 capability_components: this.constructEntrypointsCode(groupedCapabilities)
+    //             }
+    //         });
 
-        const indexPath = "./generated/src/index.tsx";
-        this.appBaseTemplateGenerator.generateFromTemplateMetadata({
-            exportedObjectName: "index",
-            targetSourceFilePath: indexPath,
-            templatePath: "../templates/scaffolding/index",
-            placeHolders: {
-                app_landing_component: appLandingComponentMetadata.objectName,
-                landing_component_filepath: wrapString(getRelativePath(indexPath, appLandingComponentMetadata.objectFilepath))
-            }
-        });
+    //     const indexPath = "./generated/src/index.tsx";
+    //     this.appBaseTemplateGenerator.generateFromTemplateMetadata({
+    //         exportedObjectName: "index",
+    //         targetSourceFilePath: indexPath,
+    //         templatePath: "../templates/scaffolding/index",
+    //         placeHolders: {
+    //             app_landing_component: appLandingComponentMetadata.objectName,
+    //             landing_component_filepath: wrapString(getRelativePath(indexPath, appLandingComponentMetadata.objectFilepath))
+    //         }
+    //     });
 
-        this.appBaseTemplateGenerator.generateFromTemplateMetadata({
-            exportedObjectName: "package",
-            targetSourceFilePath: "./generated/package.json",
-            templatePath: "../templates/scaffolding/package"
-        })
-    }
+    //     this.appBaseTemplateGenerator.generateFromTemplateMetadata({
+    //         exportedObjectName: "package",
+    //         targetSourceFilePath: "./generated/package.json",
+    //         templatePath: "../templates/scaffolding/package"
+    //     })
+    // }
 
     async generationHandler({ aggName, capability }: { aggName: string, capability: Capability }) {
 
         console.log(`CALL BEFORE '${aggName}|${capability.identifier}' generation`);
-        const entrypoint = await capability.generateCapability(aggName);
+
+        const context: StageGenerationContext = {
+            aggregateName: aggName
+        };
+
+        const entrypoint = await capability.generateCapability(context)
         console.log(`CALL AFTER '${aggName}|${capability.identifier}' generation with '${entrypoint}' result`);
 
         capability.entryPoint = entrypoint;
