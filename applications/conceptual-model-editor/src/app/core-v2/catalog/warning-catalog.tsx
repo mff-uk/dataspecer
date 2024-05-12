@@ -6,7 +6,7 @@ export const WarningCatalog = () => {
     return (
         <ul className="h-full bg-orange-100">
             {warnings.map((w) => (
-                <WarningRow warning={w} />
+                <WarningRow key={w.id} warning={w} />
             ))}
         </ul>
     );

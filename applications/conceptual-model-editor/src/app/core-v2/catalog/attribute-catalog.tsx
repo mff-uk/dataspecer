@@ -8,7 +8,11 @@ export const AttributeCatalog = () => {
         <>
             <ul>
                 {[...models.entries()].map(([modelId, model]) => (
-                    <EntitiesOfModel entityType="attribute" key={modelId + model.getAlias()} model={model} />
+                    <EntitiesOfModel
+                        entityType="attribute"
+                        key={modelId + model.getAlias() + "attributes"}
+                        model={model}
+                    />
                 ))}
             </ul>
         </>

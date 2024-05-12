@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const useMenuOptions = () => {
     const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
+    const menuOptionsRef = useRef<HTMLDivElement | null>(null);
 
     const close = (e: any) => {
         setIsMenuOptionsOpen(false);
@@ -12,9 +13,16 @@ export const useMenuOptions = () => {
         setIsMenuOptionsOpen(true);
     };
 
+    useEffect(() => {
+        if (isMenuOptionsOpen && menuOptionsRef.current) {
+            menuOptionsRef.current.focus();
+        }
+    }, [isMenuOptionsOpen]);
+
     const MenuButton = (props: { onClick?: () => void; text: string }) => {
         return (
             <button
+                id={`button-menu-options-${props.text}`}
                 type="button"
                 className={`hover:shadow ${props.text == "close" ? "text-red-700" : ""}`}
                 onClick={(e) => {
@@ -39,11 +47,17 @@ export const useMenuOptions = () => {
 
         return (
             <div
+                ref={menuOptionsRef}
+                tabIndex={-1}
                 style={{ pointerEvents: "all" }}
-                className={`flex w-max flex-col bg-white [&>*]:px-5 [&>*]:text-left  ${
-                    props.position ? props.position : ""
-                }`}
-                onBlur={close}
+                className={`flex flex-col bg-white [&>*]:px-5 [&>*]:text-left ${props.position ? props.position : ""}`}
+                onBlur={(e) => {
+                    console.log("blur event ", e);
+                    if (e.relatedTarget?.id.startsWith("button-menu-options-")) {
+                        return;
+                    }
+                    close(e);
+                }}
             >
                 <MenuButton text="close" />
                 <MenuButton text="open detail" onClick={openDetailHandler} />

@@ -180,7 +180,7 @@ export const EntitiesOfModel = (props: {
                 />
             );
         } else if (model instanceof InMemorySemanticModel && entityType == "class") {
-            return <AddConceptRow onClick={() => handleAddConcept(model)} />;
+            return <AddConceptRow key={modelId + "add-concept-row"} onClick={() => handleAddConcept(model)} />;
         }
         return <></>;
     };

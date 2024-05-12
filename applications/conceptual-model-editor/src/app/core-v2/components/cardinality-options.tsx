@@ -75,6 +75,7 @@ export const CardinalityOptions = (props: {
             <fieldset id={props.group} className="flex flex-grow flex-row">
                 {(["unset", "0x", "01", "11", "1x", "xx"] as CardinalityOption[]).map((k) => (
                     <CardinalityOptionElement
+                        key={k + group}
                         group={group}
                         checked={defaultCardinality == k}
                         disabled={disabled}

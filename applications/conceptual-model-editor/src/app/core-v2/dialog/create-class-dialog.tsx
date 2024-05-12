@@ -13,6 +13,7 @@ import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
+import { useClassesContext } from "../context/classes-context";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -26,6 +27,7 @@ export const useCreateClassDialog = () => {
     };
 
     const CreateClassDialog = () => {
+        const { createAClass } = useClassesContext();
         const { models } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
         const [activeModel, setActiveModel] = useState(model ?? inMemoryModels.at(0));
@@ -36,7 +38,7 @@ export const useCreateClassDialog = () => {
         const [newDescription, setNewDescription] = useState<LanguageString>({});
         const [iriHasChanged, setIriHasChanged] = useState(false);
         const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
-        const { addClassToModel, aggregatorView } = useModelGraphContext();
+        const { aggregatorView } = useModelGraphContext();
 
         const modelIri = getModelIri(activeModel);
 
@@ -50,7 +52,7 @@ export const useCreateClassDialog = () => {
                 return;
             }
 
-            const { id: clsId } = addClassToModel(activeModel, newName, newIri, newDescription);
+            const { id: clsId } = createAClass(activeModel, newName, newIri, newDescription); // addClassToModel(activeModel, newName, newIri, newDescription);
 
             if (clsId) {
                 aggregatorView

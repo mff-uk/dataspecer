@@ -98,9 +98,9 @@ const AssociationComponent = (props: {
 
 export const useCreateConnectionDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
     const { createConnection } = useClassesContext();
+    const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
+    const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
 
     useEffect(() => {
         const { current: el } = createConnectionDialogRef;

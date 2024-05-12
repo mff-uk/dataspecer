@@ -140,7 +140,6 @@ const Page = () => {
                 }
             })
             .catch((reason) => {
-                alert("there was an error getting models from backend, see console");
                 console.error(reason);
                 setPackage(null);
             });

@@ -61,11 +61,11 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                 <div key={"attributes" + attributes.length} className="max-h-44 overflow-x-auto ">
                     <>
                         {attributes?.slice(0, 5).map((attr) => (
-                            <ClassNodeAttributeRow attribute={attr} />
+                            <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
                         ))}
                         {attributes.length >= 5 && <ThreeDotsRow onClickHandler={props.data.openEntityDetailDialog} />}
                         {attributeUsages?.slice(0, 5).map((attr) => (
-                            <ClassNodeAttributeRow attribute={attr} />
+                            <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
                         ))}
                         {attributeUsages.length >= 5 && (
                             <ThreeDotsRow onClickHandler={props.data.openEntityDetailDialog} />

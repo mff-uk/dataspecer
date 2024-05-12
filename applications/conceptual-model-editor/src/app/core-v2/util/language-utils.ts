@@ -10,18 +10,30 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDescriptionLanguageString, getNameLanguageString, getUsageNoteLanguageString } from "./name-utils";
 
-export const getStringFromLanguageStringInLang = (languageString: LanguageString | null, lang: string = "en") => {
+/**
+ * Tries to get a string from `languageString` in `preferredLanguage`.
+ *
+ * @param languageString
+ * @param preferredLanguage
+ * @returns [`translation`, `null`] if `preferredLanguage` exists
+ * @returns [`translation`,`otherLanguage`] if `preferredLanguage` does not exist, but other language does
+ * @returns [`null`,`null`] if `languageString` is empty or `null`
+ */
+export const getStringFromLanguageStringInLang = (
+    languageString: LanguageString | null,
+    preferredLanguage: string = "en"
+) => {
     if (!languageString) {
         return [null, null] as const;
     }
 
-    const result = languageString?.[lang];
+    const result = languageString?.[preferredLanguage];
     if (result) {
         return [result, null] as const;
     }
 
     // get lang from lang hierarchy
-    let nextLanguages = nextLanguageInHierarchy(lang);
+    let nextLanguages = nextLanguageInHierarchy(preferredLanguage);
     while (nextLanguages.length > 0) {
         const nextLang = nextLanguages.at(0)!;
         nextLanguages = nextLanguages.slice(1);
@@ -43,6 +55,11 @@ export const getStringFromLanguageStringInLang = (languageString: LanguageString
     return [null, null] as const;
 };
 
+/**
+ * Creates a string from helper function `getStringFromLanguageStringInLang`
+ * @param stringAndLang
+ * @returns either the `<string>` or `<string>@<otherLanguage>` if the preferred language translation doesn't exist
+ */
 const getLocalizedString = (
     stringAndLang: readonly [null, null] | readonly [string, string] | readonly [string, null]
 ) => {
@@ -56,8 +73,14 @@ const getLocalizedString = (
     }
 };
 
-export const getLocalizedStringFromLanguageString = (ls: LanguageString | null, lang: string = "en") => {
-    return getLocalizedString(getStringFromLanguageStringInLang(ls, lang));
+/**
+ * Creates a localized string from `ls`
+ * @param ls
+ * @param preferredLanguage
+ * @returns either the `<string>` or `<string>@<otherLanguage>` if the `preferredLanguage` translation doesn't exist
+ */
+export const getLocalizedStringFromLanguageString = (ls: LanguageString | null, preferredLanguage: string = "en") => {
+    return getLocalizedString(getStringFromLanguageStringInLang(ls, preferredLanguage));
 };
 
 const nextLanguageInHierarchy = (lang: string) => {

@@ -16,6 +16,11 @@ export const filterInMemoryModels = (models: EntityModel[]) => {
     return models.filter((m): m is InMemorySemanticModel => m instanceof InMemorySemanticModel);
 };
 
+/**
+ * Returns model type as a string to be shown in an entity detail for example.
+ * @param model
+ * @returns
+ */
 export const getModelType = (model: EntityModel | undefined | null) => {
     if (model instanceof InMemorySemanticModel) {
         return "local model";

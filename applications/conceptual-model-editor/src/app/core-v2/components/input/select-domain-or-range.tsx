@@ -4,15 +4,11 @@ import { OverrideFieldCheckbox } from "./override-field-checkbox";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityProxy } from "../../util/detail-utils";
 
-const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsage; selected?: boolean }) => {
-    const { resource, selected } = props;
+const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsage }) => {
+    const { resource } = props;
     const displayName = EntityProxy(resource).name;
 
-    return (
-        <option value={resource.id} selected={selected}>
-            {displayName}
-        </option>
-    );
+    return <option value={resource.id}>{displayName}</option>;
 };
 
 export const SelectDomainOrRange = (props: {
@@ -28,6 +24,15 @@ export const SelectDomainOrRange = (props: {
 
     const classesOrProfiles = [...classes2, ...profiles.filter(isSemanticModelClassUsage)];
 
+    let value: string;
+    if (concept == null) {
+        value = "null";
+    } else if (concept == "") {
+        value = "null";
+    } else {
+        value = concept;
+    }
+
     return (
         <div className="flex flex-row">
             <select
@@ -42,12 +47,13 @@ export const SelectDomainOrRange = (props: {
                     }
                     onChange?.();
                 }}
+                value={value}
             >
                 <option value="null" disabled={!withNullValueEnabled} selected={concept == "" || concept == null}>
                     ---
                 </option>
                 {classesOrProfiles.map((v) => (
-                    <OptionRow resource={v} selected={concept == v.id} />
+                    <OptionRow key={v.id} resource={v} />
                 ))}
             </select>
             {withOverride && (
