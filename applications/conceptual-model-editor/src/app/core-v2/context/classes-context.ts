@@ -1,13 +1,16 @@
 import {
+    LanguageString,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
+    createClass,
     createGeneralization,
     createRelationship,
     deleteEntity,
+    modifyClass,
     modifyRelation,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
@@ -17,7 +20,12 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import {
+    createClassUsage,
+    createRelationshipUsage,
+    modifyClassUsage,
+    modifyRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { Entity } from "@dataspecer/core-v2";
 
@@ -67,6 +75,22 @@ export const useClassesContext = () => {
         setRawEntities,
     } = useContext(ClassesContext);
 
+    const createAClass = (
+        model: InMemorySemanticModel,
+        name: LanguageString,
+        iri: string,
+        description: LanguageString | undefined
+    ) => {
+        const result = model.executeOperation(
+            createClass({
+                name: name,
+                iri: iri,
+                description: description,
+            })
+        );
+        return result;
+    };
+
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
@@ -86,7 +110,38 @@ export const useClassesContext = () => {
         }
     };
 
-    const addAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {
+    const createClassEntityUsage = (
+        model: InMemorySemanticModel,
+        entityType: "class" | "class-usage",
+        entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
+    ) => {
+        if (entityType == "class" || entityType == "class-usage") {
+            const result = model.executeOperation(createClassUsage(entity));
+            console.log(result);
+            return result;
+        } else {
+            console.error(model, entityType, entity);
+            throw new Error(`unexpected entityType ${entityType}`);
+        }
+    };
+
+    const createRelationshipEntityUsage = (
+        model: InMemorySemanticModel,
+        entityType: "relationship" | "relationship-usage",
+        entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
+    ) => {
+        if (entityType == "relationship" || entityType == "relationship-usage") {
+            const result = model.executeOperation(createRelationshipUsage(entity));
+            console.log(result);
+            return result.success;
+        } else {
+            console.error(model, entityType, entity);
+            throw new Error(`unexpected entityType ${entityType}`);
+        }
+        return false;
+    };
+
+    const createAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
             return;
@@ -94,6 +149,28 @@ export const useClassesContext = () => {
 
         const result = model.executeOperation(createRelationship(attr));
         return result.success;
+    };
+
+    const updateAClass = (
+        model: InMemorySemanticModel,
+        classId: string,
+        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>
+    ) => {
+        const result = model.executeOperation(
+            modifyClass(classId, {
+                ...newClass,
+            })
+        );
+        return result.success;
+    };
+
+    const updateRelationship = (
+        model: InMemorySemanticModel,
+        entityId: string,
+        newEntity: Partial<Omit<SemanticModelRelationship, "type" | "id">>
+    ) => {
+        console.log("modifying relationship ", newEntity);
+        return model.executeOperation(modifyRelation(entityId, newEntity)).success;
     };
 
     const updateAttribute = (
@@ -112,6 +189,22 @@ export const useClassesContext = () => {
     ) => {
         const result = model.executeOperation(modifyRelationshipUsage(attributeId, updatedAttribute));
         return result.success;
+    };
+
+    const updateEntityUsage = (
+        model: InMemorySemanticModel,
+        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
+        id: string,
+        entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
+    ) => {
+        if (entityType == "relationship-usage") {
+            console.log("about to modify relationship usage", id, entity);
+            const result = model.executeOperation(modifyRelationshipUsage(id, entity));
+            return result.success;
+        } else if (entityType == "class-usage") {
+            const result = model.executeOperation(modifyClassUsage(id, entity));
+            return result.success;
+        }
     };
 
     const deleteEntityFromModel = (model: InMemorySemanticModel, entityId: string) => {
@@ -136,16 +229,22 @@ export const useClassesContext = () => {
         setRelationships,
         generalizations,
         setGeneralizations,
-        createConnection,
-        addAttribute,
-        updateAttribute,
-        updateAttributeUsage,
-        deleteEntityFromModel,
         profiles,
         setProfiles,
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
-        executeMultipleOperations,
         rawEntities,
+        createAClass,
+        createConnection,
+        createClassEntityUsage,
+        createRelationshipEntityUsage,
+        createAttribute,
+        updateAClass,
+        updateRelationship,
+        updateAttribute,
+        updateEntityUsage,
+        updateAttributeUsage,
+        deleteEntityFromModel,
+        executeMultipleOperations,
     };
 };

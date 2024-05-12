@@ -7,7 +7,6 @@ import {
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useState } from "react";
-import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
@@ -75,9 +74,7 @@ export const useModifyEntityDialog = () => {
 
     const ModifyEntityDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
-
-        const { modifyRelationship, updateEntityUsage } = useModelGraphContext();
-
+        const { updateRelationship, updateEntityUsage } = useClassesContext();
         const currentIri = getIri(modifiedEntity);
 
         const [name2, setName2] = useState(getNameLanguageString(modifiedEntity) ?? {});
@@ -195,7 +192,7 @@ export const useModifyEntityDialog = () => {
                 ends = [domainEnd, rangeEnd];
             }
 
-            const result = modifyRelationship(m, modifiedEntity.id, {
+            const result = updateRelationship(m, modifiedEntity.id, {
                 ends,
             });
             console.log("modifying relationship: ", modifiedEntity.id, ends);
@@ -479,7 +476,7 @@ export const useModifyEntityDialog = () => {
                         onClick={handleSaveButtonClicked}
                         disabled={wantsToAddNewAttributes}
                         title={wantsToAddNewAttributes ? "first save the attribute or cancel the action" : undefined}
-                        style=" hover:disabled:cursor-not-allowed"
+                        style="hover:disabled:cursor-not-allowed"
                     />
                     <CancelButton onClick={close} />
                 </div>

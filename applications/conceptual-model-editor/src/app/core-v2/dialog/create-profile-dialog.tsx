@@ -33,6 +33,7 @@ import { getRandomName } from "~/app/utils/random-gen";
 import { IriInput } from "../components/input/iri-input";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
+import { useClassesContext } from "../context/classes-context";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -56,9 +57,8 @@ export const useCreateProfileDialog = () => {
 
     const CreateProfileDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
-
-        const { models, createClassEntityUsage, createRelationshipEntityUsage, aggregatorView } =
-            useModelGraphContext();
+        const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
+        const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         if (inMemoryModels.length == 0) {
