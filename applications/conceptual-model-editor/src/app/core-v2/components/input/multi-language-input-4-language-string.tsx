@@ -1,6 +1,26 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
+
+const LanguageItem = (props: {
+    children: ReactNode;
+    onClick: () => void;
+    onDeleted: () => void;
+    selected?: boolean;
+    disabled?: boolean;
+}) => {
+    const { children, onClick, onDeleted, selected, disabled } = props;
+    return (
+        <li onClick={onClick} className={selected ? "font-bold" : ""}>
+            {children}
+            {selected && (
+                <button disabled={disabled} className="text-xs" onClick={onDeleted}>
+                    🗑
+                </button>
+            )}
+        </li>
+    );
+};
 
 export const MultiLanguageInputForLanguageString = (props: {
     ls: LanguageString;
@@ -85,22 +105,19 @@ export const MultiLanguageInputForLanguageString = (props: {
             <ul className="flex flex-row text-base [&>*]:mx-1">
                 {languages
                     .map((lang, i) => (
-                        <li
-                            onClick={() => {
-                                setCurrentLang(lang);
-                            }}
-                            className={lang == currentLang ? "font-bold" : ""}
+                        <LanguageItem
+                            key={lang + i}
+                            onClick={() => setCurrentLang(lang)}
+                            onDeleted={languageDeletedHandler}
+                            selected={lang == currentLang}
+                            disabled={disabled}
                         >
                             {lang}
-                            {lang == currentLang && (
-                                <button disabled={disabled} className="text-xs" onClick={languageDeletedHandler}>
-                                    🗑
-                                </button>
-                            )}
-                        </li>
+                        </LanguageItem>
                     ))
                     .concat(
                         <AddLang
+                            key={"add-language-button"}
                             onEnterCallback={(l) => {
                                 setLs((prev) => ({ ...prev, [l]: "" }));
                                 setCurrentLang(l);

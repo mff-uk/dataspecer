@@ -1,17 +1,19 @@
+import { useMemo } from "react";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { useModelGraphContext } from "../context/model-context";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { useEffect, useMemo, useState } from "react";
-import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { useDownload } from "../features/export/download";
-import { usePackageSearch } from "../util/package-search";
-import { useQueryParams } from "../util/query-params";
-import { useClassesContext } from "../context/classes-context";
-import { getIri, getModelIri, entityWithOverriddenIri } from "../util/iri-utils";
+import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
+import { useModelGraphContext } from "../../context/model-context";
+import { useDownload } from "../export/download";
+import { usePackageSearch } from "../../util/package-search";
+import { useQueryParams } from "../../util/query-params";
+import { useClassesContext } from "../../context/classes-context";
+import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-utils";
+import { ExportButton } from "../../components/management/buttons/export-button";
+import { useAutoSave } from "../autosave";
 
 export const ExportManagement = () => {
     const {
@@ -25,26 +27,12 @@ export const ExportManagement = () => {
         cleanModels,
     } = useModelGraphContext();
     const { sourceModelOfEntityMap } = useClassesContext();
-    const { download } = useDownload();
-    const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
-    const { getWorkspaceState, saveWorkspaceState } = useLocalStorage();
-    const [autosaveActive, setAutosaveActive] = useState(false);
-    const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
+    const { saveWorkspaceState } = useLocalStorage();
     const { setPackage } = usePackageSearch();
     const { clearQueryParams } = useQueryParams();
-
-    useEffect(() => {
-        if (autosaveActive) {
-            saveWorkspaceState(models, visualModels, aggregatorView.getActiveViewId());
-            const res = setInterval(() => {
-                saveWorkspaceState(models, visualModels);
-            }, 30000);
-            setAutosaveInterval(res);
-        } else {
-            clearInterval(autosaveInterval!);
-            setAutosaveInterval(null);
-        }
-    }, [autosaveActive]);
+    const { download } = useDownload();
+    const { AutoSaveButton } = useAutoSave();
+    const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
 
     const uploadConfiguration = (contentType: string = "application/json") => {
         return new Promise<string | undefined>((resolve) => {
@@ -115,15 +103,6 @@ export const ExportManagement = () => {
         download(generatedLightweightOwl, `dscme-lw-ontology-${date}.ttl`, "text/plain");
     };
 
-    const handleUploadFromLocalStorage = async () => {
-        const result = await getWorkspaceState();
-        if (!result) {
-            return;
-        }
-        const { packageId, entityModels, visualModels, activeView } = result;
-        loadWorkSpaceConfiguration(entityModels, visualModels, activeView);
-    };
-
     const handleLoadWorkspaceFromJson = async () => {
         const configuration = await uploadConfiguration();
 
@@ -152,53 +131,16 @@ export const ExportManagement = () => {
 
     return (
         <div className="mr-2 flex flex-row">
-            <div className="ml-1">
-                <button
-                    className="bg-[#c7556f] px-1"
-                    title="open workspace from configuration file"
-                    onClick={handleLoadWorkspaceFromJson}
-                >
-                    📥ws
-                </button>
-            </div>
-            <div className="ml-1">
-                <button
-                    className="bg-[#c7556f] px-1"
-                    title="open auto-saved configuration from local storage"
-                    onClick={handleUploadFromLocalStorage}
-                >
-                    📥autosave
-                </button>
-            </div>
-            <div className="ml-1">
-                <button
-                    className="bg-[#c7556f] px-1"
-                    title={`autosave: ${autosaveActive ? "active" : "inactive"}, ${
-                        autosaveActive ? "stop" : "start"
-                    } autosave to local storage`}
-                    onClick={() => setAutosaveActive((prev) => !prev)}
-                >
-                    {autosaveActive ? "🟢" : "🔴"}autosave
-                </button>
-            </div>
-            <div className="ml-1">
-                <button
-                    className="bg-[#c7556f] px-1"
-                    title="generate workspace configuration file"
-                    onClick={handleExportWorkspaceToJson}
-                >
-                    💾ws
-                </button>
-            </div>
-            <div className="ml-1">
-                <button
-                    className="bg-[#c7556f] px-1"
-                    title="generate lightweight ontology"
-                    onClick={handleGenerateLightweightOwl}
-                >
-                    💾lw-onto
-                </button>
-            </div>
+            <ExportButton title="open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
+                📥ws
+            </ExportButton>
+            <AutoSaveButton />
+            <ExportButton title="generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
+                💾ws
+            </ExportButton>
+            <ExportButton title="generate lightweight ontology" onClick={handleGenerateLightweightOwl}>
+                💾lw-onto
+            </ExportButton>
         </div>
     );
 };

@@ -8,7 +8,11 @@ export const RelationshipCatalog = () => {
         <>
             <ul>
                 {[...models.entries()].map(([modelId, model]) => (
-                    <EntitiesOfModel entityType="relationship" key={modelId + model.getAlias()} model={model} />
+                    <EntitiesOfModel
+                        entityType="relationship"
+                        key={modelId + model.getAlias() + "relationships"}
+                        model={model}
+                    />
                 ))}
             </ul>
         </>

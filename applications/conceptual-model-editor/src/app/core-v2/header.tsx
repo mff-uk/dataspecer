@@ -1,9 +1,9 @@
 import Link from "next/link";
 import React, { Children } from "react";
-import { PackageManagement } from "./management/package-management";
-import { ViewManagement } from "./management/view-management";
-import { ExportManagement } from "./management/export-management";
-import { LanguageManagement } from "./management/language-management";
+import { PackageManagement } from "./features/management/package-management";
+import { ViewManagement } from "./features/management/view-management";
+import { ExportManagement } from "./features/management/export-management";
+import { LanguageManagement } from "./features/management/language-management";
 import { DscmeLogo } from "../components/dscme-logo";
 
 const HeaderDivider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />;

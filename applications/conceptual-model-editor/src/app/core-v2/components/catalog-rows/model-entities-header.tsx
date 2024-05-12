@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { ColorPicker } from "../../util/color-picker";
+import { ColorPicker } from "../../features/color-picker";
 import { ExpandModelButton } from "../buttons";
 import { useModelGraphContext } from "../../context/model-context";
 import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";

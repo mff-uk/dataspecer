@@ -436,7 +436,7 @@ export const useModifyEntityDialog = () => {
                 */}
 
                 {canHaveAttributes && (
-                    <p className="bg-slate-100">
+                    <div className="bg-slate-100">
                         <div className="flex flex-row justify-between">
                             <button
                                 className="ml-8 bg-slate-300"
@@ -465,7 +465,7 @@ export const useModifyEntityDialog = () => {
                                 />
                             )}
                         </div>
-                    </p>
+                    </div>
                 )}
 
                 {/* 

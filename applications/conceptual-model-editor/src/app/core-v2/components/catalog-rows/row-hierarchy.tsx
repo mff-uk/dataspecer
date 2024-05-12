@@ -94,7 +94,6 @@ export const RowHierarchy = (props: {
     return (
         <>
             <div
-                // className={`${thisEntityProfiles.length > 0 && props.indent == 0 ? "grid grid-cols-[auto_1fr]" : ""}`}
                 className="flex flex-col"
                 style={
                     props.indent > 0 && sourceModel
@@ -102,11 +101,6 @@ export const RowHierarchy = (props: {
                         : {}
                 }
             >
-                {/* {thisEntityProfiles.length > 0 && props.indent == 0 && (
-                    <button title="show profiles of this entity" onClick={() => setShowProfiles((prev) => !prev)}>
-                        {showProfiles ? "🍳" : "🥚"}
-                    </button>
-                )} */}
                 <EntityRow
                     offset={props.indent}
                     entity={props.entity}
@@ -120,17 +114,15 @@ export const RowHierarchy = (props: {
                     sourceModel={sourceModel}
                     visibleOnCanvas={isOnCanvas}
                 />
-                {
-                    /* props.indent > 0  || showProfiles  && */
-                    thisEntityProfiles.map((p) => (
-                        <RowHierarchy
-                            entity={p}
-                            indent={props.indent + 1}
-                            handlers={props.handlers}
-                            visibleOnCanvas={props.visibleOnCanvas}
-                        />
-                    ))
-                }
+                {thisEntityProfiles.map((p) => (
+                    <RowHierarchy
+                        key={p.id + entity.id + aggregatorView.getActiveViewId()}
+                        entity={p}
+                        indent={props.indent + 1}
+                        handlers={props.handlers}
+                        visibleOnCanvas={props.visibleOnCanvas}
+                    />
+                ))}
             </div>
         </>
     );

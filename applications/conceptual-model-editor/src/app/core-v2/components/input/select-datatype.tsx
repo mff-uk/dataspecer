@@ -37,7 +37,7 @@ export const SelectDatatype = (props: {
             >
                 <option value="null">---</option>
                 {DataTypeURIs.map((datatype) => (
-                    <OptionRow datatype={datatype} selected={valueSelected == datatype} />
+                    <OptionRow key={datatype} datatype={datatype} selected={valueSelected == datatype} />
                 ))}
             </select>
             {withOverride && (

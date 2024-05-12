@@ -8,7 +8,13 @@ export const ProfileCatalog = () => {
         <>
             <ul>
                 {[...models.entries()].map(([modelId, model]) => {
-                    return <EntitiesOfModel entityType="profile" key={modelId + model.getAlias()} model={model} />;
+                    return (
+                        <EntitiesOfModel
+                            entityType="profile"
+                            key={modelId + model.getAlias() + "profiles"}
+                            model={model}
+                        />
+                    );
                 })}
             </ul>
         </>

@@ -25,7 +25,6 @@ export const useBackendConnection = () => {
     ) => {
         const pkg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
         console.log(`updated models for package ${packageId}`, models, visualModels, pkg);
-        alert(`package ${packageId} updated on backend and logged to console`);
     };
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
@@ -34,7 +33,7 @@ export const useBackendConnection = () => {
             userMetadata: {
                 name: { cs: packageNameCs },
                 tags: [],
-            }
+            },
         } as ResourceEditable);
         console.log(pkg);
         alert(`package ${pkg.iri}-${packageNameCs} logged to console`);

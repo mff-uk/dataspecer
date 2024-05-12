@@ -57,7 +57,9 @@ export const DialogColoredModelHeaderWithLanguageSelector = (props: {
                         defaultValue={currentLanguage}
                     >
                         {langs.map((lang) => (
-                            <option value={lang}>{lang}</option>
+                            <option key={lang} value={lang}>
+                                {lang}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -90,7 +92,7 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                     defaultValue={activeModel}
                 >
                     {inMemoryModels.map(({ id, alias }) => (
-                        <option value={id}>
+                        <option key={id + alias} value={id}>
                             {alias ? alias + ":" : null}
                             {id}
                         </option>
