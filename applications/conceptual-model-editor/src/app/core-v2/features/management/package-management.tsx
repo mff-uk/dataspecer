@@ -28,7 +28,7 @@ export const PackageManagement = () => {
     };
 
     return (
-        <div className="my-auto flex flex-row">
+        <div className="my-auto flex flex-row text-nowrap">
             <SavePackageButton
                 disabled={!packageId}
                 title={packageId ? SAVE_PACKAGE : YOU_NEED_A_PACKAGE_ON_BACKEND}
