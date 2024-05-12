@@ -29,7 +29,7 @@ export const useAddModelDialog = () => {
     const AddModelDialog = () => {
         const [modelTtlFiles, setModelTtlFiles] = useState([
             "https://www.w3.org/ns/dcat.ttl",
-            // "https://schema.org/version/latest/schemaorg-current-https.ttl",
+            "https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl",
         ]); // FIXME: sanitize
 
         const handleAddModels = () => {

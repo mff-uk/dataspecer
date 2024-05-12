@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { createSgovModel, createRdfsModel, ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
 import { useAddModelDialog } from "../dialog/add-model-dialog";
@@ -33,6 +33,14 @@ export const ModelCatalog = () => {
 
         const aggregatedView = aggregator.getView();
         setAggregatorView(aggregatedView);
+    };
+
+    const hasSgov = () => {
+        const m = [...models.values()].find((m) => m instanceof ExternalSemanticModel);
+        if (!m) {
+            return false;
+        }
+        return true;
     };
 
     const AddModelDialogButton = () => (
@@ -79,10 +87,12 @@ export const ModelCatalog = () => {
                         </li>
                     ))}
                 </ul>
-                <AddModelDialogButton />
-                <AddModelButton disabled={models.has(SGOV_MODEL_ID)} modelType={SGOV_MODEL_ID} />
-                <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} />
-                <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
+                <div className="flex flex-row [&>*]:mr-1">
+                    <AddModelDialogButton />
+                    <AddModelButton disabled={hasSgov()} modelType={SGOV_MODEL_ID} />
+                    {/* <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} /> */}
+                    <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
+                </div>
             </div>
             {isAddModelDialogOpen && <AddModelDialog />}
         </>
