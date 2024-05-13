@@ -120,14 +120,14 @@ export const ApiSpecificationForm = () => {
         fetchData();
     }, [fetchDataStructures]);
 
-    //console.log(fetchedDataStructuresArr);
+    console.log(fetchedDataStructuresArr);
 
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         try {
-           //const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
+            const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
             console.log("submitted data: " + JSON.stringify(data))
-            //console.log('Generated OpenAPI Specification:', openAPISpec);
+            console.log('Generated OpenAPI Specification:', openAPISpec);
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Form validation failed:', error.message);

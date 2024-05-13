@@ -107,9 +107,6 @@ export function useDataSpecificationInfo() {
             // get fields of the root data structure - associations and attributes (string id)
             const rootPropertyIris = dataStructure.resources[rootClass]?.dataPsmParts;
 
-
-
-
             // initialize an array of fields (attributes and associations of the data structure) and process each field recursively
             const fields: Field[] = rootPropertyIris.map((rootIri: string) => {
                 return processFields(dataStructure, rootIri, pimData);
@@ -140,25 +137,38 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
 
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
+
+    let isArray = false;
     
     if(targetResource)
     {
         if(targetResource.pimCardinalityMax)
         {
             console.log(targetResource?.pimHumanLabel?.en + "with cardinality " + targetResource?.pimCardinalityMax)
+            
+            if(targetResource.pimCardinalityMax == 1)
+            {
+                isArray = false;
+            }
+            else
+            {
+                isArray = true;
+            }
+            
         }
         else
         {
-            console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " )
+            console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " );
+            isArray = true;
         }
     }
-    //console.log("ds :" + fieldData.name + "cardinality " + cardinality);
 
     if (!fieldData) {
         throw new Error(`Field data not found for IRI: ${rootIri}`);
     }
 
     const field: Field = {
+        isArray: isArray,
         name: fieldData.dataPsmTechnicalLabel,
         type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? getDataTypeName(fieldData.dataPsmDatatype) : "Object",
     };
