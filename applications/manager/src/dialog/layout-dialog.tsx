@@ -111,25 +111,26 @@ export const useConfigDialog = () => {
         </div>
 
 
-    // const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
-    //     <div>
-    //         <h1 className='font-black'>
-    //             {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
-    //         </h1>
-    //         <div className="flex flex-row">
-    //             <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
-    //         </div> 
-    //         <div className="flex flex-row">
-    //             <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
-    //                             // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-    //                             setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
-    //                 }}>
-    //                 <option value="UP">Nahoru</option>
-    //                 <option value="RIGHT">Doprava</option>
-    //                 <option value="DOWN">Dolu</option>
-    //                 <option value="LEFT">Doleva</option>
-    //             </select>
-    //         </div>    
+    const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
+        <div>
+            <h1 className='font-black'>
+                {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
+            </h1>
+            <div className="flex flex-row">
+                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
+            </div> 
+            <div className="flex flex-row">
+                <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
+                                // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
+                                setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
+                    }}>
+                    <option value="UP">Nahoru</option>
+                    <option value="RIGHT">Doprava</option>
+                    <option value="DOWN">Dolu</option>
+                    <option value="LEFT">Doleva</option>
+                </select>
+            </div>    
+        </div>
     
     //         <div className="flex flex-row">
     //             { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
@@ -169,18 +170,18 @@ export const useConfigDialog = () => {
                 </select>
             </div>            
             <div className='h-8'>------------------------</div> 
-            {/* {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>} */}
+            {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}
             <StressConfig></StressConfig>
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
             <label htmlFor="checkbox-main-layout-alg">Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec)</label>            
-            {/* {config['process-general-separately'] === false ? null : 
+            {config['process-general-separately'] === false ? null : 
                 <div>
                     <div className='h-2'></div>                  
                     <LayeredConfig idPrefix='general-'></LayeredConfig>
                 </div>
-            } */}
+            }
         </div>
 
     return {
