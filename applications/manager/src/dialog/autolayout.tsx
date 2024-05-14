@@ -1,5 +1,5 @@
 import { lng } from "@/Dir";
-import { Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/modal";
+import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
@@ -8,7 +8,6 @@ import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
 import { doLayout } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
-import { useConfigDialog } from "./layout-dialog";
 
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
   const resources = useContext(ResourcesContext);
@@ -74,7 +73,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-//  const { getValidConfig, ConfigDialog } = useConfigDialog();
+  // const { getValidConfig, ConfigDialog } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
@@ -84,7 +83,8 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
           <ModalDescription>
             Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
           </ModalDescription>          
-        </ModalHeader>        
+        </ModalHeader>
+        
         <ModalFooter>
           <Button variant="default" onClick={execute} disabled={isLoading}>
             {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
