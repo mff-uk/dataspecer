@@ -142,19 +142,19 @@ export const useConfigDialog = () => {
                         onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
                 {config[`${props.idPrefix}layer-gap`]}
             </div>
-        </div>    
+            
 
-    //         <div className="flex flex-row">
-    //             <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
-    //         </div>
-    //         <div className="flex flex-row ">
-    //             <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
-    //                     defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
-    //                     onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}>
-    //             </input>            
-    //             {config[`${props.idPrefix}in-layer-gap`]}
-    //         </div>
-    //     </div>;
+            <div className="flex flex-row">
+                 <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
+             </div>
+             <div className="flex flex-row ">
+                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
+                        defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
+                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}>
+                </input>            
+                {config[`${props.idPrefix}in-layer-gap`]}
+            </div>
+        </div>
 
 
     const ConfigDialog = () =>   
