@@ -10,12 +10,13 @@ This project uses:
 
 -   Next.js 13 with [static HTML export enabled](https://nextjs.org/docs/advanced-features/static-html-export) and experimental app directory
 -   React.js 18
--   Tailwind.css
+-   Tailwind.css for styling
+-   ReactFlow for visualization
 -   JointJS
 
 # Build instructions
 
-1. Clone the repository
+1. Clone the whole dataspecer repository
 2. From the root of the mono repository install all packages
 
 ```
@@ -39,3 +40,11 @@ Then, you can start dev server from this directory by
 ```
 npm run dev
 ```
+
+## 3rd party libraries
+
+-   tailwind.css for styling
+-   ReactFlow for visualization
+-   JointJS
+-   IRI for checking that an IRI is absolute or relative
+-   html-to-image for generating svg images

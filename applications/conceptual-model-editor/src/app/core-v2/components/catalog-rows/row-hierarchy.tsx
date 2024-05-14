@@ -15,8 +15,8 @@ import { useClassesContext } from "../../context/classes-context";
 import { ProfileDialogSupportedTypes } from "../../dialog/create-profile-dialog";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { useState } from "react";
 import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
+import { useCanvasVisibility } from "../../util/canvas-utils";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -40,20 +40,18 @@ export const RowHierarchy = (props: {
         handleRemoveEntityFromActiveView: (entityId: string) => void;
         handleCreateUsage: (entity: ProfileDialogSupportedTypes) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
-        handleRemoval: (model: InMemorySemanticModel, entityId: string) => void;
+        handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => void;
     };
-    visibleOnCanvas: Map<string, boolean>;
     indent: number;
 }) => {
     const { models, aggregatorView } = useModelGraphContext();
     const { profiles, classes2, allowedClasses } = useClassesContext();
-    const { entity, visibleOnCanvas } = props;
-
-    const [showProfiles, setShowProfiles] = useState(false);
+    const { entity } = props;
+    const { isOnCanvas } = useCanvasVisibility(entity.id);
 
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
 
-    const isOnCanvas = props.visibleOnCanvas.get(props.entity.id);
+    // const isOnCanvas = useMemo(()=>visibleOnCanvas.get(props.entity.id),[])
     const isAttribute = isAnAttribute(props.entity);
 
     const modificationHandler =
@@ -79,7 +77,7 @@ export const RowHierarchy = (props: {
               };
 
     const removalHandler =
-        sourceModel instanceof InMemorySemanticModel
+        sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
             ? { remove: () => props.handlers.handleRemoval(sourceModel, props.entity.id) }
             : null;
 
@@ -90,6 +88,8 @@ export const RowHierarchy = (props: {
     };
 
     const thisEntityProfiles = profiles.filter((p) => p.usageOf == props.entity.id);
+
+    // console.log("row hierarchy rerendered", sourceModel?.getId());
 
     return (
         <>
@@ -120,7 +120,6 @@ export const RowHierarchy = (props: {
                         entity={p}
                         indent={props.indent + 1}
                         handlers={props.handlers}
-                        visibleOnCanvas={props.visibleOnCanvas}
                     />
                 ))}
             </div>

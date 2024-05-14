@@ -1,5 +1,7 @@
 # dscme
 
+_developer docs are [here](./dev-docs.md)_
+
 Dataspecer - Conceptual model editor
 
 You can do many things in here.
@@ -28,7 +30,7 @@ Best way to start is to use the [specification manager](https://tool.dataspecer.
 
 ### Catalog
 
-Catalog has two parts, one for models and one for classes/relationships/attributes/profiles.
+Catalog has two parts, one for models and one for concepts (classes/relationships/attributes/profiles).
 
 #### Model catalog
 
@@ -39,6 +41,11 @@ The bottom part has 3 buttons, one to add any `.ttl` model, one for `local` mode
 For more information on working with models, refer yourself to [models section](./models.md).
 
 #### Concept catalog
+
+Here are all concepts from models you work with. They are divided into multiple columns based on their type.
+Concepts from different models are treated differently, concepts based on their type are treated differently.
+
+For more information on working with concepts, refer yourself to [concepts section](./concepts-catalog.md).
 
 ### Header
 
