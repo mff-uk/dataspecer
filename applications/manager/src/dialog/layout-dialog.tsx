@@ -154,7 +154,7 @@ export const useConfigDialog = () => {
                 </input>            
                 {config[`${props.idPrefix}in-layer-gap`]}
             </div>
-        </div>
+        </div>;
 
 
     const ConfigDialog = () =>   
