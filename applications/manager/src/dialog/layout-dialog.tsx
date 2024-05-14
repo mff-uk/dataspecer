@@ -16,8 +16,6 @@ enum DIRECTION {
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have language strings, etc.
 export const useConfigDialog = () => {
-
-
     const [config, setConfig] = useState({"init": "init", "main-layout-alg": "stress", 
 //                                            "profile-nodes-position-against-source": DIRECTION.DOWN,
                                             "main-alg-direction": DIRECTION.UP,
@@ -100,7 +98,7 @@ export const useConfigDialog = () => {
         <div>
             <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
             <div className="flex flex-row">
-                <label htmlFor="main-alg-direction">Ideální délka hran: </label>
+                <label htmlFor="range-stress-edge-len">Ideální délka hran: </label>
             </div> 
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
@@ -116,10 +114,10 @@ export const useConfigDialog = () => {
     const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
         <div>
             <h1 className='font-black'>
-            {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
+                {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
             </h1>
             <div className="flex flex-row">
-                <label htmlFor="main-alg-direction">Preferovaný směr hran: </label>
+                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
             </div> 
             <div className="flex flex-row">
                 <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
@@ -131,7 +129,7 @@ export const useConfigDialog = () => {
                     <option value="DOWN">Dolu</option>
                     <option value="LEFT">Doleva</option>
                 </select>
-            </div>    
+            </div>            
     
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
@@ -144,35 +142,35 @@ export const useConfigDialog = () => {
                         onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
                 {config[`${props.idPrefix}layer-gap`]}
             </div>
+            
 
             <div className="flex flex-row">
-                <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
-            </div>
-            <div className="flex flex-row ">
-                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
+                 <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
+             </div>
+             <div className="flex flex-row ">
+                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
                         defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
-                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>            
+                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}>
+                </input>            
                 {config[`${props.idPrefix}in-layer-gap`]}
             </div>
-        </div>;
+        </div>
 
 
     const ConfigDialog = () =>   
         <div>
-
             <div className="flex flex-row">
                 <label htmlFor="main-layout-alg" className='font-black'>Hlavní layoutovací algoritmus: </label>
             </div>    
             <div className="flex flex-row">
-                <select id="main-layout-alg" value={config['main-layout-alg']} onChange={(event) => {
-                                        setConfig({...config, "main-layout-alg": event.target.value });
-                    }}>
+                <select id="main-layout-alg" value={config['main-layout-alg']} 
+                        onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
                     <option value="layered">Úrovňový</option>
                     <option value="stress">Fyzikální</option>
                 </select>
             </div>            
             <div className='h-8'>------------------------</div> 
-            {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}
+            {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}            
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
@@ -181,8 +179,8 @@ export const useConfigDialog = () => {
                 <div>
                     <div className='h-2'></div>                  
                     <LayeredConfig idPrefix='general-'></LayeredConfig>
-                </div>}
-
+                </div>
+            }
         </div>
 
     return {
