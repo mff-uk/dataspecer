@@ -117,7 +117,7 @@ export const useConfigDialog = () => {
                 {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
             </h1>
             <div className="flex flex-row">
-                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
+                <label htmlFor="main-alg-direction">Preferovaný směr hran: </label>
             </div> 
             <div className="flex flex-row">
                 <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
