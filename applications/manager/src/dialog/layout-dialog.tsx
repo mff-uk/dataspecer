@@ -129,20 +129,20 @@ export const useConfigDialog = () => {
                     <option value="DOWN">Dolu</option>
                     <option value="LEFT">Doleva</option>
                 </select>
-            </div>    
-        </div>
+            </div>            
     
-    //         <div className="flex flex-row">
-    //             { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
-    //             { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
-    //             <label htmlFor={`range-${props.idPrefix}layer-gap`}>Prostor mezi vrstvami: </label>
-    //         </div>
-    //         <div className="flex flex-row">    
-    //             <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
-    //                     defaultValue={config[`${props.idPrefix}layer-gap`]} 
-    //                     onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
-    //             {config[`${props.idPrefix}layer-gap`]}
-    //         </div>
+            <div className="flex flex-row">
+                { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
+                { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
+                <label htmlFor={`range-${props.idPrefix}layer-gap`}>Prostor mezi vrstvami: </label>
+            </div>
+            <div className="flex flex-row">    
+                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
+                        defaultValue={config[`${props.idPrefix}layer-gap`]} 
+                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
+                {config[`${props.idPrefix}layer-gap`]}
+            </div>
+        </div>    
 
     //         <div className="flex flex-row">
     //             <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
