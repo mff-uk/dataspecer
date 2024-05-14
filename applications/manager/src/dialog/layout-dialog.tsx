@@ -16,8 +16,6 @@ enum DIRECTION {
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have language strings, etc.
 export const useConfigDialog = () => {
-
-
     const [config, setConfig] = useState({"init": "init", "main-layout-alg": "stress", 
 //                                            "profile-nodes-position-against-source": DIRECTION.DOWN,
                                             "main-alg-direction": DIRECTION.UP,
@@ -96,82 +94,81 @@ export const useConfigDialog = () => {
     // }
 
 
-    const StressConfig = () =>
-        <div>
-            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
-            <div className="flex flex-row">
-                <label htmlFor="main-alg-direction">Ideální délka hran: </label>
-            </div> 
-            <div className="flex flex-row">
-                <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
-                        defaultValue={config['stress-edge-len']} 
-                        onMouseUp={(e) => { setConfig({...config, "stress-edge-len": parseInt((e.target as HTMLInputElement).value)});}}></input>
-                        {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
-                            (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                {config["stress-edge-len"]}
-            </div>
-        </div>
+    // const StressConfig = () =>
+    //     <div>
+    //         <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
+    //         <div className="flex flex-row">
+    //             <label htmlFor="main-alg-direction">Ideální délka hran: </label>
+    //         </div> 
+    //         <div className="flex flex-row">
+    //             <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
+    //                     defaultValue={config['stress-edge-len']} 
+    //                     onMouseUp={(e) => { setConfig({...config, "stress-edge-len": parseInt((e.target as HTMLInputElement).value)});}}></input>
+    //                     {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
+    //                         (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+    //             {config["stress-edge-len"]}
+    //         </div>
+    //     </div>
 
 
-    const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
-        <div>
-            <h1 className='font-black'>
-            {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
-            </h1>
-            <div className="flex flex-row">
-                <label htmlFor="main-alg-direction">Preferovaný směr hran: </label>
-            </div> 
-            <div className="flex flex-row">
-                <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
-                                // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-                                setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
-                    }}>
-                    <option value="UP">Nahoru</option>
-                    <option value="RIGHT">Doprava</option>
-                    <option value="DOWN">Dolu</option>
-                    <option value="LEFT">Doleva</option>
-                </select>
-            </div>    
+    // const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
+    //     <div>
+    //         <h1 className='font-black'>
+    //             {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
+    //         </h1>
+    //         <div className="flex flex-row">
+    //             <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
+    //         </div> 
+    //         <div className="flex flex-row">
+    //             <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
+    //                             // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
+    //                             setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
+    //                 }}>
+    //                 <option value="UP">Nahoru</option>
+    //                 <option value="RIGHT">Doprava</option>
+    //                 <option value="DOWN">Dolu</option>
+    //                 <option value="LEFT">Doleva</option>
+    //             </select>
+    //         </div>    
     
-            <div className="flex flex-row">
-                { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
-                { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
-                <label htmlFor={`range-${props.idPrefix}layer-gap`}>Prostor mezi vrstvami: </label>
-            </div>
-            <div className="flex flex-row">    
-                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
-                        defaultValue={config[`${props.idPrefix}layer-gap`]} 
-                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
-                {config[`${props.idPrefix}layer-gap`]}
-            </div>
+    //         <div className="flex flex-row">
+    //             { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
+    //             { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
+    //             <label htmlFor={`range-${props.idPrefix}layer-gap`}>Prostor mezi vrstvami: </label>
+    //         </div>
+    //         <div className="flex flex-row">    
+    //             <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
+    //                     defaultValue={config[`${props.idPrefix}layer-gap`]} 
+    //                     onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
+    //             {config[`${props.idPrefix}layer-gap`]}
+    //         </div>
 
-            <div className="flex flex-row">
-                <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
-            </div>
-            <div className="flex flex-row ">
-                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
-                        defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
-                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>            
-                {config[`${props.idPrefix}in-layer-gap`]}
-            </div>
-        </div>;
+    //         <div className="flex flex-row">
+    //             <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
+    //         </div>
+    //         <div className="flex flex-row ">
+    //             <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
+    //                     defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
+    //                     onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}>
+    //             </input>            
+    //             {config[`${props.idPrefix}in-layer-gap`]}
+    //         </div>
+    //     </div>;
 
 
     const ConfigDialog = () =>   
         <div>
-
             <div className="flex flex-row">
                 <label htmlFor="main-layout-alg" className='font-black'>Hlavní layoutovací algoritmus: </label>
             </div>    
             <div className="flex flex-row">
-                <select id="main-layout-alg" value={config['main-layout-alg']} onChange={(event) => {
-                                        setConfig({...config, "main-layout-alg": event.target.value });
-                    }}>
+                <select id="main-layout-alg" value={config['main-layout-alg']} 
+                        onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
                     <option value="layered">Úrovňový</option>
                     <option value="stress">Fyzikální</option>
                 </select>
             </div>            
-            <div className='h-8'>------------------------</div> 
+            {/* <div className='h-8'>------------------------</div> 
             {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
@@ -181,8 +178,8 @@ export const useConfigDialog = () => {
                 <div>
                     <div className='h-2'></div>                  
                     <LayeredConfig idPrefix='general-'></LayeredConfig>
-                </div>}
-
+                </div>
+            } */}
         </div>
 
     return {
