@@ -94,21 +94,21 @@ export const useConfigDialog = () => {
     // }
 
 
-    // const StressConfig = () =>
-    //     <div>
-    //         <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
-    //         <div className="flex flex-row">
-    //             <label htmlFor="main-alg-direction">Ideální délka hran: </label>
-    //         </div> 
-    //         <div className="flex flex-row">
-    //             <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
-    //                     defaultValue={config['stress-edge-len']} 
-    //                     onMouseUp={(e) => { setConfig({...config, "stress-edge-len": parseInt((e.target as HTMLInputElement).value)});}}></input>
-    //                     {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
-    //                         (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-    //             {config["stress-edge-len"]}
-    //         </div>
-    //     </div>
+    const StressConfig = () =>
+        <div>
+            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
+            <div className="flex flex-row">
+                <label htmlFor="main-alg-direction">Ideální délka hran: </label>
+            </div> 
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
+                        defaultValue={config['stress-edge-len']} 
+                        onMouseUp={(e) => { setConfig({...config, "stress-edge-len": parseInt((e.target as HTMLInputElement).value)});}}></input>
+                        {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
+                            (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                {config["stress-edge-len"]}
+            </div>
+        </div>
 
 
     // const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
@@ -168,13 +168,14 @@ export const useConfigDialog = () => {
                     <option value="stress">Fyzikální</option>
                 </select>
             </div>            
-            {/* <div className='h-8'>------------------------</div> 
-            {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}
+            <div className='h-8'>------------------------</div> 
+            {/* {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>} */}
+            <StressConfig></StressConfig>
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
             <label htmlFor="checkbox-main-layout-alg">Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec)</label>            
-            {config['process-general-separately'] === false ? null : 
+            {/* {config['process-general-separately'] === false ? null : 
                 <div>
                     <div className='h-2'></div>                  
                     <LayeredConfig idPrefix='general-'></LayeredConfig>
