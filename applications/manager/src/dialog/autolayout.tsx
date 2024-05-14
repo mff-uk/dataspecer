@@ -25,7 +25,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
 
     let visualEntities;
     try {
-      visualEntities = await doLayout(entities, getValidConfig());
+      visualEntities = await doLayout(entities, {});
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -74,7 +74,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-  const { getValidConfig, ConfigDialog } = useConfigDialog();
+//  const { getValidConfig, ConfigDialog } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
@@ -84,8 +84,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
           <ModalDescription>
             Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
           </ModalDescription>          
-        </ModalHeader>
-        <ModalBody><ConfigDialog></ConfigDialog></ModalBody>        
+        </ModalHeader>        
         <ModalFooter>
           <Button variant="default" onClick={execute} disabled={isLoading}>
             {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
