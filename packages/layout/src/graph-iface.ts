@@ -173,8 +173,14 @@ class NodeClassic implements INodeClassic {
 
     private addEdgeInternal(graph: IGraphClassic, target: string, extractedModel: ExtractedModel, edgeToAddKey: string, reverseEdgeToAddKey: string) {        
         if(graph.nodes[target] === undefined) {
+            // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model
+            // At least I hope it isn't some bigger issue between DataType and rdf-schema            
+            const targetEntity: SemanticModelEntity = extractedModel.entities.find(e => e.id === target);
+            if(targetEntity === undefined) {
+                return;
+            }
             // TODO: Not ideal performance wise, using find 2 times
-            graph.nodes[target] = new NodeClassic(extractedModel.entities.find(e => e.id === target), 
+            graph.nodes[target] = new NodeClassic(targetEntity, 
                                                   extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
                                                   extractedModel, graph);
         }

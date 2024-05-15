@@ -161,6 +161,8 @@ class ElkGraphTransformer implements GraphTransformer {
         // TODO: Repeating the same code 3 times - refactor - just needs different direction and method to get source and target, otherwise the same
         //       Only the class profiles are kind of weird that they don't have releationship ID
         let edges = extractedModel.relationships.map(relationship => {
+            // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
+            //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(relationship);
                         
             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);            
