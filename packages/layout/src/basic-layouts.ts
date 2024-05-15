@@ -3,7 +3,7 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
 import { VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-
+// TODO" The given simple implementation - can be improved (by at least considering profiles)
 export async function doRandomLayout(inputSemanticModel: Record<string, SemanticModelEntity>): Promise<VisualEntities> {
     const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModel);
 

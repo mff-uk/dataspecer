@@ -36,7 +36,10 @@ export const useConfigDialog = () => {
 
 
     // TODO: I think that there should be way to make it less error prone (put the relevant configs to components and pick it from them or something)
-    const getValidConfig = () => {        
+    const getValidConfig = () => {
+        if(config['main-layout-alg'] === "random") {
+            return undefined;
+        }   
         let validConfig: Record<string, IConstraintSimple> = {};
         if(config['main-layout-alg'] === "stress") {
             validConfig = {
@@ -167,10 +170,12 @@ export const useConfigDialog = () => {
                         onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
                     <option value="layered">Úrovňový</option>
                     <option value="stress">Fyzikální</option>
+                    <option value="random">Náhodný</option>
                 </select>
             </div>            
             <div className='h-8'>------------------------</div> 
-            {config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : <StressConfig></StressConfig>}            
+			{config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : 
+														(config['main-layout-alg'] === "stress" ? <StressConfig></StressConfig> : null)}         
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
