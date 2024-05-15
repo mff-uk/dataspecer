@@ -10,7 +10,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     inputType: "text" | "textarea";
     disabled?: boolean;
     onChange?: () => void;
-    withOverride: boolean;
+    withOverride?: () => void;
     style?: string;
 }) => {
     const { forElement, ls, setLs, disabled, inputType, defaultLang, onChange, style, withOverride } = props;
@@ -29,7 +29,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
             </div>
             {withOverride && (
                 <div className="my-auto ml-2">
-                    <OverrideFieldCheckbox forElement={forElement} disabled={!disabled} onChecked={onChange} />
+                    <OverrideFieldCheckbox forElement={forElement} onChecked={withOverride} />
                 </div>
             )}
         </div>

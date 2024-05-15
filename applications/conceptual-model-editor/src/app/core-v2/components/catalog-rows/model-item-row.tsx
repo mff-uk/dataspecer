@@ -3,19 +3,46 @@ import { shortenStringTo } from "../../util/utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useEditInput } from "../../components/input/edit-input";
 import { ModelTypeIcon } from "../model-type-icon";
+import { ColorPicker } from "../../features/color-picker";
+import { useEffect, useMemo, useState } from "react";
+import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const ModelName = (props: { displayName: string | null }) => (
     <div className="flex-grow text-nowrap">{props.displayName}</div>
 );
 
 export const ModelItemRow = (props: { modelId: string }) => {
-    const { models, setModelAlias, setModelIri, removeModelFromModels } = useModelGraphContext();
+    const { models, setModelAlias, setModelIri, removeModelFromModels, aggregatorView } = useModelGraphContext();
     const { EditInput, isEditInputActive, openEditInput } = useEditInput();
 
-    const model = models.get(props.modelId);
+    const { modelId } = props;
+    const model = models.get(modelId);
 
     const modelAlias = model?.getAlias();
-    const displayName = modelAlias ?? shortenStringTo(props.modelId);
+    const displayName = modelAlias ?? shortenStringTo(modelId);
+
+    const { activeVisualModel } = useMemo(() => {
+        return { activeVisualModel: aggregatorView.getActiveVisualModel() };
+    }, [models]);
+
+    const [currentColor, setCurrentColor] = useState(activeVisualModel?.getColor(modelId) || "#000001");
+
+    useEffect(() => {
+        let color = activeVisualModel?.getColor(modelId);
+
+        if (!color) {
+            color = randomColorFromPalette();
+            activeVisualModel?.setColor(modelId, color);
+        }
+
+        setCurrentColor(color ?? "#ff00ff");
+    }, [activeVisualModel]);
+
+    const handleSaveColor = (color: string) => {
+        console.log(color, activeVisualModel);
+        setCurrentColor(color);
+        activeVisualModel?.setColor(modelId, color);
+    };
 
     const saveAlias = (value: string | null) => {
         if (!model) {
@@ -56,6 +83,7 @@ export const ModelItemRow = (props: { modelId: string }) => {
                 {isEditInputActive ? <EditInput /> : <ModelName displayName={displayName} />}
             </div>
             <div className="flex flex-row">
+                <ColorPicker currentColor={currentColor} saveColor={handleSaveColor} />
                 <button className="hover:shadow-sm" onClick={handleModifyModelAliasClicked}>
                     ✏
                 </button>

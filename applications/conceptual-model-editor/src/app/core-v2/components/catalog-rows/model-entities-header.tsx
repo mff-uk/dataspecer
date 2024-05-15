@@ -1,10 +1,10 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { ColorPicker } from "../../features/color-picker";
 import { ExpandModelButton } from "../buttons";
 import { useModelGraphContext } from "../../context/model-context";
-import { randomColorFromPalette, tailwindColorToHex } from "~/app/utils/color-utils";
+import { tailwindColorToHex } from "~/app/utils/color-utils";
 import { getModelDetails } from "../../util/model-utils";
 import { EntityModel } from "@dataspecer/core-v2";
+import { compareMaps } from "../../util/utils";
 
 export const useModelEntitiesList = (model: EntityModel) => {
     const [isModelEntitiesListOpen, setIsModelEntitiesListOpen] = useState(true);
@@ -16,39 +16,50 @@ export const useModelEntitiesList = (model: EntityModel) => {
     const ModelEntitiesList = (props: { children: ReactNode }) => {
         const { models, aggregatorView } = useModelGraphContext();
 
-        const { activeVisualModel } = useMemo(() => {
-            return { activeVisualModel: aggregatorView.getActiveVisualModel() };
+        const { activeVisualModel, modelColors } = useMemo(() => {
+            const activeVisualModel = aggregatorView.getActiveVisualModel();
+            return {
+                activeVisualModel: activeVisualModel,
+                modelColors: new Map<string, string>(
+                    [...models.keys()].map((mId) => [mId, activeVisualModel?.getColor(mId) ?? "#000001"])
+                ),
+            };
         }, [models]);
 
         const { id: modelId, displayName } = useMemo(() => getModelDetails(model), [models]);
 
-        const [entitiesOfModelKey, setEntitiesOfModelKey] = useState(modelId + activeVisualModel?.getId());
-        const [backgroundColor, setBackgroundColor] = useState(activeVisualModel?.getColor(modelId) || "#000001");
+        const [backgroundColor, setBackgroundColor] = useState({
+            clr: activeVisualModel?.getColor(modelId) || "#000001",
+            ctr: 0, // FIXME: ugly but didn't see another way to force rerender
+        });
 
         useEffect(() => {
-            let color = activeVisualModel?.getColor(modelId);
-
-            if (!color) {
-                color = randomColorFromPalette();
-                activeVisualModel?.setColor(modelId, color);
-            }
-
-            setBackgroundColor(color ?? "#ff00ff");
-            setEntitiesOfModelKey(modelId + activeVisualModel?.getId());
+            const callToUnsubscribe = activeVisualModel?.subscribeToChanges(() => {
+                setBackgroundColor((prev) => {
+                    const newClrs = new Map(
+                        [...models.keys()].map((mId) => [mId, activeVisualModel.getColor(mId) ?? "#000001"])
+                    );
+                    const areSame = compareMaps(newClrs, modelColors);
+                    if (!areSame) {
+                        // force rerender for hierarchy to change color too
+                        const newClr = { clr: newClrs.get(modelId) ?? "#000001", ctr: prev.ctr + 1 };
+                        return newClr;
+                    }
+                    console.log("not gonna rerender?", modelId);
+                    return prev;
+                });
+            });
+            return () => callToUnsubscribe?.();
         }, [activeVisualModel]);
 
-        const handleSaveColor = (color: string) => {
-            console.log(color, activeVisualModel);
-            setBackgroundColor(color);
-            activeVisualModel?.setColor(modelId, color);
-        };
-
         return (
-            <li key={entitiesOfModelKey} style={{ backgroundColor: tailwindColorToHex(backgroundColor) }}>
+            <li
+                key={modelId + activeVisualModel?.getId() + backgroundColor.ctr}
+                style={{ backgroundColor: tailwindColorToHex(backgroundColor.clr) }}
+            >
                 <div className="flex flex-row justify-between">
                     <h4>Ⓜ {displayName}</h4>
                     <div className="flex flex-row">
-                        <ColorPicker currentColor={backgroundColor} saveColor={handleSaveColor} />
                         <ExpandModelButton isOpen={isModelEntitiesListOpen} onClick={toggleListOpen} />
                     </div>
                 </div>

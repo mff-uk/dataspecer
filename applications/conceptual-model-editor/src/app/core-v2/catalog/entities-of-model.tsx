@@ -25,6 +25,7 @@ import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
 import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
 import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
 import { CanvasContext } from "../context/canvas-context";
+import { compareMaps } from "../util/utils";
 
 const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | "profile", model: EntityModel) => {
     const { classes2, relationships, profiles, sourceModelOfEntityMap } = useClassesContext();
@@ -45,16 +46,6 @@ const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | 
         return profiles.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
     }
 };
-
-function compareMaps(localMap: Map<string, boolean>, prev: Map<string, boolean>) {
-    for (const [key, value] of localMap) {
-        if (prev.get(key) != value) {
-            console.log("maps have differing value for key", key, value, prev.get(key));
-            return false;
-        }
-    }
-    return true;
-}
 
 export const EntitiesOfModel = (props: {
     model: EntityModel;

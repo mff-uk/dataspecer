@@ -6,7 +6,7 @@ const OptionRow = (props: { datatype: string; selected: boolean }) => {
     const datatypeLabel = dataTypeUriToName(datatype);
     return (
         <option value={datatype} selected={selected}>
-            {datatypeLabel}: {datatype}
+            {datatypeLabel} ({datatype})
         </option>
     );
 };

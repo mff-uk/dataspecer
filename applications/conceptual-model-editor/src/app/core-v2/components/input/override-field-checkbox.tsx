@@ -1,5 +1,5 @@
 export const OverrideFieldCheckbox = (props: {
-    disabled: boolean | undefined;
+    disabled?: boolean | undefined;
     onChecked?: () => void;
     forElement: string;
 }) => (

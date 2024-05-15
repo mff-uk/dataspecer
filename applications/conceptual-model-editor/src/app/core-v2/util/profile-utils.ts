@@ -87,3 +87,20 @@ export const getFirstProfiledEntityToChangeIri = (
     }
     return getFirstProfiledEntityToChangeIri(itsProfiledEntity, sources, rawEntities, models);
 };
+
+export type OverriddenFieldsType = {
+    name: boolean;
+    description: boolean;
+    domain: boolean;
+    domainCardinality: boolean;
+    range: boolean;
+    rangeCardinality: boolean;
+};
+export const getDefaultOverriddenFields = (): OverriddenFieldsType => ({
+    name: false,
+    description: false,
+    domain: false,
+    domainCardinality: false,
+    range: false,
+    rangeCardinality: false,
+});

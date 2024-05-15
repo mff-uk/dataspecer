@@ -60,11 +60,11 @@ export const useMenuOptions = () => {
                 }}
             >
                 <MenuButton text="close" />
-                <MenuButton text="open detail" onClick={openDetailHandler} />
-                {createProfileHandler && <MenuButton text="create profile" onClick={createProfileHandler} />}
-                {removeFromViewHandler && <MenuButton text="remove from view" onClick={removeFromViewHandler} />}
-                {modifyHandler && <MenuButton text="modify" onClick={modifyHandler} />}
-                {deleteHandler && <MenuButton text="delete" onClick={deleteHandler} />}
+                <MenuButton text="ℹ open detail" onClick={openDetailHandler} />
+                {createProfileHandler && <MenuButton text="🧲 create profile" onClick={createProfileHandler} />}
+                {removeFromViewHandler && <MenuButton text="🕶 remove from view" onClick={removeFromViewHandler} />}
+                {modifyHandler && <MenuButton text="✏ modify" onClick={modifyHandler} />}
+                {deleteHandler && <MenuButton text="🗑 delete" onClick={deleteHandler} />}
             </div>
         );
     };

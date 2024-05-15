@@ -51,4 +51,4 @@ On the left side of the concept row, there is the `📑`. When you click that, w
 -   modify: `✏` opens the [modification dialog](./dialogs.md#modification-dialog), works only with concepts from [local models](./models.md#list-of-models)
 -   remove: `🗑` removes the concept from the model, works only with concepts from [local models](./models.md#list-of-models)
 -   expand: `expand` loads/removes the surroundings of the concept, works only with concepts from [sgov](./models.md#list-of-models)
--   create a profile: `🥑` creates a [profile](./profiles.md) of the concept, works with all models. The concept will placed to one of the local models you have opened up (you can decide). And yes, an avocado, felt like it added a novelty factor to our app
+-   create a profile: `🧲` creates a [profile](./profiles.md) of the concept, works with all models. The concept will placed to one of the local models you have opened up (you can decide). And yes, an avocado, felt like it added a novelty factor to our app

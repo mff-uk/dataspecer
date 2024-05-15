@@ -11,7 +11,7 @@ export const SelectAttributeRange = (props: {
     isEnabled?: boolean;
     setRange: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
     onChange?: () => void;
-    withOverride?: boolean;
+    withOverride?: () => void;
 }) => {
     const { concept, isEnabled, onChange, setRange, withOverride } = props;
     const [keepAsAttribute, setKeepAsAttribute] = useState(true);
@@ -45,6 +45,7 @@ export const SelectAttributeRange = (props: {
                     />
                 ) : (
                     <SelectDomainOrRange
+                        forElement="range"
                         concept={concept}
                         setConcept={(resourceId) => setRange((prev) => ({ ...prev, concept: resourceId }))}
                         onChange={onChange}
@@ -55,11 +56,7 @@ export const SelectAttributeRange = (props: {
             </div>
             {withOverride && (
                 <div className="my-auto ml-2">
-                    <OverrideFieldCheckbox
-                        forElement="select-datatype-component"
-                        disabled={isEnabled || !withOverride}
-                        onChecked={onChange}
-                    />
+                    <OverrideFieldCheckbox forElement="select-datatype-component" onChecked={withOverride} />
                 </div>
             )}
         </div>

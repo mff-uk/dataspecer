@@ -61,7 +61,7 @@ export const CardinalityOptions = (props: {
     setCardinality: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
     disabled: boolean;
     onChange?: () => void;
-    withOverride?: boolean;
+    withOverride?: () => void;
 }) => {
     const { group, defaultCard, disabled, onChange, withOverride } = props;
     const defaultCardinality = semanticCardinalityToOption(defaultCard ?? null);
@@ -87,9 +87,7 @@ export const CardinalityOptions = (props: {
                     />
                 ))}
             </fieldset>
-            {withOverride && (
-                <OverrideFieldCheckbox forElement={group + "override"} disabled={!disabled} onChecked={onChange} />
-            )}
+            {withOverride && <OverrideFieldCheckbox forElement={group + "override"} onChecked={withOverride} />}
         </div>
     );
 };
