@@ -38,7 +38,14 @@ export const useConfigDialog = () => {
     // TODO: I think that there should be way to make it less error prone (put the relevant configs to components and pick it from them or something)
     const getValidConfig = () => {
         if(config['main-layout-alg'] === "random") {
-            return undefined;
+            return {
+                'main-alg-config': {
+                    "constraintedNodes": "ALL",
+                    "data": {
+                        "main-layout-alg": config['main-layout-alg']                        
+                    }
+                }
+            };
         }   
         let validConfig: Record<string, IConstraintSimple> = {};
         if(config['main-layout-alg'] === "stress") {

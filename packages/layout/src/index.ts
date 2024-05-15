@@ -13,7 +13,7 @@ export type { IConstraintSimple } from "./constraints";
 // export async function doLayout(inputSemanticModel: Record<string, SemanticModelEntity>,
 //     config: Record<string, IConstraintSimple>): Promise<VisualEntities> { 
 export async function doLayout(inputSemanticModel: Record<string, SemanticModelEntity>, config: object): Promise<VisualEntities> {   
-	if(config === undefined) {
+	if(config['main-layout-alg'] === 'random') {
 		return doLayoutInternal(doRandomLayout, inputSemanticModel, config);
 	}
 	else {
