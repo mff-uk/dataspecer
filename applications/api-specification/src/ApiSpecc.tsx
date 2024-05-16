@@ -261,13 +261,13 @@ export const ApiSpecificationForm = () => {
                                             {/* Form fields for operation details */}
                                             <Card className="p-5">
                                                 {/* Operation Type */}
-                                                <OperationTypeSelect
+                                                {/* <OperationTypeSelect
                                                     index={index}
                                                     operationIndex={operationIndex}
                                                     register={register}
                                                     collectionLogicEnabled={false} 
                                                     singleResourceLogicEnabled={false}  
-                                                />
+                                                /> */}
                                                 {/* Operation Name */}
                                                 <OperationNameInput
                                                     index={index}
