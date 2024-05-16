@@ -1,5 +1,3 @@
-// inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
-
 import {
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -15,6 +13,9 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { getIri } from "./iri-utils";
+import { EntityModel } from "@dataspecer/core-v2";
+import { temporaryDomainRangeHelper } from "./relationship-utils";
 
 export const getNameLanguageString = (
     resource:
@@ -31,10 +32,9 @@ export const getNameLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.name ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
-        return resource.name;
-        // const name = resource.ends.at(1)?.name;
-        // return name ?? null;
+        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
+        const name = getDomainAndRange(r)?.range.name;
+        return name ?? resource.name;
     } else if (isSemanticModelGeneralization(resource)) {
         return {
             en: "Generalization of " + resource.child + " is " + resource.parent,
@@ -59,8 +59,9 @@ export const getDescriptionLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.description ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
-        return resource.description;
+        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
+        const description = temporaryDomainRangeHelper(r)?.range.description;
+        return description ?? resource.description;
     } else {
         return null;
     }
@@ -76,12 +77,9 @@ export const getUsageNoteLanguageString = (
         | SemanticModelGeneralization
 ) => {
     if (isSemanticModelClassUsage(resource)) {
-        return resource.usageNote ?? null;
-    } else if (isSemanticModelRelationshipUsage(resource)) {
-        // TODO: redo after knowing domain from relationship profiles is implemented
         return resource.usageNote;
-        // const usageNote = resource.ends.at(1)?.usageNote;
-        // return usageNote ?? null;
+    } else if (isSemanticModelRelationshipUsage(resource)) {
+        return resource.usageNote;
     } else {
         return null;
     }
@@ -94,26 +92,27 @@ export const getFallbackDisplayName = (
         | SemanticModelRelationship
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
+        | SemanticModelGeneralization,
+    modelBaseIri?: string
 ) => {
-    if (isSemanticModelClass(resource)) {
-        return resource.iri ?? resource.id;
-    } else if (isSemanticModelRelationship(resource)) {
-        const range = getDomainAndRange(resource)?.range;
-        return range?.iri ?? resource.id;
-    } else if (isSemanticModelClassUsage(resource)) {
-        return resource.id;
-    }
-    if (isSemanticModelRelationshipUsage(resource)) {
-        return resource.id;
-    } else if (isSemanticModelGeneralization(resource)) {
-        return resource.iri ?? resource.id;
-    } else {
+    return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
+};
+
+export const getModelDisplayName = (model: EntityModel | null | undefined) => {
+    if (!model) {
         return null;
+    }
+
+    if (model.getAlias()) {
+        return `${model.getAlias()} (${model.getId()})`;
+    } else {
+        return model.getId();
     }
 };
 
-const capFirst = (what: string) => {
+// --- GENERATE NAMES --- --- ---
+// inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
+export const capFirst = (what: string) => {
     return what.charAt(0).toUpperCase() + what.slice(1);
 };
 

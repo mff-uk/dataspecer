@@ -1,20 +1,21 @@
 import { lng } from "@/Dir";
 import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/modal";
 import { Button } from "@/components/ui/button";
+import { usePreviousValue } from "@/hooks/use-previous-value";
 import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
-import { ResourcesContext, packageService } from "@/package";
+import { ResourcesContext, deleteResource } from "@/package";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 
 export const DeleteResource = ({ iri, isOpen, resolve }: { iri: string } & BetterModalProps<boolean>) => {
   const resources = useContext(ResourcesContext);
-  const resource = resources[iri]!;
+  const resource = usePreviousValue(resources[iri]!);
 
   const [isLoading, setIsLoading] = useState(false);
   const doDelete = async () => {
     setIsLoading(true);
-    await packageService.deleteResource(iri);
+    await deleteResource(iri);
     resolve(true);
   }
 

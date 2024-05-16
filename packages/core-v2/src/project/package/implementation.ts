@@ -34,6 +34,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
+        if (result.status === 404) {
+            // @ts-ignore
+            return null;
+        }
         return (await result.json()) as Package;
     }
 

@@ -14,6 +14,8 @@ export const usePackageSearch = () => {
             console.log(`package-search: setting a new package id pid:'${pId}', packageId:'${packageId}'`);
         }
         if (!pId) {
+            setPackageId(undefined);
+            console.log("package-search: no packageId");
         }
     };
 
@@ -25,5 +27,9 @@ export const usePackageSearch = () => {
         setQueryParams({ [PACKAGE_ID]: pckgId });
     };
 
-    return { packageId, setPackage };
+    const getPackageId = () => {
+        return queryParams.get(PACKAGE_ID);
+    };
+
+    return { packageId, setPackage, getPackageId };
 };
