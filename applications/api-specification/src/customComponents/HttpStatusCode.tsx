@@ -45,7 +45,6 @@ const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationInd
             path = `dataStructures.${index}.operations.${operationIndex}.oResponse`;
         }
 
-    //if (collectionLogicEnabled || singleResourceLogicEnabled) {
         return (
             <>
                 {/* Operation Type Label*/}
@@ -69,9 +68,6 @@ const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationInd
                 </select>
             </>
         );
-    // } else {
-    //     return null;
-    // }
 };
 
 export default StatusCodeSelect;

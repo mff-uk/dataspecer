@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 function ResponseObjectSelect({ index, register, dataStructures, onChange,  isResponseObj, operationIndex}) {
