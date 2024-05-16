@@ -19,4 +19,5 @@
     type: string; //'string' | 'number' | 'boolean' | 'date' | 'class'; 
     classType?: string; 
     nestedFields?: DataStructure; 
+    isArray?: boolean;
   }
