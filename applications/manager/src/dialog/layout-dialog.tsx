@@ -79,7 +79,7 @@ export const useConfigDialog = () => {
                 'general-config': {
                     "constraintedNodes": "GENERALIZATION",
                     "data": {
-                        "main-layout-alg": config['main-layout-alg'],
+                        "main-layout-alg": "layered",       // TODO: Just fix it for now (layered is usually the best choice for generalization hierarchy anyways)
                         "general-main-alg-direction": config['general-main-alg-direction'],
                         "general-layer-gap": config['general-layer-gap'],
                         "general-in-layer-gap": config['general-in-layer-gap'],

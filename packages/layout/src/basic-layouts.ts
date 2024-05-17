@@ -19,6 +19,24 @@ export async function doRandomLayout(inputSemanticModel: Record<string, Semantic
     return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
 }
 
+export async function doRandomLayoutAdvanced(inputSemanticModel: Record<string, SemanticModelEntity>): Promise<VisualEntities> {
+    console.log("RANDOM");
+    const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModel);
+
+    const visualEntities = classes.map(cls => ({
+        id: Math.random().toString(36).substring(2), // random unique id of visual entity
+        type: ["visual-entity"], // type of visual entity, keep it as is
+        sourceEntityId: cls.id, // id of the class you want to visualize
+        visible: true,
+        position: { x: Math.ceil(Math.random() * 300 * Math.sqrt(classes.length)), y: Math.ceil(Math.random() * 150 * Math.sqrt(classes.length)) },
+        hiddenAttributes: [],
+    } as VisualEntity));
+
+    console.log(visualEntities);
+
+    return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
+}
+
 export interface BlockLayoutOptions {
     colCount: number, 
     rowJump: number, 

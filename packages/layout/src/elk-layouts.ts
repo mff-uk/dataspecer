@@ -62,7 +62,7 @@ class ElkGraphTransformer implements GraphTransformer {
                     resultingOptions[constraint.constraintedNodes][mappedKey] = String(v);
                 }
                 if(resultingOptions[constraint.constraintedNodes]['elk.algorithm'] === "layered") {
-                    resultingOptions[constraint.constraintedNodes]['elk.edgeRouting'] = "SPLINES";
+                    resultingOptions[constraint.constraintedNodes]['elk.edgeRouting'] = "ORTHOGONAL";
                     resultingOptions[constraint.constraintedNodes]['spacing.edgeEdge'] = "25";                    
                 }
             }            
@@ -249,13 +249,14 @@ class ElkGraphTransformer implements GraphTransformer {
     // TODO: Now I am actually not sure, since north isn't always north (it depends on the direction of layout algorithm), 
     //       maybe this is incorrect, but I can't check it easily right now (because Online ELKjs interpreter isn't working)
     getSourceAndTargetPortBasedOnDirection(direction: string): [string, string] {
-        const sourceAndTargetMap = {
-            "UP": ["N-", "W-"],
-            "DOWN": ["S-", "W-"],
-            "RIGHT": ["N-", "W-"],
-            "LEFT": ["N-", "E-"]
-        }
-        return sourceAndTargetMap[direction];
+        // const sourceAndTargetMap = {
+        //     "UP": ["N-", "W-"],
+        //     "DOWN": ["S-", "W-"],
+        //     "RIGHT": ["N-", "W-"],
+        //     "LEFT": ["N-", "E-"]
+        // }
+        // return sourceAndTargetMap[direction];
+        return ["N-", "W-"];
     }
 
 
@@ -554,6 +555,15 @@ export async function doElkLayout(inputSemanticModel: Record<string, SemanticMod
          .then(console.log)
          .catch(console.error);
     await layoutPromise;   
+
+    // graphInElk.layoutOptions = {
+    //     "elk.algorithm": "sporeCompaction",
+    //     "spacing.nodeNode": "64",
+    // };
+    // await elk.layout(graphInElk)
+    //         .then(console.log)
+    //         .catch(console.error);
+    
 
 // TODO: Testing running stress algorithm after layout to place the profile nodes
 /*
