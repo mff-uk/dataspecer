@@ -15,6 +15,30 @@ interface OperationObj {
     };
 }
 
+function convertToValidDataType(input: string): { type: string, format?: string } {
+    switch (input) {
+        case 'boolean':
+            return { type: 'boolean' };
+        case 'date':
+            return { type: 'string', format: 'date' };
+        case 'time':
+            return { type: 'string', format: 'time' };
+        case 'dateTime':
+            return { type: 'string', format: 'date-time' };
+        case 'integer':
+            return { type: 'integer' };
+        case 'decimal':
+            return { type: 'number', format: 'double' };
+        case 'url':
+            return { type: 'string', format: 'uri' };
+        case 'string':
+        case 'text':
+            return { type: 'string' };
+        default:
+            return { type: 'object' };
+    }
+}
+
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
     const openAPISpec = {
@@ -64,11 +88,15 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     $ref: `#/components/schemas/${schemaName}`,
                 };
 
-            } else {
-                fieldClassType =
-                {
-                    type: field.type || 'string',
-                };
+            } 
+            else 
+            {
+                // fieldClassType =
+                // {
+                //     type: field.type || 'string',
+                // };
+                fieldClassType = convertToValidDataType(field.type || 'string');
+
             }
 
             /* Consider cardinality of the field */
@@ -195,11 +223,12 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                         } 
                         else 
                         {
-                            requestBodyProperties[key] = 
-                            {
-                                type: field.type || 'string',
-                                isArray: field.isArray,
-                            };
+                            requestBodyProperties[key] = convertToValidDataType(field.type || 'string');
+                            
+                            if (field.isArray) {
+                                requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
+                            }
+
                         }
                     }
                 }
