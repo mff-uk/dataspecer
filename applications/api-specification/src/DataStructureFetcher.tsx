@@ -6,7 +6,6 @@ import { DataStructure, Field } from './Models/DataStructureNex.tsx';
 
 // Custom hook: fetch data specification info
 export function useDataSpecificationInfo() {
-    // Define the fetcher function
     const fetcher = async (url: string) => {
         const response = await fetch(url);
         if (!response.ok) {
@@ -15,11 +14,25 @@ export function useDataSpecificationInfo() {
         return response.json();
     };
 
+    const currentLocation = window.location.href;
+    console.log("current location is: " + currentLocation)
+
+    const getIri = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('package-iri');
+    };
+
+    const iri = getIri();
+    const url = iri ? `https://backend.dataspecer.com/resources/packages?iri=${encodeURIComponent(iri)}` : null;
+    
     /* 
      * Fetch DataSpecification Object and store it into data
      * In case of an usuccessfull fetching the error is stored in error
-     */
-    const { data, error } = useSWR('https://backend.dataspecer.com/resources/packages?iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099', fetcher);
+     */    
+    const { data, error } = useSWR(url, fetcher);
+
+
+    //const { data, error } = useSWR('https://backend.dataspecer.com/resources/packages?iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099', fetcher);
 
     if (error) {
         console.error("Info about Data Specification could not be fetched:", error);
