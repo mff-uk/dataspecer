@@ -64,8 +64,34 @@ export const useModelGraphContext = () => {
     };
 
     const cleanModels = () => {
+        for (const [mId, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [mId, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
         setModels(new Map());
         setVisualModels(new Map());
+    };
+
+    const replaceModels = (m: EntityModel[], vm: VisualEntityModel[]) => {
+        for (const [mId, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [mId, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
+
+        for (const model of vm) {
+            aggregator.addModel(model);
+        }
+        for (const model of m) {
+            aggregator.addModel(model);
+        }
+
+        setVisualModels(new Map(vm.map((m) => [m.getId(), m])));
+        setModels(new Map(m.map((m) => [m.getId(), m])));
+        // setAggregatorView(aggregator.getView());
     };
 
     const removeModelFromModels = (modelId: string) => {
@@ -79,6 +105,18 @@ export const useModelGraphContext = () => {
         setModels(new Map(models));
     };
 
+    const removeVisualModelFromModels = (modelId: string) => {
+        const visualModel = visualModels.get(modelId);
+        if (!visualModel) {
+            alert(`no model with id: ${modelId} found`);
+            return;
+        }
+        aggregator.deleteModel(visualModel);
+        visualModels.delete(modelId);
+        setVisualModels(new Map(visualModels));
+        setAggregatorView(aggregator.getView());
+    };
+
     return {
         aggregator,
         aggregatorView,
@@ -89,7 +127,9 @@ export const useModelGraphContext = () => {
         addModelToGraph,
         addVisualModelToGraph,
         cleanModels,
+        replaceModels,
         removeModelFromModels,
+        removeVisualModelFromModels,
         setModelAlias,
         setModelIri,
     };
