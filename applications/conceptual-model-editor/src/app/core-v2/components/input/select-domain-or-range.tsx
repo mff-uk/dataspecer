@@ -13,7 +13,7 @@ const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsa
 
     return (
         <option value={resource.id}>
-            {name} {displayIri && `(${iri}}`}
+            {name} {displayIri && `(${iri})`}
         </option>
     );
 };
