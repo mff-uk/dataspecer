@@ -3,27 +3,26 @@ import { createSgovModel, createRdfsModel, ExternalSemanticModel } from "@datasp
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
 import { useAddModelDialog } from "../dialog/add-model-dialog";
-import { SGOV_MODEL_ID, DCTERMS_MODEL_ID, LOCAL_MODEL_ID } from "../util/constants";
 import { ModelItemRow } from "../components/catalog-rows/model-item-row";
 
 export const ModelCatalog = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models } = useModelGraphContext();
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
-    const handleAddModel = async (modelType: string) => {
-        if (modelType === SGOV_MODEL_ID) {
+    const handleAddModel = async (modelType: "local" | "sgov") => {
+        if (modelType == "sgov") {
             const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
             model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
             model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
             addModelToGraph(model);
-        } else if (modelType === DCTERMS_MODEL_ID) {
-            const model = await createRdfsModel(
-                ["https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl"],
-                httpFetch
-            );
-            model.fetchFromPimStore();
-            addModelToGraph(model);
-        } else if (modelType === LOCAL_MODEL_ID) {
+            // } else if (modelType === DCTERMS_MODEL_ID) {
+            //     const model = await createRdfsModel(
+            //         ["https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl"],
+            //         httpFetch
+            //     );
+            //     model.fetchFromPimStore();
+            //     addModelToGraph(model);
+        } else if (modelType == "local") {
             const model = new InMemorySemanticModel();
             addModelToGraph(model);
         } else {
@@ -59,18 +58,18 @@ export const ModelCatalog = () => {
             }
             disabled={isAddModelDialogOpen}
             type="button"
-            className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
+            className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
             + <span className="font-mono">Model</span>
         </button>
     );
 
-    const AddModelButton = (props: { disabled: boolean; modelType: string }) => (
+    const AddModelButton = (props: { disabled?: boolean; modelType: "local" | "sgov" }) => (
         <button
             onClick={() => handleAddModel(props.modelType)}
             disabled={props.disabled}
             type="button"
-            className="cursor-pointer border bg-indigo-600 text-white disabled:cursor-default disabled:bg-zinc-500"
+            className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
         >
             + <span className="font-mono">{props.modelType}</span>
         </button>
@@ -89,9 +88,8 @@ export const ModelCatalog = () => {
                 </ul>
                 <div className="flex flex-row [&>*]:mr-1">
                     <AddModelDialogButton />
-                    <AddModelButton disabled={hasSgov()} modelType={SGOV_MODEL_ID} />
-                    {/* <AddModelButton disabled={models.has(DCTERMS_MODEL_ID)} modelType={DCTERMS_MODEL_ID} /> */}
-                    <AddModelButton disabled={false} modelType={LOCAL_MODEL_ID} />
+                    <AddModelButton disabled={hasSgov()} modelType="sgov" />
+                    <AddModelButton modelType="local" />
                 </div>
             </div>
             {isAddModelDialogOpen && <AddModelDialog />}

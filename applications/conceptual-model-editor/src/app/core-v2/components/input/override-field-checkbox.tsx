@@ -1,7 +1,8 @@
 export const OverrideFieldCheckbox = (props: {
-    disabled: boolean | undefined;
+    disabled?: boolean | undefined;
     onChecked?: () => void;
     forElement: string;
+    defaultChecked?: boolean;
 }) => (
     <div className="ml-2">
         <input
@@ -9,6 +10,7 @@ export const OverrideFieldCheckbox = (props: {
             type="checkbox"
             disabled={props.disabled}
             onChange={props.onChecked}
+            defaultChecked={props.defaultChecked}
         />
         <label className="ml-0.5" htmlFor={`${props.forElement}-override`}>
             override

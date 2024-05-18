@@ -9,6 +9,8 @@ import {
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { useCanvasContext } from "../context/canvas-context";
+import { useEffect, useState } from "react";
 
 export const getCurrentVisibilityOnCanvas = (
     entities: (
@@ -27,4 +29,18 @@ export const getCurrentVisibilityOnCanvas = (
     };
 
     return entities.map((e) => [e.id, visualModel?.getVisualEntity(e.id)?.visible ?? getDefaultVisibility()] as const);
+};
+
+export const useCanvasVisibility = (entityId: string) => {
+    const { visibleOnCanvas } = useCanvasContext();
+    const [isOnCanvas, setIsOnCanvas] = useState(visibleOnCanvas.get(entityId));
+
+    useEffect(() => {
+        const newOnCanvas = visibleOnCanvas.get(entityId);
+        if (isOnCanvas != newOnCanvas) {
+            setIsOnCanvas(newOnCanvas);
+        }
+    }, [visibleOnCanvas]);
+
+    return { isOnCanvas };
 };

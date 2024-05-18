@@ -31,6 +31,7 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";
 import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { Entity } from "@dataspecer/core-v2";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass
@@ -78,12 +79,13 @@ export interface EntityDetailProxy {
         label: string | null;
         uri: string;
     } | null;
+    raw: Entity | null;
     canHaveAttributes: boolean;
     canHaveDomainAndRange: boolean;
 }
 
 export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
-    const { classes2: c, relationships: r, profiles, generalizations } = useClassesContext();
+    const { classes2: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
     const { models: m } = useModelGraphContext();
     const models = [...m.values()];
     const sourceModel = sourceModelOfEntity(viewedEntity.id, models);
@@ -123,6 +125,8 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
                 return canHaveDomainAndRange();
             } else if (property === "datatype") {
                 return getDataType();
+            } else if (property == "raw") {
+                return getRawEntity();
             }
         },
     });
@@ -231,6 +235,11 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
             };
         }
         return null;
+    };
+
+    const getRawEntity = () => {
+        const re = rawEntities.find((r) => r?.id == viewedEntity.id);
+        return re ?? null;
     };
 
     const canHaveAttributes = () => isSemanticModelClass(viewedEntity) || isSemanticModelClassUsage(viewedEntity);

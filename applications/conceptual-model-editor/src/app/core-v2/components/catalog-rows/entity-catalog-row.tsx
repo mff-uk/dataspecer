@@ -22,6 +22,7 @@ import {
     RemoveButton,
 } from "../buttons";
 import { onDragStart } from "../../reactflow/utils";
+import { useCanvasVisibility } from "../../util/canvas-utils";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -39,7 +40,6 @@ export const EntityRow = (props: {
     };
     openDetailHandler: () => void;
     modifiable: null | { openModificationHandler: () => void };
-    visibleOnCanvas?: boolean;
     drawable: null | {
         addToViewHandler: () => void;
         removeFromViewHandler: () => void;
@@ -53,8 +53,9 @@ export const EntityRow = (props: {
     sourceModel?: EntityModel;
     offset?: number;
 }) => {
-    const { entity, offset, drawable, expandable, modifiable, profile, removable, visibleOnCanvas } = props;
+    const { entity, offset, drawable, expandable, modifiable, profile, removable } = props;
     const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+    const { isOnCanvas } = useCanvasVisibility(entity.id);
 
     let defaultVisibility: boolean;
     if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
@@ -94,7 +95,7 @@ export const EntityRow = (props: {
                 <OpenDetailButton onClick={props.openDetailHandler} />
                 {drawable && (
                     <DrawOnCanvasButton
-                        visible={visibleOnCanvas}
+                        visible={isOnCanvas}
                         addToCanvas={drawable?.addToViewHandler}
                         removeFromCanvas={drawable?.removeFromViewHandler}
                     />

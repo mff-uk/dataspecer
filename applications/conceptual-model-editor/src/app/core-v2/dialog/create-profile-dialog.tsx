@@ -34,6 +34,7 @@ import { IriInput } from "../components/input/iri-input";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
+import { OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -82,6 +83,8 @@ export const useCreateProfileDialog = () => {
             rangeCardinality: false,
         });
 
+        const [overriddenFields, setOverriddenFields] = useState<OverriddenFieldsType>(getDefaultOverriddenFields());
+
         // Relationships and relationship profiles
         const currentDomainAndRange =
             isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
@@ -109,8 +112,8 @@ export const useCreateProfileDialog = () => {
             const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {
                 usageOf: e.id,
                 usageNote: usageNote,
-                description: changedFields.description ? description : null,
-                name: changedFields.name ? name : null,
+                description: overriddenFields.description && changedFields.description ? description : null,
+                name: overriddenFields.name && changedFields.name ? name : null,
                 iri: newIri,
             });
 
@@ -124,18 +127,24 @@ export const useCreateProfileDialog = () => {
             m: InMemorySemanticModel
         ) => {
             const domainEnd = {
-                concept: changedFields.domain ? newDomain.concept : null,
+                concept: overriddenFields.domain && changedFields.domain ? newDomain.concept : null,
                 name: null,
                 description: null,
-                cardinality: changedFields.domainCardinality ? newDomain.cardinality ?? null : null,
+                cardinality:
+                    overriddenFields.domainCardinality && changedFields.domainCardinality
+                        ? newDomain.cardinality ?? null
+                        : null,
                 usageNote: null,
                 iri: null,
             } satisfies SemanticModelRelationshipEndUsage;
             const rangeEnd = {
-                concept: changedFields.range ? newRange.concept : null,
-                name: changedFields.name ? name : null,
-                description: changedFields.description ? description : null,
-                cardinality: changedFields.rangeCardinality ? newRange.cardinality ?? null : null,
+                concept: overriddenFields.range && changedFields.range ? newRange.concept : null,
+                name: overriddenFields.name && changedFields.name ? name : null,
+                description: overriddenFields.description && changedFields.description ? description : null,
+                cardinality:
+                    overriddenFields.rangeCardinality && changedFields.rangeCardinality
+                        ? newRange.cardinality ?? null
+                        : null,
                 usageNote: null,
                 iri: newIri,
             } as SemanticModelRelationshipEndUsage;
@@ -147,11 +156,15 @@ export const useCreateProfileDialog = () => {
                 ends = [domainEnd, rangeEnd];
             }
 
-            createRelationshipEntityUsage(m, e.type[0], {
+            const { id: relationshipUsageId } = createRelationshipEntityUsage(m, e.type[0], {
                 usageOf: e.id,
                 usageNote: usageNote,
                 ends: ends,
             });
+
+            if (relationshipUsageId) {
+                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: relationshipUsageId });
+            }
         };
 
         const handleSavingProfile = (m: InMemorySemanticModel) => {
@@ -196,8 +209,11 @@ export const useCreateProfileDialog = () => {
                             setLs={setName}
                             defaultLang={preferredLanguage}
                             inputType="text"
-                            withOverride={true}
-                            disabled={!changedFields.name}
+                            withOverride={{
+                                callback: () => setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
+                                defaultValue: false,
+                            }}
+                            disabled={!overriddenFields.name}
                             onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                         />
                     </DialogDetailRow2>
@@ -233,8 +249,12 @@ export const useCreateProfileDialog = () => {
                             setLs={setDescription}
                             defaultLang={preferredLanguage}
                             inputType="textarea"
-                            withOverride={true}
-                            disabled={!changedFields.description}
+                            withOverride={{
+                                callback: () =>
+                                    setOverriddenFields((prev) => ({ ...prev, description: !prev.description })),
+                                defaultValue: false,
+                            }}
+                            disabled={!overriddenFields.description}
                             onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                         />
                     </DialogDetailRow2>
@@ -270,7 +290,6 @@ export const useCreateProfileDialog = () => {
                             )}
                             <DomainRangeComponent
                                 entity={entity}
-                                enabledFields={changedFields}
                                 domain={newDomain}
                                 setDomain={setNewDomain}
                                 onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}
@@ -283,7 +302,7 @@ export const useCreateProfileDialog = () => {
                                 onRangeCardinalityChange={() =>
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
-                                withOverride={true}
+                                withOverride={{ overriddenFields, setOverriddenFields }}
                             />
                         </>
                     )}

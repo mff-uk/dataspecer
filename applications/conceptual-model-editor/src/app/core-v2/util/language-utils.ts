@@ -117,3 +117,26 @@ export const getAvailableLanguagesForLanguageString = (ls: LanguageString) => {
     const languages = Object.keys(ls);
     return languages;
 };
+
+export const areLanguageStringsEqual = (ls1: LanguageString | null, ls2: LanguageString | null) => {
+    if (!ls1 && !ls2) {
+        return true;
+    }
+    if (!ls1) {
+        return false;
+    }
+    if (!ls2) {
+        return false;
+    }
+
+    if (Object.keys(ls1).length != Object.keys(ls2).length) {
+        return false;
+    }
+
+    for (const [k, v] of Object.entries(ls1)) {
+        if (ls2[k] != v) {
+            return false;
+        }
+    }
+    return true;
+};

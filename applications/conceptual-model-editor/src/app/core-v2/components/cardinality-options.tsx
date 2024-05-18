@@ -2,6 +2,7 @@ import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model
 import { Dispatch, SetStateAction } from "react";
 import { CardinalityOption, semanticCardinalityToOption } from "../util/relationship-utils";
 import { OverrideFieldCheckbox } from "./input/override-field-checkbox";
+import { WithOverrideHandlerType } from "../util/profile-utils";
 
 const cardinalityOptionToCardinalityMap: {
     [K in CardinalityOption]: [number, number | null] | undefined;
@@ -61,7 +62,7 @@ export const CardinalityOptions = (props: {
     setCardinality: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
     disabled: boolean;
     onChange?: () => void;
-    withOverride?: boolean;
+    withOverride?: WithOverrideHandlerType;
 }) => {
     const { group, defaultCard, disabled, onChange, withOverride } = props;
     const defaultCardinality = semanticCardinalityToOption(defaultCard ?? null);
@@ -88,7 +89,11 @@ export const CardinalityOptions = (props: {
                 ))}
             </fieldset>
             {withOverride && (
-                <OverrideFieldCheckbox forElement={group + "override"} disabled={!disabled} onChecked={onChange} />
+                <OverrideFieldCheckbox
+                    forElement={group + "override"}
+                    onChecked={withOverride.callback}
+                    defaultChecked={withOverride.defaultValue}
+                />
             )}
         </div>
     );
