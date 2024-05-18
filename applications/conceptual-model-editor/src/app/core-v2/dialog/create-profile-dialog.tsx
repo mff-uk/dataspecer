@@ -156,11 +156,15 @@ export const useCreateProfileDialog = () => {
                 ends = [domainEnd, rangeEnd];
             }
 
-            createRelationshipEntityUsage(m, e.type[0], {
+            const { id: relationshipUsageId } = createRelationshipEntityUsage(m, e.type[0], {
                 usageOf: e.id,
                 usageNote: usageNote,
                 ends: ends,
             });
+
+            if (relationshipUsageId) {
+                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: relationshipUsageId });
+            }
         };
 
         const handleSavingProfile = (m: InMemorySemanticModel) => {
@@ -286,7 +290,6 @@ export const useCreateProfileDialog = () => {
                             )}
                             <DomainRangeComponent
                                 entity={entity}
-                                enabledFields={changedFields}
                                 domain={newDomain}
                                 setDomain={setNewDomain}
                                 onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}

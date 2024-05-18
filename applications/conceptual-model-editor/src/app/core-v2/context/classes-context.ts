@@ -129,15 +129,13 @@ export const useClassesContext = () => {
         entityType: "relationship" | "relationship-usage",
         entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
     ) => {
-        if (entityType == "relationship" || entityType == "relationship-usage") {
-            const result = model.executeOperation(createRelationshipUsage(entity));
-            console.log(result);
-            return result.success;
-        } else {
+        if (!(entityType == "relationship" || entityType == "relationship-usage")) {
             console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
         }
-        return false;
+        const result = model.executeOperation(createRelationshipUsage(entity));
+        console.log(result);
+        return result;
     };
 
     const createAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {

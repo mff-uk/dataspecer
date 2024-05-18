@@ -68,7 +68,7 @@ export const EntitiesOfModel = (props: {
     const entities = getEntitiesToShow(entityType, model);
 
     const localGetCurrentVisibilityOnCanvas = () => {
-        const entitiesAndProfiles = [...entities, ...profiles.filter(isSemanticModelClassUsage)];
+        const entitiesAndProfiles = [...entities, ...profiles];
         // console.log("in localGetCurrentVisibilityOnCanvas", activeVisualModel, entitiesAndProfiles, modelId);
         return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
     };
