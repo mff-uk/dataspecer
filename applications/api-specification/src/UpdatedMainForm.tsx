@@ -34,7 +34,7 @@ type FormValues = {
     apiDescription: string;
     apiVersion: string;
     baseUrl: string;
-    dataSpecification: string;
+    //dataSpecification: string;
     dataStructures: {
         id?: string;
         name: string;
@@ -42,30 +42,61 @@ type FormValues = {
     }[];
 };
 
+// const formSchema = z.object({
+//     apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
+//     apiDescription: z.string().min(1), // non-empty string
+//     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
+//     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
+//     dataSpecification: z.any(),
+//     DataStructuresSelect: z.any()
+//     // dataStructures: z.array(
+//     //     z.object({
+//     //         id: z.string().optional(),
+//     //         name: z.string().min(1),
+//     //         operations: z.array(
+//     //             z.object({
+//     //                 name: z.string().min(1),
+//     //                 isCollection: z.boolean(),
+//     //                 oType: z.string(),
+//     //                 oName: z.string(),
+//     //                 oEndpoint: z.string(),
+//     //                 oComment: z.string(),
+//     //                 oResponse: z.string(),
+//     //             })
+//     //         ),
+//     //     })
+//     // ),
+// });
+
 const formSchema = z.object({
-    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }), 
+    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
     apiDescription: z.string().min(1), // non-empty string
-    apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }), 
-    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, {message: "BaseURL has to be in the following format: https://someUrl.com"}), 
-    // dataSpecification: z.string().min(1),
-    // dataStructures: z.array(
-    //     z.object({
-    //         id: z.string().optional(),
-    //         name: z.string().min(1),
-    //         operations: z.array(
-    //             z.object({
-    //                 name: z.string().min(1),
-    //                 isCollection: z.boolean(),
-    //                 oType: z.string(),
-    //                 oName: z.string(),
-    //                 oEndpoint: z.string(),
-    //                 oComment: z.string(),
-    //                 oResponse: z.string(),
-    //             })
-    //         ),
-    //     })
-    // ),
+    apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
+    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
+    dataStructures: z.array(
+        z.object({
+            id: z.string().optional(),
+            name: z.string().min(1),
+            operations: z.array(
+                z.object({
+                    name: z.string(),
+                    isCollection: z.boolean(),
+                    oAssociatonMode: z.boolean(),
+                    oType: z.string(),
+                    oName: z.string(),
+                    oEndpoint: z.string(),
+                    oComment: z.string(),
+                    oResponse: z.string(),
+                    oRequestBody: z.record(z.string()), 
+                    oResponseObject: z.object({
+                        
+                    }).optional() 
+                })
+            ),
+        })
+    ).optional(),
 });
+
 
 const fetchSavedConfig = async (url: string) => {
     const response = await fetch(url);
@@ -78,8 +109,11 @@ const fetchSavedConfig = async (url: string) => {
 };
 
 export const ApiSpecificationForm = () => {
-    const { register, handleSubmit, control, watch, setValue, getValues , formState} = useForm<FormValues>({resolver: zodResolver(formSchema)});
-    const {errors} = formState; 
+    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
+        resolver: zodResolver(formSchema)
+    });
+
+    const { errors } = formState;
 
     const { fields, append, remove, update } = useFieldArray({
         control,
@@ -109,7 +143,7 @@ export const ApiSpecificationForm = () => {
         if (selectedDataStructures === undefined) {
             console.log("Selected Data Structures became undefined!");
         }
-    }, );
+    },);
 
     useEffect(() => {
         const dataStructures = watch("dataStructures");
@@ -137,9 +171,9 @@ export const ApiSpecificationForm = () => {
             setValue('apiDescription', fetchedData.apiDescription);
             setValue('apiVersion', fetchedData.apiVersion);
             setValue('baseUrl', fetchedData.baseUrl);
-            setValue('dataSpecification', fetchedData.dataSpecification);
-            setValue('dataStructures', fetchedData.dataStructures); 
-    
+            //setValue('dataSpecification', fetchedData.dataSpecification);
+            setValue('dataStructures', fetchedData.dataStructures);
+
             setSelectedDataStructures(fetchedData.dataStructures);
         } else {
             console.log("Fetched data is not yet available");
@@ -177,8 +211,9 @@ export const ApiSpecificationForm = () => {
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
 
+
         await formSchema.parseAsync(data);
-        
+
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('model-iri');
@@ -187,11 +222,7 @@ export const ApiSpecificationForm = () => {
         const modelIri = getModelIri();
 
         try {
-            // save on the backend 
-            //const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
 
-            //console.log("submitted data: " + JSON.stringify(data))
-            //console.log('Generated OpenAPI Specification:', openAPISpec);
             const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
             console.log(openAPISpec)
 
@@ -211,8 +242,12 @@ export const ApiSpecificationForm = () => {
             }
         }
         catch (error) {
-            if (error instanceof Error) {
-                console.error('Form validation failed:', error.message);
+            if (error instanceof z.ZodError) {
+                console.error('Form validation failed:', error.errors);
+                error.errors.forEach(({ path, message }) => {
+                    const field = path[0] as keyof FormValues;
+                    formState.errors[field] = { message } as any; // Type assertion to satisfy TypeScript
+                });
             } else {
                 console.error('Form validation failed:', 'Unknown error occurred');
             }
@@ -279,13 +314,13 @@ export const ApiSpecificationForm = () => {
         <form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Form Info */}
             <FormCardSection>
-                <LabeledInput label="API Title" id="apiTitle" register={register} required/>
+                <LabeledInput label="API Title" id="apiTitle" register={register} required />
                 {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
-                <LabeledInput label="API Description" id="apiDescription" register={register}  required/>
+                <LabeledInput label="API Description" id="apiDescription" register={register} required />
                 {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
-                <LabeledInput label="API Version" id="apiVersion" register={register}  required/>
+                <LabeledInput label="API Version" id="apiVersion" register={register} required />
                 {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
-                <LabeledInput label="Base URL" id="baseUrl" register={register}  required/>
+                <LabeledInput label="Base URL" id="baseUrl" register={register} required />
                 {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
                 {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
             </FormCardSection>
@@ -304,13 +339,13 @@ export const ApiSpecificationForm = () => {
                                     register={register}
                                     dataStructures={fetchedDataStructuresArr}
                                     //defaultValue = {fetchedData?.dataStructures?.[index]?.name ?? ""}
-                                    defaultValue ={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
+                                    defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
                                     isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
-                                        
+
                                         const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
                                         const nameToUse = selectedDataStructure?.name ?? defaultValue;
-                                        
+
                                         console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                         register(`dataStructures.${index}.name`).onChange({
                                             target: {
@@ -357,7 +392,7 @@ export const ApiSpecificationForm = () => {
                                     baseUrl={baseUrl}
                                     selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
                                     fetchedDataStructures={fetchedDataStructuresArr}
-                                    selectedDataStruct = {selectedDataStructures} />
+                                    selectedDataStruct={selectedDataStructures} />
                             ))}
 
                             {/* Add operation button */}

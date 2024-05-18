@@ -39,6 +39,10 @@ function convertToValidDataType(input: string): { type: string, format?: string 
     }
 }
 
+// function hasDuplicate(parameters, name) {
+//     return parameters.some(param => param.name === name);
+// }
+
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
     const openAPISpec = {
