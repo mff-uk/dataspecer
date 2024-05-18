@@ -9,6 +9,8 @@ import {
     SemanticModelClass,
     SemanticModelRelationship,
     isSemanticModelAttribute,
+    isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
@@ -18,6 +20,7 @@ import {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getModelDetails, sourceModelOfEntity } from "../util/model-utils";
 import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
@@ -27,23 +30,23 @@ import { useModelEntitiesList } from "../components/catalog-rows/model-entities-
 import { CanvasContext } from "../context/canvas-context";
 import { compareMaps } from "../util/utils";
 
-const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | "profile", model: EntityModel) => {
-    const { classes2, relationships, profiles, sourceModelOfEntityMap } = useClassesContext();
-    const modelId = model.getId();
-
+const getEntitiesToShow = (
+    entityType: "class" | "relationship" | "attribute" | "profile",
+    model: EntityModel
+): (SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage)[] => {
     if (entityType == "class") {
-        return classes2.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(isSemanticModelClass);
     } else if (entityType == "relationship") {
-        return relationships
-            .filter((v) => !isSemanticModelAttribute(v))
-            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities())
+            .filter(isSemanticModelRelationship)
+            .filter((e) => !isSemanticModelAttribute(e));
     } else if (entityType == "attribute") {
-        return relationships
-            .filter(isSemanticModelAttribute)
-            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(isSemanticModelAttribute);
     } else {
-        // profile
-        return profiles.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(
+            (e): e is SemanticModelClassUsage | SemanticModelRelationshipUsage =>
+                isSemanticModelClassUsage(e) || isSemanticModelRelationshipUsage(e)
+        );
     }
 };
 
@@ -68,9 +71,18 @@ export const EntitiesOfModel = (props: {
     const entities = getEntitiesToShow(entityType, model);
 
     const localGetCurrentVisibilityOnCanvas = () => {
-        const entitiesAndProfiles = [...entities, ...profiles];
-        // console.log("in localGetCurrentVisibilityOnCanvas", activeVisualModel, entitiesAndProfiles, modelId);
-        return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
+        const entitiesAndProfiles = [...getEntitiesToShow(entityType, model), ...profiles];
+        const onCanvas = new Map(getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel));
+        // console.trace(
+        //     "in localGetCurrentVisibilityOnCanvas",
+        //     onCanvas,
+        //     entities,
+        //     profiles,
+        //     activeVisualModel,
+        //     entitiesAndProfiles,
+        //     modelId
+        // );
+        return onCanvas;
     };
 
     const [visibleOnCanvas, setVisibleOnCanvas] = useState(
@@ -78,14 +90,9 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
-    }, []);
-
-    useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
         setVisibleOnCanvas(() => {
-            // console.log("first setting visibility on canvas", activeVisualModel, modelId);
-            return new Map(localGetCurrentVisibilityOnCanvas());
+            return localGetCurrentVisibilityOnCanvas();
         });
 
         // TODO: visibility not shown after loading in dev mode

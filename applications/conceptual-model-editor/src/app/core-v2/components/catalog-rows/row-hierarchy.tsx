@@ -16,7 +16,6 @@ import { ProfileDialogSupportedTypes } from "../../dialog/create-profile-dialog"
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
-import { useCanvasVisibility } from "../../util/canvas-utils";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;

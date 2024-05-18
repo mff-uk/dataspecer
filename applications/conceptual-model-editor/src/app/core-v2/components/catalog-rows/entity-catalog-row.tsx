@@ -57,13 +57,6 @@ export const EntityRow = (props: {
     const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
     const { isOnCanvas } = useCanvasVisibility(entity.id);
 
-    let defaultVisibility: boolean;
-    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-        defaultVisibility = false;
-    } else {
-        defaultVisibility = true;
-    }
-
     const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
     const { language: preferredLanguage } = useConfigurationContext();
 
