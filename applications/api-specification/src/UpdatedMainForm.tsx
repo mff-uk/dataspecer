@@ -11,6 +11,7 @@ import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureNex';
 import useSWR from 'swr';
+import { zodResolver } from '@hookform/resolvers/zod'
 
 
 type Operation = {
@@ -42,10 +43,10 @@ type FormValues = {
 };
 
 const formSchema = z.object({
-    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/), // only alphabetic chars allowed
+    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }), 
     apiDescription: z.string().min(1), // non-empty string
-    apiVersion: z.string().regex(/^\d+\.\d+$/), // should be of format 1.0 etc.
-    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/), // should be of format https://{baseurl}
+    apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }), 
+    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, {message: "BaseURL has to be in the following format: https://someUrl.com"}), 
     // dataSpecification: z.string().min(1),
     // dataStructures: z.array(
     //     z.object({
@@ -77,7 +78,8 @@ const fetchSavedConfig = async (url: string) => {
 };
 
 export const ApiSpecificationForm = () => {
-    const { register, handleSubmit, control, watch, setValue, getValues } = useForm<FormValues>();
+    const { register, handleSubmit, control, watch, setValue, getValues , formState} = useForm<FormValues>({resolver: zodResolver(formSchema)});
+    const {errors} = formState; 
 
     const { fields, append, remove, update } = useFieldArray({
         control,
@@ -90,6 +92,10 @@ export const ApiSpecificationForm = () => {
     const handleBaseUrlChange = useCallback((newBaseUrl) => {
         console.log(`baseUrl changed to: ${newBaseUrl}`);
     }, []);
+
+    useEffect(() => {
+        console.log('Form errors:', errors);
+    }, [errors]);
 
     useEffect(() => {
         handleBaseUrlChange(baseUrl);
@@ -123,41 +129,6 @@ export const ApiSpecificationForm = () => {
     const modelIri = getModelIri();
 
     const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
-
-    // useEffect(() => {
-    //     if (fetchedData) {
-    //         console.log('Fetched Data:', fetchedData);
-    //         setValue('apiTitle', fetchedData.apiTitle);
-    //         setValue('apiDescription', fetchedData.apiDescription);
-    //         setValue('apiVersion', fetchedData.apiVersion);
-    //         setValue('baseUrl', fetchedData.baseUrl);
-    //         setValue('dataSpecification', fetchedData.dataSpecification);
-
-    //         try{
-    //             const updatedDataStructures = fetchedData.dataStructures.map((item, index) => {
-    //                 const selectedDataStructureName = item.name;
-    //                 const selectedDataStructure = selectedDataStructures.find(structure => structure.givenName === selectedDataStructureName);
-    //                 return {
-    //                     ...item,
-    //                     name: selectedDataStructure ? selectedDataStructure.givenName : '',
-    //                     id: selectedDataStructure ? selectedDataStructure.id : '',
-    //                 };
-    //             });
-    
-    //             setValue('dataStructures', updatedDataStructures);
-    //         }
-    //         catch
-    //         {
-    //             console.log('nothing')
-    //         }
-            
-
-           
-    //     }
-    //     else {
-    //         console.log("Fetched data is not yet available");
-    //     }
-    //  }, [fetchedData, setValue]);
 
     useEffect(() => {
         if (fetchedData) {
@@ -308,10 +279,14 @@ export const ApiSpecificationForm = () => {
         <form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Form Info */}
             <FormCardSection>
-                <LabeledInput label="API Title" id="apiTitle" register={register} required />
-                <LabeledInput label="API Description" id="apiDescription" register={register} required />
-                <LabeledInput label="API Version" id="apiVersion" register={register} required />
-                <LabeledInput label="Base URL" id="baseUrl" register={register} required />
+                <LabeledInput label="API Title" id="apiTitle" register={register} required/>
+                {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
+                <LabeledInput label="API Description" id="apiDescription" register={register}  required/>
+                {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
+                <LabeledInput label="API Version" id="apiVersion" register={register}  required/>
+                {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
+                <LabeledInput label="Base URL" id="baseUrl" register={register}  required/>
+                {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
                 {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
             </FormCardSection>
 
