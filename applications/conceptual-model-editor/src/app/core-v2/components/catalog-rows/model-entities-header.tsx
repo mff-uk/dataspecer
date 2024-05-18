@@ -6,6 +6,21 @@ import { getModelDetails } from "../../util/model-utils";
 import { EntityModel } from "@dataspecer/core-v2";
 import { compareMaps } from "../../util/utils";
 
+const getDefaultColor = () => {
+    return "#000069";
+};
+
+const getDefaultColor2 = () => {
+    return "#000420";
+};
+
+const getDefaultColor3 = () => {
+    return "#069420";
+};
+const getDefaultColor4 = () => {
+    return "#420000";
+};
+
 export const useModelEntitiesList = (model: EntityModel) => {
     const [isModelEntitiesListOpen, setIsModelEntitiesListOpen] = useState(true);
 
@@ -21,15 +36,15 @@ export const useModelEntitiesList = (model: EntityModel) => {
             return {
                 activeVisualModel: activeVisualModel,
                 modelColors: new Map<string, string>(
-                    [...models.keys()].map((mId) => [mId, activeVisualModel?.getColor(mId) ?? "#000001"])
+                    [...models.keys()].map((mId) => [mId, activeVisualModel?.getColor(mId) ?? getDefaultColor2()])
                 ),
             };
-        }, [models]);
+        }, [models, aggregatorView]);
 
         const { id: modelId, displayName } = useMemo(() => getModelDetails(model), [models]);
 
         const [backgroundColor, setBackgroundColor] = useState({
-            clr: activeVisualModel?.getColor(modelId) || "#000001",
+            clr: activeVisualModel?.getColor(modelId) || getDefaultColor4(),
             ctr: 0, // FIXME: ugly but didn't see another way to force rerender
         });
 
@@ -37,20 +52,24 @@ export const useModelEntitiesList = (model: EntityModel) => {
             const callToUnsubscribe = activeVisualModel?.subscribeToChanges(() => {
                 setBackgroundColor((prev) => {
                     const newClrs = new Map(
-                        [...models.keys()].map((mId) => [mId, activeVisualModel.getColor(mId) ?? "#000001"])
+                        [...models.keys()].map((mId) => [mId, activeVisualModel.getColor(mId) ?? getDefaultColor()])
                     );
                     const areSame = compareMaps(newClrs, modelColors);
                     if (!areSame) {
                         // force rerender for hierarchy to change color too
-                        const newClr = { clr: newClrs.get(modelId) ?? "#000001", ctr: prev.ctr + 1 };
+                        const newClr = {
+                            clr: activeVisualModel?.getColor(modelId) ?? getDefaultColor3(),
+                            ctr: prev.ctr + 1,
+                        };
+                        // console.log("will rerender?", modelId, newClr);
                         return newClr;
                     }
-                    console.log("not gonna rerender?", modelId);
+                    // console.log("not gonna rerender?", modelId);
                     return prev;
                 });
             });
             return () => callToUnsubscribe?.();
-        }, [activeVisualModel]);
+        }, [activeVisualModel, models]);
 
         return (
             <li

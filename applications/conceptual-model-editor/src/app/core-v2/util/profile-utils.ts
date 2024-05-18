@@ -104,3 +104,8 @@ export const getDefaultOverriddenFields = (): OverriddenFieldsType => ({
     range: false,
     rangeCardinality: false,
 });
+
+export type WithOverrideHandlerType = {
+    callback: () => void;
+    defaultValue: boolean;
+};

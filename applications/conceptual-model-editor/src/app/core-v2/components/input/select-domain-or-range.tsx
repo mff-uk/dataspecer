@@ -3,6 +3,7 @@ import { useClassesContext } from "../../context/classes-context";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityProxy } from "../../util/detail-utils";
+import { WithOverrideHandlerType } from "../../util/profile-utils";
 
 const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsage; duplicateNames: Set<string> }) => {
     const { resource, duplicateNames } = props;
@@ -22,7 +23,7 @@ export const SelectDomainOrRange = (props: {
     setConcept: (resourceId: string) => void;
     onChange?: () => void;
     disabled?: boolean;
-    withOverride?: () => void;
+    withOverride?: WithOverrideHandlerType;
     withNullValueEnabled?: boolean;
     forElement: "domain" | "range";
 }) => {
@@ -82,7 +83,8 @@ export const SelectDomainOrRange = (props: {
                 <div className="ml-2">
                     <OverrideFieldCheckbox
                         forElement={`domain-range-component-${forElement}`}
-                        onChecked={withOverride}
+                        onChecked={withOverride.callback}
+                        defaultChecked={withOverride.defaultValue}
                     />
                 </div>
             )}

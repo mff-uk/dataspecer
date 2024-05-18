@@ -205,7 +205,10 @@ export const useCreateProfileDialog = () => {
                             setLs={setName}
                             defaultLang={preferredLanguage}
                             inputType="text"
-                            withOverride={() => setOverriddenFields((prev) => ({ ...prev, name: !prev.name }))}
+                            withOverride={{
+                                callback: () => setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
+                                defaultValue: false,
+                            }}
                             disabled={!overriddenFields.name}
                             onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                         />
@@ -242,9 +245,11 @@ export const useCreateProfileDialog = () => {
                             setLs={setDescription}
                             defaultLang={preferredLanguage}
                             inputType="textarea"
-                            withOverride={() =>
-                                setOverriddenFields((prev) => ({ ...prev, description: !prev.description }))
-                            }
+                            withOverride={{
+                                callback: () =>
+                                    setOverriddenFields((prev) => ({ ...prev, description: !prev.description })),
+                                defaultValue: false,
+                            }}
                             disabled={!overriddenFields.description}
                             onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                         />

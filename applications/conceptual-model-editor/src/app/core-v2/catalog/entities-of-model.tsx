@@ -69,6 +69,7 @@ export const EntitiesOfModel = (props: {
 
     const localGetCurrentVisibilityOnCanvas = () => {
         const entitiesAndProfiles = [...entities, ...profiles.filter(isSemanticModelClassUsage)];
+        // console.log("in localGetCurrentVisibilityOnCanvas", activeVisualModel, entitiesAndProfiles, modelId);
         return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
     };
 
@@ -77,12 +78,17 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        setVisibleOnCanvas(new Map<string, boolean>(localGetCurrentVisibilityOnCanvas()));
+        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
     }, []);
 
     useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
-        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
+        setVisibleOnCanvas(() => {
+            // console.log("first setting visibility on canvas", activeVisualModel, modelId);
+            return new Map(localGetCurrentVisibilityOnCanvas());
+        });
+
+        // TODO: visibility not shown after loading in dev mode
 
         const getDefaultVisibility = () => {
             if (entityType == "class") {
@@ -104,18 +110,21 @@ export const EntitiesOfModel = (props: {
 
                 const areSame = compareMaps(localMap, prev);
                 if (areSame) {
+                    // console.log("keeping visibility the same, prev, local ", prev, localMap, modelId);
                     return prev;
                 }
-                return new Map(localMap);
+                // console.log("changing visibility, prev, local", prev, localMap, modelId);
+                return localMap;
             });
         });
 
         return () => {
+            setVisibleOnCanvas(new Map());
             visibilityListenerUnsubscribe?.();
         };
     }, [activeVisualModel]);
 
-    console.log("entities of model rerendered");
+    // console.log("entities of model rerendered");
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         if (!(model instanceof ExternalSemanticModel)) return;
@@ -214,7 +223,6 @@ export const EntitiesOfModel = (props: {
             key={entity.id}
             entity={entity}
             indent={0}
-            // visibleOnCanvas={visibleOnCanvas}
             handlers={{
                 handleOpenDetail,
                 handleAddEntityToActiveView,

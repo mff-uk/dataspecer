@@ -47,11 +47,9 @@ export const RowHierarchy = (props: {
     const { models, aggregatorView } = useModelGraphContext();
     const { profiles, classes2, allowedClasses } = useClassesContext();
     const { entity } = props;
-    const { isOnCanvas } = useCanvasVisibility(entity.id);
 
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
 
-    // const isOnCanvas = useMemo(()=>visibleOnCanvas.get(props.entity.id),[])
     const isAttribute = isAnAttribute(props.entity);
 
     const modificationHandler =
@@ -112,7 +110,6 @@ export const RowHierarchy = (props: {
                     removable={removalHandler}
                     profile={profilingHandler}
                     sourceModel={sourceModel}
-                    visibleOnCanvas={isOnCanvas}
                 />
                 {thisEntityProfiles.map((p) => (
                     <RowHierarchy

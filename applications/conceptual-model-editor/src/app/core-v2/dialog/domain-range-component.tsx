@@ -15,14 +15,6 @@ export const DomainRangeComponent = (props: {
     setRange: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
     domain: SemanticModelRelationshipEnd;
     setDomain: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
-    enabledFields?: {
-        name: boolean;
-        description: boolean;
-        domain: boolean;
-        domainCardinality: boolean;
-        range: boolean;
-        rangeCardinality: boolean;
-    };
     onDomainChange?: () => void;
     onRangeChange?: () => void;
     onDomainCardinalityChange?: () => void;
@@ -32,9 +24,8 @@ export const DomainRangeComponent = (props: {
         setOverriddenFields: Dispatch<SetStateAction<OverriddenFieldsType>>;
     };
 }) => {
-    const { entity, range, setRange, domain, setDomain, enabledFields, withOverride } = props;
+    const { entity, range, setRange, domain, setDomain, withOverride } = props;
     const isAttribute = isAnAttribute(entity);
-    const isEdge = isAnEdge(entity);
 
     console.log(entity, range, domain);
 
@@ -49,7 +40,11 @@ export const DomainRangeComponent = (props: {
                     disabled={withOverride && !withOverride.overriddenFields?.domain}
                     withOverride={
                         withOverride
-                            ? () => withOverride.setOverriddenFields((prev) => ({ ...prev, domain: !prev.domain }))
+                            ? {
+                                  callback: () =>
+                                      withOverride.setOverriddenFields((prev) => ({ ...prev, domain: !prev.domain })),
+                                  defaultValue: withOverride.overriddenFields.domain,
+                              }
                             : undefined
                     }
                 />
@@ -63,11 +58,14 @@ export const DomainRangeComponent = (props: {
                     onChange={props.onDomainCardinalityChange}
                     withOverride={
                         withOverride
-                            ? () =>
-                                  withOverride.setOverriddenFields((prev) => ({
-                                      ...prev,
-                                      domainCardinality: !prev.domainCardinality,
-                                  }))
+                            ? {
+                                  callback: () =>
+                                      withOverride.setOverriddenFields((prev) => ({
+                                          ...prev,
+                                          domainCardinality: !prev.domainCardinality,
+                                      })),
+                                  defaultValue: withOverride.overriddenFields.domainCardinality,
+                              }
                             : undefined
                     }
                 />
@@ -83,12 +81,15 @@ export const DomainRangeComponent = (props: {
                             onChange={props.onRangeChange}
                             withOverride={
                                 withOverride
-                                    ? () =>
-                                          withOverride.setOverriddenFields((prev) => ({
-                                              ...prev,
-                                              range: !prev.range,
-                                              rangeCardinality: prev.range ? !prev.range : prev.rangeCardinality,
-                                          }))
+                                    ? {
+                                          callback: () =>
+                                              withOverride.setOverriddenFields((prev) => ({
+                                                  ...prev,
+                                                  range: !prev.range,
+                                                  rangeCardinality: prev.range ? !prev.range : prev.rangeCardinality,
+                                              })),
+                                          defaultValue: withOverride.overriddenFields.range,
+                                      }
                                     : undefined
                             }
                         />
@@ -104,11 +105,14 @@ export const DomainRangeComponent = (props: {
                                 onChange={props.onRangeCardinalityChange}
                                 withOverride={
                                     withOverride && withOverride.overriddenFields.range
-                                        ? () =>
-                                              withOverride.setOverriddenFields((prev) => ({
-                                                  ...prev,
-                                                  rangeCardinality: !prev.rangeCardinality,
-                                              }))
+                                        ? {
+                                              callback: () =>
+                                                  withOverride.setOverriddenFields((prev) => ({
+                                                      ...prev,
+                                                      rangeCardinality: !prev.rangeCardinality,
+                                                  })),
+                                              defaultValue: withOverride.overriddenFields.rangeCardinality,
+                                          }
                                         : undefined
                                 }
                             />
@@ -131,11 +135,14 @@ export const DomainRangeComponent = (props: {
                             disabled={withOverride && !withOverride.overriddenFields?.range}
                             withOverride={
                                 withOverride
-                                    ? () =>
-                                          withOverride.setOverriddenFields((prev) => ({
-                                              ...prev,
-                                              range: !prev.range,
-                                          }))
+                                    ? {
+                                          callback: () =>
+                                              withOverride.setOverriddenFields((prev) => ({
+                                                  ...prev,
+                                                  range: !prev.range,
+                                              })),
+                                          defaultValue: withOverride.overriddenFields.range,
+                                      }
                                     : undefined
                             }
                         />
@@ -151,11 +158,14 @@ export const DomainRangeComponent = (props: {
                                 onChange={props.onRangeCardinalityChange}
                                 withOverride={
                                     withOverride
-                                        ? () =>
-                                              withOverride.setOverriddenFields((prev) => ({
-                                                  ...prev,
-                                                  rangeCardinality: !prev.rangeCardinality,
-                                              }))
+                                        ? {
+                                              callback: () =>
+                                                  withOverride.setOverriddenFields((prev) => ({
+                                                      ...prev,
+                                                      rangeCardinality: !prev.rangeCardinality,
+                                                  })),
+                                              defaultValue: withOverride.overriddenFields.rangeCardinality,
+                                          }
                                         : undefined
                                 }
                             />
