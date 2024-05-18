@@ -39,10 +39,11 @@ import {
     NewRemovableAttributeProfileRow,
     NewRemovableAttributeRow,
 } from "../components/dialog/modify/new-attribute-row";
-import { isSemanticProfile } from "../util/profile-utils";
+import { OverriddenFieldsType, getDefaultOverriddenFields, isSemanticProfile } from "../util/profile-utils";
 import { EntityProxy } from "../util/detail-utils";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { ModifyButton } from "../components/dialog/buttons/modify-button";
+import { areLanguageStringsEqual } from "../util/language-utils";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -86,18 +87,9 @@ export const useModifyEntityDialog = () => {
         const { attributes, attributeProfiles, canHaveAttributes, canHaveDomainAndRange } = EntityProxy(modifiedEntity);
 
         const isProfile = isSemanticProfile(modifiedEntity);
+        const { profileOf: directProfileOf, raw } = EntityProxy(modifiedEntity);
 
         const [newIri, setNewIri] = useState(currentIri ?? undefined);
-        const [changedFields, setChangedFields] = useState({
-            name: false,
-            description: false,
-            iri: false,
-            usageNote: false,
-            domain: false,
-            domainCardinality: false,
-            range: false,
-            rangeCardinality: false,
-        });
 
         const currentDomainAndRange = canHaveDomainAndRange ? temporaryDomainRangeHelper(modifiedEntity) : null;
 
@@ -115,6 +107,59 @@ export const useModifyEntityDialog = () => {
         >([]);
         const [toBeRemovedAttributes, setToBeRemovedAttributes] = useState<string[]>([]);
 
+        const getPossiblyOverriddenFields = () => {
+            if (!isProfile) {
+                return getDefaultOverriddenFields();
+            }
+            if (!directProfileOf) {
+                return getDefaultOverriddenFields();
+            }
+
+            let ofs = {} as OverriddenFieldsType;
+
+            ofs = !areLanguageStringsEqual(name2, getNameLanguageString(directProfileOf))
+                ? { ...ofs, name: true }
+                : ofs;
+            ofs = !areLanguageStringsEqual(description2, getDescriptionLanguageString(directProfileOf))
+                ? { ...ofs, description: true }
+                : ofs;
+
+            if (!isSemanticModelRelationshipUsage(modifiedEntity)) {
+                return ofs;
+            }
+
+            ofs =
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.domainIndex!)?.concept != null
+                    ? { ...ofs, domain: true }
+                    : ofs;
+            ofs =
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.concept != null
+                    ? { ...ofs, range: true }
+                    : ofs;
+            ofs =
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.domainIndex!)?.cardinality !=
+                null
+                    ? { ...ofs, domainCardinality: true }
+                    : ofs;
+            ofs =
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.cardinality != null
+                    ? { ...ofs, rangeCardinality: true }
+                    : ofs;
+            return ofs;
+        };
+
+        const [changedFields, setChangedFields] = useState({
+            name: false,
+            description: false,
+            iri: false,
+            usageNote: false,
+            domain: false,
+            domainCardinality: false,
+            range: false,
+            rangeCardinality: false,
+        });
+        const [overriddenFields, setOverriddenFields] = useState(getPossiblyOverriddenFields());
+
         const changedFieldsAsStringArray = Object.entries(changedFields)
             .filter(([key, _]) => key != "name" && key != "description" && key != "iri" && key != "usageNote")
             .filter(([_, v]) => v == true)
@@ -123,16 +168,38 @@ export const useModifyEntityDialog = () => {
         const handleSaveClassOrClassProfile = (m: InMemorySemanticModel) => {
             // TODO: something broken with attribute profiles
             const operations = [];
-            let changedCls = {} as Partial<
-                Omit<SemanticModelClass & SemanticModelClassUsage, "type" | "usageOf" | "id">
-            >;
-            changedCls = changedFields.name ? { ...changedCls, name: name2, iri: newIri } : changedCls;
-            changedCls = changedFields.description ? { ...changedCls, description: description2 } : changedCls;
-            changedCls = changedFields.iri ? { ...changedCls, iri: newIri } : changedCls;
 
-            if (isSemanticModelClass(modifiedEntity) && Object.entries(changedCls).length > 0) {
-                operations.push(modifyClass(modifiedEntity.id, changedCls));
+            if (isSemanticModelClass(modifiedEntity)) {
+                let changedCls = {} as Partial<
+                    Omit<SemanticModelClass & SemanticModelClassUsage, "type" | "usageOf" | "id">
+                >;
+                changedCls = changedFields.name ? { ...changedCls, name: name2, iri: newIri } : changedCls;
+                changedCls = changedFields.description ? { ...changedCls, description: description2 } : changedCls;
+                changedCls = changedFields.iri ? { ...changedCls, iri: newIri } : changedCls;
+
+                if (Object.entries(changedCls).length > 0) {
+                    operations.push(modifyClass(modifiedEntity.id, changedCls));
+                }
             } else {
+                let changedCls = {} as Partial<Omit<SemanticModelClassUsage, "type" | "usageOf" | "id">>;
+                if (overriddenFields.name && changedFields.name) {
+                    changedCls = { ...changedCls, name: name2, iri: newIri };
+                }
+
+                if (!overriddenFields.name && (raw as SemanticModelClassUsage).name != null) {
+                    changedCls = { ...changedCls, name: null };
+                }
+
+                if (overriddenFields.description && changedFields.description) {
+                    changedCls = { ...changedCls, description: description2 };
+                }
+
+                if (!overriddenFields.description && (raw as SemanticModelClassUsage).description != null) {
+                    changedCls = { ...changedCls, description: null };
+                }
+
+                changedCls = changedFields.iri ? { ...changedCls, iri: newIri } : changedCls;
+
                 changedCls = changedFields.usageNote ? { ...changedCls, usageNote: usageNote2 } : changedCls;
 
                 if (Object.entries(changedCls).length > 0) {
@@ -156,20 +223,88 @@ export const useModifyEntityDialog = () => {
         };
 
         const getDomainAndRangeEndChanges = () => {
-            let de = {} as Partial<
-                Omit<SemanticModelRelationshipEnd & SemanticModelRelationshipEndUsage, "type" | "id">
-            >;
+            let de = {} as Partial<Omit<SemanticModelRelationshipEnd, "type" | "id">>;
             de = changedFields.domainCardinality ? { ...de, cardinality: newDomain.cardinality } : de;
             de = changedFields.domain ? { ...de, concept: newDomain.concept } : de;
 
-            let re = {} as Partial<
-                Omit<SemanticModelRelationshipEnd & SemanticModelRelationshipEndUsage, "type" | "id">
-            >;
+            let re = {} as Partial<Omit<SemanticModelRelationshipEnd, "type" | "id">>;
             re = changedFields.name ? { ...re, name: name2 } : re;
             re = changedFields.description ? { ...re, description: description2 } : re;
             re = changedFields.iri ? { ...re, iri: newIri } : re;
             re = changedFields.range ? { ...re, concept: newRange.concept } : re;
             re = changedFields.rangeCardinality ? { ...re, cardinality: newRange.cardinality } : re;
+            return { domainChanges: de, rangeChanges: re };
+        };
+
+        const getDomainAndRangeEndChangesForProfile = () => {
+            let de = {} as Partial<Omit<SemanticModelRelationshipEndUsage, "type" | "id">>;
+            // Domain
+            if (overriddenFields.domain && changedFields.domain) {
+                de = { ...de, concept: newDomain.concept };
+            }
+            if (
+                !overriddenFields.domain &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.domainIndex!)?.concept != null
+            ) {
+                de = { ...de, concept: null };
+            }
+            // domain cardinality
+            if (overriddenFields.domainCardinality && changedFields.domainCardinality) {
+                de = { ...de, cardinality: newDomain.cardinality };
+            }
+            if (
+                !overriddenFields.domainCardinality &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.domainIndex!)?.cardinality !=
+                    null
+            ) {
+                de = { ...de, cardinality: null };
+            }
+
+            // Range
+            // name
+            let re = {} as Partial<Omit<SemanticModelRelationshipEndUsage, "type" | "id">>;
+            if (overriddenFields.name && changedFields.name) {
+                re = { ...re, name: name2, iri: newIri };
+            }
+            if (
+                !overriddenFields.name &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.name != null
+            ) {
+                re = { ...re, name: null };
+            }
+
+            // description
+            if (overriddenFields.description && changedFields.description) {
+                re = { ...re, description: description2 };
+            }
+            if (
+                !overriddenFields.description &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.description != null
+            ) {
+                re = { ...re, description: null };
+            }
+
+            // range
+            if (overriddenFields.range && changedFields.range) {
+                re = { ...re, concept: newRange.concept };
+            }
+            if (
+                !overriddenFields.range &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.concept != null
+            ) {
+                re = { ...re, concept: null };
+            }
+            // range cardinality
+            if (overriddenFields.rangeCardinality && changedFields.rangeCardinality) {
+                re = { ...re, cardinality: newRange.cardinality };
+            }
+            if (
+                !overriddenFields.rangeCardinality &&
+                (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!)?.cardinality != null
+            ) {
+                re = { ...re, cardinality: null };
+            }
+
             return { domainChanges: de, rangeChanges: re };
         };
 
@@ -195,19 +330,19 @@ export const useModifyEntityDialog = () => {
             const result = updateRelationship(m, modifiedEntity.id, {
                 ends,
             });
-            console.log("modifying relationship: ", modifiedEntity.id, ends);
+            console.log("modifying relationship: ", modifiedEntity.id, ends, domainChanges, rangeChanges);
             return result;
         };
 
         const handleSaveRelationshipProfile = (m: InMemorySemanticModel) => {
-            const { domainChanges, rangeChanges } = getDomainAndRangeEndChanges();
+            const { domainChanges, rangeChanges } = getDomainAndRangeEndChangesForProfile();
 
             const domainEnd = {
-                ...currentDomainAndRange?.domain,
+                ...(raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.domainIndex!), //currentDomainAndRange?.domain,
                 ...domainChanges,
             } as SemanticModelRelationshipEndUsage;
             const rangeEnd = {
-                ...currentDomainAndRange?.range,
+                ...(raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange?.rangeIndex!),
                 ...rangeChanges,
             } as SemanticModelRelationshipEndUsage;
 
@@ -230,7 +365,9 @@ export const useModifyEntityDialog = () => {
                 description2,
                 name2,
                 newRange,
-                newDomain
+                newDomain,
+                domainChanges,
+                rangeChanges
             );
         };
 
@@ -269,9 +406,17 @@ export const useModifyEntityDialog = () => {
                                 ls={name2}
                                 setLs={setName2}
                                 defaultLang={preferredLanguage}
-                                disabled={isProfile && !changedFields.name}
+                                disabled={isProfile && !overriddenFields.name}
                                 onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
-                                withOverride={isProfile}
+                                withOverride={
+                                    isProfile
+                                        ? {
+                                              callback: () =>
+                                                  setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
+                                              defaultValue: overriddenFields.name,
+                                          }
+                                        : undefined
+                                }
                             />
                         </DialogDetailRow2>
 
@@ -313,9 +458,20 @@ export const useModifyEntityDialog = () => {
                                 ls={description2}
                                 setLs={setDescription2}
                                 defaultLang={preferredLanguage}
-                                disabled={isProfile && !changedFields.description}
+                                disabled={isProfile && !overriddenFields.description}
                                 onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
-                                withOverride={isProfile}
+                                withOverride={
+                                    isProfile
+                                        ? {
+                                              callback: () =>
+                                                  setOverriddenFields((prev) => ({
+                                                      ...prev,
+                                                      description: !prev.description,
+                                                  })),
+                                              defaultValue: overriddenFields.description,
+                                          }
+                                        : undefined
+                                }
                             />
                         </DialogDetailRow2>
 
@@ -403,8 +559,7 @@ export const useModifyEntityDialog = () => {
                                     </>
                                 )}
                                 <DomainRangeComponent
-                                    enabledFields={changedFields}
-                                    withOverride={isProfile}
+                                    withOverride={isProfile ? { overriddenFields, setOverriddenFields } : undefined}
                                     entity={
                                         modifiedEntity as SemanticModelRelationship | SemanticModelRelationshipUsage
                                     }
@@ -428,7 +583,7 @@ export const useModifyEntityDialog = () => {
 
                 {/* 
                 -----------------------------------------------------
-                Adding new attributes to class or TODO: class profile
+                Adding new attributes to class or class profile
                 -----------------------------------------------------
                 */}
 

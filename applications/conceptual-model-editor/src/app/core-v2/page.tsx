@@ -35,10 +35,11 @@ import { getRandomName } from "../utils/random-gen";
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
 
-    const { aggregator } = useMemo(() => {
-        const aggregator = new SemanticModelAggregator();
-        return { aggregator };
-    }, []);
+    // const { aggregator } = useMemo(() => {
+    //     const aggregator = new SemanticModelAggregator();
+    //     return { aggregator };
+    // }, []);
+    const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
     const [models, setModels] = useState(new Map<string, EntityModel>());
     const [classes, setClasses] = useState(new Map<string, SemanticModelClassWithOrigin>());
@@ -74,21 +75,22 @@ const Page = () => {
             }
             console.log("page: gonna create new default model", defaultModelAlreadyCreated);
 
+            const aggr = new SemanticModelAggregator();
+            const aggrView = aggr.getView();
             const visualModel = new VisualEntityModelImpl(undefined);
-            setVisualModels((prev) => prev.set(visualModel.getId(), visualModel));
-            aggregator.addModel(visualModel);
-            aggregatorView.changeActiveVisualModel(visualModel.getId());
+            setVisualModels(new Map([[visualModel.getId(), visualModel]]));
+            aggr.addModel(visualModel);
+            aggrView.changeActiveVisualModel(visualModel.getId());
 
             const model = new InMemorySemanticModel();
             model.setAlias("default local model");
-            setModels((previous) => previous.set(model.getId(), model));
-            aggregator.addModel(model);
+            setModels(new Map([[model.getId(), model]]));
+            aggr.addModel(model);
 
             setDefaultModelAlreadyCreated(true);
-            setAggregatorView(aggregator.getView());
+            setAggregator(aggr);
+            setAggregatorView(aggrView);
             return () => {
-                aggregator.deleteModel(visualModel);
-                aggregator.deleteModel(model);
                 setDefaultModelAlreadyCreated(false);
                 setModels(() => new Map<string, EntityModel>());
                 setVisualModels(() => new Map<string, VisualEntityModel>());
@@ -116,18 +118,20 @@ const Page = () => {
                     model.setAlias("default local model");
                     entityModels.push(model);
                 }
+
                 for (const model of visualModels2) {
                     aggregator.addModel(model);
-                    setVisualModels((prev) => prev.set(model.getId(), model));
                 }
                 for (const model of entityModels) {
                     aggregator.addModel(model);
-                    setModels((previous) => previous.set(model.getId(), model));
                 }
+
+                setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m])));
+                setModels(new Map(entityModels.map((m) => [m.getId(), m])));
                 setAggregatorView(aggregator.getView());
                 return visualModels2;
             })
-            .then((vm: VisualEntityModel[]) => {
+            .then((vm) => {
                 const availableVisualModelIds = vm.map((m) => m.getId());
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
                     aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
@@ -145,6 +149,13 @@ const Page = () => {
             });
         return () => {
             console.log("models cleanup in package effect");
+            for (const [_, m] of models) {
+                aggregator.deleteModel(m);
+            }
+            for (const [_, m] of visualModels) {
+                aggregator.deleteModel(m);
+            }
+            setVisualModels(new Map<string, VisualEntityModel>());
             setModels(new Map<string, EntityModel>());
         };
     }, []);
@@ -250,8 +261,6 @@ const Page = () => {
             setUsages((prev) => prev.filter((v) => !prfilesIds.has(v.id)).concat(prfiles));
             setRawEntities((prev) => prev.filter((r) => !rawsIds.has(r?.id)).concat(raws));
         };
-        // TODO: tady udelej nejakej chytrejsi callback
-        // staci, aby se pridaly a odebraly tridy, neni potreba
         const callToUnsubscribe = aggregatorView?.subscribeToChanges(callback);
 
         callback([], []);

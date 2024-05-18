@@ -15,7 +15,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
 import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
-import { LOCAL_MODEL_ID } from "../util/constants";
 import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -93,7 +92,7 @@ export const useClassesContext = () => {
 
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
-            alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
+            alert("no local model found or is not of type InMemoryLocal");
             return null;
         }
         if (connection.type == "association") {
@@ -130,20 +129,18 @@ export const useClassesContext = () => {
         entityType: "relationship" | "relationship-usage",
         entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
     ) => {
-        if (entityType == "relationship" || entityType == "relationship-usage") {
-            const result = model.executeOperation(createRelationshipUsage(entity));
-            console.log(result);
-            return result.success;
-        } else {
+        if (!(entityType == "relationship" || entityType == "relationship-usage")) {
             console.error(model, entityType, entity);
             throw new Error(`unexpected entityType ${entityType}`);
         }
-        return false;
+        const result = model.executeOperation(createRelationshipUsage(entity));
+        console.log(result);
+        return result;
     };
 
     const createAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
-            alert(`local model [${LOCAL_MODEL_ID}] not found or is not of type InMemoryLocal`);
+            alert("no local model found or is not of type InMemoryLocal");
             return;
         }
 

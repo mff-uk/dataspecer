@@ -84,6 +84,7 @@ export class GraphIncidence implements IGraphIncidence {
 //       (it will have only methods manipulating with it - addNode, ...)
 export interface IGraphClassic {
     nodes: Record<string, INodeClassic>,
+    todoDebugExtractedModel: ExtractedModel,
 }
 
 export class GraphClassic {
@@ -103,8 +104,11 @@ export class GraphClassic {
                 this.nodes[cp.id] = new NodeClassic(cp as undefined as SemanticModelClass, true, extractedModel, this);
             }
         });
+
+        this.todoDebugExtractedModel = extractedModel;
     }
     nodes: Record<string, INodeClassic> = {};
+    todoDebugExtractedModel: ExtractedModel;
 }
 
 export interface INodeClassic {
@@ -194,7 +198,7 @@ class NodeClassic implements INodeClassic {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    graph: IGraphClassic;
+    graph: IGraphClassic;    
 
     node: SemanticModelEntity;
     isDummy: boolean = false;       // TODO: For now just keep false
@@ -245,8 +249,8 @@ class NodeClassic implements INodeClassic {
             return Math.max(currMax, currAttribute.ends[targetIndex].name?.en.length);       // TODO: Just english tag for now
         }, 0);
 
-        // TODO: Doesn't work when having profile of profile
-        const iriLen = this.isProfile ? this.graph.nodes[(this.node as unknown as SemanticModelClassUsage).usageOf].node.iri.length : this.node.iri.length;
+        // TODO: Doesn't probably work properly when having profile of profile
+        const iriLen = this.isProfile ? this.graph.nodes[(this.node as unknown as SemanticModelClassUsage).usageOf].node.iri.length : this.node.iri.length;        
         const MAX_WIDTH = TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER + 
                           Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
                                    WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);

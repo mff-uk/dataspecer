@@ -24,21 +24,26 @@ import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
 import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
 import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
 import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
+import { CanvasContext } from "../context/canvas-context";
+import { compareMaps } from "../util/utils";
 
 const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | "profile", model: EntityModel) => {
-    const { classes2, relationships, profiles } = useClassesContext();
+    const { classes2, relationships, profiles, sourceModelOfEntityMap } = useClassesContext();
+    const modelId = model.getId();
 
     if (entityType == "class") {
-        return classes2.filter((v) => sourceModelOfEntity(v.id, [model]));
+        return classes2.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
     } else if (entityType == "relationship") {
         return relationships
             .filter((v) => !isSemanticModelAttribute(v))
-            .filter((v) => sourceModelOfEntity(v.id, [model]));
+            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
     } else if (entityType == "attribute") {
-        return relationships.filter(isSemanticModelAttribute).filter((v) => sourceModelOfEntity(v.id, [model]));
+        return relationships
+            .filter(isSemanticModelAttribute)
+            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
     } else {
         // profile
-        return profiles.filter((v) => sourceModelOfEntity(v.id, [model]));
+        return profiles.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
     }
 };
 
@@ -61,8 +66,10 @@ export const EntitiesOfModel = (props: {
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
     const entities = getEntitiesToShow(entityType, model);
+
     const localGetCurrentVisibilityOnCanvas = () => {
-        const entitiesAndProfiles = [...entities, ...profiles.filter(isSemanticModelClassUsage)];
+        const entitiesAndProfiles = [...entities, ...profiles];
+        // console.log("in localGetCurrentVisibilityOnCanvas", activeVisualModel, entitiesAndProfiles, modelId);
         return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
     };
 
@@ -71,12 +78,17 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        setVisibleOnCanvas(new Map<string, boolean>(localGetCurrentVisibilityOnCanvas()));
+        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
     }, []);
 
     useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
-        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
+        setVisibleOnCanvas(() => {
+            // console.log("first setting visibility on canvas", activeVisualModel, modelId);
+            return new Map(localGetCurrentVisibilityOnCanvas());
+        });
+
+        // TODO: visibility not shown after loading in dev mode
 
         const getDefaultVisibility = () => {
             if (entityType == "class") {
@@ -88,20 +100,31 @@ export const EntitiesOfModel = (props: {
 
         const visibilityListenerUnsubscribe = activeVisualModel?.subscribeToChanges((updated, removed) => {
             setVisibleOnCanvas((prev) => {
+                const localMap = new Map(prev);
                 for (const visualEntityId in removed) {
-                    prev.delete(visualEntityId);
+                    localMap.delete(visualEntityId);
                 }
                 for (const [_, visualEntity] of Object.entries(updated)) {
-                    prev.set(visualEntity.sourceEntityId, visualEntity.visible ?? getDefaultVisibility());
+                    localMap.set(visualEntity.sourceEntityId, visualEntity.visible ?? getDefaultVisibility());
                 }
-                return new Map(prev);
+
+                const areSame = compareMaps(localMap, prev);
+                if (areSame) {
+                    // console.log("keeping visibility the same, prev, local ", prev, localMap, modelId);
+                    return prev;
+                }
+                // console.log("changing visibility, prev, local", prev, localMap, modelId);
+                return localMap;
             });
         });
 
         return () => {
+            setVisibleOnCanvas(new Map());
             visibilityListenerUnsubscribe?.();
         };
     }, [activeVisualModel]);
+
+    // console.log("entities of model rerendered");
 
     const toggleAllow = async (model: EntityModel, classId: string) => {
         if (!(model instanceof ExternalSemanticModel)) return;
@@ -158,8 +181,12 @@ export const EntitiesOfModel = (props: {
         openCreateProfileDialog(entity);
     };
 
-    const handleRemoval = (model: InMemorySemanticModel, entityId: string) => {
-        deleteEntityFromModel(model, entityId);
+    const handleRemoval = (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
+        if (model instanceof InMemorySemanticModel) {
+            deleteEntityFromModel(model, entityId);
+        } else {
+            model.releaseClass(entityId);
+        }
     };
 
     const getAppendedRow = () => {
@@ -196,7 +223,6 @@ export const EntitiesOfModel = (props: {
             key={entity.id}
             entity={entity}
             indent={0}
-            visibleOnCanvas={visibleOnCanvas}
             handlers={{
                 handleOpenDetail,
                 handleAddEntityToActiveView,
@@ -211,7 +237,9 @@ export const EntitiesOfModel = (props: {
 
     return (
         <>
-            <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
+            <CanvasContext.Provider value={{ visibleOnCanvas, setVisibleOnCanvas }}>
+                <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
+            </CanvasContext.Provider>
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateClassDialogOpen && <CreateClassDialog />}

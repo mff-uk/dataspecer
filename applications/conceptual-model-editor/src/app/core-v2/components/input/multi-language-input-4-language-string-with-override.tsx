@@ -1,6 +1,7 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
+import { WithOverrideHandlerType } from "../../util/profile-utils";
 
 export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     forElement: string;
@@ -10,7 +11,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     inputType: "text" | "textarea";
     disabled?: boolean;
     onChange?: () => void;
-    withOverride: boolean;
+    withOverride?: WithOverrideHandlerType;
     style?: string;
 }) => {
     const { forElement, ls, setLs, disabled, inputType, defaultLang, onChange, style, withOverride } = props;
@@ -29,7 +30,11 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
             </div>
             {withOverride && (
                 <div className="my-auto ml-2">
-                    <OverrideFieldCheckbox forElement={forElement} disabled={!disabled} onChecked={onChange} />
+                    <OverrideFieldCheckbox
+                        forElement={forElement}
+                        onChecked={withOverride.callback}
+                        defaultChecked={withOverride.defaultValue}
+                    />
                 </div>
             )}
         </div>

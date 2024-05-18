@@ -10,7 +10,7 @@ export const ViewManagement = () => {
     const { viewId, setViedIdSearchParam } = useViewParam();
 
     const activeViewId = aggregatorView.getActiveViewId();
-    const availableVisualModelIds = aggregatorView.getAvailableVisualModelIds();
+    const availableVisualModelIds = [...new Set(aggregatorView.getAvailableVisualModelIds())];
 
     useEffect(() => {
         if (!activeViewId) {

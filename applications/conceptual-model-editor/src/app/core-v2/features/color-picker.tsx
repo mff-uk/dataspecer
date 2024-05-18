@@ -59,7 +59,7 @@ export const ColorPicker = (props: { currentColor: string; saveColor: (color: st
             tabIndex={-1}
             autoFocus
             ref={colorPickerRef}
-            className={`grid min-w-fit ${GRID_COLS} border-2 border-white p-1`}
+            className={`relative z-10 min-w-fit border-2 border-white p-1`}
             onBlur={(e) => {
                 if (e.relatedTarget?.id.startsWith("button-color-picker-")) {
                     return;
@@ -68,22 +68,24 @@ export const ColorPicker = (props: { currentColor: string; saveColor: (color: st
                 setIsOpen(false);
             }}
         >
-            {colors.map((tailwindColor) => {
-                const color = tailwindColorToHex(tailwindColor);
-                return (
-                    <ColorField
-                        key={color + "color-field"}
-                        color={color}
-                        tailwindColor={tailwindColor}
-                        isSelected={currentColor == color}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            saveColor(color);
-                            setIsOpen(false);
-                        }}
-                    />
-                );
-            })}
+            <div className={`grid min-w-fit ${GRID_COLS} absolute -left-32 border-2 border-white p-1`}>
+                {colors.map((tailwindColor) => {
+                    const color = tailwindColorToHex(tailwindColor);
+                    return (
+                        <ColorField
+                            key={color + "color-field"}
+                            color={color}
+                            tailwindColor={tailwindColor}
+                            isSelected={currentColor == color}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                saveColor(color);
+                                setIsOpen(false);
+                            }}
+                        />
+                    );
+                })}
+            </div>
         </div>
     );
 };

@@ -53,7 +53,7 @@ export const AddAttributesComponent = (props: {
                     name,
                     description,
                     iri,
-                    concept: dataType, // TODO dataType
+                    concept: dataType,
                 },
             ],
         });

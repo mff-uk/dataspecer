@@ -10,11 +10,36 @@ import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
 
+
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
   const resources = useContext(ResourcesContext);
   const resource = resources[iri]!;
-  const modelVisualizationId = iri + "/visualization";
-  const modelVisualizationResource = resources[modelVisualizationId];
+  const baseModelVisualizationId = iri + "/visualization";
+
+  let modelVisualizationId = baseModelVisualizationId;
+  let modelVisualizationResource = resources[modelVisualizationId];
+  let lastModelVisualizationId = baseModelVisualizationId;
+  let lastModelVisualizationResource = resources[modelVisualizationId];
+
+  const [shouldCreateNewModel, setShouldCreateNewModel] = useState(true);
+  
+  let index = 0;
+  while(modelVisualizationResource) {
+    index++;
+
+    lastModelVisualizationId = modelVisualizationId;
+    lastModelVisualizationResource = modelVisualizationResource;
+
+    modelVisualizationId = `${baseModelVisualizationId}-${index}`;
+    modelVisualizationResource = resources[modelVisualizationId];
+  }  
+
+  // Take the last used model
+  if(!shouldCreateNewModel) {
+    modelVisualizationId = lastModelVisualizationId;
+    modelVisualizationResource = lastModelVisualizationResource; 
+  }
+
 
   const [isLoading, setIsLoading] = useState(false);
   const execute = async () => {
@@ -85,7 +110,15 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
             Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
           </ModalDescription>          
         </ModalHeader>
-        <ModalBody><ConfigDialog></ConfigDialog></ModalBody>
+        <ModalBody>
+          <div className='h-8'>------------------------</div>         
+          <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel} 
+                      onChange={(e => setShouldCreateNewModel(e.target.checked))} />
+          <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model)</label>    
+          <div className='h-8'></div>         
+          <div>------------------------</div>         
+          <ConfigDialog></ConfigDialog>
+        </ModalBody>
         <ModalFooter>
           <Button variant="default" onClick={execute} disabled={isLoading}>
             {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}

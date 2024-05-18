@@ -10,7 +10,7 @@ export const CreateProfileButton = (props: { onClickHandler?: () => void }) => {
             }
             onClick={onClickHandler}
         >
-            🥑
+            🧲
         </button>
     );
 };
