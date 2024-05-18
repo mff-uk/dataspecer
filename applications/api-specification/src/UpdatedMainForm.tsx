@@ -10,6 +10,7 @@ import { generateOpenAPISpecification } from './OpenAPIGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureNex';
+import useSWR from 'swr';
 
 
 type Operation = {
@@ -40,32 +41,40 @@ type FormValues = {
     }[];
 };
 
-// Validation schema using zod
-// const formSchema = z.object({
-//     apiTitle: z.string().min(1),
-//     apiDescription: z.string().min(1),
-//     apiVersion: z.string().min(1),
-//     baseUrl: z.string().min(1),
-//     dataSpecification: z.string().min(1),
-//     dataStructures: z.array(
-//         z.object({
-//             id: z.string().optional(),
-//             name: z.string().min(1),
-//             operations: z.array(
-//                 z.object({
-//                     name: z.string().min(1),
-//                     isCollection: z.boolean(),
-//                     // Add validation for other operation properties
-//                     oType: z.string(),
-//                     oName: z.string(),
-//                     oEndpoint: z.string(),
-//                     oComment: z.string(),
-//                     oResponse: z.string(),
-//                 })
-//             ),
-//         })
-//     ),
-// });
+const formSchema = z.object({
+    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/), // only alphabetic chars allowed
+    apiDescription: z.string().min(1), // non-empty string
+    apiVersion: z.string().regex(/^\d+\.\d+$/), // should be of format 1.0 etc.
+    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/), // should be of format https://{baseurl}
+    // dataSpecification: z.string().min(1),
+    // dataStructures: z.array(
+    //     z.object({
+    //         id: z.string().optional(),
+    //         name: z.string().min(1),
+    //         operations: z.array(
+    //             z.object({
+    //                 name: z.string().min(1),
+    //                 isCollection: z.boolean(),
+    //                 oType: z.string(),
+    //                 oName: z.string(),
+    //                 oEndpoint: z.string(),
+    //                 oComment: z.string(),
+    //                 oResponse: z.string(),
+    //             })
+    //         ),
+    //     })
+    // ),
+});
+
+const fetchSavedConfig = async (url: string) => {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch configuration');
+    }
+
+    return response.json();
+};
 
 export const ApiSpecificationForm = () => {
     const { register, handleSubmit, control, watch, setValue, getValues } = useForm<FormValues>();
@@ -86,16 +95,88 @@ export const ApiSpecificationForm = () => {
         handleBaseUrlChange(baseUrl);
     }, [baseUrl, handleBaseUrlChange]);
 
+
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
 
     useEffect(() => {
+        console.log("Selected Data Structures:", selectedDataStructures);
+        if (selectedDataStructures === undefined) {
+            console.log("Selected Data Structures became undefined!");
+        }
+    }, );
+
+    useEffect(() => {
         const dataStructures = watch("dataStructures");
-        setSelectedDataStructures(dataStructures);
+        setSelectedDataStructures(dataStructures)
     }, [watch]);
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
 
     const { fetchDataStructures } = useDataSpecificationInfo();
+
+    /* START - GET Presaved configuration */
+    const getModelIri = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('model-iri');
+    };
+
+    const modelIri = getModelIri();
+
+    const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
+
+    // useEffect(() => {
+    //     if (fetchedData) {
+    //         console.log('Fetched Data:', fetchedData);
+    //         setValue('apiTitle', fetchedData.apiTitle);
+    //         setValue('apiDescription', fetchedData.apiDescription);
+    //         setValue('apiVersion', fetchedData.apiVersion);
+    //         setValue('baseUrl', fetchedData.baseUrl);
+    //         setValue('dataSpecification', fetchedData.dataSpecification);
+
+    //         try{
+    //             const updatedDataStructures = fetchedData.dataStructures.map((item, index) => {
+    //                 const selectedDataStructureName = item.name;
+    //                 const selectedDataStructure = selectedDataStructures.find(structure => structure.givenName === selectedDataStructureName);
+    //                 return {
+    //                     ...item,
+    //                     name: selectedDataStructure ? selectedDataStructure.givenName : '',
+    //                     id: selectedDataStructure ? selectedDataStructure.id : '',
+    //                 };
+    //             });
+    
+    //             setValue('dataStructures', updatedDataStructures);
+    //         }
+    //         catch
+    //         {
+    //             console.log('nothing')
+    //         }
+            
+
+           
+    //     }
+    //     else {
+    //         console.log("Fetched data is not yet available");
+    //     }
+    //  }, [fetchedData, setValue]);
+
+    useEffect(() => {
+        if (fetchedData) {
+            console.log('Fetched Data:', fetchedData);
+            setValue('apiTitle', fetchedData.apiTitle);
+            setValue('apiDescription', fetchedData.apiDescription);
+            setValue('apiVersion', fetchedData.apiVersion);
+            setValue('baseUrl', fetchedData.baseUrl);
+            setValue('dataSpecification', fetchedData.dataSpecification);
+            setValue('dataStructures', fetchedData.dataStructures); 
+    
+            setSelectedDataStructures(fetchedData.dataStructures);
+        } else {
+            console.log("Fetched data is not yet available");
+        }
+    }, [fetchedData, setValue]);
+
+    /* END - GET Presaved configuration */
+
 
     useEffect(() => {
         if (!fetchDataStructures) {
@@ -123,12 +204,42 @@ export const ApiSpecificationForm = () => {
     console.log(fetchedDataStructuresArr);
 
 
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
+
+        await formSchema.parseAsync(data);
+        
+        const getModelIri = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('model-iri');
+        };
+
+        const modelIri = getModelIri();
+
         try {
+            // save on the backend 
+            //const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
+
+            //console.log("submitted data: " + JSON.stringify(data))
+            //console.log('Generated OpenAPI Specification:', openAPISpec);
             const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
-            console.log("submitted data: " + JSON.stringify(data))
-            console.log('Generated OpenAPI Specification:', openAPISpec);
-        } catch (error) {
+            console.log(openAPISpec)
+
+            const response = await fetch(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+            if (response.ok) {
+                console.log('Form data saved successfully. Submitted data is: ' + JSON.stringify(data));
+            } else {
+                console.error('Failed to save form data.');
+            }
+        }
+        catch (error) {
             if (error instanceof Error) {
                 console.error('Form validation failed:', error.message);
             } else {
@@ -138,11 +249,11 @@ export const ApiSpecificationForm = () => {
     };
 
     const addOperation = (index: number) => {
-        
+
         const defaultDataStructure: DataStructure = {
-            id: '', 
-            name: '', 
-            givenName: '', 
+            id: '',
+            name: '',
+            givenName: '',
             fields: []
         };
 
@@ -159,14 +270,17 @@ export const ApiSpecificationForm = () => {
             oResponseObject: defaultDataStructure
         };
 
-        
+
         update(index, {
             ...fields[index],
             operations: [...fields[index].operations, newOperation],
         });
-        
+
         setSelectedDataStructures((prevState) => {
             const newState = [...prevState];
+            if (!newState[index]) {
+                newState[index] = { operations: [] };
+            }
             newState[index] = { ...newState[index], operations: newOperation };
             return newState;
         });
@@ -198,7 +312,7 @@ export const ApiSpecificationForm = () => {
                 <LabeledInput label="API Description" id="apiDescription" register={register} required />
                 <LabeledInput label="API Version" id="apiVersion" register={register} required />
                 <LabeledInput label="Base URL" id="baseUrl" register={register} required />
-                <LabeledInput label="Data Specification" id="dataSpecification" register={register} required />
+                {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
             </FormCardSection>
 
             {/* Data Structures */}
@@ -214,26 +328,35 @@ export const ApiSpecificationForm = () => {
                                     index={index}
                                     register={register}
                                     dataStructures={fetchedDataStructuresArr}
+                                    //defaultValue = {fetchedData?.dataStructures?.[index]?.name ?? ""}
+                                    defaultValue ={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
                                     isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
-                                        //console.log("here I am " + JSON.stringify(selectedDataStructure));
+                                        
+                                        const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
+                                        const nameToUse = selectedDataStructure?.name ?? defaultValue;
+                                        
+                                        console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                         register(`dataStructures.${index}.name`).onChange({
                                             target: {
-                                                value: selectedDataStructure.name,
+                                                //value: selectedDataStructure.name,
+                                                value: nameToUse
                                             },
+
                                         });
 
                                         setSelectedDataStructures((prevState) => {
-                                            const newState = [...prevState];
-                                            //console.log(selectedDataStructure)
+                                            //const newState = [...prevState];
+                                            const newState = Array.isArray(prevState) ? [...prevState] : [];
                                             newState[index] = selectedDataStructure;
                                             return newState;
                                         });
 
                                         update(index, {
                                             ...fields[index],
-                                            name: selectedDataStructure.givenName,
-                                            id: selectedDataStructure.id,
+                                            //name: selectedDataStructure.givenName,
+                                            name: selectedDataStructure?.givenName ?? defaultValue,
+                                            //id: selectedDataStructure.id,
                                         });
                                     }} operationIndex={undefined} />
                             </div>
@@ -252,13 +375,14 @@ export const ApiSpecificationForm = () => {
                                     removeOperation={removeOperation}
                                     index={index}
                                     register={register}
-                                    setValue = {setValue}
-                                    getValues = {getValues}
+                                    setValue={setValue}
+                                    getValues={getValues}
                                     collectionLogicEnabled={false}
                                     singleResourceLogicEnabled={false}
                                     baseUrl={baseUrl}
-                                    selectedDataStructure={selectedDataStructures[index].givenName}
-                                    fetchedDataStructures={fetchedDataStructuresArr} />
+                                    selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
+                                    fetchedDataStructures={fetchedDataStructuresArr}
+                                    selectedDataStruct = {selectedDataStructures} />
                             ))}
 
                             {/* Add operation button */}

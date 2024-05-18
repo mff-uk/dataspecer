@@ -26,15 +26,18 @@ interface OperationCardProps {
     singleResourceLogicEnabled: boolean;
     baseUrl: string;
     selectedDataStructure: string;
-    fetchedDataStructures: DataStructure[]
+    fetchedDataStructures: DataStructure[];
+    selectedDataStruct: any 
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues }) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, selectedDataStruct }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
+
+    //console.log("passed ds " + selectedDataStruct)
 
     return (
         <div key={operationIndex}>

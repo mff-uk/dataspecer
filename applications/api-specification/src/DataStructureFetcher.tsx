@@ -14,8 +14,8 @@ export function useDataSpecificationInfo() {
         return response.json();
     };
 
-    const currentLocation = window.location.href;
-    console.log("current location is: " + currentLocation)
+    //const currentLocation = window.location.href;
+    //console.log("current location is: " + currentLocation)
 
     const getIri = () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -24,7 +24,7 @@ export function useDataSpecificationInfo() {
 
     const iri = getIri();
     const url = iri ? `https://backend.dataspecer.com/resources/packages?iri=${encodeURIComponent(iri)}` : null;
-    
+
     /* 
      * Fetch DataSpecification Object and store it into data
      * In case of an usuccessfull fetching the error is stored in error

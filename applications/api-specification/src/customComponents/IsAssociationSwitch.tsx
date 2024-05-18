@@ -53,6 +53,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 
     
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
+    //console.log("selectedDataStructure for association " + dataStructureName)
     const objectFields = selectedDataStructure ? selectedDataStructure.fields
         .filter(field => field.type === 'Object' && field.nestedFields)
         .map(field => ({

@@ -217,24 +217,24 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
 
             {
-                isCollection && associationModeOn && selectedResponseObject ? (
+                dataStructure && isCollection && associationModeOn && selectedResponseObject ? (
                     <div>
                         {/* <h2>Association mode combined with collection</h2> */}
                         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}</p>
                     </div>
-                ) : !isCollection && associationModeOn && selectedResponseObject ? (
+                ) : dataStructure && !isCollection && associationModeOn && selectedResponseObject ? (
                     <div>
                         {/* <h2>Association mode combined with singleton</h2> */}
                         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{`{id}`}</p>
                     </div>
 
-                ) : isCollection && !associationModeOn ? (
+                ) : dataStructure && isCollection && !associationModeOn ? (
                     
                     <div>
                         {/* <h2>Collection with main data structure</h2> */ }
                         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)} </p>
                     </div>
-                ) : !isCollection && !associationModeOn ? (
+                ) : dataStructure && !isCollection && !associationModeOn ? (
                     <div>
                         {/* <h2>Singleton with main data structure</h2> */ }
                         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`} </p>
