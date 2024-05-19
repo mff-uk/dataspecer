@@ -99,7 +99,7 @@ const Page = () => {
 
         const getModels = () => getModelsFromBackend(pId);
 
-        getModels()
+        const cleanup = getModels()
             .then((models) => {
                 console.log("getModels: then: models:", models);
                 const [entityModels, visualModels2] = models;
@@ -128,35 +128,40 @@ const Page = () => {
 
                 setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m])));
                 setModels(new Map(entityModels.map((m) => [m.getId(), m])));
-                setAggregatorView(aggregator.getView());
-                return visualModels2;
-            })
-            .then((vm) => {
-                const availableVisualModelIds = vm.map((m) => m.getId());
+
+                const aggrView = aggregator.getView();
+                const availableVisualModelIds = visualModels2.map((m) => m.getId());
+
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
-                    aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
+                    aggrView.changeActiveVisualModel(viewIdFromURLParams);
                 } else {
                     // choose the first available model
-                    const modelId = vm.at(0)?.getId();
+                    const modelId = visualModels2.at(0)?.getId();
                     if (modelId) {
-                        aggregatorView.changeActiveVisualModel(modelId);
+                        aggrView.changeActiveVisualModel(modelId);
                     }
                 }
+
+                setAggregatorView(aggrView);
+                return () => {
+                    for (const m of entityModels) {
+                        aggregator.deleteModel(m);
+                    }
+                    for (const m of visualModels2) {
+                        aggregator.deleteModel(m);
+                    }
+                    setModels(new Map());
+                    setVisualModels(new Map());
+                };
             })
             .catch((reason) => {
                 console.error(reason);
                 setPackage(null);
             });
-        return () => {
+
+        return async () => {
             console.log("models cleanup in package effect");
-            for (const [_, m] of models) {
-                aggregator.deleteModel(m);
-            }
-            for (const [_, m] of visualModels) {
-                aggregator.deleteModel(m);
-            }
-            setVisualModels(new Map<string, VisualEntityModel>());
-            setModels(new Map<string, EntityModel>());
+            (await cleanup)?.();
         };
     }, []);
 

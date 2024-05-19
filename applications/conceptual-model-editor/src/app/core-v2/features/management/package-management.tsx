@@ -24,7 +24,9 @@ export const PackageManagement = () => {
 
     const handleSavePackageAndLeave = async () => {
         await handleSavePackage();
-        router.push("/manager");
+        const a = document.createElement("a");
+        a.setAttribute("href", "/manager");
+        a.click();
     };
 
     return (
