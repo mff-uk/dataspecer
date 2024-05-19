@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { useBackendConnection } from "../../backend-connection";
 import { SavePackageAndLeaveButton, SavePackageButton } from "../../components/management/buttons/save-package-buttons";
 import { useModelGraphContext } from "../../context/model-context";
@@ -11,15 +10,27 @@ const YOU_NEED_A_PACKAGE_ON_BACKEND =
 
 export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const { packageId, setPackage } = usePackageSearch();
+    const { packageId } = usePackageSearch();
     const { models, visualModels } = useModelGraphContext();
     const router = useRouter();
 
     const handleSavePackage = async () => {
         if (!packageId) {
-            return;
+            return false;
         }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
+        const result = await updateSemanticModelPackageModels(
+            packageId,
+            [...models.values()],
+            [...visualModels.values()]
+        );
+
+        // if (result) {
+        //     showMessage("success");
+        // } else {
+        //     showMessage("fail");
+        // }
+
+        return result;
     };
 
     const handleSavePackageAndLeave = async () => {
