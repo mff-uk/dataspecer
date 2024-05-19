@@ -15,6 +15,34 @@ interface OperationObj {
     };
 }
 
+function convertToValidDataType(input: string): { type: string, format?: string } {
+    switch (input) {
+        case 'boolean':
+            return { type: 'boolean' };
+        case 'date':
+            return { type: 'string', format: 'date' };
+        case 'time':
+            return { type: 'string', format: 'time' };
+        case 'dateTime':
+            return { type: 'string', format: 'date-time' };
+        case 'integer':
+            return { type: 'integer' };
+        case 'decimal':
+            return { type: 'number', format: 'double' };
+        case 'url':
+            return { type: 'string', format: 'uri' };
+        case 'string':
+        case 'text':
+            return { type: 'string' };
+        default:
+            return { type: 'object' };
+    }
+}
+
+function hasDuplicate(parameters, name) {
+    return parameters.some(param => param.name === name);
+}
+
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
     const openAPISpec = {
@@ -64,11 +92,15 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     $ref: `#/components/schemas/${schemaName}`,
                 };
 
-            } else {
-                fieldClassType =
-                {
-                    type: field.type || 'string',
-                };
+            } 
+            else 
+            {
+                // fieldClassType =
+                // {
+                //     type: field.type || 'string',
+                // };
+                fieldClassType = convertToValidDataType(field.type || 'string');
+
             }
 
             /* Consider cardinality of the field */
@@ -104,12 +136,28 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
             };
         }
 
-        openAPISpec.components.schemas[schemaName] =
-        {
-            type: 'object',
-            properties,
-        };
+        // openAPISpec.components.schemas[schemaName] =
+        // {
+        //     type: 'object',
+        //     properties,
+        // };
+
+
+        // TODO:  check if this works - adds comments
+        if (Object.keys(properties).length === 1 && properties.id) {
+            openAPISpec.components.schemas[schemaName] = {
+                type: 'object',
+                properties: {},
+                description: 'TODO: Fill in the component properties',
+            };
+        } else {
+            openAPISpec.components.schemas[schemaName] = {
+                type: 'object',
+                properties,
+            };
+        }
     }
+
 
     /* 
      * Construct Components
@@ -142,14 +190,18 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
              * Extract each match and creates a corresponding parameter obj
              */
             while ((match = paramRegex.exec(operation.oEndpoint)) !== null) {
-                parameters.push({
-                    name: match[1],
-                    in: 'path',
-                    required: true,
-                    schema: {
-                        type: 'string',
-                    },
-                });
+                if (!hasDuplicate(parameters, match[1])) // TODO: test if this works
+                {
+                    parameters.push({
+                        name: match[1],
+                        in: 'path',
+                        required: true,
+                        schema: {
+                            type: 'string',
+                        },
+                    });
+                }
+                
             }
 
             const operationObject : OperationObj =
@@ -195,11 +247,12 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                         } 
                         else 
                         {
-                            requestBodyProperties[key] = 
-                            {
-                                type: field.type || 'string',
-                                isArray: field.isArray,
-                            };
+                            requestBodyProperties[key] = convertToValidDataType(field.type || 'string');
+                            
+                            if (field.isArray) {
+                                requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
+                            }
+
                         }
                     }
                 }

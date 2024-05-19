@@ -10,6 +10,8 @@ import { generateOpenAPISpecification } from './OpenAPIGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureNex';
+import useSWR from 'swr';
+import { zodResolver } from '@hookform/resolvers/zod'
 
 
 type Operation = {
@@ -32,7 +34,7 @@ type FormValues = {
     apiDescription: string;
     apiVersion: string;
     baseUrl: string;
-    dataSpecification: string;
+    //dataSpecification: string;
     dataStructures: {
         id?: string;
         name: string;
@@ -40,35 +42,57 @@ type FormValues = {
     }[];
 };
 
-// Validation schema using zod
-// const formSchema = z.object({
-//     apiTitle: z.string().min(1),
-//     apiDescription: z.string().min(1),
-//     apiVersion: z.string().min(1),
-//     baseUrl: z.string().min(1),
-//     dataSpecification: z.string().min(1),
-//     dataStructures: z.array(
-//         z.object({
-//             id: z.string().optional(),
-//             name: z.string().min(1),
-//             operations: z.array(
-//                 z.object({
-//                     name: z.string().min(1),
-//                     isCollection: z.boolean(),
-//                     // Add validation for other operation properties
-//                     oType: z.string(),
-//                     oName: z.string(),
-//                     oEndpoint: z.string(),
-//                     oComment: z.string(),
-//                     oResponse: z.string(),
-//                 })
-//             ),
-//         })
-//     ),
-// });
+const formSchema = z.object({
+    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
+    apiDescription: z.string().min(1), // non-empty string
+    apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
+    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
+    dataStructures: z.array(
+        z.object({
+            id: z.string().optional(),
+            name: z.string().min(1),
+            operations: z.array(
+                z.object({
+                    name: z.string(),
+                    isCollection: z.boolean(),
+                    oAssociatonMode: z.boolean(),
+                    oType: z.string(),
+                    oName: z.string(),
+                    oEndpoint: z.string(),
+                    oComment: z.string(),
+                    oResponse: z.string(),
+                    oRequestBody: z.record(z.string()),
+                    oResponseObject: z.object({
 
-export const ApiSpecificationForm = () => {
-    const { register, handleSubmit, control, watch, setValue, getValues } = useForm<FormValues>();
+                    }).optional()
+                })
+            ),
+        })
+    ).optional(),
+});
+
+
+const fetchSavedConfig = async (url: string) => {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch configuration');
+    }
+
+    return response.json();
+};
+
+//export const ApiSpecificationForm = () => {
+interface ApiSpecificationFormProps {
+    setGeneratedOpenAPISpecification: (openAPISpec: any) => void;
+}
+
+export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setGeneratedOpenAPISpecification }) => {
+    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
+        resolver: zodResolver(formSchema)
+    });
+
+    const { errors } = formState;
 
     const { fields, append, remove, update } = useFieldArray({
         control,
@@ -83,19 +107,60 @@ export const ApiSpecificationForm = () => {
     }, []);
 
     useEffect(() => {
+        console.log('Form errors:', errors);
+    }, [errors]);
+
+    useEffect(() => {
         handleBaseUrlChange(baseUrl);
     }, [baseUrl, handleBaseUrlChange]);
+
 
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
 
     useEffect(() => {
+        console.log("Selected Data Structures:", selectedDataStructures);
+        if (selectedDataStructures === undefined) {
+            console.log("Selected Data Structures became undefined!");
+        }
+    },);
+
+    useEffect(() => {
         const dataStructures = watch("dataStructures");
-        setSelectedDataStructures(dataStructures);
+        setSelectedDataStructures(dataStructures)
     }, [watch]);
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
 
     const { fetchDataStructures } = useDataSpecificationInfo();
+
+    /* START - GET Presaved configuration */
+    const getModelIri = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('model-iri');
+    };
+
+    const modelIri = getModelIri();
+
+    const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
+
+    useEffect(() => {
+        if (fetchedData) {
+            console.log('Fetched Data:', fetchedData);
+            setValue('apiTitle', fetchedData.apiTitle);
+            setValue('apiDescription', fetchedData.apiDescription);
+            setValue('apiVersion', fetchedData.apiVersion);
+            setValue('baseUrl', fetchedData.baseUrl);
+            //setValue('dataSpecification', fetchedData.dataSpecification);
+            setValue('dataStructures', fetchedData.dataStructures);
+
+            setSelectedDataStructures(fetchedData.dataStructures);
+        } else {
+            console.log("Fetched data is not yet available");
+        }
+    }, [fetchedData, setValue]);
+
+    /* END - GET Presaved configuration */
+
 
     useEffect(() => {
         if (!fetchDataStructures) {
@@ -123,26 +188,58 @@ export const ApiSpecificationForm = () => {
     console.log(fetchedDataStructuresArr);
 
 
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
+
+
+        await formSchema.parseAsync(data);
+
+        const getModelIri = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('model-iri');
+        };
+
+        const modelIri = getModelIri();
+
         try {
+
             const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, data);
-            console.log("submitted data: " + JSON.stringify(data))
-            console.log('Generated OpenAPI Specification:', openAPISpec);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error('Form validation failed:', error.message);
+            setGeneratedOpenAPISpecification(openAPISpec);
+            console.log(openAPISpec)
+
+            const response = await fetch(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+            if (response.ok) {
+                console.log('Form data saved successfully. Submitted data is: ' + JSON.stringify(data));
             } else {
-                console.error('Form validation failed:', 'Unknown error occurred');
+                console.error('Failed to save form data.');
+            }
+        }
+        catch (error) {
+            if (error instanceof z.ZodError) {
+                console.error('Form validation failed:', error.errors);
+                error.errors.forEach(({ path, message }) => {
+                    const field = path[0] as keyof FormValues;
+                    formState.errors[field] = { message } as any; // Type assertion to satisfy TypeScript
+                });
+            } else {
+                console.error('Form validation failed:', error.message);
             }
         }
     };
 
     const addOperation = (index: number) => {
-        
+
         const defaultDataStructure: DataStructure = {
-            id: '', 
-            name: '', 
-            givenName: '', 
+            id: '',
+            name: '',
+            givenName: '',
             fields: []
         };
 
@@ -159,14 +256,17 @@ export const ApiSpecificationForm = () => {
             oResponseObject: defaultDataStructure
         };
 
-        
+
         update(index, {
             ...fields[index],
             operations: [...fields[index].operations, newOperation],
         });
-        
+
         setSelectedDataStructures((prevState) => {
             const newState = [...prevState];
+            if (!newState[index]) {
+                newState[index] = { operations: [] };
+            }
             newState[index] = { ...newState[index], operations: newOperation };
             return newState;
         });
@@ -195,10 +295,14 @@ export const ApiSpecificationForm = () => {
             {/* Form Info */}
             <FormCardSection>
                 <LabeledInput label="API Title" id="apiTitle" register={register} required />
+                {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
                 <LabeledInput label="API Description" id="apiDescription" register={register} required />
+                {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
                 <LabeledInput label="API Version" id="apiVersion" register={register} required />
+                {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
                 <LabeledInput label="Base URL" id="baseUrl" register={register} required />
-                <LabeledInput label="Data Specification" id="dataSpecification" register={register} required />
+                {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
+                {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
             </FormCardSection>
 
             {/* Data Structures */}
@@ -214,28 +318,38 @@ export const ApiSpecificationForm = () => {
                                     index={index}
                                     register={register}
                                     dataStructures={fetchedDataStructuresArr}
+                                    defaultValue={fetchedData?.dataStructures?.[index]?.name ?? ""}
+                                    //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
                                     isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
-                                        //console.log("here I am " + JSON.stringify(selectedDataStructure));
+
+                                        const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
+                                        const nameToUse = selectedDataStructure?.name ?? defaultValue;
+
+                                        console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                         register(`dataStructures.${index}.name`).onChange({
                                             target: {
-                                                value: selectedDataStructure.name,
+                                                //value: selectedDataStructure.name,
+                                                value: nameToUse
                                             },
+
                                         });
 
                                         setSelectedDataStructures((prevState) => {
-                                            const newState = [...prevState];
-                                            //console.log(selectedDataStructure)
+                                            //const newState = [...prevState];
+                                            const newState = Array.isArray(prevState) ? [...prevState] : [];
                                             newState[index] = selectedDataStructure;
                                             return newState;
                                         });
 
                                         update(index, {
                                             ...fields[index],
-                                            name: selectedDataStructure.givenName,
-                                            id: selectedDataStructure.id,
+                                            //name: selectedDataStructure.givenName,
+                                            name: selectedDataStructure?.givenName ?? defaultValue,
+                                            //id: selectedDataStructure.id,
                                         });
-                                    }} operationIndex={undefined} />
+                                    }} operationIndex={undefined}
+                                />
                             </div>
                             <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
                                 Delete
@@ -252,13 +366,14 @@ export const ApiSpecificationForm = () => {
                                     removeOperation={removeOperation}
                                     index={index}
                                     register={register}
-                                    setValue = {setValue}
-                                    getValues = {getValues}
+                                    setValue={setValue}
+                                    getValues={getValues}
                                     collectionLogicEnabled={false}
                                     singleResourceLogicEnabled={false}
                                     baseUrl={baseUrl}
-                                    selectedDataStructure={selectedDataStructures[index].givenName}
-                                    fetchedDataStructures={fetchedDataStructuresArr} />
+                                    selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
+                                    fetchedDataStructures={fetchedDataStructuresArr}
+                                    selectedDataStruct={selectedDataStructures} />
                             ))}
 
                             {/* Add operation button */}
