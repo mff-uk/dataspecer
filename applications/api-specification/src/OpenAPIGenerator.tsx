@@ -39,9 +39,9 @@ function convertToValidDataType(input: string): { type: string, format?: string 
     }
 }
 
-// function hasDuplicate(parameters, name) {
-//     return parameters.some(param => param.name === name);
-// }
+function hasDuplicate(parameters, name) {
+    return parameters.some(param => param.name === name);
+}
 
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
@@ -136,12 +136,28 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
             };
         }
 
-        openAPISpec.components.schemas[schemaName] =
-        {
-            type: 'object',
-            properties,
-        };
+        // openAPISpec.components.schemas[schemaName] =
+        // {
+        //     type: 'object',
+        //     properties,
+        // };
+
+
+        // TODO:  check if this works - adds comments
+        if (Object.keys(properties).length === 1 && properties.id) {
+            openAPISpec.components.schemas[schemaName] = {
+                type: 'object',
+                properties: {},
+                description: 'TODO: Fill in the component properties',
+            };
+        } else {
+            openAPISpec.components.schemas[schemaName] = {
+                type: 'object',
+                properties,
+            };
+        }
     }
+
 
     /* 
      * Construct Components
@@ -174,14 +190,18 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
              * Extract each match and creates a corresponding parameter obj
              */
             while ((match = paramRegex.exec(operation.oEndpoint)) !== null) {
-                parameters.push({
-                    name: match[1],
-                    in: 'path',
-                    required: true,
-                    schema: {
-                        type: 'string',
-                    },
-                });
+                if (!hasDuplicate(parameters, match[1])) // TODO: test if this works
+                {
+                    parameters.push({
+                        name: match[1],
+                        in: 'path',
+                        required: true,
+                        schema: {
+                            type: 'string',
+                        },
+                    });
+                }
+                
             }
 
             const operationObject : OperationObj =

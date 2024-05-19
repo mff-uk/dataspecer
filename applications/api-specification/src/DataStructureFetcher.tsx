@@ -157,7 +157,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     {
         if(targetResource.pimCardinalityMax)
         {
-            console.log(targetResource?.pimHumanLabel?.en + "with cardinality " + targetResource?.pimCardinalityMax)
+            //console.log(targetResource?.pimHumanLabel?.en + "with cardinality " + targetResource?.pimCardinalityMax)
             
             if(targetResource.pimCardinalityMax == 1)
             {
@@ -171,7 +171,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         }
         else
         {
-            console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " );
+            //console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " );
             isArray = true;
         }
     }
