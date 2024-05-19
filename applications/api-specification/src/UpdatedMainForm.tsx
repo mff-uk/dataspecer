@@ -185,7 +185,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         fetchData();
     }, [fetchDataStructures]);
 
-    console.log(fetchedDataStructuresArr);
+    console.log("AAA" + JSON.stringify(fetchedDataStructuresArr));
 
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {

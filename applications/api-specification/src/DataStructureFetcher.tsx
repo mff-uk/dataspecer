@@ -150,7 +150,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
 
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
-
+    
     let isArray = false;
     
     if(targetResource)
@@ -173,6 +173,11 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         {
             //console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " );
             isArray = true;
+        }
+
+        if(targetResource.CardinalityMin)
+        {
+            // TODO: in the requestbody it is required
         }
     }
 
@@ -200,6 +205,8 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
             };
         }
     }
+
+    // TODO: add backwardassociation?
 
     return field;
 }
