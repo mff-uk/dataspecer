@@ -23,10 +23,14 @@ export const PackageManagement = () => {
     };
 
     const handleSavePackageAndLeave = async () => {
-        await handleSavePackage();
-        const a = document.createElement("a");
-        a.setAttribute("href", "/manager");
-        a.click();
+        handleSavePackage().then(() => {
+            const a = document.createElement("a");
+            a.setAttribute("href", "/manager");
+            a.click();
+        });
+        // const a = document.createElement("a");
+        // a.setAttribute("href", "/manager");
+        // a.click();
     };
 
     return (
