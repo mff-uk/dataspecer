@@ -8,6 +8,8 @@ const SAVE_PACKAGE_AND_LEAVE = "save package to backend and leave back to manage
 const YOU_NEED_A_PACKAGE_ON_BACKEND =
     "to be able to save to backend, make sure you are in a package. Start with visiting manager/v2";
 
+const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
+
 export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
     const { packageId } = usePackageSearch();
@@ -35,13 +37,14 @@ export const PackageManagement = () => {
 
     const handleSavePackageAndLeave = async () => {
         handleSavePackage().then(() => {
+            if (!MGR_REDIRECT_PATH) {
+                console.error("manager path not set", MGR_REDIRECT_PATH);
+                return;
+            }
             const a = document.createElement("a");
-            a.setAttribute("href", "/manager");
+            a.setAttribute("href", MGR_REDIRECT_PATH);
             a.click();
         });
-        // const a = document.createElement("a");
-        // a.setAttribute("href", "/manager");
-        // a.click();
     };
 
     return (
