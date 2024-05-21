@@ -58,27 +58,29 @@ export const SelectDomainOrRange = (props: {
 
     return (
         <div className="flex flex-row">
-            <select
-                className="flex-grow"
-                disabled={disabled}
-                onChange={(e) => {
-                    if (e.target.value == "null") {
-                        // @ts-ignore
-                        setConcept(undefined);
-                    } else {
-                        setConcept(e.target.value);
-                    }
-                    onChange?.();
-                }}
-                value={value}
-            >
-                <option value="null" disabled={!withNullValueEnabled} selected={concept == "" || concept == null}>
-                    ---
-                </option>
-                {classesOrProfiles.map((v) => (
-                    <OptionRow key={v.id} resource={v} duplicateNames={duplicateNames} />
-                ))}
-            </select>
+            <div className="flex-grow">
+                <select
+                    className="w-full"
+                    disabled={disabled}
+                    onChange={(e) => {
+                        if (e.target.value == "null") {
+                            // @ts-ignore
+                            setConcept(undefined);
+                        } else {
+                            setConcept(e.target.value);
+                        }
+                        onChange?.();
+                    }}
+                    value={value}
+                >
+                    <option value="null" disabled={!withNullValueEnabled} selected={concept == "" || concept == null}>
+                        ---
+                    </option>
+                    {classesOrProfiles.map((v) => (
+                        <OptionRow key={v.id} resource={v} duplicateNames={duplicateNames} />
+                    ))}
+                </select>
+            </div>
             {withOverride && (
                 <div className="ml-2">
                     <OverrideFieldCheckbox
