@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { EntityCatalog } from "./entity-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog } from "./attribute-catalog";
