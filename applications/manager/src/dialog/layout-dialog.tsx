@@ -23,11 +23,16 @@ export const useConfigDialog = () => {
                                             "in-layer-gap": 100,                                            
                                         
                                             "stress-edge-len": 600,
+
+                                            "min-distance-between-nodes": 100,
+                                            "force-alg-type": "FRUCHTERMAN_REINGOLD",
                                         
                                             "process-general-separately": false,
                                             "general-main-alg-direction": DIRECTION.UP,
                                             "general-layer-gap": 100,
                                             "general-in-layer-gap": 100,
+
+                                            "double-run": true,
                                         });    
 
     // const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
@@ -59,6 +64,18 @@ export const useConfigDialog = () => {
                 }
             };
         }
+        else if(config['main-layout-alg'] === "force") {
+            validConfig = {
+                'main-alg-config': {
+                    "constraintedNodes": "ALL",
+                    "data": {
+                        "main-layout-alg": config['main-layout-alg'],
+                        "min-distance-between-nodes": config['min-distance-between-nodes'],
+                        "force-alg-type": config['force-alg-type'],
+                    }
+                }
+            };
+        }
         else {
             validConfig = {
                 'main-alg-config': {
@@ -82,10 +99,22 @@ export const useConfigDialog = () => {
                         "main-layout-alg": "layered",       // TODO: Just fix it for now (layered is usually the best choice for generalization hierarchy anyways)
                         "general-main-alg-direction": config['general-main-alg-direction'],
                         "general-layer-gap": config['general-layer-gap'],
-                        "general-in-layer-gap": config['general-in-layer-gap'],
+                        "general-in-layer-gap": config['general-in-layer-gap'],                        
                     }
                 }
-            };  
+            };
+            
+            if(config["double-run"]) {
+                validConfig = {
+                    ...validConfig,
+                    'general-config-double-run': {
+                        "constraintedNodes": "GENERALIZATION",
+                        "data": {
+                            "double-run": config["double-run"],
+                        }
+                    }
+                }
+            }
         }
 
         return validConfig;
@@ -104,7 +133,37 @@ export const useConfigDialog = () => {
     // }
 
 
-    const StressConfig = () =>
+    const ForceConfig = () =>
+        <div>
+            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
+            <div className="flex flex-row">
+                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
+            </div> 
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false" 
+                        defaultValue={config["min-distance-between-nodes"]} 
+                        onMouseUp={(e) => { setConfig({...config, "min-distance-between-nodes": parseInt((e.target as HTMLInputElement).value)});}}></input>
+                        {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
+                            (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                {config["min-distance-between-nodes"]}
+            </div>
+
+
+            <div className="flex flex-row">
+                <label htmlFor="force-alg-type">Typ výpočtu: </label>
+            </div> 
+            <div className="flex flex-row">
+                <select id="force-alg-type" value={config["force-alg-type"]} onChange={(event) => {
+                                // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
+                                setConfig({...config, ["force-alg-type"]: event.target.value });        
+                    }}>
+                    <option value="EADES">Eades</option>
+                    <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
+                </select>
+            </div> 
+        </div>
+
+    const StressConfig = () => 
         <div>
             <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
             <div className="flex flex-row">
@@ -164,7 +223,30 @@ export const useConfigDialog = () => {
                 </input>            
                 {config[`${props.idPrefix}in-layer-gap`]}
             </div>
+            { props.idPrefix !== "general-" ? null : 
+                    <div>
+                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config['double-run']} 
+                                 onChange={e => setConfig({...config, "double-run": e.target.checked })} />
+                        <label htmlFor="checkbox-double-run">Spusť dva běhy</label>
+                    </div>
+                
+            }
         </div>
+
+    const renderMainAlgorithmConfig = () => {
+        if(config['main-layout-alg'] === "layered") {
+            return <LayeredConfig idPrefix=''></LayeredConfig>;
+        }
+        else if(config['main-layout-alg'] === "stress") {
+            return <StressConfig></StressConfig>;
+        }
+        else if(config['main-layout-alg'] === "force") {
+            return <ForceConfig></ForceConfig>;
+        }
+        else {
+            return null;
+        }
+    }
 
 
     const ConfigDialog = () =>   
@@ -176,13 +258,13 @@ export const useConfigDialog = () => {
                 <select id="main-layout-alg" value={config['main-layout-alg']} 
                         onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
                     <option value="layered">Úrovňový</option>
-                    <option value="stress">Fyzikální</option>
+                    <option value="stress">Fyzikální (Stress)</option>
+                    <option value="force">Fyzikální (Force - Jen Debug)</option>
                     <option value="random">Náhodný</option>
                 </select>
             </div>            
             <div className='h-8'>------------------------</div> 
-			{config['main-layout-alg'] === "layered" ? <LayeredConfig idPrefix=''></LayeredConfig> : 
-														(config['main-layout-alg'] === "stress" ? <StressConfig></StressConfig> : null)}         
+            {renderMainAlgorithmConfig()}    
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
