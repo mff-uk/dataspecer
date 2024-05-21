@@ -36,6 +36,7 @@ import { useMenuOptions } from "./components/menu-options";
 import { EdgeNameLabel } from "./components/edge-name-label";
 import { EdgeUsageNotesLabel } from "./components/edge-usage-notes-label";
 import { CardinalityEdgeLabel } from "./components/edge-cardinality-label";
+import { useDialogsContext } from "../context/dialogs-context";
 
 type SimpleFloatingEdgeDataType = {
     entity:
@@ -47,9 +48,6 @@ type SimpleFloatingEdgeDataType = {
     cardinalityTarget?: string;
     bgColor?: string;
     usageNotes?: LanguageString[];
-    openEntityDetailDialog: () => void;
-    openModificationDialog: (m: InMemorySemanticModel | null) => void;
-    openCreateProfileDialog: () => void;
 };
 
 export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, style, markerEnd, data }) => {
@@ -58,19 +56,21 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const { aggregatorView, models } = useModelGraphContext();
     const { deleteEntityFromModel } = useClassesContext();
     const { language: preferredLanguage } = useConfigurationContext();
+    const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
     const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
 
     const d = data as SimpleFloatingEdgeDataType;
+    const { entity } = d;
 
-    const model = useMemo(() => sourceModelOfEntity(d.entity.id, [...models.values()]), [models]);
+    const model = useMemo(() => sourceModelOfEntity(entity.id, [...models.values()]), [models]);
 
-    const isProfile = isSemanticModelRelationshipUsage(d.entity) || isSemanticModelClassUsage(d.entity);
+    const isProfile = isSemanticModelRelationshipUsage(entity) || isSemanticModelClassUsage(entity);
 
     let displayName: string | null = null;
-    if (isSemanticModelGeneralization(d.entity) || isSemanticModelClassUsage(d.entity)) {
+    if (isSemanticModelGeneralization(entity) || isSemanticModelClassUsage(entity)) {
         displayName = null;
     } else {
-        displayName = EntityProxy(d.entity, preferredLanguage).name;
+        displayName = EntityProxy(entity, preferredLanguage).name;
     }
 
     if (!sourceNode || !targetNode) {
@@ -85,10 +85,10 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
         [edgePath, labelX, labelY] = getLoopPath(
             sourceNode,
             targetNode,
-            isSemanticModelGeneralization(d.entity) ? "gen" : "rel"
+            isSemanticModelGeneralization(entity) ? "gen" : "rel"
         );
     } else {
-        if (isSemanticModelRelationship(d.entity) || isSemanticModelClassUsage(d.entity)) {
+        if (isSemanticModelRelationship(entity) || isSemanticModelClassUsage(entity)) {
             [edgePath, labelX, labelY] = getSimpleBezierPath({
                 sourceX: sx,
                 sourceY: sy,
@@ -97,7 +97,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 targetX: tx,
                 targetY: ty,
             });
-        } else if (isSemanticModelRelationshipUsage(d.entity)) {
+        } else if (isSemanticModelRelationshipUsage(entity)) {
             [edgePath, labelX, labelY] = getSmoothStepPath({
                 sourceX: sx,
                 sourceY: sy,
@@ -125,8 +125,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     };
 
     const modelIsLocal = model instanceof InMemorySemanticModel;
-    const isRelationshipOrUsage = isSemanticModelRelationship(d.entity) || isSemanticModelRelationshipUsage(d.entity);
-    const canBeModified = modelIsLocal && isRelationshipOrUsage;
+    const isRelationshipOrUsage = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
 
     return (
         <>
@@ -151,7 +150,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
             <EdgeLabelRenderer>
                 <div
                     className={`absolute flex flex-col bg-slate-200 ${
-                        !isSemanticModelGeneralization(d.entity) ? "p-1" : ""
+                        !isSemanticModelGeneralization(entity) ? "p-1" : ""
                     } ${isMenuOptionsOpen ? "z-10" : ""}`}
                     style={{
                         transform: `translate(${labelX}px,${labelY}px) translate(-50%, -50%)`,
@@ -166,13 +165,17 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                     <EdgeUsageNotesLabel usageNotes={d.usageNotes} />
                     {isMenuOptionsOpen && (
                         <MenuOptions
-                            openDetailHandler={d.openEntityDetailDialog}
-                            createProfileHandler={isRelationshipOrUsage ? d.openCreateProfileDialog : undefined}
+                            openDetailHandler={() => openDetailDialog(entity)}
+                            createProfileHandler={isRelationshipOrUsage ? () => openProfileDialog(entity) : undefined}
                             removeFromViewHandler={
-                                isRelationshipOrUsage ? () => handleRemoveEntityFromActiveView(d.entity.id) : undefined
+                                isRelationshipOrUsage ? () => handleRemoveEntityFromActiveView(entity.id) : undefined
                             }
-                            modifyHandler={canBeModified ? () => d.openModificationDialog(model) : undefined}
-                            deleteHandler={modelIsLocal ? () => deleteEntityFromModel(model, d.entity.id) : undefined}
+                            modifyHandler={
+                                isRelationshipOrUsage && modelIsLocal
+                                    ? () => openModificationDialog(entity, model)
+                                    : undefined
+                            }
+                            deleteHandler={modelIsLocal ? () => deleteEntityFromModel(model, entity.id) : undefined}
                         />
                     )}
                 </div>
@@ -198,10 +201,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 export const semanticModelRelationshipToReactFlowEdge = (
     rel: SemanticModelRelationship | SemanticModelRelationshipUsage,
     color: string | undefined,
-    usageNotes: LanguageString[],
-    openEntityDetailDialog: () => void,
-    openModificationDialog: () => void,
-    openCreateProfileDialog: () => void
+    usageNotes: LanguageString[]
 ) => {
     const domainAndRange = getDomainAndRange(rel as SemanticModelRelationship & SemanticModelRelationshipUsage);
     const isDashed = isSemanticModelRelationshipUsage(rel) ? { strokeDasharray: 5 } : {};
@@ -218,9 +218,6 @@ export const semanticModelRelationshipToReactFlowEdge = (
             cardinalityTarget: cardinalityToString(domainAndRange?.range.cardinality ?? rel.ends[1]?.cardinality),
             bgColor: color,
             usageNotes,
-            openEntityDetailDialog,
-            openModificationDialog,
-            openCreateProfileDialog,
         } satisfies SimpleFloatingEdgeDataType,
         style: { strokeWidth: 3, stroke: color, ...isDashed },
     } as Edge;
@@ -228,8 +225,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
 
 export const semanticModelGeneralizationToReactFlowEdge = (
     gen: SemanticModelGeneralization,
-    color: string | undefined,
-    openEntityDetailDialog: () => void
+    color: string | undefined
 ) =>
     ({
         id: gen.id,
@@ -244,18 +240,13 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         type: "floating",
         data: {
             entity: gen,
-            openEntityDetailDialog,
-            openModificationDialog: () => {},
-            openCreateProfileDialog: () => {},
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
     } as Edge);
 
 export const semanticModelClassUsageToReactFlowEdge = (
     classUsage: SemanticModelClassUsage,
-    color: string | undefined,
-    openEntityDetailDialog: () => void,
-    openModificationDialog: () => void
+    color: string | undefined
 ) =>
     ({
         id: classUsage.id,
@@ -265,9 +256,6 @@ export const semanticModelClassUsageToReactFlowEdge = (
         type: "floating",
         data: {
             entity: classUsage,
-            openEntityDetailDialog,
-            openModificationDialog,
-            openCreateProfileDialog: () => {},
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "azure", strokeWidth: 2, strokeDasharray: 5 },
     } as Edge);

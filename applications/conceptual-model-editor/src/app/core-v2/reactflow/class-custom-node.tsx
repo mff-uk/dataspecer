@@ -14,14 +14,12 @@ import { EntityProxy } from "../util/detail-utils";
 import { useMenuOptions } from "./components/menu-options";
 import { ClassNodeAttributeRow, ThreeDotsRow } from "./components/attribute-row";
 import { ClassNodeHeader } from "./components/class-node-header";
+import { useDialogsContext } from "../context/dialogs-context";
 
 type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
     color: string | undefined;
     attributes: SemanticModelRelationship[];
-    openEntityDetailDialog: () => void;
-    openModifyDialog: () => void;
-    openProfileDialog: () => void;
     attributeUsages: SemanticModelRelationshipUsage[];
 };
 
@@ -30,6 +28,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { models, aggregatorView } = useModelGraphContext();
     const { deleteEntityFromModel } = useClassesContext();
     const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
+    const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
 
     const { cls, attributes, attributeUsages } = props.data;
 
@@ -63,23 +62,21 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                         {attributes?.slice(0, 5).map((attr) => (
                             <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
                         ))}
-                        {attributes.length >= 5 && <ThreeDotsRow onClickHandler={props.data.openEntityDetailDialog} />}
+                        {attributes.length >= 5 && <ThreeDotsRow onClickHandler={() => openDetailDialog(cls)} />}
                         {attributeUsages?.slice(0, 5).map((attr) => (
                             <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
                         ))}
-                        {attributeUsages.length >= 5 && (
-                            <ThreeDotsRow onClickHandler={props.data.openEntityDetailDialog} />
-                        )}
+                        {attributeUsages.length >= 5 && <ThreeDotsRow onClickHandler={() => openDetailDialog(cls)} />}
                     </>
                 </div>
             </div>
             {isMenuOptionsOpen && (
                 <MenuOptions
                     position="absolute right-2 top-2 z-10"
-                    openDetailHandler={props.data.openEntityDetailDialog}
-                    createProfileHandler={props.data.openProfileDialog}
+                    openDetailHandler={() => openDetailDialog(cls)}
+                    createProfileHandler={() => openProfileDialog(cls)}
                     removeFromViewHandler={handleRemoveEntityFromActiveView}
-                    modifyHandler={isModelLocal ? props.data.openModifyDialog : undefined}
+                    modifyHandler={isModelLocal ? () => openModificationDialog(cls, model) : undefined}
                     deleteHandler={isModelLocal ? () => deleteEntityFromModel(model, cls.id) : undefined}
                 />
             )}
@@ -115,9 +112,6 @@ export const semanticModelClassToReactFlowNode = (
     position: XYPosition,
     color: string | undefined, // FIXME: vymysli lip
     attributes: SemanticModelRelationship[],
-    openEntityDetailDialog: () => void,
-    openModifyDialog: () => void,
-    openProfileDialog: () => void,
 
     attributeUsages: SemanticModelRelationshipUsage[]
 ) =>
@@ -128,9 +122,6 @@ export const semanticModelClassToReactFlowNode = (
             cls,
             color /*FIXME: */,
             attributes,
-            openEntityDetailDialog,
-            openModifyDialog,
-            openProfileDialog,
             attributeUsages,
         } satisfies ClassCustomNodeDataType,
         type: "classCustomNode",

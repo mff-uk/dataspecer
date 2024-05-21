@@ -1,17 +1,18 @@
 import { useState } from "react";
-import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
-    isSemanticModelClassUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { EntityModel } from "@dataspecer/core-v2";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
     SemanticModelClass,
     SemanticModelRelationship,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useConfigurationContext } from "../../context/configuration-context";
-import { EntityModel } from "@dataspecer/core-v2";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+    isSemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityProxy } from "../../util/detail-utils";
+import { useConfigurationContext } from "../../context/configuration-context";
 import { IriLink } from "../iri-link";
 import {
     CreateProfileButton,
@@ -23,6 +24,7 @@ import {
 } from "../buttons";
 import { onDragStart } from "../../reactflow/utils";
 import { useCanvasVisibility } from "../../util/canvas-utils";
+import { useDialogsContext } from "../../context/dialogs-context";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -38,8 +40,6 @@ export const EntityRow = (props: {
         toggleHandler: () => void;
         expanded: () => boolean;
     };
-    openDetailHandler: () => void;
-    modifiable: null | { openModificationHandler: () => void };
     drawable: null | {
         addToViewHandler: () => void;
         removeFromViewHandler: () => void;
@@ -47,20 +47,20 @@ export const EntityRow = (props: {
     removable: null | {
         remove: () => void;
     };
-    profile: null | {
-        createProfileHandler: () => void;
-    };
     sourceModel?: EntityModel;
     offset?: number;
 }) => {
-    const { entity, offset, drawable, expandable, modifiable, profile, removable } = props;
-    const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
-    const { isOnCanvas } = useCanvasVisibility(entity.id);
-
-    const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
+    const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
     const { language: preferredLanguage } = useConfigurationContext();
 
+    const { entity, offset, drawable, expandable, removable, sourceModel } = props;
     const { name, iri } = EntityProxy(entity, preferredLanguage);
+
+    const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
+    const { isOnCanvas } = useCanvasVisibility(entity.id);
+    const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+
+    const sourceModelIsLocal = sourceModel instanceof InMemorySemanticModel;
 
     return (
         <div
@@ -84,8 +84,10 @@ export const EntityRow = (props: {
                     />
                 )}
                 {removable && <RemoveButton onClickHandler={removable.remove} />}
-                {modifiable && <ModifyButton onClickHandler={modifiable.openModificationHandler} />}
-                <OpenDetailButton onClick={props.openDetailHandler} />
+                {sourceModelIsLocal && (
+                    <ModifyButton onClickHandler={() => openModificationDialog(entity, sourceModel)} />
+                )}
+                <OpenDetailButton onClick={() => openDetailDialog(entity)} />
                 {drawable && (
                     <DrawOnCanvasButton
                         visible={isOnCanvas}
@@ -93,7 +95,7 @@ export const EntityRow = (props: {
                         removeFromCanvas={drawable?.removeFromViewHandler}
                     />
                 )}
-                <CreateProfileButton onClickHandler={profile?.createProfileHandler} />
+                <CreateProfileButton onClickHandler={() => openProfileDialog(entity)} />
             </div>
         </div>
     );

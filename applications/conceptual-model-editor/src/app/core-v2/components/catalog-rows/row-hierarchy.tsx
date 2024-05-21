@@ -20,24 +20,8 @@ import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relatio
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
     handlers: {
-        handleOpenModification: (
-            model: InMemorySemanticModel,
-            entity:
-                | SemanticModelClass
-                | SemanticModelClassUsage
-                | SemanticModelRelationship
-                | SemanticModelRelationshipUsage
-        ) => void;
-        handleOpenDetail: (
-            cls:
-                | SemanticModelClass
-                | SemanticModelClassUsage
-                | SemanticModelRelationship
-                | SemanticModelRelationshipUsage
-        ) => void;
         handleAddEntityToActiveView: (entityId: string) => void;
         handleRemoveEntityFromActiveView: (entityId: string) => void;
-        handleCreateUsage: (entity: ProfileDialogSupportedTypes) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => void;
     };
@@ -50,11 +34,6 @@ export const RowHierarchy = (props: {
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
 
     const isAttribute = isAnAttribute(props.entity);
-
-    const modificationHandler =
-        sourceModel instanceof InMemorySemanticModel
-            ? { openModificationHandler: () => props.handlers.handleOpenModification(sourceModel, props.entity) }
-            : null;
 
     const expansionHandler =
         isSemanticModelClass(props.entity) && sourceModel instanceof ExternalSemanticModel
@@ -78,12 +57,6 @@ export const RowHierarchy = (props: {
             ? { remove: () => props.handlers.handleRemoval(sourceModel, props.entity.id) }
             : null;
 
-    const profilingHandler = {
-        createProfileHandler: () => {
-            props.handlers.handleCreateUsage(props.entity);
-        },
-    };
-
     const thisEntityProfiles = profiles.filter((p) => p.usageOf == props.entity.id);
 
     // console.log("row hierarchy rerendered", sourceModel?.getId());
@@ -103,11 +76,8 @@ export const RowHierarchy = (props: {
                     entity={props.entity}
                     key={props.entity.id + aggregatorView.getActiveVisualModel()?.getId() + classes2.length}
                     expandable={expansionHandler}
-                    openDetailHandler={() => props.handlers.handleOpenDetail(props.entity)}
-                    modifiable={modificationHandler}
                     drawable={drawingHandler}
                     removable={removalHandler}
-                    profile={profilingHandler}
                     sourceModel={sourceModel}
                 />
                 {thisEntityProfiles.map((p) => (

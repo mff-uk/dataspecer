@@ -41,8 +41,6 @@ import { Entity } from "@dataspecer/core-v2/entity-model";
 import { useClassesContext } from "./context/classes-context";
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 
-import { useEntityDetailDialog } from "./dialog/entity-detail-dialog";
-import { useModifyEntityDialog } from "./dialog/modify-entity-dialog";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     SemanticModelClassUsage,
@@ -52,21 +50,18 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { useCreateClassDialog } from "./dialog/create-class-dialog";
-import { useCreateProfileDialog } from "./dialog/create-profile-dialog";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
+import { useDialogsContext } from "./context/dialogs-context";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
-    const { EntityDetailDialog, isEntityDetailDialogOpen, openEntityDetailDialog } = useEntityDetailDialog();
-    const { ModifyEntityDialog, isModifyEntityDialogOpen, openModifyEntityDialog } = useModifyEntityDialog();
-    const { CreateClassDialog, isCreateClassDialogOpen, openCreateClassDialog } = useCreateClassDialog();
-    const { CreateProfileDialog, isCreateProfileDialogOpen, openCreateProfileDialog } = useCreateProfileDialog();
+    const { openCreateClassDialog } = useDialogsContext();
+
     const { downloadImage } = useDownload();
 
     const { classes, classes2, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
@@ -125,6 +120,22 @@ export const Visualization = () => {
         [reactFlowInstance, activeVisualModel]
     );
 
+    const onPaneClick = useCallback(
+        (e: React.MouseEvent) => {
+            if (e.altKey) {
+                const position = reactFlowInstance?.screenToFlowPosition({
+                    x: e.clientX,
+                    y: e.clientY,
+                });
+                openCreateClassDialog(undefined, {
+                    x: position?.x ?? e.nativeEvent.layerX,
+                    y: position?.y ?? e.nativeEvent.layerY,
+                });
+            }
+        },
+        [reactFlowInstance]
+    );
+
     const getCurrentClassesRelationshipsGeneralizationsAndProfiles = () => {
         return {
             classes2,
@@ -139,43 +150,21 @@ export const Visualization = () => {
 
     const relationshipOrGeneralizationToEdgeType = (
         entity: Entity | null,
-        color: string | undefined,
-        openEntityDetailDialog: () => void,
-        openModificationDialog: () => void,
-        openCreateProfileDialog: () => void
+        color: string | undefined
     ): Edge | undefined => {
         if (isSemanticModelRelationshipUsage(entity)) {
             const usageNotes = entity.usageNote ? [entity.usageNote] : [];
-            return semanticModelRelationshipToReactFlowEdge(
-                entity,
-                color,
-                usageNotes,
-                openEntityDetailDialog,
-                openModificationDialog,
-                openCreateProfileDialog
-            ) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes) as Edge;
         } else if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(
-                entity,
-                color,
-                [],
-                openEntityDetailDialog,
-                openModificationDialog,
-                openCreateProfileDialog
-            ) as Edge;
+            return semanticModelRelationshipToReactFlowEdge(entity, color, []) as Edge;
         } else if (isSemanticModelGeneralization(entity)) {
-            return semanticModelGeneralizationToReactFlowEdge(entity, color, openEntityDetailDialog) as Edge;
+            return semanticModelGeneralizationToReactFlowEdge(entity, color) as Edge;
         }
         return;
     };
 
     const classUsageToEdgeType = (entity: SemanticModelClassUsage, color: string | undefined): Edge => {
-        const res = semanticModelClassUsageToReactFlowEdge(
-            entity,
-            color,
-            () => openEntityDetailDialog(entity),
-            () => openModifyEntityDialog(entity)
-        );
+        const res = semanticModelClassUsageToReactFlowEdge(entity, color);
         return res;
     };
 
@@ -283,9 +272,6 @@ export const Visualization = () => {
                     pos,
                     originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
                     attributes,
-                    () => openEntityDetailDialog(cls),
-                    () => openModifyEntityDialog(cls, sourceModel ?? null),
-                    () => openCreateProfileDialog(cls),
                     attributeProfiles
                 );
             };
@@ -294,15 +280,7 @@ export const Visualization = () => {
                 relOrGen: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage,
                 color: string | undefined
             ) => {
-                return relationshipOrGeneralizationToEdgeType(
-                    relOrGen,
-                    color,
-                    () => openEntityDetailDialog(relOrGen),
-                    // @ts-ignore TODO: modifikace generalizace
-                    // model ? () => openModifyEntityDialog(relOrGen, model) :
-                    (m: InMemorySemanticModel | null) => openModifyEntityDialog(relOrGen, m),
-                    isSemanticModelGeneralization(relOrGen) ? () => {} : () => openCreateProfileDialog(relOrGen)
-                );
+                return relationshipOrGeneralizationToEdgeType(relOrGen, color);
             };
 
             if (removed.length > 0) {
@@ -496,10 +474,6 @@ export const Visualization = () => {
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
-            {isEntityDetailDialogOpen && <EntityDetailDialog />}
-            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
-            {isCreateClassDialogOpen && <CreateClassDialog />}
-            {isCreateProfileDialogOpen && <CreateProfileDialog />}
 
             <div className="h-full w-full">
                 <ReactFlow
@@ -520,18 +494,7 @@ export const Visualization = () => {
                     onDrop={onDrop}
                     snapToGrid={true}
                     onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}
-                    onPaneClick={(e) => {
-                        if (e.altKey) {
-                            const position = reactFlowInstance?.screenToFlowPosition({
-                                x: e.clientX,
-                                y: e.clientY,
-                            });
-                            openCreateClassDialog(undefined, {
-                                x: position?.x ?? e.nativeEvent.layerX,
-                                y: position?.y ?? e.nativeEvent.layerY,
-                            });
-                        }
-                    }}
+                    onPaneClick={onPaneClick}
                 >
                     <Controls />
                     <MiniMap
