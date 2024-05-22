@@ -1,5 +1,5 @@
-import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { LanguageString } from "@dataspecer/core/core";
+import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { LanguageString } from "@dataspecer/core/core";
 
 export type AssociationConnectionType = {
     type: "association";

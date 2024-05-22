@@ -1,18 +1,18 @@
-import { Entity, EntityModel } from "@dataspecer/core-v2";
+import type { Entity, EntityModel } from "@dataspecer/core-v2";
 import {
-    SemanticModelClass,
-    SemanticModelEntity,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelEntity,
+    type SemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityDetailSupportedType } from "./detail-utils";
+import { type EntityDetailSupportedType } from "./detail-utils";
 
 export const isSemanticProfile = (
     resource: EntityDetailSupportedType | null

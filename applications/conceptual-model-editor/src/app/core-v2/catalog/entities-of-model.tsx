@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import {
-    SemanticModelClass,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
     isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -58,7 +58,7 @@ export const EntitiesOfModel = (props: {
     const { openCreateClassDialog } = useDialogsContext();
     const { ModelEntitiesList } = useModelEntitiesList(model);
 
-    const { id: modelId } = useMemo(() => getModelDetails(model), [models]);
+    const { id: modelId } = useMemo(() => getModelDetails(model), [model]);
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
     const entities = getEntitiesToShow(entityType, model);
@@ -101,7 +101,7 @@ export const EntitiesOfModel = (props: {
         const visibilityListenerUnsubscribe = activeVisualModel?.subscribeToChanges((updated, removed) => {
             setVisibleOnCanvas((prev) => {
                 const localMap = new Map(prev);
-                for (const visualEntityId in removed) {
+                for (const visualEntityId of removed) {
                     localMap.delete(visualEntityId);
                 }
                 for (const [_, visualEntity] of Object.entries(updated)) {
@@ -173,7 +173,7 @@ export const EntitiesOfModel = (props: {
                         const callback = async () => {
                             const result = await model.search(search);
                             for (const cls of result) {
-                                await model.allowClass(cls.iri!);
+                                await model.allowClass(cls.id);
                             }
                             console.log(result);
                         };

@@ -1,9 +1,12 @@
-import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+    type SemanticModelClassUsage,
+    isSemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useClassesContext } from "../../context/classes-context";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityProxy } from "../../util/detail-utils";
-import { WithOverrideHandlerType } from "../../util/profile-utils";
+import type { WithOverrideHandlerType } from "../../util/profile-utils";
 
 const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsage; duplicateNames: Set<string> }) => {
     const { resource, duplicateNames } = props;
@@ -13,14 +16,14 @@ const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsa
 
     return (
         <option value={resource.id}>
-            {name} {displayIri && `(${iri})`}
+            {name} {displayIri && `(${iri ?? resource.id})`}
         </option>
     );
 };
 
 export const SelectDomainOrRange = (props: {
     concept: string | null;
-    setConcept: (resourceId: string) => void;
+    setConcept: (resourceId: string | undefined) => void;
     onChange?: () => void;
     disabled?: boolean;
     withOverride?: WithOverrideHandlerType;
@@ -43,7 +46,7 @@ export const SelectDomainOrRange = (props: {
                     return prev;
                 }, {})
         )
-            .filter(([name, occurance]) => occurance > 1)
+            .filter(([_, occurrence]) => occurrence > 1)
             .map(([name, _]) => name)
     );
 
@@ -64,7 +67,6 @@ export const SelectDomainOrRange = (props: {
                     disabled={disabled}
                     onChange={(e) => {
                         if (e.target.value == "null") {
-                            // @ts-ignore
                             setConcept(undefined);
                         } else {
                             setConcept(e.target.value);

@@ -17,9 +17,6 @@ export const useBaseDialog = () => {
     const open = () => {
         setIsOpen(true);
     };
-    const save = async () => {
-        close();
-    };
 
     const BaseDialog: React.FC<{
         children: React.ReactNode;

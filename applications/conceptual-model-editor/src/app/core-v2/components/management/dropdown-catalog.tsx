@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 const CatalogItem = (props: { value: string; onValueSelected: () => void; withDeleteButton?: () => void }) => {
     const { value, onValueSelected, withDeleteButton } = props;

@@ -1,10 +1,10 @@
-import {
+import type {
     LanguageString,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
+import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -46,10 +46,10 @@ export const getStringFromLanguageStringInLang = (
 
     // get any lang
     const languages = getAvailableLanguagesForLanguageString(languageString);
-    if (languages.length > 0) {
-        const l = languages.at(0)!;
-        const res = languageString?.[l]!;
-        return [res, l] as const;
+    const anyLanguage = languages.at(0);
+    if (anyLanguage) {
+        const res = languageString.anyLanguage!;
+        return [res, anyLanguage] as const;
     }
 
     return [null, null] as const;

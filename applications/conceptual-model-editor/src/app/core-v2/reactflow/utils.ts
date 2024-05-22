@@ -95,15 +95,6 @@ export const getEdgeParams = (source: Node, target: Node) => {
 const leftRight = ["left", "right"];
 const topBottom = ["bottom", "top"];
 
-const lt = (x: number, y: number, size = 5) => `L ${x},${y + size}Q ${x},${y} ${x + size},${y}`;
-const rt = (x: number, y: number, size = 5) => `L ${x},${y + size}Q ${x},${y} ${x - size},${y}`;
-const lb = (x: number, y: number, size = 5) => `L ${x},${y - size}Q ${x},${y} ${x + size},${y}`;
-const rb = (x: number, y: number, size = 5) => `L ${x},${y - size}Q ${x},${y} ${x - size},${y}`;
-const tl = (x: number, y: number, size = 5) => `L ${x + size},${y}Q ${x},${y} ${x},${y + size}`;
-const tr = (x: number, y: number, size = 5) => `L ${x - size},${y}Q ${x},${y} ${x},${y + size}`;
-const bl = (x: number, y: number, size = 5) => `L ${x + size},${y}Q ${x},${y} ${x},${y - size}`;
-const br = (x: number, y: number, size = 5) => `L ${x - size},${y}Q ${x},${y} ${x},${y - size}`;
-
 export function getCorner(s: Node, t: Node, offset = 30) {
     let x, y;
     if (topBottom.includes(s.sourcePosition ?? "florb"))

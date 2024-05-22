@@ -6,7 +6,7 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const [onSaveCallback, setOnSaveCallback] = useState<null | ((ttlFiles: string[]) => void)>(null);
+    const [onSaveCallback, setOnSaveCallback] = useState<null | ((ttlFiles: string[]) => Promise<void>)>(null);
 
     useEffect(() => {
         const { current: el } = addModelDialogRef;
@@ -17,12 +17,12 @@ export const useAddModelDialog = () => {
         setOnSaveCallback(null);
         close();
     };
-    const localOpen = (onSaveCallback: (ttlFiles: string[]) => void) => {
+    const localOpen = (onSaveCallback: (ttlFiles: string[]) => Promise<void>) => {
         setOnSaveCallback(() => onSaveCallback);
         open();
     };
     const save = async (modelTtlFiles: string[]) => {
-        onSaveCallback?.(modelTtlFiles);
+        await onSaveCallback?.(modelTtlFiles);
         localClose();
     };
 

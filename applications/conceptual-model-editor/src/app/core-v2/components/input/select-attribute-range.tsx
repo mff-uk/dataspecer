@@ -1,11 +1,11 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { AttributeRangeModificationWarning } from "../../features/warnings/attribute-range-modification-warning";
 import { SelectDatatype } from "./select-datatype";
 import { SelectDomainOrRange } from "./select-domain-or-range";
 import { TwoWaySwitch } from "./two-way-switch";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
-import { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { WithOverrideHandlerType } from "../../util/profile-utils";
+import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { WithOverrideHandlerType } from "../../util/profile-utils";
 
 export const SelectAttributeRange = (props: {
     concept: string | null;

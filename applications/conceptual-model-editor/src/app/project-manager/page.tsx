@@ -3,19 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Header from "../components/header";
-import { BackendPackageService, Package, ResourceEditable } from "@dataspecer/core-v2/project";
+import { BackendPackageService, type Package, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { getRandomName } from "../utils/random-gen";
 import { getLocalizedStringFromLanguageString } from "../core-v2/util/language-utils";
 
 const Page = () => {
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
+    const [packages, setPackages] = useState([] as Package[]);
 
     const syncPackages = async () => {
-        setPackages((await service.getPackage("http://dataspecer.com/packages/local-root")).subResources!);
+        service.getPackage("http://dataspecer.com/packages/local-root").then(({ subResources }) => {
+            if (!subResources) {
+                return;
+            }
+            setPackages(subResources);
+        });
     };
-
-    const [packages, setPackages] = useState([] as Package[]);
 
     useEffect(() => {
         syncPackages();
@@ -40,7 +44,11 @@ const Page = () => {
             <main className="mx-auto max-w-screen-lg">
                 <h1 className="mb-12 px-6 text-3xl font-bold tracking-tight text-gray-900">Available packages</h1>
                 <div className="flex flex-row">
-                    <button className="white ml-2" title="sync package inventory with backend" onClick={syncPackages}>
+                    <button
+                        className="white ml-2"
+                        title="sync package inventory with backend"
+                        onClick={async () => syncPackages()}
+                    >
                         🔄
                     </button>
                     <button
@@ -55,7 +63,7 @@ const Page = () => {
                                     console.error(reason);
                                 });
                             if (pkg) {
-                                syncPackages();
+                                await syncPackages();
                             }
                         }}
                     >

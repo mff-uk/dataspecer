@@ -1,9 +1,4 @@
 import { randomBytes } from "crypto";
-import type { Position } from "../viz/layout/view-layout";
-
-export const getRandomPosition = (xMax = 1500, yMax = 600) => {
-    return { x: getRandomNumberInRange(0, xMax), y: getRandomNumberInRange(0, yMax) } as Position;
-};
 
 export const getRandomName = (length = 12) => {
     return randomBytes(length).toString("hex");

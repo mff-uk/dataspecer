@@ -4,17 +4,17 @@ import { useBaseDialog } from "../components/base-dialog";
 import { filterInMemoryModels } from "../util/model-utils";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import {
-    LanguageString,
-    SemanticModelClass,
-    SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
+    type LanguageString,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
+    type SemanticModelRelationshipEnd,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipEndUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipEndUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -26,7 +26,7 @@ import { ProfileModificationWarning } from "../features/warnings/profile-modific
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { getRandomName } from "~/app/utils/random-gen";
@@ -34,7 +34,7 @@ import { IriInput } from "../components/input/iri-input";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
-import { OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
+import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -61,12 +61,6 @@ export const useCreateProfileDialog = () => {
         const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
-
-        if (inMemoryModels.length == 0) {
-            alert("Create a local model first, please");
-            localClose();
-            return;
-        }
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
@@ -107,6 +101,12 @@ export const useCreateProfileDialog = () => {
             .filter(([key, _]) => key != "name" && key != "description")
             .filter(([_, v]) => v == true)
             .map(([key, _]) => key);
+
+        if (inMemoryModels.length == 0) {
+            alert("Create a local model first, please");
+            localClose();
+            return;
+        }
 
         const handleSaveClassProfile = (e: SemanticModelClass | SemanticModelClassUsage, m: InMemorySemanticModel) => {
             const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {

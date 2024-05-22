@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useDownload } from "../export/download";
 import { useClassesContext } from "../../context/classes-context";

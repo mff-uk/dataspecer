@@ -13,7 +13,7 @@ export const useViewParam = () => {
             setViewId(vId);
             console.log(`view-param: setting view-viewId:'${vId}'`);
         }
-    }, [queryParams]);
+    }, [viewId, queryParams]);
 
     const setViedIdSearchParam = (vId: string | null) => {
         setQueryParams({ [VIEW_ID]: vId });

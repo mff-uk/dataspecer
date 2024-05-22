@@ -1,16 +1,16 @@
 import {
-    SemanticModelRelationship,
+    type SemanticModelRelationship,
     isSemanticModelAttribute,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
-    SemanticModelRelationshipUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityDetailSupportedType } from "./detail-utils";
-import { VisualEntity } from "@dataspecer/core-v2/visual-model";
+import type { VisualEntity } from "@dataspecer/core-v2/visual-model";
+import type { EntityDetailSupportedType } from "./detail-utils";
 
 export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 
@@ -28,7 +28,7 @@ export const semanticCardinalityToOption = (v: null | [number, number | null]): 
     } else if (v[0] == null && v[1] == null) {
         return "xx";
     } else {
-        alert("unknown cardinality option for [" + v[0] + "," + v[1]);
+        alert("unknown cardinality option for [" + v[0].toString() + "," + (v[1]?.toString() ?? ""));
         return "unset";
     }
 };
