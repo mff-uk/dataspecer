@@ -89,13 +89,13 @@ export const Visualization = () => {
         [setEdges]
     );
 
-    const onDragOver = useCallback((event: any) => {
+    const onDragOver = useCallback((event: React.DragEvent) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
     }, []);
 
     const onDrop = useCallback(
-        (event: any) => {
+        (event: React.DragEvent) => {
             event.preventDefault();
 
             const type = event.dataTransfer.getData("application/reactflow");

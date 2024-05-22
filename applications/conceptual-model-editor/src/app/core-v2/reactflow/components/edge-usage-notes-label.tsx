@@ -1,4 +1,4 @@
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+import { type LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
 import { useConfigurationContext } from "../../context/configuration-context";
 
@@ -18,7 +18,9 @@ export const EdgeUsageNotesLabel = (props: { usageNotes?: LanguageString[] }) =>
     return (
         <div className="flex flex-col">
             {usageNoteLabels.map((usageNoteLabel) => (
-                <div className="bg-blue-200">{usageNoteLabel}</div>
+                <div className="bg-blue-200" key={"usage-note" + usageNoteLabel}>
+                    {usageNoteLabel}
+                </div>
             ))}
         </div>
     );

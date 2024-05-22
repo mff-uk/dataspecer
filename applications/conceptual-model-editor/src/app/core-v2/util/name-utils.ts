@@ -1,20 +1,20 @@
 import {
-    SemanticModelClass,
-    SemanticModelGeneralization,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelGeneralization,
+    type SemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getIri } from "./iri-utils";
-import { EntityModel } from "@dataspecer/core-v2";
+import type { EntityModel } from "@dataspecer/core-v2";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 
 export const getNameLanguageString = (
@@ -103,8 +103,9 @@ export const getModelDisplayName = (model: EntityModel | null | undefined) => {
         return null;
     }
 
-    if (model.getAlias()) {
-        return `${model.getAlias()} (${model.getId()})`;
+    const modelAlias = model.getAlias();
+    if (modelAlias) {
+        return `${modelAlias} (${model.getId()})`;
     } else {
         return model.getId();
     }

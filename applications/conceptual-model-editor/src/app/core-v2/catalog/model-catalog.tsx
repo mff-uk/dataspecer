@@ -12,22 +12,12 @@ export const ModelCatalog = () => {
     const handleAddModel = async (modelType: "local" | "sgov") => {
         if (modelType == "sgov") {
             const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
-            model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
-            model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
+            await model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
+            await model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
             addModelToGraph(model);
-            // } else if (modelType === DCTERMS_MODEL_ID) {
-            //     const model = await createRdfsModel(
-            //         ["https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl"],
-            //         httpFetch
-            //     );
-            //     model.fetchFromPimStore();
-            //     addModelToGraph(model);
         } else if (modelType == "local") {
             const model = new InMemorySemanticModel();
             addModelToGraph(model);
-        } else {
-            alert(`unsupported model type ${modelType}`);
-            return;
         }
 
         const aggregatedView = aggregator.getView();
@@ -45,7 +35,7 @@ export const ModelCatalog = () => {
     const AddModelDialogButton = () => (
         <button
             onClick={() =>
-                openAddModelDialog((ttlFiles: string[]) => {
+                openAddModelDialog(async (ttlFiles: string[]) => {
                     const cb = async () => {
                         const model = await createRdfsModel(ttlFiles, httpFetch);
                         model.fetchFromPimStore();
@@ -53,7 +43,7 @@ export const ModelCatalog = () => {
                         const aggregatedView = aggregator.getView();
                         setAggregatorView(aggregatedView);
                     };
-                    cb();
+                    await cb();
                 })
             }
             disabled={isAddModelDialogOpen}
@@ -66,7 +56,7 @@ export const ModelCatalog = () => {
 
     const AddModelButton = (props: { disabled?: boolean; modelType: "local" | "sgov" }) => (
         <button
-            onClick={() => handleAddModel(props.modelType)}
+            onClick={async () => handleAddModel(props.modelType)}
             disabled={props.disabled}
             type="button"
             className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
@@ -81,7 +71,7 @@ export const ModelCatalog = () => {
                 <h3 className="font-semibold">Model catalog</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
-                        <li key={"model" + index}>
+                        <li key={"model" + index.toString()}>
                             <ModelItemRow modelId={modelId} />
                         </li>
                     ))}

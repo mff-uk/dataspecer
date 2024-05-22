@@ -1,4 +1,4 @@
-import { ManagementButton, ManagementButtonPropsType } from "./management-button";
+import { ManagementButton, type ManagementButtonPropsType } from "./management-button";
 
 export const ExportButton = (props: ManagementButtonPropsType) => {
     return (

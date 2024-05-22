@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { EntityModel } from "@dataspecer/core-v2";
+import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
-    SemanticModelClass,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityProxy } from "../../util/detail-utils";

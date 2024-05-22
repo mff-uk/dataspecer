@@ -4,7 +4,7 @@ export const useMenuOptions = () => {
     const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
     const menuOptionsRef = useRef<HTMLDivElement | null>(null);
 
-    const close = (e: any) => {
+    const close = (e: React.MouseEvent) => {
         setIsMenuOptionsOpen(false);
         e.stopPropagation();
     };

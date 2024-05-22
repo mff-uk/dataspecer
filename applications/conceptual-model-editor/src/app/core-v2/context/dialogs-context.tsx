@@ -1,14 +1,14 @@
-import React, { ReactNode, useContext } from "react";
+import React, { type ReactNode, useContext } from "react";
 import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
-import { EntityDetailSupportedType } from "../util/detail-utils";
+import type { EntityDetailSupportedType } from "../util/detail-utils";
 import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
+import type { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { ProfileDialogSupportedTypes, useCreateProfileDialog } from "../dialog/create-profile-dialog";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { type ProfileDialogSupportedTypes, useCreateProfileDialog } from "../dialog/create-profile-dialog";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
 
 type ModificationDialogSupportedTypes =

@@ -1,7 +1,7 @@
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "./multi-language-input-4-language-string";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
-import { WithOverrideHandlerType } from "../../util/profile-utils";
+import type { WithOverrideHandlerType } from "../../util/profile-utils";
 
 export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     forElement: string;
@@ -18,7 +18,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
 
     return (
         <div className="flex flex-row">
-            <div className={`flex-grow ${style}`}>
+            <div className={`flex-grow ${style ?? ""}`}>
                 <MultiLanguageInputForLanguageString
                     ls={ls}
                     setLs={setLs}

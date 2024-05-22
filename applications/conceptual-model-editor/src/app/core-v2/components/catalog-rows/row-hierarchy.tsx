@@ -1,10 +1,10 @@
 import {
-    SemanticModelClass,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import {
+import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -12,9 +12,8 @@ import { EntityRow } from "../../components/catalog-rows/entity-catalog-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
-import { ProfileDialogSupportedTypes } from "../../dialog/create-profile-dialog";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
+import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
 
 export const RowHierarchy = (props: {
@@ -23,7 +22,7 @@ export const RowHierarchy = (props: {
         handleAddEntityToActiveView: (entityId: string) => void;
         handleRemoveEntityFromActiveView: (entityId: string) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
-        handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => void;
+        handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
     };
     indent: number;
 }) => {

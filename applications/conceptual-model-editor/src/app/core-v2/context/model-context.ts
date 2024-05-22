@@ -1,8 +1,11 @@
-import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import {
+    SemanticModelAggregator,
+    type SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import React, { useContext } from "react";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const aggregatorInstance = new SemanticModelAggregator();
@@ -64,10 +67,10 @@ export const useModelGraphContext = () => {
     };
 
     const cleanModels = () => {
-        for (const [mId, m] of models) {
+        for (const [_, m] of models) {
             aggregator.deleteModel(m);
         }
-        for (const [mId, m] of visualModels) {
+        for (const [_, m] of visualModels) {
             aggregator.deleteModel(m);
         }
         setModels(new Map());
@@ -75,10 +78,10 @@ export const useModelGraphContext = () => {
     };
 
     const replaceModels = (m: EntityModel[], vm: VisualEntityModel[]) => {
-        for (const [mId, m] of models) {
+        for (const [_, m] of models) {
             aggregator.deleteModel(m);
         }
-        for (const [mId, m] of visualModels) {
+        for (const [_, m] of visualModels) {
             aggregator.deleteModel(m);
         }
 

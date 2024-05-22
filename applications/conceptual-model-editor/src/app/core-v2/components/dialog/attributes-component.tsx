@@ -1,10 +1,9 @@
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import {
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type {
     SemanticModelRelationship,
     LanguageString,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useState, useEffect } from "react";
 import { getRandomName } from "~/app/utils/random-gen";
 import { getModelIri } from "../../util/iri-utils";
@@ -19,10 +18,9 @@ export const AddAttributesComponent = (props: {
     sourceModel: EntityModel | null;
     modifiedClassId: string;
     saveNewAttribute: (attr: Partial<Omit<SemanticModelRelationship, "type">>) => void;
-    saveNewAttributeProfile: (
-        attr: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
-    ) => void;
 }) => {
+    const { preferredLanguage, sourceModel, modifiedClassId, saveNewAttribute } = props;
+
     const [newAttribute, setNewAttribute] = useState<Partial<Omit<SemanticModelRelationship, "type">>>({});
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
@@ -37,7 +35,7 @@ export const AddAttributesComponent = (props: {
         dataType: false,
     });
 
-    const modelIri = getModelIri(props.sourceModel);
+    const modelIri = getModelIri(sourceModel);
 
     useEffect(() => {
         setNewAttribute({
@@ -46,7 +44,7 @@ export const AddAttributesComponent = (props: {
                     cardinality: cardinality.cardinality,
                     name: {},
                     description: {},
-                    concept: props.modifiedClassId,
+                    concept: modifiedClassId,
                     iri: null,
                 },
                 {
@@ -57,11 +55,10 @@ export const AddAttributesComponent = (props: {
                 },
             ],
         });
-    }, [name, description, cardinality, iri, dataType]);
+    }, [modifiedClassId, name, description, cardinality, iri, dataType]);
 
     const handleSave = () => {
-        props.saveNewAttribute(newAttribute);
-        return;
+        saveNewAttribute(newAttribute);
     };
 
     return (
@@ -73,7 +70,7 @@ export const AddAttributesComponent = (props: {
                         inputType="text"
                         ls={name}
                         setLs={setName}
-                        defaultLang={props.preferredLanguage}
+                        defaultLang={preferredLanguage}
                         onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                     />
                 </DialogDetailRow2>
@@ -82,7 +79,7 @@ export const AddAttributesComponent = (props: {
                         inputType="text"
                         ls={description}
                         setLs={setDescription}
-                        defaultLang={props.preferredLanguage}
+                        defaultLang={preferredLanguage}
                         onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                     />
                 </DialogDetailRow2>

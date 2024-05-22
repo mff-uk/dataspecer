@@ -1,8 +1,8 @@
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { BackendPackageService, ResourceEditable } from "@dataspecer/core-v2/project";
+import { BackendPackageService, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);

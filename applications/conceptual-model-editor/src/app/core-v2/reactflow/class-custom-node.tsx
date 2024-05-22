@@ -34,7 +34,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
     const clr = props.data.color ?? "#ffffff";
 
-    const model = useMemo(() => sourceModelOfEntity(cls.id, [...models.values()]), [models]);
+    const model = useMemo(() => sourceModelOfEntity(cls.id, [...models.values()]), [cls.id, models]);
 
     const { name, description, iri, profileOf } = EntityProxy(cls, preferredLanguage);
 
@@ -57,7 +57,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
                 <p className="overflow-x-clip text-gray-500">{iri}</p>
 
-                <div key={"attributes" + attributes.length} className="max-h-44 overflow-x-auto ">
+                <div key={"attributes" + attributes.length.toString()} className="max-h-44 overflow-x-auto ">
                     <>
                         {attributes?.slice(0, 5).map((attr) => (
                             <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />

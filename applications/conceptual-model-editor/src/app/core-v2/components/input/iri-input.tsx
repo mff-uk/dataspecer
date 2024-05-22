@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getStringFromLanguageStringInLang } from "../../util/language-utils";
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useConfigurationContext } from "../../context/configuration-context";
 import { IRI } from "iri";
+import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { TwoWaySwitch } from "./two-way-switch";
+import { useConfigurationContext } from "../../context/configuration-context";
+import { getStringFromLanguageStringInLang } from "../../util/language-utils";
 
 export const WhitespaceRegExp = new RegExp(/\s+/g);
 export const NonAlphaNumeric = new RegExp(/[^a-zA-Z0-9-]/g);
@@ -52,7 +52,7 @@ export const IriInput = (props: {
                     }
 
                     if (shouldIncludeBaseIri) {
-                        setNewIri("" + baseIri + newIri);
+                        setNewIri((baseIri ?? "") + (newIri ?? ""));
                         setShouldIncludeBaseIri(false);
                     }
                 }}

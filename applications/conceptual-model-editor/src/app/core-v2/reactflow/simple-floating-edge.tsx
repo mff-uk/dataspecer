@@ -1,26 +1,26 @@
 import { useCallback, useMemo } from "react";
 import {
-    useStore,
-    EdgeProps,
-    getSimpleBezierPath,
+    type Edge,
+    type EdgeProps,
     EdgeLabelRenderer,
-    getStraightPath,
-    Edge,
     MarkerType,
+    getSimpleBezierPath,
+    getStraightPath,
     getSmoothStepPath,
+    useStore,
 } from "reactflow";
 
 import { getEdgeParams, getLoopPath } from "./utils";
 import {
-    SemanticModelRelationship,
-    SemanticModelGeneralization,
-    LanguageString,
+    type SemanticModelRelationship,
+    type SemanticModelGeneralization,
+    type LanguageString,
     isSemanticModelRelationship,
     isSemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -62,7 +62,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const d = data as SimpleFloatingEdgeDataType;
     const { entity } = d;
 
-    const model = useMemo(() => sourceModelOfEntity(entity.id, [...models.values()]), [models]);
+    const model = useMemo(() => sourceModelOfEntity(entity.id, [...models.values()]), [entity.id, models]);
 
     const isProfile = isSemanticModelRelationshipUsage(entity) || isSemanticModelClassUsage(entity);
 

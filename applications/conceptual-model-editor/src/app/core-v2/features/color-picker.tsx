@@ -8,7 +8,7 @@ export const ColorField = (props: {
     tailwindColor: string;
     color: string;
     isSelected?: boolean;
-    onClick: (e: any) => void;
+    onClick: (e: React.MouseEvent) => void;
 }) => {
     const { tailwindColor, color, isSelected, onClick } = props;
     return (
@@ -31,11 +31,6 @@ export const ColorPicker = (props: { currentColor: string; saveColor: (color: st
     const colorPickerRef = useRef<HTMLDivElement | null>(null);
 
     const colors = Object.keys(ColorPalette);
-    let numRows = Math.floor(colors.length / NUMBER_COLS);
-    const lastRowLength = colors.length % NUMBER_COLS;
-    if (lastRowLength > 0) {
-        numRows += 1;
-    }
 
     useEffect(() => {
         if (isOpen && colorPickerRef.current) {
@@ -59,7 +54,7 @@ export const ColorPicker = (props: { currentColor: string; saveColor: (color: st
             tabIndex={-1}
             autoFocus
             ref={colorPickerRef}
-            className={`relative z-10 min-w-fit border-2 border-white p-1`}
+            className={"relative z-10 min-w-fit border-2 border-white p-1"}
             onBlur={(e) => {
                 if (e.relatedTarget?.id.startsWith("button-color-picker-")) {
                     return;

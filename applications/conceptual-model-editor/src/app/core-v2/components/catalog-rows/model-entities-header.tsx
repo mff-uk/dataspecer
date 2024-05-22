@@ -1,9 +1,9 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { ExpandModelButton } from "../buttons";
 import { useModelGraphContext } from "../../context/model-context";
 import { tailwindColorToHex } from "~/app/utils/color-utils";
 import { getModelDetails } from "../../util/model-utils";
-import { EntityModel } from "@dataspecer/core-v2";
+import type { EntityModel } from "@dataspecer/core-v2";
 import { compareMaps } from "../../util/utils";
 
 const getDefaultColor = () => {
@@ -41,7 +41,7 @@ export const useModelEntitiesList = (model: EntityModel) => {
             };
         }, [models, aggregatorView]);
 
-        const { id: modelId, displayName } = useMemo(() => getModelDetails(model), [models]);
+        const { id: modelId, displayName } = useMemo(() => getModelDetails(model), []);
 
         const [backgroundColor, setBackgroundColor] = useState({
             clr: activeVisualModel?.getColor(modelId) || getDefaultColor4(),
@@ -73,7 +73,7 @@ export const useModelEntitiesList = (model: EntityModel) => {
 
         return (
             <li
-                key={modelId + activeVisualModel?.getId() + backgroundColor.ctr}
+                key={modelId + activeVisualModel?.getId() + backgroundColor.ctr.toString()}
                 style={{ backgroundColor: tailwindColorToHex(backgroundColor.clr) }}
             >
                 <div className="flex flex-row justify-between">

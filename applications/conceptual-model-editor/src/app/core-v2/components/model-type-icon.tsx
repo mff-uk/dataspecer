@@ -1,4 +1,4 @@
-import { EntityModel } from "@dataspecer/core-v2";
+import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { getModelIri } from "../util/iri-utils";
@@ -11,7 +11,7 @@ export const ModelTypeIcon = (props: { model: EntityModel | undefined; onClick: 
         const defaultModelIri = modelBaseIri?.length == 0 ? getModelIri(model) : modelBaseIri;
         modelType = (
             <>
-                <span title={'local model\nbase iri: "' + model.getBaseIri() + '"'}>🏠</span>
+                <span title={"local model\nbase iri: <" + model.getBaseIri() + ">"}>🏠</span>
                 <button title={"click to edit base iri"} onClick={() => onClick(defaultModelIri)}>
                     📑
                 </button>

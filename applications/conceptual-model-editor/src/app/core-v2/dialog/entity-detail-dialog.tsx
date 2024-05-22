@@ -1,5 +1,5 @@
 import {
-    SemanticModelGeneralization,
+    type SemanticModelGeneralization,
     type SemanticModelClass,
     type SemanticModelRelationship,
     isSemanticModelClass,
@@ -7,8 +7,8 @@ import {
 import { useRef, useEffect, useState } from "react";
 import { IriLink } from "../components/iri-link";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "../components/base-dialog";
