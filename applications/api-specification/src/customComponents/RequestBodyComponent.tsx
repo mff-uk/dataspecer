@@ -33,7 +33,6 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     const path = `dataStructures.${index}.operations.${operationIndex}.oRequestBody`;
 
     useEffect(() => {
-        // Update checkbox values when form values change
         const requestBodyValues = getValues(path);
         setValue(path, requestBodyValues);
     }, []);
@@ -44,9 +43,12 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
 
     if (responseDataStructures) {
         responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).name);
+        //console.log("RESP DS")
+        //console.log(dataStructure)
     }
 
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
+        //console.log(responseDataStructure)
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
@@ -61,7 +63,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
 
                             <Checkbox
                                 id={`${path}.${field.name}`}
-                                checked={getValues(`${path}.${field.name}`)} // Use getValues to retrieve the current value
+                                checked={getValues(`${path}.${field.name}`)} 
                                 onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
 
@@ -105,7 +107,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
         );
     }
     else {
-        console.log('Error: Data structure not found');
+        //console.log('Error: Data structure not found');
         return <div>Error: Data structure not found</div>;
     }
 };
