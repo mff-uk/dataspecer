@@ -1,9 +1,9 @@
 import { WdEntityId, WdFilterByInstance } from "@dataspecer/wikidata-experimental-adapter";
-import { useWdGetSurroundings } from "../hooks/use-wd-get-surroundings";
-import { WikidataLoadingError } from "../helpers/wikidata-loading-error";
+import { useWdGetSurroundings } from "../../hooks/use-wd-get-surroundings";
+import { WikidataLoadingError } from "../../helpers/wikidata-loading-error";
 import { WikidataProperties } from "./wikidata-properties";
 import { useTranslation } from "react-i18next";
-import { WikidataLoading } from "../helpers/wikidata-loading";
+import { WikidataLoading } from "../../helpers/wikidata-loading";
 import { Dispatch, SetStateAction } from "react";
 
 export interface WikidataLoadedAssociationsPropertiesProps {

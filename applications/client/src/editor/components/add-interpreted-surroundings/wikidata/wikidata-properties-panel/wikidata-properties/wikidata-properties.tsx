@@ -7,11 +7,11 @@ import {
     WdFilterByInstance,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { entitySearchTextFilter } from "../helpers/search-text-filter";
+import { entitySearchTextFilter } from "../../helpers/search-text-filter";
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { WikidataPropertiesAccordion } from "./wikidata-properties-accordion";
 import { WikidataPropertyType } from "./wikidata-property-item";
-import { isValidSubclassingOfWdFilterByInstance } from "./wikidata-filter-by-instance-dialog/check-subclassing-of-instance";
+import { isValidSubclassingOfWdFilterByInstance } from "../wikidata-filter-by-instance-dialog/check-subclassing-of-instance";
 
 export interface WikidataPropertiesProps {
     selectedWdClassSurroundings: WdClassSurroundings;

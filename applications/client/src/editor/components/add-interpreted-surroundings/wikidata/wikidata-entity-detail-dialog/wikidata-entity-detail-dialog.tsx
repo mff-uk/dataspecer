@@ -8,9 +8,9 @@ import { selectLanguage } from "../../../../utils/select-language";
 import { CimLinks } from "../../../detail/components/cim-links";
 import { LanguageStringFallback } from "../../../helper/LanguageStringComponents";
 import { InDifferentLanguages } from "../../../detail/components/InDifferentLanguages";
-import { WikidataClassDetailTab } from "./wikidata-class-detail-tab";
-import { DETAIL_SCROLLABLE_TARGET_ID } from "./wikidata-entity-detail-grid";
-import { WikidataPropertyDetailTab } from "./wikidata-property-detail-tab";
+import { WikidataClassDetailTab } from "./wikidata-entity-tab/wikidata-class-detail-tab";
+import { DETAIL_SCROLLABLE_TARGET_ID } from "./wikidata-entity-tab/wikidata-entity-detail-grid";
+import { WikidataPropertyDetailTab } from "./wikidata-entity-tab/wikidata-property-detail-tab";
 
 export interface WikidataShowSelectedDialogProps {
     isOpen: boolean;

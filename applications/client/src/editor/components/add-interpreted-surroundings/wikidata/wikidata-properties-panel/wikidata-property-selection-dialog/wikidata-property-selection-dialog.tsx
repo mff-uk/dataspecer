@@ -5,7 +5,7 @@ import {
     WdFilterByInstance,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../wikidata-property-item";
+import { WikidataPropertyType, isWdPropertyTypeAttribute } from "../wikidata-properties/wikidata-property-item";
 import { WikidaPropertySelectionDialogContent } from "./wikidata-property-selection-dialog-content";
 
 export interface WikidataPropertySelectionDialogProps {

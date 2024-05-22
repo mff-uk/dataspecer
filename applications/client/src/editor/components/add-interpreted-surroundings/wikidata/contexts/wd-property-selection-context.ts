@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { WdPropertySelectionRecord } from "../property-selection-record";
+import { WdPropertySelectionRecord } from "../property-selection-record/property-selection-record";
 import { WdClassHierarchyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 
 export interface WdPropertySelectionContextValue {

@@ -18,9 +18,9 @@ import { useTranslation } from "react-i18next";
 import { WikidataProperties } from "./wikidata-properties/wikidata-properties";
 import { WikidataLoadedProperties } from "./wikidata-properties/wikidata-loaded-properties";
 import { useContext, useState } from "react";
-import { useDialog } from "../../../dialog";
-import { WikidataFilterByInstanceDialog } from "./wikidata-properties/wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
-import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
+import { useDialog } from "../../../../dialog";
+import { WikidataFilterByInstanceDialog } from "./wikidata-filter-by-instance-dialog/wikidata-filter-by-instance-dialog";
+import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
 import { WikidataManageSelectedDialog } from "./wikidata-manage-selected-dialog/wikidata-manage-selected-dialog";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 

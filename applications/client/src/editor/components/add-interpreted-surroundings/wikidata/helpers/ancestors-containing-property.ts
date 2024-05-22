@@ -3,7 +3,7 @@ import {
     WdClassSurroundings,
     WdPropertyDescOnly,
 } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
+import { WikidataPropertyType } from "../wikidata-properties-panel/wikidata-properties/wikidata-property-item";
 
 export function getAncestorsContainingProperty(
     selectedWdClassSurroundings: WdClassSurroundings,

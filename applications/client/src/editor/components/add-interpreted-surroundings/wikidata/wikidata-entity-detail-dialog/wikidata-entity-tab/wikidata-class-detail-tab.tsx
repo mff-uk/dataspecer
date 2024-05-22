@@ -1,8 +1,8 @@
 import { WdClassDescOnly, WdClassWithSurroundingsDesc, WdEntityDescOnly } from "@dataspecer/wikidata-experimental-adapter"
-import { useWdGetClass } from "../hooks/wd-get-class";
-import { WikidataLoading } from "../helpers/wikidata-loading";
+import { useWdGetClass } from "../../hooks/wd-get-class";
+import { WikidataLoading } from "../../helpers/wikidata-loading";
 import { useTranslation } from "react-i18next";
-import { WikidataLoadingError } from "../helpers/wikidata-loading-error";
+import { WikidataLoadingError } from "../../helpers/wikidata-loading-error";
 import { FieldEntitiesContextTriples, WikidataEntityDetailGrid } from "./wikidata-entity-detail-grid";
 
 export interface WikidataClassDetailTabProps {

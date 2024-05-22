@@ -1,9 +1,9 @@
-import { WikidataLoading } from "../helpers/wikidata-loading";
+import { WikidataLoading } from "../../helpers/wikidata-loading";
 import { useTranslation } from "react-i18next";
-import { WikidataLoadingError } from "../helpers/wikidata-loading-error";
+import { WikidataLoadingError } from "../../helpers/wikidata-loading-error";
 import { FieldEntitiesContextTriples, WikidataEntityDetailGrid } from "./wikidata-entity-detail-grid";
 import { WdPropertyDescOnly, WdEntityDescOnly, WdPropertyWithSurroundingDesc } from "@dataspecer/wikidata-experimental-adapter";
-import { useWdGetProperty } from "../hooks/wd-get-property";
+import { useWdGetProperty } from "../../hooks/wd-get-property";
 
 export interface WikidataPropertyDetailTabProps {
     wdProperty: WdPropertyDescOnly;

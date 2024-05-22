@@ -2,9 +2,9 @@ import { WdEntityDescOnly, WdEntityId, WdEntityIdsList, WdExternalOntologyMappin
 import { Box, Grid, List, ListItem, ListItemText, TextField, Typography } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { entitySearchTextFilterWithMap } from "../helpers/search-text-filter";
-import { WikidataInfinityScrollList } from "../helpers/wikidata-infinity-scroll-list";
-import { LanguageStringUndefineable, LanguageStringText } from "../../../helper/LanguageStringComponents";
+import { entitySearchTextFilterWithMap } from "../../helpers/search-text-filter";
+import { WikidataInfinityScrollList } from "../../helpers/wikidata-infinity-scroll-list";
+import { LanguageStringUndefineable, LanguageStringText } from "../../../../helper/LanguageStringComponents";
 
 export const DETAIL_SCROLLABLE_TARGET_ID = "detail-list"
 

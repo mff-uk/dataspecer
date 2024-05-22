@@ -1,14 +1,14 @@
 import { Button, DialogActions, Typography } from "@mui/material";
 import React, { useContext, useMemo } from "react";
-import { DialogContent, DialogTitle } from "../../../detail/common";
+import { DialogContent, DialogTitle } from "../../../../detail/common";
 import { WdClassSurroundings } from "@dataspecer/wikidata-experimental-adapter";
-import { dialog, useDialog } from "../../../../dialog";
+import { dialog, useDialog } from "../../../../../dialog";
 import { useTranslation } from "react-i18next";
-import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
-import { WikidataPropertySelectionDialog } from "../wikidata-properties/wikidata-property-selection-dialog/wikidata-property-selection-dialog";
-import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
+import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
 import { WikidataPropertySelectionList } from "./wikidata-property-selection-list";
-import { WdPropertySelectionRecord } from "../property-selection-record";
+import { WdPropertySelectionRecord } from "../../property-selection-record/property-selection-record";
+import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
+import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
 
 export interface WikidataManageSelectedDialogProps {
     isOpen: boolean;

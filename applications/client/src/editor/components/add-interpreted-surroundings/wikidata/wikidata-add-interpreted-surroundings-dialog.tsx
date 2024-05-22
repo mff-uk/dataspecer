@@ -16,15 +16,15 @@ import {
 import { QueryClientProvider } from "react-query";
 import { WikidataAdapterContext } from "./contexts/wikidata-adapter-context";
 import { queryClient } from "./contexts/react-query-context";
-import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel";
+import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel/wikidata-ancestors-selector-panel";
 import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";
-import { WikidataPropertiesPanel } from "./wikidata-properties-panel";
 import { WikidataLoading } from "./helpers/wikidata-loading";
 import { WikidataLoadingError } from "./helpers/wikidata-loading-error";
 import { WdPropertySelectionContext } from "./contexts/wd-property-selection-context";
 import { useWdPropertySelection } from "./hooks/use-wd-property-selection";
 import { ReadOnlyMemoryStore } from "@dataspecer/core/core/index";
-import { transformSelectedSurroundings } from "./transform-selected-surroundings";
+import { transformSelectedSurroundings } from "./property-selection-record/transform-selected-surroundings";
+import { WikidataPropertiesPanel } from "./wikidata-properties-panel/wikidata-properties-panel";
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {

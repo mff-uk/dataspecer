@@ -1,14 +1,14 @@
 import { Button, List, ListItem, ListItemSecondaryAction, ListItemText } from "@mui/material";
-import { WdPropertySelectionRecord } from "../property-selection-record";
-import { LanguageStringFallback } from "../../../helper/LanguageStringComponents";
+import { WdPropertySelectionRecord } from "../../property-selection-record/property-selection-record";
+import { LanguageStringFallback } from "../../../../helper/LanguageStringComponents";
 import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import React, { useContext } from "react";
-import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
 import { WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
-import { WdPropertySelectionContext } from "../contexts/wd-property-selection-context";
+import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
+import { WikidataPropertyType } from "../wikidata-properties/wikidata-property-item";
 
 export interface WikidataPropertySelectionListProps {
     selectionRecords: WdPropertySelectionRecord[];

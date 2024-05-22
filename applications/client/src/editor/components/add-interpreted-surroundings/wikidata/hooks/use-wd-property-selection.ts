@@ -1,7 +1,7 @@
 import { WdClassHierarchyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
 import { useState, useMemo, useCallback } from "react";
 import { WdPropertySelectionContextValue } from "../contexts/wd-property-selection-context";
-import { WdPropertySelectionRecord, findIndexOfWdPropertySelectionRecord, isWdPropertySelectionRecordPresent } from "../property-selection-record";
+import { WdPropertySelectionRecord, findIndexOfWdPropertySelectionRecord, isWdPropertySelectionRecordPresent } from "../property-selection-record/property-selection-record";
 
 export function useWdPropertySelection() {
     const [wdPropertySelectionRecords, setWdPropertySelectionRecords] = useState<WdPropertySelectionRecord[]>([]);
