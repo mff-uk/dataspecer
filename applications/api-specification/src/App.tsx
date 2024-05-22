@@ -30,6 +30,8 @@ import './App.css';
 import { ApiSpecificationForm } from './UpdatedMainForm.tsx';
 import { SplitScreen } from './SplitScreen.tsx';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './components/ui/card';
+import { Button } from './components/ui/button';
+
 
 
 interface ComponentLeftProps {
@@ -59,21 +61,23 @@ const ComponentRight = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
     URL.revokeObjectURL(url);
   };
 
-  
+
   return (
-    <div className="flex flex-col h-full"> 
-      <Card className="flex-1"> 
+    <div className="flex flex-col h-full p-9">
+      <Card className="flex-1">
         <CardHeader>
           <CardTitle>Generated OpenAPI Specification</CardTitle>
+          <Button onClick={openSwaggerEditor} className="bg-blue-500">Open Swagger Editor</Button>
+          <Button onClick={downloadOpenAPISpec} className="bg-green-500">Download JSON</Button>
         </CardHeader>
-        <CardContent className="overflow-auto"> 
+        
+        <CardContent className="overflow-auto">
           <CardDescription>
             <pre>{JSON.stringify(generatedOpenAPISpecification, null, 2)}</pre>
           </CardDescription>
         </CardContent>
         <div className="p-4">
-          <button onClick={openSwaggerEditor} className="bg-blue-500 text-white py-2 px-4 rounded">Open in Swagger Editor</button>
-          <button onClick={downloadOpenAPISpec} className="bg-green-500 text-white py-2 px-4 rounded ml-2">Download JSON</button>
+
         </div>
       </Card>
     </div>
@@ -84,11 +88,11 @@ const ComponentRight = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
 function App() {
   const [generatedOpenAPISpecification, setGeneratedOpenAPISpecification] = useState(null);
 
-  
+
   return (
     <SplitScreen
-    leftSide={() => <ComponentLeft setGeneratedOpenAPISpecification={setGeneratedOpenAPISpecification} />}
-    rightSide={() => <ComponentRight generatedOpenAPISpecification={generatedOpenAPISpecification} />}
+      leftSide={() => <ComponentLeft setGeneratedOpenAPISpecification={setGeneratedOpenAPISpecification} />}
+      rightSide={() => <ComponentRight generatedOpenAPISpecification={generatedOpenAPISpecification} />}
     />
   );
 }

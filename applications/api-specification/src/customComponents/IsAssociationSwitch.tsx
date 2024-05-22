@@ -14,6 +14,7 @@ interface IsAssociationSwitchProps {
     setSelectedResponseObject: React.Dispatch<React.SetStateAction<any>>;
     setResponseObjectFields: React.Dispatch<React.SetStateAction<DataStructure[]>>;
     setAssociationModeOn: React.Dispatch<React.SetStateAction<boolean>>;
+    defaultValue: string;
 }
 
 const Association: React.FC<IsAssociationSwitchProps> = ({
@@ -26,7 +27,8 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
     dataStructures,
     setSelectedResponseObject,
     setResponseObjectFields,
-    setAssociationModeOn
+    setAssociationModeOn,
+    defaultValue
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oAssociatonMode`;
 
@@ -51,9 +53,15 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
         setAssociationModeOn(checked);
     };
 
+    useEffect(() => {
+        const savedValue = getValues(`dataStructures.${index}.operations.${operationIndex}`);
+        //console.log('Value saved on form:', savedValue);
+    }, [index, operationIndex, getValues]);
+    
+
     
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
-    //console.log("selectedDataStructure for association " + dataStructureName)
+   // console.log("selectedDataStructure for association " + dataStructureName)
     const objectFields = selectedDataStructure ? selectedDataStructure.fields
         .filter(field => field.type === 'Object' && field.nestedFields)
         .map(field => ({
@@ -84,9 +92,12 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
                     <label>Target Datastructure: </label>
                     <ResponseObjectSelect
                         index={index}
+                        defaultValue = {defaultValue}
                         operationIndex={operationIndex}
+                        defaultValue={defaultValue}
                         register={register}
                         dataStructures={objectFields}
+                        getValues = {getValues}
                         isResponseObj={true}
                         onChange={(selectedDataStructure) => {
                             setSelectedResponseObject(selectedDataStructure);
@@ -101,3 +112,4 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 };
 
 export default Association;
+

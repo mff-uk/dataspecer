@@ -87,7 +87,9 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                 </Card>
             </div>
         );
-    } else {
+    } 
+    else 
+    {
         console.log('Error: Data structure not found');
         return <div>Error: Data structure not found</div>;
     }

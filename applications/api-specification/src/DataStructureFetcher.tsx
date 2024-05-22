@@ -206,7 +206,5 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         }
     }
 
-    // TODO: add backwardassociation?
-
     return field;
 }

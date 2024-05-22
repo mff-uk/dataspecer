@@ -27,15 +27,41 @@ interface OperationCardProps {
     baseUrl: string;
     selectedDataStructure: string;
     fetchedDataStructures: DataStructure[];
-    selectedDataStruct: any 
+    selectedDataStruct: any,
+    defaultValue: string 
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, selectedDataStruct }) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, selectedDataStruct, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
+
+    //console.log(defaultValue + "DEFAULT VALUE IN THE OPERATION CARD")
+
+    useEffect(() => {
+        // Path to monitor
+        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+        
+        // Retrieve the saved value
+        const savedValue = getValues(path);
+
+        // Log the saved value
+        //console.log(`Value saved on form for path OPERATION CARD ${path}:`, savedValue);
+    }, [getValues, index, operationIndex]);
+
+    useEffect(() => {
+        try{
+        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+        setValue(path, selectedResponseObject ? selectedResponseObject.name : '');
+        console.log("path" + path + "     " + selectedResponseObject.name)
+    }
+    catch
+    {
+        //console.log("ANASTASIA")
+    }
+    }, [selectedResponseObject, setValue, index, operationIndex]);
 
     //console.log("passed ds " + selectedDataStruct)
 
@@ -70,7 +96,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}
                         setResponseObjectFields={setResponseObjectFields}
-                        setAssociationModeOn={setAssotiationMode} />
+                        setAssociationModeOn={setAssotiationMode}
+                        defaultValue = {defaultValue} />
                     {/* Switch to treat Resource as a collection*/}
                     <IsCollection
                         index={index}

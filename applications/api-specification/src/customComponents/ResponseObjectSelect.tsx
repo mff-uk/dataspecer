@@ -1,33 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-function ResponseObjectSelect({ index, register, dataStructures, onChange,  isResponseObj, operationIndex}) {
+function ResponseObjectSelect({ index, register, dataStructures, onChange, isResponseObj, operationIndex, getValues, defaultValue }) {
     let path = '';
-    
+
     path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-    //console.log(dataStructures)
+
+    const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
     
+    // Trigger onChange manually on the first render
+    useEffect(() => {
+        if (!hasOnChangeTriggered && defaultValue) {
+            const selectedDataStructure = dataStructures.find(
+                (structure) => structure.name === defaultValue
+            );
+
+            console.log("selected ds " + JSON.stringify(selectedDataStructure))
+            onChange(selectedDataStructure);
+            setHasOnChangeTriggered(true);
+        }
+    }, [defaultValue, dataStructures, onChange, hasOnChangeTriggered]);
+
     const handleChange = (event) => {
         
-        const selectedValue = event.target.value;
-        const selectedDataStructure = dataStructures.find(
-            (structure) => structure.name === selectedValue
-        );
+            const selectedValue = event.target.value;
+            const selectedDataStructure = dataStructures.find(
+                (structure) => structure.name === selectedValue
+            );
 
+            if (onChange) {
+                onChange(selectedDataStructure);
+            }
 
+            if (selectedDataStructure) {
 
-        if (onChange) {
-            onChange(selectedDataStructure);
-        }
+                console.log(selectedDataStructure)
+                register(``).onChange({
+                    target: {
+                        value: selectedDataStructure.name,
+                    },
+                });
 
-        if(selectedDataStructure )
-        {
-            register(``).onChange({
-                target: {
-                    value: selectedDataStructure.name,
-                },
-            });
-
-        }
+            }
+        
     };
 
     return (
@@ -42,3 +56,6 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange,  isRe
 }
 
 export default ResponseObjectSelect;
+
+
+
