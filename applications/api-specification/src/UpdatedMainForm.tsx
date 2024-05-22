@@ -61,10 +61,8 @@ const formSchema = z.object({
                     oEndpoint: z.string(),
                     oComment: z.string(),
                     oResponse: z.string(),
-                    oRequestBody: z.object({}).optional(),
-                    oResponseObject: z.object({
-
-                    }).optional()
+                    oRequestBody: z.record(z.string()).optional(),
+                    oResponseObject: z.object({}).optional()
                 })
             ),
         })
@@ -88,9 +86,11 @@ interface ApiSpecificationFormProps {
 }
 
 export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setGeneratedOpenAPISpecification }) => {
-    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
-        resolver: zodResolver(formSchema)
-    });
+    // const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
+    //     resolver: zodResolver(formSchema)
+    // });
+
+    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>();
 
     const { errors } = formState;
 
@@ -120,7 +120,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
 
     useEffect(() => {
-        console.log("Selected Data Structures:", selectedDataStructures);
+        //console.log("Selected Data Structures:", selectedDataStructures);
         if (selectedDataStructures === undefined) {
             console.log("Selected Data Structures became undefined!");
         }
@@ -140,48 +140,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('model-iri');
     };
-
-    // const modelIri = getModelIri();
-
-    // const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
-
-    // useEffect(() => {
-    //     if (fetchedData) {
-    //         console.log('Fetched Data:', fetchedData);
-    //         setValue('apiTitle', fetchedData.apiTitle);
-    //         setValue('apiDescription', fetchedData.apiDescription);
-    //         setValue('apiVersion', fetchedData.apiVersion);
-    //         setValue('baseUrl', fetchedData.baseUrl);
-    //         //setValue('dataSpecification', fetchedData.dataSpecification);
-    //         setValue('dataStructures', fetchedData.dataStructures);
-
-    //         setSelectedDataStructures(fetchedData.dataStructures);
-    //     } else {
-    //         console.log("Fetched data is not yet available");
-    //     }
-    // }, [fetchedData, setValue]);
-
-    // const fetchDataAndSetValues = async () => {
-    //     const modelIri = getModelIri();
-    //     try {
-    //         const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
-    //         if (fetchedData) {
-    //             console.log('Fetched Data:', fetchedData);
-    //             setValue('apiTitle', fetchedData.apiTitle);
-    //             setValue('apiDescription', fetchedData.apiDescription);
-    //             setValue('apiVersion', fetchedData.apiVersion);
-    //             setValue('baseUrl', fetchedData.baseUrl);
-    //             setValue('dataStructures', fetchedData.dataStructures);
-    //             setSelectedDataStructures(fetchedData.dataStructures);
-
-
-    //         } else {
-    //             console.log("Fetched data is not yet available");
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching and setting values:', error);
-    //     }
-    // };
 
     const modelIri = getModelIri();
 
@@ -203,26 +161,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                 setValue('baseUrl', fetchedData.baseUrl);
                 setValue('dataStructures', fetchedData.dataStructures);
                 setSelectedDataStructures(fetchedData.dataStructures);
-
-                // fetchedData.dataStructures.forEach((dataStructure, dataIndex) => {
-                //     dataStructure.operations.forEach((operation, operationIndex) => {
-                //         const defaultValue = operation.oResponseObject?.givenName || '';
-                //         register(`dataStructures.${dataIndex}.operations.${operationIndex}.oResponseObject.givenName`).onChange({
-                //             target: {
-                //                 value: defaultValue,
-                //             },
-                //         });
-
-                //         // console.log(getValues(`dataStructures.${dataIndex}.operations.${operationIndex}.oResponseObject.givenName`))
-                //         // // Inside the nested forEach loop
-                //         // dataStructure.fields.forEach((field) => {
-                //         //     const fieldPath: `dataStructures.${number}.operations.${number}.oRequestBody.${string}` = `dataStructures.${dataIndex}.operations.${operationIndex}.oRequestBody.${field.name}`;
-                //         //     const fieldChecked = field.isChecked || false;
-                //         //     setValue(fieldPath, fieldChecked);
-                //         // });
-
-                //     });
-                // });
             }
             else {
                 console.log("Fetched data is not yet available");
@@ -235,11 +173,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
             setFetchingData(false);
         }
     };
-
-
-
-
-
 
     /* END - GET Presaved configuration */
 
@@ -275,7 +208,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         console.log("RAW DDATA" + JSON.stringify(data))
         //console.log("these are the values" + JSON.stringify(getValues()))
         const newData = getValues();
-        await formSchema.parseAsync(newData);
+        //await formSchema.parseAsync(newData);
 
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -450,7 +383,8 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                             <h4>Operations:</h4>
                             {!fetchingData && field.operations.map((op, opIndex) => (
                                 <OperationCard
-                                    defaultValue={fetchedData?.dataStructures[index]?.operations[opIndex]?.oResponseObject?.givenName || ''}
+                                    defaultValue={fetchedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
+                                    //defaultValue= {getValues(`dataStructures.${index}.operations.${opIndex}.oResponseObject.givenName`) || ''}
                                     key={opIndex}
                                     operationIndex={opIndex}
                                     removeOperation={removeOperation}
@@ -468,7 +402,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
                             {/* Add operation button */}
                             <Button
-                                className="bg-blue-500 hover:bg-blue-400"
+                                className="zbg-blue-500 hover:bg-blue-400"
                                 type="button"
                                 onClick={() => addOperation(index)}
                             >

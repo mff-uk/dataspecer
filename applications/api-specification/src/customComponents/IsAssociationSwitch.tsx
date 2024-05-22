@@ -92,16 +92,15 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
                     <label>Target Datastructure: </label>
                     <ResponseObjectSelect
                         index={index}
-                        defaultValue = {defaultValue}
                         operationIndex={operationIndex}
-                        //defaultValue={defaultValue}
+                        defaultValue={defaultValue}
                         register={register}
                         dataStructures={objectFields}
                         getValues = {getValues}
                         isResponseObj={true}
                         onChange={(selectedDataStructure) => {
                             setSelectedResponseObject(selectedDataStructure);
-                            const responseObjectPath = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+                            const responseObjectPath = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
                             setValue(responseObjectPath, selectedDataStructure.name);
                         }}
                     />

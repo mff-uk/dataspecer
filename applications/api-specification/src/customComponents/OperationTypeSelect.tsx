@@ -126,7 +126,7 @@
 // export default OperationTypeSelect;
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RequestBodyComponent from './RequestBodyComponent';
 import pluralize from 'pluralize';
 
@@ -164,12 +164,14 @@ interface OperationTypeSelectProps {
     selectedResponseObject?: string;
     isCollection: boolean;
     associationModeOn: boolean;
+    getValues: any
 
 }
 
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     index,
     operationIndex,
+    getValues,
     register,
     setValue,
     dataStructure,
@@ -184,13 +186,26 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
     const [selectedOperationType, setSelectedOperationType] = useState('');
 
+    
     const handleChange = (event) => {
         const selectedValue = event.target.value;
         setSelectedOperationType(selectedValue);
     };
 
-    const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
+    useEffect(() => {
+        const currentValue = getValues(path);
+    
+        if (currentValue && selectedOperationType === '') {
+            setSelectedOperationType(currentValue);
+        }
 
+        console.log("THIS IS SET" + currentValue)
+    }, [path, getValues, selectedOperationType]);
+    
+    
+
+    const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
+    //console.log("CURRENT OP TYPE" + selectedOperationType)
     return (
         <>
             {/* Operation Type Label */}
@@ -253,6 +268,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                     operationIndex={operationIndex}
                     register={register}
                     setValue={setValue}
+                    getValues = {getValues}
                     dataStructure={selectedResponseObject && associationModeOn ? selectedResponseObject : dataStructure}
                     allDataStructures={allDataStructures}
                     responseDataStructures={responseObjectFields}

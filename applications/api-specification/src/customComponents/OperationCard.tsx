@@ -41,10 +41,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     //console.log(defaultValue + "DEFAULT VALUE IN THE OPERATION CARD")
 
     useEffect(() => {
-        // Path to monitor
         const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-        
-        // Retrieve the saved value
         const savedValue = getValues(path);
 
         // Log the saved value
@@ -127,6 +124,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructure={selectedDataStructure}
                         allDataStructures={fetchedDataStructures}
                         setValue={setValue}
+                        getValues = {getValues}
                         responseObjectFields={responseObjectFields}
                         selectedResponseObject={selectedResponseObject}
                         isCollection={isCollection}

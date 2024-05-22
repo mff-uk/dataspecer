@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 function ResponseObjectSelect({ index, register, dataStructures, onChange, isResponseObj, operationIndex, getValues, defaultValue }) {
     let path = '';
 
-    path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+    path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
 
     const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
     
@@ -14,9 +14,10 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange, isRes
                 (structure) => structure.name === defaultValue
             );
 
-            console.log("selected ds " + JSON.stringify(selectedDataStructure))
             onChange(selectedDataStructure);
             setHasOnChangeTriggered(true);
+
+            console.log("THIS IS MY " + JSON.stringify(selectedDataStructure))
         }
     }, [defaultValue, dataStructures, onChange, hasOnChangeTriggered]);
 

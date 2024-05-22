@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Checkbox } from '../components/ui/checkbox';
-import { DataStructure, Field as DataField} from '@/Models/DataStructureNex';
+import { DataStructure, Field as DataField } from '@/Models/DataStructureNex';
 
 interface RequestBodyProps {
     index: number;
@@ -11,7 +11,8 @@ interface RequestBodyProps {
     setValue: any;
     allDataStructures?: DataStructure[];
     responseDataStructures?: DataStructure[];
-    associationModeOn: boolean
+    associationModeOn: boolean,
+    getValues: any
 }
 
 const handleCheckboxChange = (fieldPath, checked, setValue) => {
@@ -25,23 +26,24 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     register,
     setValue,
     allDataStructures,
-    responseDataStructures, 
-    associationModeOn
+    responseDataStructures,
+    associationModeOn,
+    getValues
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.oRequestBody`;
 
+    useEffect(() => {
+        // Update checkbox values when form values change
+        const requestBodyValues = getValues(path);
+        setValue(path, requestBodyValues);
+    }, []);
+
     let targetDataStructure = allDataStructures?.find((ds) => ds.givenName === dataStructure);
 
-    //console.log(dataStructure)
-    //console.log("targetDataStructure is " + JSON.stringify(targetDataStructure))
     let responseDataStructure;
 
-    //console.log("associationModeOn req body "  + associationModeOn)
-    
-    if(responseDataStructures)
-    {
-        responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).givenName);
-        //console.log("responseDataStructure is" + JSON.stringify(responseDataStructure))
+    if (responseDataStructures) {
+        responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).name);
     }
 
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
@@ -51,11 +53,18 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                     <h3>Request Body</h3>
                     {responseDataStructure.fields.map((field) => (
                         <div key={field.name}>
-                            <Checkbox
+                            {/* <Checkbox
                                 id={`${path}.${field.name}`}
                                 checked={register(`${path}.${field.name}`).value}
                                 onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
+                            /> */}
+
+                            <Checkbox
+                                id={`${path}.${field.name}`}
+                                checked={getValues(`${path}.${field.name}`)} // Use getValues to retrieve the current value
+                                onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
+
                             <label htmlFor={`${path}.${field.name}`}>
                                 {field.name}
                             </label>
@@ -64,7 +73,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                 </Card>
             </div>
         );
-    } 
+    }
 
     if (!associationModeOn && targetDataStructure) {
         //console.log('Using targetDataStructure:', JSON.stringify(targetDataStructure));
@@ -74,11 +83,18 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                     <h3>Request Body</h3>
                     {targetDataStructure.fields.map((field) => (
                         <div key={field.name}>
-                            <Checkbox
+                            {/* <Checkbox
                                 id={`${path}.${field.name}`}
                                 checked={register(`${path}.${field.name}`).value}
                                 onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
+                            /> */}
+
+                            <Checkbox
+                                id={`${path}.${field.name}`}
+                                checked={getValues(`${path}.${field.name}`)} // Use getValues to retrieve the current value
+                                onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
+
                             <label htmlFor={`${path}.${field.name}`}>
                                 {field.name}
                             </label>
@@ -87,9 +103,8 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                 </Card>
             </div>
         );
-    } 
-    else 
-    {
+    }
+    else {
         console.log('Error: Data structure not found');
         return <div>Error: Data structure not found</div>;
     }
