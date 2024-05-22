@@ -272,6 +272,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
 
+        console.log("RAW DDATA" + JSON.stringify(data))
         //console.log("these are the values" + JSON.stringify(getValues()))
         const newData = getValues();
         await formSchema.parseAsync(newData);
