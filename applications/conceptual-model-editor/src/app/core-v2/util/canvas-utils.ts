@@ -1,14 +1,14 @@
 import {
-    SemanticModelClass,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
     isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { useCanvasContext } from "../context/canvas-context";
 import { useEffect, useState } from "react";
 
@@ -40,7 +40,7 @@ export const useCanvasVisibility = (entityId: string) => {
         if (isOnCanvas != newOnCanvas) {
             setIsOnCanvas(newOnCanvas);
         }
-    }, [visibleOnCanvas]);
+    }, [isOnCanvas, visibleOnCanvas]);
 
     return { isOnCanvas };
 };

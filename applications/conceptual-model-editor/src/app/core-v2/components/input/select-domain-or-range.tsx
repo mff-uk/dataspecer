@@ -7,6 +7,7 @@ import { OverrideFieldCheckbox } from "./override-field-checkbox";
 import type { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityProxy } from "../../util/detail-utils";
 import type { WithOverrideHandlerType } from "../../util/profile-utils";
+import { getDuplicateNames } from "../../util/name-utils";
 
 const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsage; duplicateNames: Set<string> }) => {
     const { resource, duplicateNames } = props;
@@ -34,21 +35,7 @@ export const SelectDomainOrRange = (props: {
     const { classes2, profiles } = useClassesContext();
 
     const classesOrProfiles = [...classes2, ...profiles.filter(isSemanticModelClassUsage)];
-    const duplicateNames = new Set(
-        Object.entries(
-            classesOrProfiles
-                .map((c) => EntityProxy(c).name)
-                .reduce((prev: { [key: string]: number }, curr) => {
-                    if (!curr) {
-                        return prev;
-                    }
-                    prev[curr] = (prev[curr] || 0) + 1;
-                    return prev;
-                }, {})
-        )
-            .filter(([_, occurrence]) => occurrence > 1)
-            .map(([name, _]) => name)
-    );
+    const duplicateNames = getDuplicateNames(classesOrProfiles);
 
     let value: string;
     if (concept == null) {
