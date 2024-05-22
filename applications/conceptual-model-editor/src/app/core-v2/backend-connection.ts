@@ -1,8 +1,8 @@
 import { type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { BackendPackageService, ResourceEditable } from "@dataspecer/core-v2/project";
+import { BackendPackageService, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
@@ -23,8 +23,9 @@ export const useBackendConnection = () => {
         models: EntityModel[],
         visualModels: VisualEntityModel[]
     ) => {
-        const pkg = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
-        console.log(`updated models for package ${packageId}`, models, visualModels, pkg);
+        const status = await service.updateSemanticModelPackageModels(packageId, models, visualModels);
+        console.log(`updated models for package ${packageId}`, models, visualModels, status);
+        return status;
     };
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
@@ -40,15 +41,10 @@ export const useBackendConnection = () => {
         return pkg;
     };
 
-    const listViews = () => {
-        return ["view-1", "view-xyz"];
-    };
-
     return {
         service,
         getPackageFromBackend,
         updateSemanticModelPackageModels,
-        listViews,
         getModelsFromBackend,
         createPackage,
     };

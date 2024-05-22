@@ -12,7 +12,6 @@ This project uses:
 -   React.js 18
 -   Tailwind.css for styling
 -   ReactFlow for visualization
--   JointJS
 
 # Build instructions
 
@@ -45,6 +44,5 @@ npm run dev
 
 -   tailwind.css for styling
 -   ReactFlow for visualization
--   JointJS
 -   IRI for checking that an IRI is absolute or relative
 -   html-to-image for generating svg images

@@ -1,5 +1,6 @@
 import {
     LanguageString,
+    SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -24,6 +25,10 @@ import { TwoWaySwitch } from "../components/input/two-way-switch";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
+import {
+    SemanticModelClassUsage,
+    SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const AssociationComponent = (props: {
     from: string;
@@ -111,7 +116,12 @@ export const useCreateConnectionDialog = () => {
         setConnectionCreated(null as unknown as Connection);
         close();
     };
+
     const localOpen = (connection: Connection) => {
+        if (!connection || !(connection.source && connection.target)) {
+            alert("couldn't find source:" + (connection.source ?? "") + ", or target:" + (connection.target ?? ""));
+            return;
+        }
         setConnectionCreated(connection);
         open();
     };
@@ -123,19 +133,25 @@ export const useCreateConnectionDialog = () => {
     };
 
     const CreateConnectionDialog = () => {
-        if (!connectionCreated) {
-            localClose();
-            return <></>;
-        }
         const { source: sourceId, target: targetId } = connectionCreated;
-        if (!sourceId || !targetId) {
-            localClose();
-            return <></>;
-        }
+
         const { language: preferredLanguage } = useConfigurationContext();
         const { classes2: c, profiles: p } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
+
+        const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
+        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
+            name: {},
+            description: {},
+            ends: [],
+        });
+
+        const [newIri, setNewIri] = useState(getRandomName(7));
+        const [iriHasChanged, setIriHasChanged] = useState(false);
+
+        const modelIri = getModelIri(models.get(activeModel));
 
         const source = c.find((cls) => cls.id == sourceId) ?? p.find((prof) => prof.id == sourceId);
         const target = c.find((cls) => cls.id == targetId) ?? p.find((prof) => prof.id == targetId);
@@ -149,23 +165,10 @@ export const useCreateConnectionDialog = () => {
         const sourceName = EntityProxy(source, preferredLanguage).name;
         const targetName = EntityProxy(target, preferredLanguage).name;
 
-        const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
-        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
-
-        const modelIri = getModelIri(models.get(activeModel));
-
-        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
-            name: {},
-            description: {},
-            ends: [],
-        });
-        const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(getRandomName(7));
-
         const handleSaveConnection = () => {
             const saveModel = models.get(activeModel);
             if (!saveModel || !(saveModel instanceof InMemorySemanticModel)) {
-                alert(`create-conn-dialog: unknown active model '${activeModel}, ${saveModel?.getId()}'`);
+                alert(`create-conn-dialog: unknown active model '${activeModel}, ${saveModel?.getId() ?? ""}'`);
                 close();
                 return;
             }
@@ -183,8 +186,8 @@ export const useCreateConnectionDialog = () => {
             if (connectionType == "generalization") {
                 result = createConnection(saveModel, {
                     type: "generalization",
-                    child: sourceId,
-                    parent: targetId,
+                    child: source.id,
+                    parent: target.id,
                     iri: newIri,
                 } as GeneralizationConnectionType);
                 console.log("creating generalization ", result, target, source);
@@ -227,12 +230,12 @@ export const useCreateConnectionDialog = () => {
                     <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
                         <DialogDetailRow2 detailKey="source">
                             <span>
-                                {sourceName} -- ({sourceId})
+                                {sourceName} -- ({source.id})
                             </span>
                         </DialogDetailRow2>
                         <DialogDetailRow2 detailKey="target">
                             <span>
-                                {targetName} -- ({targetId})
+                                {targetName} -- ({target.id})
                             </span>
                         </DialogDetailRow2>
                         <DialogDetailRow2 detailKey="iri">
@@ -263,8 +266,8 @@ export const useCreateConnectionDialog = () => {
                         }
                     >
                         <AssociationComponent
-                            from={sourceId}
-                            to={targetId}
+                            from={source.id}
+                            to={target.id}
                             setAssociation={setAssociation}
                             key="association-component-create-connection"
                             disabled={connectionType != "association"}

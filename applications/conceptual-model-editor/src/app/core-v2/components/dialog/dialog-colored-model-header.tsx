@@ -1,10 +1,10 @@
-import { EntityModel } from "@dataspecer/core-v2";
+import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useModelGraphContext } from "../../context/model-context";
 import { DialogDetailRow2 } from "./dialog-detail-row";
 import { getModelDisplayName } from "../../util/name-utils";
 import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { EntityDetailSupportedType } from "../../util/detail-utils";
+import type { EntityDetailSupportedType } from "../../util/detail-utils";
 import { getLanguagesForNamedThing } from "../../util/language-utils";
 
 const filterInMemoryModels = (models: Map<string, EntityModel>) => {
@@ -92,7 +92,7 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                     defaultValue={activeModel}
                 >
                     {inMemoryModels.map(({ id, alias }) => (
-                        <option key={id + alias} value={id}>
+                        <option key={id + (alias ?? "")} value={id}>
                             {alias ? alias + ":" : null}
                             {id}
                         </option>

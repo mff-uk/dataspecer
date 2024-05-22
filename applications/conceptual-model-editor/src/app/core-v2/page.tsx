@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     SemanticModelRelationship,
@@ -10,27 +13,25 @@ import {
     isSemanticModelRelationship,
     SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ModelGraphContext } from "./context/model-context";
-import Header from "./header";
-import { Visualization } from "./visualization";
-import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
-import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
-import { useBackendConnection } from "./backend-connection";
-import { usePackageSearch } from "./util/package-search";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { Catalog } from "./catalog/catalog";
 import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { useViewParam } from "./util/view-param";
+import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
+import { ModelGraphContext } from "./context/model-context";
 import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { bothEndsHaveAnIri } from "./util/relationship-utils";
 import { Warning, WarningsContext } from "./context/warnings-context";
+import Header from "./header";
+import { useBackendConnection } from "./backend-connection";
+import { Catalog } from "./catalog/catalog";
+import { Visualization } from "./visualization";
+import { bothEndsHaveAnIri } from "./util/relationship-utils";
+import { usePackageSearch } from "./util/package-search";
+import { useViewParam } from "./util/view-param";
 import { getRandomName } from "../utils/random-gen";
+import { DialogsContextProvider } from "./context/dialogs-context";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -99,7 +100,7 @@ const Page = () => {
 
         const getModels = () => getModelsFromBackend(pId);
 
-        getModels()
+        const cleanup = getModels()
             .then((models) => {
                 console.log("getModels: then: models:", models);
                 const [entityModels, visualModels2] = models;
@@ -128,35 +129,40 @@ const Page = () => {
 
                 setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m])));
                 setModels(new Map(entityModels.map((m) => [m.getId(), m])));
-                setAggregatorView(aggregator.getView());
-                return visualModels2;
-            })
-            .then((vm) => {
-                const availableVisualModelIds = vm.map((m) => m.getId());
+
+                const aggrView = aggregator.getView();
+                const availableVisualModelIds = visualModels2.map((m) => m.getId());
+
                 if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
-                    aggregatorView.changeActiveVisualModel(viewIdFromURLParams);
+                    aggrView.changeActiveVisualModel(viewIdFromURLParams);
                 } else {
                     // choose the first available model
-                    const modelId = vm.at(0)?.getId();
+                    const modelId = visualModels2.at(0)?.getId();
                     if (modelId) {
-                        aggregatorView.changeActiveVisualModel(modelId);
+                        aggrView.changeActiveVisualModel(modelId);
                     }
                 }
+
+                setAggregatorView(aggrView);
+                return () => {
+                    for (const m of entityModels) {
+                        aggregator.deleteModel(m);
+                    }
+                    for (const m of visualModels2) {
+                        aggregator.deleteModel(m);
+                    }
+                    setModels(new Map());
+                    setVisualModels(new Map());
+                };
             })
             .catch((reason) => {
                 console.error(reason);
                 setPackage(null);
             });
-        return () => {
+
+        return async () => {
             console.log("models cleanup in package effect");
-            for (const [_, m] of models) {
-                aggregator.deleteModel(m);
-            }
-            for (const [_, m] of visualModels) {
-                aggregator.deleteModel(m);
-            }
-            setVisualModels(new Map<string, VisualEntityModel>());
-            setModels(new Map<string, EntityModel>());
+            (await cleanup)?.();
         };
     }, []);
 
@@ -304,13 +310,15 @@ const Page = () => {
                         }}
                     >
                         <WarningsContext.Provider value={{ warnings, setWarnings }}>
-                            <Header />
-                            <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                                <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
-                                    <Catalog />
-                                    <Visualization />
-                                </div>
-                            </main>
+                            <DialogsContextProvider>
+                                <Header />
+                                <main className="h-[calc(100%-48px)] w-full bg-teal-50">
+                                    <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                                        <Catalog />
+                                        <Visualization />
+                                    </div>
+                                </main>
+                            </DialogsContextProvider>
                         </WarningsContext.Provider>
                     </ClassesContext.Provider>
                 </ModelGraphContext.Provider>

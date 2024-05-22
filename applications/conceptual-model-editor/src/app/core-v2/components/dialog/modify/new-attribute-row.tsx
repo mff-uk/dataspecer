@@ -1,8 +1,8 @@
-import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { type SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityProxy } from "../../../util/detail-utils";
 import { useConfigurationContext } from "../../../context/configuration-context";
 import {
-    SemanticModelRelationshipUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getLocalizedStringFromLanguageString } from "../../../util/language-utils";
@@ -16,7 +16,12 @@ export const NewRemovableAttributeRow = (props: {
     const { language } = useConfigurationContext();
     const { attribute, deleteButtonClicked } = props;
 
-    const attr = attribute.ends?.at(1)!;
+    const attr = attribute.ends?.at(1);
+    if (!attr) {
+        console.warn("unsupported type of an attribute", attribute);
+        return;
+    }
+
     const name = getLocalizedStringFromLanguageString(attr.name, language) ?? "no iri";
     const description = getLocalizedStringFromLanguageString(attr.description, language) ?? "";
     return (
@@ -47,7 +52,12 @@ export const NewRemovableAttributeProfileRow = (props: {
         return EntityProxy(profiledEntity, language).name;
     };
 
-    const attr = resource.ends?.at(1)!;
+    const attr = resource.ends?.at(1);
+    if (!attr) {
+        console.warn("unsupported type of an attribute profile", resource);
+        return;
+    }
+
     const name = getLocalizedStringFromLanguageString(attr.name, language);
     const displayName = name ?? `nameless profile of ${getProfiledEntityName() ?? resource.usageOf}`;
 

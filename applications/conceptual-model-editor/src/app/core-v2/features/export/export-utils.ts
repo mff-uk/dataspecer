@@ -1,5 +1,5 @@
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";

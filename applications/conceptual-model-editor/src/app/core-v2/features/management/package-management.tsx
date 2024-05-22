@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { useBackendConnection } from "../../backend-connection";
 import { SavePackageAndLeaveButton, SavePackageButton } from "../../components/management/buttons/save-package-buttons";
 import { useModelGraphContext } from "../../context/model-context";
@@ -9,22 +8,43 @@ const SAVE_PACKAGE_AND_LEAVE = "save package to backend and leave back to manage
 const YOU_NEED_A_PACKAGE_ON_BACKEND =
     "to be able to save to backend, make sure you are in a package. Start with visiting manager/v2";
 
+const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
+
 export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const { packageId, setPackage } = usePackageSearch();
+    const { packageId } = usePackageSearch();
     const { models, visualModels } = useModelGraphContext();
-    const router = useRouter();
+    // const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();
 
     const handleSavePackage = async () => {
         if (!packageId) {
-            return;
+            return false;
         }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
+        const result = await updateSemanticModelPackageModels(
+            packageId,
+            [...models.values()],
+            [...visualModels.values()]
+        );
+
+        // if (result) {
+        //     showMessage("success");
+        // } else {
+        //     showMessage("fail");
+        // }
+
+        return result;
     };
 
     const handleSavePackageAndLeave = async () => {
-        await handleSavePackage();
-        router.push("/manager");
+        handleSavePackage().then(() => {
+            if (!MGR_REDIRECT_PATH) {
+                console.error("manager path not set", MGR_REDIRECT_PATH);
+                return;
+            }
+            const a = document.createElement("a");
+            a.setAttribute("href", MGR_REDIRECT_PATH);
+            a.click();
+        });
     };
 
     return (

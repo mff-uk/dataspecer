@@ -250,7 +250,13 @@ class NodeClassic implements INodeClassic {
         }, 0);
 
         // TODO: Doesn't probably work properly when having profile of profile
-        const iriLen = this.isProfile ? this.graph.nodes[(this.node as unknown as SemanticModelClassUsage).usageOf].node.iri.length : this.node.iri.length;        
+        // TODO: ?.node for now     
+        let iriLen = this.isProfile ? this.graph.nodes[(this.node as unknown as SemanticModelClassUsage).usageOf]?.node.iri.length : this.node.iri.length;        
+        // TODO: !!! Default for now - definitely change later
+        // TODO: Wait so so profiles also have iri?????
+        if(iriLen === undefined) {
+            iriLen = this.node.iri.length;
+        }
         const MAX_WIDTH = TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER + 
                           Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
                                    WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);

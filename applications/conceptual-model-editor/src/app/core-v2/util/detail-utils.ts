@@ -1,8 +1,8 @@
 import {
-    SemanticModelClass,
-    SemanticModelGeneralization,
-    SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
+    type SemanticModelClass,
+    type SemanticModelGeneralization,
+    type SemanticModelRelationship,
+    type SemanticModelRelationshipEnd,
     isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelGeneralization,
@@ -16,8 +16,8 @@ import {
     getUsageNoteLanguageString,
 } from "./name-utils";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
@@ -31,7 +31,7 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";
 import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { Entity } from "@dataspecer/core-v2";
+import type { Entity } from "@dataspecer/core-v2";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass

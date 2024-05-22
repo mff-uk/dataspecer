@@ -1,35 +1,23 @@
 import { useMemo } from "react";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useDownload } from "../export/download";
-import { usePackageSearch } from "../../util/package-search";
-import { useQueryParams } from "../../util/query-params";
 import { useClassesContext } from "../../context/classes-context";
 import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-utils";
 import { ExportButton } from "../../components/management/buttons/export-button";
 import { useAutoSave } from "../autosave";
 
 export const ExportManagement = () => {
-    const {
-        aggregator,
-        aggregatorView,
-        models,
-        addModelToGraph,
-        visualModels,
-        setAggregatorView,
-        addVisualModelToGraph,
-        cleanModels,
-    } = useModelGraphContext();
+    const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
+        useModelGraphContext();
     const { sourceModelOfEntityMap } = useClassesContext();
     const { saveWorkspaceState } = useLocalStorage();
-    const { setPackage } = usePackageSearch();
-    const { clearQueryParams } = useQueryParams();
     const { download } = useDownload();
     const { AutoSaveButton } = useAutoSave();
     const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
@@ -70,13 +58,10 @@ export const ExportManagement = () => {
         visualModels: VisualEntityModel[],
         activeView?: string
     ) => {
-        cleanModels();
-
-        addVisualModelToGraph(...visualModels);
+        replaceModels(entityModels, visualModels);
+        // addVisualModelToGraph(...visualModels);
         aggregatorView.changeActiveVisualModel(activeView ?? visualModels.at(0)?.getId() ?? null);
-
-        addModelToGraph(...entityModels);
-
+        // addModelToGraph(...entityModels);
         setAggregatorView(aggregator.getView());
         console.log("export-management: use configuration finished");
     };
@@ -107,7 +92,7 @@ export const ExportManagement = () => {
         const configuration = await uploadConfiguration();
 
         const loadConfiguration = async (configuration: string) => {
-            const { packageId, modelDescriptors, activeView } = JSON.parse(configuration) as ExportedConfigurationType;
+            const { modelDescriptors, activeView } = JSON.parse(configuration) as ExportedConfigurationType;
             const [entityModels, visualModels] = await service.getModelsFromModelDescriptors(modelDescriptors);
 
             loadWorkSpaceConfiguration(entityModels, visualModels, activeView);
@@ -115,8 +100,6 @@ export const ExportManagement = () => {
 
         if (configuration) {
             console.log("configuration is gonna be used");
-            clearQueryParams();
-            setPackage(null);
             loadConfiguration(configuration);
         }
     };

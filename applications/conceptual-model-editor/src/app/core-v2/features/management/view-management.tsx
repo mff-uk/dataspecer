@@ -5,8 +5,15 @@ import { useViewParam } from "../../util/view-param";
 import { DropDownCatalog } from "../../components/management/dropdown-catalog";
 
 export const ViewManagement = () => {
-    const { aggregatorView, aggregator, setAggregatorView, addVisualModelToGraph } = useModelGraphContext();
-    const { visualModels } = useModelGraphContext();
+    const {
+        aggregatorView,
+        aggregator,
+        setAggregatorView,
+        addVisualModelToGraph,
+        visualModels,
+        removeVisualModelFromModels,
+    } = useModelGraphContext();
+
     const { viewId, setViedIdSearchParam } = useViewParam();
 
     const activeViewId = aggregatorView.getActiveViewId();
@@ -49,8 +56,8 @@ export const ViewManagement = () => {
         if (!visualModel) {
             return;
         }
-        aggregator.deleteModel(visualModel);
-        setAggregatorView(aggregator.getView());
+        console.log("viewDeletedHandler: ", viewId, visualModel);
+        removeVisualModelFromModels(viewId);
     };
 
     return (

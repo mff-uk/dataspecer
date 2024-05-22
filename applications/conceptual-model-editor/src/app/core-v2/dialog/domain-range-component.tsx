@@ -1,13 +1,16 @@
-import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import type {
+    SemanticModelRelationship,
+    SemanticModelRelationshipEnd,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { CardinalityOptions } from "../components/cardinality-options";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import React, { Dispatch, SetStateAction } from "react";
+import type { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import React, { type Dispatch, type SetStateAction } from "react";
 import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
 import { SelectDomainOrRange } from "../components/input/select-domain-or-range";
 import { isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { SelectAttributeRange } from "../components/input/select-attribute-range";
-import { isAnAttribute, isAnEdge } from "../util/relationship-utils";
-import { OverriddenFieldsType } from "../util/profile-utils";
+import { isAnAttribute } from "../util/relationship-utils";
+import type { OverriddenFieldsType } from "../util/profile-utils";
 
 export const DomainRangeComponent = (props: {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;

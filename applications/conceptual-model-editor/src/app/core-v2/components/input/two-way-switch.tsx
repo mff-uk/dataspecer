@@ -1,5 +1,5 @@
 export const TwoWaySwitch = (props: {
-    choices: string[];
+    choices: [string, string];
     selected: string;
     onChoiceSelected: (choice: string) => void;
     disabled?: boolean;
@@ -23,22 +23,13 @@ export const TwoWaySwitch = (props: {
         );
     };
 
-    if (choices.length == 0 || choices.length > 2) {
-        return;
-    } else if (choices.length == 1) {
-        const choice = choices[0]!;
-        return (
-            <div>
-                <ChoiceButton choice={choice} />
-            </div>
-        );
-    }
+    const [choice1, choice2] = choices;
 
     return (
         <div>
-            <ChoiceButton choice={choices[0]!} />
+            <ChoiceButton choice={choice1} />
             <Divider />
-            <ChoiceButton choice={choices[1]!} />
+            <ChoiceButton choice={choice2} />
         </div>
     );
 };

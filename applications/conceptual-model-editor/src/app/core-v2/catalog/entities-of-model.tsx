@@ -1,49 +1,49 @@
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
+import { useEffect, useMemo, useState } from "react";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { useEffect, useMemo, useState } from "react";
-import { useClassesContext } from "../context/classes-context";
-import { InputEntityRow } from "../components/catalog-rows/input-row";
-import { useModelGraphContext } from "../context/model-context";
 import {
-    SemanticModelClass,
-    SemanticModelRelationship,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
     isSemanticModelAttribute,
+    isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useEntityDetailDialog } from "../dialog/entity-detail-dialog";
-import { useModifyEntityDialog } from "../dialog/modify-entity-dialog";
-import { useCreateClassDialog } from "../dialog/create-class-dialog";
-import { useCreateProfileDialog, ProfileDialogSupportedTypes } from "../dialog/create-profile-dialog";
 import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getModelDetails, sourceModelOfEntity } from "../util/model-utils";
+import { CanvasContext } from "../context/canvas-context";
+import { useClassesContext } from "../context/classes-context";
+import { useModelGraphContext } from "../context/model-context";
+import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
+import { InputEntityRow } from "../components/catalog-rows/input-row";
+import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
 import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
 import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
-import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
-import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
-import { CanvasContext } from "../context/canvas-context";
+import { getModelDetails } from "../util/model-utils";
 import { compareMaps } from "../util/utils";
+import { useDialogsContext } from "../context/dialogs-context";
 
-const getEntitiesToShow = (entityType: "class" | "relationship" | "attribute" | "profile", model: EntityModel) => {
-    const { classes2, relationships, profiles, sourceModelOfEntityMap } = useClassesContext();
-    const modelId = model.getId();
-
+const getEntitiesToShow = (
+    entityType: "class" | "relationship" | "attribute" | "profile",
+    model: EntityModel
+): (SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage)[] => {
     if (entityType == "class") {
-        return classes2.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(isSemanticModelClass);
     } else if (entityType == "relationship") {
-        return relationships
-            .filter((v) => !isSemanticModelAttribute(v))
-            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities())
+            .filter(isSemanticModelRelationship)
+            .filter((e) => !isSemanticModelAttribute(e));
     } else if (entityType == "attribute") {
-        return relationships
-            .filter(isSemanticModelAttribute)
-            .filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(isSemanticModelAttribute);
     } else {
-        // profile
-        return profiles.filter((v) => sourceModelOfEntityMap.get(v.id) == modelId);
+        return Object.values(model.getEntities()).filter(
+            (e): e is SemanticModelClassUsage | SemanticModelRelationshipUsage =>
+                isSemanticModelClassUsage(e) || isSemanticModelRelationshipUsage(e)
+        );
     }
 };
 
@@ -55,22 +55,27 @@ export const EntitiesOfModel = (props: {
 
     const { profiles, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
-    const { isEntityDetailDialogOpen, EntityDetailDialog, openEntityDetailDialog } = useEntityDetailDialog();
-    const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
-    const { isCreateClassDialogOpen, CreateClassDialog, openCreateClassDialog } = useCreateClassDialog();
-    const { isCreateProfileDialogOpen, CreateProfileDialog, openCreateProfileDialog } = useCreateProfileDialog();
-
+    const { openCreateClassDialog } = useDialogsContext();
     const { ModelEntitiesList } = useModelEntitiesList(model);
 
-    const { id: modelId } = useMemo(() => getModelDetails(model), [models]);
+    const { id: modelId } = useMemo(() => getModelDetails(model), [model]);
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
     const entities = getEntitiesToShow(entityType, model);
 
     const localGetCurrentVisibilityOnCanvas = () => {
-        const entitiesAndProfiles = [...entities, ...profiles];
-        // console.log("in localGetCurrentVisibilityOnCanvas", activeVisualModel, entitiesAndProfiles, modelId);
-        return getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel);
+        const entitiesAndProfiles = [...getEntitiesToShow(entityType, model), ...profiles];
+        const onCanvas = new Map(getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel));
+        // console.trace(
+        //     "in localGetCurrentVisibilityOnCanvas",
+        //     onCanvas,
+        //     entities,
+        //     profiles,
+        //     activeVisualModel,
+        //     entitiesAndProfiles,
+        //     modelId
+        // );
+        return onCanvas;
     };
 
     const [visibleOnCanvas, setVisibleOnCanvas] = useState(
@@ -78,14 +83,9 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        setVisibleOnCanvas(new Map(localGetCurrentVisibilityOnCanvas()));
-    }, []);
-
-    useEffect(() => {
         console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
         setVisibleOnCanvas(() => {
-            // console.log("first setting visibility on canvas", activeVisualModel, modelId);
-            return new Map(localGetCurrentVisibilityOnCanvas());
+            return localGetCurrentVisibilityOnCanvas();
         });
 
         // TODO: visibility not shown after loading in dev mode
@@ -101,7 +101,7 @@ export const EntitiesOfModel = (props: {
         const visibilityListenerUnsubscribe = activeVisualModel?.subscribeToChanges((updated, removed) => {
             setVisibleOnCanvas((prev) => {
                 const localMap = new Map(prev);
-                for (const visualEntityId in removed) {
+                for (const visualEntityId of removed) {
                     localMap.delete(visualEntityId);
                 }
                 for (const [_, visualEntity] of Object.entries(updated)) {
@@ -138,16 +138,6 @@ export const EntitiesOfModel = (props: {
         }
     };
 
-    const handleOpenDetail = (
-        entity:
-            | SemanticModelClass
-            | SemanticModelClassUsage
-            | SemanticModelRelationship
-            | SemanticModelRelationshipUsage
-    ) => {
-        openEntityDetailDialog(entity);
-    };
-
     const handleAddConcept = (model: InMemorySemanticModel) => {
         openCreateClassDialog(model);
     };
@@ -164,21 +154,6 @@ export const EntitiesOfModel = (props: {
         if (!updateStatus) {
             activeVisualModel?.addEntity({ sourceEntityId: entityId, visible: false });
         }
-    };
-
-    const handleOpenModification = (
-        model: InMemorySemanticModel,
-        entity:
-            | SemanticModelClass
-            | SemanticModelRelationship
-            | SemanticModelClassUsage
-            | SemanticModelRelationshipUsage
-    ) => {
-        openModifyEntityDialog(entity, model);
-    };
-
-    const handleCreateUsage = (entity: ProfileDialogSupportedTypes) => {
-        openCreateProfileDialog(entity);
     };
 
     const handleRemoval = (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
@@ -198,7 +173,7 @@ export const EntitiesOfModel = (props: {
                         const callback = async () => {
                             const result = await model.search(search);
                             for (const cls of result) {
-                                await model.allowClass(cls.iri!);
+                                await model.allowClass(cls.id);
                             }
                             console.log(result);
                         };
@@ -224,10 +199,7 @@ export const EntitiesOfModel = (props: {
             entity={entity}
             indent={0}
             handlers={{
-                handleOpenDetail,
                 handleAddEntityToActiveView,
-                handleCreateUsage,
-                handleOpenModification,
                 handleRemoveEntityFromActiveView,
                 handleExpansion: toggleAllow,
                 handleRemoval,
@@ -240,10 +212,6 @@ export const EntitiesOfModel = (props: {
             <CanvasContext.Provider value={{ visibleOnCanvas, setVisibleOnCanvas }}>
                 <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
             </CanvasContext.Provider>
-            {isEntityDetailDialogOpen && <EntityDetailDialog />}
-            {isModifyEntityDialogOpen && <ModifyEntityDialog />}
-            {isCreateClassDialogOpen && <CreateClassDialog />}
-            {isCreateProfileDialogOpen && <CreateProfileDialog />}
         </>
     );
 };

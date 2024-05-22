@@ -1,5 +1,5 @@
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ReactNode, useState } from "react";
+import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+import { type ReactNode, useState } from "react";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 
 const LanguageItem = (props: {
@@ -106,7 +106,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                 {languages
                     .map((lang, i) => (
                         <LanguageItem
-                            key={lang + i}
+                            key={lang + i.toString()}
                             onClick={() => setCurrentLang(lang)}
                             onDeleted={languageDeletedHandler}
                             selected={lang == currentLang}

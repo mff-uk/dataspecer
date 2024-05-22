@@ -1,4 +1,4 @@
-import {
+import type {
     LanguageString,
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -14,7 +14,7 @@ import {
     modifyRelation,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
-import { AssociationConnectionType, ConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
+import type { ConnectionType } from "../util/edge-connection";
 import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
@@ -25,8 +25,8 @@ import {
     modifyClassUsage,
     modifyRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
-import { Entity } from "@dataspecer/core-v2";
+import type { Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import type { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
     classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
@@ -71,7 +71,6 @@ export const useClassesContext = () => {
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
         rawEntities,
-        setRawEntities,
     } = useContext(ClassesContext);
 
     const createAClass = (
@@ -95,17 +94,13 @@ export const useClassesContext = () => {
             alert("no local model found or is not of type InMemoryLocal");
             return null;
         }
+
         if (connection.type == "association") {
-            const conn = connection as AssociationConnectionType;
-            const result = model.executeOperation(createRelationship({ ...conn }));
-            return result;
-        } else if (connection.type == "generalization") {
-            const conn = connection as GeneralizationConnectionType;
-            const result = model.executeOperation(createGeneralization({ ...conn }));
+            const result = model.executeOperation(createRelationship({ ...connection }));
             return result;
         } else {
-            alert(`classes-context: create-connection: unknown type ${connection}`);
-            return null;
+            const result = model.executeOperation(createGeneralization({ ...connection }));
+            return result;
         }
     };
 
@@ -114,14 +109,14 @@ export const useClassesContext = () => {
         entityType: "class" | "class-usage",
         entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
     ) => {
-        if (entityType == "class" || entityType == "class-usage") {
-            const result = model.executeOperation(createClassUsage(entity));
-            console.log(result);
-            return result;
-        } else {
+        if (entityType != "class" && entityType != "class-usage") {
             console.error(model, entityType, entity);
-            throw new Error(`unexpected entityType ${entityType}`);
+            throw new Error("unexpected entityType");
         }
+
+        const result = model.executeOperation(createClassUsage(entity));
+        console.log(result);
+        return result;
     };
 
     const createRelationshipEntityUsage = (
@@ -131,7 +126,7 @@ export const useClassesContext = () => {
     ) => {
         if (!(entityType == "relationship" || entityType == "relationship-usage")) {
             console.error(model, entityType, entity);
-            throw new Error(`unexpected entityType ${entityType}`);
+            throw new Error("unexpected entityType");
         }
         const result = model.executeOperation(createRelationshipUsage(entity));
         console.log(result);
@@ -213,6 +208,7 @@ export const useClassesContext = () => {
     const executeMultipleOperations = (model: InMemorySemanticModel, operations: Operation[]) => {
         console.log("classes-context: bout to execute multiple operations", operations);
         const result = model.executeOperations(operations);
+        return result;
     };
 
     return {

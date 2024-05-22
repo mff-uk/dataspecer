@@ -9,7 +9,8 @@
     "test:watch": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests --watch"
   },
   "exports": {
-    ".": "./lib/entity-model/index.js", 
+    ".": "./lib/entity-model/index.js",
+    "./documentation-generator": "./lib/documentation-generator/index.js",
     "./entity-model": "./lib/entity-model/index.js",
     "./model/known-models": "./lib/model/known-models.js",
     "./project": "./lib/project/index.js",
@@ -30,18 +31,20 @@
     "./semantic-model/v1-adapters": "./lib/semantic-model/v1-adapters/index.js"
   },
   "dependencies": {
-    "@dataspecer/core": "*",
-    "@dataspecer/sgov-adapter": "*",
     "@dataspecer/backend-utils": "*",
+    "@dataspecer/core": "*",
     "@dataspecer/rdfs-adapter": "*",
+    "@dataspecer/sgov-adapter": "*",
+    "handlebars": "^4.7.8",
+    "handlebars-async-helpers": "^1.0.6",
     "n3": "^1.17.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "rimraf": "^5.0.1",
-    "typescript": "~5.4.2",
     "@types/n3": "^1.16.3",
     "jest": "^29.5.0",
-    "ts-jest": "^29.1.2"
+    "rimraf": "^5.0.1",
+    "ts-jest": "^29.1.2",
+    "typescript": "~5.4.2"
   }
 }

@@ -1,8 +1,11 @@
-import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import {
+    SemanticModelAggregator,
+    type SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import React, { useContext } from "react";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const aggregatorInstance = new SemanticModelAggregator();
@@ -64,8 +67,34 @@ export const useModelGraphContext = () => {
     };
 
     const cleanModels = () => {
+        for (const [_, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [_, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
         setModels(new Map());
         setVisualModels(new Map());
+    };
+
+    const replaceModels = (m: EntityModel[], vm: VisualEntityModel[]) => {
+        for (const [_, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [_, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
+
+        for (const model of vm) {
+            aggregator.addModel(model);
+        }
+        for (const model of m) {
+            aggregator.addModel(model);
+        }
+
+        setVisualModels(new Map(vm.map((m) => [m.getId(), m])));
+        setModels(new Map(m.map((m) => [m.getId(), m])));
+        // setAggregatorView(aggregator.getView());
     };
 
     const removeModelFromModels = (modelId: string) => {
@@ -79,6 +108,18 @@ export const useModelGraphContext = () => {
         setModels(new Map(models));
     };
 
+    const removeVisualModelFromModels = (modelId: string) => {
+        const visualModel = visualModels.get(modelId);
+        if (!visualModel) {
+            alert(`no model with id: ${modelId} found`);
+            return;
+        }
+        aggregator.deleteModel(visualModel);
+        visualModels.delete(modelId);
+        setVisualModels(new Map(visualModels));
+        setAggregatorView(aggregator.getView());
+    };
+
     return {
         aggregator,
         aggregatorView,
@@ -89,7 +130,9 @@ export const useModelGraphContext = () => {
         addModelToGraph,
         addVisualModelToGraph,
         cleanModels,
+        replaceModels,
         removeModelFromModels,
+        removeVisualModelFromModels,
         setModelAlias,
         setModelIri,
     };

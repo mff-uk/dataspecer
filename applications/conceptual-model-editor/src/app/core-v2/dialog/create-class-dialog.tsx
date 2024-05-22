@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { useBaseDialog } from "../components/base-dialog";
-import { generateName } from "../util/name-utils";
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import { filterInMemoryModels } from "../util/model-utils";
 import { getModelIri } from "../util/iri-utils";
+import { useBaseDialog } from "../components/base-dialog";
+import { generateName } from "../util/name-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
