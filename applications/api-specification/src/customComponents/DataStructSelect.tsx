@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-function DataStructuresSelect({ index, register, dataStructures, onChange, isResponseObj, operationIndex }) {
+function DataStructuresSelect({ index, register, dataStructures, onChange }) {
 
     let path = '';
 

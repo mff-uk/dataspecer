@@ -4,18 +4,6 @@ import { Checkbox } from '../components/ui/checkbox';
 import { DataStructure, Field as DataField } from '@/Models/DataStructureNex';
 import { RequestBodyProps } from '@/Props/RequestBodyProps';
 
-// interface RequestBodyProps {
-//     index: number;
-//     operationIndex: number;
-//     dataStructure: string;
-//     register: any;
-//     setValue: any;
-//     allDataStructures?: DataStructure[];
-//     responseDataStructures?: DataStructure[];
-//     associationModeOn: boolean,
-//     getValues: any
-// }
-
 const handleCheckboxChange = (fieldPath, checked, setValue) => {
     setValue(fieldPath, checked);
 };

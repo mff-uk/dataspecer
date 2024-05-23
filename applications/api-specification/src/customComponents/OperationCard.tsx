@@ -12,21 +12,6 @@ import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 import { DataStructure } from '@/Models/DataStructureNex.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
-
-// interface OperationCardProps {
-//     operationIndex: number;
-//     removeOperation: (index: number, operationIndex: number) => void;
-//     index: number;
-//     register: any;
-//     setValue: any;
-//     getValues: any;
-//     baseUrl: string;
-//     selectedDataStructure: string;
-//     fetchedDataStructures: DataStructure[];
-//     selectedDataStruct: any,
-//     defaultValue: string
-// }
-
 const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);

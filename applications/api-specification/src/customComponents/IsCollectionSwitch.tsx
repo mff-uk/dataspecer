@@ -3,17 +3,6 @@ import { Switch } from "../components/ui/switch";
 import { DataStructure } from '@/Models/DataStructureNex';
 import { IsCollectionSwitchProps } from '@/Props/IsCollectionSwitchProps';
 
-// interface IsCollectionSwitchProps {
-//     index: number;
-//     operationIndex: number;
-//     register: any;
-//     setValue: (path: string, value: any) => void;
-//     getValues: any;
-//     dataStructureName: string;
-//     dataStructures: DataStructure[];
-//     setIsCollection: React.Dispatch<React.SetStateAction<boolean>>;
-// }
-
 const IsCollection: React.FC<IsCollectionSwitchProps> = ({
     index,
     operationIndex,

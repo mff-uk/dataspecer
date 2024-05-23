@@ -26,21 +26,6 @@ const singleResourceHttpMethods: OperationType[] = [
     { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
 ];
 
-// interface OperationTypeSelectProps {
-//     index: number;
-//     operationIndex: number;
-//     register: any;
-//     setValue: any;
-//     dataStructure: string;
-//     allDataStructures: DataStructure[];
-//     responseObjectFields?: DataStructure[];
-//     selectedResponseObject?: string;
-//     isCollection: boolean;
-//     associationModeOn: boolean;
-//     getValues: any
-
-// }
-
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     index,
     operationIndex,
