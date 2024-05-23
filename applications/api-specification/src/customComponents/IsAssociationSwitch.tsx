@@ -2,20 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
 import ResponseObjectSelect from './ResponseObjectSelect';
 import { DataStructure } from '@/Models/DataStructureNex';
+import {IsAssociationSwitchProps} from '../Props/IsAssociationSwitchProps';
 
-interface IsAssociationSwitchProps {
-    index: number;
-    operationIndex: number;
-    register: any;
-    setValue: (path: string, value: any) => void;
-    getValues: any;
-    dataStructureName: string;
-    dataStructures: DataStructure[];
-    setSelectedResponseObject: React.Dispatch<React.SetStateAction<any>>;
-    setResponseObjectFields: React.Dispatch<React.SetStateAction<DataStructure[]>>;
-    setAssociationModeOn: React.Dispatch<React.SetStateAction<boolean>>;
-    defaultValue: string;
-}
+
+// interface IsAssociationSwitchProps {
+//     index: number;
+//     operationIndex: number;
+//     register: any;
+//     setValue: (path: string, value: any) => void;
+//     getValues: any;
+//     dataStructureName: string;
+//     dataStructures: DataStructure[];
+//     setSelectedResponseObject: React.Dispatch<React.SetStateAction<any>>;
+//     setResponseObjectFields: React.Dispatch<React.SetStateAction<DataStructure[]>>;
+//     setAssociationModeOn: React.Dispatch<React.SetStateAction<boolean>>;
+//     defaultValue: string;
+// }
 
 const Association: React.FC<IsAssociationSwitchProps> = ({
     index,
