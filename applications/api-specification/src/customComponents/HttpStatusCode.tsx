@@ -1,5 +1,5 @@
 import React from 'react';
-import {StatusCodeSelectProps} from '../Models/StatusCodeSelectProps';
+import {StatusCodeSelectProps} from '../Props/StatusCodeSelectProps';
 
 interface StatusCode {
     value: string;

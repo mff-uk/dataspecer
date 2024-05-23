@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
-import {LabeledInputProps} from '../Models/LabeledInputPorps';
+import {LabeledInputProps} from '../Props/LabeledInputPorps';
 
 /* LabeledInput - react functional component */ 
 const LabeledInput: React.FC<LabeledInputProps> = ({ label, id, register, required }) => 
