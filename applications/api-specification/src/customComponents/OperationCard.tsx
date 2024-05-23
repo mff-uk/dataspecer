@@ -7,8 +7,6 @@ import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
 import StatusCodeSelect from './HttpStatusCode';
-import RequestBodyComponent from './RequestBodyComponent';
-import DataStructuresSelect from './DataStructSelect';
 import Association from '../customComponents/IsAssociationSwitch.tsx';
 import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 import { DataStructure } from '@/Models/DataStructureNex.tsx';
@@ -22,8 +20,8 @@ interface OperationCardProps {
     register: any;
     setValue: any;
     getValues: any;
-    collectionLogicEnabled: boolean;
-    singleResourceLogicEnabled: boolean;
+    //collectionLogicEnabled: boolean;
+    //singleResourceLogicEnabled: boolean;
     baseUrl: string;
     selectedDataStructure: string;
     fetchedDataStructures: DataStructure[];
@@ -31,7 +29,7 @@ interface OperationCardProps {
     defaultValue: string 
 }
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, collectionLogicEnabled, singleResourceLogicEnabled, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, selectedDataStruct, defaultValue }) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
@@ -113,8 +111,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                        //collectionLogicEnabled={collectionLogicEnabled}
+                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Operation Type */}
                     <OperationTypeSelect
@@ -137,8 +135,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                        //collectionLogicEnabled={collectionLogicEnabled}
+                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                         dataStructureName={selectedDataStructure}
                         baseUrl={baseUrl} />
                     {/* Comment */}
@@ -146,8 +144,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                        //collectionLogicEnabled={collectionLogicEnabled}
+                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* <RequestBodyComponent
                         dataStructure={selectedDataStructure}
@@ -161,8 +159,8 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled={collectionLogicEnabled}
-                        singleResourceLogicEnabled={singleResourceLogicEnabled}
+                        //collectionLogicEnabled={collectionLogicEnabled}
+                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {
                         // If datastructure{index}.operations.{operationIndex}.isAssociation == true 
