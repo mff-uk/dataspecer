@@ -12,27 +12,12 @@ interface CommentInputProps
     index: number; 
     operationIndex: number;
     register: any;
-    //collectionLogicEnabled: boolean;
-    //singleResourceLogicEnabled: boolean;
 }
 
 /* CommentInput - react functional component */
 const CommentInput: React.FC<CommentInputProps> = ({ index, operationIndex, register}) => 
 {
-    //let path = '';
-
-    // if (collectionLogicEnabled) 
-    // {
-    //     path = `dataStructures.${index}.collectionOperations.${operationIndex}.oComment`;
-    // } 
-    // else if (singleResourceLogicEnabled) 
-    // {
-    //     path = `dataStructures.${index}.singleResOperation.${operationIndex}.oComment`;
-    // }
-    // else
-    // {
-        const path = `dataStructures.${index}.operations.${operationIndex}.oComment`;
-    //}
+    const path = `dataStructures.${index}.operations.${operationIndex}.oComment`;
 
     return (
         <div className = "p-1 flex items-center">

@@ -24,27 +24,12 @@ interface StatusCodeSelectProps {
     index: number;
     operationIndex: number;
     register: any;
-    // collectionLogicEnabled: boolean;
-    // singleResourceLogicEnabled: boolean;
 }
 
 const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationIndex, register }) => {
-    
-    // let path = ''
         
-    //     if (collectionLogicEnabled) 
-    //     {
-    //         path = `dataStructures.${index}.collectionOperations.${operationIndex}.oResponse`;
-    //     } 
-    //     else if (singleResourceLogicEnabled) 
-    //     {
-    //         path = `dataStructures.${index}.singleResOperation.${operationIndex}.oResponse`;
-    //     }
-    //     else
-    //     {
-            const path = `dataStructures.${index}.operations.${operationIndex}.oResponse`;
-        //}
-
+    const path = `dataStructures.${index}.operations.${operationIndex}.oResponse`;
+        
         return (
             <>
                 {/* Operation Type Label*/}
