@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getDataTypeName } from './DataTypeAdapter';
-import { DataStructure, Field } from './Models/DataStructureNex.tsx';
+import { DataStructure, Field } from './Models/DataStructureModel.tsx';
 
 // Custom hook: fetch data specification info
 export function useDataSpecificationInfo() {

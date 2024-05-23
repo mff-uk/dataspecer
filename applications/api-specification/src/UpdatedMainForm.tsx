@@ -8,7 +8,7 @@ import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OpenAPIGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
-import { DataStructure, Field } from '@/Models/DataStructureNex';
+import { DataStructure, Field } from '@/Models/DataStructureModel';
 import useSWR from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod'
 

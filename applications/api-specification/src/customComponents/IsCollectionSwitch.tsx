@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
-import { DataStructure } from '@/Models/DataStructureNex';
+import { DataStructure } from '@/Models/DataStructureModel';
 import { IsCollectionSwitchProps } from '@/Props/IsCollectionSwitchProps';
 
 const IsCollection: React.FC<IsCollectionSwitchProps> = ({
@@ -31,8 +31,8 @@ const IsCollection: React.FC<IsCollectionSwitchProps> = ({
     }, [currentIsCollection, setIsCollection]);
 
     const handleSwitchChange = (checked: boolean) => {
-        setValue(path, checked);  
-        setCurrentIsCollection(checked); 
+        setValue(path, checked);
+        setCurrentIsCollection(checked);
     };
 
     return (

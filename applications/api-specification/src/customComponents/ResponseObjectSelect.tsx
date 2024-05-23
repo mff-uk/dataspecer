@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 
 function ResponseObjectSelect({ index, register, dataStructures, onChange, isResponseObj, operationIndex, getValues, defaultValue }) {
     let path = '';
-
     path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
+    
     const [selectedValue, setSelectedValue] = useState(defaultValue || getValues(path));
-
-
     const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
     
     // Trigger onChange manually on the first render

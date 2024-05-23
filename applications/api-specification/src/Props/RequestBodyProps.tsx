@@ -14,7 +14,7 @@
 
 
 import {BaseProps} from './BaseProps';
-import { DataStructure, Field as DataField } from '@/Models/DataStructureNex';
+import { DataStructure, Field as DataField } from '@/Models/DataStructureModel';
 
 export interface RequestBodyProps extends BaseProps 
 {

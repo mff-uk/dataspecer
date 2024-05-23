@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
 import ResponseObjectSelect from './ResponseObjectSelect';
-import { DataStructure } from '../Models/DataStructureNex';
+import { DataStructure } from '../Models/DataStructureModel';
 import {IsAssociationSwitchProps} from '../Props/IsAssociationSwitchProps';
 
 const Association: React.FC<IsAssociationSwitchProps> = ({

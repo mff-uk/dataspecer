@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import RequestBodyComponent from './RequestBodyComponent';
 import pluralize from 'pluralize';
 import { OperationTypeSelectProps } from '@/Props/OperationTypeSelectProps';
+import { DataStructure } from '@/Models/DataStructureModel';
 
 interface OperationType {
     value: string;

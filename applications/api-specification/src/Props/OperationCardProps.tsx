@@ -1,4 +1,4 @@
-import { DataStructure } from '@/Models/DataStructureNex.tsx';
+import { DataStructure } from '@/Models/DataStructureModel';
 import { BaseProps } from './BaseProps';
 
 export interface OperationCardProps extends BaseProps 

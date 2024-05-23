@@ -1,4 +1,4 @@
-import { DataStructure } from '../Models/DataStructureNex';
+import { DataStructure } from '../Models/DataStructureModel';
 import {BaseProps} from './BaseProps';
 
 export interface IsAssociationSwitchProps extends BaseProps 
