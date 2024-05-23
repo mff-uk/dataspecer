@@ -4,7 +4,7 @@ import { Input } from '../components/ui/input';
 /* 
  * Props which are passed to the functional component -  LabeledInputProps
  * label - label string
- * index - represents index/id of the input
+ * index - id of the selected data structure
  * register - connection with react-hook-forms
  * required - specifies whether the input field needs to be filled
  */

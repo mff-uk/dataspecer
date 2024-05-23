@@ -46,19 +46,12 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     }
 
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
-        //console.log(responseDataStructure)
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
                     <h3>Request Body</h3>
                     {responseDataStructure.fields.map((field) => (
                         <div key={field.name}>
-                            {/* <Checkbox
-                                id={`${path}.${field.name}`}
-                                checked={register(`${path}.${field.name}`).value}
-                                onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
-                            /> */}
-
                             <Checkbox
                                 id={`${path}.${field.name}`}
                                 checked={getValues(`${path}.${field.name}`)} 
@@ -76,19 +69,12 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     }
 
     if (!associationModeOn && targetDataStructure) {
-        //console.log('Using targetDataStructure:', JSON.stringify(targetDataStructure));
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
                     <h3>Request Body</h3>
                     {targetDataStructure.fields.map((field) => (
                         <div key={field.name}>
-                            {/* <Checkbox
-                                id={`${path}.${field.name}`}
-                                checked={register(`${path}.${field.name}`).value}
-                                onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
-                            /> */}
-
                             <Checkbox
                                 id={`${path}.${field.name}`}
                                 checked={getValues(`${path}.${field.name}`)} // Use getValues to retrieve the current value
@@ -105,7 +91,6 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
         );
     }
     else {
-        //console.log('Error: Data structure not found');
         return <div>Error: Data structure not found</div>;
     }
 };

@@ -11,7 +11,7 @@ interface OperationNameInputProps
 const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operationIndex, register }) => {
         
         const inputId = `operationName_${index}_${operationIndex}`
-        const inputPlaceholder = "Enter Operation Name"
+        const inputPlaceholder = "Enter Operation Name. Example: GetResourceName"
         
         const path = `dataStructures.${index}.operations.${operationIndex}.oName`;
 
