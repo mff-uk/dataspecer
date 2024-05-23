@@ -341,7 +341,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                     dataStructures={fetchedDataStructuresArr}
                                     //defaultValue={fetchedData?.dataStructures?.[index]?.name ?? ""}
                                     //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
-                                    isResponseObj={false}
+                                    //isResponseObj={false}
                                     onChange={(selectedDataStructure) => {
 
                                         //const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
@@ -369,7 +369,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                             //name: selectedDataStructure?.givenName ?? defaultValue,
                                             //id: selectedDataStructure.id,
                                         });
-                                    }} operationIndex={undefined}
+                                    }} //operationIndex={undefined}
                                 />
                             </div>
                             <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
