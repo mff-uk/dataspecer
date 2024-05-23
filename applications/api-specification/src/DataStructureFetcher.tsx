@@ -99,6 +99,7 @@ export function useDataSpecificationInfo() {
             if (!dataStructure) return null;
 
             const resources = dataStructure.resources || {};
+            //console.log(resources)
 
             const rootClass = Object.values<any>(resources)
                 .find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema"))
@@ -147,9 +148,11 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     const fieldData = dataStructure.resources[rootIri];
     //console.log(fieldData)
     const interpretation = fieldData.dataPsmInterpretation;
+    console.log(interpretation)
 
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
+    //console.log(targetResource)
     
     let isArray = false;
     

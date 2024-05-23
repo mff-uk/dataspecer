@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import RequestBodyComponent from './RequestBodyComponent';
 import pluralize from 'pluralize';
+import { OperationTypeSelectProps } from '@/Props/OperationTypeSelectProps';
 
 interface OperationType {
     value: string;
@@ -25,20 +26,20 @@ const singleResourceHttpMethods: OperationType[] = [
     { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
 ];
 
-interface OperationTypeSelectProps {
-    index: number;
-    operationIndex: number;
-    register: any;
-    setValue: any;
-    dataStructure: string;
-    allDataStructures: DataStructure[];
-    responseObjectFields?: DataStructure[];
-    selectedResponseObject?: string;
-    isCollection: boolean;
-    associationModeOn: boolean;
-    getValues: any
+// interface OperationTypeSelectProps {
+//     index: number;
+//     operationIndex: number;
+//     register: any;
+//     setValue: any;
+//     dataStructure: string;
+//     allDataStructures: DataStructure[];
+//     responseObjectFields?: DataStructure[];
+//     selectedResponseObject?: string;
+//     isCollection: boolean;
+//     associationModeOn: boolean;
+//     getValues: any
 
-}
+// }
 
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     index,
