@@ -148,7 +148,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     const fieldData = dataStructure.resources[rootIri];
     //console.log(fieldData)
     const interpretation = fieldData.dataPsmInterpretation;
-    console.log(interpretation)
+    //console.log(interpretation)
 
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
