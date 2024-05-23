@@ -228,7 +228,6 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 ))}
             </select>
 
-
             {
                 dataStructure && isCollection && associationModeOn && selectedResponseObject ? (
                     <div>

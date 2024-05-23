@@ -43,12 +43,10 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
 
     if (responseDataStructures) {
         responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).name);
-        //console.log("RESP DS")
-        //console.log(dataStructure)
     }
 
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
-        //console.log(responseDataStructure)
+        console.log(responseDataStructure)
         return (
             <div key={operationIndex}>
                 <Card className="p-2">

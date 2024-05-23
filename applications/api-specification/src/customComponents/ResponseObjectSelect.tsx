@@ -4,26 +4,34 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange, isRes
     let path = '';
 
     path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
+    const [selectedValue, setSelectedValue] = useState(defaultValue || getValues(path));
+
 
     const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
     
     // Trigger onChange manually on the first render
     useEffect(() => {
-        if (!hasOnChangeTriggered && defaultValue) {
-            const selectedDataStructure = dataStructures.find(
+        let selectedDataStructure;
+        if (selectedValue) {
+            selectedDataStructure = dataStructures.find(
+                (structure) => structure.name === selectedValue
+            );
+        }
+        else if (!hasOnChangeTriggered && defaultValue ) {
+            selectedDataStructure = dataStructures.find(
                 (structure) => structure.name === defaultValue
             );
-
-            onChange(selectedDataStructure);
             setHasOnChangeTriggered(true);
-
-            console.log("THIS IS MY " + JSON.stringify(selectedDataStructure))
         }
+
+        onChange(selectedDataStructure);
+        
     }, [defaultValue, dataStructures, onChange, hasOnChangeTriggered]);
 
     const handleChange = (event) => {
         
             const selectedValue = event.target.value;
+            setSelectedValue(selectedValue);
             const selectedDataStructure = dataStructures.find(
                 (structure) => structure.name === selectedValue
             );

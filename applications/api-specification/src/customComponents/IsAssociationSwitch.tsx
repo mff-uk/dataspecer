@@ -101,7 +101,10 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
                         onChange={(selectedDataStructure) => {
                             setSelectedResponseObject(selectedDataStructure);
                             const responseObjectPath = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
-                            setValue(responseObjectPath, selectedDataStructure.name);
+                            if(selectedDataStructure)
+                            {
+                                setValue(responseObjectPath, selectedDataStructure.name);
+                            }
                         }}
                     />
                 </div>
