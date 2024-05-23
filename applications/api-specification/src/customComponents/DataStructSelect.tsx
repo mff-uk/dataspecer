@@ -3,13 +3,13 @@ import React, { useEffect } from 'react';
 function DataStructuresSelect({ index, register, dataStructures, onChange }) {
 
     let path = '';
-
     path = `dataStructures.${index}.name`;
 
     const handleChange = (event) => {
 
         const selectedValue = event.target.value;
-        console.log(selectedValue + " selected value")
+        //console.log(selectedValue + " selected value")
+        
         const selectedDataStructure = dataStructures.find(
             (structure) => structure.givenName === selectedValue
         );

@@ -7,7 +7,7 @@ function ResponseObjectSelect({ index, register, dataStructures, onChange, isRes
     const [selectedValue, setSelectedValue] = useState(defaultValue || getValues(path));
     const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
     
-    // Trigger onChange manually on the first render
+    /* Trigger on the initial render */
     useEffect(() => {
         let selectedDataStructure;
         if (selectedValue) {

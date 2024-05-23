@@ -2,12 +2,6 @@ import React from 'react';
 import {StatusCodeSelectProps} from '../Props/StatusCodeSelectProps';
 import { StatusCode } from '@/Models/StatusCodeModel';
 
-// interface StatusCode {
-//     value: string;
-//     label: string;
-//     message: string;
-// }
-
 /* Predefined http methods */
 const httpStatusCodes: StatusCode[] =
     [
