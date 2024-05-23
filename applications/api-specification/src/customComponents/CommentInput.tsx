@@ -1,18 +1,7 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
+import { CommentInputProps } from '../Models/CommentInputProps.tsx';
 
-/* 
- * Props which are passed to / accepted by the functional component -  CommentInput
- * index - index of the selected data structure
- * operationIndex - index of the associated operation
- * register - connection with react-hook-forms
- */
-interface CommentInputProps 
-{
-    index: number; 
-    operationIndex: number;
-    register: any;
-}
 
 /* CommentInput - react functional component */
 const CommentInput: React.FC<CommentInputProps> = ({ index, operationIndex, register}) => 
