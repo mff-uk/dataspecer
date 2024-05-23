@@ -11,7 +11,6 @@ import Association from '../customComponents/IsAssociationSwitch.tsx';
 import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 import { DataStructure } from '@/Models/DataStructureNex.tsx';
 
-//import ResponseObjectComponent from './ResponseObjectSelect';
 
 interface OperationCardProps {
     operationIndex: number;
@@ -20,13 +19,11 @@ interface OperationCardProps {
     register: any;
     setValue: any;
     getValues: any;
-    //collectionLogicEnabled: boolean;
-    //singleResourceLogicEnabled: boolean;
     baseUrl: string;
     selectedDataStructure: string;
     fetchedDataStructures: DataStructure[];
     selectedDataStruct: any,
-    defaultValue: string 
+    defaultValue: string
 }
 
 const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
@@ -36,29 +33,23 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
 
-    //console.log(defaultValue + "DEFAULT VALUE IN THE OPERATION CARD")
-
     useEffect(() => {
         const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
         const savedValue = getValues(path);
-
-        // Log the saved value
-        //console.log(`Value saved on form for path OPERATION CARD ${path}:`, savedValue);
     }, [getValues, index, operationIndex]);
 
     useEffect(() => {
-        try{
-        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-        setValue(path, selectedResponseObject ? selectedResponseObject.name : '');
-        console.log("path" + path + "     " + selectedResponseObject.name)
-    }
-    catch
-    {
-        //console.log("ANASTASIA")
-    }
+        try {
+            const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+            setValue(path, selectedResponseObject ? selectedResponseObject.name : '');
+            console.log("path" + path + "     " + selectedResponseObject.name)
+        }
+        catch
+        {
+            //console.log("ANASTASIA")
+        }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
-    //console.log("passed ds " + selectedDataStruct)
 
     return (
         <div key={operationIndex}>
@@ -86,33 +77,29 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         operationIndex={operationIndex}
                         register={register}
                         setValue={setValue}
-                        getValues = {getValues}
+                        getValues={getValues}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
                         setSelectedResponseObject={setSelectedResponseObject}
                         setResponseObjectFields={setResponseObjectFields}
                         setAssociationModeOn={setAssotiationMode}
-                        defaultValue = {defaultValue} />
+                        defaultValue={defaultValue} />
                     {/* Switch to treat Resource as a collection*/}
                     <IsCollection
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
                         setValue={setValue}
-                        getValues = {getValues}
+                        getValues={getValues}
                         dataStructureName={selectedDataStructure}
                         dataStructures={fetchedDataStructures}
-                        //setSelectedResponseObject={() => { }}
-                        //setResponseObjectFields={() => { }}
                         setIsCollection={setIsCollection}
-                         />
+                    />
                     {/* Operation Name */}
                     <OperationNameInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        //collectionLogicEnabled={collectionLogicEnabled}
-                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Operation Type */}
                     <OperationTypeSelect
@@ -122,21 +109,17 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructure={selectedDataStructure}
                         allDataStructures={fetchedDataStructures}
                         setValue={setValue}
-                        getValues = {getValues}
+                        getValues={getValues}
                         responseObjectFields={responseObjectFields}
                         selectedResponseObject={selectedResponseObject}
                         isCollection={isCollection}
                         associationModeOn={associationModeOn}
-                    //collectionLogicEnabled={collectionLogicEnabled}
-                    //singleResourceLogicEnabled={singleResourceLogicEnabled}
                     />
                     {/* Endpoint */}
                     <EndpointInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        //collectionLogicEnabled={collectionLogicEnabled}
-                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
                         dataStructureName={selectedDataStructure}
                         baseUrl={baseUrl} />
                     {/* Comment */}
@@ -144,48 +127,15 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        //collectionLogicEnabled={collectionLogicEnabled}
-                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
+
                     />
-                    {/* <RequestBodyComponent
-                        dataStructure={selectedDataStructure}
-                        allDataStructures={fetchedDataStructures}
-                        operationIndex={operationIndex}
-                        index={index}
-                        register={register}
-                        setValue = {setValue} /> */}
-                    {/* Http StatusCode */}
+
                     <StatusCodeSelect
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        //collectionLogicEnabled={collectionLogicEnabled}
-                        //singleResourceLogicEnabled={singleResourceLogicEnabled}
+
                     />
-                    {
-                        // If datastructure{index}.operations.{operationIndex}.isAssociation == true 
-                        // show Target Object     
-
-                        /**/
-                    }
-
-                    {/* <div>
-                        <label>Choose Data Structure:</label>
-                        <DataStructuresSelect
-                            key={`responseObject_${index}`}
-                            index={index}
-                            operationIndex={operationIndex}
-                            register={register}
-                            dataStructures={fetchedDataStructures}
-                            isResponseObj={true}
-                            onChange={(selectedDataStructure) => {
-                                register(`dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`).onChange({
-                                    target: {
-                                        value: selectedDataStructure.name,
-                                    },
-                                });
-                            }} />
-                    </div> */}
                 </Card>
             </Card>
         </div>

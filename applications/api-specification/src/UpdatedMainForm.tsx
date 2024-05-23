@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { Button } from './components/ui/button';
 import LabeledInput from './customComponents/LabeledInput';
 import FormCardSection from './customComponents/FormCardSection';
-import CustomCheckbox from './customComponents/CustomCheckbox';
 import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OpenAPIGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
