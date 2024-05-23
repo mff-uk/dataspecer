@@ -61,6 +61,18 @@ const ComponentRight = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
     URL.revokeObjectURL(url);
   };
 
+  const copyToClipboard = () => {
+    const jsonString = JSON.stringify(generatedOpenAPISpecification, null, 2);
+    navigator.clipboard.writeText(jsonString).then(
+      () => {
+        alert('OpenAPI Specification copied to clipboard!');
+      },
+      (err) => {
+        console.error('Failed to copy: ', err);
+      }
+    );
+  };
+
 
   return (
     <div className="flex flex-col h-full p-9">
@@ -69,6 +81,7 @@ const ComponentRight = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
           <CardTitle>Generated OpenAPI Specification</CardTitle>
           <Button onClick={openSwaggerEditor} className="bg-blue-500">Open Swagger Editor</Button>
           <Button onClick={downloadOpenAPISpec} className="bg-green-500">Download JSON</Button>
+          <Button onClick={copyToClipboard} className="bg-yellow-500">Copy to Clipboard</Button>
         </CardHeader>
         
         <CardContent className="overflow-auto">
