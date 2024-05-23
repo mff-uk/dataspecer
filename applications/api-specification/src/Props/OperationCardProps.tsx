@@ -14,18 +14,3 @@ export interface OperationCardProps extends BaseProps
     removeOperation: (index: number, operationIndex: number) => void;
 
 }
-
-
-// interface OperationCardProps {
-//     operationIndex: number;
-//     removeOperation: (index: number, operationIndex: number) => void;
-//     index: number;
-//     register: any;
-//     setValue: any;
-//     getValues: any;
-//     baseUrl: string;
-//     selectedDataStructure: string;
-//     fetchedDataStructures: DataStructure[];
-//     selectedDataStruct: any,
-//     defaultValue: string
-// }
