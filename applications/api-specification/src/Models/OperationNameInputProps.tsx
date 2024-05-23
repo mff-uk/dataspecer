@@ -1,6 +1,4 @@
-export interface OperationNameInputProps 
-{
-    index: number;
-    operationIndex: number;
-    register: any;
-}
+import {BaseProps} from '../Models/BaseProps';
+
+export interface OperationNameInputProps extends BaseProps 
+{}

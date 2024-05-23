@@ -4,9 +4,8 @@
  * operationIndex - index of the associated operation
  * register - connection with react-hook-forms
  */
-export interface CommentInputProps 
-{
-    index: number; 
-    operationIndex: number;
-    register: any;
-}
+
+import {BaseProps} from '../Models/BaseProps';
+
+export interface CommentInputProps extends BaseProps 
+{}

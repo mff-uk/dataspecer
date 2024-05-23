@@ -1,8 +1,6 @@
 import React from 'react';
 import { CustomCheckboxProps } from '../Models/CustomCheckboxProps';
 
-
-
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, checked, onChange }) => 
 {
     return (

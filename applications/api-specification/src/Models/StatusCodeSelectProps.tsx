@@ -1,8 +1,8 @@
 /*
- * Props which are passed to the functional component -  OperationTypeSelect
+ * Props which are passed to the functional component -  ResponseStatusCode
  */
-export interface StatusCodeSelectProps {
-    index: number;
-    operationIndex: number;
-    register: any;
-}
+
+import {BaseProps} from '../Models/BaseProps';
+
+export interface StatusCodeSelectProps extends BaseProps 
+{}
