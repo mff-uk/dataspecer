@@ -46,7 +46,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     }
 
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
-        console.log(responseDataStructure)
+        //console.log(responseDataStructure)
         return (
             <div key={operationIndex}>
                 <Card className="p-2">
