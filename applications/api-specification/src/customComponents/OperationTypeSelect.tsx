@@ -3,7 +3,7 @@ import RequestBodyComponent from './RequestBodyComponent';
 import pluralize from 'pluralize';
 import { OperationTypeSelectProps } from '@/Props/OperationTypeSelectProps';
 import { DataStructure } from '@/Models/DataStructureModel';
-import { OperationType } from '@/Models/OperationTypeModel';
+import { OperationType } from '@/Models/OperationTypeModel.tsx';
 
 const pluralizeAndNoSpaces = (word: string): string => {
     const pluralWord = pluralize(word);
