@@ -40,10 +40,12 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
     /* sync local state with form state */
     useEffect(() => {
         const currentFormValue = getValues(path);
-        if (currentFormValue !== selectedAssociationMode) {
+        if (currentFormValue !== selectedAssociationMode) 
+        {
             setSelectedAssociationMode(currentFormValue);
             setAssociationModeOn(currentFormValue);
         }
+
     }, [path, getValues, selectedAssociationMode, setAssociationModeOn]);
 
     const handleSwitchChange = (checked: boolean) => {
@@ -51,14 +53,9 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
         setSelectedAssociationMode(checked);
         setAssociationModeOn(checked);
     };
-
-    useEffect(() => {
-        const savedValue = getValues(`dataStructures.${index}.operations.${operationIndex}`);
-    }, [index, operationIndex, getValues]);
-    
-
     
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
+
     const objectFields = selectedDataStructure ? selectedDataStructure.fields
         .filter(field => field.type === 'Object' && field.nestedFields)
         .map(field => ({
@@ -107,6 +104,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
             )}
         </div>
     );
+
 };
 
 export default Association;

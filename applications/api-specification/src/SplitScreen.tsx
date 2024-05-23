@@ -14,8 +14,6 @@ interface SplitScreenProps {
     rightSide: React.FC;
 }
 
-
-
 export const SplitScreen: React.FC<SplitScreenProps> = ({ leftSide: LeftSide, rightSide: RightSide }) => {
     return (
         <Wrapper>
