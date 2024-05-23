@@ -42,7 +42,6 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         try {
             const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
             setValue(path, selectedResponseObject ? selectedResponseObject.name : '');
-            //console.log("path" + path + "     " + selectedResponseObject.name)
         }
         catch
         {

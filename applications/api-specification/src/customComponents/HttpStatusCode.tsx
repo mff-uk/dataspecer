@@ -1,4 +1,5 @@
 import React from 'react';
+import {StatusCodeSelectProps} from '../Models/StatusCodeSelectProps';
 
 interface StatusCode {
     value: string;
@@ -16,15 +17,6 @@ const httpStatusCodes: StatusCode[] =
         { value: '401', label: '401 - unauthorised', message: 'unauthorised' },
         { value: '500', label: '500 - internal server error', message: 'internal server error' },  
     ];
-
-/*
- * Props which are passed to the functional component -  OperationTypeSelect
- */
-interface StatusCodeSelectProps {
-    index: number;
-    operationIndex: number;
-    register: any;
-}
 
 const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationIndex, register }) => {
         

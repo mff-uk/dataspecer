@@ -1,12 +1,8 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
+import {OperationNameInputProps} from '../Models/OperationNameInputProps';
 
-interface OperationNameInputProps 
-{
-    index: number;
-    operationIndex: number;
-    register: any;
-}
+
 
 const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operationIndex, register }) => {
         

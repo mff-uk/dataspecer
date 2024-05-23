@@ -1,20 +1,7 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
+import { EndpointInputProps } from '../Models/EndpointInputProps';
 
-/* 
- * Props which are passed to the functional component -  EndpointInput
- * index - represents index of the selected data structure
- * operationIndex - index of the associated operation
- * register - connection with react-hook-forms
- */
-interface EndpointInputProps 
-{
-    index: number;
-    operationIndex: number;
-    register: any;
-    dataStructureName: string;
-    baseUrl: string;
-}
 
 /* EndpointInput - react functional component */
 const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, register, dataStructureName, baseUrl}) => 

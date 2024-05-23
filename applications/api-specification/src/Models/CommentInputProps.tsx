@@ -4,7 +4,7 @@
  * operationIndex - index of the associated operation
  * register - connection with react-hook-forms
  */
-interface CommentInputProps 
+export interface CommentInputProps 
 {
     index: number; 
     operationIndex: number;

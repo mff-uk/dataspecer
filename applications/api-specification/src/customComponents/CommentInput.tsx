@@ -1,7 +1,6 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
-import { CommentInputProps } from '../Models/CommentInputProps.tsx';
-
+import { CommentInputProps } from '../Models/CommentInputProps';
 
 /* CommentInput - react functional component */
 const CommentInput: React.FC<CommentInputProps> = ({ index, operationIndex, register}) => 
