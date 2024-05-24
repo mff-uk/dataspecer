@@ -1,9 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function DataStructuresSelect({ index, register, dataStructures, onChange }) {
+function DataStructuresSelect({ index, register, dataStructures, onChange}) {
 
     let path = '';
     path = `dataStructures.${index}.name`;
+    
+    // const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
+    // const [selectedValue, setSelectedValue] = useState(defaultValue || getValues(path));
+
+    // useEffect(() => {
+    //     console.log(defaultValue)
+
+    //     let selectedDataStructure;
+    //     if (selectedValue) {
+    //         selectedDataStructure = dataStructures.find(
+    //             (structure) => structure.name === selectedValue
+    //         );
+    //     }
+
+    //     if (!hasOnChangeTriggered && defaultValue ) {
+    //         selectedDataStructure = dataStructures.find(
+    //             (structure) => structure.name === defaultValue
+    //         );
+    //         setHasOnChangeTriggered(true);
+    //     }
+
+    //     onChange(selectedDataStructure);
+    //     console.log(selectedDataStructure)
+        
+    // }, [defaultValue, dataStructures, onChange, hasOnChangeTriggered]);
 
     const handleChange = (event) => {
 

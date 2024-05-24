@@ -47,26 +47,26 @@ const formSchema = z.object({
     apiDescription: z.string().min(1), // non-empty string
     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
-    dataStructures: z.array(
-        z.object({
-            id: z.string().optional(),
-            name: z.string().min(1),
-            operations: z.array(
-                z.object({
-                    name: z.string(),
-                    isCollection: z.boolean(),
-                    oAssociatonMode: z.boolean(),
-                    oType: z.string(),
-                    oName: z.string(),
-                    oEndpoint: z.string(),
-                    oComment: z.string(),
-                    oResponse: z.string(),
-                    oRequestBody: z.record(z.string()).optional(),
-                    oResponseObject: z.object({}).optional()
-                })
-            ),
-        })
-    ).optional(),
+    // dataStructures: z.array(
+    //     z.object({
+    //         id: z.string().optional(),
+    //         name: z.string().min(1),
+    //         operations: z.array(
+    //             z.object({
+    //                 name: z.string(),
+    //                 isCollection: z.boolean(),
+    //                 oAssociatonMode: z.boolean(),
+    //                 oType: z.string(),
+    //                 oName: z.string(),
+    //                 oEndpoint: z.string(),
+    //                 oComment: z.string(),
+    //                 oResponse: z.string(),
+    //                 oRequestBody: z.record(z.boolean()).optional(),
+    //                 oResponseObject: z.object({}).optional()
+    //             })
+    //         ),
+    //     })
+    // ).optional(),
 });
 
 
@@ -86,11 +86,11 @@ interface ApiSpecificationFormProps {
 }
 
 export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setGeneratedOpenAPISpecification }) => {
-    // const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
-    //     resolver: zodResolver(formSchema)
-    // });
+    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
+        resolver: zodResolver(formSchema)
+    });
 
-    const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>();
+    //const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>();
 
     const { errors } = formState;
 
@@ -200,46 +200,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         fetchData();
     }, [fetchDataStructures]);
 
-    const fetchDataButtonRef = useRef<HTMLButtonElement>(null);
-
-    // const [submitClicked, setSubmitClicked] = useState(false);
-
-    // useEffect(() => {
-    //     console.log(fetchedData)
-    //     console.log(myFetchedData)
-
-
-    //     while(fetchedData!=myFetchedData)
-    //     {
-    //         console.log("not equal")
-    //     }
-
-    //     fetchDataButtonRef.current?.click();
-
-
-    // }, [fetchedData]);
-
-    // useEffect(() => {
-
-    //     console.log("THIS IS MYFETCHED DATA")
-    //     console.log(myFetchedData)
-
-    // }, [myFetchedData]);
-
-
-
-
-    // useEffect(() => {
-    //     let timeoutId;
-    //     if (!submitClicked && !fetchingData) {
-    //         timeoutId = setTimeout(() => {
-    //             fetchDataButtonRef.current?.click();
-    //             setSubmitClicked(false);
-    //         }, 2000); // 2 seconds delay
-    //     }
-    //     return () => clearTimeout(timeoutId);
-    // }, [submitClicked, fetchingData]);
-
     useEffect(() => {
         if (fetchedData) {
             console.log('Fetched Data:', fetchedData);
@@ -258,15 +218,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
 
     const onSubmit: SubmitHandler<FormValues> = async (data, event) => {
-
-        console.log(event)
         event.preventDefault();
 
-        console.log("RAW DDATA" + JSON.stringify(data))
-        //console.log("these are the values" + JSON.stringify(getValues()))
         const newData = getValues();
-        //await formSchema.parseAsync(newData);
-
+        console.log(newData)
+        
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('model-iri');
@@ -378,9 +334,9 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                 }}>
                     {/* Form Info */}
 
-                    <Button type="button" ref={fetchDataButtonRef} onClick={fetchDataAndSetValues}>
+                    {/* <Button type="button" ref={fetchDataButtonRef} onClick={fetchDataAndSetValues}>
                         Fetch Configuration
-                    </Button>
+                    </Button> */}
 
                     <FormCardSection>
                         <LabeledInput label="API Title" id="apiTitle" register={register} required />
@@ -411,7 +367,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                             //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
                                             //isResponseObj={false}
                                             onChange={(selectedDataStructure) => {
-
                                                 //const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
                                                 //const nameToUse = selectedDataStructure?.name ?? defaultValue;
 
@@ -421,7 +376,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                                         value: selectedDataStructure.name,
                                                         //value: nameToUse
                                                     },
-
                                                 });
 
                                                 setSelectedDataStructures((prevState) => {
@@ -437,8 +391,8 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                                     //name: selectedDataStructure?.givenName ?? defaultValue,
                                                     //id: selectedDataStructure.id,
                                                 });
-                                            }} //operationIndex={undefined}
-                                        />
+                                            } } //operationIndex={undefined}
+                                                                                    />
                                     </div>
                                     <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
                                         Delete
