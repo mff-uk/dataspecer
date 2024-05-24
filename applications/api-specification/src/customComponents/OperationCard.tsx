@@ -35,6 +35,31 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
+    useEffect(() => {
+        
+        const currentOperations = getValues(`dataStructures.${index}.operations`);
+        const newOperation = getValues(`dataStructures.${index}.operations.${operationIndex}`);
+
+        try
+        {
+            const isDuplicate = (operation, operations) => {
+                return operations.some((op, idx) => idx !== operationIndex && op.oEndpoint === operation.oEndpoint && op.oType === operation.oType);
+            };
+    
+            if (isDuplicate(newOperation, currentOperations)) {
+                alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Your operation will be removed');
+                removeOperation(index, operationIndex); 
+            }
+        }
+        catch
+        {
+            console.log("Duplicate removed")
+        }
+        
+
+
+    }, [getValues, index, operationIndex, removeOperation]);
+
 
     return (
         <div key={operationIndex}>
