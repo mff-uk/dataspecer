@@ -187,6 +187,8 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
 
     // Constructing Paths and handling operations
     userInput.dataStructures.forEach((ds) => {
+
+        console.log(ds)
         ds.operations.forEach((operation) => {
             const path = operation.oEndpoint;
             const method = operation.oType.toLowerCase();
@@ -317,7 +319,55 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                 }
             }
 
-
+            if(method === 'get')
+            {
+                if (method === 'get') {
+                    parameters.push({
+                        name: 'filter',
+                        in: 'query',
+                        description: 'Filter results based on criteria',
+                        schema: {
+                            type: 'string',
+                        },
+                    });
+                    parameters.push({
+                        name: 'sortBy',
+                        in: 'query',
+                        description: 'Field to sort by',
+                        schema: {
+                            type: 'string',
+                        },
+                    });
+                    parameters.push({
+                        name: 'sortOrder',
+                        in: 'query',
+                        description: 'Sort order: asc or desc',
+                        schema: {
+                            type: 'string',
+                            enum: ['asc', 'desc'],
+                        },
+                    });
+                    parameters.push({
+                        name: 'page',
+                        in: 'query',
+                        description: 'Page number for pagination',
+                        schema: {
+                            type: 'integer',
+                            default: 1,
+                        },
+                    });
+                    parameters.push({
+                        name: 'pageSize',
+                        in: 'query',
+                        description: 'Number of items per page',
+                        schema: {
+                            type: 'integer',
+                            default: 10,
+                        },
+                    });
+            }
+        }
+            
             openAPISpec.paths[path][method] = operationObject;
         });
     });
