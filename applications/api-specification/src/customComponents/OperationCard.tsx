@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Switch } from "../components/ui/switch.tsx";
 import { Card } from '../components/ui/card';
@@ -24,6 +24,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         const savedValue = getValues(path);
     }, [getValues, index, operationIndex]);
 
+    const deleteButtonRef = useRef(null);
     useEffect(() => {
         try {
             const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
@@ -35,30 +36,60 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
-    useEffect(() => {
+    // useEffect(() => {
         
+    //     const currentOperations = getValues(`dataStructures.${index}.operations`);
+    //     const newOperation = getValues(`dataStructures.${index}.operations.${operationIndex}`);
+
+    //     try
+    //     {
+    //         const isDuplicate = (operation, operations) => {
+    //             return operations.some((op, idx) => idx !== operationIndex && op.oEndpoint === operation.oEndpoint && op.oType === operation.oType);
+    //         };
+            
+    //         if (isDuplicate(newOperation, currentOperations)) {
+    //             console.log(index)
+    //             console.log(operationIndex)
+    //             console.log(newOperation)
+    //             console.log("HERE")
+    //             //alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Your operation will be removed');
+    //             //removeOperation(index, operationIndex); 
+    //             //deleteButtonRef.current?.click();
+
+    //         }
+    //     }
+    //     catch
+    //     {
+    //         console.log("Duplicate removed")
+    //     }
+        
+
+
+    // }, [getValues, index, operationIndex, removeOperation]);
+
+    useEffect(() => {
         const currentOperations = getValues(`dataStructures.${index}.operations`);
         const newOperation = getValues(`dataStructures.${index}.operations.${operationIndex}`);
 
-        try
-        {
+        try {
             const isDuplicate = (operation, operations) => {
-                return operations.some((op, idx) => idx !== operationIndex && op.oEndpoint === operation.oEndpoint && op.oType === operation.oType);
+                for (let idx = 0; idx < operations.length; idx++) {
+                    if (idx !== operationIndex && operations[idx].oEndpoint === operation.oEndpoint && operations[idx].oType === operation.oType) {
+                        return true; // Found a duplicate
+                    }
+                }
+                return false; // No duplicate found
             };
-    
+
             if (isDuplicate(newOperation, currentOperations)) {
-                alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Your operation will be removed');
-                removeOperation(index, operationIndex); 
+                alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Please delete last operation');
+                removeOperation(index, currentOperations.length - 1); 
             }
+        } catch {
+            console.log("Duplicate removed");
         }
-        catch
-        {
-            console.log("Duplicate removed")
-        }
-        
-
-
     }, [getValues, index, operationIndex, removeOperation]);
+
 
 
     return (
@@ -71,6 +102,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                     </div>
                     <div>
                         <Button
+                            ref={deleteButtonRef}
                             className="bg-red-500 hover:bg-red-400"
                             type="button"
                             onClick={() => removeOperation(index, operationIndex)}
