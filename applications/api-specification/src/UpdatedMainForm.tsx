@@ -144,8 +144,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     const modelIri = getModelIri();
 
     const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
-    let myFetchedData = null;
-    myFetchedData = fetchedData
 
 
     const fetchDataAndSetValues = async () => {
@@ -155,14 +153,14 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         try {
 
             //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
-            if (myFetchedData) {
-                console.log('Fetched Data:', myFetchedData);
-                setValue('apiTitle', myFetchedData.apiTitle);
-                setValue('apiDescription', myFetchedData.apiDescription);
-                setValue('apiVersion', myFetchedData.apiVersion);
-                setValue('baseUrl', myFetchedData.baseUrl);
-                setValue('dataStructures', myFetchedData.dataStructures);
-                setSelectedDataStructures(myFetchedData.dataStructures);
+            if (fetchedData) {
+                console.log('Fetched Data:', fetchedData);
+                setValue('apiTitle', fetchedData.apiTitle);
+                setValue('apiDescription', fetchedData.apiDescription);
+                setValue('apiVersion', fetchedData.apiVersion);
+                setValue('baseUrl', fetchedData.baseUrl);
+                setValue('dataStructures', fetchedData.dataStructures);
+                setSelectedDataStructures(fetchedData.dataStructures);
             }
             else {
                 console.log("Fetched data is not yet available");
@@ -242,6 +240,18 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     //     return () => clearTimeout(timeoutId);
     // }, [submitClicked, fetchingData]);
 
+    useEffect(() => {
+        if (fetchedData) {
+            console.log('Fetched Data:', fetchedData);
+            setValue('apiTitle', fetchedData.apiTitle);
+            setValue('apiDescription', fetchedData.apiDescription);
+            setValue('apiVersion', fetchedData.apiVersion);
+            setValue('baseUrl', fetchedData.baseUrl);
+            setValue('dataStructures', fetchedData.dataStructures);
+            setSelectedDataStructures(fetchedData.dataStructures);
+            setFetchingData(false);
+        }
+    }, [fetchedData, setValue]);
 
 
     const [openAPISpec, setOpenAPISpec] = useState<any>({});
@@ -299,7 +309,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
             }
         }
 
-        myFetchedData = null
 
     };
 
