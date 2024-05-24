@@ -357,13 +357,13 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
         //     }
         // }
             
+
         if (method === 'get') {
             const schemaName = formatCompName(ds.name);
             const schema = openAPISpec.components.schemas[schemaName];
         
             if (schema && schema.properties) {
                 Object.keys(schema.properties).forEach((fieldName) => {
-                    // Exclude fields that are already part of path parameters
                     if (!operation.oEndpoint.includes(`{${fieldName}}`)) {
                         parameters.push({
                             name: fieldName,
