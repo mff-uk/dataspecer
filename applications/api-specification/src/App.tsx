@@ -5,9 +5,7 @@ import {SplitScreen} from './SplitScreen.tsx'
 
 function App() {
   return (
-    <ApiSpecificationForm setGeneratedOpenAPISpecification={function (openAPISpec: any): void {
-      throw new Error('Function not implemented.');
-    } }/>
+    <ApiSpecificationForm/>
   )
 }
 
