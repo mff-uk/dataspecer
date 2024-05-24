@@ -155,6 +155,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     //console.log(targetResource)
     
     let isArray = false;
+    let isMandatory = false;
     
     if(targetResource)
     {
@@ -178,10 +179,11 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
             isArray = true;
         }
 
-        if(targetResource.CardinalityMin)
+        if(targetResource.CardinalityMin == 1 && targetResource.pimCardinalityMax == 1)
         {
-            // TODO: in the requestbody it is required
+            isMandatory =  true;
         }
+
     }
 
     if (!fieldData) {
@@ -189,6 +191,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     }
 
     const field: Field = {
+        isMandatory: isMandatory,
         isArray: isArray,
         name: fieldData.dataPsmTechnicalLabel,
         type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? getDataTypeName(fieldData.dataPsmDatatype) : "Object",

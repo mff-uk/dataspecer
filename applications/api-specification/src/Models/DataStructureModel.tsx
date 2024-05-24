@@ -20,4 +20,5 @@
     classType?: string; 
     nestedFields?: DataStructure; 
     isArray?: boolean;
+    isMandatory?: boolean;
   }
