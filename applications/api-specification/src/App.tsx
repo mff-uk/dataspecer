@@ -68,7 +68,7 @@ const ComponentRight = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
         alert('OpenAPI Specification copied to clipboard!');
       },
       (err) => {
-        console.error('Failed to copy: ', err);
+        console.error('Could not copy - Error: ', err);
       }
     );
   };
