@@ -2,16 +2,19 @@ interface OperationObj {
     summary: any;
     operationId: any;
     parameters: any[];
-    requestBody?: any; 
-    responses: { [x: number]: 
-        { 
+    requestBody?: any;
+    responses: {
+        [x: number]:
+        {
             description: string;
-            content: 
-            { 'application/json': 
-                { schema: { $ref: string; }; 
-                }; 
-            }; 
-        }; 
+            content:
+            {
+                'application/json':
+                {
+                    schema: { $ref: string; };
+                };
+            };
+        };
     };
 }
 
@@ -45,6 +48,10 @@ function hasDuplicate(parameters, name) {
 
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
+    console.log("dataStructures")
+    console.log(dataStructures)
+    console.log("userInput")
+
     const openAPISpec = {
         openapi: '3.0.0',
         info: {
@@ -63,8 +70,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
         },
     };
 
-    function formatCompName(name) 
-    {
+    function formatCompName(name) {
         return name.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
     }
 
@@ -92,9 +98,8 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     $ref: `#/components/schemas/${schemaName}`,
                 };
 
-            } 
-            else 
-            {
+            }
+            else {
                 // fieldClassType =
                 // {
                 //     type: field.type || 'string',
@@ -201,10 +206,10 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                         },
                     });
                 }
-                
+
             }
 
-            const operationObject : OperationObj =
+            const operationObject: OperationObj =
             {
                 summary: operation.oComment,
                 operationId: operation.oName,
@@ -231,24 +236,20 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                  * such that corresponding values are true
                  */
                 const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
-                
-                for (const key of Object.keys(operation.oRequestBody)) 
-                {
+
+                for (const key of Object.keys(operation.oRequestBody)) {
                     const field = dataStructures.find((dataStruct) => dataStruct.name.toLowerCase() === ds.name.toLowerCase())?.fields.find((f) => f.name === key);
 
-                    if (field) 
-                    {
-                        if (field.classType) 
-                        {
-                            requestBodyProperties[key] = 
+                    if (field) {
+                        if (field.classType) {
+                            requestBodyProperties[key] =
                             {
                                 $ref: `#/components/schemas/${formatCompName(field.classType)}`,
                             };
-                        } 
-                        else 
-                        {
+                        }
+                        else {
                             requestBodyProperties[key] = convertToValidDataType(field.type || 'string');
-                            
+
                             if (field.isArray) {
                                 requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
                             }
@@ -257,13 +258,13 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     }
                 }
 
-                operationObject.requestBody = 
+                operationObject.requestBody =
                 {
                     required: true,
                     content: {
-                        'application/json': 
+                        'application/json':
                         {
-                            schema: 
+                            schema:
                             {
                                 type: 'object',
                                 properties: requestBodyProperties,
@@ -274,21 +275,34 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                 };
             }
 
-            if (operation.oResponseObject && operation.oResponseObject.givenName) 
-            {
+            if (operation.oResponseObject && operation.oResponseObject.givenName) {
+                //console.log(operation)
                 const givenName = formatCompName(operation.oResponseObject.givenName);
                 const correspondingSchema = openAPISpec.components.schemas[givenName];
-
-                if (correspondingSchema)
-                {
-                    operationObject.responses[operation.oResponse].content['application/json'].schema = 
+                if (correspondingSchema) {
+                    operationObject.responses[operation.oResponse].content['application/json'].schema =
                     {
                         $ref: `#/components/schemas/${encodeURIComponent(givenName)}`,
+
                     };
-                } 
-                else 
-                {
-                    console.warn(`No schema found in components for givenName: ${givenName}`);
+
+                    //console.log(`#/components/schemas/${encodeURIComponent(givenName)}`)
+                }
+                else {
+                    // Find class type based on given name within data structure fields
+                    const dataStructure = dataStructures.find(ds => {
+                        return ds.fields.some(field => formatCompName(field.name) === givenName && field.classType);
+                    });
+                    if (dataStructure) {
+                        const field = dataStructure.fields.find(field => formatCompName(field.name) === givenName);
+                        const classTypeRef = formatCompName(field.classType);
+                        operationObject.responses[operation.oResponse].content['application/json'].schema =
+                        {
+                            $ref: `#/components/schemas/${classTypeRef}`,
+                        };
+                    } else {
+                        console.warn(`No schema or class type found in components for givenName: ${givenName}`);
+                    }
                 }
             }
 

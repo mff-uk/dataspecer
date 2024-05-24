@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from './components/ui/button';
@@ -199,7 +199,18 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         fetchData();
     }, [fetchDataStructures]);
 
-    //console.log("AAA" + JSON.stringify(fetchedDataStructuresArr));
+    const fetchDataButtonRef = useRef<HTMLButtonElement>(null);
+    
+    const [submitClicked, setSubmitClicked] = useState(false);
+
+    useEffect(() => {
+        if (!submitClicked && !fetchingData && fetchedData) {
+            fetchDataButtonRef.current?.click();
+            setSubmitClicked(false);
+        }
+    }, [submitClicked, fetchingData, fetchedData]);
+
+    
 
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -248,8 +259,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                 console.error('Form validation failed:', error.message);
             }
         }
+
+        setSubmitClicked(true)
     };
 
+    
     const addOperation = (index: number) => {
 
         const defaultDataStructure: DataStructure = {
@@ -310,7 +324,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         <form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Form Info */}
 
-            <Button type="button" onClick={fetchDataAndSetValues}>
+            <Button type="button" ref = {fetchDataButtonRef} onClick={fetchDataAndSetValues}>
                 Fetch Configuration
             </Button>
 
