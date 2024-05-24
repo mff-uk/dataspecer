@@ -144,19 +144,6 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
 
         const { properties, required } = createProperties(dataStructure.fields);
 
-        /* Each component has to have id as their property */
-        // if (!properties.id) {
-        //     properties.id = {
-        //         type: 'integer',
-        //     };
-        // }
-
-        // openAPISpec.components.schemas[schemaName] =
-        // {
-        //     type: 'object',
-        //     properties,
-        // };
-
 
         // TODO:  check if this works - adds comments
         if (Object.keys(properties).length === 1 && properties.id) {
@@ -184,6 +171,8 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
         if (!ds || !ds.fields) return;
         createComponentSchema(ds);
     });
+
+    
 
     // Constructing Paths and handling operations
     userInput.dataStructures.forEach((ds) => {
@@ -319,55 +308,74 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                 }
             }
 
-            if(method === 'get')
-            {
-                if (method === 'get') {
-                    parameters.push({
-                        name: 'filter',
-                        in: 'query',
-                        description: 'Filter results based on criteria',
-                        schema: {
-                            type: 'string',
-                        },
-                    });
-                    parameters.push({
-                        name: 'sortBy',
-                        in: 'query',
-                        description: 'Field to sort by',
-                        schema: {
-                            type: 'string',
-                        },
-                    });
-                    parameters.push({
-                        name: 'sortOrder',
-                        in: 'query',
-                        description: 'Sort order: asc or desc',
-                        schema: {
-                            type: 'string',
-                            enum: ['asc', 'desc'],
-                        },
-                    });
-                    parameters.push({
-                        name: 'page',
-                        in: 'query',
-                        description: 'Page number for pagination',
-                        schema: {
-                            type: 'integer',
-                            default: 1,
-                        },
-                    });
-                    parameters.push({
-                        name: 'pageSize',
-                        in: 'query',
-                        description: 'Number of items per page',
-                        schema: {
-                            type: 'integer',
-                            default: 10,
-                        },
-                    });
+        //     if(method === 'get')
+        //     {
+        //         if (method === 'get') {
+        //             parameters.push({
+        //                 name: 'filter',
+        //                 in: 'query',
+        //                 description: 'Filter results based on criteria',
+        //                 schema: {
+        //                     type: 'string',
+        //                 },
+        //             });
+        //             parameters.push({
+        //                 name: 'sortBy',
+        //                 in: 'query',
+        //                 description: 'Field to sort by',
+        //                 schema: {
+        //                     type: 'string',
+        //                 },
+        //             });
+        //             parameters.push({
+        //                 name: 'sortOrder',
+        //                 in: 'query',
+        //                 description: 'Sort order: asc or desc',
+        //                 schema: {
+        //                     type: 'string',
+        //                     enum: ['asc', 'desc'],
+        //                 },
+        //             });
+        //             parameters.push({
+        //                 name: 'page',
+        //                 in: 'query',
+        //                 description: 'Page number for pagination',
+        //                 schema: {
+        //                     type: 'integer',
+        //                     default: 1,
+        //                 },
+        //             });
+        //             parameters.push({
+        //                 name: 'pageSize',
+        //                 in: 'query',
+        //                 description: 'Number of items per page',
+        //                 schema: {
+        //                     type: 'integer',
+        //                     default: 10,
+        //                 },
+        //             });
+        //     }
+        // }
+            
+        if (method === 'get') {
+            const schemaName = formatCompName(ds.name);
+            const schema = openAPISpec.components.schemas[schemaName];
+        
+            if (schema && schema.properties) {
+                Object.keys(schema.properties).forEach((fieldName) => {
+                    // Exclude fields that are already part of path parameters
+                    if (!operation.oEndpoint.includes(`{${fieldName}}`)) {
+                        parameters.push({
+                            name: fieldName,
+                            in: 'query',
+                            description: `Filter results based on ${fieldName}`,
+                            schema: schema.properties[fieldName],
+                        });
+                    }
+                });
             }
         }
-            
+        
             openAPISpec.paths[path][method] = operationObject;
         });
     });
