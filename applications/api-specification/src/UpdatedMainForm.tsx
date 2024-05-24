@@ -11,6 +11,7 @@ import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureModel';
 import useSWR from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod'
+import OpenApiDisplay from './customComponents/OpenAPIDisplay';
 
 
 type Operation = {
@@ -143,6 +144,8 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     const modelIri = getModelIri();
 
     const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
+    let myFetchedData = null;
+    myFetchedData = fetchedData
 
 
     const fetchDataAndSetValues = async () => {
@@ -152,14 +155,14 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
         try {
 
             //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
-            if (fetchedData) {
-                console.log('Fetched Data:', fetchedData);
-                setValue('apiTitle', fetchedData.apiTitle);
-                setValue('apiDescription', fetchedData.apiDescription);
-                setValue('apiVersion', fetchedData.apiVersion);
-                setValue('baseUrl', fetchedData.baseUrl);
-                setValue('dataStructures', fetchedData.dataStructures);
-                setSelectedDataStructures(fetchedData.dataStructures);
+            if (myFetchedData) {
+                console.log('Fetched Data:', myFetchedData);
+                setValue('apiTitle', myFetchedData.apiTitle);
+                setValue('apiDescription', myFetchedData.apiDescription);
+                setValue('apiVersion', myFetchedData.apiVersion);
+                setValue('baseUrl', myFetchedData.baseUrl);
+                setValue('dataStructures', myFetchedData.dataStructures);
+                setSelectedDataStructures(myFetchedData.dataStructures);
             }
             else {
                 console.log("Fetched data is not yet available");
@@ -200,20 +203,54 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     }, [fetchDataStructures]);
 
     const fetchDataButtonRef = useRef<HTMLButtonElement>(null);
-    
-    const [submitClicked, setSubmitClicked] = useState(false);
 
-    useEffect(() => {
-        if (!submitClicked && !fetchingData) {
-            fetchDataButtonRef.current?.click();
-            setSubmitClicked(false);
-        }
-    }, [submitClicked, fetchingData]);
+    // const [submitClicked, setSubmitClicked] = useState(false);
 
-    
+    // useEffect(() => {
+    //     console.log(fetchedData)
+    //     console.log(myFetchedData)
 
 
-    const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    //     while(fetchedData!=myFetchedData)
+    //     {
+    //         console.log("not equal")
+    //     }
+
+    //     fetchDataButtonRef.current?.click();
+
+
+    // }, [fetchedData]);
+
+    // useEffect(() => {
+
+    //     console.log("THIS IS MYFETCHED DATA")
+    //     console.log(myFetchedData)
+
+    // }, [myFetchedData]);
+
+
+
+
+    // useEffect(() => {
+    //     let timeoutId;
+    //     if (!submitClicked && !fetchingData) {
+    //         timeoutId = setTimeout(() => {
+    //             fetchDataButtonRef.current?.click();
+    //             setSubmitClicked(false);
+    //         }, 2000); // 2 seconds delay
+    //     }
+    //     return () => clearTimeout(timeoutId);
+    // }, [submitClicked, fetchingData]);
+
+
+
+    const [openAPISpec, setOpenAPISpec] = useState<any>({});
+
+
+    const onSubmit: SubmitHandler<FormValues> = async (data, event) => {
+
+        console.log(event)
+        event.preventDefault();
 
         console.log("RAW DDATA" + JSON.stringify(data))
         //console.log("these are the values" + JSON.stringify(getValues()))
@@ -229,9 +266,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
         try {
 
-            const openAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
-            setGeneratedOpenAPISpecification(openAPISpec);
+            const newOpenAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
+            //setGeneratedOpenAPISpecification(openAPISpec);
             console.log(openAPISpec)
+            setOpenAPISpec(newOpenAPISpec);
+
 
             const response = await fetch(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`,
                 {
@@ -260,10 +299,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
             }
         }
 
-        setSubmitClicked(true)
+        myFetchedData = null
+
     };
 
-    
+
     const addOperation = (index: number) => {
 
         const defaultDataStructure: DataStructure = {
@@ -321,120 +361,135 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     };
 
     return (
-        <form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
-            {/* Form Info */}
+        <div className="flex flex-row gap-8">
+            <div className="flex flex-col gap-4">
+                {/* first col */}
+                <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {// Prevent default form submission
+                    handleSubmit(onSubmit)(e); // Call handleSubmit with your onSubmit function
+                }}>
+                    {/* Form Info */}
 
-            <Button type="button" ref = {fetchDataButtonRef} onClick={fetchDataAndSetValues}>
-                Fetch Configuration
-            </Button>
+                    <Button type="button" ref={fetchDataButtonRef} onClick={fetchDataAndSetValues}>
+                        Fetch Configuration
+                    </Button>
 
-            <FormCardSection>
-                <LabeledInput label="API Title" id="apiTitle" register={register} required />
-                {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
-                <LabeledInput label="API Description" id="apiDescription" register={register} required />
-                {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
-                <LabeledInput label="API Version" id="apiVersion" register={register} required />
-                {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
-                <LabeledInput label="Base URL" id="baseUrl" register={register} required />
-                {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
-                {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
-            </FormCardSection>
-
-            {/* Data Structures */}
-            <FormCardSection>
-                <h3>Data Structures:</h3>
-                {fields.map((field, index) => (
-                    <FormCardSection key={field.id}>
-                        <div className="flex flex-row justify-between">
-                            <div>
-                                <label>Choose Data Structure:</label>
-                                <DataStructuresSelect
-                                    key={`dataStructureSelect_${index}`}
-                                    index={index}
-                                    register={register}
-                                    dataStructures={fetchedDataStructuresArr}
-                                    //defaultValue={fetchedData?.dataStructures?.[index]?.name ?? ""}
-                                    //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
-                                    //isResponseObj={false}
-                                    onChange={(selectedDataStructure) => {
-
-                                        //const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
-                                        //const nameToUse = selectedDataStructure?.name ?? defaultValue;
-
-                                        console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
-                                        register(`dataStructures.${index}.name`).onChange({
-                                            target: {
-                                                value: selectedDataStructure.name,
-                                                //value: nameToUse
-                                            },
-
-                                        });
-
-                                        setSelectedDataStructures((prevState) => {
-                                            //const newState = [...prevState];
-                                            const newState = Array.isArray(prevState) ? [...prevState] : [];
-                                            newState[index] = selectedDataStructure;
-                                            return newState;
-                                        });
-
-                                        update(index, {
-                                            ...fields[index],
-                                            name: selectedDataStructure.givenName,
-                                            //name: selectedDataStructure?.givenName ?? defaultValue,
-                                            //id: selectedDataStructure.id,
-                                        });
-                                    }} //operationIndex={undefined}
-                                />
-                            </div>
-                            <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
-                                Delete
-                            </Button>
-                        </div>
-
-                        {/* Operations */}
-                        <FormCardSection>
-                            <h4>Operations:</h4>
-                            {!fetchingData && field.operations.map((op, opIndex) => (
-                                <OperationCard
-                                    defaultValue={fetchedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
-                                    //defaultValue= {getValues(`dataStructures.${index}.operations.${opIndex}.oResponseObject.givenName`) || ''}
-                                    key={opIndex}
-                                    operationIndex={opIndex}
-                                    removeOperation={removeOperation}
-                                    index={index}
-                                    register={register}
-                                    setValue={setValue}
-                                    getValues={getValues}
-                                    //collectionLogicEnabled={false}
-                                    //singleResourceLogicEnabled={false}
-                                    baseUrl={baseUrl}
-                                    selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
-                                    fetchedDataStructures={fetchedDataStructuresArr}
-                                    selectedDataStruct={selectedDataStructures} />
-                            ))}
-
-                            {/* Add operation button */}
-                            <Button
-                                className="zbg-blue-500 hover:bg-blue-400"
-                                type="button"
-                                onClick={() => addOperation(index)}
-                            >
-                                Add Operation
-                            </Button>
-                        </FormCardSection>
+                    <FormCardSection>
+                        <LabeledInput label="API Title" id="apiTitle" register={register} required />
+                        {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
+                        <LabeledInput label="API Description" id="apiDescription" register={register} required />
+                        {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
+                        <LabeledInput label="API Version" id="apiVersion" register={register} required />
+                        {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
+                        <LabeledInput label="Base URL" id="baseUrl" register={register} required />
+                        {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
+                        {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
                     </FormCardSection>
-                ))}
-                <Button
-                    className="bg-blue-500 hover:bg-blue-400"
-                    type="button"
-                    onClick={() => append({ name: '', operations: [] })}
-                >
-                    Add Data Structure
-                </Button>
-            </FormCardSection>
 
-            {/* Submit Button */}
-            <Button type="submit">Generate OpenAPI Specification</Button>
-        </form>
+                    {/* Data Structures */}
+                    <FormCardSection>
+                        <h3>Data Structures:</h3>
+                        {fields.map((field, index) => (
+                            <FormCardSection key={field.id}>
+                                <div className="flex flex-row justify-between">
+                                    <div>
+                                        <label>Choose Data Structure:</label>
+                                        <DataStructuresSelect
+                                            key={`dataStructureSelect_${index}`}
+                                            index={index}
+                                            register={register}
+                                            dataStructures={fetchedDataStructuresArr}
+                                            //defaultValue={fetchedData?.dataStructures?.[index]?.name ?? ""}
+                                            //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
+                                            //isResponseObj={false}
+                                            onChange={(selectedDataStructure) => {
+
+                                                //const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
+                                                //const nameToUse = selectedDataStructure?.name ?? defaultValue;
+
+                                                console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
+                                                register(`dataStructures.${index}.name`).onChange({
+                                                    target: {
+                                                        value: selectedDataStructure.name,
+                                                        //value: nameToUse
+                                                    },
+
+                                                });
+
+                                                setSelectedDataStructures((prevState) => {
+                                                    //const newState = [...prevState];
+                                                    const newState = Array.isArray(prevState) ? [...prevState] : [];
+                                                    newState[index] = selectedDataStructure;
+                                                    return newState;
+                                                });
+
+                                                update(index, {
+                                                    ...fields[index],
+                                                    name: selectedDataStructure.givenName,
+                                                    //name: selectedDataStructure?.givenName ?? defaultValue,
+                                                    //id: selectedDataStructure.id,
+                                                });
+                                            }} //operationIndex={undefined}
+                                        />
+                                    </div>
+                                    <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
+                                        Delete
+                                    </Button>
+                                </div>
+
+                                {/* Operations */}
+                                <FormCardSection>
+                                    <h4>Operations:</h4>
+                                    {!fetchingData && field.operations.map((op, opIndex) => (
+                                        <OperationCard
+                                            defaultValue={fetchedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
+                                            //defaultValue= {getValues(`dataStructures.${index}.operations.${opIndex}.oResponseObject.givenName`) || ''}
+                                            key={opIndex}
+                                            operationIndex={opIndex}
+                                            removeOperation={removeOperation}
+                                            index={index}
+                                            register={register}
+                                            setValue={setValue}
+                                            getValues={getValues}
+                                            //collectionLogicEnabled={false}
+                                            //singleResourceLogicEnabled={false}
+                                            baseUrl={baseUrl}
+                                            selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
+                                            fetchedDataStructures={fetchedDataStructuresArr}
+                                            selectedDataStruct={selectedDataStructures} />
+                                    ))}
+
+                                    {/* Add operation button */}
+                                    <Button
+                                        className="zbg-blue-500 hover:bg-blue-400"
+                                        type="button"
+                                        onClick={() => addOperation(index)}
+                                    >
+                                        Add Operation
+                                    </Button>
+                                </FormCardSection>
+                            </FormCardSection>
+                        ))}
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-400"
+                            type="button"
+                            onClick={() => append({ name: '', operations: [] })}
+                        >
+                            Add Data Structure
+                        </Button>
+                    </FormCardSection>
+
+                    {/* Submit Button */}
+                    <Button type="submit">Generate OpenAPI Specification</Button>
+
+
+                </form>
+            </div>
+
+
+            {/* Second Column */ }
+            <div className="flex flex-col gap-4">
+                <OpenApiDisplay generatedOpenAPISpecification={openAPISpec} />
+            </div>
+        </div>
     );
 };

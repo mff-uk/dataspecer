@@ -48,10 +48,6 @@ function hasDuplicate(parameters, name) {
 
 export function generateOpenAPISpecification(dataStructures, userInput) {
 
-    console.log("dataStructures")
-    console.log(dataStructures)
-    console.log("userInput")
-
     const openAPISpec = {
         openapi: '3.0.0',
         info: {
@@ -154,12 +150,6 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
         //         type: 'integer',
         //     };
         // }
-
-        openAPISpec.components.schemas[schemaName] = {
-            type: 'object',
-            properties,
-            required: required.length > 0 ? required : undefined,
-        };
 
         // openAPISpec.components.schemas[schemaName] =
         // {
