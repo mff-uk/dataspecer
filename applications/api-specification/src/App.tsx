@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import {ApiSpecificationForm} from './UpdatedMainForm.tsx'
-import {SplitScreen} from './SplitScreen.tsx'
 
 function App() {
   return (
