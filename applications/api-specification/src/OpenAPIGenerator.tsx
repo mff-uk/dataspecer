@@ -75,8 +75,10 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
     }
 
     /* Creates Schema Properties */
-    function createProperties(fields, requiredFields) {
-        const properties = {};
+    function createProperties(fields) {
+        //const properties = {};
+        const properties: { [key: string]: any } = {};
+        const required = []
 
         fields.forEach(field => {
 
@@ -112,13 +114,23 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
             properties[field.name] = field.isArray ? { type: 'array', items: fieldClassType } : fieldClassType;
 
             /* If the user has specified field in the requestbody mark them as required */
-            if (requiredFields && requiredFields.includes(field.name)) {
-                properties[field.name].required = true;
+            // if (requiredFields && requiredFields.includes(field.name)) {
+            //     properties[field.name].required = true;
+            // }
+
+            if (field.isMandatory) {
+                console.log(field)
+                required.push(field.name);
             }
 
         });
 
-        return properties;
+
+        if (!properties.id) {
+            properties.id = { type: 'integer' };
+        }
+        //return properties;
+        return { properties, required };
     }
 
     /* Creates Component Schema Recursively */
@@ -132,14 +144,22 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
         /* Check if component schema exists*/
         if (openAPISpec.components.schemas[schemaName]) return;
 
-        const properties = createProperties(dataStructure.fields, dataStructure.requiredFields) as { id: { type: string } };
+        //const properties = createProperties(dataStructure.fields, dataStructure.requiredFields) as { id: { type: string } };
+
+        const { properties, required } = createProperties(dataStructure.fields);
 
         /* Each component has to have id as their property */
-        if (!properties.id) {
-            properties.id = {
-                type: 'integer',
-            };
-        }
+        // if (!properties.id) {
+        //     properties.id = {
+        //         type: 'integer',
+        //     };
+        // }
+
+        openAPISpec.components.schemas[schemaName] = {
+            type: 'object',
+            properties,
+            required: required.length > 0 ? required : undefined,
+        };
 
         // openAPISpec.components.schemas[schemaName] =
         // {
@@ -159,6 +179,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
             openAPISpec.components.schemas[schemaName] = {
                 type: 'object',
                 properties,
+                required: required.length > 0 ? required : undefined
             };
         }
     }
@@ -305,6 +326,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     }
                 }
             }
+
 
             openAPISpec.paths[path][method] = operationObject;
         });

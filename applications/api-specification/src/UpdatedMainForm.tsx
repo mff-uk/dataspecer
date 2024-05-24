@@ -204,11 +204,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     const [submitClicked, setSubmitClicked] = useState(false);
 
     useEffect(() => {
-        if (!submitClicked && !fetchingData && fetchedData) {
+        if (!submitClicked && !fetchingData) {
             fetchDataButtonRef.current?.click();
             setSubmitClicked(false);
         }
-    }, [submitClicked, fetchingData, fetchedData]);
+    }, [submitClicked, fetchingData]);
 
     
 

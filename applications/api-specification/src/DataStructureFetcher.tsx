@@ -179,7 +179,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
             isArray = true;
         }
 
-        if(targetResource.CardinalityMin == 1 && targetResource.pimCardinalityMax == 1)
+        if(targetResource.pimCardinalityMin == 1 && targetResource.pimCardinalityMax == 1)
         {
             isMandatory =  true;
         }
