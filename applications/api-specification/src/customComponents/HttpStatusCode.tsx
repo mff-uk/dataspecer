@@ -20,11 +20,11 @@ const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationInd
         return (
             <>
                 {/* Operation Type Label*/}
-                <label htmlFor={`operationType_${index}_${operationIndex}`}>
+                <label htmlFor={`operationType_${index}_${operationIndex}`}> 
                     Response code:
                 </label>
                 <select
-                    id={`operationType_${index}_${operationIndex}`}
+                    //id={`operationType_${index}_${operationIndex}`}
                     {...register(path)}
                     required
                 >

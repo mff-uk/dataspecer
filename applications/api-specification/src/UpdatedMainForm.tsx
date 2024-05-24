@@ -34,7 +34,6 @@ type FormValues = {
     apiDescription: string;
     apiVersion: string;
     baseUrl: string;
-    //dataSpecification: string;
     dataStructures: {
         id?: string;
         name: string;
@@ -80,12 +79,12 @@ const fetchSavedConfig = async (url: string) => {
     return response.json();
 };
 
-//export const ApiSpecificationForm = () => {
-interface ApiSpecificationFormProps {
-    setGeneratedOpenAPISpecification: (openAPISpec: any) => void;
-}
+export const ApiSpecificationForm = () => {
+// interface ApiSpecificationFormProps {
+//     setGeneratedOpenAPISpecification: (openAPISpec: any) => void;
+// }
 
-export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setGeneratedOpenAPISpecification }) => {
+// export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = () => {
     const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
         resolver: zodResolver(formSchema)
     });
@@ -176,7 +175,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
     /* END - GET Presaved configuration */
 
-
     useEffect(() => {
         if (!fetchDataStructures) {
             console.error('fetchDataStructures is not defined or not callable');
@@ -222,7 +220,7 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
         const newData = getValues();
         console.log(newData)
-        
+
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('model-iri');
@@ -328,15 +326,11 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
     return (
         <div className="flex flex-row gap-8">
             <div className="flex flex-col gap-4">
-                {/* first col */}
+                {/* first column */}
                 <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {// Prevent default form submission
                     handleSubmit(onSubmit)(e); // Call handleSubmit with your onSubmit function
                 }}>
                     {/* Form Info */}
-
-                    {/* <Button type="button" ref={fetchDataButtonRef} onClick={fetchDataAndSetValues}>
-                        Fetch Configuration
-                    </Button> */}
 
                     <FormCardSection>
                         <LabeledInput label="API Title" id="apiTitle" register={register} required />
@@ -363,23 +357,17 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                             index={index}
                                             register={register}
                                             dataStructures={fetchedDataStructuresArr}
-                                            //defaultValue={fetchedData?.dataStructures?.[index]?.name ?? ""}
-                                            //defaultValue={fetchedData ? fetchedData.dataStructures?.[index]?.name ?? "" : ""}
-                                            //isResponseObj={false}
-                                            onChange={(selectedDataStructure) => {
-                                                //const defaultValue = fetchedData?.dataStructures?.[index]?.name ?? "";
-                                                //const nameToUse = selectedDataStructure?.name ?? defaultValue;
 
-                                                console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
+                                            onChange={(selectedDataStructure) => {
+
+                                                //console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                                 register(`dataStructures.${index}.name`).onChange({
                                                     target: {
-                                                        value: selectedDataStructure.name,
-                                                        //value: nameToUse
+                                                        value: selectedDataStructure?.name || selectedDataStructure?.givenName,
                                                     },
                                                 });
 
                                                 setSelectedDataStructures((prevState) => {
-                                                    //const newState = [...prevState];
                                                     const newState = Array.isArray(prevState) ? [...prevState] : [];
                                                     newState[index] = selectedDataStructure;
                                                     return newState;
@@ -387,12 +375,9 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
 
                                                 update(index, {
                                                     ...fields[index],
-                                                    name: selectedDataStructure.givenName,
-                                                    //name: selectedDataStructure?.givenName ?? defaultValue,
-                                                    //id: selectedDataStructure.id,
+                                                    name: selectedDataStructure?.givenName || selectedDataStructure?.name,
                                                 });
-                                            } } //operationIndex={undefined}
-                                                                                    />
+                                            } } getValues={getValues}                                                                                    />
                                     </div>
                                     <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
                                         Delete
@@ -405,7 +390,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                     {!fetchingData && field.operations.map((op, opIndex) => (
                                         <OperationCard
                                             defaultValue={fetchedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
-                                            //defaultValue= {getValues(`dataStructures.${index}.operations.${opIndex}.oResponseObject.givenName`) || ''}
                                             key={opIndex}
                                             operationIndex={opIndex}
                                             removeOperation={removeOperation}
@@ -413,8 +397,6 @@ export const ApiSpecificationForm: React.FC<ApiSpecificationFormProps> = ({ setG
                                             register={register}
                                             setValue={setValue}
                                             getValues={getValues}
-                                            //collectionLogicEnabled={false}
-                                            //singleResourceLogicEnabled={false}
                                             baseUrl={baseUrl}
                                             selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
                                             fetchedDataStructures={fetchedDataStructuresArr}
