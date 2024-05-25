@@ -9,7 +9,6 @@ import {
     getSmoothStepPath,
     useStore,
 } from "reactflow";
-
 import { getEdgeParams, getLoopPath } from "./utils";
 import {
     type SemanticModelRelationship,
@@ -67,10 +66,15 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const isProfile = isSemanticModelRelationshipUsage(entity) || isSemanticModelClassUsage(entity);
 
     let displayName: string | null = null;
+    let parentNames = [] as string[];
     if (isSemanticModelGeneralization(entity) || isSemanticModelClassUsage(entity)) {
         displayName = null;
     } else {
-        displayName = EntityProxy(entity, preferredLanguage).name;
+        const proxy = EntityProxy(entity, preferredLanguage);
+        displayName = proxy.name;
+        parentNames = proxy.specializationOf
+            .map((parent) => EntityProxy(parent, preferredLanguage).name)
+            .filter((n): n is string => n != null);
     }
 
     if (!sourceNode || !targetNode) {
@@ -161,7 +165,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                         e.stopPropagation();
                     }}
                 >
-                    <EdgeNameLabel name={displayName} isProfile={isProfile} />
+                    <EdgeNameLabel name={displayName} isProfile={isProfile} hasParents={parentNames} />
                     <EdgeUsageNotesLabel usageNotes={d.usageNotes} />
                     {isMenuOptionsOpen && (
                         <MenuOptions

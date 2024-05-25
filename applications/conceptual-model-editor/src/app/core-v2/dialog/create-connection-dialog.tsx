@@ -136,7 +136,7 @@ export const useCreateConnectionDialog = () => {
         const { source: sourceId, target: targetId } = connectionCreated;
 
         const { language: preferredLanguage } = useConfigurationContext();
-        const { classes2: c, profiles: p } = useClassesContext();
+        const { classes: c, profiles: p } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");

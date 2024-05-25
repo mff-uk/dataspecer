@@ -29,10 +29,8 @@ import type { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import type { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
-    classes: Map<string, SemanticModelClassWithOrigin>; // was an array, [classId, classWithOrigin]
-    setClasses: React.Dispatch<React.SetStateAction<Map<string, SemanticModelClassWithOrigin>>>;
-    classes2: SemanticModelClass[]; // was an array, [classId, classWithOrigin]
-    setClasses2: React.Dispatch<React.SetStateAction<SemanticModelClass[]>>;
+    classes: SemanticModelClass[];
+    setClasses: React.Dispatch<React.SetStateAction<SemanticModelClass[]>>;
     allowedClasses: string[];
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
     relationships: SemanticModelRelationship[];
@@ -41,15 +39,10 @@ export type ClassesContextType = {
     setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
     profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
     setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
-    sourceModelOfEntityMap: Map<string, string>; // was an array, [classId, classWithOrigin]
+    sourceModelOfEntityMap: Map<string, string>;
     setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
     rawEntities: (Entity | null)[];
     setRawEntities: React.Dispatch<React.SetStateAction<(Entity | null)[]>>;
-};
-
-export type SemanticModelClassWithOrigin = {
-    cls: SemanticModelClass;
-    origin: string; // modelId
 };
 
 export const ClassesContext = React.createContext(null as unknown as ClassesContextType);
@@ -58,8 +51,6 @@ export const useClassesContext = () => {
     const {
         classes,
         setClasses,
-        classes2,
-        setClasses2,
         allowedClasses,
         setAllowedClasses,
         relationships,
@@ -214,8 +205,6 @@ export const useClassesContext = () => {
     return {
         classes,
         setClasses,
-        classes2,
-        setClasses2,
         allowedClasses,
         setAllowedClasses,
         relationships,
@@ -224,6 +213,7 @@ export const useClassesContext = () => {
         setGeneralizations,
         profiles,
         setProfiles,
+        /** map entityId --> modelId */
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
         rawEntities,

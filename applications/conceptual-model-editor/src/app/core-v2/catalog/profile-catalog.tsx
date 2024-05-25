@@ -11,7 +11,7 @@ export const ProfileCatalog = () => {
                     return (
                         <EntitiesOfModel
                             entityType="profile"
-                            key={modelId + model.getAlias() + "profiles"}
+                            key={modelId + (model.getAlias() ?? "no-model-alias") + "profiles"}
                             model={model}
                         />
                     );

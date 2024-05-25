@@ -45,8 +45,19 @@ export interface EntityDetailProxy {
     description: string | null;
     iri: string | null;
     usageNote: string | null;
-    specializationOf: SemanticModelClass[];
-    generalizationOf: SemanticModelClass[];
+    specializationOf: (
+        | SemanticModelClass
+        | SemanticModelRelationship
+        | SemanticModelClassUsage
+        | SemanticModelRelationshipUsage
+    )[];
+    specializationOfAsGeneralizations: SemanticModelGeneralization[];
+    generalizationOf: (
+        | SemanticModelClass
+        | SemanticModelRelationship
+        | SemanticModelClassUsage
+        | SemanticModelRelationshipUsage
+    )[];
     profileOf:
         | SemanticModelClass
         | SemanticModelRelationship
@@ -85,7 +96,7 @@ export interface EntityDetailProxy {
 }
 
 export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
-    const { classes2: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
+    const { classes: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
     const { models: m } = useModelGraphContext();
     const models = [...m.values()];
     const sourceModel = sourceModelOfEntity(viewedEntity.id, models);
@@ -103,6 +114,8 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
                 return getEntityIri();
             } else if (property === "specializationOf") {
                 return getSpecializationOf();
+            } else if (property === "specializationOfAsGeneralizations") {
+                return getSpecializationOfAsGeneralizations();
             } else if (property === "generalizationOf") {
                 return getGeneralizationOf();
             } else if (property === "profileOf") {
@@ -146,16 +159,42 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
     const getSpecializationOf = () =>
         generalizations
             .filter((g) => g.child == viewedEntity.id)
-            .map((g) => c.find((cl) => cl.id == g.parent))
-            .filter((cl) => isSemanticModelClass(cl ?? null))
-            .filter((cl): cl is SemanticModelClass => cl != undefined);
+            .map(
+                (g) =>
+                    c.find((cl) => cl.id == g.parent) ??
+                    r.find((re) => re.id == g.parent) ??
+                    profiles.find((p) => p.id == g.parent)
+            )
+            .filter(
+                (
+                    e
+                ): e is
+                    | SemanticModelClass
+                    | SemanticModelClassUsage
+                    | SemanticModelRelationship
+                    | SemanticModelRelationshipUsage => e != undefined
+            );
+
+    const getSpecializationOfAsGeneralizations = () => generalizations.filter((g) => g.child == viewedEntity.id);
 
     const getGeneralizationOf = () =>
         generalizations
             .filter((g) => g.parent == viewedEntity.id)
-            .map((g) => c.find((cl) => cl.id == g.child))
-            .filter((cl) => isSemanticModelClass(cl ?? null))
-            .filter((cl): cl is SemanticModelClass => cl != undefined);
+            .map(
+                (g) =>
+                    c.find((cl) => cl.id == g.child) ??
+                    r.find((re) => re.id == g.child) ??
+                    profiles.find((p) => p.id == g.child)
+            )
+            .filter(
+                (
+                    e
+                ): e is
+                    | SemanticModelClass
+                    | SemanticModelClassUsage
+                    | SemanticModelRelationship
+                    | SemanticModelRelationshipUsage => e != undefined
+            );
 
     const isProfileOf = () =>
         isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)
@@ -255,6 +294,8 @@ export const getEntityTypeString = (entity: EntityDetailSupportedType | null) =>
     }
     if (isSemanticModelAttribute(entity)) {
         return "relationship (attribute)";
+    } else if (isSemanticModelRelationship(entity)) {
+        return "relationship";
     } else if (isSemanticModelAttributeUsage(entity)) {
         return "relationship profile (attribute)";
     } else if (isSemanticModelClassUsage(entity)) {

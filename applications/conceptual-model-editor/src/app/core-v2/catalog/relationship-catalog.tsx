@@ -10,7 +10,7 @@ export const RelationshipCatalog = () => {
                 {[...models.entries()].map(([modelId, model]) => (
                     <EntitiesOfModel
                         entityType="relationship"
-                        key={modelId + model.getAlias() + "relationships"}
+                        key={modelId + (model.getAlias() ?? "no-model-alias") + "relationships"}
                         model={model}
                     />
                 ))}
