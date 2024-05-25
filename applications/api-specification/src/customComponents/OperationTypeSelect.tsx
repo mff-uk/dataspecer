@@ -69,13 +69,13 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     let suggestedPath = '';
 
     if (dataStructure && isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
+        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
     } else if (dataStructure && !isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
+        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
     } else if (dataStructure && isCollection && !associationModeOn) {
-        suggestedPath = pluralizeAndNoSpaces(dataStructure);
+        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}`;
     } else if (dataStructure && !isCollection && !associationModeOn) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}`;
+        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}`;
     }
 
     const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
