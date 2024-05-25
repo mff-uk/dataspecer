@@ -41,12 +41,20 @@ export const useAutoSave = () => {
         if (!packageId) {
             return;
         }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
-        showWasAutosaved();
+        const status = await updateSemanticModelPackageModels(
+            packageId,
+            [...models.values()],
+            [...visualModels.values()]
+        );
+        if (status) {
+            showWasAutosaved();
+        } else {
+            showWasAutosaved("fail");
+        }
     };
 
-    const showWasAutosaved = () => {
-        setAutosaveButtonLabel("...saved 🤞");
+    const showWasAutosaved = (result: "success" | "fail" = "success") => {
+        setAutosaveButtonLabel(`... ${result}`);
         setTimeout(() => {
             setAutosaveButtonLabel(getCurrentLabel());
         }, 750);

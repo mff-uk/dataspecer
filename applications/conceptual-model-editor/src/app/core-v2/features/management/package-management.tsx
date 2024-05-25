@@ -1,5 +1,8 @@
 import { useBackendConnection } from "../../backend-connection";
-import { SavePackageAndLeaveButton, SavePackageButton } from "../../components/management/buttons/save-package-buttons";
+import {
+    SavePackageAndLeaveButton,
+    useUpdatingSavePackageButton,
+} from "../../components/management/buttons/save-package-buttons";
 import { useModelGraphContext } from "../../context/model-context";
 import { usePackageSearch } from "../../util/package-search";
 
@@ -14,7 +17,7 @@ export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
     const { packageId } = usePackageSearch();
     const { models, visualModels } = useModelGraphContext();
-    // const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();
+    const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();
 
     const handleSavePackage = async () => {
         if (!packageId) {
@@ -26,11 +29,11 @@ export const PackageManagement = () => {
             [...visualModels.values()]
         );
 
-        // if (result) {
-        //     showMessage("success");
-        // } else {
-        //     showMessage("fail");
-        // }
+        if (result) {
+            showMessage("success");
+        } else {
+            showMessage("fail");
+        }
 
         return result;
     };
@@ -49,7 +52,7 @@ export const PackageManagement = () => {
 
     return (
         <div className="my-auto flex flex-row text-nowrap">
-            <SavePackageButton
+            <UpdatingSavePackageButton
                 disabled={!packageId}
                 title={packageId ? SAVE_PACKAGE : YOU_NEED_A_PACKAGE_ON_BACKEND}
                 onClick={handleSavePackage}
