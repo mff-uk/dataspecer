@@ -7,11 +7,11 @@ export interface OApiOperationObj {
         [x: number]:
         {
             description: string;
-            content:
+            content?:
             {
                 'application/json':
                 {
-                    schema: {}
+                    schema: {};
                 };
             };
         };

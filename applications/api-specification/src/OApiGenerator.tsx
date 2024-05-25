@@ -203,12 +203,10 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
      */
     if (operation.oType.toLowerCase() === 'put') {
         let schemaName = ds.name;
-        
         if(operation.oResponseObject && operation.oResponseObject.givenName)
         {
             schemaName = operation.oResponseObject.givenName;
         }
-
         operationObject.requestBody = {
             required: true,
             content: {
@@ -239,8 +237,15 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
         },
     };
 
+    if(operation.oResponse === "200" || operation.oResponse === "201")
+    {
+        responses[operation.oResponse].content['application/json'].schema = {
+            $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
+        };
+    }
+
     // If response obj was provided by the user (target data structure on the form )
-    if (operation.oResponseObject && operation.oResponseObject.givenName) {
+    if (operation.oResponseObject && operation.oResponseObject.givenName && (operation.oResponse === "200" || operation.oResponse === "201")) {
         // get name and correspondingschema of this ds
         const givenName = formatName(operation.oResponseObject.givenName);
         const correspondingSchema = openAPISpec.components.schemas[givenName];
@@ -250,23 +255,21 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
          * else - update schema 
          */
         if (correspondingSchema) {
-            if(operation.isCollection && operation.oType == "GET" && operation.oResponse == "200")
-            {
-                responses[operation.oResponse].content['application/json'].schema = {
-                    $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
-                };
-            }
-            else
-            {
-                responses[operation.oResponse].content['application/json'].schema = {
-                    $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
-                };
-            }
-
+            responses[operation.oResponse].content['application/json'].schema = {
+                $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
+            };
         }
         else {
             updateResponseObjSchema(dataStructures, ds, givenName, responses, operation);
         }
+    }
+
+    if(operation.isCollection && operation.oType === "GET" && operation.oResponse === "200")
+    {
+        responses[operation.oResponse].content['application/json'].schema = {
+            type: 'array',
+            items: responses[operation.oResponse].content['application/json'].schema,
+        };
     }
 
     return responses;
@@ -280,7 +283,6 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
         return ds.fields.some(field => formatName(field.name) === givenName && field.classType);
     });
 
-
     /* 
      * If such datastruture is found 
      * update schema within the response obj
@@ -288,20 +290,10 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
     if (dataStructure) {
         const field = dataStructure.fields.find(field => formatName(field.name) === givenName);
         const classTypeRef = formatName(field.classType);
-        if(operation.isCollection && operation.oType == "GET" && operation.oResponse == "200")
+        responses[operation.oResponse].content['application/json'].schema =
         {
-            responses[operation.oResponse].content['application/json'].schema = {
-                $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
-            };
-        }
-        else
-        {
-            responses[operation.oResponse].content['application/json'].schema =
-            {
-                $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
-            };
-        }
-
+            $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
+        };
     }
     else {
         console.warn(`No schema or class type found in components for givenName: ${givenName}`);
