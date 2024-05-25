@@ -11,7 +11,7 @@ export const EntityCatalog = () => {
                     return (
                         <EntitiesOfModel
                             entityType="class"
-                            key={modelId + model.getAlias() + "classes"}
+                            key={modelId + (model.getAlias() ?? "no-alias") + "classes"}
                             model={model}
                         />
                     );

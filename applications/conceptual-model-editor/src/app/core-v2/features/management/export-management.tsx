@@ -59,9 +59,7 @@ export const ExportManagement = () => {
         activeView?: string
     ) => {
         replaceModels(entityModels, visualModels);
-        // addVisualModelToGraph(...visualModels);
         aggregatorView.changeActiveVisualModel(activeView ?? visualModels.at(0)?.getId() ?? null);
-        // addModelToGraph(...entityModels);
         setAggregatorView(aggregator.getView());
         console.log("export-management: use configuration finished");
     };

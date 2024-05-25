@@ -64,7 +64,7 @@ export const Visualization = () => {
 
     const { downloadImage } = useDownload();
 
-    const { classes, classes2, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
+    const { classes, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -138,7 +138,7 @@ export const Visualization = () => {
 
     const getCurrentClassesRelationshipsGeneralizationsAndProfiles = () => {
         return {
-            classes2,
+            classes,
             relationships,
             attributes: relationships.filter(isSemanticModelAttribute),
             generalizations,
@@ -209,7 +209,7 @@ export const Visualization = () => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
             let {
-                classes2: localClasses,
+                classes: localClasses,
                 relationships: localRelationships,
                 attributes: localAttributes,
                 generalizations: localGeneralizations,
@@ -285,14 +285,18 @@ export const Visualization = () => {
 
             if (removed.length > 0) {
                 // --- removed entities --- --- ---
-                const [affectedNodeIds, nodesAffectedByAttributeRemovals] = localAttributes
+                const [affectedNodeIds, nodesAffectedByAttributeRemovals] = [
+                    ...localAttributes,
+                    ...localAttributeProfiles,
+                ]
                     .filter((a) => removed.includes(a.id))
                     .map((a) => {
                         const aggregatedEntityOfAttributesNode =
-                            entities[a.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+                            entities[temporaryDomainRangeHelper(a)?.domain.concept ?? ""]?.aggregatedEntity ?? null;
                         const visualEntityOfAttributesNode =
                             entities[aggregatedEntityOfAttributesNode?.id ?? ""]?.visualEntity;
                         localAttributes = localAttributes.filter((la) => la.id != a.id);
+                        localAttributeProfiles = localAttributeProfiles.filter((lap) => lap.id != a.id);
 
                         if (
                             isSemanticModelClass(aggregatedEntityOfAttributesNode) ||
@@ -338,9 +342,7 @@ export const Visualization = () => {
                         continue;
                     }
                     // it is an attribute, rerender the node that the attribute comes form
-                    const domainOfAttribute = isSemanticModelAttribute(entity)
-                        ? getDomainAndRange(entity)?.domain.concept
-                        : null;
+                    const domainOfAttribute = temporaryDomainRangeHelper(entity)?.domain.concept;
                     const aggrEntityOfAttributesNode =
                         entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
 

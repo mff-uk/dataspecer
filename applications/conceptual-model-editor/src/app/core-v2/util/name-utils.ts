@@ -16,6 +16,7 @@ import {
 import { getIri } from "./iri-utils";
 import type { EntityModel } from "@dataspecer/core-v2";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
+import { EntityProxy } from "./detail-utils";
 
 export const getNameLanguageString = (
     resource:
@@ -109,6 +110,31 @@ export const getModelDisplayName = (model: EntityModel | null | undefined) => {
     } else {
         return model.getId();
     }
+};
+
+export const getDuplicateNames = (
+    resources: (
+        | SemanticModelClass
+        | SemanticModelRelationship
+        | SemanticModelClassUsage
+        | SemanticModelRelationshipUsage
+    )[]
+) => {
+    return new Set(
+        Object.entries(
+            resources
+                .map((c) => EntityProxy(c).name)
+                .reduce((prev: { [key: string]: number }, curr) => {
+                    if (!curr) {
+                        return prev;
+                    }
+                    prev[curr] = (prev[curr] || 0) + 1;
+                    return prev;
+                }, {})
+        )
+            .filter(([_, occurrence]) => occurrence > 1)
+            .map(([name, _]) => name)
+    );
 };
 
 // --- GENERATE NAMES --- --- ---
