@@ -7,7 +7,7 @@ export const httpStatusCodes: StatusCode[] =
     [
         { value: '200', label: '200 - successful request', message: 'successful request' }, 
         { value: '201', label: '201 - new resource created', message: 'new resource created' }, 
-        { value: '204', label: '204 - success with no content tu return', message: 'success with no content tu return' }, 
+        { value: '204', label: '204 - success with no content to return', message: 'success with no content to return' }, 
         { value: '400', label: '400 - bad request', message: 'bad request' }, 
         { value: '401', label: '401 - unauthorised', message: 'unauthorised' },
         { value: '500', label: '500 - internal server error', message: 'internal server error' },  

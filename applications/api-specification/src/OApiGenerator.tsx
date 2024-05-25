@@ -97,7 +97,7 @@ function createProperties(openAPISpec, fields) {
 
     /* Append id of type integer as identifier if not present */
     if (!properties.id) {
-        properties.id = { type: 'integer' };
+        properties.id = { type: 'string' };
     }
 
     return { properties, required };

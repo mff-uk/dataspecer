@@ -40,7 +40,7 @@ export const formValidationchema = z.object({
                     oNameSet.add(operation.oName);
                 }
                 return true;
-            }, { message: "Error: Operationn name must be unique." })
+            }, { message: "Error: Operation name must be unique." })
         })
     ).optional(),
 });
