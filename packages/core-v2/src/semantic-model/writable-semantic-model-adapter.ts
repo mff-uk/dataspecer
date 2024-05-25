@@ -232,6 +232,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                 id,
                 usageOf: operation.entity.usageOf,
                 type: ["class-usage"],
+                iri: operation.entity.iri ?? null,
                 name: operation.entity.name ?? null,
                 description: operation.entity.description ?? null,
                 usageNote: operation.entity.usageNote ?? null,
@@ -277,6 +278,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                 usageNote: operation.entity.usageNote ?? null,
                 id,
                 type: ["relationship-usage"],
+                iri: operation.entity.iri ?? null,
                 usageOf: operation.entity.usageOf,
                 name: operation.entity.name ?? null,
                 description: operation.entity.description ?? null,
@@ -287,6 +289,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                         cardinality: operation.entity.ends?.[0]?.cardinality ?? null,
                         concept: operation.entity.ends?.[0]?.concept ?? null,
                         usageNote: operation.entity.ends?.[0]?.usageNote ?? null,
+                        iri: operation.entity.ends?.[0]?.iri ?? null,
                     },
                     {
                         name: operation.entity.ends?.[1]?.name ?? null,
@@ -294,6 +297,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                         cardinality: operation.entity.ends?.[1]?.cardinality ?? null,
                         concept: operation.entity.ends?.[1]?.concept ?? null,
                         usageNote: operation.entity.ends?.[1]?.usageNote ?? null,
+                        iri: operation.entity.ends?.[1]?.iri ?? null,
                     },
                 ],
             };
@@ -500,6 +504,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                     id,
                     usageOf: operation.entity.usageOf,
                     type: ["class-usage"],
+                    iri: operation.entity.iri ?? null,
                     name: operation.entity.name ?? null,
                     description: operation.entity.description ?? null,
                     usageNote: operation.entity.usageNote ?? null,
@@ -532,6 +537,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                     usageNote: operation.entity.usageNote ?? null,
                     id,
                     type: ["relationship-usage"],
+                    iri: operation.entity.iri ?? null,
                     usageOf: operation.entity.usageOf,
                     name: operation.entity.name ?? null,
                     description: operation.entity.description ?? null,
@@ -542,6 +548,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                             cardinality: operation.entity.ends?.[0]?.cardinality ?? null,
                             concept: operation.entity.ends?.[0]?.concept ?? null,
                             usageNote: operation.entity.ends?.[0]?.usageNote ?? null,
+                            iri: operation.entity.ends?.[0]?.iri ?? null,
                         },
                         {
                             name: operation.entity.ends?.[1]?.name ?? null,
@@ -549,6 +556,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                             cardinality: operation.entity.ends?.[1]?.cardinality ?? null,
                             concept: operation.entity.ends?.[1]?.concept ?? null,
                             usageNote: operation.entity.ends?.[1]?.usageNote ?? null,
+                            iri: operation.entity.ends?.[0]?.iri ?? null,
                         },
                     ],
                 };

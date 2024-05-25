@@ -237,6 +237,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         }}>
             {dataSpecificationIri && <ConfigureArtifacts dataSpecificationIri={dataSpecificationIri} />}
             <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
+            <Button variant="contained" href={process.env.REACT_APP_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
         </Box>
 
         <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />

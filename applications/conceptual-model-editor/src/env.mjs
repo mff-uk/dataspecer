@@ -14,6 +14,8 @@ const server = z.object({
  */
 const client = z.object({
     NEXT_PUBLIC_APP_BACKEND: z.string().url(),
+    NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: z.coerce.number(),
+    NEXT_PUBLIC_MANAGER_PATH: z.string(),
 });
 
 /**
@@ -25,6 +27,8 @@ const client = z.object({
 const processEnv = {
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_APP_BACKEND: process.env.NEXT_PUBLIC_APP_BACKEND,
+    NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS,
+    NEXT_PUBLIC_MANAGER_PATH: process.env.NEXT_PUBLIC_MANAGER_PATH,
 };
 
 // Don't touch the part below

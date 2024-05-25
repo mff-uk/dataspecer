@@ -1,4 +1,3 @@
-import { off } from "process";
 import { Node, Position, internalsSymbol } from "reactflow";
 
 // returns the position (top,right,bottom or right) passed node compared to
@@ -96,15 +95,6 @@ export const getEdgeParams = (source: Node, target: Node) => {
 const leftRight = ["left", "right"];
 const topBottom = ["bottom", "top"];
 
-const lt = (x: number, y: number, size = 5) => `L ${x},${y + size}Q ${x},${y} ${x + size},${y}`;
-const rt = (x: number, y: number, size = 5) => `L ${x},${y + size}Q ${x},${y} ${x - size},${y}`;
-const lb = (x: number, y: number, size = 5) => `L ${x},${y - size}Q ${x},${y} ${x + size},${y}`;
-const rb = (x: number, y: number, size = 5) => `L ${x},${y - size}Q ${x},${y} ${x - size},${y}`;
-const tl = (x: number, y: number, size = 5) => `L ${x + size},${y}Q ${x},${y} ${x},${y + size}`;
-const tr = (x: number, y: number, size = 5) => `L ${x - size},${y}Q ${x},${y} ${x},${y + size}`;
-const bl = (x: number, y: number, size = 5) => `L ${x + size},${y}Q ${x},${y} ${x},${y - size}`;
-const br = (x: number, y: number, size = 5) => `L ${x - size},${y}Q ${x},${y} ${x},${y - size}`;
-
 export function getCorner(s: Node, t: Node, offset = 30) {
     let x, y;
     if (topBottom.includes(s.sourcePosition ?? "florb"))
@@ -143,3 +133,13 @@ export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30)
     } ${t.position.y + handleT!.y}`;
     return [path, p2.x, p2.y] as const;
 }
+
+export const onDragStart = (event: DragEvent, entityId: string, nodeType: string) => {
+    if (!event.dataTransfer) {
+        return;
+    }
+    event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.setData("application/reactflow-entityId", entityId);
+
+    event.dataTransfer.effectAllowed = "move";
+};

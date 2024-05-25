@@ -1,21 +1,41 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../components/ui/button';
+import { Switch } from "../components/ui/switch.tsx";
 import { Card } from '../components/ui/card';
 import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
+import StatusCodeSelect from './HttpStatusCode';
+import Association from '../customComponents/IsAssociationSwitch.tsx';
+import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
+import { DataStructure } from '@/Models/DataStructureModel.tsx';
+import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
-interface OperationCardProps {
-    operationIndex: number;
-    removeOperation: (index: number, operationIndex: number) => void;
-    index: number;
-    register: any;
-    collectionLogicEnabled: boolean;
-    singleResourceLogicEnabled: boolean;
-}
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, collectionLogicEnabled,  singleResourceLogicEnabled}) => {
+    const [selectedResponseObject, setSelectedResponseObject] = useState(null);
+    const [responseObjectFields, setResponseObjectFields] = useState([]);
+    const [isCollection, setIsCollection] = useState(false);
+    const [associationModeOn, setAssotiationMode] = useState(false);
+
+    useEffect(() => {
+        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+        const savedValue = getValues(path);
+    }, [getValues, index, operationIndex]);
+
+    const deleteButtonRef = useRef(null);
+    useEffect(() => {
+        try {
+            const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
+            setValue(path, selectedResponseObject ? selectedResponseObject.name : '');
+        }
+        catch
+        {
+            //console.log("ANASTASIA")
+        }
+    }, [selectedResponseObject, setValue, index, operationIndex]);
+
     return (
         <div key={operationIndex}>
             <Card className="p-2">
@@ -26,6 +46,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                     </div>
                     <div>
                         <Button
+                            ref={deleteButtonRef}
                             className="bg-red-500 hover:bg-red-400"
                             type="button"
                             onClick={() => removeOperation(index, operationIndex)}
@@ -35,39 +56,72 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                     </div>
                 </div>
                 {/* Form fields for operation details */}
-                <Card className="p-5">
-                    {/* Operation Type */}
-                    <OperationTypeSelect
+                <Card className="p-2 justify-end">
+                    {/* Association Mode*/}
+                    <Association
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
+                        setValue={setValue}
+                        getValues={getValues}
+                        dataStructureName={selectedDataStructure}
+                        dataStructures={fetchedDataStructures}
+                        setSelectedResponseObject={setSelectedResponseObject}
+                        setResponseObjectFields={setResponseObjectFields}
+                        setAssociationModeOn={setAssotiationMode}
+                        defaultValue={defaultValue} />
+                    {/* Switch to treat Resource as a collection*/}
+                    <IsCollection
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        setValue={setValue}
+                        getValues={getValues}
+                        dataStructureName={selectedDataStructure}
+                        dataStructures={fetchedDataStructures}
+                        setIsCollection={setIsCollection}
                     />
                     {/* Operation Name */}
                     <OperationNameInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
+                    />
+                    {/* Operation Type */}
+                    <OperationTypeSelect
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+                        dataStructure={selectedDataStructure}
+                        allDataStructures={fetchedDataStructures}
+                        setValue={setValue}
+                        getValues={getValues}
+                        responseObjectFields={responseObjectFields}
+                        selectedResponseObject={selectedResponseObject}
+                        isCollection={isCollection}
+                        associationModeOn={associationModeOn}
                     />
                     {/* Endpoint */}
-                    <EndpointInput 
+                    <EndpointInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
-                         />
+                        dataStructureName={selectedDataStructure}
+                        baseUrl={baseUrl} />
                     {/* Comment */}
-                    <CommentInput 
+                    <CommentInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-                        collectionLogicEnabled = {collectionLogicEnabled}
-                        singleResourceLogicEnabled = {singleResourceLogicEnabled}
-                        />
+
+                    />
+
+                    <StatusCodeSelect
+                        index={index}
+                        operationIndex={operationIndex}
+                        register={register}
+
+                    />
                 </Card>
             </Card>
         </div>

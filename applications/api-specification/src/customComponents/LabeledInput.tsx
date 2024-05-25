@@ -1,20 +1,6 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
-
-/* 
- * Props which are passed to the functional component -  LabeledInputProps
- * label - label string
- * index - represents index/id of the input
- * register - connection with react-hook-forms
- * required - specifies whether the input field needs to be filled
- */
-interface LabeledInputProps 
-{
-    label: string;
-    id: string;
-    register: any;
-    required?: boolean;
-}
+import {LabeledInputProps} from '../Props/LabeledInputPorps';
 
 /* LabeledInput - react functional component */ 
 const LabeledInput: React.FC<LabeledInputProps> = ({ label, id, register, required }) => 

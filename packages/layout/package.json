@@ -11,8 +11,8 @@
     },
     "type": "module",
     "dependencies": {
+      "elkjs": "0.9.3",
       "@dataspecer/core-v2": "*"
-      
     },
     "devDependencies": {
       "rimraf": "^5.0.5",

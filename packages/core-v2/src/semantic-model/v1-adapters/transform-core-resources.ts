@@ -59,13 +59,13 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                 description: resource.pimHumanDescription ?? {},
                 ends: [
                     {
-                        cardinality: [left.pimCardinalityMin, left.pimCardinalityMax],
+                        cardinality: [left.pimCardinalityMin ?? 0, left.pimCardinalityMax],
                         name: left.pimHumanLabel ?? {},
                         description: left.pimHumanDescription ?? {},
                         concept: left.pimPart,
                     },
                     {
-                        cardinality: [right.pimCardinalityMin, right.pimCardinalityMax],
+                        cardinality: [right.pimCardinalityMin ?? 0, right.pimCardinalityMax],
                         name: right.pimHumanLabel ?? resource.pimHumanLabel ?? {},
                         description: right.pimHumanDescription ?? resource.pimHumanDescription ?? {},
                         concept: right.pimPart,
@@ -91,7 +91,7 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                         concept: resource.pimOwnerClass as string,
                     },
                     {
-                        cardinality: [resource.pimCardinalityMin, resource.pimCardinalityMax],
+                        cardinality: [resource.pimCardinalityMin ?? 0, resource.pimCardinalityMax],
                         name: resource.pimHumanLabel ?? {},
                         description: resource.pimHumanDescription ?? {},
                         concept: resource.pimDatatype,

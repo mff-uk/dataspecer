@@ -1,12 +1,5 @@
 import React from 'react';
-
-/* Props which are passed to the functional component -  CustomCheckbox */
-interface CustomCheckboxProps 
-{
-    label: string;
-    checked: boolean;
-    onChange: () => void;
-}
+import { CustomCheckboxProps } from '../Props/CustomCheckboxProps';
 
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, checked, onChange }) => 
 {

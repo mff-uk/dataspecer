@@ -1,31 +1,17 @@
-import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { LanguageString } from "@dataspecer/core/core";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass, modifyClass, modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
+import {
+    SemanticModelAggregator,
+    type SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import React, { useContext } from "react";
-import {
-    SemanticModelClass,
-    SemanticModelRelationship,
-    isSemanticModelClass,
-} from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
-import {
-    createClassUsage,
-    createRelationshipUsage,
-    modifyClassUsage,
-    modifyRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/operations";
-import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-const bob = new SemanticModelAggregator();
+const aggregatorInstance = new SemanticModelAggregator();
 
 export type ModelGraphContextType = {
-    aggregator: typeof bob; // to make it compile
+    aggregator: typeof aggregatorInstance; // to make it compile
     aggregatorView: SemanticModelAggregatorView;
     setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
     models: Map<string, EntityModel>;
@@ -35,11 +21,6 @@ export type ModelGraphContextType = {
 };
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
-
-/** @todo models should have an Id*/
-export const getIdOfEntityModel = (model: EntityModel) => {
-    return model.getId();
-};
 
 export const useModelGraphContext = () => {
     const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
@@ -85,107 +66,35 @@ export const useModelGraphContext = () => {
         });
     };
 
-    // FIXME: zas to vymysli nejak lip
-    const addClassToModel = (
-        model: InMemorySemanticModel,
-        name: LanguageString,
-        iri: string,
-        description: LanguageString | undefined
-    ) => {
-        const result = model.executeOperation(
-            createClass({
-                name: name,
-                iri: iri,
-                description: description,
-            })
-        );
-        return result;
-    };
-
-    const modifyClassInAModel = (
-        model: InMemorySemanticModel,
-        classId: string,
-        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>
-    ) => {
-        const result = model.executeOperation(
-            modifyClass(classId, {
-                ...newClass,
-            })
-        );
-        return result.success;
-    };
-
-    const modifyRelationship = (
-        model: InMemorySemanticModel,
-        entityId: string,
-        newEntity: Partial<Omit<SemanticModelRelationship, "type" | "id">>
-    ) => {
-        console.log("modifying relationship ", newEntity);
-        return model.executeOperation(modifyRelation(entityId, newEntity)).success;
-    };
-
-    const createClassEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "class" | "class-usage",
-        entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
-    ) => {
-        if (entityType == "class" || entityType == "class-usage") {
-            const result = model.executeOperation(createClassUsage(entity));
-            console.log(result);
-            return result;
-        } else {
-            console.error(model, entityType, entity);
-            throw new Error(`unexpected entityType ${entityType}`);
-        }
-    };
-
-    const createRelationshipEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "relationship" | "relationship-usage",
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
-    ) => {
-        if (entityType == "relationship" || entityType == "relationship-usage") {
-            const result = model.executeOperation(createRelationshipUsage(entity));
-            console.log(result);
-            return result.success;
-        } else {
-            console.error(model, entityType, entity);
-            throw new Error(`unexpected entityType ${entityType}`);
-        }
-        return false;
-    };
-
-    const updateEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
-        id: string,
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
-    ) => {
-        if (entityType == "relationship-usage") {
-            console.log("about to modify relationship usage", id, entity);
-            const result = model.executeOperation(modifyRelationshipUsage(id, entity));
-            return result.success;
-        } else if (entityType == "class-usage") {
-            const result = model.executeOperation(modifyClassUsage(id, entity));
-            return result.success;
-        }
-    };
-
-    const updateClassUsage = (
-        model: InMemorySemanticModel,
-        entityType: "class-usage",
-        id: string,
-        entity: Partial<Omit<SemanticModelClassUsage, "usageOf" | "type">>
-    ) => {
-        if (entityType == "class-usage") {
-            const result = model.executeOperation(modifyClassUsage(id, entity));
-            return result.success;
-        }
-    };
-
     const cleanModels = () => {
-        setModels(new Map<string, EntityModel>());
-        setVisualModels(new Map<string, VisualEntityModel>());
+        for (const [_, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [_, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
+        setModels(new Map());
+        setVisualModels(new Map());
+    };
+
+    const replaceModels = (m: EntityModel[], vm: VisualEntityModel[]) => {
+        for (const [_, m] of models) {
+            aggregator.deleteModel(m);
+        }
+        for (const [_, m] of visualModels) {
+            aggregator.deleteModel(m);
+        }
+
+        for (const model of vm) {
+            aggregator.addModel(model);
+        }
+        for (const model of m) {
+            aggregator.addModel(model);
+        }
+
+        setVisualModels(new Map(vm.map((m) => [m.getId(), m])));
+        setModels(new Map(m.map((m) => [m.getId(), m])));
+        // setAggregatorView(aggregator.getView());
     };
 
     const removeModelFromModels = (modelId: string) => {
@@ -195,28 +104,35 @@ export const useModelGraphContext = () => {
             return;
         }
         aggregator.deleteModel(model);
-        models.delete(getIdOfEntityModel(model));
+        models.delete(modelId);
         setModels(new Map(models));
+    };
+
+    const removeVisualModelFromModels = (modelId: string) => {
+        const visualModel = visualModels.get(modelId);
+        if (!visualModel) {
+            alert(`no model with id: ${modelId} found`);
+            return;
+        }
+        aggregator.deleteModel(visualModel);
+        visualModels.delete(modelId);
+        setVisualModels(new Map(visualModels));
+        setAggregatorView(aggregator.getView());
     };
 
     return {
         aggregator,
-        models,
-        addModelToGraph,
         aggregatorView,
         setAggregatorView,
-        addClassToModel,
-        modifyClassInAModel,
-        modifyRelationship,
-        createClassEntityUsage,
-        createRelationshipEntityUsage,
-        updateEntityUsage,
-        updateClassUsage,
-        cleanModels,
-        removeModelFromModels,
+        models,
         visualModels,
-        addVisualModelToGraph,
         setVisualModels,
+        addModelToGraph,
+        addVisualModelToGraph,
+        cleanModels,
+        replaceModels,
+        removeModelFromModels,
+        removeVisualModelFromModels,
         setModelAlias,
         setModelIri,
     };
