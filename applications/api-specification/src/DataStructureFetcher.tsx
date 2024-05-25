@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { getDataTypeName } from './DataTypeAdapter';
+import { convertDataTypeName } from './DataTypeConverter.tsx';
 import { DataStructure, Field } from './Models/DataStructureModel.tsx';
 
 // Custom hook: fetch data specification info
@@ -14,9 +14,7 @@ export function useDataSpecificationInfo() {
         return response.json();
     };
 
-    //const currentLocation = window.location.href;
-    //console.log("current location is: " + currentLocation)
-
+    // Gets iri (id) from the url
     const getIri = () => {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('package-iri');
@@ -31,15 +29,12 @@ export function useDataSpecificationInfo() {
      */    
     const { data, error } = useSWR(url, fetcher);
 
-
-    //const { data, error } = useSWR('https://backend.dataspecer.com/resources/packages?iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099', fetcher);
-
     if (error) {
         console.error("Info about Data Specification could not be fetched:", error);
         return null;
     }
 
-    // Memoize the function `fetchDataStructures` with `useCallback` to avoid unnecessary re-fetching
+    // Memoize the function `fetchDataStructures` with `useCallback` - prevents unnecessary re-fetching
     const fetchDataStructures = useCallback(async () => {
         // If data is not available, return null
         if (!data) return null;
@@ -80,26 +75,23 @@ export function useDataSpecificationInfo() {
                 .then(response => response.json())
                 .catch(error => {
                     console.error(`Error fetching data structure with IRI ${iri}:`, error);
-                    return null; // Return null if fetching failed
+                    return null; 
                 })
         );
 
         // wait for all fetch promises to complete (Promise.all)
         const dataStructArr = await Promise.all(fetchPromises);
-        //console.log(JSON.stringify(dataStructArr))
-
 
         /* dataStructArr contains datastructures inside data specification 
          * form of the element object - operations and resources 
          * relevant information is stored in the element object.resources
          */
 
-        // process data structures - Iterate over dataStructArr and construct representation of datastructures
+        // processes data structures - loop over dataStructArr and construct representation of datastructures
         const processedDataStructures: DataStructure[] = dataStructArr.map((dataStructure) => {
             if (!dataStructure) return null;
 
             const resources = dataStructure.resources || {};
-            //console.log(resources)
 
             const rootClass = Object.values<any>(resources)
                 .find(resource => resource.types.includes("https://ofn.gov.cz/slovník/psm/Schema"))
@@ -115,8 +107,6 @@ export function useDataSpecificationInfo() {
 
             // get technical label of data structure 
             const name = dataStructure.resources[rootClass]?.dataPsmTechnicalLabel;
-            //const interpretation = dataStructure.resources[rootClass]?.dataPsmInterpretation;
-            //console.log("name is " + name + " interpretation is " + interpretation);
 
             // get fields of the root data structure - associations and attributes (string id)
             const rootPropertyIris = dataStructure.resources[rootClass]?.dataPsmParts;
@@ -157,6 +147,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     let isArray = false;
     let isMandatory = false;
     
+    // determine if the field whether field is an array
     if(targetResource)
     {
         if(targetResource.pimCardinalityMax)
@@ -175,10 +166,11 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         }
         else
         {
-            //console.log(targetResource?.pimHumanLabel?.en + "with cardinality infinity " );
             isArray = true;
         }
 
+
+        // determine if a field is mandatory (has to be marked required in OpenAPI components schema)
         if(targetResource.pimCardinalityMin == 1 && targetResource.pimCardinalityMax == 1)
         {
             isMandatory =  true;
@@ -194,13 +186,12 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         isMandatory: isMandatory,
         isArray: isArray,
         name: fieldData.dataPsmTechnicalLabel,
-        type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? getDataTypeName(fieldData.dataPsmDatatype) : "Object",
+        type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? convertDataTypeName(fieldData.dataPsmDatatype) : "Object",
     };
 
     if (fieldData.types.includes("https://ofn.gov.cz/slovník/psm/AssociationEnd")) {
         const classTypeObject = dataStructure.resources[fieldData.dataPsmPart];
         field.classType = classTypeObject.dataPsmTechnicalLabel;
-
 
         if (classTypeObject.dataPsmParts) {
             field.nestedFields = {
