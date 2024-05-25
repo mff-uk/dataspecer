@@ -12,71 +12,73 @@ import { DataStructure, Field } from '@/Models/DataStructureModel';
 import useSWR from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod'
 import OpenApiDisplay from './customComponents/OpenAPIDisplay';
+import { FormValues } from './Models/FormValuesModel';
+import { formValidationchema } from './FormValidationSchema';
 
 
-type Operation = {
-    name: string;
-    isCollection: boolean;
-    oAssociatonMode: boolean;
-    oType: string;
-    oName: string;
-    oEndpoint: string;
-    oComment: string;
-    oResponse: string;
-    oRequestBody: {
-        [key: string]: string;
-    };
-    oResponseObject?: DataStructure
-};
+// type Operation = {
+//     name: string;
+//     isCollection: boolean;
+//     oAssociatonMode: boolean;
+//     oType: string;
+//     oName: string;
+//     oEndpoint: string;
+//     oComment: string;
+//     oResponse: string;
+//     oRequestBody: {
+//         [key: string]: string;
+//     };
+//     oResponseObject?: DataStructure
+// };
 
-type FormValues = {
-    apiTitle: string;
-    apiDescription: string;
-    apiVersion: string;
-    baseUrl: string;
-    dataStructures: {
-        id?: string;
-        name: string;
-        operations: Operation[];
-    }[];
-};
+// type FormValues = {
+//     apiTitle: string;
+//     apiDescription: string;
+//     apiVersion: string;
+//     baseUrl: string;
+//     dataStructures: {
+//         id?: string;
+//         name: string;
+//         operations: Operation[];
+//     }[];
+// };
 
-const formSchema = z.object({
-    apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
-    apiDescription: z.string().min(1), // non-empty string
-    apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
-    baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
-    dataStructures: z.array(
-        z.object({
-            id: z.string().optional(),
-            name: z.string().min(1),
-            operations: z.array(
-                z.object({
-                    name: z.string(),
-                    isCollection: z.boolean(),
-                    oAssociatonMode: z.boolean(),
-                    oType: z.string(),
-                    oName: z.string(),
-                    oEndpoint: z.string(),
-                    oComment: z.string(),
-                    oResponse: z.string(),
-                    // oRequestBody: z.record(z.boolean()).optional(),
-                    // oResponseObject: z.object({}).optional()
-                })
-            ).refine((operations) => {
-                const combinationSet = new Set();
-                for (const operation of operations) {
-                    const combination = `${operation.oEndpoint}-${operation.oType}`;
-                    if (combinationSet.has(combination)) {
-                        return false;
-                    }
-                    combinationSet.add(combination);
-                }
-                return true;
-            }, { message: "Each combination of oEndpoint and oType must be unique within each data structure." })
-        })
-    ).optional(),
-});
+// const formSchema = z.object({
+//     apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
+//     apiDescription: z.string().min(1), // non-empty string
+//     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
+//     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
+//     dataStructures: z.array(
+//         z.object({
+//             id: z.string().optional(),
+//             name: z.string().min(1),
+//             operations: z.array(
+//                 z.object({
+//                     name: z.string(),
+//                     isCollection: z.boolean(),
+//                     oAssociatonMode: z.boolean(),
+//                     oType: z.string(),
+//                     oName: z.string(),
+//                     oEndpoint: z.string(),
+//                     oComment: z.string(),
+//                     oResponse: z.string(),
+//                     // oRequestBody: z.record(z.boolean()).optional(),
+//                     // oResponseObject: z.object({}).optional()
+//                 })
+//             ).refine((operations) => {
+//                 const combinationSet = new Set();
+//                 for (const operation of operations) {
+//                     const combination = `${operation.oEndpoint}-${operation.oType}`;
+//                     if (combinationSet.has(combination)) {
+//                         return false;
+//                     }
+//                     combinationSet.add(combination);
+//                 }
+//                 return true;
+//             }, { message: "Each combination of oEndpoint and oType must be unique within each data structure." })
+//         })
+//     ).optional(),
+// });
 
 
 const fetchSavedConfig = async (url: string) => {
@@ -92,7 +94,7 @@ const fetchSavedConfig = async (url: string) => {
 export const ApiSpecificationForm = () => {
 
     const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
-        resolver: zodResolver(formSchema)
+        resolver: zodResolver(formValidationchema)
     });
 
     //const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>();
@@ -105,7 +107,6 @@ export const ApiSpecificationForm = () => {
     });
 
     const baseUrl = watch("baseUrl");
-
 
     const handleBaseUrlChange = useCallback((newBaseUrl) => {
         //console.log(`baseUrl changed to: ${newBaseUrl}`);
@@ -148,36 +149,36 @@ export const ApiSpecificationForm = () => {
 
     const modelIri = getModelIri();
 
-    const { data: fetchedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
+    const { data: preSavedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
 
 
-    const fetchDataAndSetValues = async () => {
-        const modelIri = getModelIri();
-        setFetchingData(true);
+    // const fetchDataAndSetValues = async () => {
+    //     const modelIri = getModelIri();
+    //     setFetchingData(true);
 
-        try {
+    //     try {
 
-            //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
-            if (fetchedData) {
-                //console.log('Fetched Data:', fetchedData);
-                setValue('apiTitle', fetchedData.apiTitle);
-                setValue('apiDescription', fetchedData.apiDescription);
-                setValue('apiVersion', fetchedData.apiVersion);
-                setValue('baseUrl', fetchedData.baseUrl);
-                setValue('dataStructures', fetchedData.dataStructures);
-                setSelectedDataStructures(fetchedData.dataStructures);
-            }
-            else {
-                console.log("Fetched data is not yet available");
-            }
+    //         //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
+    //         if (preSavedData) {
+    //             //console.log('Fetched Data:', fetchedData);
+    //             setValue('apiTitle', preSavedData.apiTitle);
+    //             setValue('apiDescription', preSavedData.apiDescription);
+    //             setValue('apiVersion', preSavedData.apiVersion);
+    //             setValue('baseUrl', preSavedData.baseUrl);
+    //             setValue('dataStructures', preSavedData.dataStructures);
+    //             setSelectedDataStructures(preSavedData.dataStructures);
+    //         }
+    //         else {
+    //             console.log("Fetched data is not yet available");
+    //         }
 
-            setFetchingData(false);
-        }
-        catch (error) {
-            console.error('Error fetching and setting values:', error);
-            setFetchingData(false);
-        }
-    };
+    //         setFetchingData(false);
+    //     }
+    //     catch (error) {
+    //         console.error('Error fetching and setting values:', error);
+    //         setFetchingData(false);
+    //     }
+    // };
 
     /* END - GET Presaved configuration */
 
@@ -205,17 +206,17 @@ export const ApiSpecificationForm = () => {
     }, [fetchDataStructures]);
 
     useEffect(() => {
-        if (fetchedData) {
-            console.log('Fetched Data:', fetchedData);
-            setValue('apiTitle', fetchedData.apiTitle);
-            setValue('apiDescription', fetchedData.apiDescription);
-            setValue('apiVersion', fetchedData.apiVersion);
-            setValue('baseUrl', fetchedData.baseUrl);
-            setValue('dataStructures', fetchedData.dataStructures);
-            setSelectedDataStructures(fetchedData.dataStructures);
+        if (preSavedData) {
+            console.log('Fetched Data:', preSavedData);
+            setValue('apiTitle', preSavedData.apiTitle);
+            setValue('apiDescription', preSavedData.apiDescription);
+            setValue('apiVersion', preSavedData.apiVersion);
+            setValue('baseUrl', preSavedData.baseUrl);
+            setValue('dataStructures', preSavedData.dataStructures);
+            setSelectedDataStructures(preSavedData.dataStructures);
             setFetchingData(false);
         }
-    }, [fetchedData, setValue]);
+    }, [preSavedData, setValue]);
 
 
     const [openAPISpec, setOpenAPISpec] = useState<any>({});
@@ -398,7 +399,7 @@ export const ApiSpecificationForm = () => {
                                     <h4>Operations:</h4>
                                     {!fetchingData && field.operations.map((op, opIndex) => (
                                         <OperationCard
-                                            defaultValue={fetchedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
+                                            defaultValue={preSavedData?.dataStructures?.[index]?.operations?.[opIndex]?.oResponseObject?.givenName || ''}
                                             key={opIndex}
                                             operationIndex={opIndex}
                                             removeOperation={removeOperation}
