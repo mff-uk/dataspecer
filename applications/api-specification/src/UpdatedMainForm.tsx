@@ -330,7 +330,7 @@ export const ApiSpecificationForm = () => {
 
     return (
         <div className="flex flex-row gap-8">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-1/2">
                 {/* first column */}
                 <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {// Prevent default form submission
                     handleSubmit(onSubmit)(e); // Call handleSubmit with your onSubmit function
@@ -349,7 +349,7 @@ export const ApiSpecificationForm = () => {
                         {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
                     </FormCardSection>
 
-                    
+
 
                     {/* Data Structures */}
                     <FormCardSection>
@@ -384,7 +384,7 @@ export const ApiSpecificationForm = () => {
                                                     ...fields[index],
                                                     name: selectedDataStructure.givenName,
                                                 });
-                                            } } getValues={getValues}                                                                                    />
+                                            }} getValues={getValues} />
                                     </div>
                                     <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
                                         Delete
@@ -425,7 +425,7 @@ export const ApiSpecificationForm = () => {
                                 {errors.dataStructures && errors.dataStructures[index]?.operations?.root?.message && (
                                     <p className="text-red-500 text-sm">{errors.dataStructures[index].operations.root.message}</p>
                                 )}
-                                
+
                             </FormCardSection>
                         ))}
                         <Button
@@ -436,12 +436,12 @@ export const ApiSpecificationForm = () => {
                             Add Data Structure
                         </Button>
 
-                        
+
                     </FormCardSection>
 
-                    
 
-                    
+
+
 
                     {/* Submit Button */}
                     <Button type="submit">Generate OpenAPI Specification</Button>
@@ -451,9 +451,12 @@ export const ApiSpecificationForm = () => {
             </div>
 
 
-            {/* Second Column */ }
-            <div className="flex flex-col gap-4">
-                <OpenApiDisplay generatedOpenAPISpecification={openAPISpec} />
+            {/* Second Column */}
+            <div className="flex flex-col gap-4 w-1/2">
+                <div className="flex - grow">
+                    <OpenApiDisplay generatedOpenAPISpecification={openAPISpec} />
+                </div>
+
             </div>
         </div>
     );

@@ -149,7 +149,7 @@ function handlePathOperations(openAPISpec, dataStructures, ds, operation) {
 
     // if GET - generate query parameters
     if (operationType === 'get') {
-        addQueryParameters(openAPISpec, ds, operation, parameters);
+        generateQueryParams(openAPISpec, ds, operation, parameters);
     }
 
     openAPISpec.paths[path][operationType] = operationObject;
@@ -222,6 +222,7 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
     return operationObject;
 }
 
+/* creates responses section */
 function createResponses(openAPISpec, dataStructures, ds, operation) {
     const responses = {
         [operation.oResponse]: {
@@ -237,16 +238,26 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
         },
     };
 
-    if (operation.oResponseObject && operation.oResponseObject.givenName) {
+    // If response obj was provided by the user (target data structure on the form )
+    if (operation.oResponseObject && operation.oResponseObject.givenName) 
+    {
+        // get name and correspondingschema of this ds
         const givenName = formatName(operation.oResponseObject.givenName);
         const correspondingSchema = openAPISpec.components.schemas[givenName];
 
-        if (correspondingSchema) {
+        /*
+         * if corresponding schema exists - add reference to it 
+         * else - update schema 
+         */
+        if (correspondingSchema) 
+        {
             responses[operation.oResponse].content['application/json'].schema = {
                 //$ref: `#/components/schemas/${encodeURIComponent(givenName)}`,
                 $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
             };
-        } else {
+        } 
+        else 
+        {
             updateSchemaFromField(dataStructures, ds, givenName, responses, operation);
         }
     }
@@ -255,18 +266,23 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
 }
 
 function updateSchemaFromField(dataStructures, ds, givenName, responses, operation) {
+    
     const dataStructure = dataStructures.find(ds => {
         return ds.fields.some(field => formatName(field.name) === givenName && field.classType);
     });
 
-    if (dataStructure) {
+    if (dataStructure) 
+    {
         const field = dataStructure.fields.find(field => formatName(field.name) === givenName);
         const classTypeRef = formatName(field.classType);
-        responses[operation.oResponse].content['application/json'].schema = {
+        responses[operation.oResponse].content['application/json'].schema = 
+        {
             //$ref: `#/components/schemas/${classTypeRef}`,
             $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
         };
-    } else {
+    } 
+    else 
+    {
         console.warn(`No schema or class type found in components for givenName: ${givenName}`);
     }
 }
@@ -309,7 +325,12 @@ function createRequestBody(dataStructures, ds, operation) {
     };
 }
 
-function addQueryParameters(openAPISpec, ds, operation, parameters) {
+/* 
+ * generates query parameters - is called in case operationtype is GET 
+ * the function determines properties of the datastructure and generates corresponding query parameters
+ */ 
+function generateQueryParams(openAPISpec, ds, operation, parameters) {
+    
     const schemaName = operation.oResponseObject && operation.oResponseObject.givenName
         ? formatName(operation.oResponseObject.givenName)
         : formatName(ds.name);

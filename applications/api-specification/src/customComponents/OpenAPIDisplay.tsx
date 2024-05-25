@@ -32,8 +32,8 @@ const OpenApiDisplay = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
   };
 
   return (
-    <div className="flex flex-col h-full p-9">
-      <Card className="flex-1">
+    <div className="flex flex-col h-full w-full p-9">
+      <Card className="flex-1 h-full">
         <CardHeader>
           <CardTitle>Generated OpenAPI Specification</CardTitle>
           <Button onClick={openSwaggerEditor} className="bg-blue-500">Open Swagger Editor</Button>
