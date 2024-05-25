@@ -359,7 +359,11 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
             
 
         if (method === 'get') {
-            const schemaName = formatCompName(ds.name);
+            //const schemaName = formatCompName(ds.name)
+            const schemaName = operation.oResponseObject && operation.oResponseObject.givenName 
+                                    ? formatCompName(operation.oResponseObject.givenName)
+                                    : formatCompName(ds.name);
+            console.log(ds)
             const schema = openAPISpec.components.schemas[schemaName];
         
             if (schema && schema.properties) {
