@@ -13,9 +13,7 @@
 //     rdfLangString: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
 //   };
 
-/* Converts data types known by Dataspecer to data types that are accepted by OpenApi */
-
-
+/* Converts data types known by Dataspecer to regular data types */
 export function convertDataTypeName(input: string): string | null {
     if (input) {
         switch (true) {
@@ -48,4 +46,31 @@ export function convertDataTypeName(input: string): string | null {
         return "Object"
     }
 
+}
+
+
+
+/* Converts to data types accepted by OpenAPI */
+export function convertToOpenAPIDataType(input: string): { type: string, format?: string } {
+    switch (input) {
+        case 'boolean':
+            return { type: 'boolean' };
+        case 'date':
+            return { type: 'string', format: 'date' };
+        case 'time':
+            return { type: 'string', format: 'time' };
+        case 'dateTime':
+            return { type: 'string', format: 'date-time' };
+        case 'integer':
+            return { type: 'integer' };
+        case 'decimal':
+            return { type: 'number', format: 'double' };
+        case 'url':
+            return { type: 'string', format: 'uri' };
+        case 'string':
+        case 'text':
+            return { type: 'string' };
+        default:
+            return { type: 'object' };
+    }
 }

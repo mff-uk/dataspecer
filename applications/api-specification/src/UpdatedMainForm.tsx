@@ -5,7 +5,7 @@ import { Button } from './components/ui/button';
 import LabeledInput from './customComponents/LabeledInput';
 import FormCardSection from './customComponents/FormCardSection';
 import DataStructuresSelect from './customComponents/DataStructSelect';
-import { generateOpenAPISpecification } from './OpenAPIGenerator';
+import { generateOpenAPISpecification } from './OApiGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureModel';

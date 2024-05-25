@@ -1,46 +1,5 @@
-interface OperationObj {
-    summary: any;
-    operationId: any;
-    parameters: any[];
-    requestBody?: any;
-    responses: {
-        [x: number]:
-        {
-            description: string;
-            content:
-            {
-                'application/json':
-                {
-                    schema: { $ref: string; };
-                };
-            };
-        };
-    };
-}
-
-function convertToValidDataType(input: string): { type: string, format?: string } {
-    switch (input) {
-        case 'boolean':
-            return { type: 'boolean' };
-        case 'date':
-            return { type: 'string', format: 'date' };
-        case 'time':
-            return { type: 'string', format: 'time' };
-        case 'dateTime':
-            return { type: 'string', format: 'date-time' };
-        case 'integer':
-            return { type: 'integer' };
-        case 'decimal':
-            return { type: 'number', format: 'double' };
-        case 'url':
-            return { type: 'string', format: 'uri' };
-        case 'string':
-        case 'text':
-            return { type: 'string' };
-        default:
-            return { type: 'object' };
-    }
-}
+import { convertToOpenAPIDataType } from './DataTypeConverter.tsx';
+import { OApiOperationObj } from './Models/OApiOperationObjModel.tsx';
 
 function hasDuplicate(parameters, name) {
     return parameters.some(param => param.name === name);
@@ -102,7 +61,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                 // {
                 //     type: field.type || 'string',
                 // };
-                fieldClassType = convertToValidDataType(field.type || 'string');
+                fieldClassType = convertToOpenAPIDataType(field.type || 'string');
 
             }
 
@@ -211,7 +170,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
 
             }
 
-            const operationObject: OperationObj =
+            const operationObject: OApiOperationObj =
             {
                 summary: operation.oComment,
                 operationId: operation.oName,
@@ -250,7 +209,7 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                             };
                         }
                         else {
-                            requestBodyProperties[key] = convertToValidDataType(field.type || 'string');
+                            requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
 
                             if (field.isArray) {
                                 requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
@@ -307,55 +266,6 @@ export function generateOpenAPISpecification(dataStructures, userInput) {
                     }
                 }
             }
-
-        //     if(method === 'get')
-        //     {
-        //         if (method === 'get') {
-        //             parameters.push({
-        //                 name: 'filter',
-        //                 in: 'query',
-        //                 description: 'Filter results based on criteria',
-        //                 schema: {
-        //                     type: 'string',
-        //                 },
-        //             });
-        //             parameters.push({
-        //                 name: 'sortBy',
-        //                 in: 'query',
-        //                 description: 'Field to sort by',
-        //                 schema: {
-        //                     type: 'string',
-        //                 },
-        //             });
-        //             parameters.push({
-        //                 name: 'sortOrder',
-        //                 in: 'query',
-        //                 description: 'Sort order: asc or desc',
-        //                 schema: {
-        //                     type: 'string',
-        //                     enum: ['asc', 'desc'],
-        //                 },
-        //             });
-        //             parameters.push({
-        //                 name: 'page',
-        //                 in: 'query',
-        //                 description: 'Page number for pagination',
-        //                 schema: {
-        //                     type: 'integer',
-        //                     default: 1,
-        //                 },
-        //             });
-        //             parameters.push({
-        //                 name: 'pageSize',
-        //                 in: 'query',
-        //                 description: 'Number of items per page',
-        //                 schema: {
-        //                     type: 'integer',
-        //                     default: 10,
-        //                 },
-        //             });
-        //     }
-        // }
             
 
         if (method === 'get') {
