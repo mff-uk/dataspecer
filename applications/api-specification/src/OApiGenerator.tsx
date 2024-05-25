@@ -352,11 +352,15 @@ function createRequestBody(dataStructures, ds, operation) {
  */ 
 function generateQueryParams(openAPISpec, ds, operation, parameters) {
     
+    // get schemaname 
     const schemaName = operation.oResponseObject && operation.oResponseObject.givenName
         ? formatName(operation.oResponseObject.givenName)
         : formatName(ds.name);
+
+    // get correspondingschema 
     const schema = openAPISpec.components.schemas[schemaName];
 
+    // iterate over properties and generate corresponding query parameters
     if (schema && schema.properties) {
         Object.keys(schema.properties).forEach(fieldName => {
             if (!operation.oEndpoint.includes(`{${fieldName}}`)) {
