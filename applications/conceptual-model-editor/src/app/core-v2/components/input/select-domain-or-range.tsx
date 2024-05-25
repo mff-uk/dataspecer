@@ -32,9 +32,9 @@ export const SelectDomainOrRange = (props: {
     forElement: "domain" | "range";
 }) => {
     const { concept, setConcept, onChange, disabled, withOverride, withNullValueEnabled, forElement } = props;
-    const { classes2, profiles } = useClassesContext();
+    const { classes, profiles } = useClassesContext();
 
-    const classesOrProfiles = [...classes2, ...profiles.filter(isSemanticModelClassUsage)];
+    const classesOrProfiles = [...classes, ...profiles.filter(isSemanticModelClassUsage)];
     const duplicateNames = getDuplicateNames(classesOrProfiles);
 
     let value: string;

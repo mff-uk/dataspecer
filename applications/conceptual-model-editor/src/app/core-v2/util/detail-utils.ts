@@ -96,7 +96,7 @@ export interface EntityDetailProxy {
 }
 
 export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
-    const { classes2: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
+    const { classes: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
     const { models: m } = useModelGraphContext();
     const models = [...m.values()];
     const sourceModel = sourceModelOfEntity(viewedEntity.id, models);

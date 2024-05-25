@@ -16,7 +16,7 @@ export const RemovableGeneralizationRow = (props: {
     const { resource, toBeRemoved, removeButtonClick, immediateRemoval, duplicateNames } = props;
 
     const { language } = useConfigurationContext();
-    const { classes2: c, relationships: r, profiles: p } = useClassesContext();
+    const { classes: c, relationships: r, profiles: p } = useClassesContext();
 
     const { parent: parentId } = resource;
 

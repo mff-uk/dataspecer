@@ -19,7 +19,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { ClassesContext, type SemanticModelClassWithOrigin } from "./context/classes-context";
+import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
 import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
 import { Warning, WarningsContext } from "./context/warnings-context";
@@ -43,8 +43,7 @@ const Page = () => {
     const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
     const [models, setModels] = useState(new Map<string, EntityModel>());
-    const [classes, setClasses] = useState(new Map<string, SemanticModelClassWithOrigin>());
-    const [classes2, setClasses2] = useState<SemanticModelClass[]>([]);
+    const [classes, setClasses] = useState<SemanticModelClass[]>([]);
     const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
     const [warnings, setWarnings] = useState<Warning[]>([]);
@@ -172,8 +171,7 @@ const Page = () => {
             const removedIds = new Set(removed);
             const localSourceMap = sourceModelOfEntityMap;
 
-            setClasses((prev) => new Map([...prev.entries()].filter((v) => !removedIds.has(v[1].cls.id))));
-            setClasses2((prev) => prev.filter((v) => !removedIds.has(v.id)));
+            setClasses((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setRelationships((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setUsages((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setGeneralizations((prev) => prev.filter((v) => !removedIds.has(v.id)));
@@ -261,7 +259,7 @@ const Page = () => {
                 new Set(raws.map((r) => r?.id)),
             ];
 
-            setClasses2((prev) => prev.filter((v) => !clssesIds.has(v.id)).concat(clsses));
+            setClasses((prev) => prev.filter((v) => !clssesIds.has(v.id)).concat(clsses));
             setRelationships((prev) => prev.filter((v) => !relsIds.has(v.id)).concat(rels));
             setGeneralizations((prev) => prev.filter((v) => !gensIds.has(v.id)).concat(gens));
             setUsages((prev) => prev.filter((v) => !prfilesIds.has(v.id)).concat(prfiles));
@@ -293,8 +291,6 @@ const Page = () => {
                         value={{
                             classes,
                             setClasses,
-                            classes2,
-                            setClasses2,
                             allowedClasses,
                             setAllowedClasses,
                             relationships,

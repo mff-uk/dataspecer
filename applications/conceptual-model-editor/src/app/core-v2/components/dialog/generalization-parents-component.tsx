@@ -35,7 +35,7 @@ export const GeneralizationParentsComponent = (props: {
         addNewGeneralizationParent,
         removeNewGeneralizationParent,
     } = props;
-    const { classes2: c, relationships: r, profiles: p } = useClassesContext();
+    const { classes: c, relationships: r, profiles: p } = useClassesContext();
 
     const [newParent, setNewParent] = useState<null | Omit<SemanticModelGeneralization, "type" | "id">>(null);
 

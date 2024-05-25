@@ -27,7 +27,7 @@ export const RowHierarchy = (props: {
     indent: number;
 }) => {
     const { models, aggregatorView } = useModelGraphContext();
-    const { profiles, classes2, allowedClasses } = useClassesContext();
+    const { profiles, classes, allowedClasses } = useClassesContext();
     const { entity } = props;
 
     const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
@@ -73,7 +73,7 @@ export const RowHierarchy = (props: {
                 <EntityRow
                     offset={props.indent}
                     entity={props.entity}
-                    key={props.entity.id + aggregatorView.getActiveVisualModel()?.getId() + classes2.length}
+                    key={props.entity.id + (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") + classes.length}
                     expandable={expansionHandler}
                     drawable={drawingHandler}
                     removable={removalHandler}
@@ -81,7 +81,7 @@ export const RowHierarchy = (props: {
                 />
                 {thisEntityProfiles.map((p) => (
                     <RowHierarchy
-                        key={p.id + entity.id + aggregatorView.getActiveViewId()}
+                        key={p.id + entity.id + (aggregatorView.getActiveViewId() ?? "view-id")}
                         entity={p}
                         indent={props.indent + 1}
                         handlers={props.handlers}

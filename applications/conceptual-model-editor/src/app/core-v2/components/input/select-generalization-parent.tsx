@@ -56,7 +56,7 @@ export const SelectGeneralizationParent = (props: {
     alreadySpecialized: string[];
 }) => {
     const { valueSelected, onOptionSelected, parentType, alreadySpecialized } = props;
-    const { classes2: c, relationships: r, profiles: p } = useClassesContext();
+    const { classes: c, relationships: r, profiles: p } = useClassesContext();
     const resources = [...c, ...r, ...p];
     const possibleParents =
         getPossibleParents(parentType, resources)?.filter((p) => !alreadySpecialized.includes(p.id)) ?? [];
