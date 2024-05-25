@@ -1,29 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 function DataStructuresSelect({ index, register, dataStructures, onChange, getValues }) {
 
     let path = '';
     path = `dataStructures.${index}.name`;
 
-    // const [hasOnChangeTriggered, setHasOnChangeTriggered] = useState(false);
-    // const [selectedValue, setSelectedValue] = useState(getValues(path));
-
-    // useEffect(() => {
-
-
-    //     if(selectedValue)
-    //     {
-    //         const selectedDataStructure = dataStructures.find(
-    //             (structure) => structure.givenName === selectedValue
-    //         );
-
-    //         onChange(selectedDataStructure);
-
-    //     }
-
-    //     //onChange(selectedDataStructure);
-
-    // }, [selectedValue]);
+    const [selectedValue, setSelectedValue] = useState(getValues(path));
 
     const handleChange = (event) => {
 
@@ -49,16 +31,22 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
                     value: selectedDataStructure.id,
                 },
             });
+
+            console.log(getValues(path))
+            console.log(selectedDataStructure)
         }
 
 
+
     };
+
+    
 
     return (
 
         <select {...register(path)} onChange={handleChange} required>
             {dataStructures.map((structure) => (
-                <option key={structure.id} value={structure.givenName}>
+                <option key={structure.id} value={structure.givenName} selected={selectedValue === structure.givenName}>
                     {structure.givenName}
                 </option>
             ))}
