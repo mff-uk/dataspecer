@@ -287,9 +287,9 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
 
 /* creates request body for an operation*/
 function createRequestBody(dataStructures, ds, operation) {
-    
+
     const requestBodyProperties = {};
-    
+
     // get required fields from operation's request body ( from the userinput)
     const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
@@ -310,7 +310,7 @@ function createRequestBody(dataStructures, ds, operation) {
 
     // Iterate over each key in the request body
     for (const key of Object.keys(operation.oRequestBody)) {
-        
+
         /* Try to find field on the base case */
         const dataStruct = dataStructures.find(dataStruct => {
             return dataStruct.givenName.toLowerCase() === ds.name.toLowerCase();
@@ -328,35 +328,21 @@ function createRequestBody(dataStructures, ds, operation) {
          * else - set data type 
          */
         if (field) {
-            if (field.classType) {
+            if (field.classType) 
+            {
                 const referencedDataStructure = dataStructures.find(ds => {
                     return ds.name === field.name;
                 });
 
-                // if (referencedDataStructure) {
-                    
-                //     console.log("REF")
-                //     console.log(referencedDataStructure)
-                //     requestBodyProperties[key] = {
-                //         $ref: `${SCHEMA_REF_PREFIX}${field.name}`
-                //     };
-
-                //     // create request body recursively for nested fields
-                //     const nestedRequestBody = createRequestBody(dataStructures, field.nestedFields, operation);
-                //     console.log("hkjhkjh")
-                //     requestBodyProperties[key] = nestedRequestBody.content['application/json'].schema;
-                // }
-                // else
-                // {
-                    requestBodyProperties[key] = {
-                        $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
-                    //};
-                
+                requestBodyProperties[key] = {
+                    $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
                 }
-            } else {
+            } 
+            else 
+            {
                 requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
 
-                // If field represents an array, update accordingly
+                // If field represents an array - update accordingly
                 if (field.isArray) {
                     requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
                 }
