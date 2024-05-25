@@ -36,8 +36,6 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
             console.log(selectedDataStructure)
         }
 
-
-
     };
 
     

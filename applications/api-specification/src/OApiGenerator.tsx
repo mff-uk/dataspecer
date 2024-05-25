@@ -62,9 +62,7 @@ function hasDuplicate(parameters, name) {
 
 /* creates properties based on the fields (attributes and associations of ds) */
 function createProperties(openAPISpec, fields) {
-    
-    console.log("CREATE PROPERTIES")
-    console.log(fields)
+
     const properties: { [key: string]: any } = {};
     const required = [];
 
@@ -75,16 +73,14 @@ function createProperties(openAPISpec, fields) {
 
         /* If the type of the field is not a primitive data type
          * the type of the field is stored in classType*/
-        
+
         /* If not primivitve data type - create reference schema and a reference to the schema*/
-        if (field.classType) 
-        {
+        if (field.classType) {
             const schemaName = formatName(field.classType);
             createComponentSchema(openAPISpec, field.nestedFields);
             fieldClassType = { $ref: `${SCHEMA_REF_PREFIX}${schemaName}` };
-        } 
-        else 
-        {
+        }
+        else {
             fieldClassType = convertToOpenAPIDataType(field.type || 'string');
         }
 
@@ -105,13 +101,13 @@ function createProperties(openAPISpec, fields) {
     return { properties, required };
 }
 
-/* creates component schema */ 
+/* creates component schema */
 function createComponentSchema(openAPISpec, dataStructure) {
 
     /* Check if DS exists */
     if (!dataStructure || !dataStructure.fields) return;
 
-    /* format name */  
+    /* format name */
     const schemaName = formatName(dataStructure.name);
 
     /* Check if component schema exists*/
@@ -133,7 +129,7 @@ function createComponentSchema(openAPISpec, dataStructure) {
     };
 }
 
-/* handles operations of path (endpoint) */ 
+/* handles operations of path (endpoint) */
 function handlePathOperations(openAPISpec, dataStructures, ds, operation) {
     /* get path (endpoint) and operationtype (e.g get, post ...) */
     const path = operation.oEndpoint;
@@ -185,7 +181,7 @@ function extractPathParameters(endpoint) {
 
 /* creates operation object */
 function createOperationObject(openAPISpec, dataStructures, ds, operation, parameters) {
-    
+
     // populate OperationObject with info provided from user 
     const operationObject: OApiOperationObj = {
         summary: operation.oComment,
@@ -239,8 +235,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
     };
 
     // If response obj was provided by the user (target data structure on the form )
-    if (operation.oResponseObject && operation.oResponseObject.givenName) 
-    {
+    if (operation.oResponseObject && operation.oResponseObject.givenName) {
         // get name and correspondingschema of this ds
         const givenName = formatName(operation.oResponseObject.givenName);
         const correspondingSchema = openAPISpec.components.schemas[givenName];
@@ -249,15 +244,13 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
          * if corresponding schema exists - add reference to it 
          * else - update schema 
          */
-        if (correspondingSchema) 
-        {
+        if (correspondingSchema) {
             responses[operation.oResponse].content['application/json'].schema = {
                 //$ref: `#/components/schemas/${encodeURIComponent(givenName)}`,
                 $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
             };
-        } 
-        else 
-        {
+        }
+        else {
             updateResponseObjSchema(dataStructures, ds, givenName, responses, operation);
         }
     }
@@ -267,7 +260,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
 
 // updates schema within response object
 function updateResponseObjSchema(dataStructures, ds, givenName, responses, operation) {
-    
+
     // find datastructure based on the fields givenname such that has classType
     const dataStructure = dataStructures.find(ds => {
         return ds.fields.some(field => formatName(field.name) === givenName && field.classType);
@@ -278,36 +271,57 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
      * If such datastruture is found 
      * update schema within the response obj
      */
-    if (dataStructure) 
-    {
+    if (dataStructure) {
         const field = dataStructure.fields.find(field => formatName(field.name) === givenName);
         const classTypeRef = formatName(field.classType);
-        responses[operation.oResponse].content['application/json'].schema = 
+        responses[operation.oResponse].content['application/json'].schema =
         {
             //$ref: `#/components/schemas/${classTypeRef}`,
             $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
         };
-    } 
-    else 
-    {
+    }
+    else {
         console.warn(`No schema or class type found in components for givenName: ${givenName}`);
     }
 }
 
-/* Creates a request body schema for an operation */ 
+/* creates request body for an operation*/
 function createRequestBody(dataStructures, ds, operation) {
+    
     const requestBodyProperties = {};
-
-    // get required fields from the operation's request body
+    
+    // get required fields from operation's request body ( from the userinput)
     const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
+    function findFieldInNestedFields(nestedFields, key) {
+        for (const field of nestedFields) {
+            if (field.name === key) {
+                return field;
+            }
+            if (field.nestedFields) {
+                const nestedField = findFieldInNestedFields(field.nestedFields.fields, key);
+                if (nestedField) {
+                    return nestedField;
+                }
+            }
+        }
+        return null;
+    }
+
     // Iterate over each key in the request body
-    for (const key of Object.keys(operation.oRequestBody)) 
-    {
-        // get corresponding field in the datastructures array (fetched from the backend)
-        const field = dataStructures
-            .find(dataStruct => dataStruct.name.toLowerCase() === ds.name.toLowerCase())
-            ?.fields.find(f => f.name === key);
+    for (const key of Object.keys(operation.oRequestBody)) {
+        
+        /* Try to find field on the base case */
+        const dataStruct = dataStructures.find(dataStruct => {
+            return dataStruct.givenName.toLowerCase() === ds.name.toLowerCase();
+        });
+
+        let field = dataStruct?.fields.find(f => f.name === key);
+
+        /* If field was ont found on the base case - look in the nested fields */
+        if (!field && dataStruct) {
+            field = findFieldInNestedFields(dataStruct.fields, key);
+        }
 
         /*
          * If field is not a primitive data type - set schema reference
@@ -315,22 +329,43 @@ function createRequestBody(dataStructures, ds, operation) {
          */
         if (field) {
             if (field.classType) {
-                requestBodyProperties[key] = {
-                    //$ref: `#/components/schemas/${formatName(field.classType)}`,
-                    $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
-                };
-            } 
-            else 
-            {
-                requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
+                const referencedDataStructure = dataStructures.find(ds => {
+                    return ds.name === field.name;
+                });
+
+                // if (referencedDataStructure) {
+                    
+                //     console.log("REF")
+                //     console.log(referencedDataStructure)
+                //     requestBodyProperties[key] = {
+                //         $ref: `${SCHEMA_REF_PREFIX}${field.name}`
+                //     };
+
+                //     // create request body recursively for nested fields
+                //     const nestedRequestBody = createRequestBody(dataStructures, field.nestedFields, operation);
+                //     console.log("hkjhkjh")
+                //     requestBodyProperties[key] = nestedRequestBody.content['application/json'].schema;
+                // }
+                // else
+                // {
+                    requestBodyProperties[key] = {
+                        $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
+                    //};
                 
-                // if field represents an array update accordingly
+                }
+            } else {
+                requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
+
+                // If field represents an array, update accordingly
                 if (field.isArray) {
                     requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
                 }
             }
         }
     }
+
+    console.log("REQUEST BODY PROPERTIES");
+    console.log(requestBodyProperties);
 
     return {
         required: true,
@@ -346,12 +381,13 @@ function createRequestBody(dataStructures, ds, operation) {
     };
 }
 
+
 /* 
  * generates query parameters - is called in case operationtype is GET 
  * the function determines properties of the datastructure and generates corresponding query parameters
- */ 
+ */
 function generateQueryParams(openAPISpec, ds, operation, parameters) {
-    
+
     // get schemaname 
     const schemaName = operation.oResponseObject && operation.oResponseObject.givenName
         ? formatName(operation.oResponseObject.givenName)

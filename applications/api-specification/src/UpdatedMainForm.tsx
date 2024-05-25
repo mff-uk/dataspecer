@@ -108,11 +108,11 @@ export const ApiSpecificationForm = () => {
 
 
     const handleBaseUrlChange = useCallback((newBaseUrl) => {
-        console.log(`baseUrl changed to: ${newBaseUrl}`);
+        //console.log(`baseUrl changed to: ${newBaseUrl}`);
     }, []);
 
     useEffect(() => {
-        console.log('Form errors:', errors);
+        //console.log('Form errors:', errors);
     }, [errors]);
 
     useEffect(() => {
@@ -159,7 +159,7 @@ export const ApiSpecificationForm = () => {
 
             //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
             if (fetchedData) {
-                console.log('Fetched Data:', fetchedData);
+                //console.log('Fetched Data:', fetchedData);
                 setValue('apiTitle', fetchedData.apiTitle);
                 setValue('apiDescription', fetchedData.apiDescription);
                 setValue('apiVersion', fetchedData.apiVersion);
@@ -225,7 +225,7 @@ export const ApiSpecificationForm = () => {
         event.preventDefault();
 
         const newData = getValues();
-        console.log(newData)
+        //console.log(newData)
 
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -237,7 +237,7 @@ export const ApiSpecificationForm = () => {
         try {
 
             const newOpenAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
-            console.log(openAPISpec)
+            //console.log(openAPISpec)
             setOpenAPISpec(newOpenAPISpec);
 
 
@@ -251,7 +251,7 @@ export const ApiSpecificationForm = () => {
                 });
 
             if (response.ok) {
-                console.log('Form data saved successfully. Submitted data is: ' + JSON.stringify(newData));
+                //console.log('Form data saved successfully. Submitted data is: ' + JSON.stringify(newData));
             } else {
                 console.error('Failed to save form data.');
             }

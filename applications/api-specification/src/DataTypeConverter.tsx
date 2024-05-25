@@ -48,8 +48,6 @@ export function convertDataTypeName(input: string): string | null {
 
 }
 
-
-
 /* Converts to data types accepted by OpenAPI */
 export function convertToOpenAPIDataType(input: string): { type: string, format?: string } {
     switch (input) {
