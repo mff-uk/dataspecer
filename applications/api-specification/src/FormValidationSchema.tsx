@@ -19,8 +19,6 @@ export const formValidationchema = z.object({
                     oEndpoint: z.string(),
                     oComment: z.string(),
                     oResponse: z.string(),
-                    // oRequestBody: z.record(z.boolean()).optional(),
-                    // oResponseObject: z.object({}).optional()
                 })
             ).refine((operations) => {
                 const combinationSet = new Set();
@@ -32,7 +30,17 @@ export const formValidationchema = z.object({
                     combinationSet.add(combination);
                 }
                 return true;
-            }, { message: "Each combination of oEndpoint and oType must be unique within each data structure." })
+            }, { message: "Error: Each combination of endpoint and operation type must be unique within each data structure." })
+            .refine((operations) => {
+                const oNameSet = new Set();
+                for (const operation of operations) {
+                    if (oNameSet.has(operation.oName)) {
+                        return false;
+                    }
+                    oNameSet.add(operation.oName);
+                }
+                return true;
+            }, { message: "Error: Operationn name must be unique." })
         })
     ).optional(),
 });

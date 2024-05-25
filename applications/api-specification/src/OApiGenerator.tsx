@@ -202,12 +202,19 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
      * create requestbody consisting of all fields/properties included in schema reference 
      */
     if (operation.oType.toLowerCase() === 'put') {
+        let schemaName = ds.name;
+        
+        if(operation.oResponseObject && operation.oResponseObject.givenName)
+        {
+            schemaName = operation.oResponseObject.givenName;
+        }
+        
         operationObject.requestBody = {
             required: true,
             content: {
                 'application/json': {
                     schema: {
-                        $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
+                        $ref: `${SCHEMA_REF_PREFIX}${formatName(schemaName)}`,
                     },
                 },
             },
