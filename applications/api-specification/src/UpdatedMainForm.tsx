@@ -32,8 +32,6 @@ export const ApiSpecificationForm = () => {
         resolver: zodResolver(formValidationchema)
     });
 
-    //const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>();
-
     const { errors } = formState;
 
     const { fields, append, remove, update } = useFieldArray({
@@ -41,30 +39,8 @@ export const ApiSpecificationForm = () => {
         name: "dataStructures",
     });
 
-    // const baseUrl = watch("baseUrl");
-
-    // const handleBaseUrlChange = useCallback((newBaseUrl) => {
-    //     //console.log(`baseUrl changed to: ${newBaseUrl}`);
-    // }, []);
-
-    // useEffect(() => {
-    //     //console.log('Form errors:', errors);
-    // }, [errors]);
-
-    // useEffect(() => {
-    //     handleBaseUrlChange(baseUrl);
-    // }, [baseUrl, handleBaseUrlChange]);
-
-
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
     const [fetchingData, setFetchingData] = useState(false);
-
-
-    // useEffect(() => {
-    //     if (selectedDataStructures === undefined) {
-    //         console.log("Selected Data Structures became undefined!");
-    //     }
-    // },);
 
     useEffect(() => {
         const dataStructures = watch("dataStructures");
@@ -129,7 +105,6 @@ export const ApiSpecificationForm = () => {
         event.preventDefault();
 
         const newData = getValues();
-        //console.log(newData)
 
         const getModelIri = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -307,7 +282,6 @@ export const ApiSpecificationForm = () => {
                                             register={register}
                                             setValue={setValue}
                                             getValues={getValues}
-                                            //baseUrl={baseUrl}
                                             selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
                                             fetchedDataStructures={fetchedDataStructuresArr}
                                             selectedDataStruct={selectedDataStructures} />

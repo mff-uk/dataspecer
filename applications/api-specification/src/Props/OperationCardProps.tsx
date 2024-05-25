@@ -6,7 +6,6 @@ export interface OperationCardProps extends BaseProps
 
     setValue: any;
     getValues: any;
-    //baseUrl: string;
     selectedDataStructure: string;
     fetchedDataStructures: DataStructure[];
     selectedDataStruct: any,
