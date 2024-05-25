@@ -15,72 +15,7 @@ import OpenApiDisplay from './customComponents/OpenAPIDisplay';
 import { FormValues } from './Models/FormValuesModel';
 import { formValidationchema } from './FormValidationSchema';
 
-
-// type Operation = {
-//     name: string;
-//     isCollection: boolean;
-//     oAssociatonMode: boolean;
-//     oType: string;
-//     oName: string;
-//     oEndpoint: string;
-//     oComment: string;
-//     oResponse: string;
-//     oRequestBody: {
-//         [key: string]: string;
-//     };
-//     oResponseObject?: DataStructure
-// };
-
-// type FormValues = {
-//     apiTitle: string;
-//     apiDescription: string;
-//     apiVersion: string;
-//     baseUrl: string;
-//     dataStructures: {
-//         id?: string;
-//         name: string;
-//         operations: Operation[];
-//     }[];
-// };
-
-// const formSchema = z.object({
-//     apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
-//     apiDescription: z.string().min(1), // non-empty string
-//     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
-//     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
-//     dataStructures: z.array(
-//         z.object({
-//             id: z.string().optional(),
-//             name: z.string().min(1),
-//             operations: z.array(
-//                 z.object({
-//                     name: z.string(),
-//                     isCollection: z.boolean(),
-//                     oAssociatonMode: z.boolean(),
-//                     oType: z.string(),
-//                     oName: z.string(),
-//                     oEndpoint: z.string(),
-//                     oComment: z.string(),
-//                     oResponse: z.string(),
-//                     // oRequestBody: z.record(z.boolean()).optional(),
-//                     // oResponseObject: z.object({}).optional()
-//                 })
-//             ).refine((operations) => {
-//                 const combinationSet = new Set();
-//                 for (const operation of operations) {
-//                     const combination = `${operation.oEndpoint}-${operation.oType}`;
-//                     if (combinationSet.has(combination)) {
-//                         return false;
-//                     }
-//                     combinationSet.add(combination);
-//                 }
-//                 return true;
-//             }, { message: "Each combination of oEndpoint and oType must be unique within each data structure." })
-//         })
-//     ).optional(),
-// });
-
-
+/* Fetcher for fetching presaved data */
 const fetchSavedConfig = async (url: string) => {
     const response = await fetch(url);
 
@@ -106,31 +41,30 @@ export const ApiSpecificationForm = () => {
         name: "dataStructures",
     });
 
-    const baseUrl = watch("baseUrl");
+    // const baseUrl = watch("baseUrl");
 
-    const handleBaseUrlChange = useCallback((newBaseUrl) => {
-        //console.log(`baseUrl changed to: ${newBaseUrl}`);
-    }, []);
+    // const handleBaseUrlChange = useCallback((newBaseUrl) => {
+    //     //console.log(`baseUrl changed to: ${newBaseUrl}`);
+    // }, []);
 
-    useEffect(() => {
-        //console.log('Form errors:', errors);
-    }, [errors]);
+    // useEffect(() => {
+    //     //console.log('Form errors:', errors);
+    // }, [errors]);
 
-    useEffect(() => {
-        handleBaseUrlChange(baseUrl);
-    }, [baseUrl, handleBaseUrlChange]);
+    // useEffect(() => {
+    //     handleBaseUrlChange(baseUrl);
+    // }, [baseUrl, handleBaseUrlChange]);
 
 
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
     const [fetchingData, setFetchingData] = useState(false);
 
 
-    useEffect(() => {
-        //console.log("Selected Data Structures:", selectedDataStructures);
-        if (selectedDataStructures === undefined) {
-            console.log("Selected Data Structures became undefined!");
-        }
-    },);
+    // useEffect(() => {
+    //     if (selectedDataStructures === undefined) {
+    //         console.log("Selected Data Structures became undefined!");
+    //     }
+    // },);
 
     useEffect(() => {
         const dataStructures = watch("dataStructures");
@@ -150,37 +84,6 @@ export const ApiSpecificationForm = () => {
     const modelIri = getModelIri();
 
     const { data: preSavedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
-
-
-    // const fetchDataAndSetValues = async () => {
-    //     const modelIri = getModelIri();
-    //     setFetchingData(true);
-
-    //     try {
-
-    //         //const fetchedData = await fetchSavedConfig(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`);
-    //         if (preSavedData) {
-    //             //console.log('Fetched Data:', fetchedData);
-    //             setValue('apiTitle', preSavedData.apiTitle);
-    //             setValue('apiDescription', preSavedData.apiDescription);
-    //             setValue('apiVersion', preSavedData.apiVersion);
-    //             setValue('baseUrl', preSavedData.baseUrl);
-    //             setValue('dataStructures', preSavedData.dataStructures);
-    //             setSelectedDataStructures(preSavedData.dataStructures);
-    //         }
-    //         else {
-    //             console.log("Fetched data is not yet available");
-    //         }
-
-    //         setFetchingData(false);
-    //     }
-    //     catch (error) {
-    //         console.error('Error fetching and setting values:', error);
-    //         setFetchingData(false);
-    //     }
-    // };
-
-    /* END - GET Presaved configuration */
 
     useEffect(() => {
         if (!fetchDataStructures) {
@@ -333,8 +236,8 @@ export const ApiSpecificationForm = () => {
         <div className="flex flex-row gap-8">
             <div className="flex flex-col gap-4 w-1/2">
                 {/* first column */}
-                <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {// Prevent default form submission
-                    handleSubmit(onSubmit)(e); // Call handleSubmit with your onSubmit function
+                <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {
+                    handleSubmit(onSubmit)(e); 
                 }}>
                     {/* Form Info */}
 
@@ -347,10 +250,7 @@ export const ApiSpecificationForm = () => {
                         {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
                         <LabeledInput label="Base URL" id="baseUrl" register={register} required />
                         {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
-                        {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
                     </FormCardSection>
-
-
 
                     {/* Data Structures */}
                     <FormCardSection>
@@ -407,7 +307,7 @@ export const ApiSpecificationForm = () => {
                                             register={register}
                                             setValue={setValue}
                                             getValues={getValues}
-                                            baseUrl={baseUrl}
+                                            //baseUrl={baseUrl}
                                             selectedDataStructure={selectedDataStructures[index]?.givenName || selectedDataStructures[index]?.name}
                                             fetchedDataStructures={fetchedDataStructuresArr}
                                             selectedDataStruct={selectedDataStructures} />
@@ -437,20 +337,12 @@ export const ApiSpecificationForm = () => {
                             Add Data Structure
                         </Button>
 
-
                     </FormCardSection>
-
-
-
-
 
                     {/* Submit Button */}
                     <Button type="submit">Generate OpenAPI Specification</Button>
-
-
                 </form>
             </div>
-
 
             {/* Second Column */}
             <div className="flex flex-col gap-4 w-1/2">

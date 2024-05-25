@@ -3,7 +3,7 @@ import { Input } from '../components/ui/input';
 import { EndpointInputProps } from '../Props/EndpointInputProps';
 
 /* EndpointInput - react functional component */
-const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, register, dataStructureName, baseUrl}) => 
+const EndpointInput: React.FC<EndpointInputProps> = ({ index, operationIndex, register}) => 
 {
     const path = `dataStructures.${index}.operations.${operationIndex}.oEndpoint`;
 

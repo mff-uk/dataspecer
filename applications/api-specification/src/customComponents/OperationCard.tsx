@@ -12,7 +12,7 @@ import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 import { DataStructure } from '@/Models/DataStructureModel.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
@@ -107,7 +107,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         operationIndex={operationIndex}
                         register={register}
                         dataStructureName={selectedDataStructure}
-                        baseUrl={baseUrl} />
+                    />
                     {/* Comment */}
                     <CommentInput
                         index={index}
