@@ -258,19 +258,26 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
         } 
         else 
         {
-            updateSchemaFromField(dataStructures, ds, givenName, responses, operation);
+            updateResponseObjSchema(dataStructures, ds, givenName, responses, operation);
         }
     }
 
     return responses;
 }
 
-function updateSchemaFromField(dataStructures, ds, givenName, responses, operation) {
+// updates schema within response object
+function updateResponseObjSchema(dataStructures, ds, givenName, responses, operation) {
     
+    // find datastructure based on the fields givenname such that has classType
     const dataStructure = dataStructures.find(ds => {
         return ds.fields.some(field => formatName(field.name) === givenName && field.classType);
     });
 
+
+    /* 
+     * If such datastruture is found 
+     * update schema within the response obj
+     */
     if (dataStructure) 
     {
         const field = dataStructure.fields.find(field => formatName(field.name) === givenName);
@@ -287,23 +294,37 @@ function updateSchemaFromField(dataStructures, ds, givenName, responses, operati
     }
 }
 
+/* Creates a request body schema for an operation */ 
 function createRequestBody(dataStructures, ds, operation) {
     const requestBodyProperties = {};
+
+    // get required fields from the operation's request body
     const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
-    for (const key of Object.keys(operation.oRequestBody)) {
+    // Iterate over each key in the request body
+    for (const key of Object.keys(operation.oRequestBody)) 
+    {
+        // get corresponding field in the datastructures array (fetched from the backend)
         const field = dataStructures
             .find(dataStruct => dataStruct.name.toLowerCase() === ds.name.toLowerCase())
             ?.fields.find(f => f.name === key);
 
+        /*
+         * If field is not a primitive data type - set schema reference
+         * else - set data type 
+         */
         if (field) {
             if (field.classType) {
                 requestBodyProperties[key] = {
                     //$ref: `#/components/schemas/${formatName(field.classType)}`,
                     $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
                 };
-            } else {
+            } 
+            else 
+            {
                 requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
+                
+                // if field represents an array update accordingly
                 if (field.isArray) {
                     requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
                 }
