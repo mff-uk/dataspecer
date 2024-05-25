@@ -1,13 +1,13 @@
-import { <%= it.reader %> } from <%~ it.reader_path %>;
+import { <%= it.reader %> } from "<%~ it.reader_interface_path %>";
 import { createLens, type Context, setDefaultContext  } from "ldkit";
-import { <%= it.schema_name %> } from <%~ it.schema_filepath %>
+import { <%= it.schema_name %> } from "<%~ it.schema_filepath %>";
 
-export default class LdkitReader implements Reader {
+export default class LdkitReader implements <%= it.reader %> {
 
     async readObjects(): Promise<object[]> {
 
         const context: Context = {
-            sources: [<%~ it.sparql_endpointUri %>]
+            sources: ["<%~ it.sparql_endpointUri %>"]
         }
         setDefaultContext(context);
 

@@ -11,7 +11,7 @@ ldkitRouter.get("/:aggregateName", (req, res) => {
   //new LDkitGenerator().generateDalLayerArtifact(aggregateName);
 
   const result = {
-    fileName: "Dataset.ts",
+    fileName: "DatasetSchema.ts",
     exportedObjectName: "DatasetSchema",
     sourceText: `
     export const DatasetSchema = {

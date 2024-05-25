@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { useEffect, useState } from 'react';
-import { <%= it.app_logic_delegate %> } from <%~ it.delegate_path %>
+import { <%= it.app_logic_delegate %> } from "<%~ it.delegate_path %>";
 
 export default function OverviewTable() {
 

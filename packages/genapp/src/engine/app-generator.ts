@@ -1,13 +1,16 @@
 import { TemplateSourceCodeGenerator } from "../app-logic-layer/template-app-logic-generator";
 import {
     AggregateConfiguration,
-    AlternateApplicationConfiguration,
+    ApplicationConfiguration,
+    CapabilityConfiguration,
     DataSourceType,
     DatasourceConfig
 } from "../application-config";
-import { Capability } from "../capabilities/capability-definition";
-import { OverviewCapability } from "../capabilities/overview";
+import { Capability, CapabilityGenerator, CustomCapabilityGenerator } from "../capabilities/capability-definition";
+import { DetailCapability, OverviewCapability } from "../capabilities/overview";
+import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { StageGenerationContext } from "./generator-stage-interface";
+import { LayerArtifact } from "./layer-artifact";
 
 // {
 //     path: "/overview/datasets",
@@ -24,48 +27,53 @@ type ReactRouterObject = {
 
 type CapabilityPair = { aggName: string, capability: Capability };
 
+type CapabilityArtifactResult = { [capabilityName: string]: LayerArtifact };
+
 class ApplicationGenerator {
 
-    //private appConfig: ApplicationConfiguration;
     private readonly appBaseTemplateGenerator: TemplateSourceCodeGenerator;
+    private readonly configReader;
 
-    constructor() { //appConfig: ApplicationConfiguration) {
-        //this.appConfig = appConfig;
+    constructor() {
+        this.configReader = new StaticConfigurationReader();
         this.appBaseTemplateGenerator = new TemplateSourceCodeGenerator();
     }
 
-    private getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
-        const mapping: { [name: string]: Capability } = {
-            "overview": new OverviewCapability(datasourceConfig)
-        };
+    // private getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
+    //     const mapping: { [name: string]: Capability } = {
+    //         "overview": new OverviewCapability(datasourceConfig)
+    //     };
 
-        const capabilityMatch: Capability | undefined = mapping[capabName];
+    //     const capabilityMatch: Capability | undefined = mapping[capabName];
 
-        if (!capabilityMatch) {
-            throw new Error("Unable to match to a capability.")
-        }
+    //     if (!capabilityMatch) {
+    //         throw new Error("Unable to match to a capability.")
+    //     }
 
-        return capabilityMatch;
-    }
+    //     return capabilityMatch;
+    // }
 
-    private constructCapabilityAggregatePairs(config: AlternateApplicationConfiguration): CapabilityPair[] {
-        const pairs: CapabilityPair[] = [];
-        Object.entries(config)
-            .forEach(([aggregateIdentifier, { capabilities, datasource }]) => {
-                // LDkitGenerator.getObject
-                // think about other metadata that might be needed in app generator -> filename base, schema name
-                // but not in dataspecer for example -> schema only 
-                capabilities.forEach(capabName => {
-                    const capabilityTemplate: Capability = this.getMatchingCapability(capabName, datasource);
-                    pairs.push({
-                        aggName: aggregateIdentifier,
-                        capability: capabilityTemplate
-                    });
-                })
-            })
+    // private constructCapabilityAggregatePairs(config: ApplicationConfiguration): CapabilityPair[] {
+    //     const pairs: CapabilityPair[] = [];
+    //     Object.entries(config)
+    //         .forEach(([aggregateIdentifier, { datasource, capabilities }]: [string, AggregateConfiguration]) => {
+    //             // LDkitGenerator.getObject
+    //             // think about other metadata that might be needed in app generator -> filename base, schema name
+    //             // but not in dataspecer for example -> schema only
+    //             Object
+    //             .keys(capabilities)
+    //             .forEach(capabName => {
+    //                 const capabilityTemplate: Capability = this.getMatchingCapability(capabName, datasource);
 
-        return pairs;
-    }
+    //                 pairs.push({
+    //                     aggName: aggregateIdentifier,
+    //                     capability: capabilityTemplate
+    //                 });
+    //             })
+    //         })
+
+    //     return pairs;
+    // }
 
     // private constructImportStatements(filepath: string, groupedCapabilities: { [aggName: string]: Capability[] }): string {
     //     let totalImportStatements: string[] = [];
@@ -158,105 +166,115 @@ class ApplicationGenerator {
     //     })
     // }
 
-    async generationHandler({ aggName, capability }: { aggName: string, capability: Capability }) {
+    // async generatePair({ aggName, capability }: CapabilityPair): Promise<CapabilityPair> {
 
-        console.log(`CALL BEFORE '${aggName}|${capability.identifier}' generation`);
+    //     console.log(`CALL BEFORE '${aggName}|${capability.identifier}' generation`);
 
-        const context: StageGenerationContext = {
-            aggregateName: aggName
+    //     const context: StageGenerationContext = {
+    //         aggregateName: aggName
+    //     };
+
+    //     // TODO: context here is expected to have properties passed from aggregate-capability configuration
+    //     const entrypoint = await capability.generateCapability(context);
+    //     console.log(`CALL AFTER '${aggName}|${capability.identifier}' generation with '${entrypoint}' result`);
+
+    //     capability.entryPoint = entrypoint;
+
+    //     console.log("After: ", capability.entryPoint);
+
+    //     return { aggName, capability } as CapabilityPair;
+
+    //     // await promise
+    //     //     .then(
+    //     //         (entryPoint: any) => {
+    //     //             capability.entryPoint = entryPoint;
+
+    //     //             console.log("After: ", capability.entryPoint);
+
+    //     //             if (aggName in Object.keys(grouped)) {
+    //     //                 grouped[aggName]?.push(capability);
+    //     //             } else {
+    //     //                 grouped[aggName] = [capability];
+    //     //             }
+    //     //         });
+    // }
+
+    private getCapabilityGenerator(name: string, datasource: DatasourceConfig): CapabilityGenerator {
+        const capabilityGeneratorMapping: { [name: string]: CapabilityGenerator | null } = {
+            list: new OverviewCapability(name, datasource),
+            detail: new OverviewCapability(name, datasource),
+            create: null,
+            delete: null,
         };
 
-        const entrypoint = await capability.generateCapability(context)
-        console.log(`CALL AFTER '${aggName}|${capability.identifier}' generation with '${entrypoint}' result`);
+        const generator = capabilityGeneratorMapping[name];
 
-        capability.entryPoint = entrypoint;
-
-        console.log("After: ", capability.entryPoint);
-
-        return { aggName, capability };
-
-        // await promise
-        //     .then(
-        //         (entryPoint: any) => {
-        //             capability.entryPoint = entryPoint;
-
-        //             console.log("After: ", capability.entryPoint);
-
-        //             if (aggName in Object.keys(grouped)) {
-        //                 grouped[aggName]?.push(capability);
-        //             } else {
-        //                 grouped[aggName] = [capability];
-        //             }
-        //         });
-    }
-
-    
-    generate() {
-        // get application configuration
-        // const appConfig: ApplicationConfiguration = {
-        //     targetLanguage: "ts",
-        //     datasources: {
-        //         "Catalog": [{ format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[],
-        //         "Dataset": [{ format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" }] as DatasourceConfig[]
-        //     },
-        //     capabilities: {
-        //         "Catalog": ["overview", "detail"],
-        //         "Dataset": ["overview", "detail"]
-        //     }
-        // };
-
-        const appConfig2: AlternateApplicationConfiguration = {
-            //targetLanguage: "ts",
-            "Catalog": {
-                capabilities: ["overview"],
-                datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
-            } as AggregateConfiguration,
-            // "Dataset": {
-            //     capabilities: ["overview"],
-            //     datasource: { format: DataSourceType.Rdf, endpointUri: "https://data.gov.cz/sparql" } as DatasourceConfig,
-            // } as AggregateConfiguration
+        if (!generator) {
+            return new CustomCapabilityGenerator(/* add configuration and datasource description here */);
         }
 
-        const groupedCapabilities: { [aggName: string]: Capability[] } = {};
+        return generator;
+    }
 
-        const promises: Promise<{aggName: string; capability: Capability;}>[] = [];
+    generateAllAggregateCapabilities(array: [string, CapabilityConfiguration][], datasource: DatasourceConfig) {
 
-        this.constructCapabilityAggregatePairs(appConfig2)
-            .forEach(async (x) => {
-                const {aggName, capability} = await this.generationHandler(x);
+        const result: { [capabilityName: string]: Promise<LayerArtifact> } = {};
 
-                if (aggName in Object.keys(groupedCapabilities)) {
-                    groupedCapabilities[aggName]?.push(capability);
-                } else {
-                    groupedCapabilities[aggName] = [capability];
-                }
-            })
-        
-        // promises.forEach(async promise => {
-        //     const { aggName, capability } = await promise;
-            
-        //     if (aggName in Object.keys(grouped)) {
-        //         grouped[aggName]?.push(capability);
-        //     } else {
-        //         grouped[aggName] = [capability];
-        //     }
-        // })
-        
-        // foreach Pair<Capability, Aggregate> from application configuration:
-        // generate data access layer artefacts
-        // construct a DataAccessLayerGenerator instance based on config (i.e. LdkitGenerator, JsonDataAccessGenerator ...)
-        // TODO: think about passing correct path as parameter for the generated artefacts
+        for (const [capabilityName, capabilityConfig] of array) {
+            const capabilityGenerator = this.getCapabilityGenerator(capabilityName, datasource);
+            console.log(`Generating "${capabilityName}" capability.`);
+            console.log(capabilityConfig);
+            console.log("=".repeat(20));
 
-        // generate application layer artefacts
-        // construct a ApplicationLayerGenerator instance based on
+            if (!capabilityGenerator) {
+                return;
+            }
 
-        // generate frontend artefacts
+            const promise = capabilityGenerator.generateCapability(capabilityConfig);
+            result[capabilityName] = promise;
+        }
 
-        // aggregate artefacts into an application
-        // use generated artefacts to construct an app landing page, links / react routers ...
-        console.log("Grouped: ", groupedCapabilities);
+        return result;
+    }
 
-        //this.generateApplicationBase(groupedCapabilities);
+    async processGeneratedPromises(promiseMap: { [capabilityName: string]: Promise<LayerArtifact> }) {
+        const result: CapabilityArtifactResult = {};
+        for (const [capabilityName, promise] of Object.entries(promiseMap)) {
+            const capabilityOutput = await promise;
+
+            result[capabilityName] = capabilityOutput;
+        }
+        return result;
+    }
+
+    async processAggregateGeneration(rootAggregateName: string) {
+        const aggregateConfig = this.configReader.getAggregateConfiguration(rootAggregateName);
+
+        console.log(`Generating for "${rootAggregateName}".`);
+        const capabilityPromises = this.generateAllAggregateCapabilities(
+            Object.entries(aggregateConfig.capabilities),
+            aggregateConfig.datasource
+        );
+
+        if (!capabilityPromises) {
+            throw new Error(`Nothing returned for "${rootAggregateName}"`);
+        }
+
+        return this.processGeneratedPromises(capabilityPromises);
+    }
+
+    async generate() {
+        const appConfig: ApplicationConfiguration = this.configReader.getAppConfiguration();
+        const generatedArtifactsByAggregateName: { [rootAggregateName: string]: CapabilityArtifactResult } = {};
+
+        for (const aggregateName of this.configReader.getRootAggregateNames()) {
+            const aggregateGeneratedCapabilities = await this.processAggregateGeneration(aggregateName);
+
+            generatedArtifactsByAggregateName[aggregateName] = aggregateGeneratedCapabilities;
+        }
+
+        console.log("OVERALL RESULT");
+        console.log(generatedArtifactsByAggregateName);
     }
 }
 

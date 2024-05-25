@@ -6,33 +6,49 @@ export enum DataSourceType {
     Csv
 }
 
-export type DatasourceConfig = { format: DataSourceType.Local } | {
+export type LocalDatasource = { format: DataSourceType.Local }
+export type UriDatasource = {
     format: DataSourceType.Json | DataSourceType.Csv | DataSourceType.Rdf | DataSourceType.Xml,
     endpointUri: string
 };
 
-export type CapabilityIdentifier = "overview" | "detail"; // TODO: add remaining
-
-export type DatasourceConfigMap = { [aggregateIdentifier: string]: DatasourceConfig[] }
-
-export type CapabilityConfigMap = { [aggregateIdentifier: string]: CapabilityIdentifier[] }
+export type DatasourceConfig = LocalDatasource | UriDatasource;
 
 export interface ApplicationConfiguration {
-    targetLanguage: "ts",
-    datasources: DatasourceConfigMap,
-    capabilities: CapabilityConfigMap
-}
-
-//------------------------------------------------------------------
-
-export type AggregateConfiguration = {
-    datasource: DatasourceConfig,
-    capabilities: CapabilityIdentifier[]
-}
-
-export type AvailableTargetLanguages = "ts"
-
-export interface AlternateApplicationConfiguration {
     // TODO: Add target language property
-    [aggregateIdentifier: string]: AggregateConfiguration,
+    [aggregateIdentifier: string]: AggregateConfiguration;
+}
+
+export interface AggregateConfiguration {
+    datasource: DatasourceConfig,
+    capabilities: CapabilityConfigurationMap
+}
+
+export interface CapabilityConfigurationMap {
+    [capabilityIdentifier: string]: CapabilityConfiguration;
+}
+
+export type CapabilityType = "collection" | "instance";
+
+export interface CapabilityConfiguration {
+    id: string;
+    type: CapabilityType;
+    showHeader: boolean;
+    showAsPopup: boolean;
+    hasFilter: boolean;
+    hasSearch: boolean;
+    hasAllSelection: boolean;
+
+    component?: string;
+    handler?: () => void;
+    links?: Record<string, string>;
+    properties?: Record<string, string>;
+}
+
+interface CollectionCapabilityConfiguration extends CapabilityConfiguration {
+    type: "collection";
+}
+
+interface InstanceCapabilityConfiguration extends CapabilityConfiguration {
+    type: "instance";
 }

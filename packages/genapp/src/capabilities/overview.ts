@@ -1,39 +1,62 @@
+import { ListCapabilityApplicationLayerStage } from "../app-logic-layer/app-pipeline-stage";
 import { CodeTemplateMetadata, TemplateSourceCodeGenerator } from "../app-logic-layer/template-app-logic-generator";
-import { DataSourceType, DatasourceConfig } from "../application-config";
+import { CapabilityConfiguration, DatasourceConfig } from "../application-config";
 import { DataLayerGeneratorStage } from "../data-layer/dal-pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { StageGenerationContext } from "../engine/generator-stage-interface";
 import { LayerArtifact } from "../engine/layer-artifact";
-import { Capability } from "./capability-definition";
+import { ListTableTemplate, PresentationLayerStage } from "../presentation-layer/list-pipeline-stage";
+import { Capability, CapabilityGenerator } from "./capability-definition";
 
-export class OverviewCapability implements Capability {
+export class DetailCapability implements Capability {
+    identifier: string = "detail";
+    entryPoint?: LayerArtifact | undefined;
+    generateCapabilityOld(context: StageGenerationContext): Promise<LayerArtifact> {
+        throw new Error("Method not implemented.");
+    }
 
-    identifier: string = "overview";    
-    // private dataEndpointUri: string = "";
-    // private templateAppLogicGenerator: TemplateSourceCodeGenerator;
-    // private frontendElementGenerator: TemplateSourceCodeGenerator;
-    private readonly pipeline: GeneratorPipeline;
+}
 
-    constructor(datasourceConfig: DatasourceConfig) {
+export class OverviewCapability implements Capability, CapabilityGenerator {
 
-        this.pipeline = new GeneratorPipeline(
+    identifier: string = "overview";
+    private readonly _pipeline: GeneratorPipeline;
+    private readonly _aggregateName: string;
+
+    constructor(targetAggregateName: string, datasourceConfig: DatasourceConfig) {
+        this._aggregateName = targetAggregateName;
+        this._pipeline = new GeneratorPipeline(
             new DataLayerGeneratorStage(datasourceConfig),
-            // new ApplicationLayerStage(),
-            // new PresentationLayerStage()
+            new ListCapabilityApplicationLayerStage(),
+            new PresentationLayerStage()
         );
-
-        // this.templateAppLogicGenerator = new TemplateSourceCodeGenerator();
-        // this.frontendElementGenerator = new TemplateSourceCodeGenerator();
-        // if (datasourceConfig.format !== DataSourceType.Local) {
-        //     this.dataEndpointUri = datasourceConfig.endpointUri;
-        // }
     }
 
     entryPoint!: LayerArtifact;
 
-    async generateCapability(context: StageGenerationContext): Promise<LayerArtifact> {
+    private convertConfigToCapabilityContext(config: CapabilityConfiguration): StageGenerationContext {
+        const result: StageGenerationContext = {
+            aggregateName: this._aggregateName,
+            config: config
+        };
 
-        const pipelineOutput = await this.pipeline.generateStage(context);
+        return result;
+    }
+
+    generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact> {
+
+        const stageContext = this.convertConfigToCapabilityContext(config);
+
+        const pipelineOutput = this._pipeline.generateStages(stageContext);
+
+        console.log(pipelineOutput);
+
+        return pipelineOutput;
+    }
+
+    async generateCapabilityOld(context: StageGenerationContext): Promise<LayerArtifact> {
+
+        const pipelineOutput = await this._pipeline.generateStages(context);
 
         console.log(pipelineOutput);
 

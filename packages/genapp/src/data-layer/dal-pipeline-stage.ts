@@ -1,4 +1,4 @@
-import { ArtifactSaver, GeneratorStage, type FirstStageGenerationContext } from "../engine/generator-stage-interface";
+import { ArtifactSaver, GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy, isLayerArtifact } from "./dal-generator-strategy-interface";
 import { LDKitDalGenerator } from "./strategies/ldkit-strategy";
@@ -19,7 +19,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
 
         getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
             const generators = {
-                [DataSourceType.Rdf]: new LDKitDalGenerator(),
+                [DataSourceType.Rdf]: new LDKitDalGenerator(datasourceConfig),
                 [DataSourceType.Json]: new FileDalGeneratorStrategy("json"),
                 [DataSourceType.Xml]: new FileDalGeneratorStrategy("xml"),
                 [DataSourceType.Csv]: new FileDalGeneratorStrategy("csv"),
@@ -42,23 +42,20 @@ export class DataLayerGeneratorStage implements GeneratorStage {
         }
 
         this._dalGeneratorStrategy = this.dalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
-        this.artifactSaver = new ArtifactSaver("/data-layer/");
+        this.artifactSaver = new ArtifactSaver("/data-layer");
     }
 
-    async generateStage(context: FirstStageGenerationContext): Promise<LayerArtifact> {
+    async generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
         const dalArtifact = await this._dalGeneratorStrategy.generateDataLayer(context);
 
         if (!isLayerArtifact(dalArtifact)) {
-            console.log("is LayerArtifact from DataLayerGeneratorStage: ");
-            console.log(dalArtifact);
-
-            return dalArtifact;
+            throw new Error("Could not generate application data layer");
         }
-
+        
         console.log("Is axiosResponse from DataLayerGeneratorStage");
-        console.log(dalArtifact.data);
+        console.log(dalArtifact);
 
-        return dalArtifact.data as LayerArtifact;
+        return dalArtifact as LayerArtifact;
 
         // let result: LayerArtifact;
 

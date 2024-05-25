@@ -9,22 +9,17 @@ export class GeneratorPipeline {
         this.pipelineStages = stages;
     }
 
-    // async runPipelineStage(stage: GeneratorStage) {
-    //     const layerArtifact = await stage.generateStage(context);
-    //     if (stage.artifactSaver) {
-    //         stage.artifactSaver.saveArtifact(layerArtifact);
-    //     }
-    //     this.lastArtifact = layerArtifact;
-    // }
-
-    async generateStage<T extends StageGenerationContext>(context: T): Promise<LayerArtifact> {
+    async generateStages(context: StageGenerationContext): Promise<LayerArtifact> {
 
         for (const stage of this.pipelineStages) {
             const layerArtifact = await stage.generateStage(context);
+
             if (stage.artifactSaver) {
                 stage.artifactSaver.saveArtifact(layerArtifact);
             }
+
             this.lastArtifact = layerArtifact;
+            context.previousResult = layerArtifact;
         }
 
         if (!this.lastArtifact) {
