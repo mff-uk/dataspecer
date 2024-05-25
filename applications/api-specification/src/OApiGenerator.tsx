@@ -1,5 +1,7 @@
 import { convertToOpenAPIDataType } from './DataTypeConverter.tsx';
 import { OApiOperationObj } from './Models/OApiOperationObjModel.tsx';
+import { StatusCode } from './Models/StatusCodeModel.tsx';
+import { httpStatusCodes } from './customComponents/HttpStatusCode.tsx';
 
 const SCHEMA_REF_PREFIX = '#/components/schemas/';
 
@@ -203,8 +205,7 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
      */
     if (operation.oType.toLowerCase() === 'put') {
         let schemaName = ds.name;
-        if(operation.oResponseObject && operation.oResponseObject.givenName)
-        {
+        if (operation.oResponseObject && operation.oResponseObject.givenName) {
             schemaName = operation.oResponseObject.givenName;
         }
         operationObject.requestBody = {
@@ -224,9 +225,10 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
 
 /* creates responses section */
 function createResponses(openAPISpec, dataStructures, ds, operation) {
+
     const responses = {
         [operation.oResponse]: {
-            description: 'Successful operation',
+            description: ' ',
             content: {
                 'application/json': {
                     schema: {
@@ -237,8 +239,13 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
         },
     };
 
-    if(operation.oResponse === "200" || operation.oResponse === "201")
-    {
+    httpStatusCodes.forEach((status: StatusCode) => {
+        if (status.value === operation.oResponse) {
+            responses[operation.oResponse].description = status.label;
+        }
+    });
+
+    if (operation.oResponse === "200" || operation.oResponse === "201") {
         responses[operation.oResponse].content['application/json'].schema = {
             $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
         };
@@ -264,8 +271,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
         }
     }
 
-    if(operation.isCollection && operation.oType === "GET" && operation.oResponse === "200")
-    {
+    if (operation.isCollection && operation.oType === "GET" && operation.oResponse === "200") {
         responses[operation.oResponse].content['application/json'].schema = {
             type: 'array',
             items: responses[operation.oResponse].content['application/json'].schema,
@@ -343,8 +349,7 @@ function createRequestBody(dataStructures, ds, operation) {
          * else - set data type 
          */
         if (field) {
-            if (field.classType) 
-            {
+            if (field.classType) {
                 const referencedDataStructure = dataStructures.find(ds => {
                     return ds.name === field.name;
                 });
@@ -352,9 +357,8 @@ function createRequestBody(dataStructures, ds, operation) {
                 requestBodyProperties[key] = {
                     $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
                 }
-            } 
-            else 
-            {
+            }
+            else {
                 requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
 
                 // If field represents an array - update accordingly
