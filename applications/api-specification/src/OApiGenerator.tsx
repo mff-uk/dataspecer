@@ -350,9 +350,6 @@ function createRequestBody(dataStructures, ds, operation) {
         }
     }
 
-    console.log("REQUEST BODY PROPERTIES");
-    console.log(requestBodyProperties);
-
     return {
         required: true,
         content: {
