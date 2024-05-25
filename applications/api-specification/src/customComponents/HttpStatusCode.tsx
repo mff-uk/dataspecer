@@ -3,7 +3,7 @@ import {StatusCodeSelectProps} from '../Props/StatusCodeSelectProps';
 import { StatusCode } from '@/Models/StatusCodeModel';
 
 /* Predefined http methods */
-const httpStatusCodes: StatusCode[] =
+export const httpStatusCodes: StatusCode[] =
     [
         { value: '200', label: '200 - successful request', message: 'successful request' }, 
         { value: '201', label: '201 - new resource created', message: 'new resource created' }, 

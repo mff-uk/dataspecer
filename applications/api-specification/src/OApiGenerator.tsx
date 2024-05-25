@@ -208,7 +208,7 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
         {
             schemaName = operation.oResponseObject.givenName;
         }
-        
+
         operationObject.requestBody = {
             required: true,
             content: {
@@ -232,7 +232,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
             content: {
                 'application/json': {
                     schema: {
-                        $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
+                        //$ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
                     },
                 },
             },
@@ -250,9 +250,19 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
          * else - update schema 
          */
         if (correspondingSchema) {
-            responses[operation.oResponse].content['application/json'].schema = {
-                $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
-            };
+            if(operation.isCollection && operation.oType == "GET" && operation.oResponse == "200")
+            {
+                responses[operation.oResponse].content['application/json'].schema = {
+                    $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
+                };
+            }
+            else
+            {
+                responses[operation.oResponse].content['application/json'].schema = {
+                    $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
+                };
+            }
+
         }
         else {
             updateResponseObjSchema(dataStructures, ds, givenName, responses, operation);
@@ -278,10 +288,20 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
     if (dataStructure) {
         const field = dataStructure.fields.find(field => formatName(field.name) === givenName);
         const classTypeRef = formatName(field.classType);
-        responses[operation.oResponse].content['application/json'].schema =
+        if(operation.isCollection && operation.oType == "GET" && operation.oResponse == "200")
         {
-            $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
-        };
+            responses[operation.oResponse].content['application/json'].schema = {
+                $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
+            };
+        }
+        else
+        {
+            responses[operation.oResponse].content['application/json'].schema =
+            {
+                $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
+            };
+        }
+
     }
     else {
         console.warn(`No schema or class type found in components for givenName: ${givenName}`);

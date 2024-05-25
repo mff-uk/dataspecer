@@ -11,7 +11,7 @@ export interface OApiOperationObj {
             {
                 'application/json':
                 {
-                    schema: { $ref: string; };
+                    schema: {}
                 };
             };
         };
