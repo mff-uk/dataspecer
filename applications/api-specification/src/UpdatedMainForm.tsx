@@ -41,31 +41,69 @@ type FormValues = {
     }[];
 };
 
+// const formSchema = z.object({
+//     apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
+//     apiDescription: z.string().min(1), // non-empty string
+//     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
+//     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
+//     dataStructures: z.array(
+//         z.object({
+//             id: z.string().optional(),
+//             name: z.string().min(1),
+//             operations: z.array(
+//                 z.object({
+//                     name: z.string(),
+//                     isCollection: z.boolean(),
+//                     oAssociatonMode: z.boolean(),
+//                     oType: z.string(),
+//                     oName: z.string(),
+//                     oEndpoint: z.string(),
+//                     oComment: z.string(),
+//                     oResponse: z.string(),
+//                     //oRequestBody: z.record(z.boolean()).optional(),
+//                     //oResponseObject: z.object({}).optional()
+//                 })
+//             ),
+//         })
+//     ).optional(),
+// });
+
+
 const formSchema = z.object({
     apiTitle: z.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Please enter a valid API Title." }),
     apiDescription: z.string().min(1), // non-empty string
     apiVersion: z.string().regex(/^\d+\.\d+$/, { message: "Please enter a valid API Version. \nExample: 1.0" }),
     baseUrl: z.string().regex(/^https:\/\/\w+\.\w+$/, { message: "BaseURL has to be in the following format: https://someUrl.com" }),
-    // dataStructures: z.array(
-    //     z.object({
-    //         id: z.string().optional(),
-    //         name: z.string().min(1),
-    //         operations: z.array(
-    //             z.object({
-    //                 name: z.string(),
-    //                 isCollection: z.boolean(),
-    //                 oAssociatonMode: z.boolean(),
-    //                 oType: z.string(),
-    //                 oName: z.string(),
-    //                 oEndpoint: z.string(),
-    //                 oComment: z.string(),
-    //                 oResponse: z.string(),
-    //                 oRequestBody: z.record(z.boolean()).optional(),
-    //                 oResponseObject: z.object({}).optional()
-    //             })
-    //         ),
-    //     })
-    // ).optional(),
+    dataStructures: z.array(
+        z.object({
+            id: z.string().optional(),
+            name: z.string().min(1),
+            operations: z.array(
+                z.object({
+                    name: z.string(),
+                    isCollection: z.boolean(),
+                    oAssociatonMode: z.boolean(),
+                    oType: z.string(),
+                    oName: z.string(),
+                    oEndpoint: z.string(),
+                    oComment: z.string(),
+                    oResponse: z.string(),
+                    // oRequestBody: z.record(z.boolean()).optional(),
+                    // oResponseObject: z.object({}).optional()
+                })
+            ).refine((operations) => {
+                const combinationSet = new Set();
+                for (const operation of operations) {
+                    const combination = `${operation.oEndpoint}-${operation.oType}`;
+                    if (combinationSet.has(combination)) {
+                        return false;
+                    }
+                    combinationSet.add(combination);
+                }
+                return true;
+            }, { message: "Each combination of oEndpoint and oType must be unique within each data structure." })
+        })
+    ).optional(),
 });
 
 
@@ -344,6 +382,8 @@ export const ApiSpecificationForm = () => {
                         {/* <LabeledInput label="Data Specification" id="dataSpecification" register={register} required /> */}
                     </FormCardSection>
 
+                    
+
                     {/* Data Structures */}
                     <FormCardSection>
                         <h3>Data Structures:</h3>
@@ -363,7 +403,7 @@ export const ApiSpecificationForm = () => {
                                                 //console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                                 register(`dataStructures.${index}.name`).onChange({
                                                     target: {
-                                                        value: selectedDataStructure?.name || selectedDataStructure?.givenName,
+                                                        value: selectedDataStructure.name,
                                                     },
                                                 });
 
@@ -375,7 +415,7 @@ export const ApiSpecificationForm = () => {
 
                                                 update(index, {
                                                     ...fields[index],
-                                                    name: selectedDataStructure?.givenName || selectedDataStructure?.name,
+                                                    name: selectedDataStructure.givenName,
                                                 });
                                             } } getValues={getValues}                                                                                    />
                                     </div>
@@ -383,6 +423,8 @@ export const ApiSpecificationForm = () => {
                                         Delete
                                     </Button>
                                 </div>
+
+
 
                                 {/* Operations */}
                                 <FormCardSection>
@@ -412,6 +454,11 @@ export const ApiSpecificationForm = () => {
                                         Add Operation
                                     </Button>
                                 </FormCardSection>
+
+                                {errors.dataStructures && errors.dataStructures[index]?.operations?.root?.message && (
+                                    <p className="text-red-500 text-sm">{errors.dataStructures[index].operations.root.message}</p>
+                                )}
+                                
                             </FormCardSection>
                         ))}
                         <Button
@@ -421,7 +468,13 @@ export const ApiSpecificationForm = () => {
                         >
                             Add Data Structure
                         </Button>
+
+                        
                     </FormCardSection>
+
+                    
+
+                    
 
                     {/* Submit Button */}
                     <Button type="submit">Generate OpenAPI Specification</Button>

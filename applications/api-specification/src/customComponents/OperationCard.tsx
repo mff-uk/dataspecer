@@ -67,28 +67,28 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
 
     // }, [getValues, index, operationIndex, removeOperation]);
 
-    useEffect(() => {
-        const currentOperations = getValues(`dataStructures.${index}.operations`);
-        const newOperation = getValues(`dataStructures.${index}.operations.${operationIndex}`);
+    // useEffect(() => {
+    //     const currentOperations = getValues(`dataStructures.${index}.operations`);
+    //     const newOperation = getValues(`dataStructures.${index}.operations.${operationIndex}`);
 
-        try {
-            const isDuplicate = (operation, operations) => {
-                for (let idx = 0; idx < operations.length; idx++) {
-                    if (idx !== operationIndex && operations[idx].oEndpoint === operation.oEndpoint && operations[idx].oType === operation.oType) {
-                        return true; // Found a duplicate
-                    }
-                }
-                return false; // No duplicate found
-            };
+    //     try {
+    //         const isDuplicate = (operation, operations) => {
+    //             for (let idx = 0; idx < operations.length; idx++) {
+    //                 if (idx !== operationIndex && operations[idx].oEndpoint === operation.oEndpoint && operations[idx].oType === operation.oType) {
+    //                     return true; // Found a duplicate
+    //                 }
+    //             }
+    //             return false; // No duplicate found
+    //         };
 
-            if (isDuplicate(newOperation, currentOperations)) {
-                alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Please delete last operation');
-                removeOperation(index, currentOperations.length - 1); 
-            }
-        } catch {
-            console.log("Duplicate removed");
-        }
-    }, [getValues, index, operationIndex, removeOperation]);
+    //         if (isDuplicate(newOperation, currentOperations)) {
+    //             alert('The last operation is a duplicate.\n OpenAPI does not accept duplicate operations.\n Please delete last operation');
+    //             removeOperation(index, currentOperations.length - 1); 
+    //         }
+    //     } catch {
+    //         console.log("Duplicate removed");
+    //     }
+    // }, [getValues, index, operationIndex, removeOperation]);
 
 
 
