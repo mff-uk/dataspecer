@@ -1,3 +1,5 @@
+/* DataT types currently known by DataSpecer */
+
 // export const OFN = {
 //     boolean: OFN_TYPE_PREFIX + "boolean",
 //     date: OFN_TYPE_PREFIX + "datum",
@@ -11,7 +13,10 @@
 //     rdfLangString: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
 //   };
 
-export function getDataTypeName(input: string): string | null {
+/* Converts data types known by Dataspecer to data types that are accepted by OpenApi */
+
+
+export function convertDataTypeName(input: string): string | null {
     if (input) {
         switch (true) {
             case input.endsWith("boolean"):
