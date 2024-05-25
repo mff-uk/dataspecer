@@ -207,7 +207,6 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
             content: {
                 'application/json': {
                     schema: {
-                        //$ref: `#/components/schemas/${formatName(ds.name)}`,
                         $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
                     },
                 },
@@ -226,7 +225,6 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
             content: {
                 'application/json': {
                     schema: {
-                        //$ref: `#/components/schemas/${formatName(ds.name)}`,
                         $ref: `${SCHEMA_REF_PREFIX}${formatName(ds.name)}`,
                     },
                 },
@@ -246,7 +244,6 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
          */
         if (correspondingSchema) {
             responses[operation.oResponse].content['application/json'].schema = {
-                //$ref: `#/components/schemas/${encodeURIComponent(givenName)}`,
                 $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
             };
         }
@@ -276,7 +273,6 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
         const classTypeRef = formatName(field.classType);
         responses[operation.oResponse].content['application/json'].schema =
         {
-            //$ref: `#/components/schemas/${classTypeRef}`,
             $ref: `${SCHEMA_REF_PREFIX}${classTypeRef}`,
         };
     }
