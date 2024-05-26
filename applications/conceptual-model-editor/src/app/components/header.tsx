@@ -1,4 +1,3 @@
-import Link from "next/link";
 import React from "react";
 import { DscmeLogo } from "./dscme-logo";
 
@@ -7,10 +6,11 @@ export const HeaderLogoLink = () => {
     if (!redirectPath) {
         throw new Error("redirect path for HeaderLogoLink is undefined");
     }
+    // use anchor instead of next/Link because of the cme base path
     return (
-        <Link href={redirectPath} className="my-auto" title="leave to manager without saving">
+        <a href={redirectPath} className="my-auto" title="leave to manager without saving">
             <DscmeLogo />
-        </Link>
+        </a>
     );
 };
 
