@@ -12,7 +12,7 @@ const pluralizeAndNoSpaces = (word: string): string => {
 
 // Predefined http methods based on isCollection state
 const collectionHttpMethods: OperationType[] = [
-    { value: 'GET', label: 'GET - Retrieve a list of resources within the collection' },
+    { value: 'GET', label: 'GET - Retrieve a collection of resources' },
     { value: 'POST', label: 'POST - Create a new resource within the collection' },
 ];
 
