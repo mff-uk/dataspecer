@@ -37,7 +37,7 @@ const IsCollection: React.FC<IsCollectionSwitchProps> = ({
 
     return (
         <div className="p-1 flex items-center">
-            <label>Treat resource as a collection: </label>
+            <label>Manipulate a collection: </label>
             <Switch
                 {...formState}
                 checked={currentIsCollection}
