@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { useModelGraphContext } from "../../context/model-context";
-import { useViewParam } from "../../util/view-param";
 import { DropDownCatalog } from "../../components/management/dropdown-catalog";
+import { useQueryParamsContext } from "../../context/query-params-context";
 
 export const ViewManagement = () => {
     const {
@@ -14,7 +14,7 @@ export const ViewManagement = () => {
         removeVisualModelFromModels,
     } = useModelGraphContext();
 
-    const { viewId, setViedIdSearchParam } = useViewParam();
+    const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
     const activeViewId = aggregatorView.getActiveViewId();
     const availableVisualModelIds = [...new Set(aggregatorView.getAvailableVisualModelIds())];
@@ -23,7 +23,7 @@ export const ViewManagement = () => {
         if (!activeViewId) {
             console.log("setting activeViewId to null");
         }
-        setViedIdSearchParam(activeViewId ?? null);
+        setViewIdSearchParam(activeViewId ?? null);
     }, [activeViewId]);
 
     const setActiveViewId = (modelId: string) => {
@@ -33,7 +33,7 @@ export const ViewManagement = () => {
     const handleViewSelected = (viewId: string) => {
         setActiveViewId(viewId);
         setAggregatorView(aggregator.getView());
-        setViedIdSearchParam(activeViewId ?? null);
+        setViewIdSearchParam(activeViewId ?? null);
     };
 
     const handleCreateNewView = () => {
@@ -48,7 +48,7 @@ export const ViewManagement = () => {
         addVisualModelToGraph(model);
         aggregatorView.changeActiveVisualModel(model.getId());
         setAggregatorView(aggregator.getView());
-        setViedIdSearchParam(activeViewId ?? null);
+        setViewIdSearchParam(activeViewId ?? null);
     };
 
     const handleViewDeleted = (viewId: string) => {

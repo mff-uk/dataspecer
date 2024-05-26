@@ -4,7 +4,7 @@ import {
     useUpdatingSavePackageButton,
 } from "../../components/management/buttons/save-package-buttons";
 import { useModelGraphContext } from "../../context/model-context";
-import { usePackageSearch } from "../../util/package-search";
+import { useQueryParamsContext } from "../../context/query-params-context";
 
 const SAVE_PACKAGE = "save package to backend";
 const SAVE_PACKAGE_AND_LEAVE = "save package to backend and leave back to manager";
@@ -15,7 +15,8 @@ const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
 
 export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const { packageId } = usePackageSearch();
+    // const { packageId } = usePackageSearch();
+    const { packageId } = useQueryParamsContext();
     const { models, visualModels } = useModelGraphContext();
     const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();
 
