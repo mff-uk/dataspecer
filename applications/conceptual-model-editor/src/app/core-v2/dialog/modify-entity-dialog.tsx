@@ -682,12 +682,12 @@ export const useModifyEntityDialog = () => {
 
                 {canHaveAttributes && (
                     <div className="bg-slate-100">
-                        <div className="flex flex-row justify-between">
+                        <div className="my-1 flex flex-row justify-between">
                             <button
-                                className="ml-8 bg-slate-300"
+                                className="ml-8 bg-white px-2 py-1 hover:shadow-sm"
                                 onClick={() => setWantsToAddNewAttributes((prev) => !prev)}
                             >
-                                {wantsToAddNewAttributes ? "cancel" : "add attribute"}
+                                {wantsToAddNewAttributes ? "❌ cancel" : "➕ add attribute"}
                             </button>
                         </div>
                         <div>
