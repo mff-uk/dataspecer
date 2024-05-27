@@ -48,7 +48,7 @@ export const ApiSpecificationForm = () => {
     }, [watch]);
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
-
+    
     const { fetchDataStructures } = useDataSpecificationInfo();
 
     /* START - GET Presaved configuration */
@@ -116,7 +116,6 @@ export const ApiSpecificationForm = () => {
         try {
 
             const newOpenAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
-            //console.log(openAPISpec)
             setOpenAPISpec(newOpenAPISpec);
 
 

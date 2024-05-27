@@ -34,7 +34,7 @@ export function useDataSpecificationInfo() {
         return null;
     }
 
-    // Memoize the function `fetchDataStructures` with `useCallback` - prevents unnecessary re-fetching
+    // Memoize the function fetchDataStructures with useCallback - prevents unnecessary re-fetching
     const fetchDataStructures = useCallback(async () => {
         // If data is not available, return null
         if (!data) return null;
