@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {ApiSpecificationForm} from './UpdatedMainForm.tsx'
+import {ApiSpecificationForm} from './MainForm.tsx'
 
 function App() {
   return (

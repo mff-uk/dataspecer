@@ -287,21 +287,10 @@ export const ApiSpecificationForm = () => {
                                     ))}
 
                                     {/* Add operation button */}
-                                    {/* <Button
+                                    <Button
                                         className="zbg-blue-500 hover:bg-blue-400"
                                         type="button"
                                         onClick={() => addOperation(index)}
-                                    >
-                                        Add Operation
-                                    </Button> */}
-
-                                    <Button
-                                        className={`${
-                                            selectedDataStructures[index] ? 'bg-blue-500 hover:bg-blue-400' : 'bg-gray-300 cursor-not-allowed'
-                                        }`}
-                                        type="button"
-                                        onClick={() => addOperation(index)}
-                                        disabled={!selectedDataStructures[index]}
                                     >
                                         Add Operation
                                     </Button>
