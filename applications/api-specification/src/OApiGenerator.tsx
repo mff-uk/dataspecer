@@ -334,9 +334,6 @@ function createRequestBody(dataStructures, ds, operation) {
     // Iterate over each key in the request body
     for (const key of Object.keys(operation.oRequestBody)) {
         if (operation.oRequestBody[key] === true) {
-
-
-
             /* Try to find field on the base case */
             const dataStruct = dataStructures.find(dataStruct => {
                 return dataStruct.givenName.toLowerCase() === ds.name.toLowerCase();
