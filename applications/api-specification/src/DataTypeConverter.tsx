@@ -41,9 +41,8 @@ export function convertDataTypeName(input: string): string | null {
                 return null;
         }
     }
-    else
-    {
-        return "Object"
+    else {
+        return "string"
     }
 
 }

@@ -26,7 +26,7 @@ export function useDataSpecificationInfo() {
     /* 
      * Fetch DataSpecification Object and store it into data
      * In case of an usuccessfull fetching the error is stored in error
-     */    
+     */
     const { data, error } = useSWR(url, fetcher);
 
     if (error) {
@@ -75,7 +75,7 @@ export function useDataSpecificationInfo() {
                 .then(response => response.json())
                 .catch(error => {
                     console.error(`Error fetching data structure with IRI ${iri}:`, error);
-                    return null; 
+                    return null;
                 })
         );
 
@@ -143,37 +143,31 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
     //console.log(targetResource)
-    
+
     let isArray = false;
     let isMandatory = false;
-    
+
     // determine if the field whether field is an array
-    if(targetResource)
-    {
-        if(targetResource.pimCardinalityMax)
-        {
+    if (targetResource) {
+        if (targetResource.pimCardinalityMax) {
             //console.log(targetResource?.pimHumanLabel?.en + "with cardinality " + targetResource?.pimCardinalityMax)
-            
-            if(targetResource.pimCardinalityMax == 1)
-            {
+
+            if (targetResource.pimCardinalityMax == 1) {
                 isArray = false;
             }
-            else
-            {
+            else {
                 isArray = true;
             }
-            
+
         }
-        else
-        {
+        else {
             isArray = true;
         }
 
 
         // determine if a field is mandatory (has to be marked required in OpenAPI components schema)
-        if(targetResource.pimCardinalityMin == 1 && targetResource.pimCardinalityMax == 1)
-        {
-            isMandatory =  true;
+        if (targetResource.pimCardinalityMin == 1 && targetResource.pimCardinalityMax == 1) {
+            isMandatory = true;
         }
 
     }
