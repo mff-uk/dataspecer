@@ -187,7 +187,7 @@ function createOperationObject(openAPISpec, dataStructures, ds, operation, param
     // populate OperationObject with info provided from user 
     const operationObject: OApiOperationObj = {
         summary: operation.oComment,
-        operationId: operation.oName,
+        operationId: formatName(operation.oName),
         parameters,
         responses: createResponses(openAPISpec, dataStructures, ds, operation),
     };
@@ -312,9 +312,11 @@ function createRequestBody(dataStructures, ds, operation) {
     const requestBodyProperties = {};
 
     // get required fields from operation's request body ( from the userinput)
-    const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
+    //const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
     function findFieldInNestedFields(nestedFields, key) {
+        console.log("this is the key " + key)
+        console.log("this is the value " + operation.oRequestBody[key])
         for (const field of nestedFields) {
             if (field.name === key) {
                 return field;
@@ -331,6 +333,10 @@ function createRequestBody(dataStructures, ds, operation) {
 
     // Iterate over each key in the request body
     for (const key of Object.keys(operation.oRequestBody)) {
+        if(operation.oRequestBody[key] === true)
+        {
+
+        
 
         /* Try to find field on the base case */
         const dataStruct = dataStructures.find(dataStruct => {
@@ -367,6 +373,7 @@ function createRequestBody(dataStructures, ds, operation) {
                 }
             }
         }
+     }
     }
 
     return {
@@ -376,7 +383,7 @@ function createRequestBody(dataStructures, ds, operation) {
                 schema: {
                     type: 'object',
                     properties: requestBodyProperties,
-                    required: requiredFields,
+                    //required: requiredFields,
                 },
             },
         },
