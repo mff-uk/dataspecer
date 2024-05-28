@@ -333,47 +333,46 @@ function createRequestBody(dataStructures, ds, operation) {
 
     // Iterate over each key in the request body
     for (const key of Object.keys(operation.oRequestBody)) {
-        if(operation.oRequestBody[key] === true)
-        {
+        if (operation.oRequestBody[key] === true) {
 
-        
 
-        /* Try to find field on the base case */
-        const dataStruct = dataStructures.find(dataStruct => {
-            return dataStruct.givenName.toLowerCase() === ds.name.toLowerCase();
-        });
 
-        let field = dataStruct?.fields.find(f => f.name === key);
+            /* Try to find field on the base case */
+            const dataStruct = dataStructures.find(dataStruct => {
+                return dataStruct.givenName.toLowerCase() === ds.name.toLowerCase();
+            });
 
-        /* If field was ont found on the base case - look in the nested fields */
-        if (!field && dataStruct) {
-            field = findFieldInNestedFields(dataStruct.fields, key);
-        }
+            let field = dataStruct?.fields.find(f => f.name === key);
 
-        /*
-         * If field is not a primitive data type - set schema reference
-         * else - set data type 
-         */
-        if (field) {
-            if (field.classType) {
-                const referencedDataStructure = dataStructures.find(ds => {
-                    return ds.name === field.name;
-                });
+            /* If field was ont found on the base case - look in the nested fields */
+            if (!field && dataStruct) {
+                field = findFieldInNestedFields(dataStruct.fields, key);
+            }
 
-                requestBodyProperties[key] = {
-                    $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
+            /*
+             * If field is not a primitive data type - set schema reference
+             * else - set data type 
+             */
+            if (field) {
+                if (field.classType) {
+                    const referencedDataStructure = dataStructures.find(ds => {
+                        return ds.name === field.name;
+                    });
+
+                    requestBodyProperties[key] = {
+                        $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,
+                    }
+                }
+                else {
+                    requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
+
+                    // If field represents an array - update accordingly
+                    if (field.isArray) {
+                        requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
+                    }
                 }
             }
-            else {
-                requestBodyProperties[key] = convertToOpenAPIDataType(field.type || 'string');
-
-                // If field represents an array - update accordingly
-                if (field.isArray) {
-                    requestBodyProperties[key] = { type: 'array', items: requestBodyProperties[key] };
-                }
-            }
         }
-     }
     }
 
     return {
