@@ -134,7 +134,9 @@ function createComponentSchema(openAPISpec, dataStructure) {
 /* handles operations of path (endpoint) */
 function handlePathOperations(openAPISpec, dataStructures, ds, operation) {
     /* get path (endpoint) and operationtype (e.g get, post ...) */
-    const path = operation.oEndpoint;
+    const endPoint = operation.oEndpoint.startsWith('/') ? operation.oEndpoint : '/' + operation.oEndpoint;
+    //const path = operation.oEndpoint;
+    const path = endPoint;
     const operationType = operation.oType.toLowerCase();
 
     // Check if path obj exists, if not initialize 
@@ -315,8 +317,7 @@ function createRequestBody(dataStructures, ds, operation) {
     //const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
     function findFieldInNestedFields(nestedFields, key) {
-        console.log("this is the key " + key)
-        console.log("this is the value " + operation.oRequestBody[key])
+
         for (const field of nestedFields) {
             if (field.name === key) {
                 return field;
