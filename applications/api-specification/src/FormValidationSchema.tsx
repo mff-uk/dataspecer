@@ -15,8 +15,8 @@ export const formValidationchema = z.object({
                     isCollection: z.boolean(),
                     oAssociatonMode: z.boolean(),
                     oType: z.string(),
-                    oName: z.string(),
-                    oEndpoint: z.string(),
+                    oName: z.string().min(1, { message: "Name of the Operation caanot be empty" }),
+                    oEndpoint: z.string().min(1, { message: "Endpoint cannot be empty" }),
                     oComment: z.string(),
                     oResponse: z.string(),
                 })
@@ -31,16 +31,16 @@ export const formValidationchema = z.object({
                 }
                 return true;
             }, { message: "Error: Each combination of endpoint and operation type must be unique within each data structure." })
-            .refine((operations) => {
-                const oNameSet = new Set();
-                for (const operation of operations) {
-                    if (oNameSet.has(operation.oName)) {
-                        return false;
+                .refine((operations) => {
+                    const oNameSet = new Set();
+                    for (const operation of operations) {
+                        if (oNameSet.has(operation.oName)) {
+                            return false;
+                        }
+                        oNameSet.add(operation.oName);
                     }
-                    oNameSet.add(operation.oName);
-                }
-                return true;
-            }, { message: "Error: Operation name must be unique." })
+                    return true;
+                }, { message: "Error: Operation name must be unique." })
         })
     ).optional(),
 });
