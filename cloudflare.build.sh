@@ -10,6 +10,8 @@ printf "NEXT_PUBLIC_BASE_PATH=/conceptual-model-editor\nNEXT_PUBLIC_APP_BACKEND=
 
 printf "VITE_BACKEND=$BACKEND\nVITE_CME=/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=/api-specification" > applications/manager/.env.local
 
+printf "VITE_BACKEND=$BACKEND" > applications/api-specification/.env.local
+
 npx turbo run build --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp
 
 rm -rf .dist
