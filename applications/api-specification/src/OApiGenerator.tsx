@@ -45,7 +45,18 @@ function initializeOpenAPISpec(userInput) {
         paths: {},
         components: {
             schemas: {},
+            securitySchemes: {
+                basicAuth: {
+                    type: 'http',
+                    scheme: 'basic'
+                }
+            }
         },
+        security: [
+            {
+                basicAuth: []
+            }
+        ]
     };
 }
 
