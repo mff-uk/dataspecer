@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { convertDataTypeName } from './DataTypeConverter.tsx';
 import { DataStructure, Field } from './Models/DataStructureModel.tsx';
 
+const backendUrl = import.meta.env.VITE_BACKEND;
+
 // Custom hook: fetch data specification info
 export function useDataSpecificationInfo() {
     const fetcher = async (url: string) => {
@@ -21,7 +23,7 @@ export function useDataSpecificationInfo() {
     };
 
     const iri = getIri();
-    const url = iri ? `https://backend.dataspecer.com/resources/packages?iri=${encodeURIComponent(iri)}` : null;
+    const url = iri ? `${backendUrl}/resources/packages?iri=${encodeURIComponent(iri)}` : null;
 
     /* 
      * Fetch DataSpecification Object and store it into data
@@ -58,7 +60,7 @@ export function useDataSpecificationInfo() {
 
             const pimIri = dsIriForPim[0];
 
-            pimData = await fetch(`https://backend.dataspecer.com/resources/blob?iri=${pimIri}`)
+            pimData = await fetch(`${backendUrl}/resources/blob?iri=${pimIri}`)
                 .then(response => response.json())
                 .catch(error => {
                     console.error(`Error fetching data with PIM IRI ${pimIri}:`, error);
@@ -71,7 +73,7 @@ export function useDataSpecificationInfo() {
          * Fetch DataStructure Object based on its iri (id)
          */
         const fetchPromises = dsIris.map(iri =>
-            fetch(`https://backend.dataspecer.com/resources/blob?iri=${iri}`)
+            fetch(`${backendUrl}/resources/blob?iri=${iri}`)
                 .then(response => response.json())
                 .catch(error => {
                     console.error(`Error fetching data structure with IRI ${iri}:`, error);
