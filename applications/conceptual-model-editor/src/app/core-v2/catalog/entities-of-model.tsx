@@ -83,12 +83,10 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
+        // console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
         setVisibleOnCanvas(() => {
             return localGetCurrentVisibilityOnCanvas();
         });
-
-        // TODO: visibility not shown after loading in dev mode
 
         const getDefaultVisibility = () => {
             if (entityType == "class") {
@@ -156,11 +154,11 @@ export const EntitiesOfModel = (props: {
         }
     };
 
-    const handleRemoval = (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
+    const handleRemoval = async (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
         if (model instanceof InMemorySemanticModel) {
             deleteEntityFromModel(model, entityId);
         } else {
-            model.releaseClass(entityId);
+            await model.releaseClass(entityId);
         }
     };
 
@@ -210,7 +208,10 @@ export const EntitiesOfModel = (props: {
     return (
         <>
             <CanvasContext.Provider value={{ visibleOnCanvas, setVisibleOnCanvas }}>
-                <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
+                <ModelEntitiesList>
+                    {entities.map(entityToRowHierarchy)}
+                    {getAppendedRow()}
+                </ModelEntitiesList>
             </CanvasContext.Provider>
         </>
     );
