@@ -42,14 +42,84 @@ You can profile any concept. Make sure to have a [local model](./models.md#local
 
 ### Class
 
+Has following _features?_
+
+-   name (multi-language)
+-   description (multi-language)
+-   iri
+    -   relative -> we take the model's base iri and concatenate it with this relative iri
+    -   absolute -> you specify the whole iri including the protocol
+
 ### Relationship
+
+-   name (multi-language)
+-   description (multi-language)
+-   iri
+    -   relative -> we take the model's base iri and concatenate it with this relative iri
+    -   absolute -> you specify the whole iri including the protocol
+-   domain (the concept where the relationship starts)
+-   domain cardinality
+-   range (the concept where the relationship ends)
+-   range cardinality
 
 ### Attribute
 
+-   name (multi-language)
+-   description (multi-language)
+-   iri
+    -   relative -> we take the model's base iri and concatenate it with this relative iri
+    -   absolute -> you specify the whole iri including the protocol
+-   domain (the concept that has the attribute)
+-   domain cardinality
+-   datatype
+
 ### Generalization
+
+-   iri
+    -   relative -> we take the model's base iri and concatenate it with this relative iri
+    -   absolute -> you specify the whole iri including the protocol
+-   child (the concept that generalizes the other)
+-   parent
 
 ### Class profile
 
+You can profile a class or even a class profile, eg dcat:Dataset, dcat-ap:Dataset, dcat-ap-cz:Dataset. Field are
+
+-   iri
+-   usage note (how is this profile supposed to be used)
+
+and optionally you can change these for profile
+
+-   name
+-   description
+
 ### Relationship profile
 
+You can profile a relationship or even a relationship profile. Field are
+
+-   iri
+-   usage note (how is this profile supposed to be used)
+
+and optionally you can change these for profile
+
+-   name
+-   description
+-   domain
+-   domain cardinality
+-   range
+-   range cardinality
+
 ### Attribute profile
+
+You can profile an attribute or even an attribute profile. Field are
+
+-   iri
+-   usage note (how is this profile supposed to be used)
+
+and optionally you can change these for profile
+
+-   name
+-   description
+-   domain
+-   domain cardinality
+-   datatype

@@ -15,7 +15,9 @@ Once you are in `dscme` you can play with your models and profiles. To save your
     -   it will take you back to the [Specification manager](https://tool.dataspecer.com/manager)
 -   **automatically**: click the `🟢autosave` button in the right part of the app header
     -   it will sync your modeling state to the backend every _15s (based on current configuration)_
-    -   you'll get notified that the autosave happened by `...saved 🤞` message in the button
+    -   you'll get notified that the autosave happened by `...saved` message in the button
+
+If you don't want to save your work and just return to the manager, click the `dscme` logo in the top left corner of the app.
 
 ## Lightweight ontology
 
