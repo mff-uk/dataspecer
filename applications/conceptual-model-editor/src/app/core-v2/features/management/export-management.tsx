@@ -12,12 +12,15 @@ import { useClassesContext } from "../../context/classes-context";
 import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-utils";
 import { ExportButton } from "../../components/management/buttons/export-button";
 import { useAutoSave } from "../autosave";
+import { useQueryParamsContext } from "../../context/query-params-context";
 
 export const ExportManagement = () => {
     const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
         useModelGraphContext();
     const { sourceModelOfEntityMap } = useClassesContext();
     const { saveWorkspaceState } = useLocalStorage();
+
+    const { updatePackageId: setPackage } = useQueryParamsContext();
     const { download } = useDownload();
     const { AutoSaveButton } = useAutoSave();
     const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
@@ -99,6 +102,7 @@ export const ExportManagement = () => {
         if (configuration) {
             console.log("configuration is gonna be used");
             loadConfiguration(configuration);
+            setPackage(null);
         }
     };
 

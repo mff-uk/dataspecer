@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { usePackageSearch } from "../util/package-search";
 import { useBackendConnection } from "../backend-connection";
 import { ExportButton } from "../components/management/buttons/export-button";
 import { useModelGraphContext } from "../context/model-context";
+import { useQueryParamsContext } from "../context/query-params-context";
 
 export const useAutoSave = () => {
     const { models, visualModels } = useModelGraphContext();
-    const { packageId } = usePackageSearch();
+    const { packageId } = useQueryParamsContext();
+
     const { updateSemanticModelPackageModels } = useBackendConnection();
     const [autosaveActive, setAutosaveActive] = useState(false);
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
@@ -41,12 +42,20 @@ export const useAutoSave = () => {
         if (!packageId) {
             return;
         }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
-        showWasAutosaved();
+        const status = await updateSemanticModelPackageModels(
+            packageId,
+            [...models.values()],
+            [...visualModels.values()]
+        );
+        if (status) {
+            showWasAutosaved();
+        } else {
+            showWasAutosaved("fail");
+        }
     };
 
-    const showWasAutosaved = () => {
-        setAutosaveButtonLabel("...saved 🤞");
+    const showWasAutosaved = (result: "success" | "fail" = "success") => {
+        setAutosaveButtonLabel(`... ${result}`);
         setTimeout(() => {
             setAutosaveButtonLabel(getCurrentLabel());
         }, 750);

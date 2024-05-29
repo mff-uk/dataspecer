@@ -16,6 +16,7 @@ const client = z.object({
     NEXT_PUBLIC_APP_BACKEND: z.string().url(),
     NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: z.coerce.number(),
     NEXT_PUBLIC_MANAGER_PATH: z.string(),
+    NEXT_PUBLIC_DSCME_LOGO_LINK: z.string(),
 });
 
 /**
@@ -29,6 +30,7 @@ const processEnv = {
     NEXT_PUBLIC_APP_BACKEND: process.env.NEXT_PUBLIC_APP_BACKEND,
     NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS,
     NEXT_PUBLIC_MANAGER_PATH: process.env.NEXT_PUBLIC_MANAGER_PATH,
+    NEXT_PUBLIC_DSCME_LOGO_LINK: process.env.NEXT_PUBLIC_DSCME_LOGO_LINK,
 };
 
 // Don't touch the part below

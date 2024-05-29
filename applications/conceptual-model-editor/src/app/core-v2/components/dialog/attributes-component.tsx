@@ -112,8 +112,10 @@ export const AddAttributesComponent = (props: {
                     />
                 </DialogDetailRow2>
             </div>
-            <div className="flex flex-row justify-center">
-                <button onClick={handleSave}>save</button>
+            <div className="my-1 flex flex-row justify-center">
+                <button className="ml-8 bg-white px-2 py-1 hover:shadow-sm" onClick={handleSave}>
+                    ✅ add
+                </button>
             </div>
         </div>
     );

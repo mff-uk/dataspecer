@@ -28,18 +28,13 @@ import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
-import { usePackageSearch } from "./util/package-search";
-import { useViewParam } from "./util/view-param";
 import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
+import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
 
-    // const { aggregator } = useMemo(() => {
-    //     const aggregator = new SemanticModelAggregator();
-    //     return { aggregator };
-    // }, []);
     const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
     const [models, setModels] = useState(new Map<string, EntityModel>());
@@ -55,12 +50,11 @@ const Page = () => {
 
     const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
 
-    const { setPackage, getPackageId } = usePackageSearch();
-    const { viewId: viewIdFromURLParams } = useViewParam();
+    const { packageId, viewId, updatePackageId } = useQueryParamsContext();
     const { getModelsFromBackend } = useBackendConnection();
 
     useEffect(() => {
-        const pId = getPackageId(); // searchParams.get("package-id");
+        const pId = packageId;
         console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent, pId:", pId);
 
         if (!pId) {
@@ -132,8 +126,8 @@ const Page = () => {
                 const aggrView = aggregator.getView();
                 const availableVisualModelIds = visualModels2.map((m) => m.getId());
 
-                if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
-                    aggrView.changeActiveVisualModel(viewIdFromURLParams);
+                if (viewId && availableVisualModelIds.includes(viewId)) {
+                    aggrView.changeActiveVisualModel(viewId);
                 } else {
                     // choose the first available model
                     const modelId = visualModels2.at(0)?.getId();
@@ -144,11 +138,12 @@ const Page = () => {
 
                 setAggregatorView(aggrView);
                 return () => {
-                    for (const m of entityModels) {
-                        aggregator.deleteModel(m);
-                    }
-                    for (const m of visualModels2) {
-                        aggregator.deleteModel(m);
+                    for (const m of [...entityModels, ...visualModels2]) {
+                        try {
+                            aggregator.deleteModel(m);
+                        } catch (err) {
+                            console.log("error: trying delete a model from aggregator", err);
+                        }
                     }
                     setModels(new Map());
                     setVisualModels(new Map());
@@ -156,7 +151,7 @@ const Page = () => {
             })
             .catch((reason) => {
                 console.error(reason);
-                setPackage(null);
+                updatePackageId(null);
             });
 
         return async () => {
@@ -323,4 +318,12 @@ const Page = () => {
     );
 };
 
-export default Page;
+const PageWrapper = () => {
+    return (
+        <QueryParamsProvider>
+            <Page />
+        </QueryParamsProvider>
+    );
+};
+
+export default PageWrapper;
