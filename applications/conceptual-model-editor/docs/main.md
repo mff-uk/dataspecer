@@ -2,7 +2,7 @@
 
 _developer docs are [here](./dev-docs.md)_
 
-Dataspecer - Conceptual model editor
+**Dataspecer - Conceptual model editor**
 
 You can do many things in here.
 

@@ -17,6 +17,6 @@ Once you are in `dscme` you can play with your models and profiles. To save your
     -   it will sync your modeling state to the backend every _15s (based on current configuration)_
     -   you'll get notified that the autosave happened by `...saved 🤞` message in the button
 
-## Take it to your own hands
+## Lightweight ontology
 
 You can also generate your model to lightweight owl ontology, export your beautiful diagrams or export your current workspace. For more information, refer yourself to [exports section](./exports.md).

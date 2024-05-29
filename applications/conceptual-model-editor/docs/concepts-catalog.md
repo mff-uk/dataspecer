@@ -10,7 +10,7 @@ You can see these types of columns:
 -   relationships
 -   attributes
 -   profiles
--   _and warnings_
+-   _and warnings (we hope you don't see them at all)_
 
 ## Concepts of a model
 
@@ -21,16 +21,7 @@ So that there is not such a mess with [all classes](#concept-row) (for example) 
 In the header of the list, you see:
 
 -   the **alias** of the model, [aliasing a model](./models.md#aliasing-a-model)
--   its **color**, which can be seen in the [color picker](#changing-model-colors)
 -   and fold/expand button `🔼`/`🔽` so that your catalog side bar is more organized
-
-#### Changing model colors
-
-There is a color picker. You can make your models easily distinguishable. We tried to choose nice colors. When you add a new model, we choose a color randomly. _Sounds like we could choose the colors to be in good contrast to each other, huh, time crunch._
-
-Just click on the picker and choose a color you like. If you don't want to change the color in the end, just click the color the model already has or click elsewhere.
-
-If you create a new [view](./main.md#views), we copy the colors of the models to the new view as well. If you add a new model afterwards, you'll have to keep the colors synchronized yourself. _We know it is a bit odd, future versions of the editor should work more comfortably._
 
 ### Concept row
 
@@ -52,3 +43,7 @@ On the left side of the concept row, there is the `📑`. When you click that, w
 -   remove: `🗑` removes the concept from the model, works only with concepts from [local models](./models.md#list-of-models)
 -   expand: `expand` loads/removes the surroundings of the concept, works only with concepts from [sgov](./models.md#list-of-models)
 -   create a profile: `🧲` creates a [profile](./profiles.md) of the concept, works with all models. The concept will placed to one of the local models you have opened up (you can decide). And yes, an avocado, felt like it added a novelty factor to our app
+
+### Creating a new class
+
+You can also create new classes in the concepts catalog. It is possible only for [local models](./models.md#local-model) though. This opens up the [create class dialog](./dialogs.md#create-class-dialog), you provide all necessary information about the class and it gets created.

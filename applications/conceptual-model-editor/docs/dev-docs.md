@@ -27,6 +27,25 @@ chronologický popis průběhu prací na projektu:
 -   barvicky pro modely
 -   visualni modely pro core-v2
 -   ruzne views
+-   01/2024, pull request
+    -   krabicky na platne maji atributy
+    -   hrany na platne maji barvicky, popisy a kardinality
+    -   view management
+    -   dialogy na pridani modelu (modely nejsou zapecene v kodu), pridani relationshipu, modifikaci entit
+    -   napojeni na backend
+-   02/2024
+    -   spatne se renderovaly hrany, novy pristup k jejich renderovani
+    -   support pro zmenu views ve vizualizaci
+    -   vytvoreni lokalniho project manageru
+    -   implementace na backendove servise
+        -   listovani packages
+        -   podpora barev u modelu
+    -   nacteni package rovnou pri otevreni stranky, `package-id` query parametr
+    -   detail dialog tedka ukaze atributy u tridy
+-   03/2024
+    -   vizualizace se nekresli z naseho stavu, ale je napojena pouze na zmeny z aggregatoru
+        -   nehrozi tak zbytecne vykreslovani, pokud neni treba
+    -
 
 kritické zhodnocení přijatých řešení a možnosti dalšího vývoje
 
