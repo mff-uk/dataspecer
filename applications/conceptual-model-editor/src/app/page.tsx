@@ -3,6 +3,11 @@ import Link from "next/link";
 import Header from "./components/header";
 
 export default function Page() {
+    const managerPath = process.env.NEXT_PUBLIC_DSCME_LOGO_LINK;
+    if (!managerPath) {
+        throw new Error("redirect path for package manager is undefined");
+    }
+
     return (
         <>
             <Header page="👋" />
@@ -10,10 +15,10 @@ export default function Page() {
                 <h1 className="mb-12 px-6 text-3xl font-bold tracking-tight text-gray-900">Home</h1>
                 <ul>
                     <li>
-                        <Link href={"/core-v2"}>core-v2 w/o packages</Link>
+                        <Link href={"/core-v2"}>work w/o packages</Link>
                     </li>
                     <li>
-                        <Link href={"/project-manager"}>core-v2 project manager</Link>
+                        <a href={managerPath}>package manager</a>
                     </li>
                 </ul>
             </div>
