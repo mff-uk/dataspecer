@@ -2,7 +2,7 @@
 
 _developer docs are [here](./dev-docs.md)_
 
-Dataspecer - Conceptual model editor
+**Dataspecer - Conceptual model editor**
 
 You can do many things in here.
 
@@ -49,7 +49,7 @@ For more information on working with concepts, refer yourself to [concepts secti
 
 ### Header
 
-Contains your [persistence](./persistence.md) and [export](./exports.md) management. You also choose your `view` on the data, we mean the diagrams on the canvas.
+Contains your [persistence](./persistence.md) and [export](./exports.md) management. You also choose your `view` on the data, we mean the diagrams on the canvas. You can click the `dscme` logo in the top left corner to return back to specification manager [without saving](./persistence.md).
 
 #### Views
 
