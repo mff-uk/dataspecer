@@ -5,7 +5,7 @@
   url = "/docs/tutorial/start/"
 
 [[main]]
-  name = "Tutorial"
+  name = "Docs"
   url = "/docs/tutorial/start/"
   weight = 10
 
