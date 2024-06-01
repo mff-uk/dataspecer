@@ -16,7 +16,7 @@ The output of the program depends on two aspects - the collection of data struct
 
 Please refer to the comprehensive documentation of the project via following links:
 
-- PDF version: https://drive.google.com/file/d/12hitQwkcJYrtcQJXs3zDUTVpPH6eoPWC/view?usp=drive_link
+- PDF version: https://drive.google.com/file/d/1A8OeLyihcqZ41yh0A7Rm881noXUb8EUh/view?usp=sharing
 - Dataspecer Website: https://dataspecer.com/docs/projects/api/
 
 ## Structure of the Repository
