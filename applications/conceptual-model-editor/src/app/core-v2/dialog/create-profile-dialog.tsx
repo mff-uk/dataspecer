@@ -182,20 +182,20 @@ export const useCreateProfileDialog = () => {
             <BaseDialog
                 heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
             >
-                <div>
+                <div className="">
                     <DialogColoredModelHeaderWithModelSelector
-                        style="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2"
+                        style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
                         activeModel={activeModel}
                         onModelSelected={(m) => setActiveModel(m)}
                     />
-                    <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
+                    <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
                         <DialogDetailRow2 detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow2>
                         <DialogDetailRow2 detailKey="profiled entity type">
                             {getEntityTypeString(entity)}
                         </DialogDetailRow2>
                     </div>
                 </div>
-                <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2">
+                <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
                     {/* 
                     ------------
                     Profile name

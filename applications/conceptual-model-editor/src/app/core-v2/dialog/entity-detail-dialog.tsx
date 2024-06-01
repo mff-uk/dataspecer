@@ -104,9 +104,9 @@ export const useEntityDetailDialog = () => {
                         viewedEntity={viewedEntity}
                         currentLanguage={currentLang}
                         setCurrentLanguage={(l) => setCurrentLang(l)}
-                        style="grid grid-cols-[80%_20%] grid-rows-1 py-2 pl-8"
+                        style="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8"
                     />
-                    <div className="grid grid-cols-[80%_20%] grid-rows-1 py-2 pl-8">
+                    <div className="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8">
                         <h5 className="text-xl">
                             Detail of: <span className="font-semibold">{name}</span>
                         </h5>
@@ -128,7 +128,7 @@ export const useEntityDetailDialog = () => {
                         {iri}
                     </p>
 
-                    <div className="grid grid-cols-[20%_80%]  pl-8">
+                    <div className="grid md:grid-cols-[20%_80%] md:pl-8">
                         <>
                             {profileOf && (
                                 <DialogDetailRow2 detailKey="direct profile of">
@@ -175,7 +175,7 @@ export const useEntityDetailDialog = () => {
                         )}
                     </div>
                 </div>
-                <div className="grid grid-cols-[20%_80%] gap-y-3 bg-slate-100 pl-8">
+                <div className="grid gap-y-3 bg-slate-100 md:grid-cols-[20%_80%] md:pl-8">
                     <DialogDetailRow2 detailKey="type">{getEntityTypeString(viewedEntity)}</DialogDetailRow2>
                     <DialogDetailRow2 detailKey="description">{description}</DialogDetailRow2>
                     {attributes.length > 0 && (

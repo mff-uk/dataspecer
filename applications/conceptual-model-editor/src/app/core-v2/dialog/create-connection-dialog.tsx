@@ -224,11 +224,13 @@ export const useCreateConnectionDialog = () => {
             <BaseDialog heading="Create a connection">
                 <div>
                     <DialogColoredModelHeaderWithModelSelector
-                        style={"grid grid-cols-[25%_75%] bg-slate-100 pb-4 pl-8 pr-16 pt-2"}
+                        style={
+                            "grid grid-cols-1 px-1 md:grid-cols-[25%_75%] bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
+                        }
                         activeModel={activeModel}
                         onModelSelected={(m) => setActiveModel(m)}
                     />
-                    <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
+                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
                         <DialogDetailRow2 detailKey="source">
                             <span>
                                 {sourceName} -- ({source.id})
@@ -251,7 +253,7 @@ export const useCreateConnectionDialog = () => {
                         </DialogDetailRow2>
                     </div>
 
-                    <div className="grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16">
+                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
                         <DialogDetailRow2 detailKey="type">
                             <TwoWaySwitch
                                 choices={["association", "generalization"]}
@@ -262,7 +264,7 @@ export const useCreateConnectionDialog = () => {
                     </div>
                     <div
                         className={
-                            "grid grid-cols-[25%_75%] bg-slate-100 pl-8 pr-16 " +
+                            "grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 " +
                             (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
                         }
                     >
