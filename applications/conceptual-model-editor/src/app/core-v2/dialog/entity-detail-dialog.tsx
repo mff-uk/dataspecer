@@ -133,6 +133,7 @@ export const useEntityDetailDialog = () => {
                             {profileOf && (
                                 <DialogDetailRow2 detailKey="direct profile of">
                                     <ResourceDetailClickThrough
+                                        detailDialogLanguage={currentLang}
                                         resource={profileOf}
                                         onClick={() => handleResourceClickThroughClicked(profileOf)}
                                         withIri={true}
@@ -142,6 +143,7 @@ export const useEntityDetailDialog = () => {
                             {originalProfile && originalProfile.id != profileOf?.id && (
                                 <DialogDetailRow2 detailKey="the original profiled entity">
                                     <ResourceDetailClickThrough
+                                        detailDialogLanguage={currentLang}
                                         resource={originalProfile}
                                         onClick={() => handleResourceClickThroughClicked(originalProfile)}
                                         withIri={true}
@@ -151,6 +153,7 @@ export const useEntityDetailDialog = () => {
                             {profiledBy.length > 0 && (
                                 <DialogDetailRow2 detailKey="profiled by">
                                     <ScrollableResourceDetailClickThroughList
+                                        detailDialogLanguage={currentLang}
                                         resources={profiledBy}
                                         onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
                                     />
@@ -160,6 +163,7 @@ export const useEntityDetailDialog = () => {
                         {specializationOf.length > 0 && (
                             <DialogDetailRow2 detailKey="specialization of">
                                 <ScrollableResourceDetailClickThroughList
+                                    detailDialogLanguage={currentLang}
                                     resources={specializationOf}
                                     onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
                                 />
@@ -168,6 +172,7 @@ export const useEntityDetailDialog = () => {
                         {generalizationOf.length > 0 && (
                             <DialogDetailRow2 detailKey="generalization of">
                                 <ScrollableResourceDetailClickThroughList
+                                    detailDialogLanguage={currentLang}
                                     resources={generalizationOf}
                                     onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
                                 />
@@ -181,6 +186,7 @@ export const useEntityDetailDialog = () => {
                     {attributes.length > 0 && (
                         <DialogDetailRow2 detailKey="attributes">
                             <ScrollableResourceDetailClickThroughList
+                                detailDialogLanguage={currentLang}
                                 resources={attributes}
                                 onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
                             />
@@ -190,6 +196,7 @@ export const useEntityDetailDialog = () => {
                     {attributeProfiles.length > 0 && (
                         <DialogDetailRow2 detailKey="attribute profiles">
                             <ScrollableResourceDetailClickThroughList
+                                detailDialogLanguage={currentLang}
                                 resources={attributeProfiles}
                                 onResourceClicked={(resource) => handleResourceClickThroughClicked(resource)}
                             />
@@ -199,6 +206,7 @@ export const useEntityDetailDialog = () => {
                     {domain.entity && (
                         <DialogDetailRow2 detailKey="domain">
                             <ResourceDetailClickThrough
+                                detailDialogLanguage={currentLang}
                                 resource={domain.entity}
                                 // it ain't null
                                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -211,6 +219,7 @@ export const useEntityDetailDialog = () => {
                         <DialogDetailRow2 detailKey="range">
                             <ResourceDetailClickThrough
                                 resource={range.entity}
+                                detailDialogLanguage={currentLang}
                                 // it ain't null
                                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 onClick={() => handleResourceClickThroughClicked(range.entity!)}
