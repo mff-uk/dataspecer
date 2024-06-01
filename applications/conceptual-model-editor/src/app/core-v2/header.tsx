@@ -5,7 +5,7 @@ import { ExportManagement } from "./features/management/export-management";
 import { LanguageManagement } from "./features/management/language-management";
 import { HeaderLogoLink } from "../components/header";
 
-const HeaderDivider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-white opacity-75" />;
+const HeaderDivider = () => <div className="mx-3 my-auto w-[1px] bg-white opacity-75" />;
 
 const Header = () => {
     return (
@@ -14,12 +14,14 @@ const Header = () => {
                 <div className="my-auto ml-4 flex flex-row">
                     <HeaderLogoLink />
                 </div>
-                <div className="mt-1 flex flex-col px-2 md:mt-0 md:flex-row md:justify-center md:px-0 [&>*]:my-1">
-                    <PackageManagement />
-                    <HeaderDivider />
-                    <ViewManagement />
-                    <HeaderDivider />
-                    <LanguageManagement />
+                <div className="my-2 flex flex-row px-2 md:my-0 md:justify-center md:px-0">
+                    <div className="my-auto mr-2 flex flex-col md:flex-row [&>*]:my-1">
+                        <PackageManagement />
+                        <HeaderDivider />
+                        <ViewManagement />
+                        <HeaderDivider />
+                        <LanguageManagement />
+                    </div>
                 </div>
                 <div className="my-2 flex flex-row px-2 md:my-0 md:justify-end md:px-0">
                     <ExportManagement />
