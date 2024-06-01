@@ -19,6 +19,14 @@ Hovering over the icon shows you the type of the model. With local model, you wi
 
 Remove the model from workspace by clicking the `🗑` button.
 
+## Model colors
+
+There is a color picker. You can make your models easily distinguishable. We tried to choose nice colors. When you add a new model, we choose a color randomly. _Sounds like we could choose the colors to be in good contrast to each other, huh, time crunch._
+
+In the model item row, you also have an option to choose model's color for current view. Simply open it by clicking the colored square, eg `🟧` and select another color by clicking it, eg `🟩`. If you don't want to change the color in the end, just click the color the model already has or click elsewhere.
+
+If you create a new [view](./main.md#views), we copy the colors of the models to the new view as well. If you add a new model afterwards, you'll have to keep the colors synchronized yourself. _We know it is a bit odd, future versions of the editor should work more comfortably._
+
 ### Aliasing a model
 
 We reference models with `id`s. We understand it is not the best fit for you, so you can alias the models by clicking the `✏` button on the right side of model row.
@@ -34,3 +42,11 @@ It works the same way as model aliasing. Type in something, confirm it with `ent
 ## Buttons
 
 The bottom part has 3 buttons, one to add any `.ttl` model, one for `local` model and a shortcut for [slovník.gov.cz](https://data.gov.cz/datov%C3%A9-sady).
+
+## Adding a model
+
+When you click the `+model` button, a [dialog](./dialogs.md#add-model-dialog) opens up. Here you paste the urls of your models you want to use. You can add multiple models at once but be aware that they get interpreted as if it was a single model.
+
+### Local model
+
+By clicking `+local` you add a new local model to your workspace. You can change its [alias](#aliasing-a-model) or its [base IRI](#changing-the-base-iri).

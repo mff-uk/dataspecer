@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 export type ExportedConfigurationType = {
     packageId: string;
-    modelDescriptors: any[];
+    modelDescriptors: object[];
     timestamp: number;
     activeView?: string;
 };
@@ -17,14 +17,16 @@ export const modelsToWorkspaceString = (
     timestamp: number,
     activeView?: string
 ) => {
-    const modelDescriptors: {}[] = [];
+    const modelDescriptors: object[] = [];
     for (const [_, model] of models) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        modelDescriptors.push(model.serializeModel());
+        modelDescriptors.push(model.serializeModel()); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
     }
     for (const [_, visualModel] of visualModels) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        modelDescriptors.push(visualModel.serializeModel());
+        modelDescriptors.push(visualModel.serializeModel()); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
     }
 
     const ws = {

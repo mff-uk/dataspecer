@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ColorPalette, tailwindColorToHex } from "../../utils/color-utils";
 
-const NUMBER_COLS = 5;
 const GRID_COLS = "grid-cols-5";
 
 export const ColorField = (props: {

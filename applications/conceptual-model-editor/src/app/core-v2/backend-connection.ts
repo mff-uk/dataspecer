@@ -5,6 +5,8 @@ import { useMemo } from "react";
 import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
+    // should fail already when spinning up the next app
+    // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
 
     const getPackageFromBackend = async (packageId: string) => {

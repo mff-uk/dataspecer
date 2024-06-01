@@ -69,11 +69,12 @@ export const useModelEntitiesList = (model: EntityModel) => {
                 });
             });
             return () => callToUnsubscribe?.();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [activeVisualModel, models]);
 
         return (
             <li
-                key={modelId + activeVisualModel?.getId() + backgroundColor.ctr.toString()}
+                key={modelId + (activeVisualModel?.getId() ?? "") + backgroundColor.ctr.toString()}
                 style={{ backgroundColor: tailwindColorToHex(backgroundColor.clr) }}
             >
                 <div className="flex flex-row justify-between">

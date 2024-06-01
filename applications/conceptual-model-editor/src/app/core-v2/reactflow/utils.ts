@@ -1,18 +1,9 @@
-import { Node, Position, internalsSymbol } from "reactflow";
+import { type Node, Position, internalsSymbol } from "reactflow";
 
 // returns the position (top,right,bottom or right) passed node compared to
 function getParams(nodeA: Node, nodeB: Node, isTarget: boolean) {
-    // if (nodeA.id == nodeB.id) {
-    //     // self loop
-    //     console.log("rendering slef loop");
-    //     getLoopPath(nodeA, nodeA);
-    // }
-
     const centerA = getNodeCenter(nodeA);
     const centerB = getNodeCenter(nodeB);
-
-    const horizontalDiff = Math.abs(centerA.x - centerB.x);
-    const verticalDiff = Math.abs(centerA.y - centerB.y);
 
     let position;
 
@@ -38,7 +29,7 @@ const getHandleCoordsByPosition = (node: Node, handlePosition: Position, isTarge
 
     const DEFAULT_COORDS = { x: 69, y: 420 };
 
-    if (!handle || !handle.width || !handle.height) return DEFAULT_COORDS; // FIXME:
+    if (!handle || !handle.width || !handle.height) return DEFAULT_COORDS;
 
     let offsetX = handle.width / 2;
     let offsetY = handle.height / 2;
@@ -70,7 +61,7 @@ const getHandleCoordsByPosition = (node: Node, handlePosition: Position, isTarge
 };
 
 const getNodeCenter = (node: Node) => {
-    if (!node || !node.positionAbsolute || !node.width || !node.height) return { x: 69, y: 420 }; // FIXME:
+    if (!node || !node.positionAbsolute || !node.width || !node.height) return { x: 69, y: 420 };
     return {
         x: node.positionAbsolute.x + node?.width / 2,
         y: node.positionAbsolute.y + node.height / 2,
@@ -112,25 +103,25 @@ export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30)
     const handleT = s[internalsSymbol]?.handleBounds?.target?.find((h) => h.id === (typeE == "rel" ? "tb" : "tb"));
     const handleS = s[internalsSymbol]?.handleBounds?.source?.find((h) => h.id === (typeE == "rel" ? "sc" : "sa"));
 
-    const p1 = {
-        x: t.position.x + handleT!.x + t.width!,
-        y: s.position.y + handleS!.y - s.width!,
-    };
+    const handleTx = handleT?.x ?? 69;
+    const handleTy = handleT?.y ?? 69;
+    const handleSx = handleS?.x ?? 69;
+    const handleSy = handleS?.y ?? 69;
 
     const p2 =
         typeE == "rel"
             ? {
-                  x: s.position.x + s.width!, // + offset, // - offset,
-                  y: s.position.y + s.height! + offset,
+                  x: s.position.x + (s.width ?? 100),
+                  y: s.position.y + (s.height ?? 100) + offset,
               }
             : {
-                  x: s.position.x + s.width! + offset,
+                  x: s.position.x + (s.width ?? 100) + offset,
                   y: s.position.y + -offset,
               };
 
-    const path = `M ${s.position.x + handleS!.x},${s.position.y + handleS!.y} A 1 1 90 0 ${typeE == "rel" ? 0 : 1} ${
-        t.position.x + handleT!.x
-    } ${t.position.y + handleT!.y}`;
+    const path = `M ${s.position.x + handleSx},${s.position.y + handleSy} A 1 1 90 0 ${typeE == "rel" ? 0 : 1} ${
+        t.position.x + handleTx
+    } ${t.position.y + handleTy}`;
     return [path, p2.x, p2.y] as const;
 }
 

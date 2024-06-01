@@ -54,7 +54,7 @@ export const EntitiesOfModel = (props: {
     const { model, entityType } = props;
 
     const { profiles, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
-    const { aggregatorView, models } = useModelGraphContext();
+    const { aggregatorView } = useModelGraphContext();
     const { openCreateClassDialog } = useDialogsContext();
     const { ModelEntitiesList } = useModelEntitiesList(model);
 
@@ -66,15 +66,7 @@ export const EntitiesOfModel = (props: {
     const localGetCurrentVisibilityOnCanvas = () => {
         const entitiesAndProfiles = [...getEntitiesToShow(entityType, model), ...profiles];
         const onCanvas = new Map(getCurrentVisibilityOnCanvas(entitiesAndProfiles, activeVisualModel));
-        // console.trace(
-        //     "in localGetCurrentVisibilityOnCanvas",
-        //     onCanvas,
-        //     entities,
-        //     profiles,
-        //     activeVisualModel,
-        //     entitiesAndProfiles,
-        //     modelId
-        // );
+
         return onCanvas;
     };
 
@@ -83,12 +75,9 @@ export const EntitiesOfModel = (props: {
     );
 
     useEffect(() => {
-        console.log("entities-of-model, use-effect: ", activeVisualModel, modelId);
         setVisibleOnCanvas(() => {
             return localGetCurrentVisibilityOnCanvas();
         });
-
-        // TODO: visibility not shown after loading in dev mode
 
         const getDefaultVisibility = () => {
             if (entityType == "class") {
@@ -122,6 +111,7 @@ export const EntitiesOfModel = (props: {
             setVisibleOnCanvas(new Map());
             visibilityListenerUnsubscribe?.();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeVisualModel]);
 
     // console.log("entities of model rerendered");
@@ -156,11 +146,11 @@ export const EntitiesOfModel = (props: {
         }
     };
 
-    const handleRemoval = (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
+    const handleRemoval = async (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
         if (model instanceof InMemorySemanticModel) {
             deleteEntityFromModel(model, entityId);
         } else {
-            model.releaseClass(entityId);
+            await model.releaseClass(entityId);
         }
     };
 
@@ -170,14 +160,15 @@ export const EntitiesOfModel = (props: {
                 <InputEntityRow
                     key={modelId + "input row"}
                     onClickHandler={(search: string) => {
-                        const callback = async () => {
-                            const result = await model.search(search);
-                            for (const cls of result) {
-                                await model.allowClass(cls.id);
-                            }
-                            console.log(result);
-                        };
-                        callback();
+                        model
+                            .search(search)
+                            .then(async (result) => {
+                                for (const cls of result) {
+                                    await model.allowClass(cls.iri!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                                }
+                                console.log(result);
+                            })
+                            .catch(console.error);
                     }}
                 />
             );
@@ -210,7 +201,10 @@ export const EntitiesOfModel = (props: {
     return (
         <>
             <CanvasContext.Provider value={{ visibleOnCanvas, setVisibleOnCanvas }}>
-                <ModelEntitiesList>{entities.map(entityToRowHierarchy).concat(getAppendedRow())}</ModelEntitiesList>
+                <ModelEntitiesList>
+                    {entities.map(entityToRowHierarchy)}
+                    {getAppendedRow()}
+                </ModelEntitiesList>
             </CanvasContext.Provider>
         </>
     );

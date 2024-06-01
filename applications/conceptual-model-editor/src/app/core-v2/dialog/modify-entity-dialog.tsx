@@ -3,9 +3,9 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     type SemanticModelRelationshipEnd,
+    type SemanticModelGeneralization,
     isSemanticModelRelationship,
     isSemanticModelClass,
-    SemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useMemo, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
@@ -119,7 +119,7 @@ export const useModifyEntityDialog = () => {
         );
         const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
 
-        const modelIri = useMemo(() => getModelIri(model), [model]);
+        const modelIri = useMemo(() => getModelIri(model), []);
 
         const [wantsToAddNewAttributes, setWantsToAddNewAttributes] = useState(false);
         const [newAttributes, setNewAttributes] = useState<Partial<Omit<SemanticModelRelationship, "type">>[]>([]);
@@ -134,6 +134,7 @@ export const useModifyEntityDialog = () => {
         const [toBeRemovedSpecializations, setToBeRemovedSpecializations] = useState<string[]>([]);
 
         const getPossiblyOverriddenFields = () => {
+            /* eslint-disable @typescript-eslint/no-non-null-assertion */
             if (!isProfile) {
                 return getDefaultOverriddenFields();
             }
@@ -201,18 +202,14 @@ export const useModifyEntityDialog = () => {
                 for (const attributeProfile of newAttributeProfiles) {
                     operations.push(createRelationshipUsage(attributeProfile));
                 }
-
-                for (const rem of toBeRemovedAttributes) {
-                    operations.push(deleteEntity(rem));
-                    console.log("todo remove entity from attribute's domain", rem);
-                }
             }
 
             for (const gen of newGeneralizations) {
                 operations.push(createGeneralization(gen));
             }
 
-            for (const rem of toBeRemovedSpecializations) {
+            // attributes and generalizations can be from different models, for such occasions they need to be removed from the model directly
+            for (const rem of [...toBeRemovedAttributes, ...toBeRemovedSpecializations]) {
                 const m = models.get(sourceModelOfEntityMap.get(rem) ?? "unknown-model-xyz");
                 if (m instanceof InMemorySemanticModel && m.getId() != model?.getId()) {
                     deleteEntityFromModel(m, rem);
@@ -284,6 +281,7 @@ export const useModifyEntityDialog = () => {
         };
 
         const getDomainAndRangeEndChangesForProfile = () => {
+            /* eslint-disable @typescript-eslint/no-non-null-assertion */
             let de = {} as Partial<Omit<SemanticModelRelationshipEndUsage, "type" | "id">>;
             // Domain
             if (overriddenFields.domain && changedFields.domain) {
@@ -682,12 +680,12 @@ export const useModifyEntityDialog = () => {
 
                 {canHaveAttributes && (
                     <div className="bg-slate-100">
-                        <div className="flex flex-row justify-between">
+                        <div className="my-1 flex flex-row justify-between">
                             <button
-                                className="ml-8 bg-slate-300"
+                                className="ml-8 bg-white px-2 py-1 hover:shadow-sm"
                                 onClick={() => setWantsToAddNewAttributes((prev) => !prev)}
                             >
-                                {wantsToAddNewAttributes ? "cancel" : "add attribute"}
+                                {wantsToAddNewAttributes ? "❌ cancel" : "➕ add attribute"}
                             </button>
                         </div>
                         <div>

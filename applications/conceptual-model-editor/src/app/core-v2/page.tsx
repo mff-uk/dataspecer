@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
-    SemanticModelRelationship,
-    SemanticModelGeneralization,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
+    type SemanticModelGeneralization,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
-    SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
@@ -21,25 +21,20 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
-import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
-import { Warning, WarningsContext } from "./context/warnings-context";
+import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
+import { type Warning, WarningsContext } from "./context/warnings-context";
 import Header from "./header";
 import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
-import { usePackageSearch } from "./util/package-search";
-import { useViewParam } from "./util/view-param";
 import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
+import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
 
-    // const { aggregator } = useMemo(() => {
-    //     const aggregator = new SemanticModelAggregator();
-    //     return { aggregator };
-    // }, []);
     const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
     const [models, setModels] = useState(new Map<string, EntityModel>());
@@ -55,12 +50,11 @@ const Page = () => {
 
     const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
 
-    const { setPackage, getPackageId } = usePackageSearch();
-    const { viewId: viewIdFromURLParams } = useViewParam();
+    const { packageId, viewId, updatePackageId } = useQueryParamsContext();
     const { getModelsFromBackend } = useBackendConnection();
 
     useEffect(() => {
-        const pId = getPackageId(); // searchParams.get("package-id");
+        const pId = packageId;
         console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent, pId:", pId);
 
         if (!pId) {
@@ -132,8 +126,8 @@ const Page = () => {
                 const aggrView = aggregator.getView();
                 const availableVisualModelIds = visualModels2.map((m) => m.getId());
 
-                if (viewIdFromURLParams && availableVisualModelIds.includes(viewIdFromURLParams)) {
-                    aggrView.changeActiveVisualModel(viewIdFromURLParams);
+                if (viewId && availableVisualModelIds.includes(viewId)) {
+                    aggrView.changeActiveVisualModel(viewId);
                 } else {
                     // choose the first available model
                     const modelId = visualModels2.at(0)?.getId();
@@ -144,11 +138,12 @@ const Page = () => {
 
                 setAggregatorView(aggrView);
                 return () => {
-                    for (const m of entityModels) {
-                        aggregator.deleteModel(m);
-                    }
-                    for (const m of visualModels2) {
-                        aggregator.deleteModel(m);
+                    for (const m of [...entityModels, ...visualModels2]) {
+                        try {
+                            aggregator.deleteModel(m);
+                        } catch (err) {
+                            console.log("error: trying delete a model from aggregator", err);
+                        }
                     }
                     setModels(new Map());
                     setVisualModels(new Map());
@@ -156,13 +151,14 @@ const Page = () => {
             })
             .catch((reason) => {
                 console.error(reason);
-                setPackage(null);
+                updatePackageId(null);
             });
 
         return async () => {
             console.log("models cleanup in package effect");
             (await cleanup)?.();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -178,7 +174,7 @@ const Page = () => {
             setRawEntities((prev) => prev.filter((r) => r?.id && !removedIds.has(r?.id)));
 
             const { clsses, rels, gens, prfiles, raws } = updated.reduce(
-                ({ clsses, rels, gens, prfiles, raws }, curr, i, arr) => {
+                ({ clsses, rels, gens, prfiles, raws }, curr) => {
                     if (isSemanticModelClass(curr.aggregatedEntity)) {
                         return {
                             clsses: clsses.concat(curr.aggregatedEntity),
@@ -231,9 +227,12 @@ const Page = () => {
                             raws: raws.concat(curr.rawEntity),
                         };
                     } else {
-                        throw new Error(
-                            `unknown type of updated entity: ${curr.aggregatedEntity?.type}, entityId: ${curr.aggregatedEntity?.id}`
+                        console.error(
+                            "unknown type of updated entity: ",
+                            curr.aggregatedEntity?.type,
+                            curr.aggregatedEntity?.id
                         );
+                        throw new Error("unknown type of updated entity");
                     }
                 },
                 {
@@ -271,6 +270,7 @@ const Page = () => {
         return () => {
             callToUnsubscribe();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aggregatorView]);
 
     return (
@@ -323,4 +323,12 @@ const Page = () => {
     );
 };
 
-export default Page;
+const PageWrapper = () => {
+    return (
+        <QueryParamsProvider>
+            <Page />
+        </QueryParamsProvider>
+    );
+};
+
+export default PageWrapper;

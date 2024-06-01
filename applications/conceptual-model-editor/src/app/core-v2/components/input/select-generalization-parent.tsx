@@ -15,7 +15,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDuplicateNames } from "../../util/name-utils";
-import { EntityProxy, getEntityTypeString } from "../../util/detail-utils";
+import { EntityProxy, type getEntityTypeString } from "../../util/detail-utils";
 
 type SupportedTypes =
     | SemanticModelClass

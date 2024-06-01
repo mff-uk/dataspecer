@@ -24,7 +24,7 @@ const OptionRow = (props: { resource: SemanticModelClass | SemanticModelClassUsa
 
 export const SelectDomainOrRange = (props: {
     concept: string | null;
-    setConcept: (resourceId: string | undefined) => void;
+    setConcept: (resourceId: string | null) => void;
     onChange?: () => void;
     disabled?: boolean;
     withOverride?: WithOverrideHandlerType;
@@ -54,7 +54,7 @@ export const SelectDomainOrRange = (props: {
                     disabled={disabled}
                     onChange={(e) => {
                         if (e.target.value == "null") {
-                            setConcept(undefined);
+                            setConcept(null);
                         } else {
                             setConcept(e.target.value);
                         }

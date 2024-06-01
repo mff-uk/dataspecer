@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { usePackageSearch } from "../util/package-search";
 import { useBackendConnection } from "../backend-connection";
 import { ExportButton } from "../components/management/buttons/export-button";
 import { useModelGraphContext } from "../context/model-context";
+import { useQueryParamsContext } from "../context/query-params-context";
 
 export const useAutoSave = () => {
     const { models, visualModels } = useModelGraphContext();
-    const { packageId } = usePackageSearch();
+    const { packageId } = useQueryParamsContext();
+
     const { updateSemanticModelPackageModels } = useBackendConnection();
     const [autosaveActive, setAutosaveActive] = useState(false);
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
@@ -25,7 +26,7 @@ export const useAutoSave = () => {
         setAutosaveButtonLabel(getCurrentLabel());
 
         if (!autosaveActive) {
-            clearInterval(autosaveInterval!);
+            clearInterval(autosaveInterval ?? undefined);
             setAutosaveInterval(null);
             return;
         }
@@ -35,18 +36,22 @@ export const useAutoSave = () => {
         }, AUTOSAVE_INTERVAL);
 
         setAutosaveInterval(res);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autosaveActive]);
 
-    const handleAutoSavePackage = async () => {
+    const handleAutoSavePackage = () => {
         if (!packageId) {
             return;
         }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()]);
-        showWasAutosaved();
+        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+            .then((status) => {
+                showWasAutosaved(status ? "success" : "fail");
+            })
+            .catch(console.log);
     };
 
-    const showWasAutosaved = () => {
-        setAutosaveButtonLabel("...saved 🤞");
+    const showWasAutosaved = (result: "success" | "fail" = "success") => {
+        setAutosaveButtonLabel(`... ${result}`);
         setTimeout(() => {
             setAutosaveButtonLabel(getCurrentLabel());
         }, 750);
