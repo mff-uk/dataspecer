@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 function DataStructuresSelect({ index, register, dataStructures, onChange, getValues }) {
 
@@ -38,7 +38,7 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
 
     };
 
-    
+
 
     return (
 

@@ -5,17 +5,19 @@ import { OperationTypeSelectProps } from '@/Props/OperationTypeSelectProps';
 import { DataStructure } from '@/Models/DataStructureModel';
 import { OperationType } from '../Models/OperationTypeModel.tsx';
 
+/* gets plural of the words - utilized for suggested path generation */
 const pluralizeAndNoSpaces = (word: string): string => {
     const pluralWord = pluralize(word);
     return pluralWord.replace(/\s+/g, '');
 };
 
-// Predefined http methods based on isCollection state
+/* Predefined HTTP methods for collection manipulations */
 const collectionHttpMethods: OperationType[] = [
     { value: 'GET', label: 'GET - Retrieve a collection of resources' },
     { value: 'POST', label: 'POST - Create a new resource within the collection' },
 ];
 
+/* Predefined HTTP methods for single resource manipulations */
 const singleResourceHttpMethods: OperationType[] = [
     { value: 'GET', label: 'GET - Retrieve the specific entity' },
     { value: 'PUT', label: 'PUT - Full replacement of the entity' },
@@ -66,18 +68,27 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
         );
     };
 
-    let suggestedPath = '';
+    const generateSuggestedPath = (dataStructure, isCollection, associationModeOn, selectedResponseObject) => {
 
-    if (dataStructure && isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
-    } else if (dataStructure && !isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
-    } else if (dataStructure && isCollection && !associationModeOn) {
-        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}`;
-    } else if (dataStructure && !isCollection && !associationModeOn) {
-        suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}`;
+        let suggestedPath = '';
+
+        if (dataStructure && isCollection && associationModeOn && selectedResponseObject) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
+        }
+        else if (dataStructure && !isCollection && associationModeOn && selectedResponseObject) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
+        }
+        else if (dataStructure && isCollection && !associationModeOn) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}`;
+        }
+        else if (dataStructure && !isCollection && !associationModeOn) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}`;
+        }
+
+        return suggestedPath;
     }
 
+    const suggestedPath = generateSuggestedPath(dataStructure, isCollection, associationModeOn, selectedResponseObject)
     const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
     return (
         <>
@@ -103,35 +114,6 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                     </option>
                 ))}
             </select>
-
-            {
-                // dataStructure && isCollection && associationModeOn && selectedResponseObject ? (
-                //     <div>
-                //         {/* <h2>Association mode combined with collection</h2> */}
-                //         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}</p>
-                //     </div>
-                // ) : dataStructure && !isCollection && associationModeOn && selectedResponseObject ? (
-                //     <div>
-                //         {/* <h2>Association mode combined with singleton</h2> */}
-                //         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{`{id}`}</p>
-                //     </div>
-
-                // ) : dataStructure && isCollection && !associationModeOn ? (
-
-                //     <div>
-                //         {/* <h2>Collection with main data structure</h2> */}
-                //         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)} </p>
-                //     </div>
-                // ) : dataStructure && !isCollection && !associationModeOn ? (
-                //     <div>
-                //         {/* <h2>Singleton with main data structure</h2> */}
-                //         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`} </p>
-                //     </div>
-
-                // ) : (
-                //     <h2>Default case</h2>
-                // )
-            }
 
             {/* Request Body Component */}
             {(isCollection && selectedOperationType === 'POST') ||

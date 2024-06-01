@@ -3,7 +3,7 @@ import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from './components/ui/button';
 import LabeledInput from './customComponents/LabeledInput';
-import FormCardSection from './customComponents/FormCardSection';
+import FormSection from './customComponents/FormSection';
 import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OApiGenerator';
 import { useDataSpecificationInfo } from './DataStructureFetcher';
@@ -215,7 +215,7 @@ export const MainForm = () => {
                 }}>
                     {/* Form Info */}
 
-                    <FormCardSection>
+                    <FormSection>
                         <LabeledInput label="API Title" id="apiTitle" register={register} required />
                         {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
                         <LabeledInput label="API Description" id="apiDescription" register={register} required />
@@ -224,13 +224,13 @@ export const MainForm = () => {
                         {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
                         <LabeledInput label="Base URL" id="baseUrl" register={register} required />
                         {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
-                    </FormCardSection>
+                    </FormSection>
 
                     {/* Data Structures */}
-                    <FormCardSection>
+                    <FormSection>
                         <h3>Data Structures:</h3>
                         {fields.map((field, index) => (
-                            <FormCardSection key={field.id}>
+                            <FormSection key={field.id}>
                                 <div className="flex flex-row justify-between">
                                     <div>
                                         <label>Choose Data Structure:</label>
@@ -269,7 +269,7 @@ export const MainForm = () => {
 
 
                                 {/* Operations */}
-                                <FormCardSection>
+                                <FormSection>
                                     <h4>Operations:</h4>
                                     {!fetchingData && field.operations.map((op, opIndex) => (
                                         <OperationCard
@@ -295,13 +295,13 @@ export const MainForm = () => {
                                         Add Operation
                                     </Button>
 
-                                </FormCardSection>
+                                </FormSection>
 
                                 {errors.dataStructures && errors.dataStructures[index]?.operations?.root?.message && (
                                     <p className="text-red-500 text-sm">{errors.dataStructures[index].operations.root.message}</p>
                                 )}
 
-                            </FormCardSection>
+                            </FormSection>
                         ))}
                         <Button
                             className="bg-blue-500 hover:bg-blue-400"
@@ -311,7 +311,7 @@ export const MainForm = () => {
                             Add Data Structure
                         </Button>
 
-                    </FormCardSection>
+                    </FormSection>
 
                     {/* Submit Button */}
                     <Button type="submit">Generate OpenAPI Specification</Button>

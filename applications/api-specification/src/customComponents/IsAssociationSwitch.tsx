@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
 import ResponseObjectSelect from './ResponseObjectSelect';
 import { DataStructure } from '../Models/DataStructureModel';
-import {IsAssociationSwitchProps} from '../Props/IsAssociationSwitchProps';
+import { IsAssociationSwitchProps } from '../Props/IsAssociationSwitchProps';
 
 const Association: React.FC<IsAssociationSwitchProps> = ({
     index,
@@ -27,8 +27,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
     /* sync local state with form state */
     useEffect(() => {
         const currentFormValue = getValues(path);
-        if (currentFormValue !== selectedAssociationMode) 
-        {
+        if (currentFormValue !== selectedAssociationMode) {
             setSelectedAssociationMode(currentFormValue);
             setAssociationModeOn(currentFormValue);
         }
@@ -40,7 +39,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
         setSelectedAssociationMode(checked);
         setAssociationModeOn(checked);
     };
-    
+
     const selectedDataStructure = dataStructures.find(ds => ds.givenName === dataStructureName);
 
     const objectFields = selectedDataStructure ? selectedDataStructure.fields
@@ -52,7 +51,7 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
             fields: field.nestedFields.fields,
         })) : [];
 
-    /* set fields of resp obj */
+    /* set fields of resp obj - target data structure*/
     useEffect(() => {
         setResponseObjectFields(objectFields);
     }, [objectFields, setResponseObjectFields]);
@@ -76,13 +75,12 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
                         defaultValue={defaultValue}
                         register={register}
                         dataStructures={objectFields}
-                        getValues = {getValues}
+                        getValues={getValues}
                         isResponseObj={true}
                         onChange={(selectedDataStructure) => {
                             setSelectedResponseObject(selectedDataStructure);
                             const responseObjectPath = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.name`;
-                            if(selectedDataStructure)
-                            {
+                            if (selectedDataStructure) {
                                 setValue(responseObjectPath, selectedDataStructure.name);
                             }
                         }}

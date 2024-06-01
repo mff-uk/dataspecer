@@ -12,7 +12,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     index,
     operationIndex,
     dataStructure,
-    register,
+    //register,
     setValue,
     allDataStructures,
     responseDataStructures,
@@ -43,7 +43,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                         <div key={field.name}>
                             <Checkbox
                                 id={`${path}.${field.name}`}
-                                checked={getValues(`${path}.${field.name}`)} 
+                                checked={getValues(`${path}.${field.name}`)}
                                 onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
 

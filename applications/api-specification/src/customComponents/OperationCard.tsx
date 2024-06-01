@@ -25,6 +25,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     }, [getValues, index, operationIndex]);
 
     const deleteButtonRef = useRef(null);
+
     useEffect(() => {
         try {
             const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
@@ -32,7 +33,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         }
         catch
         {
-            //console.log("ANASTASIA")
+            //console.log("")
         }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
@@ -55,7 +56,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         </Button>
                     </div>
                 </div>
-                {/* Form fields for operation details */}
+                {/* Operation Details */}
                 <Card className="p-2 justify-end">
                     {/* Association Mode*/}
                     <Association
@@ -70,7 +71,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         setResponseObjectFields={setResponseObjectFields}
                         setAssociationModeOn={setAssotiationMode}
                         defaultValue={defaultValue} />
-                    {/* Switch to treat Resource as a collection*/}
+                    {/* Collection mode - whether a collection is manipulated*/}
                     <IsCollection
                         index={index}
                         operationIndex={operationIndex}
@@ -115,12 +116,11 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         register={register}
 
                     />
-
+                    {/* HTTP status code */}
                     <StatusCodeSelect
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-
                     />
                 </Card>
             </Card>

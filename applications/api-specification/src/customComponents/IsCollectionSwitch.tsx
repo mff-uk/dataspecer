@@ -9,8 +9,8 @@ const IsCollection: React.FC<IsCollectionSwitchProps> = ({
     register,
     setValue,
     getValues,
-    dataStructureName,
-    dataStructures,
+    // dataStructureName,
+    // dataStructures,
     setIsCollection
 }) => {
     const path = `dataStructures.${index}.operations.${operationIndex}.isCollection`;

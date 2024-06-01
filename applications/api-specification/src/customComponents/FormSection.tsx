@@ -1,11 +1,9 @@
 import React from 'react';
 import { Card } from '../components/ui/card';
+import { FormSectionProps } from '../Props/FormSectionProps';
 
-interface FormCardSectionProps {
-    children: React.ReactNode;
-}
 
-const FormCardSection: React.FC<FormCardSectionProps> = ({ children }) => {
+const FormSection: React.FC<FormSectionProps> = ({ children }) => {
     return (
         <Card className="p-4 mt-5">
             {children}
@@ -13,4 +11,4 @@ const FormCardSection: React.FC<FormCardSectionProps> = ({ children }) => {
     );
 };
 
-export default FormCardSection;
+export default FormSection;
