@@ -24,6 +24,7 @@ export const ViewManagement = () => {
             console.log("setting activeViewId to null");
         }
         setViewIdSearchParam(activeViewId ?? null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeViewId]);
 
     const setActiveViewId = (modelId: string) => {
@@ -41,7 +42,7 @@ export const ViewManagement = () => {
         const activeVisualModel = aggregatorView.getActiveVisualModel();
         const model = new VisualEntityModelImpl(undefined);
         if (activeVisualModel) {
-            for (const [mId, mColor] of activeVisualModel?.getModelColorPairs()) {
+            for (const [mId, mColor] of activeVisualModel.getModelColorPairs()) {
                 model.setColor(mId, mColor);
             }
         }

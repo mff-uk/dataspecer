@@ -7,10 +7,10 @@ import type {
 import { NewRemovableGeneralizationRow, RemovableGeneralizationRow } from "./modify/removable-generalization-row";
 import { SelectGeneralizationParent } from "../input/select-generalization-parent";
 import { getRandomName } from "~/app/utils/random-gen";
-import { getEntityTypeString } from "../../util/detail-utils";
+import type { getEntityTypeString } from "../../util/detail-utils";
 import { getDuplicateNames } from "../../util/name-utils";
 import { useClassesContext } from "../../context/classes-context";
-import {
+import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -79,7 +79,7 @@ export const GeneralizationParentsComponent = (props: {
             {newGeneralizationParents.map((g, i) => (
                 <NewRemovableGeneralizationRow
                     resource={g}
-                    key={"removable-specialization-" + (g.iri ?? i)}
+                    key={"removable-specialization-" + (g.iri ?? i.toString())}
                     removeButtonClick={() => removeNewGeneralizationParent(g)}
                     duplicateNames={duplicateNames}
                 />

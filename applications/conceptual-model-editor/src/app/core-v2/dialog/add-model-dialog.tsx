@@ -33,7 +33,7 @@ export const useAddModelDialog = () => {
         ]); // FIXME: sanitize
 
         const handleAddModels = () => {
-            save(modelTtlFiles.filter((row) => row.length > 0));
+            save(modelTtlFiles.filter((row) => row.length > 0)).catch(console.error);
         };
 
         return (

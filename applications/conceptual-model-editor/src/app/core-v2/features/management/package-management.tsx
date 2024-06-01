@@ -20,35 +20,36 @@ export const PackageManagement = () => {
     const { models, visualModels } = useModelGraphContext();
     const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();
 
-    const handleSavePackage = async () => {
+    const handleSavePackage = () => {
         if (!packageId) {
-            return false;
+            return;
         }
-        const result = await updateSemanticModelPackageModels(
-            packageId,
-            [...models.values()],
-            [...visualModels.values()]
-        );
-
-        if (result) {
-            showMessage("success");
-        } else {
-            showMessage("fail");
-        }
-
-        return result;
+        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+            .then((didUpdate) => {
+                if (didUpdate) {
+                    showMessage("success");
+                } else {
+                    showMessage("fail");
+                }
+            })
+            .catch((err) => console.log("couldn't update packages", err));
     };
 
-    const handleSavePackageAndLeave = async () => {
-        handleSavePackage().then(() => {
-            if (!MGR_REDIRECT_PATH) {
-                console.error("manager path not set", MGR_REDIRECT_PATH);
-                return;
-            }
-            const a = document.createElement("a");
-            a.setAttribute("href", MGR_REDIRECT_PATH);
-            a.click();
-        });
+    const handleSavePackageAndLeave = () => {
+        if (!packageId) {
+            return;
+        }
+        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+            .then(() => {
+                if (!MGR_REDIRECT_PATH) {
+                    console.error("manager path not set", MGR_REDIRECT_PATH);
+                    return;
+                }
+                const a = document.createElement("a");
+                a.setAttribute("href", MGR_REDIRECT_PATH);
+                a.click();
+            })
+            .catch((err) => console.log("couldn't update packages", err));
     };
 
     return (

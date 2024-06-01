@@ -1,5 +1,5 @@
 import {
-    SupportedLanguageType,
+    type SupportedLanguageType,
     SupportedLanguages,
     useConfigurationContext,
 } from "../../context/configuration-context";

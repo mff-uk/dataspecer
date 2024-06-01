@@ -35,7 +35,7 @@ export const getStringFromLanguageStringInLang = (
     // get lang from lang hierarchy
     let nextLanguages = nextLanguageInHierarchy(preferredLanguage);
     while (nextLanguages.length > 0) {
-        const nextLang = nextLanguages.at(0)!;
+        const nextLang = nextLanguages.at(0)!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
         nextLanguages = nextLanguages.slice(1);
         const possibleResult = languageString?.[nextLang];
         if (possibleResult) {
@@ -48,7 +48,7 @@ export const getStringFromLanguageStringInLang = (
     const languages = getAvailableLanguagesForLanguageString(languageString);
     const anyLanguage = languages.at(0);
     if (anyLanguage) {
-        const res = languageString.anyLanguage!;
+        const res = languageString.anyLanguage!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
         return [res, anyLanguage] as const;
     }
 

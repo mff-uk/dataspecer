@@ -9,11 +9,11 @@ export const ModelCatalog = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models } = useModelGraphContext();
     const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
 
-    const handleAddModel = async (modelType: "local" | "sgov") => {
+    const handleAddModel = (modelType: "local" | "sgov") => {
         if (modelType == "sgov") {
             const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
-            await model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl");
-            await model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba");
+            model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl").catch(console.log);
+            model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba").catch(console.log);
             addModelToGraph(model);
         } else if (modelType == "local") {
             const model = new InMemorySemanticModel();
@@ -56,7 +56,7 @@ export const ModelCatalog = () => {
 
     const AddModelButton = (props: { disabled?: boolean; modelType: "local" | "sgov" }) => (
         <button
-            onClick={async () => handleAddModel(props.modelType)}
+            onClick={() => handleAddModel(props.modelType)}
             disabled={props.disabled}
             type="button"
             className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"

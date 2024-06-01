@@ -1,16 +1,15 @@
-import {
+import type {
     LanguageString,
-    SemanticModelClass,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useRef, useEffect, useState, Dispatch, SetStateAction } from "react";
-import { Connection } from "reactflow";
-import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
+import { useRef, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import type { Connection } from "reactflow";
+import type { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "../components/base-dialog";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import { getRandomName } from "~/app/utils/random-gen";
@@ -25,10 +24,6 @@ import { TwoWaySwitch } from "../components/input/two-way-switch";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
-import {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const AssociationComponent = (props: {
     from: string;
@@ -37,23 +32,24 @@ const AssociationComponent = (props: {
     disabled: boolean;
 }) => {
     const { language: preferredLanguage } = useConfigurationContext();
+    const { from, to, setAssociation, disabled } = props;
 
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
     const [source, setSource] = useState({
-        concept: props.from,
+        concept: from,
     } as SemanticModelRelationshipEnd);
     const [target, setTarget] = useState({
-        concept: props.to,
+        concept: to,
     } as SemanticModelRelationshipEnd);
 
     useEffect(() => {
-        props.setAssociation({
+        setAssociation({
             name,
             description,
             ends: [source, target],
         });
-    }, [name, description, source, target]);
+    }, [name, description, source, target, setAssociation]);
 
     return (
         <>
@@ -63,7 +59,7 @@ const AssociationComponent = (props: {
                     setLs={setName}
                     inputType="text"
                     defaultLang={preferredLanguage}
-                    disabled={props.disabled}
+                    disabled={disabled}
                 />
             </DialogDetailRow2>
             <DialogDetailRow2 detailKey="description">
@@ -72,7 +68,7 @@ const AssociationComponent = (props: {
                     setLs={setDescription}
                     inputType="textarea"
                     defaultLang={preferredLanguage}
-                    disabled={props.disabled}
+                    disabled={disabled}
                 />
             </DialogDetailRow2>
             <DialogDetailRow2 detailKey="cardinalities">
@@ -80,7 +76,7 @@ const AssociationComponent = (props: {
                     <div>
                         cardinality-source:
                         <CardinalityOptions
-                            disabled={props.disabled}
+                            disabled={disabled}
                             group="source"
                             defaultCard={source.cardinality}
                             setCardinality={setSource}
@@ -89,7 +85,7 @@ const AssociationComponent = (props: {
                     <div>
                         cardinality-target:
                         <CardinalityOptions
-                            disabled={props.disabled}
+                            disabled={disabled}
                             group="target"
                             defaultCard={target.cardinality}
                             setCardinality={setTarget}
@@ -157,7 +153,12 @@ export const useCreateConnectionDialog = () => {
         const target = c.find((cls) => cls.id == targetId) ?? p.find((prof) => prof.id == targetId);
 
         if (!source || !target) {
-            alert("couldn't find source or target" + sourceId + " " + targetId);
+            alert(
+                "couldn't find source or target. " +
+                    (sourceId ?? "sourceId undefined") +
+                    " " +
+                    (targetId ?? "targetId undefined")
+            );
             localClose();
             return;
         }

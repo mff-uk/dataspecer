@@ -23,7 +23,7 @@ export const ModelItemRow = (props: { modelId: string }) => {
 
     const { activeVisualModel } = useMemo(() => {
         return { activeVisualModel: aggregatorView.getActiveVisualModel() };
-    }, [models, aggregatorView]);
+    }, [aggregatorView]);
 
     const [currentColor, setCurrentColor] = useState(activeVisualModel?.getColor(modelId) || "#000001");
 

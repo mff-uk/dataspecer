@@ -27,7 +27,7 @@ export const ExportManagement = () => {
 
     const uploadConfiguration = (contentType: string = "application/json") => {
         return new Promise<string | undefined>((resolve) => {
-            let input = document.createElement("input");
+            const input = document.createElement("input");
             input.type = "file";
             input.multiple = false;
             input.accept = contentType;
@@ -67,8 +67,8 @@ export const ExportManagement = () => {
         console.log("export-management: use configuration finished");
     };
 
-    const handleGenerateLightweightOwl = async () => {
-        const generatedLightweightOwl = await generate(
+    const handleGenerateLightweightOwl = () => {
+        generate(
             Object.values(aggregatorView.getEntities())
                 .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
                 .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
@@ -84,14 +84,15 @@ export const ExportManagement = () => {
 
                     return entityWithOverriddenIri(entityIri, aggregatedEntity);
                 })
-        );
-        const date = Date.now();
-        download(generatedLightweightOwl, `dscme-lw-ontology-${date}.ttl`, "text/plain");
+        )
+            .then((generatedLightweightOwl) => {
+                const date = Date.now();
+                download(generatedLightweightOwl, `dscme-lw-ontology-${date}.ttl`, "text/plain");
+            })
+            .catch((err) => console.log("couldn't generate lw-ontology", err));
     };
 
-    const handleLoadWorkspaceFromJson = async () => {
-        const configuration = await uploadConfiguration();
-
+    const handleLoadWorkspaceFromJson = () => {
         const loadConfiguration = async (configuration: string) => {
             const { modelDescriptors, activeView } = JSON.parse(configuration) as ExportedConfigurationType;
             const [entityModels, visualModels] = await service.getModelsFromModelDescriptors(modelDescriptors);
@@ -99,14 +100,20 @@ export const ExportManagement = () => {
             loadWorkSpaceConfiguration(entityModels, visualModels, activeView);
         };
 
-        if (configuration) {
-            console.log("configuration is gonna be used");
-            loadConfiguration(configuration);
-            setPackage(null);
-        }
+        uploadConfiguration()
+            .then((configuration) => {
+                if (!configuration) {
+                    return;
+                }
+
+                console.log("configuration is gonna be used");
+                loadConfiguration(configuration).catch((err) => console.log("problem with loading configuration", err));
+                setPackage(null);
+            })
+            .catch(console.error);
     };
 
-    const handleExportWorkspaceToJson = async () => {
+    const handleExportWorkspaceToJson = () => {
         const activeView = aggregatorView.getActiveVisualModel()?.getId();
         const date = Date.now();
         const workspace = modelsToWorkspaceString(models, visualModels, date, activeView);

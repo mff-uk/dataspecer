@@ -1,6 +1,6 @@
-import { Handle, Position, XYPosition, Node } from "reactflow";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
+import { Handle, Position, type XYPosition, type Node } from "reactflow";
+import type { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -16,7 +16,7 @@ import { ClassNodeAttributeRow, ThreeDotsRow } from "./components/attribute-row"
 import { ClassNodeHeader } from "./components/class-node-header";
 import { useDialogsContext } from "../context/dialogs-context";
 
-type ClassCustomNodeDataType = {
+export type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
     color: string | undefined;
     attributes: SemanticModelRelationship[];

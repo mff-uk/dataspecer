@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ManagementButton, ManagementButtonPropsType } from "../components/management/buttons/management-button";
+import { ManagementButton, type ManagementButtonPropsType } from "../components/management/buttons/management-button";
 
 export const useUpdatingButton = (baseLabel: string, messageInterval: number = 750) => {
     const [currentLabel, setCurrentLabel] = useState(baseLabel);
