@@ -93,7 +93,8 @@ export const MultiLanguageInputForLanguageString = (props: {
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
 
-    if (!languages.includes(currentLang) && languages.length) {
+    if (!languages.includes(currentLang) && languages.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         setCurrentLang(languages.at(0)!);
         props.onChange?.();
     }

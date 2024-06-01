@@ -40,7 +40,7 @@ export const useCanvasVisibility = (entityId: string) => {
         if (isOnCanvas != newOnCanvas) {
             setIsOnCanvas(newOnCanvas);
         }
-    }, [isOnCanvas, visibleOnCanvas]);
+    }, [entityId, isOnCanvas, visibleOnCanvas]);
 
     return { isOnCanvas };
 };

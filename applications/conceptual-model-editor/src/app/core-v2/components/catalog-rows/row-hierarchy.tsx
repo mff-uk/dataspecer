@@ -73,7 +73,11 @@ export const RowHierarchy = (props: {
                 <EntityRow
                     offset={props.indent}
                     entity={props.entity}
-                    key={props.entity.id + (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") + classes.length}
+                    key={
+                        props.entity.id +
+                        (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") +
+                        classes.length.toString()
+                    }
                     expandable={expansionHandler}
                     drawable={drawingHandler}
                     removable={removalHandler}

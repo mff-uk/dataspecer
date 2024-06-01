@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Header from "../components/header";
 import { BackendPackageService, type Package, type ResourceEditable } from "@dataspecer/core-v2/project";
@@ -9,21 +9,26 @@ import { getRandomName } from "../utils/random-gen";
 import { getLocalizedStringFromLanguageString } from "../core-v2/util/language-utils";
 
 const Page = () => {
+    // should fail already when spinning up the next app
+    // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
     const service = useMemo(() => new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, httpFetch), []);
     const [packages, setPackages] = useState([] as Package[]);
 
-    const syncPackages = async () => {
-        service.getPackage("http://dataspecer.com/packages/local-root").then(({ subResources }) => {
-            if (!subResources) {
-                return;
-            }
-            setPackages(subResources);
-        });
-    };
+    const syncPackages = useCallback(() => {
+        service
+            .getPackage("http://dataspecer.com/packages/local-root")
+            .then(({ subResources }) => {
+                if (!subResources) {
+                    return;
+                }
+                setPackages(subResources);
+            })
+            .catch((err) => console.error("error fetching packages from backend", err));
+    }, [service]);
 
     useEffect(() => {
         syncPackages();
-    }, []);
+    }, [syncPackages]);
 
     const createPackage = async (packageId: string, packageNameCs: string) => {
         const pkg = await service.createPackage("http://dataspecer.com/packages/local-root", {
@@ -38,6 +43,16 @@ const Page = () => {
         return pkg;
     };
 
+    const handleCreatePackage = () => {
+        const pkgName = getRandomName(12);
+        createPackage(pkgName, pkgName)
+            .then((_) => syncPackages())
+            .catch((reason) => {
+                alert("there was a problem creating package on backend");
+                console.error(reason);
+            });
+    };
+
     return (
         <>
             <Header page="project manager 📚" />
@@ -47,25 +62,14 @@ const Page = () => {
                     <button
                         className="white ml-2"
                         title="sync package inventory with backend"
-                        onClick={async () => syncPackages()}
+                        onClick={() => syncPackages()}
                     >
                         🔄
                     </button>
                     <button
                         className="mx-1 bg-yellow-600 px-1"
                         title="create a new package"
-                        onClick={async () => {
-                            const pkgName = getRandomName(7);
-                            const pkg = await createPackage(pkgName, pkgName)
-                                .then((resp) => resp)
-                                .catch((reason) => {
-                                    alert("there was a problem creating package on backend");
-                                    console.error(reason);
-                                });
-                            if (pkg) {
-                                await syncPackages();
-                            }
-                        }}
+                        onClick={handleCreatePackage}
                     >
                         ➕pkg
                     </button>

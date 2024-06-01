@@ -51,7 +51,7 @@ export const useEntityDetailDialog = () => {
 
     const EntityDetailDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
-        const [currentLang, setCurrentLang] = useState(preferredLanguage);
+        const [currentLang, setCurrentLang] = useState<string>(preferredLanguage);
         const [viewedEntity, setViewedEntity] = useState(viewedEntity2);
 
         const { models: m, aggregatorView } = useModelGraphContext();
@@ -200,6 +200,8 @@ export const useEntityDetailDialog = () => {
                         <DialogDetailRow2 detailKey="domain">
                             <ResourceDetailClickThrough
                                 resource={domain.entity}
+                                // it ain't null
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 onClick={() => handleResourceClickThroughClicked(domain.entity!)}
                                 withCardinality={domain.cardinality}
                             />
@@ -209,6 +211,8 @@ export const useEntityDetailDialog = () => {
                         <DialogDetailRow2 detailKey="range">
                             <ResourceDetailClickThrough
                                 resource={range.entity}
+                                // it ain't null
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 onClick={() => handleResourceClickThroughClicked(range.entity!)}
                                 withCardinality={range.cardinality}
                             />

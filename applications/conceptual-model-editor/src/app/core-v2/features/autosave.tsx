@@ -26,7 +26,7 @@ export const useAutoSave = () => {
         setAutosaveButtonLabel(getCurrentLabel());
 
         if (!autosaveActive) {
-            clearInterval(autosaveInterval!);
+            clearInterval(autosaveInterval ?? undefined);
             setAutosaveInterval(null);
             return;
         }
@@ -36,22 +36,18 @@ export const useAutoSave = () => {
         }, AUTOSAVE_INTERVAL);
 
         setAutosaveInterval(res);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autosaveActive]);
 
-    const handleAutoSavePackage = async () => {
+    const handleAutoSavePackage = () => {
         if (!packageId) {
             return;
         }
-        const status = await updateSemanticModelPackageModels(
-            packageId,
-            [...models.values()],
-            [...visualModels.values()]
-        );
-        if (status) {
-            showWasAutosaved();
-        } else {
-            showWasAutosaved("fail");
-        }
+        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+            .then((status) => {
+                showWasAutosaved(status ? "success" : "fail");
+            })
+            .catch(console.log);
     };
 
     const showWasAutosaved = (result: "success" | "fail" = "success") => {

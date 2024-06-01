@@ -212,8 +212,8 @@ export const semanticModelRelationshipToReactFlowEdge = (
 
     return {
         id: rel.id,
-        source: domainAndRange?.domain.concept ?? rel.ends[0]!.concept,
-        target: domainAndRange?.range.concept ?? rel.ends[1]!.concept,
+        source: domainAndRange?.domain.concept ?? rel.ends[0]!.concept, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        target: domainAndRange?.range.concept ?? rel.ends[1]!.concept, // eslint-disable-line @typescript-eslint/no-non-null-assertion
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {

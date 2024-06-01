@@ -103,7 +103,7 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
     const profilingSources = [...c, ...r, ...profiles];
 
     const proxy = new Proxy(viewedEntity as unknown as EntityDetailProxy, {
-        get: (obj, property) => {
+        get: (_obj, property) => {
             if (property === "name") {
                 return getName();
             } else if (property === "description") {

@@ -12,7 +12,8 @@ const cardinalityOptionToCardinalityMap: {
     "01": [0, 1],
     "11": [1, 1],
     "1x": [1, null],
-    //@ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore this really happens, cardinalities like this come from sgov
     xx: [null, null],
 };
 

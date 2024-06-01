@@ -22,8 +22,8 @@ export default function Page() {
                 <ul className="px-2 [&>li]:mb-6 [&>li]:flex [&>li]:w-full [&>li]:flex-col md:[&>li]:flex-row">
                     <li>
                         <p>
-                            You can either start playing with the editor right away. However you won't be able to save
-                            your work to our backend. There will still be the option to save your workspace to{" "}
+                            You can either start playing with the editor right away. However you will not be able to
+                            save your work to our backend. There will still be the option to save your workspace to{" "}
                             <span className="font-mono text-[#5438dc]">.json</span> or export{" "}
                             <span className="font-mono text-[#5438dc]">lightweight ontology.</span>
                         </p>

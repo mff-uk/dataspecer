@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import React, { useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export type QueryParamsContextType = {
@@ -32,7 +32,7 @@ export const QueryParamsProvider = (props: { children: ReactNode }) => {
 
     const setQueryParams = useCallback(
         (params: Partial<{ [PACKAGE_ID]: string | null; [VIEW_ID]: string | null }>) => {
-            let stateAsParams: Record<string, string> = {};
+            const stateAsParams: Record<string, string> = {};
             if (packageId != null) {
                 stateAsParams[PACKAGE_ID] = packageId;
             }

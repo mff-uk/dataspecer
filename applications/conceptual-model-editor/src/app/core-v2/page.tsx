@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
+import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
-    SemanticModelRelationship,
-    SemanticModelGeneralization,
+    type SemanticModelClass,
+    type SemanticModelRelationship,
+    type SemanticModelGeneralization,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
-    SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
@@ -21,8 +21,8 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
-import { SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
-import { Warning, WarningsContext } from "./context/warnings-context";
+import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
+import { type Warning, WarningsContext } from "./context/warnings-context";
 import Header from "./header";
 import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
@@ -158,6 +158,7 @@ const Page = () => {
             console.log("models cleanup in package effect");
             (await cleanup)?.();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -173,7 +174,7 @@ const Page = () => {
             setRawEntities((prev) => prev.filter((r) => r?.id && !removedIds.has(r?.id)));
 
             const { clsses, rels, gens, prfiles, raws } = updated.reduce(
-                ({ clsses, rels, gens, prfiles, raws }, curr, i, arr) => {
+                ({ clsses, rels, gens, prfiles, raws }, curr) => {
                     if (isSemanticModelClass(curr.aggregatedEntity)) {
                         return {
                             clsses: clsses.concat(curr.aggregatedEntity),
@@ -226,9 +227,12 @@ const Page = () => {
                             raws: raws.concat(curr.rawEntity),
                         };
                     } else {
-                        throw new Error(
-                            `unknown type of updated entity: ${curr.aggregatedEntity?.type}, entityId: ${curr.aggregatedEntity?.id}`
+                        console.error(
+                            "unknown type of updated entity: ",
+                            curr.aggregatedEntity?.type,
+                            curr.aggregatedEntity?.id
                         );
+                        throw new Error("unknown type of updated entity");
                     }
                 },
                 {
@@ -266,6 +270,7 @@ const Page = () => {
         return () => {
             callToUnsubscribe();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aggregatorView]);
 
     return (

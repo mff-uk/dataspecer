@@ -35,6 +35,7 @@ export const IriInput = (props: {
         if (l == null && n) {
             setNewIri(n.trim().toLowerCase().replaceAll(WhitespaceRegExp, "-").replaceAll(NonAlphaNumeric, ""));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name]);
 
     return (
