@@ -67,11 +67,11 @@ export const useCreateClassDialog = () => {
                 <div>
                     <div>
                         <DialogColoredModelHeaderWithModelSelector
-                            style="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pb-4 pl-8 pr-16 pt-2"
+                            style="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
                             activeModel={activeModel?.getId()}
                             onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
                         />
-                        <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16 pt-2">
+                        <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
                             <DialogDetailRow2 detailKey="name" style="text-xl">
                                 <MultiLanguageInputForLanguageString
                                     ls={newName}

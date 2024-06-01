@@ -122,7 +122,7 @@ export const ExportManagement = () => {
     };
 
     return (
-        <div className="mr-2 flex flex-row">
+        <div className="my-auto mr-2 flex flex-row">
             <ExportButton title="open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
                 📥ws
             </ExportButton>

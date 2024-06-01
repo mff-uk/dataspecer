@@ -39,10 +39,12 @@ export const DropDownCatalog = (props: {
     return (
         <div className="my-auto">
             <div className="flex flex-col text-[15px]">
-                <div className="relative flex flex-row">
+                <div className="relative flex flex-row flex-wrap md:flex-nowrap">
                     <div className="text-nowrap">
                         {catalogName}:
-                        <span className="ml-2 max-w-40 overflow-x-clip  font-mono">{valueSelected ?? "---"}</span>
+                        <span className="ml-2 max-w-40 overflow-x-clip text-wrap font-mono">
+                            {valueSelected ?? "---"}
+                        </span>
                     </div>
                     <button
                         className="white ml-2 text-[15px]"

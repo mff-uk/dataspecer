@@ -56,6 +56,8 @@ import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationsh
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useDialogsContext } from "./context/dialogs-context";
+import { type Warning, useWarningsContext } from "./context/warnings-context";
+import { getRandomName } from "../utils/random-gen";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -66,6 +68,7 @@ export const Visualization = () => {
     const { downloadImage } = useDownload();
 
     const { classes, relationships, generalizations, profiles, sourceModelOfEntityMap } = useClassesContext();
+    const { setWarnings } = useWarningsContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
@@ -318,6 +321,9 @@ export const Visualization = () => {
             }
 
             for (const { id, aggregatedEntity: entity, visualEntity: ve } of updated) {
+                if (entity == null) {
+                    continue;
+                }
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null;
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
@@ -343,7 +349,7 @@ export const Visualization = () => {
                         isSemanticModelClass(aggrEntityOfAttributesNode) ||
                         isSemanticModelClassUsage(aggrEntityOfAttributesNode)
                     ) {
-                        // TODO: omg, localAttributes jeste v sobe nemaj ten novej atribut, tak ho se musim jeste pridat 🤦
+                        // LOL, local attributes & attribute profiles are missing the new attribute, needs to be added
                         if (isSemanticModelRelationship(entity)) {
                             // remove the existing version of attribute, use this updated one
                             localAttributes = localAttributes.filter((v) => v.id != entity.id).concat(entity);
@@ -378,7 +384,14 @@ export const Visualization = () => {
                     localGeneralizations = localGeneralizations.filter((g) => g.id != entity.id).concat(entity);
                 } else {
                     console.error("callback2 unknown entity type", id, entity, visualEntity);
-                    //throw new Error("unknown entity type"); // todo: throws if there is a visual entity without semantic entity
+                    setWarnings((prev) =>
+                        prev.concat({
+                            message: "unknown entity type in visualization update",
+                            id: getRandomName(15),
+                            object: { entity, visualEntity },
+                            type: "unknown-entity-type",
+                        } as Warning)
+                    );
                 }
             }
 
@@ -463,7 +476,6 @@ export const Visualization = () => {
     const handleNodeChanges = (changes: NodeChange[]) => {
         for (const change of changes) {
             if (change.type == "position") {
-                // FIXME: maybe optimize so that it doesn't update every pixel
                 change.positionAbsolute &&
                     activeVisualModel?.updateEntity(change.id, { position: change.positionAbsolute });
             }
@@ -474,7 +486,7 @@ export const Visualization = () => {
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
 
-            <div className="h-full w-full">
+            <div className="h-[80vh] w-full md:h-full">
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

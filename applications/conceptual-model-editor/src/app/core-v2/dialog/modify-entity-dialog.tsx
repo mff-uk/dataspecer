@@ -221,7 +221,6 @@ export const useModifyEntityDialog = () => {
         };
 
         const handleSaveClassOrClassProfile = (m: InMemorySemanticModel) => {
-            // TODO: something broken with attribute profiles, is it still?
             const operations = [];
 
             if (isSemanticModelClass(modifiedEntity)) {
@@ -450,9 +449,9 @@ export const useModifyEntityDialog = () => {
                 <div>
                     <DialogColoredModelHeader
                         activeModel={model}
-                        style="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16 pb-4 pt-2"
+                        style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pl-8 md:pr-16 md:pb-4 md:pt-2"
                     />
-                    <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
+                    <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
                         {/* 
                         ---------
                         Entity name
@@ -682,7 +681,7 @@ export const useModifyEntityDialog = () => {
                     <div className="bg-slate-100">
                         <div className="my-1 flex flex-row justify-between">
                             <button
-                                className="ml-8 bg-white px-2 py-1 hover:shadow-sm"
+                                className="ml-2 bg-white px-1 py-1 hover:shadow-sm md:ml-8 md:px-2"
                                 onClick={() => setWantsToAddNewAttributes((prev) => !prev)}
                             >
                                 {wantsToAddNewAttributes ? "❌ cancel" : "➕ add attribute"}

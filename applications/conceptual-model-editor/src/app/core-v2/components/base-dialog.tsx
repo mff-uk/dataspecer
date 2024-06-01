@@ -25,7 +25,7 @@ export const useBaseDialog = () => {
         return (
             <dialog
                 ref={dialogRef}
-                className="z-30 flex max-h-[95%] min-h-[70%] w-[70%] flex-col gap-10 p-4"
+                className="z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:gap-10 md:p-4"
                 onCancel={(e) => {
                     e.preventDefault();
                     close();

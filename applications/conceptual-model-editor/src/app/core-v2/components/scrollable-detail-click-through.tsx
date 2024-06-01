@@ -20,14 +20,16 @@ export const ScrollableResourceDetailClickThroughList = (props: {
             | SemanticModelRelationshipUsage
     ) => void;
     withIri?: boolean;
+    detailDialogLanguage?: string;
 }) => {
-    const { resources, onResourceClicked, withIri } = props;
+    const { resources, onResourceClicked, withIri, detailDialogLanguage } = props;
 
     return (
         <ul className="flex list-none flex-row flex-wrap overflow-x-auto [&>li]:mr-2">
             {resources.map((resource) => (
                 <li key={resource.id}>
                     <ResourceDetailClickThrough
+                        detailDialogLanguage={detailDialogLanguage}
                         resource={resource}
                         onClick={() => onResourceClicked(resource)}
                         withIri={withIri}

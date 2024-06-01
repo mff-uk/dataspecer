@@ -58,7 +58,7 @@ export const IriInput = (props: {
                     }
                 }}
             />
-            <div className="flex flex-row">
+            <div className="flex flex-col md:flex-row">
                 {workingWithAbsoluteIri ? (
                     <>
                         <input
