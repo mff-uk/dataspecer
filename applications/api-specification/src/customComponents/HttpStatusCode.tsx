@@ -13,22 +13,25 @@ export const httpStatusCodes: StatusCode[] =
         { value: '500', label: '500 - internal server error', message: 'internal server error' },
     ];
 
+/* StatusCodeSelect - react functional component
+ * the value of this component is mapped to the responses construct
+ * of corresponding operation in the generated OpenAPI specification
+ */
 const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationIndex, register }) => {
 
     const path = `dataStructures.${index}.operations.${operationIndex}.oResponse`;
 
     return (
         <>
-            {/* Operation Type Label*/}
+            {/* Operation Type Label */}
             <label htmlFor={`operationType_${index}_${operationIndex}`}>
                 Response code:
             </label>
             <select
                 {...register(path)}
-                required
-            >
+                required >
                 <option value="">
-                    Select Operation Type
+                    Please select Operation Type
                 </option>
                 {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
                 {httpStatusCodes.map(httpMethod => (

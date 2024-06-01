@@ -2,6 +2,9 @@ import React from 'react';
 import { Input } from '../components/ui/input';
 import { OperationNameInputProps } from '../Props/OperationNameInputProps';
 
+/* OperationNameInput - react functional component
+ * The value of this component is mapped to operationId in the resulting OpenAPI specificaiton
+ */
 const OperationNameInput: React.FC<OperationNameInputProps> = ({ index, operationIndex, register }) => {
 
     const inputId = `operationName_${index}_${operationIndex}`

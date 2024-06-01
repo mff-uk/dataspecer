@@ -2,8 +2,12 @@ import React from 'react';
 import { Input } from '../components/ui/input';
 import { CommentInputProps } from '../Props/CommentInputProps';
 
-/* CommentInput - react functional component */
+/* CommentInput - react functional component 
+ * The value of this component is mapped to the summary of operation
+ * in the generated OpenAPI specification
+ */
 const CommentInput: React.FC<CommentInputProps> = ({ index, operationIndex, register }) => {
+
     const path = `dataStructures.${index}.operations.${operationIndex}.oComment`;
 
     return (

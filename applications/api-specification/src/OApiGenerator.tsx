@@ -275,6 +275,8 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
          * else - update schema 
          */
         if (correspondingSchema) {
+            console.log("This is corresponding schema")
+            console.log(correspondingSchema)
             responses[operation.oResponse].content['application/json'].schema = {
                 $ref: `${SCHEMA_REF_PREFIX}${encodeURIComponent(givenName)}`,
             };
@@ -294,7 +296,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
     return responses;
 }
 
-// updates schema within response object
+/* updates schema within response object */
 function updateResponseObjSchema(dataStructures, ds, givenName, responses, operation) {
 
     // find datastructure based on the fields givenname such that has classType
@@ -323,9 +325,6 @@ function updateResponseObjSchema(dataStructures, ds, givenName, responses, opera
 function createRequestBody(dataStructures, ds, operation) {
 
     const requestBodyProperties = {};
-
-    // get required fields from operation's request body ( from the userinput)
-    //const requiredFields = Object.keys(operation.oRequestBody).filter(key => operation.oRequestBody[key]);
 
     function findFieldInNestedFields(nestedFields, key) {
 
@@ -391,7 +390,6 @@ function createRequestBody(dataStructures, ds, operation) {
                 schema: {
                     type: 'object',
                     properties: requestBodyProperties,
-                    //required: requiredFields,
                 },
             },
         },

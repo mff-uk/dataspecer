@@ -4,6 +4,11 @@ import ResponseObjectSelect from './ResponseObjectSelect';
 import { DataStructure } from '../Models/DataStructureModel';
 import { IsAssociationSwitchProps } from '../Props/IsAssociationSwitchProps';
 
+/* Associaiton - react functional component 
+ * The value of this component determines whether association mode is on/off
+ * If association mode is on, it means that the operation is targeted on the target data structcure.
+ * Target data structure is one level below the main data structure.
+ */
 const Association: React.FC<IsAssociationSwitchProps> = ({
     index,
     operationIndex,
@@ -21,10 +26,10 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 
     const formState = register(path);
 
-    /* Local state init */
+    /* Local state initialization */
     const [selectedAssociationMode, setSelectedAssociationMode] = useState(formState.value);
 
-    /* sync local state with form state */
+    /* syncing local state with the form state */
     useEffect(() => {
         const currentFormValue = getValues(path);
         if (currentFormValue !== selectedAssociationMode) {

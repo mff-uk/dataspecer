@@ -12,6 +12,10 @@ import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
 import { DataStructure } from '@/Models/DataStructureModel.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
+/* OperationCard - react functional component 
+ * The values provided through this component ara utilized for
+ * paths and their respective operation construct generation in the resulting OpenAPI specification
+ */
 const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
@@ -19,13 +23,9 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
 
-    useEffect(() => {
-        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-        const savedValue = getValues(path);
-    }, [getValues, index, operationIndex]);
-
     const deleteButtonRef = useRef(null);
 
+    /* updates form value corresponding to the target data structure (in case it exists) */
     useEffect(() => {
         try {
             const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
@@ -33,7 +33,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         }
         catch
         {
-            //console.log("")
+            console.log("Values could not be set")
         }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
@@ -58,7 +58,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                 </div>
                 {/* Operation Details */}
                 <Card className="p-2 justify-end">
-                    {/* Association Mode*/}
+                    {/* Association Mode - whether targed data structure is a ds one level below the main ds*/}
                     <Association
                         index={index}
                         operationIndex={operationIndex}
@@ -82,7 +82,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructures={fetchedDataStructures}
                         setIsCollection={setIsCollection}
                     />
-                    {/* Operation Name */}
+                    {/* Operation Name - operationId in the generated OAS*/}
                     <OperationNameInput
                         index={index}
                         operationIndex={operationIndex}
@@ -102,14 +102,14 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         isCollection={isCollection}
                         associationModeOn={associationModeOn}
                     />
-                    {/* Endpoint */}
+                    {/* Endpoint (path)*/}
                     <EndpointInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
                         dataStructureName={selectedDataStructure}
                     />
-                    {/* Comment */}
+                    {/* Comment - mapped to summary in the resulting OAS*/}
                     <CommentInput
                         index={index}
                         operationIndex={operationIndex}

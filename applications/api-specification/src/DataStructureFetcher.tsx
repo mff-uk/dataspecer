@@ -6,8 +6,8 @@ import { DataStructure, Field } from './Models/DataStructureModel.tsx';
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
-// Custom hook: fetch data specification info
-export function useDataSpecificationInfo() {
+// Custom hook for fetching data specification info
+export function retrieveDataSpecificationInfo() {
     const fetcher = async (url: string) => {
         const response = await fetch(url);
         if (!response.ok) {

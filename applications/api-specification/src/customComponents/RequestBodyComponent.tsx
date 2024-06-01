@@ -8,11 +8,13 @@ const handleCheckboxChange = (fieldPath, checked, setValue) => {
     setValue(fieldPath, checked);
 };
 
+/* RequestBodyComponent - react functional component 
+ * utilized for request body section of the operation object in the generated OAS
+ */
 const RequestBodyComponent: React.FC<RequestBodyProps> = ({
     index,
     operationIndex,
     dataStructure,
-    //register,
     setValue,
     allDataStructures,
     responseDataStructures,
@@ -26,14 +28,17 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
         setValue(path, requestBodyValues);
     }, []);
 
+    // Main data structure - finding based on the given name
     let targetDataStructure = allDataStructures?.find((ds) => ds.givenName === dataStructure);
 
     let responseDataStructure;
 
+    // data structure one level below the main data structure
     if (responseDataStructures) {
         responseDataStructure = responseDataStructures?.find((ds) => ds.name === (dataStructure as unknown as DataStructure).name);
     }
 
+    /* Request body component corresponding to associationMode - ON */
     if (associationModeOn && responseDataStructure && responseDataStructure.fields) {
         return (
             <div key={operationIndex}>
@@ -57,6 +62,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
         );
     }
 
+    /* Request body component corresponding to associationMode - OFF */
     if (!associationModeOn && targetDataStructure) {
         return (
             <div key={operationIndex}>
@@ -66,7 +72,7 @@ const RequestBodyComponent: React.FC<RequestBodyProps> = ({
                         <div key={field.name}>
                             <Checkbox
                                 id={`${path}.${field.name}`}
-                                checked={getValues(`${path}.${field.name}`)} // Use getValues to retrieve the current value
+                                checked={getValues(`${path}.${field.name}`)}
                                 onCheckedChange={(checked) => handleCheckboxChange(`${path}.${field.name}`, checked, setValue)}
                             />
 

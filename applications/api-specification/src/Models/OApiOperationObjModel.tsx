@@ -1,3 +1,4 @@
+/* Model for Operation Object - for the generator */
 export interface OApiOperationObj {
     summary: any;
     operationId: any;

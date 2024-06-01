@@ -1,4 +1,4 @@
-import {BaseProps} from './BaseProps';
+import { BaseProps } from './BaseProps';
 
-export interface StatusCodeSelectProps extends BaseProps 
-{}
+/* Props passed to the StatusCodeSelect component*/
+export interface StatusCodeSelectProps extends BaseProps { }

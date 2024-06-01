@@ -43,7 +43,6 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
     const [selectedOperationType, setSelectedOperationType] = useState('');
 
-
     const handleChange = (event) => {
         const selectedValue = event.target.value;
         setSelectedOperationType(selectedValue);
@@ -57,17 +56,22 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
     }, [path, getValues, selectedOperationType]);
 
-    const copyToClipboard = (str) => {
+
+    /* copies string to clipboard
+     * utilized for copying the suggested path 
+     */
+    const copyStrToClipboard = (str) => {
         navigator.clipboard.writeText(str).then(
             () => {
                 alert('Suggested path copied to clipboard');
             },
             (err) => {
-                console.error('Could not copy - Error: ', err);
+                console.error('Could not copy suggested path - Error: ', err);
             }
         );
     };
 
+    /* generates suggested path*/
     const generateSuggestedPath = (dataStructure, isCollection, associationModeOn, selectedResponseObject) => {
 
         let suggestedPath = '';
@@ -107,7 +111,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 <option value="">
                     Select Operation Type
                 </option>
-                {/* Render available options based on isCollection state */}
+                {/* Rendering available options based on the state of isCollection */}
                 {availableHttpMethods.map(httpMethod => (
                     <option key={httpMethod.value} value={httpMethod.value}>
                         {httpMethod.label}
@@ -115,7 +119,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 ))}
             </select>
 
-            {/* Request Body Component */}
+            {/* Rendering Request Body Component if needed  */}
             {(isCollection && selectedOperationType === 'POST') ||
                 (!isCollection && selectedOperationType === 'PATCH') ? (
                 <RequestBodyComponent
@@ -136,7 +140,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                     <p>Suggested Path: {suggestedPath}</p>
                     <button
                         className="ml-2 p-1 bg-blue-500 text-white rounded"
-                        onClick={() => copyToClipboard(suggestedPath)}
+                        onClick={() => copyStrToClipboard(suggestedPath)}
                     >
                         copy
                     </button>

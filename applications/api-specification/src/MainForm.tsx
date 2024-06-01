@@ -6,14 +6,14 @@ import LabeledInput from './customComponents/LabeledInput';
 import FormSection from './customComponents/FormSection';
 import DataStructuresSelect from './customComponents/DataStructSelect';
 import { generateOpenAPISpecification } from './OApiGenerator';
-import { useDataSpecificationInfo } from './DataStructureFetcher';
+import { retrieveDataSpecificationInfo } from './DataStructureFetcher';
 import OperationCard from './customComponents/OperationCard';
 import { DataStructure, Field } from '@/Models/DataStructureModel';
 import useSWR from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod'
-import OpenApiDisplay from './customComponents/OpenAPIDisplay';
 import { FormValues } from './Models/FormValuesModel';
 import { formValidationchema } from './FormValidationSchema';
+import OpenAPIDisplay from './customComponents/OpenAPIDisplay';
 
 /* Fetcher for fetching presaved data */
 const fetchSavedConfig = async (url: string) => {
@@ -49,7 +49,7 @@ export const MainForm = () => {
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
 
-    const { fetchDataStructures } = useDataSpecificationInfo();
+    const { fetchDataStructures } = retrieveDataSpecificationInfo();
 
     /* START - GET Presaved configuration */
     const getModelIri = () => {
@@ -321,7 +321,7 @@ export const MainForm = () => {
             {/* Second Column */}
             <div className="flex flex-col gap-4 w-1/2">
                 <div className="flex - grow">
-                    <OpenApiDisplay generatedOpenAPISpecification={openAPISpec} />
+                    <OpenAPIDisplay generatedOpenAPISpecification={openAPISpec} />
                 </div>
 
             </div>
