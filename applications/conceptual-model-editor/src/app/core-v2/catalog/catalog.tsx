@@ -77,7 +77,6 @@ export const Catalog = () => {
                         </button>
                     )}
                 </div>
-
                 <div className="my-0 overflow-y-scroll pb-2">
                     {entityView == "class" && <EntityCatalog />}
                     {entityView == "relationship" && <RelationshipCatalog />}
