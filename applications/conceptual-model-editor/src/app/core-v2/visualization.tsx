@@ -56,7 +56,7 @@ import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationsh
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useDialogsContext } from "./context/dialogs-context";
-import { Warning, useWarningsContext } from "./context/warnings-context";
+import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 
 export const Visualization = () => {
