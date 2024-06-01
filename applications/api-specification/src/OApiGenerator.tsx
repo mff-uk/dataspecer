@@ -413,8 +413,6 @@ function generateQueryParams(openAPISpec, ds, operation, parameters) {
         for (const [key, value] of Object.entries(openAPISpec.components.schemas)) {
             if (typeof value === 'object' && 'properties' in value) {
                 const properties = (value as { properties: Record<string, any> }).properties;
-                console.log(properties)
-
                 if (properties[givenName]) {
                     schemaName = properties[givenName].$ref || properties[givenName].items.$ref;
                     schemaName = schemaName.split('/').pop();
