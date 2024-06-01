@@ -14,7 +14,7 @@ export interface DataStructure {
  */
 export interface Field {
   name: string;
-  type: string; //'string' | 'number' | 'boolean' | 'date' | 'class'; 
+  type: string;
   classType?: string;
   nestedFields?: DataStructure;
   isArray?: boolean;
