@@ -411,7 +411,6 @@ function generateQueryParams(openAPISpec, ds, operation, parameters) {
         const givenName = formatName(operation.oResponseObject.givenName);
 
         for (const [key, value] of Object.entries(openAPISpec.components.schemas)) {
-            console.log("HERE")
             if (typeof value === 'object' && 'properties' in value) {
                 const properties = (value as { properties: Record<string, any> }).properties;
                 console.log(properties)
