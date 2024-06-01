@@ -110,7 +110,7 @@ export const semanticModelClassToReactFlowNode = (
     id: string,
     cls: SemanticModelClass | SemanticModelClassUsage,
     position: XYPosition,
-    color: string | undefined, // FIXME: vymysli lip
+    color: string | undefined,
     attributes: SemanticModelRelationship[],
 
     attributeUsages: SemanticModelRelationshipUsage[]
@@ -120,7 +120,7 @@ export const semanticModelClassToReactFlowNode = (
         position: position ?? { x: 69, y: 420 },
         data: {
             cls,
-            color /*FIXME: */,
+            color,
             attributes,
             attributeUsages,
         } satisfies ClassCustomNodeDataType,
