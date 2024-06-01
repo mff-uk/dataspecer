@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '../components/ui/card'; // Assuming you have a Card component
+import { Card } from '../components/ui/card';
 
 interface FormCardSectionProps {
     children: React.ReactNode;

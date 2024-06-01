@@ -21,23 +21,23 @@ export const formValidationchema = z.object({
                     oResponse: z.string(),
                 })
             ).refine((operations) => {
-                const combinationSet = new Set();
+                const combinations = new Set();
                 for (const operation of operations) {
                     const combination = `${operation.oEndpoint}-${operation.oType}`;
-                    if (combinationSet.has(combination)) {
+                    if (combinations.has(combination)) {
                         return false;
                     }
-                    combinationSet.add(combination);
+                    combinations.add(combination);
                 }
                 return true;
             }, { message: "Error: Each combination of endpoint and operation type must be unique within each data structure." })
                 .refine((operations) => {
-                    const oNameSet = new Set();
+                    const oNames = new Set();
                     for (const operation of operations) {
-                        if (oNameSet.has(operation.oName)) {
+                        if (oNames.has(operation.oName)) {
                             return false;
                         }
-                        oNameSet.add(operation.oName);
+                        oNames.add(operation.oName);
                     }
                     return true;
                 }, { message: "Error: Operation name must be unique." })

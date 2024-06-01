@@ -26,7 +26,7 @@ const fetchSavedConfig = async (url: string) => {
     return response.json();
 };
 
-export const ApiSpecificationForm = () => {
+export const MainForm = () => {
 
     const { register, handleSubmit, control, watch, setValue, getValues, formState } = useForm<FormValues>({
         resolver: zodResolver(formValidationchema)
@@ -48,7 +48,7 @@ export const ApiSpecificationForm = () => {
     }, [watch]);
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
-    
+
     const { fetchDataStructures } = useDataSpecificationInfo();
 
     /* START - GET Presaved configuration */
@@ -86,7 +86,7 @@ export const ApiSpecificationForm = () => {
 
     useEffect(() => {
         if (preSavedData) {
-            console.log('Fetched Data:', preSavedData);
+            //console.log('Fetched Data:', preSavedData);
             setValue('apiTitle', preSavedData.apiTitle);
             setValue('apiDescription', preSavedData.apiDescription);
             setValue('apiVersion', preSavedData.apiVersion);
@@ -139,7 +139,7 @@ export const ApiSpecificationForm = () => {
                 console.error('Form validation failed:', error.errors);
                 error.errors.forEach(({ path, message }) => {
                     const field = path[0] as keyof FormValues;
-                    formState.errors[field] = { message } as any; // Type assertion to satisfy TypeScript
+                    formState.errors[field] = { message } as any;
                 });
             } else {
                 console.error('Form validation failed:', error.message);
@@ -211,7 +211,7 @@ export const ApiSpecificationForm = () => {
             <div className="flex flex-col gap-4 w-1/2">
                 {/* first column */}
                 <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {
-                    handleSubmit(onSubmit)(e); 
+                    handleSubmit(onSubmit)(e);
                 }}>
                     {/* Form Info */}
 

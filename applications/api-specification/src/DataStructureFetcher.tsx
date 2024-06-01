@@ -36,7 +36,7 @@ export function useDataSpecificationInfo() {
         return null;
     }
 
-    // Memoize the function fetchDataStructures with useCallback - prevents unnecessary re-fetching
+    // Memorizing the function fetchDataStructures with useCallback - prevents unnecessary re-fetching
     const fetchDataStructures = useCallback(async () => {
         // If data is not available, return null
         if (!data) return null;
@@ -149,7 +149,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     let isArray = false;
     let isMandatory = false;
 
-    // determine if the field whether field is an array
+    // determine whether field is an array
     if (targetResource) {
         if (targetResource.pimCardinalityMax) {
             //console.log(targetResource?.pimHumanLabel?.en + "with cardinality " + targetResource?.pimCardinalityMax)
@@ -185,6 +185,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? convertDataTypeName(fieldData.dataPsmDatatype) : "Object",
     };
 
+    // Process association recursively in order to handle possible multiple levels
     if (fieldData.types.includes("https://ofn.gov.cz/slovník/psm/AssociationEnd")) {
         const classTypeObject = dataStructure.resources[fieldData.dataPsmPart];
         field.classType = classTypeObject.dataPsmTechnicalLabel;
