@@ -400,9 +400,33 @@ function createRequestBody(dataStructures, ds, operation) {
 function generateQueryParams(openAPISpec, ds, operation, parameters) {
 
     // get schemaname 
-    const schemaName = operation.oResponseObject && operation.oResponseObject.givenName
-        ? formatName(operation.oResponseObject.givenName)
-        : formatName(ds.name);
+    // const schemaName = operation.oResponseObject && operation.oResponseObject.givenName
+    //     ? formatName(operation.oResponseObject.givenName)
+    //     : formatName(ds.name);
+
+    let schemaName = '';
+
+    // find corresponding schema
+    if (operation.oResponseObject && operation.oResponseObject.givenName) {
+        const givenName = formatName(operation.oResponseObject.givenName);
+
+        for (const [key, value] of Object.entries(openAPISpec.components.schemas)) {
+            console.log("HERE")
+            if (typeof value === 'object' && 'properties' in value) {
+                const properties = (value as { properties: Record<string, any> }).properties;
+                console.log(properties)
+
+                if (properties[givenName]) {
+                    schemaName = properties[givenName].$ref || properties[givenName].items.$ref;
+                    schemaName = schemaName.split('/').pop();
+                    break;
+                }
+            }
+        }
+    }
+    else {
+        schemaName = formatName(ds.name);
+    }
 
     // get correspondingschema 
     const schema = openAPISpec.components.schemas[schemaName];
