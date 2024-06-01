@@ -10,18 +10,18 @@ const HeaderDivider = () => <div className="mx-3 my-auto h-[50%] w-[1px] bg-whit
 const Header = () => {
     return (
         <>
-            <header className="grid w-full grid-cols-1 grid-rows-3 justify-between bg-[#5438dc] text-white md:h-12 md:grid-cols-[1fr_auto_1fr] md:grid-rows-1">
+            <header className="grid w-full grid-cols-1 grid-rows-[fit_auto_fit] justify-between bg-[#5438dc] text-white md:h-12 md:grid-cols-[1fr_auto_1fr] md:grid-rows-1">
                 <div className="my-auto ml-4 flex flex-row">
                     <HeaderLogoLink />
                 </div>
-                <div className="flex flex-col px-2 md:flex-row md:justify-center md:px-0">
+                <div className="mt-1 flex flex-col px-2 md:mt-0 md:flex-row md:justify-center md:px-0 [&>*]:my-1">
                     <PackageManagement />
                     <HeaderDivider />
                     <ViewManagement />
                     <HeaderDivider />
                     <LanguageManagement />
                 </div>
-                <div className="my-auto flex flex-row px-2 md:justify-end md:px-0">
+                <div className="my-2 flex flex-row px-2 md:my-0 md:justify-end md:px-0">
                     <ExportManagement />
                 </div>
             </header>
