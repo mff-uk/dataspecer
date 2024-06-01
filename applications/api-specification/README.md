@@ -23,7 +23,7 @@ Please refer to the comprehensive documentation of the project via following lin
 
 The source code of the project located in this ( `../applications/api-specification` ) directory is structured primarily within the `src` folder. The source code is divided into different directories - each serving a specific purpose, fostering clarity as well as maintainability.
 
-The `src` directory includes several pivotal directories as well as separate notable files.
+The `src` directory includes several important directories as well as separate notable files.
 
 ### Directories
 
