@@ -11,7 +11,7 @@ export function retrieveDataSpecificationInfo() {
     const fetcher = async (url: string) => {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Response - not OK');
+            throw new Error('Data specification info could not be fetched');
         }
         return response.json();
     };
@@ -53,9 +53,10 @@ export function retrieveDataSpecificationInfo() {
         ).map((resource: { iri: any; }) => resource.iri);
 
         // fetch(`https://backend.dataspecer.com/resources/blob?iri=${iri}`) pass result of dsIrisforPim as iri
-        // work with resources like in psm 
+        // working with resources like in psm 
 
         let pimData;
+
         if (dsIriForPim && dsIriForPim.length > 0) {
 
             const pimIri = dsIriForPim[0];
@@ -76,7 +77,7 @@ export function retrieveDataSpecificationInfo() {
             fetch(`${backendUrl}/resources/blob?iri=${iri}`)
                 .then(response => response.json())
                 .catch(error => {
-                    console.error(`Error fetching data structure with IRI ${iri}:`, error);
+                    console.error(`Error fetching data structure with IRI (id) ${iri}:`, error);
                     return null;
                 })
         );
@@ -113,7 +114,7 @@ export function retrieveDataSpecificationInfo() {
             // get fields of the root data structure - associations and attributes (string id)
             const rootPropertyIris = dataStructure.resources[rootClass]?.dataPsmParts;
 
-            // initialize an array of fields (attributes and associations of the data structure) and process each field recursively
+            // initializing an array of fields (attributes and associations of the data structure) and processing each field recursively
             const fields: Field[] = rootPropertyIris.map((rootIri: string) => {
                 return processFields(dataStructure, rootIri, pimData);
             });
@@ -138,13 +139,10 @@ export function retrieveDataSpecificationInfo() {
 // processFields - function working in recursive manner to process fields
 function processFields(dataStructure: any, rootIri: string, pimData: any): Field {
     const fieldData = dataStructure.resources[rootIri];
-    //console.log(fieldData)
     const interpretation = fieldData.dataPsmInterpretation;
-    //console.log(interpretation)
 
     const targetResource = Object.values<any>(pimData.resources)
         .find(resource => resource.iri.includes(interpretation))
-    //console.log(targetResource)
 
     let isArray = false;
     let isMandatory = false;
@@ -175,7 +173,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
     }
 
     if (!fieldData) {
-        throw new Error(`Field data not found for IRI: ${rootIri}`);
+        throw new Error(`Field data could not be not found for this IRI (id): ${rootIri}`);
     }
 
     const field: Field = {
@@ -185,7 +183,7 @@ function processFields(dataStructure: any, rootIri: string, pimData: any): Field
         type: fieldData.types.includes("https://ofn.gov.cz/slovník/psm/Attribute") ? convertDataTypeName(fieldData.dataPsmDatatype) : "Object",
     };
 
-    // Process association recursively in order to handle possible multiple levels
+    // Process associations recursively in order to handle possible multiple levels
     if (fieldData.types.includes("https://ofn.gov.cz/slovník/psm/AssociationEnd")) {
         const classTypeObject = dataStructure.resources[fieldData.dataPsmPart];
         field.classType = classTypeObject.dataPsmTechnicalLabel;

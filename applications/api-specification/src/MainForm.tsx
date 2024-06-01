@@ -52,6 +52,7 @@ export const MainForm = () => {
 
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
 
+    /* Data specification info - its data structures*/
     const { fetchDataStructures } = retrieveDataSpecificationInfo();
 
     /* gets id of the model (modelIri) from current URL */
@@ -65,7 +66,7 @@ export const MainForm = () => {
     /* retrieve pre-saved configuration and store in preSavedData */
     const { data: preSavedData, error: fetchError } = useSWR(`${backendUrl}/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
 
-    /* fetch data structures information */
+    /* fetch data structures of current data specification information */
     useEffect(() => {
         if (!fetchDataStructures) {
             console.error('Could not fetch: fetchDataStructures is undefined');
@@ -76,13 +77,13 @@ export const MainForm = () => {
             try {
                 const data = await fetchDataStructures();
                 if (!data) {
-                    console.log('No data structures found.');
+                    console.log('Data structures could not be found');
                     return;
                 }
 
                 setFetchedDataStructuresArr(data);
             } catch (err) {
-                console.error('Error fetching data structures:', err);
+                console.error('Data structures could not be fetched. Error: ', err);
             }
         };
 
@@ -114,18 +115,15 @@ export const MainForm = () => {
 
         const newData = getValues();
 
-        // const getModelIri = () => {
-        //     const urlParams = new URLSearchParams(window.location.search);
-        //     return urlParams.get('model-iri');
-        // };
-
         const modelIri = getModelIri();
 
         try {
 
+            /* generate OpenApi specification */
             const newOpenAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
             setOpenAPISpec(newOpenAPISpec);
 
+            /* save configuration provided by the user on the backend */
             const response = await fetch(`${backendUrl}/resources/blob?iri=${encodeURIComponent(modelIri)}`,
                 {
                     method: 'PUT',
@@ -220,16 +218,15 @@ export const MainForm = () => {
                 <form className="flex flex-col gap-4 p-4" onSubmit={(e) => {
                     handleSubmit(onSubmit)(e);
                 }}>
-                    {/* Form Info */}
-
+                    {/* Form Info - metadata */}
                     <FormSection>
-                        <LabeledInput label="API Title" id="apiTitle" register={register} required />
+                        <LabeledInput label="API Title" id="apiTitle" register={register} required placeholder='Please provide API title with no spaces' />
                         {errors.apiTitle && <p className='text-red-500 text-sm'>{errors.apiTitle?.message}</p>}
-                        <LabeledInput label="API Description" id="apiDescription" register={register} required />
+                        <LabeledInput label="API Description" id="apiDescription" register={register} required placeholder='Please write API description here' />
                         {errors.apiDescription && <p className='text-red-500 text-sm'>{errors.apiDescription?.message}</p>}
-                        <LabeledInput label="API Version" id="apiVersion" register={register} required />
+                        <LabeledInput label="API Version" id="apiVersion" register={register} required placeholder='Please write your API version here. Example: 1.0' />
                         {errors.apiVersion && <p className='text-red-500 text-sm'>{errors.apiVersion?.message}</p>}
-                        <LabeledInput label="Base URL" id="baseUrl" register={register} required />
+                        <LabeledInput label="Base URL" id="baseUrl" register={register} required placeholder='Please write your base URL here. Example: https://test.com' />
                         {errors.baseUrl && <p className='text-red-500 text-sm'>{errors.baseUrl?.message}</p>}
                     </FormSection>
 
@@ -249,7 +246,6 @@ export const MainForm = () => {
 
                                             onChange={(selectedDataStructure) => {
 
-                                                //console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                                 register(`dataStructures.${index}.name`).onChange({
                                                     target: {
                                                         value: selectedDataStructure.name,
@@ -272,8 +268,6 @@ export const MainForm = () => {
                                         Delete
                                     </Button>
                                 </div>
-
-
 
                                 {/* Operations */}
                                 <FormSection>
@@ -304,6 +298,7 @@ export const MainForm = () => {
 
                                 </FormSection>
 
+                                {/* Validation errors*/}
                                 {errors.dataStructures && errors.dataStructures[index]?.operations?.root?.message && (
                                     <p className="text-red-500 text-sm">{errors.dataStructures[index].operations.root.message}</p>
                                 )}
