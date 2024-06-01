@@ -541,10 +541,6 @@ versions below:
 15. **uuid: \^9.0.1**
 16. **zod: \^3.23.4**
 
-Please note that the original project of Dataspecer is based on **vite**
-as well as **tailwind** library utilization. The information regarding
-these libraries can be seen in the original Dataspecer documentation.
-
 ## 4.3 Build Instructions
 
 In order to build the project, one needs to follow these steps:
