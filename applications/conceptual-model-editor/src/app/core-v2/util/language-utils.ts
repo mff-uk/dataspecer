@@ -41,14 +41,13 @@ export const getStringFromLanguageStringInLang = (
         if (possibleResult) {
             return [possibleResult, nextLang] as const;
         }
-        nextLanguages.push(...nextLanguageInHierarchy(nextLang));
     }
 
     // get any lang
     const languages = getAvailableLanguagesForLanguageString(languageString);
     const anyLanguage = languages.at(0);
     if (anyLanguage) {
-        const res = languageString.anyLanguage!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        const res = languageString[anyLanguage]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
         return [res, anyLanguage] as const;
     }
 
@@ -86,13 +85,13 @@ export const getLocalizedStringFromLanguageString = (ls: LanguageString | null, 
 const nextLanguageInHierarchy = (lang: string) => {
     switch (lang) {
         case "en":
-            return ["cs", "es"];
+            return ["cs", "de", "es", "ja"];
         case "cs":
-            return ["sk", "de"];
+            return ["sk", "en", "de", "es"];
         case "es":
-            return ["de"];
+            return ["en", "de", "cs", "sk", "ja"];
         default:
-            return [];
+            return ["en", "es", "de", "cs", "sk"];
     }
 };
 
