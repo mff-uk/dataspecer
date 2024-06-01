@@ -36,10 +36,10 @@ const OpenAPIDisplay = ({ generatedOpenAPISpecification }: { generatedOpenAPISpe
     const jsonString = JSON.stringify(generatedOpenAPISpecification, null, 2);
     navigator.clipboard.writeText(jsonString).then(
       () => {
-        alert('OpenAPI Specification copied to clipboard!');
+        alert('OpenAPI Specification was copied to clipboard');
       },
       (myError) => {
-        console.error('Could not copy OpenAPI Specification - Error: ', myError);
+        console.error('Could not copy OpenAPI Specification. Error: ', myError);
       }
     );
   };

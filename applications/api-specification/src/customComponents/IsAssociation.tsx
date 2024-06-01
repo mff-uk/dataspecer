@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
 import ResponseObjectSelect from './ResponseObjectSelect';
 import { DataStructure } from '../Models/DataStructureModel';
-import { IsAssociationSwitchProps } from '../Props/IsAssociationSwitchProps';
+import { IsAssociationProps } from '../Props/IsAssociationProps';
 
 /* Associaiton - react functional component 
  * The value of this component determines whether association mode is on/off
  * If association mode is on, it means that the operation is targeted on the target data structcure.
  * Target data structure is one level below the main data structure.
  */
-const Association: React.FC<IsAssociationSwitchProps> = ({
+const IsAssociation: React.FC<IsAssociationProps> = ({
     index,
     operationIndex,
     register,
@@ -97,5 +97,5 @@ const Association: React.FC<IsAssociationSwitchProps> = ({
 
 };
 
-export default Association;
+export default IsAssociation;
 

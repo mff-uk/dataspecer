@@ -7,8 +7,8 @@ import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
 import StatusCodeSelect from './HttpStatusCode';
-import Association from '../customComponents/IsAssociationSwitch.tsx';
-import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
+import IsAssociation from './IsAssociation.tsx';
+import IsCollection from './IsCollection.tsx';
 import { DataStructure } from '@/Models/DataStructureModel.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
@@ -59,7 +59,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                 {/* Operation Details */}
                 <Card className="p-2 justify-end">
                     {/* Association Mode - whether targed data structure is a ds one level below the main ds*/}
-                    <Association
+                    <IsAssociation
                         index={index}
                         operationIndex={operationIndex}
                         register={register}

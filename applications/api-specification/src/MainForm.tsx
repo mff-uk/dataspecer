@@ -15,12 +15,14 @@ import { FormValues } from './Models/FormValuesModel';
 import { formValidationchema } from './FormValidationSchema';
 import OpenAPIDisplay from './customComponents/OpenAPIDisplay';
 
+const backendUrl = import.meta.env.VITE_BACKEND;
+
 /* Fetcher for fetching presaved data */
 const fetchSavedConfig = async (url: string) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-        throw new Error('Failed to fetch configuration');
+        throw new Error('Failed to fetch pre-saved configuration');
     }
 
     return response.json();
@@ -42,6 +44,7 @@ export const MainForm = () => {
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
     const [fetchingData, setFetchingData] = useState(false);
 
+    /* watch changes in dataStructures and update selectedDataStructures accordingly */
     useEffect(() => {
         const dataStructures = watch("dataStructures");
         setSelectedDataStructures(dataStructures)
@@ -51,7 +54,7 @@ export const MainForm = () => {
 
     const { fetchDataStructures } = retrieveDataSpecificationInfo();
 
-    /* START - GET Presaved configuration */
+    /* gets id of the model (modelIri) from current URL */
     const getModelIri = () => {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('model-iri');
@@ -59,11 +62,13 @@ export const MainForm = () => {
 
     const modelIri = getModelIri();
 
-    const { data: preSavedData, error: fetchError } = useSWR(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
+    /* retrieve pre-saved configuration and store in preSavedData */
+    const { data: preSavedData, error: fetchError } = useSWR(`${backendUrl}/resources/blob?iri=${encodeURIComponent(modelIri)}`, fetchSavedConfig);
 
+    /* fetch data structures information */
     useEffect(() => {
         if (!fetchDataStructures) {
-            console.error('fetchDataStructures is not defined or not callable');
+            console.error('Could not fetch: fetchDataStructures is undefined');
             return;
         }
 
@@ -84,9 +89,9 @@ export const MainForm = () => {
         fetchData();
     }, [fetchDataStructures]);
 
+    /* Set values according to the pre-saved data */
     useEffect(() => {
         if (preSavedData) {
-            //console.log('Fetched Data:', preSavedData);
             setValue('apiTitle', preSavedData.apiTitle);
             setValue('apiDescription', preSavedData.apiDescription);
             setValue('apiVersion', preSavedData.apiVersion);
@@ -101,15 +106,18 @@ export const MainForm = () => {
     const [openAPISpec, setOpenAPISpec] = useState<any>({});
 
 
+    /* handles form submission
+     * resulting OAS is generated and user-provided configuration is saved on the Dataspecer backend
+     */
     const onSubmit: SubmitHandler<FormValues> = async (data, event) => {
         event.preventDefault();
 
         const newData = getValues();
 
-        const getModelIri = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('model-iri');
-        };
+        // const getModelIri = () => {
+        //     const urlParams = new URLSearchParams(window.location.search);
+        //     return urlParams.get('model-iri');
+        // };
 
         const modelIri = getModelIri();
 
@@ -118,8 +126,7 @@ export const MainForm = () => {
             const newOpenAPISpec = generateOpenAPISpecification(fetchedDataStructuresArr, newData);
             setOpenAPISpec(newOpenAPISpec);
 
-
-            const response = await fetch(`https://backend.dataspecer.com/resources/blob?iri=${encodeURIComponent(modelIri)}`,
+            const response = await fetch(`${backendUrl}/resources/blob?iri=${encodeURIComponent(modelIri)}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -150,6 +157,7 @@ export const MainForm = () => {
     };
 
 
+    /* adds new operation */
     const addOperation = (index: number) => {
 
         const defaultDataStructure: DataStructure = {
@@ -187,10 +195,9 @@ export const MainForm = () => {
             return newState;
         });
 
-        console.log(...fields[index].operations)
     };
 
-    // Function to remove an operation from a data structure
+    /* removes operation */
     const removeOperation = (dataStructureIndex: number, operationIndex: number) => {
         const updatedOperations = fields[dataStructureIndex].operations.filter((_, idx) => idx !== operationIndex);
 
@@ -242,7 +249,7 @@ export const MainForm = () => {
 
                                             onChange={(selectedDataStructure) => {
 
-                                                console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
+                                                //console.log("Selected ds is: " + JSON.stringify(selectedDataStructure));
                                                 register(`dataStructures.${index}.name`).onChange({
                                                     target: {
                                                         value: selectedDataStructure.name,

@@ -25,6 +25,7 @@ const singleResourceHttpMethods: OperationType[] = [
     { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
 ];
 
+/* OperationTypeSelect - react functional component for selecting operation type */
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     index,
     operationIndex,

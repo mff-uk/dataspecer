@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Switch } from "../components/ui/switch";
 import { DataStructure } from '@/Models/DataStructureModel';
-import { IsCollectionSwitchProps } from '@/Props/IsCollectionSwitchProps';
+import { IsCollectionProps } from '@/Props/IsCollectionProps';
 
 /* IsCollection - react functional component
  * The value of this component determines whether the operation is
  * a collection manipulation or operation targeted at a single resource
  */
-const IsCollection: React.FC<IsCollectionSwitchProps> = ({
+const IsCollection: React.FC<IsCollectionProps> = ({
     index,
     operationIndex,
     register,

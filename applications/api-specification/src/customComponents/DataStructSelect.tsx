@@ -32,8 +32,6 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
                 },
             });
 
-            console.log(getValues(path))
-            console.log(selectedDataStructure)
         }
 
     };

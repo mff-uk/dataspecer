@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from '../components/ui/input';
-import { LabeledInputProps } from '../Props/LabeledInputPorps';
+import { LabeledInputProps } from '../Props/LabeledInputProps';
 
 /* LabeledInput - react functional component 
  * This component is utilized for metadata inputs 

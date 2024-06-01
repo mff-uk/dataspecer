@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Checkbox } from '../components/ui/checkbox';
 import { DataStructure, Field as DataField } from '@/Models/DataStructureModel';
-import { RequestBodyProps } from '@/Props/RequestBodyProps';
+import { RequestBodyComponentProps } from '@/Props/RequestBodyComponentProps';
 
 const handleCheckboxChange = (fieldPath, checked, setValue) => {
     setValue(fieldPath, checked);
@@ -11,7 +11,7 @@ const handleCheckboxChange = (fieldPath, checked, setValue) => {
 /* RequestBodyComponent - react functional component 
  * utilized for request body section of the operation object in the generated OAS
  */
-const RequestBodyComponent: React.FC<RequestBodyProps> = ({
+const RequestBodyComponent: React.FC<RequestBodyComponentProps> = ({
     index,
     operationIndex,
     dataStructure,
