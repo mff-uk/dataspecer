@@ -26,4 +26,4 @@ defaultMarkdownHandler = "goldmark"
 [tableOfContents]
   endLevel = 3
   ordered = false
-  startLevel = 2
+  startLevel = 1
