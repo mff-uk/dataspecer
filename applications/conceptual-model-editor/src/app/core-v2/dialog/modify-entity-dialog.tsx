@@ -221,7 +221,6 @@ export const useModifyEntityDialog = () => {
         };
 
         const handleSaveClassOrClassProfile = (m: InMemorySemanticModel) => {
-            // TODO: something broken with attribute profiles, is it still?
             const operations = [];
 
             if (isSemanticModelClass(modifiedEntity)) {

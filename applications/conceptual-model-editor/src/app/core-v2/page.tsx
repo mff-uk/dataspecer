@@ -192,7 +192,7 @@ const Page = () => {
                             );
                             setWarnings((prev) =>
                                 prev.concat({
-                                    id: getRandomName(10),
+                                    id: getRandomName(15),
                                     type: "unsupported-relationship",
                                     message: "both ends have an IRI",
                                     object: curr.aggregatedEntity,
@@ -308,7 +308,7 @@ const Page = () => {
                         <WarningsContext.Provider value={{ warnings, setWarnings }}>
                             <DialogsContextProvider>
                                 <Header />
-                                <main className="w-full flex-grow bg-teal-50">
+                                <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
                                     <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
                                         <Catalog />
                                         <Visualization />

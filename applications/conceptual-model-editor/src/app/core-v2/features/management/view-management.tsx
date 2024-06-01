@@ -38,7 +38,7 @@ export const ViewManagement = () => {
     };
 
     const handleCreateNewView = () => {
-        // FIXME: workaround for having the same color for different views
+        // FIXME: workaround for having the same color for different views, better to have model colors in a package config or sth
         const activeVisualModel = aggregatorView.getActiveVisualModel();
         const model = new VisualEntityModelImpl(undefined);
         if (activeVisualModel) {

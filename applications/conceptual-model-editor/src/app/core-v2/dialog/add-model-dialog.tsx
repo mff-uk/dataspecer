@@ -30,7 +30,7 @@ export const useAddModelDialog = () => {
         const [modelTtlFiles, setModelTtlFiles] = useState([
             "https://www.w3.org/ns/dcat.ttl",
             "https://mff-uk.github.io/demo-vocabularies/original/dublin_core_terms.ttl",
-        ]); // FIXME: sanitize
+        ]);
 
         const handleAddModels = () => {
             save(modelTtlFiles.filter((row) => row.length > 0)).catch(console.error);
