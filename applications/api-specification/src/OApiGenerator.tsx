@@ -1,7 +1,7 @@
 import { convertToOpenAPIDataType } from './DataTypeConverter.tsx';
 import { OApiOperationObj } from './Models/OApiOperationObjModel.tsx';
 import { StatusCode } from './Models/StatusCodeModel.tsx';
-import { httpStatusCodes } from './customComponents/HttpStatusCode.tsx';
+import { httpStatusCodes } from './customComponents/StatusCodeSelect.tsx';
 
 const SCHEMA_REF_PREFIX = '#/components/schemas/';
 

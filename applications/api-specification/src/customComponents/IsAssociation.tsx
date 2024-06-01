@@ -6,7 +6,7 @@ import { IsAssociationProps } from '../Props/IsAssociationProps';
 
 /* Associaiton - react functional component 
  * The value of this component determines whether association mode is on/off
- * If association mode is on, it means that the operation is targeted on the target data structcure.
+ * If association mode is on, it means that the operation refers to the target data structcure.
  * Target data structure is one level below the main data structure.
  */
 const IsAssociation: React.FC<IsAssociationProps> = ({

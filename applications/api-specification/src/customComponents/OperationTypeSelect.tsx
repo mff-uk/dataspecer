@@ -64,10 +64,10 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     const copyStrToClipboard = (str) => {
         navigator.clipboard.writeText(str).then(
             () => {
-                alert('Suggested path copied to clipboard');
+                alert('Suggested path was copied to clipboard');
             },
             (err) => {
-                console.error('Could not copy suggested path - Error: ', err);
+                console.error('Suggested path could not be copied. Error: ', err);
             }
         );
     };

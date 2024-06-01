@@ -33,7 +33,7 @@ const StatusCodeSelect: React.FC<StatusCodeSelectProps> = ({ index, operationInd
                 <option value="">
                     Please select Operation Type
                 </option>
-                {/* Render options in the component - GET, POST, PUT, PATCH, DELETE */}
+                {/* Rendering options in the component - GET, POST, PUT, PATCH, DELETE */}
                 {httpStatusCodes.map(httpMethod => (
                     <option key={httpMethod.value} value={httpMethod.value}>
                         {httpMethod.label}

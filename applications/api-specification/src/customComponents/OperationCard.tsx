@@ -6,14 +6,14 @@ import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
-import StatusCodeSelect from './HttpStatusCode';
+import StatusCodeSelect from './StatusCodeSelect.tsx';
 import IsAssociation from './IsAssociation.tsx';
 import IsCollection from './IsCollection.tsx';
 import { DataStructure } from '@/Models/DataStructureModel.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
 /* OperationCard - react functional component 
- * The values provided through this component ara utilized for
+ * The values provided through this component are utilized for
  * paths and their respective operation construct generation in the resulting OpenAPI specification
  */
 const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
