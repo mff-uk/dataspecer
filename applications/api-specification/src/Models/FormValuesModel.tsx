@@ -1,6 +1,6 @@
 import { Operation } from "./OperationModel";
 
-/* This model represent form values */
+/* This model represents form values */
 export type FormValues = {
     apiTitle: string;
     apiDescription: string;

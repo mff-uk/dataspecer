@@ -5,7 +5,7 @@ export interface OApiOperationObj {
     parameters: any[];
     requestBody?: any;
     responses: {
-        [x: number]:
+        [httpStatusCode: number]:
         {
             description: string;
             content?:

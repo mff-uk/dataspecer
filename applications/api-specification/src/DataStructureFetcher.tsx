@@ -32,7 +32,7 @@ export function retrieveDataSpecificationInfo() {
     const { data, error } = useSWR(url, fetcher);
 
     if (error) {
-        console.error("Info about Data Specification could not be fetched:", error);
+        console.error("Info about data specification could not be fetched:", error);
         return null;
     }
 

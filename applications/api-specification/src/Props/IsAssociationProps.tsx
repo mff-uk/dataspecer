@@ -1,7 +1,7 @@
 import { DataStructure } from '../Models/DataStructureModel';
 import { BaseProps } from './BaseProps';
 
-/* Props passed to the IsAssociationSwitch Component */
+/* Props passed to the IsAssociation component */
 export interface IsAssociationProps extends BaseProps {
     setValue: (path: string, value: any) => void;
     getValues: any;

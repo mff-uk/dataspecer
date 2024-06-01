@@ -1,7 +1,7 @@
 import { DataStructure } from '@/Models/DataStructureModel';
 import { BaseProps } from './BaseProps';
 
-/* Props passed to the IsCollectionSwitch component */
+/* Props passed to the IsCollection component */
 export interface IsCollectionProps extends BaseProps {
     setValue: (path: string, value: any) => void;
     getValues: any;

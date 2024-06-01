@@ -87,7 +87,7 @@ function createProperties(openAPISpec, fields) {
         /* If the type of the field is not a primitive data type
          * the type of the field is stored in classType*/
 
-        /* If not primivitve data type - create reference schema and a reference to the schema*/
+        /* If not primivitve type - create reference schema and a reference to the schema*/
         if (field.classType) {
             const schemaName = formatName(field.classType);
             createComponentSchema(openAPISpec, field.nestedFields);
@@ -106,7 +106,7 @@ function createProperties(openAPISpec, fields) {
         }
     });
 
-    /* Append id of type integer as identifier if not present */
+    /* Append id of type string as identifier if not present */
     if (!properties.id) {
         properties.id = { type: 'string' };
     }
@@ -171,7 +171,6 @@ function extractPathParameters(endpoint) {
     const parameters = [];
     const paramRegex = /{([^}]+)}/g;
     let match;
-
 
     /* 
      * Iterate over each match in the path (endpoint) and check if there is a duplicate 
@@ -272,7 +271,7 @@ function createResponses(openAPISpec, dataStructures, ds, operation) {
 
         /*
          * if corresponding schema exists - add reference to it 
-         * else - update schema 
+         * else - update schema
          */
         if (correspondingSchema) {
             console.log("This is corresponding schema")
@@ -326,14 +325,14 @@ function createRequestBody(dataStructures, ds, operation) {
 
     const requestBodyProperties = {};
 
-    function findFieldInNestedFields(nestedFields, key) {
+    function findFieldInNestedFields(nestedFields, myKey) {
 
         for (const field of nestedFields) {
-            if (field.name === key) {
+            if (field.name === myKey) {
                 return field;
             }
             if (field.nestedFields) {
-                const nestedField = findFieldInNestedFields(field.nestedFields.fields, key);
+                const nestedField = findFieldInNestedFields(field.nestedFields.fields, myKey);
                 if (nestedField) {
                     return nestedField;
                 }
@@ -363,9 +362,6 @@ function createRequestBody(dataStructures, ds, operation) {
              */
             if (field) {
                 if (field.classType) {
-                    const referencedDataStructure = dataStructures.find(ds => {
-                        return ds.name === field.name;
-                    });
 
                     requestBodyProperties[key] = {
                         $ref: `${SCHEMA_REF_PREFIX}${formatName(field.classType)}`,

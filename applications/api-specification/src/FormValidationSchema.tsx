@@ -11,7 +11,7 @@ export const formValidationchema = z.object({
             name: z.string().min(1),
             operations: z.array(
                 z.object({
-                    name: z.string(),
+                    name: z.string().optional(),
                     isCollection: z.boolean(),
                     oAssociatonMode: z.boolean(),
                     oType: z.string(),

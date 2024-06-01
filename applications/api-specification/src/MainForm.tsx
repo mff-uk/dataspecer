@@ -17,7 +17,7 @@ import OpenAPIDisplay from './customComponents/OpenAPIDisplay';
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
-/* Fetcher for fetching presaved data */
+/* Fetcher for fetching presaved data (configuration provided by the user) */
 const fetchSavedConfig = async (url: string) => {
     const response = await fetch(url);
 
@@ -141,13 +141,13 @@ export const MainForm = () => {
         }
         catch (error) {
             if (error instanceof z.ZodError) {
-                console.error('Form validation failed:', error.errors);
+                console.error('Validation of the form failed because: ', error.errors);
                 error.errors.forEach(({ path, message }) => {
                     const field = path[0] as keyof FormValues;
                     formState.errors[field] = { message } as any;
                 });
             } else {
-                console.error('Form validation failed:', error.message);
+                console.error('Validation of the form failed because:', error.message);
             }
         }
 
