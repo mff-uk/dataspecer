@@ -386,7 +386,7 @@ in the Swagger Editor. In this case the user is able to have a better
 understanding of the generated OAS since Swagger Editor also provides
 graphical representation of the output.
 
-## OpenAPI specification as output of the project
+## 3.3 OpenAPI specification as output of the project
 
 Now that the input of the program is already considered, output may be
 discussed. As said, once the user clicks "Generate OpenAPI
@@ -467,7 +467,7 @@ emails (a collection of strings), url (string), phone numbers
 collection of objects with type workplace. The schema of workplace is
 also present in the components section and follows the same manner.
 
-# Technical Overview
+# 4 Technical Overview
 
 ## 4.1 Organization
 
@@ -504,7 +504,7 @@ DataTypeConverter.tsx, FormValidationSchema.tsx, OApiGenerator.tsx and
 MainForm.tsx.** The interesting points of each of these files are
 discussed later in this chapter -- in 4.4 Key Technical Decisions.
 
-## Important Dependencies
+## 4.2 Important Dependencies
 
 This section is dedicated to inform the reader regarding important
 dependencies of the project.
@@ -545,7 +545,7 @@ Please note that the original project of Dataspecer is based on **vite**
 as well as **tailwind** library utilization. The information regarding
 these libraries can be seen in the original Dataspecer documentation.
 
-## Build Instructions
+## 4.3 Build Instructions
 
 In order to build the project, one needs to follow these steps:
 
