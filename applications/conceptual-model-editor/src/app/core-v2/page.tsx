@@ -308,8 +308,8 @@ const Page = () => {
                         <WarningsContext.Provider value={{ warnings, setWarnings }}>
                             <DialogsContextProvider>
                                 <Header />
-                                <main className="h-[calc(100%-48px)] w-full bg-teal-50">
-                                    <div className="my-0 grid h-full grid-cols-[25%_75%] grid-rows-1">
+                                <main className="w-full flex-grow bg-teal-50">
+                                    <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
                                         <Catalog />
                                         <Visualization />
                                     </div>

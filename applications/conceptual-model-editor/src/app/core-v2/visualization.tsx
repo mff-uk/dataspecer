@@ -474,7 +474,7 @@ export const Visualization = () => {
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
 
-            <div className="h-full w-full">
+            <div className="h-[80vh] w-full md:h-full">
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

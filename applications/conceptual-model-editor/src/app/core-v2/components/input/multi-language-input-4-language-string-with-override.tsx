@@ -17,7 +17,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     const { forElement, ls, setLs, disabled, inputType, defaultLang, onChange, style, withOverride } = props;
 
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-col md:flex-row">
             <div className={`flex-grow ${style ?? ""}`}>
                 <MultiLanguageInputForLanguageString
                     ls={ls}
@@ -29,7 +29,7 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
                 />
             </div>
             {withOverride && (
-                <div className="my-auto ml-2">
+                <div className="mt-2 md:my-auto md:ml-2 md:mt-0">
                     <OverrideFieldCheckbox
                         forElement={forElement}
                         onChecked={withOverride.callback}

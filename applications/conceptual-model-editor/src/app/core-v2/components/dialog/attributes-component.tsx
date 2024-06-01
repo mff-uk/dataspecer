@@ -64,7 +64,7 @@ export const AddAttributesComponent = (props: {
     return (
         <div>
             <span className="text-xs italic">It is possible to add only one attribute rn.</span>
-            <div className="grid grid-cols-[25%_75%] gap-y-3 bg-slate-100 pl-8 pr-16">
+            <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
                 <DialogDetailRow2 detailKey="name">
                     <MultiLanguageInputForLanguageString
                         inputType="text"

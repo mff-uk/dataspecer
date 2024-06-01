@@ -12,6 +12,7 @@ import { sourceModelOfEntity } from "../util/model-utils";
 
 export const ResourceDetailClickThrough = (props: {
     resource: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+    detailDialogLanguage?: string;
     onClick: () => void;
     withCardinality?: string;
     withIri?: boolean;
@@ -20,8 +21,8 @@ export const ResourceDetailClickThrough = (props: {
     const { sourceModelOfEntityMap } = useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
 
-    const { resource, onClick, withCardinality, withIri } = props;
-    const name = EntityProxy(resource, language).name;
+    const { resource, onClick, withCardinality, withIri, detailDialogLanguage } = props;
+    const name = EntityProxy(resource, detailDialogLanguage ?? language).name;
     const modelColor = aggregatorView.getActiveVisualModel()?.getColor(sourceModelOfEntityMap.get(resource.id) ?? "");
     const iri = withIri ? getIri(resource, getModelIri(sourceModelOfEntity(resource.id, [...models.values()]))) : null;
 

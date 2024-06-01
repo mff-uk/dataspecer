@@ -21,9 +21,9 @@ export const SelectDatatype = (props: {
     const { valueSelected, onOptionSelected, onChange, disabled, withOverride } = props;
 
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-col md:flex-row">
             <select
-                className="flex-grow"
+                className="w-full flex-grow"
                 disabled={disabled}
                 onChange={(e) => {
                     const value = e.target.value;
@@ -41,7 +41,7 @@ export const SelectDatatype = (props: {
                 ))}
             </select>
             {withOverride && (
-                <div className="my-auto ml-2">
+                <div className="md:my-auto md:ml-2">
                     <OverrideFieldCheckbox
                         forElement="select-datatype-component"
                         disabled={!disabled}
