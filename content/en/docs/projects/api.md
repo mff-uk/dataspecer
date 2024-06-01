@@ -15,10 +15,10 @@ Management" was developed within the scope of class Research Project
 purpose of providing a comprehensive overview and analysis of the
 project. To be more precise, the report begins with the motivation for
 the project. Next the report provides user stories to comprehend the
-essence of the end-user requirements. Next it proceeds by describing and
-showcasing how the program works. Lastly, the report will take a closer
-look in the code and will provide information regarding the system
-design and key decisions.
+essence of the end-user requirements. Conversely, it proceeds by
+describing and showcasing how the program works. Lastly, the report
+takes a closer look in the code and provides information regarding the
+system design and key technical decisions.
 
 # Motivation
 
@@ -45,22 +45,22 @@ format) and their maintenance. By developing the feature of creating API
 specifications and maintaining them, the expanded version of Dataspecer
 can significantly streamline the development process, ensuring that APIs
 remain up-to-date and are fully functional as data structures and
-requirements evolve. This expansion would not only enhance the tool\'s
-utility but also align it with the current demands of the tech industry,
-where efficient API management is essential for the development of
-various systems.
+requirements evolve. This expansion not only enhances the tool\'s
+utility but also aligns it with the current demands of the tech
+industry, where efficient API management is essential for the
+development of various systems.
 
 # 1 Exploring User Perspectives through User stories
 
 In any research project it is paramount to understand the needs and
-aspirations of the end-users. The aim of this chapter is to provide the
-essence of the user requirements providing following user stories:
+aspirations of the end-users. The aim of this chapter is to capture the
+essence of the user requirements by providing following user stories:
 
-1.  I as an API designer who already works with the Dataspecer tool I
-    want to generate API specification based on the artifacts (data
+1.  I as an API designer who already works with the Dataspecer tool want
+    to generate API specification based on the artifacts (data
     structures) designed in Dataspecer, so that I am able to utilize the
-    same tool not only for data modeling but also creating respective
-    API specifications.
+    same tool not only for data modeling but also for creating
+    respective API specifications.
 
 2.  I as an API designer want to generate API specifications in OpenAPI
     format so that my APIs are compliant with the industry formats.
@@ -76,8 +76,9 @@ essence of the user requirements providing following user stories:
     (endpoints) so that my design process is simpler.
 
 6.  I as an API designer want to design operations not only for the data
-    structures on the main level but also one level below them so that I
-    can ensure granular control and organization of API endpoints.
+    structures on the main level, but also for the data structures that
+    are one level below, so that I can ensure granular control and
+    organization of API endpoints.
 
 7.  I as an API designer want to choose if I am manipulating a
     collection or creating an operation just for a single resource so
@@ -112,9 +113,9 @@ the tool. More precisely, the tool has access to various conceptual
 models and the user is able to design specific data structures based on
 those conceptual models within the data specification. Because of this
 standout feature, it was decided to utilize a resource-oriented approach
-whilst developing the project. Based the analysis, Dataspecer is highly
-compatible with the concepts of RESTful APIs. To be more precise, when
-it comes to REST APIs, fundamental concept is resource \[2\]. More
+whilst developing the project. Based on the analysis, Dataspecer is
+highly compatible with the concepts of RESTful APIs. To be more precise,
+when it comes to REST APIs, fundamental concept is resource \[2\]. More
 precisely, a resource represents an object that has a type, associated
 data, relationships to other resources as well as a collection of
 operations performing different manipulations on it \[2\]. On one hand
@@ -125,7 +126,7 @@ to mapping the concept of resources from RESTful APIs to the data
 structures designed via Dataspecer it was crucial to obtain information
 about the aforementioned operations. In the context of this project,
 this means that in order to be able to generate API specifications
-corresponding to the data specifications the information regarding the
+corresponding to the data specifications, the information regarding the
 methods operating on data structures (within the data specification)
 need to be obtained. Because of this, desired information is specified
 by the user in the new extension and is utilized for project purposes --
@@ -134,23 +135,25 @@ specifications and their maintenance.
 
 Data Structures designed in Dataspecer may have multiple levels.
 However, in the context of API generation it is logical to create
-operations for main data structure and one level below it. Going beyond
-this level of nesting would make the form overly complex and difficult
-for users to comprehend the core functionality of the operations.
-Moreover, operations beyond the second level are considered often
-redundant since they tend to be too granular which means that they
-complicate the interface without providing significant additional value.
-Because of this, one of the key conceptual designs made within the scope
-of this project was to limit the operations to the first two levels
-which ensures clarity as well as usability of the program.
+operations for main data structure and data structures which are one
+level below it. Going beyond this level of nesting would make the form
+overly complex and difficult for users to comprehend the core
+functionality of the operations. Moreover, operations beyond the second
+level are considered often redundant since they tend to be too granular.
+This means that they would acomplicate the interface without providing
+significant additional value. Because of this, one of the key conceptual
+designs made within the scope of this project was to limit the
+operations to the first two levels which ensures clarity as well as
+usability of the program.
 
-As mentioned above a resource-oriented approach was employed for project
-development. OpenAPI standard was chosen as the format of developed API
-specifications since OpenAPI standard (OAS) defines a standard
-representing a language-agnostic interface to RESTful APIs \[3\]. OAS
-enables both humans as well as machines to explore and understand the
-functionalities of the service even in the absence of source code,
-documentation, or the need for network traffic examination \[3\].
+As mentioned above, a resource-oriented approach was employed for
+project development. OpenAPI standard was chosen as the format of
+developed API specifications since OpenAPI standard (OAS) defines a
+standard representing a language-agnostic interface to RESTful APIs
+\[3\]. OAS enables both humans as well as machines to explore and
+understand the functionalities of the service even in the absence of
+source code, documentation, or the need for network traffic examination
+\[3\].
 
 In order to provide further clarification regarding key conceptual
 decisions, it is essential to consider why AsyncAPI was not chosen as a
@@ -187,9 +190,10 @@ developed program may be discussed. As mentioned, the program generates
 API specification in OAS based on data specification created via
 Dataspecer. Because of this, the quality of the generated OpenAPI
 specification highly depends on the quality of the data specification
-which is taken as input by the program. This section will demonstrate
-the working process of the extension based on an example data
-specification called "Sample Data Specification". This data
+which is taken as input by the program. Please note that the program
+assumes **unique names of the data structures**. This section will
+demonstrate the working process of the extension based on an example
+data specification called "Sample Data Specification". This data
 specification consists of two data structures. These data structures
 are: Tourist Destination and Member. Please refer to Pic 3.1 and Pic 3.2
 in order to view the representation of aforementioned data structures.
@@ -235,12 +239,12 @@ the newly created OpenAPI specification package/model.
 {{% tutorial-image "images/projects/api/image6.png" %}}
 *Pic 3.1.3 -- Step 3: newly created OpenAPI specification package/model*
 
-## 3.2 Creation and Management on APIs -- Working Mechanisms
+## 3.2 Creation and Management of APIs -- Working Mechanisms
 
 Now that the navigation to the extension as well as its initial input is
 already considered, the actual program may be discussed. Once the user
-navigates to the extension, he/she is presented with an empty form
-initially. The user has to fill in following information: API title,
+navigates to the extension, initially he/she is presented with an empty
+form. The user has to fill in following information: API title,
 description, version and base URL. Next section of the form is dedicated
 to the data structures and operations/methods operating on them. In
 order to fill in the information about the data structures the user has
@@ -257,7 +261,7 @@ structure by clicking add operations button. Once this button is clicked
 a new section appears where the user has to provide information about
 the operation. The section has two switches. The first switch labeled
 "Association Mode" decides if the operation is for the main data
-structure chosen at the beginning or one level below it. A concrete
+structure (chosen at the beginning) or one level below it. A concrete
 example will be shown later in this section. The second switch labeled
 "Manipulate a collection" decides if the operation performs a collection
 of resources or a single resource manipulation. Furthermore, the user
@@ -278,27 +282,27 @@ code to it. To sum up, following operation information is needed:
 -   Comment about the operation
 -   Response code for the operation
 
-Once this information is filled in, the user able to either add another
-operation and continue in the same manner or click "Generate OpenAPI
-Specification" and view the output on the right side of the page. Please
-note that once this button is clicked the configuration (filled in
-information) is saved on the Dataspecer backend and the user is able to
-go back to the current progress and continue from that point.
+Once this information is filled in, the user is able to either add
+another operation and continue in the same manner or click "Generate
+OpenAPI Specification" and view the output on the right side of the
+page. Please note that once this button is clicked the configuration
+(filled in information) is saved on the Dataspecer backend and the user
+is able to go back to the current progress and continue from that point.
 
 Let's consider an example of generating API specification for Tourist
-destinations. According to the data specification provided in the
-beginning of this chapter Tourist destination has following associations
-and attributes:
+destinations. According to the data specification, provided in the
+beginning of this chapter, Tourist destination has following
+associations and attributes:
 
 -   **Capacity** of type integer
 -   **Owner** of type human or person
 -   **Contact** of type contact
 
-If these properties are not of primitive data types (eg. Integer,
-string, etc.), they may be considered as data structures as well. In
-this case, Owner and Contact are considered as data structures however,
-the schema of owner is not defined whereas contact has following
-attributes and associations:
+If these properties are not of primitive types (are attributes), they
+may be considered as data structures as well. In this case, Owner and
+Contact are considered as data structures however, the schema of owner
+is not defined whereas contact has following attributes and
+associations:
 
 -   **Email** of type string
 -   **URL** of type string
@@ -326,13 +330,13 @@ showcase the functionality of the program. These operations are:
 
 As one can see, Pic 3.2.2 represents the operation for creating tourist
 destinations. Since tourist destination is the main data structure and
-this operation is intended for it the association switch is off.
+this operation is intended for it, the association switch is off.
 However, since the operation represents collection manipulation -- in
 particular adding a resource (in this case tourist destination) to a
 collection (collection of tourist destinations) the collection switch
 ("Manipulate a collection") is on. Next the operation name is provided
 and operation type is chosen. Please note that, if manipulate a
-collection is marked on the user gets two options in the operation type
+collection is marked on, the user gets two options in the operation type
 select. These options are GET and POST. In this context, GET means
 retrieving collection of resources while post represents create a
 resource and adding it to a collection. If the user has collection
@@ -387,7 +391,7 @@ graphical representation of the output.
 Now that the input of the program is already considered, output may be
 discussed. As said, once the user clicks "Generate OpenAPI
 Specification" button corresponding OAS is presented to the user.
-Generated OAS consists of following sections:
+Generated OAS consists of following sections/constructs:
 
 -   **openapi** -- specifies the version of OpenAPI (3.0.0)
 -   **info** -- specifies information regarding OAS, in particular: API
@@ -398,6 +402,8 @@ Generated OAS consists of following sections:
 -   **components** -- represent containers for various reusable
     definitions. In the context of this projects data structure schemas
     are stored in the components section.
+-   **security** -- represents the authentication methods utilized in
+    the API (set to basic auth).    
 
 Now that the structure of the output is already considered, let's have a
 look at the generated OAS based on the example considered earlier (in
@@ -410,8 +416,8 @@ Pic 3.3.1 demonstrates how the user input is reflected in the output. As
 one can see, form inputs -- API title, description as well as version
 are utilized to populate the info section of generated OAS whereas base
 URL provided by the user is utilized in the server's section. As for the
-paths and operations, form input data related to the operations is
-utilized for populating paths and their respective operations.
+paths and operations, form input data related to the operations is used
+for populating paths and their respective operations.
 
 Conversely Pic 3.3.2 represents s a more interesting example. It
 exemplifies how GET collection operation is represented in the OAS
@@ -419,25 +425,25 @@ output. Please note that aside from the trivial output, as seen in the
 first example, the program is also able to generate query parameters
 where necessary. This means that when it comes to collection retrieval,
 the user is able to query the result based on the fields of chosen data
-structure. Moreover, since in this case the goal is to retrieve a
-specific collection (not a single resource) the program specifies in the
-responses that an array has to be returned. Please refer to 3.3.2 below
-in order to view the screenshot of the resulting display.
+structure. Because in this case the goal is retrieving a collection (not
+a single resource), the program specifies in the responses that an array
+has to be returned. Please refer to 3.3.2 below in order to view the
+screenshot of the resulting display.
 
 {{% tutorial-image "images/projects/api/image12.png" %}}
 *Pic 3.3.2 -- Output OAS: path with GET operation*
 
-Third operation with related to contact data structure (which is one
-level below the main data structure) behaves in the same manner as the
+Third operation is related to contact data structure (which is one level
+below the main data structure). It behaves in the same manner as the
 first example. The program is able to detect the nesting and instead of
 referencing main data structure schema, it references schema of
 contact.
 
 With all other sections thoroughly examined, the final topic to address
 is the components section. Components section does not require any
-direct user input from the Dataspecer extension. It solely relies on the
-data specification and respective data structures. The program provides
-a schema in OAS format considering if attribute/association is mandatory
+direct user input from the Dataspecer extension. It relies on the data
+specification and respective data structures. The program provides a
+schema in OAS format considering if attribute/association is mandatory
 or optional as well as whether it represents an array (collection) or a
 singleton object. If data structure was not designed before OAS
 generation, the program also appends a description, notifying the user
@@ -459,7 +465,7 @@ according to the schema of contact, an object of type contacts has
 emails (a collection of strings), url (string), phone numbers
 (collection of numbers) as well as has_contact which also represents a
 collection of objects with type workplace. The schema of workplace is
-also present in the components section and follows in the same manner.
+also present in the components section and follows the same manner.
 
 # Technical Overview
 
@@ -474,7 +480,7 @@ arrangement within its source code, predominantly housed within the
 directories -- each serving a particular purpose and fostering clarity
 and maintainability.
 
-As said **src** directory encapsulates primary codebase comprising
+As said, **src** directory encapsulates primary codebase including
 several pivotal directories. These directories are:
 
 -   **components** - This directory serves as a repository for imported
@@ -483,11 +489,11 @@ several pivotal directories. These directories are:
     cohesive user interface design.
 -   **customComponents** -- This directory serves as a repository for
     bespoke (custom) components. The goal of these components is to
-    address the distinct demands of the project. By utilizing both
+    address the distinct demands of the project. By utilizing both --
     pre-imported components from the **components** directory and
     handcrafted HTML elements, these components are equipped with
     specialized features essential for seamless form operations.
--   **Models --** The Models directory retains TypeScript interfaces or
+-   **Models** -- The Models directory retains TypeScript interfaces and
     types utilized extensively across the source code.
 -   **Props** -- Here reside TypeScript type definitions that outline
     the properties passed to custom components.
@@ -496,13 +502,13 @@ Furthermore, there are several notable files located at the root of
 **src** directory. These files are: **DataStructureFetcher.tsx,
 DataTypeConverter.tsx, FormValidationSchema.tsx, OApiGenerator.tsx and
 MainForm.tsx.** The interesting points of each of these files are
-discussed later in this chapter -- in 3.3 Key Technical Decisions.
+discussed later in this chapter -- in 4.4 Key Technical Decisions.
 
 ## Important Dependencies
 
 This section is dedicated to inform the reader regarding important
 dependencies of the project.
-Tha most important package installed in the project is **react hook
+The most important package installed in the project is **react hook
 forms**. This library streamlines form development by simplifying form
 management and validation process. Another important package installed
 in the project is **react hook form validation resolver
@@ -539,55 +545,68 @@ Please note that the original project of Dataspecer is based on **vite**
 as well as **tailwind** library utilization. The information regarding
 these libraries can be seen in the original Dataspecer documentation.
 
-Another important aspect is that the developer accessing this code in
-the future wantig to run it on the local environment, will need to set
-up the local environment by creating the file .env.local. Moreover
-he/she needs to introduce local environment variable called VITE_BACKEND
-and set it to the backend url.
+## Build Instructions
 
-## Key Technical Decisions
+In order to build the project, one needs to follow these steps:
+
+1.  At first, clone the whole mono repository via **git clone ...**
+2.  Please set up a local environment by creating following file:
+    **.env.local**. A local environment variable called **VITE_BACKEND**
+    needs to be defined within this file. The variable needs to be set
+    to the backend URL (e.g. <https://backend.dataspecer.com>).
+3.  To install all packages, please run **npm install** from the root of
+    the repository.
+4.  For building the dependencies of this application **npm run build**
+    needs to be run.
+
+Please note that it is possible to run live server with the command
+**npm run dev** from this directory. However, before running the live
+server, all of the necessary dependencies need to be already built.
+
+## 4.4 Key Technical Decisions
 
 Having discussed organization as well as important dependencies, it is
 time to consider key technical decisions. As mentioned earlier, there
 are several files located in the src directory that represent the key
 files on which the project is based. Before moving on to them, the model
 of the data structure utilized across the codebase has to be presented.
-Please refer to Pic 3.3.1 in order to view the screenshot of the
+Please refer to Pic 4.4.1 in order to view the screenshot of the
 corresponding representation.
 
 {{% tutorial-image "images/projects/api/image14.png" %}}
-*Pic 3.3.1 -- Representation of Model Data Structure*
+*Pic 4.4.1 -- Representation of Model Data Structure*
 
 Now that the general structure of data structure is already showcased, a
 particular example of Tourist destination may be considered. Please
-refer to Pic 3.3.2 in order to view particular example of Tourist
+refer to Pic 4.4.2 in order to view particular example of Tourist
 destination.
 
 {{% tutorial-image "images/projects/api/image15.png" %}}
-*Pic 3.3.2 -- Tourist Destination as Data Structure*
+*Pic 4.4.2 -- Tourist Destination as Data Structure*
 
 As seen on the example, Tourist destination represents the main data
 structure and its attributes and associations are represented by the
-fields. In case the field is of primitive data type its type is
-specifically written in Field.type. Field "capacity" exemplifies this
-approach, since it has type integer which is directly specified in the
-type field. However, if the case is not primitive data type, Field.type
-contains "Object" which and Field.classtype is populated with
-corresponding type and the whole representation of this data structure
-is considered by populating Field.nestedFields. Please refer to the
-orange arrows on the screenshot. According to this example, contact is a
-field of type not primitive data type. Because of this contact's type is
-specified as "Object" and it's classType is specified as "contact" (as
-specified originally when creating this data structure in Dataspecer
-tool). Moreover, contact has several fields: email, url, phone number
-and has contact -- all of which are located in the nestedFields
-property.
+fields. In case the field is of primitive type (is an attribute), its
+type is specifically written in Field.type. Field "capacity" exemplifies
+this approach, since it has type integer and represents an attribute. In
+this case type is specified in the type field directly. However, in the
+case of having an association thus not of primitive type, Field.type
+contains "Object" and Field.classtype is populated with corresponding
+type. Conversely, the entire representation of this multi-level data
+structure is considered by populating Field.nestedFields. Please refer
+to the orange arrows on the screenshot. According to this example,
+contact represents an association and is a field of type not primitive
+data type. Because of this, contact's type is specified as "Object" and
+it's classType is specified as "contact" (as specified originally when
+creating this data structure in Dataspecer tool). Moreover, contact has
+several fields: email, url, phone number and has contact -- all of which
+are located in the nestedFields property.
 
 As the first point the program fetches data about data specification, in
 particular about its data structures from the Dataspecer backend and
-stores in a collection consisting of objects conforming the structure
+stores in a collection consisting of objects conforming to the structure
 described above. The logic performing this task is located in
-**DataStructureFetcher.tsx**. The url of the current window contains the
+**DataStructureFetcher.tsx**. The URL of the current window contains the
 identifier of the target data specification. Based on this id the
 program fetches information regarding data structures which are
 contained by the target data specification. More precisely, the iris
@@ -596,18 +615,18 @@ obtained, particular data about each data structure is fetched. Having
 obtained whole data, the information is stored in an array which in turn
 is then processed to get the data structures in the format which was
 described above. Each data structure is divided into operations and
-resources. The interest of the program is resources object. It contains
-following information: data structure name as well as information
-regarding attributes and associations. The information about
-associations is processed recursively because of the possible multiple
-levels of data structure. The output of this process is list of data
-structures in the aforementioned format.
+resources (on the Dataspecer backend). The interest of the program is
+resources object. It contains following information: data structure name
+as well as information regarding attributes and associations. The
+information about associations is processed recursively because of the
+possible multiple levels of data structure. The output of this process
+is list of data structures in the aforementioned format.
 
 Now that the fetching process is already considered, OAS generation may
 be discussed. The logic regarding the OpenAPI specification generation
 is located in **OApiGenerator.tsx**. Main method responsible for OAS
-generation is called generateOpenAPISpecification which in turn calls
-its helper functions. The method takes two parameters as inputs --
+generation is called **generateOpenAPISpecification** which in turn
+calls its helper functions. The method takes two parameters as inputs --
 datastructures and userInput. Parameter datastructures contains
 information which was fetched from Dataspecer backend about target data
 specification. This means that this parameter represents a collection of
@@ -617,23 +636,23 @@ which was provided by the user via the user interface. More precisely,
 userInput parameter contains information regarding API title,
 description, base URL as well as operations defined for particular data
 structure. The consolidation of this information makes it possible to
-generate corresponding OpenAPI specifications.
+generate corresponding OpenAPI specification.
 
 The generator iterates over the collection of fetched data structures
 and creates corresponding components schemas. The method responsible for
 creating component schemas (createComponentSchema) calls method
 dedicated for creation of properties (createProperties).
-CreateProperties method checks if the field is of primitive data type or
-not. If not then it calls createComponentSchema on the field and
-therefore creates component schema for the nested data structures too.
-It is important to note that the program also formats the names of the
-data structures since OpenAPI format only accepts certain characters.
-Any character which is not accepted by the OpenAPI standard is turned
-into an underscore. What's more the program takes the detected
-properties (fields) into consideration and if data structure does not
-have any, the program appends following description: "TODO: Fill in the
-component". Furthermore, the program appends id field of type string to
-each component schema so that they each have unique identifier.\
+CreateProperties method checks if the field is of primitive type or not.
+If not then it calls createComponentSchema on the field and therefore
+creates component schema for the nested data structures too. It is
+important to note that the program also formats the names of the data
+structures since OpenAPI format only accepts certain characters. Any
+character which is not accepted by the OpenAPI standard is turned into
+an underscore. What's more the program takes the detected properties
+(fields) into consideration and if data structure does not have any, the
+program appends following description: "TODO: Fill in the component".
+Furthermore, the program appends id field of type string to each
+component schema so that they each have unique identifier.
 
 Now that the main principles of component schema generation are already
 considered, paths and their respective operations may be discussed. The
@@ -658,20 +677,32 @@ name of the operation (in the OAS called operationId) is unique. Since
 all of this information is provided by the user, this data is validated
 in the UI. This means that the developed form does not allow user to
 submit invalid data. All of this is achieved via zod library dedicated
-to form validation. Please refer to Pic 3.3.3 and 3.3.4 in order to view
+to form validation. Please refer to Pic 4.4.3 and 4.4.4 in order to view
 the screenshots of the error messages displayed to the users in case of
 unsuccessful validation.
 
 {{% tutorial-image "images/projects/api/image16.png" %}}
-*Pic 3.3.3 -- Error message regarding the combination of operation type and path (endpoint)*
+*Pic 4.4.3 -- Error message regarding the combination of operation type and path (endpoint)*
 
 {{% tutorial-image "images/projects/api/image17.png" %}}
-*Pic 3.3.4 -- Error message informing the user that the operation name must be unique*
+*Pic 4.4.4 -- Error message informing the user that the operation name must be unique*
 
-Last but not least, the project includes converter for data types
-(DataTypeConverter.tsx). The converter adapts data structure type names
-from Czech language to English. The second converter adapts English data
-types to the data types which are accepted by the OpenAPI standard.
+The project includes converter for data types (DataTypeConverter.tsx).
+The converter adapts data structure type names from Czech language to
+English. The second converter adapts English data types to the data
+types which are accepted by the OpenAPI standard.
+
+Last but not least, MainForm.tsx contains the logic of the user
+interface. Two types of data are fetched. First -- the information about
+data structures inside target data specification and second -- pre-saved
+values of the UI form. Moreover, a very important aspect of the MainForm
+component is that, upon submission of the form, not only the OpenAPI
+specification is generated, but also current configuration
+(user-provided information) is saved on the Dataspecer backend. This
+means that the form is able to retain values and the user is able to
+continue designing their API from the last checkpoint. More precisely,
+because of this feature it is possible to maintain the API specification
+as needed.
 
 # Conclusion
 
