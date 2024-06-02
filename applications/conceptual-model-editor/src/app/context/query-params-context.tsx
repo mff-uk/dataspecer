@@ -49,7 +49,9 @@ export const QueryParamsProvider = (props: { children: ReactNode }) => {
             });
             const search = urlSearchParams.toString();
             const query = search ? `?${search}` : "";
-            router.replace(`${pathname}${query}`);
+            const newPathname = pathname.endsWith("/") ? pathname : `${pathname}/`;
+            console.log("pathname, newpathname", pathname, newPathname);
+            router.replace(`${newPathname}${query}`);
         },
         [pathname, router, packageId, viewId]
     );
