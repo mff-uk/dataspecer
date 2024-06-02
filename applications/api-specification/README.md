@@ -28,7 +28,7 @@ The `src` directory includes several important directories as well as separate n
 ### Directories
 
 - **components** - This directory holds the components which were imported from the package shadcn-ui.
-- **customComponents** - This directory holds custom components which aim to serve specific demands of the project. These components are customized by utilizing pre-imported elements from components directory as well as hand-crafted HTML elements.
+- **customComponents** - This directory holds custom components. Their goal is to serve specific demands of the project. These components are customized by utilizing pre-imported elements from components directory as well as hand-crafted HTML elements.
 - **Models** - This directory stores TypeScript interfaces as well as types which are utilized widely across the codebase.
 
   The most important Model in this directory is `DataStructure` (located in `DataStructureModel.tsx`). Essential attributes - `name`, `givenName`, `id`, and `fields` are defined within this model (interface). Additionally `Field` interface defines details for each field. These details are: `name`, `type`, `classType`, `nestedFields`, `isArray` and `isMandatory`. It is important to note that `Field` is able to represent attributes as well as associations. In case of primitive type `Field.type` is populated, however an association is able to have a nested structure below it. In this case `Field.type` contains "Object" and `Field.classType` contains the type of the object. Additionally, `nestedFields` are populated accordingly. This way the whole, multi-level representation of data structure is considered.
