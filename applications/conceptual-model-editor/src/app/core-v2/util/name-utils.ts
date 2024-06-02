@@ -86,6 +86,12 @@ export const getUsageNoteLanguageString = (
     }
 };
 
+/**
+ * Computes the fallback name for `resource`
+ * @param resource
+ * @param modelBaseIri
+ * @returns 1. absolute `iri` (computed with `modelBaseIri`), 2. relative `iri`, 3. or `resource.id`, 4. null otherwise
+ */
 export const getFallbackDisplayName = (
     resource:
         | null
@@ -99,6 +105,11 @@ export const getFallbackDisplayName = (
     return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
 };
 
+/**
+ * Returns the name of the `model` to be displayed
+ * @param model
+ * @returns 1. <alias> (<model-id>), 2. <model-id>, 3. null for undefined/null model
+ */
 export const getModelDisplayName = (model: EntityModel | null | undefined) => {
     if (!model) {
         return null;

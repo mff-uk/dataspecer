@@ -1,7 +1,5 @@
-import type { Entity, EntityModel } from "@dataspecer/core-v2";
 import {
     type SemanticModelClass,
-    type SemanticModelEntity,
     type SemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelRelationship,
@@ -52,40 +50,6 @@ export const getProfiledEntity = (
     )[]
 ) => {
     return sources.find((e) => e.id == resource.usageOf) ?? null;
-};
-
-export const getFirstProfiledEntityToChangeIri = (
-    resource: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage,
-    sources: (
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-    )[],
-    rawEntities: (Entity | null)[],
-    models: EntityModel[]
-): SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | null => {
-    if (isSemanticModelClass(resource) || isSemanticModelRelationship(resource)) {
-        return resource;
-    }
-    // return getTheOriginalProfiledEntity(resource, sources);
-
-    const rawResource = rawEntities.find((r) => r?.id == resource.id);
-    if (!rawResource) {
-        return null;
-    }
-
-    const rawIri = (rawResource as SemanticModelEntity)?.iri;
-
-    if (rawIri) {
-        return resource;
-    }
-    // no iri set, go to the profiled entity
-    const itsProfiledEntity = getProfiledEntity(resource, sources);
-    if (!itsProfiledEntity) {
-        return null;
-    }
-    return getFirstProfiledEntityToChangeIri(itsProfiledEntity, sources, rawEntities, models);
 };
 
 export type OverriddenFieldsType = {
