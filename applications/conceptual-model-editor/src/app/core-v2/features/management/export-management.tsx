@@ -108,6 +108,7 @@ export const ExportManagement = () => {
 
                 console.log("configuration is gonna be used");
                 loadConfiguration(configuration).catch((err) => console.log("problem with loading configuration", err));
+                // make sure we won't work with packages any more
                 setPackage(null);
             })
             .catch(console.error);

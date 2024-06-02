@@ -97,12 +97,12 @@ export const EntitiesOfModel = (props: {
                     localMap.set(visualEntity.sourceEntityId, visualEntity.visible ?? getDefaultVisibility());
                 }
 
+                // check for changes in visibility
+                // trigger rerender of the whole model catalog conditionally
                 const areSame = compareMaps(localMap, prev);
                 if (areSame) {
-                    // console.log("keeping visibility the same, prev, local ", prev, localMap, modelId);
                     return prev;
                 }
-                // console.log("changing visibility, prev, local", prev, localMap, modelId);
                 return localMap;
             });
         });
@@ -164,6 +164,7 @@ export const EntitiesOfModel = (props: {
                             .search(search)
                             .then(async (result) => {
                                 for (const cls of result) {
+                                    // has to be iri bc sgov doesn't work with id 🤷‍♂️
                                     await model.allowClass(cls.iri!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
                                 }
                                 console.log(result);

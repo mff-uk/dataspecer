@@ -71,6 +71,9 @@ export const QueryParamsProvider = (props: { children: ReactNode }) => {
     );
 };
 
+/**
+ * provides functionality to work with query parameters
+ */
 export const useQueryParamsContext = (): QueryParamsContextType => {
     const context = useContext(QueryParamsContext);
     if (context === undefined) {

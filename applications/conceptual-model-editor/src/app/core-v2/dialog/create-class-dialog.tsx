@@ -10,7 +10,7 @@ import { generateName } from "../util/name-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
-import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
@@ -27,18 +27,17 @@ export const useCreateClassDialog = () => {
     };
 
     const CreateClassDialog = () => {
+        const { language: preferredLanguage } = useConfigurationContext();
         const { createAClass } = useClassesContext();
-        const { models } = useModelGraphContext();
+        const { aggregatorView, models } = useModelGraphContext();
+
         const inMemoryModels = filterInMemoryModels([...models.values()]);
         const [activeModel, setActiveModel] = useState(model ?? inMemoryModels.at(0));
-
-        const { language: preferredLanguage } = useConfigurationContext();
 
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
         const [newDescription, setNewDescription] = useState<LanguageString>({});
         const [iriHasChanged, setIriHasChanged] = useState(false);
         const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
-        const { aggregatorView } = useModelGraphContext();
 
         const modelIri = getModelIri(activeModel);
 
@@ -47,7 +46,7 @@ export const useCreateClassDialog = () => {
                 alert("active model not set");
                 return;
             }
-            if (!newIri) {
+            if (!newIri || newIri == "") {
                 alert("iri not set");
                 return;
             }
@@ -72,15 +71,15 @@ export const useCreateClassDialog = () => {
                             onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
                         />
                         <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-                            <DialogDetailRow2 detailKey="name" style="text-xl">
+                            <DialogDetailRow detailKey="name" style="text-xl">
                                 <MultiLanguageInputForLanguageString
                                     ls={newName}
                                     setLs={setNewName}
                                     defaultLang={preferredLanguage}
                                     inputType="text"
                                 />
-                            </DialogDetailRow2>
-                            <DialogDetailRow2 detailKey="iri">
+                            </DialogDetailRow>
+                            <DialogDetailRow detailKey="iri">
                                 <IriInput
                                     name={newName}
                                     newIri={newIri}
@@ -89,15 +88,15 @@ export const useCreateClassDialog = () => {
                                     onChange={() => setIriHasChanged(true)}
                                     baseIri={modelIri}
                                 />
-                            </DialogDetailRow2>
-                            <DialogDetailRow2 detailKey="description">
+                            </DialogDetailRow>
+                            <DialogDetailRow detailKey="description">
                                 <MultiLanguageInputForLanguageString
                                     ls={newDescription}
                                     setLs={setNewDescription}
                                     defaultLang={preferredLanguage}
                                     inputType="textarea"
                                 />
-                            </DialogDetailRow2>
+                            </DialogDetailRow>
                         </div>
                     </div>
                 </div>

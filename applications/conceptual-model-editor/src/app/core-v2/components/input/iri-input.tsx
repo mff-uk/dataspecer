@@ -25,6 +25,7 @@ export const IriInput = (props: {
     const [workingWithAbsoluteIri, setWorkingWithAbsoluteIri] = useState(absoluteIri);
     const [shouldIncludeBaseIri, setShouldIncludeBaseIri] = useState(!absoluteIri ?? true);
 
+    // update the iri based on name changes
     useEffect(() => {
         if (iriHasChanged || workingWithAbsoluteIri || withNameSuggestionsDisabled) {
             return;

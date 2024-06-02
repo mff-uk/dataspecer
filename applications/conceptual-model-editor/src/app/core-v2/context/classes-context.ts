@@ -47,6 +47,10 @@ export type ClassesContextType = {
 
 export const ClassesContext = React.createContext(null as unknown as ClassesContextType);
 
+/**
+ * provides all concepts we work with
+ * also provides concept manipulating functions (eg create, modify, delete, ..)
+ */
 export const useClassesContext = () => {
     const {
         classes,

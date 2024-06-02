@@ -19,7 +19,7 @@ import { getModelIri } from "../util/iri-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
 
 import { EntityProxy } from "../util/detail-utils";
-import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { TwoWaySwitch } from "../components/input/two-way-switch";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { CreateButton } from "../components/dialog/buttons/create-button";
@@ -53,7 +53,7 @@ const AssociationComponent = (props: {
 
     return (
         <>
-            <DialogDetailRow2 detailKey="name">
+            <DialogDetailRow detailKey="name">
                 <MultiLanguageInputForLanguageString
                     ls={name}
                     setLs={setName}
@@ -61,8 +61,8 @@ const AssociationComponent = (props: {
                     defaultLang={preferredLanguage}
                     disabled={disabled}
                 />
-            </DialogDetailRow2>
-            <DialogDetailRow2 detailKey="description">
+            </DialogDetailRow>
+            <DialogDetailRow detailKey="description">
                 <MultiLanguageInputForLanguageString
                     ls={description}
                     setLs={setDescription}
@@ -70,8 +70,8 @@ const AssociationComponent = (props: {
                     defaultLang={preferredLanguage}
                     disabled={disabled}
                 />
-            </DialogDetailRow2>
-            <DialogDetailRow2 detailKey="cardinalities">
+            </DialogDetailRow>
+            <DialogDetailRow detailKey="cardinalities">
                 <div>
                     <div>
                         cardinality-source:
@@ -92,7 +92,7 @@ const AssociationComponent = (props: {
                         />
                     </div>
                 </div>
-            </DialogDetailRow2>
+            </DialogDetailRow>
         </>
     );
 };
@@ -231,17 +231,17 @@ export const useCreateConnectionDialog = () => {
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                        <DialogDetailRow2 detailKey="source">
+                        <DialogDetailRow detailKey="source">
                             <span>
                                 {sourceName} -- ({source.id})
                             </span>
-                        </DialogDetailRow2>
-                        <DialogDetailRow2 detailKey="target">
+                        </DialogDetailRow>
+                        <DialogDetailRow detailKey="target">
                             <span>
                                 {targetName} -- ({target.id})
                             </span>
-                        </DialogDetailRow2>
-                        <DialogDetailRow2 detailKey="iri">
+                        </DialogDetailRow>
+                        <DialogDetailRow detailKey="iri">
                             <IriInput
                                 name={association.name}
                                 newIri={newIri}
@@ -250,17 +250,17 @@ export const useCreateConnectionDialog = () => {
                                 onChange={() => setIriHasChanged(true)}
                                 baseIri={modelIri}
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
                     </div>
 
                     <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                        <DialogDetailRow2 detailKey="type">
+                        <DialogDetailRow detailKey="type">
                             <TwoWaySwitch
                                 choices={["association", "generalization"]}
                                 selected={connectionType}
                                 onChoiceSelected={(c) => setConnectionType(c as typeof connectionType)}
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
                     </div>
                     <div
                         className={

@@ -23,7 +23,7 @@ import { DomainRangeComponent } from "./domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
-import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -79,7 +79,8 @@ export const useCreateProfileDialog = () => {
 
         const [overriddenFields, setOverriddenFields] = useState<OverriddenFieldsType>(getDefaultOverriddenFields());
 
-        // Relationships and relationship profiles
+        // --- relationships and relationship profiles --- --- ---
+        const hasDomainAndRange = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
         const currentDomainAndRange =
             isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
                 ? temporaryDomainRangeHelper(entity)
@@ -90,12 +91,14 @@ export const useCreateProfileDialog = () => {
         );
         const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
 
+        // --- model it comes from --- --- ---
+
         const model = inMemoryModels.find((m) => m.getId() == activeModel);
         const modelIri = getModelIri(model);
 
-        const displayNameOfProfiledEntity = entity ? EntityProxy(entity, preferredLanguage).name : null;
+        // --- profiling --- --- ---
 
-        const hasDomainAndRange = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
+        const displayNameOfProfiledEntity = entity ? EntityProxy(entity, preferredLanguage).name : null;
 
         const changedFieldsAsStringArray = Object.entries(changedFields)
             .filter(([key, _]) => key != "name" && key != "description")
@@ -189,10 +192,10 @@ export const useCreateProfileDialog = () => {
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                        <DialogDetailRow2 detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow2>
-                        <DialogDetailRow2 detailKey="profiled entity type">
+                        <DialogDetailRow detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow>
+                        <DialogDetailRow detailKey="profiled entity type">
                             {getEntityTypeString(entity)}
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
@@ -202,7 +205,7 @@ export const useCreateProfileDialog = () => {
                     ------------
                     */}
 
-                    <DialogDetailRow2 detailKey="name">
+                    <DialogDetailRow detailKey="name">
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-name"
                             ls={name}
@@ -216,7 +219,7 @@ export const useCreateProfileDialog = () => {
                             disabled={!overriddenFields.name}
                             onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
 
                     {/* 
                     -----------
@@ -224,7 +227,7 @@ export const useCreateProfileDialog = () => {
                     -----------
                     */}
 
-                    <DialogDetailRow2 detailKey="iri">
+                    <DialogDetailRow detailKey="iri">
                         <IriInput
                             name={name}
                             newIri={newIri}
@@ -234,7 +237,7 @@ export const useCreateProfileDialog = () => {
                             baseIri={modelIri}
                             withNameSuggestionsDisabled={true}
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
 
                     {/* 
                     -------------------
@@ -242,7 +245,7 @@ export const useCreateProfileDialog = () => {
                     -------------------
                     */}
 
-                    <DialogDetailRow2 detailKey="description">
+                    <DialogDetailRow detailKey="description">
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-description"
                             ls={description}
@@ -257,7 +260,7 @@ export const useCreateProfileDialog = () => {
                             disabled={!overriddenFields.description}
                             onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
 
                     {/* 
                     ----------
@@ -265,14 +268,14 @@ export const useCreateProfileDialog = () => {
                     ----------
                     */}
 
-                    <DialogDetailRow2 detailKey="usage (profile?) note">
+                    <DialogDetailRow detailKey="usage (profile?) note">
                         <MultiLanguageInputForLanguageString
                             ls={usageNote}
                             setLs={setUsageNote}
                             defaultLang={preferredLanguage}
                             inputType="textarea"
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
 
                     {/* 
                     -----------------------------------------------------------
@@ -283,9 +286,9 @@ export const useCreateProfileDialog = () => {
                         <>
                             {changedFieldsAsStringArray.length > 0 && (
                                 <>
-                                    <DialogDetailRow2 detailKey="warning">
+                                    <DialogDetailRow detailKey="warning">
                                         <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                    </DialogDetailRow2>
+                                    </DialogDetailRow>
                                 </>
                             )}
                             <DomainRangeComponent
