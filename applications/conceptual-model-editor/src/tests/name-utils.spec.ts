@@ -4,7 +4,7 @@ import {
     getFallbackDisplayName,
     getModelDisplayName,
     getNameLanguageString,
-} from "../app/core-v2/util/name-utils";
+} from "../app/diagram/util/name-utils";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 // --- names --- --- ---

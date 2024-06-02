@@ -8,7 +8,7 @@ import {
     isAnAttribute,
     isAnEdge,
     temporaryDomainRangeHelper,
-} from "~/app/core-v2/util/relationship-utils";
+} from "~/app/diagram/util/relationship-utils";
 
 test("correctly judge if relationship has iris at both ends", () => {
     const lovesName = { en: "loves", cs: "miluje" };
