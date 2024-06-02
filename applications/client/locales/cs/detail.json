@@ -104,7 +104,7 @@
   "XML prefix": "prefix",
   "wikidata": {
     "error": "Detail není dostupný.",
-    "subclass of": "Přímé nadtřídy",
+    "subclass of": "Nadtřídy",
     "subject of property": "Je doménou vlastností",
     "value of property": "Je hodnotou vlastností",
     "external identifier": "Ekvivalentní externí třídy",

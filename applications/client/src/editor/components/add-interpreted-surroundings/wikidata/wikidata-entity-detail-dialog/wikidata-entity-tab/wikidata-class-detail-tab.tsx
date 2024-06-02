@@ -11,12 +11,11 @@ export interface WikidataClassDetailTabProps {
 }
 
 function createClassTriples(wdClassWithSurroundings: WdClassWithSurroundingsDesc): FieldEntitiesContextTriples[] {
-    const cls = wdClassWithSurroundings.class;
     return [
-        { field: "subclass of", values: cls.subclassOf, context: wdClassWithSurroundings.surroundingClassesDescMap},
-        { field: "subject of property", values: cls.subjectOfProperty, context: wdClassWithSurroundings.surroundingPropertiesDescMap},
-        { field: "value of property", values: cls.valueOfProperty, context: wdClassWithSurroundings.surroundingPropertiesDescMap},
-        { field: "external identifier", values: cls.equivalentExternalOntologyClasses }
+        { field: "subclass of", values: wdClassWithSurroundings.parentsIds, context: wdClassWithSurroundings.surroundingClassesDescMap},
+        { field: "subject of property", values: wdClassWithSurroundings.subjectOfIds, context: wdClassWithSurroundings.surroundingPropertiesDescMap},
+        { field: "value of property", values: wdClassWithSurroundings.valueOfIds, context: wdClassWithSurroundings.surroundingPropertiesDescMap},
+        { field: "external identifier", values: wdClassWithSurroundings.startClass.equivalentExternalOntologyClasses }
     ]
 }
 

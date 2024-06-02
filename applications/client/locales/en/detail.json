@@ -102,7 +102,7 @@
   "XML prefix": "prefix",
   "wikidata": {
     "error": "No detail available.",
-    "subclass of": "Direct ancestors",
+    "subclass of": "Ancestors",
     "subject of property": "Domain of properties",
     "value of property": "Range of properties",
     "external identifier": "External equivalent ontology mappings",

@@ -11,7 +11,7 @@ export interface WikidataPropertyDetailTabProps {
 }
 
 function createPropertyTriples(wdPropertyWithSurroundings: WdPropertyWithSurroundingDesc): FieldEntitiesContextTriples[] {
-    const property = wdPropertyWithSurroundings.property;
+    const property = wdPropertyWithSurroundings.startProperty;
     return [
         { field: "domain classes", values: property.generalConstraints.subjectTypeStats, context: wdPropertyWithSurroundings.surroundingClassesDescMap},
         { field: "range classes", values: property?.itemConstraints?.valueTypeStats ?? [], context: wdPropertyWithSurroundings.surroundingClassesDescMap},
