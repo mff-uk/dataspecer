@@ -6,6 +6,7 @@ To start developing, follow the [about and install guide](./about-and-install.md
 
 Other dev docs:
 
+-   [folder structure](./dev-docs-folder-structure.md)
 -   working with [aggregator](./dev-docs-working-with-aggregator.md)
 -   working with [core-v2 types](./dev-docs-working-with-core2-types.md)
 
