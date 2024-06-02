@@ -29,7 +29,7 @@ I will list them here as well for simplicity, you can always refer yourself ther
 ### 001 Real use case 1
 
 1. Open editor as standalone app
-    - link [here](https://tool.dataspecer.com/conceptual-model-editor/core-v2)
+    - link [here](https://tool.dataspecer.com/conceptual-model-editor/diagram)
     - that link there doesn't let you save your workspace to backend
         - you can see some buttons are disabled
 2. Add reused vocabulary: [dcterms](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_terms.ttl) by its URL
