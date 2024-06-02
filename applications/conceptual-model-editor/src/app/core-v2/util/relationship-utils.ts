@@ -33,6 +33,11 @@ export const semanticCardinalityToOption = (v: null | [number, number | null]): 
     }
 };
 
+/**
+ * Checks whether a relationship(profile) has only one end with an iri
+ * @param entity
+ * @returns `truthy` if both ends of `entity` have an `iri`, `false` otherwise
+ */
 export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
     if (isSemanticModelRelationship(entity)) {
         const [end1, end2] = entity.ends;
@@ -51,6 +56,11 @@ export const isAnEdge = (
 export const isAnAttribute = (entity: EntityDetailSupportedType) =>
     isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
 
+/**
+ * Returns the domain and range of an `entity`
+ * @param entity
+ * @returns
+ */
 export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) => {
     if (isSemanticModelRelationship(entity)) {
         return getDomainAndRange(entity);

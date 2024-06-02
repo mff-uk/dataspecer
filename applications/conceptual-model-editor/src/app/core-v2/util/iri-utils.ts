@@ -20,6 +20,12 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { IRI } from "iri";
 
+/**
+ * @param entity
+ * @param modelBaseIri if `modelBaseIri` is undefined, then `""` is used instead
+ * @returns The iri of `entity` if it is absolute, if not, returns `modelBaseIri + entity.iri`.
+ * For unknown entity returns `null`
+ */
 export const getIri = (
     entity:
         | SemanticModelClass
@@ -63,6 +69,10 @@ export const getIri = (
     }
 };
 
+/**
+ * @param iri
+ * @returns true if `iri` has a `scheme` prefix, eg: `https:`
+ */
 export const isIriAbsolute = (iri: string | null) => {
     if (!iri) {
         return false;
@@ -82,6 +92,12 @@ export const getModelIri = (model: EntityModel | undefined | null) => {
     return "";
 };
 
+/**
+ * Used only for lw-onto exports
+ * @param iri
+ * @param entity
+ * @returns the `entity` with `iri` in absolute form by prepending the model's base iri
+ */
 export const entityWithOverriddenIri = <T extends EntityDetailSupportedType | SemanticModelEntity>(
     iri: string,
     entity: T
