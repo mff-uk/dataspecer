@@ -1,4 +1,4 @@
-import { TemplateDescription, TemplateGenerator } from "../app-logic-layer/template-app-logic-generator";
+import { TemplateGenerator } from "../app-logic-layer/template-app-logic-generator";
 import { LayerArtifact } from "../engine/layer-artifact";
 
 export abstract class TemplateConsumer {

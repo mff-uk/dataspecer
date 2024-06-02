@@ -24,8 +24,6 @@ export interface ArtifactExportedObject {
 export interface TemplateDescription {
     templatePath: string;
     placeholders?: { [placeHolderName: string]: string | ImportRelativePath };
-    //exportedObjectName?: (string | ArtifactExportedObject) | string[];
-    //targetSourceFilename?: string;
 }
 
 export class TemplateGenerator {

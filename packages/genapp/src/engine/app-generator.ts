@@ -199,15 +199,15 @@ class ApplicationGenerator {
     //     //         });
     // }
 
-    private getCapabilityGenerator(name: string, datasource: DatasourceConfig): CapabilityGenerator {
-        const capabilityGeneratorMapping: { [name: string]: CapabilityGenerator | null } = {
-            list: new OverviewCapability(name, datasource),
-            detail: new OverviewCapability(name, datasource),
+    private getCapabilityGenerator(capabilityName: string, rootAggregateName: string, datasource: DatasourceConfig): CapabilityGenerator {
+        const capabilityGeneratorMapping: { [capabilityName: string]: CapabilityGenerator | null } = {
+            list: new OverviewCapability(rootAggregateName, datasource),
+            detail: new OverviewCapability(rootAggregateName, datasource),
             create: null,
             delete: null,
         };
 
-        const generator = capabilityGeneratorMapping[name];
+        const generator = capabilityGeneratorMapping[capabilityName];
 
         if (!generator) {
             return new CustomCapabilityGenerator(/* add configuration and datasource description here */);
@@ -216,13 +216,12 @@ class ApplicationGenerator {
         return generator;
     }
 
-    generateAllAggregateCapabilities(array: [string, CapabilityConfiguration][], datasource: DatasourceConfig) {
+    generateAllAggregateCapabilities(rootAggregateName: string, array: [string, CapabilityConfiguration][], datasource: DatasourceConfig) {
 
         const result: { [capabilityName: string]: Promise<LayerArtifact> } = {};
 
         for (const [capabilityName, capabilityConfig] of array) {
-            const capabilityGenerator = this.getCapabilityGenerator(capabilityName, datasource);
-            console.log(`Generating "${capabilityName}" capability.`);
+            const capabilityGenerator = this.getCapabilityGenerator(capabilityName, rootAggregateName, datasource);
             console.log(capabilityConfig);
             console.log("=".repeat(20));
 
@@ -252,6 +251,7 @@ class ApplicationGenerator {
 
         console.log(`Generating for "${rootAggregateName}".`);
         const capabilityPromises = this.generateAllAggregateCapabilities(
+            rootAggregateName,
             Object.entries(aggregateConfig.capabilities),
             aggregateConfig.datasource
         );

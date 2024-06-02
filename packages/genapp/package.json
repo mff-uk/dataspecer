@@ -17,7 +17,8 @@
     "axios": "^1.6.8",
     "copyfiles": "^2.4.1",
     "eta": "^3.4.0",
-    "ts-morph": "^22.0.0"
+    "ts-morph": "^22.0.0",
+    "jszip": "^3.10.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

@@ -1,17 +1,24 @@
+import { createLens, type Context, setDefaultContext } from "ldkit";
 import { <%= it.reader %> } from "<%~ it.reader_interface_path %>";
-import { createLens, type Context, setDefaultContext  } from "ldkit";
-import { <%= it.schema_name %> } from "<%~ it.schema_filepath %>";
+import { <%= it.ldkitSchemaSelector %> } from "<%= it.schema_selector_path %>";
 
 export default class LdkitReader implements <%= it.reader %> {
 
-    async readObjects(): Promise<object[]> {
+    private readonly _schemaSelector: <%= it.ldkitSchemaSelector %>;
 
+    constructor() {
+        this._schemaSelector = new <%= it.ldkitSchemaSelector %>();
+    }
+
+    async readObjects(aggregateName: string): Promise<object[]> {
+
+        const ldkitSource = this._schemaSelector.getLDkitSchema(aggregateName);
         const context: Context = {
-            sources: ["<%~ it.sparql_endpointUri %>"]
+            sources: [ldkitSource.datasource]
         }
         setDefaultContext(context);
 
-        const EntityLens = createLens(<%= it.schema_name %>);
+        const EntityLens = createLens(ldkitSource.schema);
         const fetchedEntities = await EntityLens.find();
 
         if (!fetchedEntities) {

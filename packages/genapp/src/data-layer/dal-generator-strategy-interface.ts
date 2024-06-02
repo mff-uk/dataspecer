@@ -3,7 +3,7 @@ import { LayerArtifact } from "../engine/layer-artifact";
 import { StageGenerationContext } from "../engine/generator-stage-interface";
 
 export function isAxiosResponse(
-    dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any>
+    dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
 ): dataLayerResult is AxiosResponse<LayerArtifact, any>
 {
     return (dataLayerResult as AxiosResponse<LayerArtifact, any>).data !== undefined;
