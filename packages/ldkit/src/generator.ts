@@ -96,14 +96,15 @@ export class LDkitGenerator implements ArtefactGenerator {
             const ldkitSchemaAdapter: StructureClassToSchemaAdapter = new LdkitSchemaAdapter();
             const schema: LdkitSchema = ldkitSchemaAdapter.convertStructureModelToLdkitSchema(structureModel);
             console.log("Schema: ", schema);
-            const stream = output.writePath(artefact.outputPath);
 
             const generator = new LdkitArtefactGenerator();
+            const aggregateName = structureModel.humanLabel["en"] ?? "DummyName";
             const sourcefileContent: string = generator.generateSourceFile({
-                aggregateName: structureModel.humanLabel["en"] ?? "DummyName",
+                aggregateName: aggregateName,
                 dataSchema: schema
             });
 
+            const stream = output.writePath(artefact.outputPath + `${aggregateName.toLowerCase()}-schema.ts`);
             await stream.write(sourcefileContent);
             await stream.close();
         }
