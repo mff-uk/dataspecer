@@ -1,5 +1,6 @@
 import { ImportRelativePath, TemplateDescription } from "../app-logic-layer/template-app-logic-generator";
-import { ArtifactSaver, GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
+import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
+import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { TemplateConsumer } from "../templates/template-consumer";
 
@@ -46,7 +47,7 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
                 app_logic_delegate: this._listAppLogicArtifact.exportedObjectName,
                 delegate_path: {
                     from: fullPath,
-                    to: this._listAppLogicArtifact.fileName
+                    to: this._listAppLogicArtifact.filePath
                 }
             }
         };
@@ -55,7 +56,7 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
 
         return {
             exportedObjectName: "OverviewTable",
-            fileName: this._filePath,
+            filePath: this._filePath,
             sourceText: presentationLayerRender
         };
     }

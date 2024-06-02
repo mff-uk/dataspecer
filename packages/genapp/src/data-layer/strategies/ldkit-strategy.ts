@@ -1,19 +1,18 @@
+import JSZip from "jszip";
 import DalApi from "../dal-generator-api";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { DalGeneratorStrategy, isAxiosResponse } from "../dal-generator-strategy-interface";
 import { StageGenerationContext } from "../../engine/generator-stage-interface";
 import { ImportRelativePath, TemplateDescription, TemplateGenerator } from "../../app-logic-layer/template-app-logic-generator";
 import { ReaderInterfaceGenerator } from "../reader-interface-generator";
-import { DataSourceType, DatasourceConfig, UriDatasource } from "../../application-config";
 import { LDkitSchemaSelectorGenerator } from "../ldkit-schema-selector-generator";
-import JSZip from "jszip";
 
 interface LdkitReaderTemplate extends TemplateDescription {
     templatePath: string;
     placeholders: {
-        reader: string,
-        reader_interface_path: ImportRelativePath,
-        ldkitSchemaSelector: string,
+        list_reader_interface: string,
+        list_reader_interface_path: ImportRelativePath,
+        ldkitSchema_selector: string,
         schema_selector_path: ImportRelativePath
     };
 }
@@ -23,18 +22,11 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
     strategyIdentifier: string = "ldkit";
     private readonly endpoint = "http://localhost:8889";
     private readonly api: DalApi;
-    private readonly _datasourceConfig: UriDatasource;
     private readonly _templateRenderer: TemplateGenerator;
     private readonly _filePath: string;
     private readonly _templatePath: string;
 
-    constructor(datasourceConfig: DatasourceConfig, templatePath?: string, filePath?: string) {
-
-        if (datasourceConfig.format !== DataSourceType.Rdf) {
-            throw new Error("LDkit data layer generator requires an RDF endpoint.");
-        }
-        
-        this._datasourceConfig = datasourceConfig;
+    constructor(templatePath?: string, filePath?: string) {        
         this.api = new DalApi(this.endpoint);
         this._templateRenderer = new TemplateGenerator();
         this._filePath = filePath ?? "./readers/reader-implementation.ts";
@@ -51,7 +43,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
     private async getLdkitSchema(aggregateName: string): Promise<LayerArtifact> {
         // TODO: get from passed context
-        console.log(`       Calling the backend (${this.endpoint}) for DAL with: `, aggregateName);
+        //console.log(`       Calling the backend (${this.endpoint}) for DAL with: `, aggregateName);
 
         const response = await this.api.generateDalLayerArtifact(this.strategyIdentifier, aggregateName);
 
@@ -78,7 +70,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
         const fileContent = await contentPromise;
         const result: LayerArtifact = {
-            fileName: schemaFilename,
+            filePath: schemaFilename,
             sourceText: fileContent,
             exportedObjectName: `${aggregateName}Schema`
         }
@@ -96,8 +88,8 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
         const ldkitReaderRender: string = this._templateRenderer.renderTemplate(ldkitReaderTemplate);
 
         const ldkitReaderLayerArtifact = {
-            exportedObjectName: "LdkitReader",
-            fileName: this._filePath,
+            exportedObjectName: "LdkitListReader",
+            filePath: this._filePath,
             sourceText: ldkitReaderRender,
             dependencies: [readerInterfaceArtifact, schemaSelectorArtifact, ldkitSchemaArtifact]
         } as LayerArtifact;
@@ -110,15 +102,15 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
         const readerTemplate: LdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                reader: readerInterfaceArtifact.exportedObjectName,
-                reader_interface_path: {
+                list_reader_interface: readerInterfaceArtifact.exportedObjectName,
+                list_reader_interface_path: {
                     from: this._filePath,
-                    to: readerInterfaceArtifact.fileName
+                    to: readerInterfaceArtifact.filePath
                 },
-                ldkitSchemaSelector: schemaSelectorArtifact.exportedObjectName,
+                ldkitSchema_selector: schemaSelectorArtifact.exportedObjectName,
                 schema_selector_path: {
                     from: this._filePath,
-                    to: schemaSelectorArtifact.fileName
+                    to: schemaSelectorArtifact.filePath
                 }
             }
         };

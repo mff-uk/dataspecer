@@ -1,4 +1,5 @@
-import { ArtifactSaver, GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
+import { GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
+import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy, isLayerArtifact } from "./dal-generator-strategy-interface";
 import { LDKitDalGenerator } from "./strategies/ldkit-strategy";
@@ -19,7 +20,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
 
         getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
             const generators = {
-                [DataSourceType.Rdf]: new LDKitDalGenerator(datasourceConfig),
+                [DataSourceType.Rdf]: new LDKitDalGenerator(),
                 [DataSourceType.Json]: new FileDalGeneratorStrategy("json"),
                 [DataSourceType.Xml]: new FileDalGeneratorStrategy("xml"),
                 [DataSourceType.Csv]: new FileDalGeneratorStrategy("csv"),
@@ -52,9 +53,6 @@ export class DataLayerGeneratorStage implements GeneratorStage {
             throw new Error("Could not generate application data layer");
         }
         
-        console.log("Is axiosResponse from DataLayerGeneratorStage");
-        console.log(dalArtifact);
-
         return dalArtifact as LayerArtifact;
 
         // let result: LayerArtifact;

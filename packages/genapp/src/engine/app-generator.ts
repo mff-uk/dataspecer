@@ -1,4 +1,3 @@
-import { TemplateSourceCodeGenerator } from "../app-logic-layer/template-app-logic-generator";
 import {
     AggregateConfiguration,
     ApplicationConfiguration,
@@ -6,8 +5,8 @@ import {
     DataSourceType,
     DatasourceConfig
 } from "../application-config";
-import { Capability, CapabilityGenerator, CustomCapabilityGenerator } from "../capabilities/capability-definition";
-import { DetailCapability, OverviewCapability } from "../capabilities/overview";
+import { CapabilityGenerator, CustomCapabilityGenerator } from "../capabilities/capability-definition";
+import { OverviewCapability } from "../capabilities/overview";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { StageGenerationContext } from "./generator-stage-interface";
 import { LayerArtifact } from "./layer-artifact";
@@ -25,18 +24,14 @@ type ReactRouterObject = {
     errorElement: string
 }
 
-type CapabilityPair = { aggName: string, capability: Capability };
-
 type CapabilityArtifactResult = { [capabilityName: string]: LayerArtifact };
 
 class ApplicationGenerator {
 
-    private readonly appBaseTemplateGenerator: TemplateSourceCodeGenerator;
     private readonly configReader;
 
     constructor() {
         this.configReader = new StaticConfigurationReader();
-        this.appBaseTemplateGenerator = new TemplateSourceCodeGenerator();
     }
 
     // private getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
@@ -273,8 +268,7 @@ class ApplicationGenerator {
             generatedArtifactsByAggregateName[aggregateName] = aggregateGeneratedCapabilities;
         }
 
-        console.log("OVERALL RESULT");
-        console.log(generatedArtifactsByAggregateName);
+        //console.log(generatedArtifactsByAggregateName);
     }
 }
 

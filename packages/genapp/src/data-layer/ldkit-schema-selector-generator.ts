@@ -30,7 +30,7 @@ export class LDkitSchemaSelectorGenerator extends TemplateConsumer {
         const schemaSelectorArtifact: LayerArtifact = {
             sourceText: schemaSelectorRender,
             exportedObjectName: "LDkitSchemaSelector",
-            fileName: this._filePath
+            filePath: this._filePath
         }
 
         return schemaSelectorArtifact;

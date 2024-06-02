@@ -1,6 +1,6 @@
 export type LayerArtifact = {
-    fileName: string;
+    filePath: string;
     exportedObjectName: string;
-    sourceText?: string; // code
+    sourceText: string; // code
     dependencies?: LayerArtifact[];
 }

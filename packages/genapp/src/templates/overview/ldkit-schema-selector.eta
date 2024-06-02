@@ -1,9 +1,9 @@
-import { CatalogSchema } from "./catalog-schema";
-import { DatasetSchema } from "./dataset-schema";
+import { CatalogSchema } from "../catalog-schema";
+import { DatasetSchema } from "../dataset-schema";
 
 export interface LDkitDataSourceDescription {
     schema: any, // LDkit schema
-    datasource: any
+    url: any
 }
 
 export class LDkitSchemaSelector {
@@ -12,11 +12,11 @@ export class LDkitSchemaSelector {
         { [aggregateName: string]: LDkitDataSourceDescription } = {
         Catalog: { 
             schema: CatalogSchema,
-            datasource: ""
+            url: "https://data.gov.cz/sparql"
         },
         Dataset: {
             schema: DatasetSchema,
-            datasource: ""
+            url: "https://data.gov.cz/sparql"
         },
     };
 

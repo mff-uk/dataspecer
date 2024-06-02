@@ -1,3 +1,5 @@
-export interface Reader {
-    readObjects(): Promise<object[]>;
+import { <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
+
+export interface ListReader {
+    readInstanceList(aggregateName: string): Promise<<%= it.read_return_type %>>;
 }

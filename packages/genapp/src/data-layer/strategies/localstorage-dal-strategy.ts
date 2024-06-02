@@ -7,7 +7,7 @@ export class LocalStorageDalGeneratorStrategy implements DalGeneratorStrategy {
     
     generateDataLayer(): Promise<LayerArtifact> {
         const localDalLayer: LayerArtifact = {
-            fileName: "localStorage-dal.ts",
+            filePath: "localStorage-dal.ts",
             exportedObjectName: "", 
             sourceText: `
                 localStorage.getItem("<aggregate instance>");
