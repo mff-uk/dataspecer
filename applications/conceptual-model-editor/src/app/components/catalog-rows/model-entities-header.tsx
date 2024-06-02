@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { ExpandModelButton } from "../buttons";
 import { useModelGraphContext } from "../../context/model-context";
-import { tailwindColorToHex } from "~/app/utils/color-utils";
+import { tailwindColorToHex } from "../../util/color-utils";
 import { getModelDetails } from "../../util/model-utils";
 import type { EntityModel } from "@dataspecer/core-v2";
 import { compareMaps } from "../../util/utils";

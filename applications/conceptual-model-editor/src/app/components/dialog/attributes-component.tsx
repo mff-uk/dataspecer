@@ -5,7 +5,7 @@ import type {
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useState, useEffect } from "react";
-import { getRandomName } from "~/app/utils/random-gen";
+import { getRandomName } from "../../util/random-gen";
 import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../cardinality-options";
 import { IriInput } from "../input/iri-input";

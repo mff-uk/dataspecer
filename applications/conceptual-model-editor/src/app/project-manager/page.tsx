@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Header from "../components/header";
+import Header from "../components/header/dumb-header";
 import { BackendPackageService, type Package, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import { getRandomName } from "../utils/random-gen";
-import { getLocalizedStringFromLanguageString } from "../core-v2/util/language-utils";
+import { getRandomName } from "../util/random-gen";
+import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 
 const Page = () => {
     // should fail already when spinning up the next app
@@ -56,40 +56,41 @@ const Page = () => {
     return (
         <>
             <Header page="project manager 📚" />
-            <main className="mx-auto max-w-screen-lg">
-                <h1 className="mb-12 px-6 text-3xl font-bold tracking-tight text-gray-900">Available packages</h1>
-                <div className="flex flex-row">
-                    <button
-                        className="white ml-2"
-                        title="sync package inventory with backend"
-                        onClick={() => syncPackages()}
-                    >
-                        🔄
-                    </button>
-                    <button
-                        className="mx-1 bg-yellow-600 px-1"
-                        title="create a new package"
-                        onClick={handleCreatePackage}
-                    >
-                        ➕pkg
-                    </button>
+            <main className="w-full flex-grow overflow-x-hidden  overflow-y-scroll bg-teal-50 md:h-[calc(100%-48px)]">
+                <div className="mx-auto flex max-w-screen-lg flex-col ">
+                    <h1 className="mb-12 px-6 text-3xl font-bold tracking-tight text-gray-900">Available packages</h1>
+                    <div className="flex flex-row">
+                        <button
+                            className="white ml-2"
+                            title="sync package inventory with backend"
+                            onClick={() => syncPackages()}
+                        >
+                            🔄
+                        </button>
+                        <button
+                            className="mx-1 bg-yellow-600 px-1"
+                            title="create a new package"
+                            onClick={handleCreatePackage}
+                        >
+                            ➕pkg
+                        </button>
+                    </div>
+                    <ul className="flex-grow">
+                        {packages?.map((pkg) => {
+                            const urlSearchParams = new URLSearchParams();
+                            urlSearchParams.set("package-id", String(pkg.iri));
+                            const search = urlSearchParams.toString();
+                            const query = search ? `?${search}` : "";
+                            return (
+                                <li key={"package-" + pkg.iri}>
+                                    <Link href={"/" + query} className="hover:text-cyan-700">
+                                        {getLocalizedStringFromLanguageString(pkg.userMetadata.label ?? {}) ?? pkg.iri}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
-                <ul>
-                    {packages?.map((pkg) => {
-                        const urlSearchParams = new URLSearchParams();
-                        urlSearchParams.set("package-id", String(pkg.iri));
-                        const search = urlSearchParams.toString();
-                        const query = search ? `?${search}` : "";
-                        return (
-                            <li key={"package-" + pkg.iri}>
-                                <Link href={"/core-v2" + query} className="hover:text-cyan-700">
-                                    core-v2:{" "}
-                                    {getLocalizedStringFromLanguageString(pkg.userMetadata.label ?? {}) ?? pkg.iri}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
             </main>
         </>
     );

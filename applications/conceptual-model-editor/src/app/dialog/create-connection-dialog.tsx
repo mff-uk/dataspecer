@@ -12,7 +12,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "../components/base-dialog";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
-import { getRandomName } from "~/app/utils/random-gen";
+import { getRandomName } from "../util/random-gen";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "../components/input/iri-input";
 import { getModelIri } from "../util/iri-utils";

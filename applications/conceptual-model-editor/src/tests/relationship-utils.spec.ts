@@ -3,12 +3,7 @@ import type {
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-    bothEndsHaveAnIri,
-    isAnAttribute,
-    isAnEdge,
-    temporaryDomainRangeHelper,
-} from "~/app/core-v2/util/relationship-utils";
+import { bothEndsHaveAnIri, isAnAttribute, isAnEdge, temporaryDomainRangeHelper } from "~/app/util/relationship-utils";
 
 test("correctly judge if relationship has iris at both ends", () => {
     const lovesName = { en: "loves", cs: "miluje" };

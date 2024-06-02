@@ -10,7 +10,7 @@ import {
     localModelWithOutBaseIri,
     localModelId,
 } from "./concepts";
-import { getIri, getModelIri, isIriAbsolute } from "~/app/core-v2/util/iri-utils";
+import { getIri, getModelIri, isIriAbsolute } from "~/app/util/iri-utils";
 
 test("get iris for different types", () => {
     const classIri = getIri(johnClass);

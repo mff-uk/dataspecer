@@ -29,7 +29,7 @@ import { MultiLanguageInputForLanguageStringWithOverride } from "../components/i
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { getIri, getModelIri } from "../util/iri-utils";
-import { getRandomName } from "~/app/utils/random-gen";
+import { getRandomName } from "../util/random-gen";
 import { IriInput } from "../components/input/iri-input";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";

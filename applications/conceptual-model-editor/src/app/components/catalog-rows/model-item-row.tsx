@@ -5,7 +5,7 @@ import { useEditInput } from "../../components/input/edit-input";
 import { ModelTypeIcon } from "../model-type-icon";
 import { ColorPicker } from "../../features/color-picker";
 import { useEffect, useMemo, useState } from "react";
-import { randomColorFromPalette } from "~/app/utils/color-utils";
+import { randomColorFromPalette } from "../../util/color-utils";
 
 const ModelName = (props: { displayName: string | null }) => (
     <div className="flex-grow text-nowrap">{props.displayName}</div>

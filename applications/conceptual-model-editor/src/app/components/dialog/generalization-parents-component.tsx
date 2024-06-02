@@ -6,7 +6,7 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { NewRemovableGeneralizationRow, RemovableGeneralizationRow } from "./modify/removable-generalization-row";
 import { SelectGeneralizationParent } from "../input/select-generalization-parent";
-import { getRandomName } from "~/app/utils/random-gen";
+import { getRandomName } from "../../util/random-gen";
 import type { getEntityTypeString } from "../../util/detail-utils";
 import { getDuplicateNames } from "../../util/name-utils";
 import { useClassesContext } from "../../context/classes-context";

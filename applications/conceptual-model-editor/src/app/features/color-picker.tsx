@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ColorPalette, tailwindColorToHex } from "../../utils/color-utils";
+import { ColorPalette, tailwindColorToHex } from "../util/color-utils";
 
 const GRID_COLS = "grid-cols-5";
 

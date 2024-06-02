@@ -3,7 +3,7 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getEntityTypeString } from "~/app/core-v2/util/detail-utils";
+import { getEntityTypeString } from "~/app/util/detail-utils";
 
 test("correct type name returned for entity", () => {
     const john: SemanticModelClass = {

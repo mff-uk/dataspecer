@@ -3,7 +3,7 @@ import { PackageManagement } from "./features/management/package-management";
 import { ViewManagement } from "./features/management/view-management";
 import { ExportManagement } from "./features/management/export-management";
 import { LanguageManagement } from "./features/management/language-management";
-import { HeaderLogoLink } from "../components/header";
+import { HeaderLogoLink } from "./components/header/header-logo-link";
 
 const HeaderDivider = () => <div className="mx-3 my-auto w-[1px] bg-white opacity-75" />;
 

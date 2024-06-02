@@ -27,7 +27,7 @@ import {
     semanticModelGeneralizationToReactFlowEdge,
     semanticModelRelationshipToReactFlowEdge,
 } from "./reactflow/simple-floating-edge";
-import { tailwindColorToHex } from "../utils/color-utils";
+import { tailwindColorToHex } from "./util/color-utils";
 import "reactflow/dist/style.css";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
 import { useModelGraphContext } from "./context/model-context";
@@ -57,7 +57,7 @@ import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
-import { getRandomName } from "../utils/random-gen";
+import { getRandomName } from "./util/random-gen";
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();

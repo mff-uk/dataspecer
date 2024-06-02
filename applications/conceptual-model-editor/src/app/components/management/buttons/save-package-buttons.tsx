@@ -1,4 +1,4 @@
-import { useUpdatingButton } from "~/app/core-v2/features/updating-button";
+import { useUpdatingButton } from "~/app/features/updating-button";
 import { ManagementButton, type ManagementButtonPropsType } from "./management-button";
 
 export const useUpdatingSavePackageButton = () => {

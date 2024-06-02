@@ -6,7 +6,7 @@ import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import React, { useContext } from "react";
 import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { randomColorFromPalette } from "~/app/utils/color-utils";
+import { randomColorFromPalette } from "../util/color-utils";
 
 const aggregatorInstance = new SemanticModelAggregator();
 
