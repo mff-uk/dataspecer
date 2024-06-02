@@ -14,7 +14,7 @@ You can do many things in here.
 
 ## Workflow
 
-You can head straight to the editor on [this url](https://tool.dataspecer.com/conceptual-model-editor/core-v2). There you can do quite a lot of things. However, if you want to have your work persisted, refer yourself to [persistence section](./persistence.md).
+You can head straight to the editor on [this url](https://tool.dataspecer.com/conceptual-model-editor/diagram). There you can do quite a lot of things. However, if you want to have your work persisted, refer yourself to [persistence section](./persistence.md).
 
 ### Start with the manager
 

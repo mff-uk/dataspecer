@@ -6,7 +6,7 @@ import Header from "../components/header";
 import { BackendPackageService, type Package, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { getRandomName } from "../utils/random-gen";
-import { getLocalizedStringFromLanguageString } from "../core-v2/util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../diagram/util/language-utils";
 
 const Page = () => {
     // should fail already when spinning up the next app
@@ -82,8 +82,8 @@ const Page = () => {
                         const query = search ? `?${search}` : "";
                         return (
                             <li key={"package-" + pkg.iri}>
-                                <Link href={"/core-v2" + query} className="hover:text-cyan-700">
-                                    core-v2:{" "}
+                                <Link href={"/diagram" + query} className="hover:text-cyan-700">
+                                    diagram:{" "}
                                     {getLocalizedStringFromLanguageString(pkg.userMetadata.label ?? {}) ?? pkg.iri}
                                 </Link>
                             </li>

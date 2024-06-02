@@ -29,7 +29,7 @@ export default function Page() {
                         </p>
                         <p className="mx-auto mt-3 md:my-auto md:ml-2 md:mr-0 md:flex-grow">
                             <Link
-                                href={"/core-v2"}
+                                href={"/diagram"}
                                 className="text-nowrap border border-black px-2 py-1 hover:bg-[#5438dc] hover:text-white"
                             >
                                 work w/o packages
