@@ -10,6 +10,10 @@ export type ConfigurationContextType = {
 
 export const ConfigurationContext = React.createContext(null as unknown as ConfigurationContextType);
 
+/**
+ * provides configuration of the workspace.
+ * might and should be used more with upcoming features
+ */
 export const useConfigurationContext = () => {
     const { language, setLanguage } = useContext(ConfigurationContext);
 

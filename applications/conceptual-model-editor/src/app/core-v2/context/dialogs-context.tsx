@@ -58,6 +58,9 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
     );
 };
 
+/**
+ * provides all the dialogs in one place, simply call for example `openDetailDialog` if you want to open it
+ */
 export const useDialogsContext = (): DialogsContextType => {
     const context = useContext(DialogsContext);
     if (!context) {

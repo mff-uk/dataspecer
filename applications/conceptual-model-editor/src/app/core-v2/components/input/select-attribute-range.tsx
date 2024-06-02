@@ -7,6 +7,9 @@ import { OverrideFieldCheckbox } from "./override-field-checkbox";
 import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { WithOverrideHandlerType } from "../../util/profile-utils";
 
+/**
+ * can change attribute to relationship with the two-way switch
+ */
 export const SelectAttributeRange = (props: {
     concept: string | null;
     isEnabled?: boolean;

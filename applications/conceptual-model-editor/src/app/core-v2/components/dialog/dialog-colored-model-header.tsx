@@ -1,7 +1,7 @@
 import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useModelGraphContext } from "../../context/model-context";
-import { DialogDetailRow2 } from "./dialog-detail-row";
+import { DialogDetailRow } from "./dialog-detail-row";
 import { getModelDisplayName } from "../../util/name-utils";
 import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { EntityDetailSupportedType } from "../../util/detail-utils";
@@ -22,7 +22,7 @@ export const DialogColoredModelHeader = (props: { activeModel: EntityModel | nul
             className={style}
             style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel?.getId() ?? "") }}
         >
-            <DialogDetailRow2 detailKey="source model">{getModelDisplayName(activeModel)}</DialogDetailRow2>
+            <DialogDetailRow detailKey="source model">{getModelDisplayName(activeModel)}</DialogDetailRow>
         </div>
     );
 };
@@ -83,7 +83,7 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
             className={style}
             style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel ?? "") }}
         >
-            <DialogDetailRow2 detailKey="active model">
+            <DialogDetailRow detailKey="active model">
                 <select
                     className="w-full"
                     name="models"
@@ -98,7 +98,7 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                         </option>
                     ))}
                 </select>
-            </DialogDetailRow2>
+            </DialogDetailRow>
         </div>
     );
 };

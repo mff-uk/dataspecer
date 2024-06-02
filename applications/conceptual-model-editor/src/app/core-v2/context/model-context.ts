@@ -22,6 +22,10 @@ export type ModelGraphContextType = {
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
 
+/**
+ * provides all models and visual models we work with
+ * also provides model manipulating functions (eg add, remove, set alias, ..)
+ */
 export const useModelGraphContext = () => {
     const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
         useContext(ModelGraphContext);

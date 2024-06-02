@@ -5,7 +5,7 @@ import type {
 import { CardinalityOptions } from "../components/cardinality-options";
 import type { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import React, { type Dispatch, type SetStateAction } from "react";
-import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { SelectDomainOrRange } from "../components/input/select-domain-or-range";
 import { isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { SelectAttributeRange } from "../components/input/select-attribute-range";
@@ -34,7 +34,7 @@ export const DomainRangeComponent = (props: {
 
     return (
         <>
-            <DialogDetailRow2 detailKey="domain">
+            <DialogDetailRow detailKey="domain">
                 <SelectDomainOrRange
                     forElement="domain"
                     concept={domain.concept}
@@ -51,8 +51,8 @@ export const DomainRangeComponent = (props: {
                             : undefined
                     }
                 />
-            </DialogDetailRow2>
-            <DialogDetailRow2 detailKey="domain cardinality">
+            </DialogDetailRow>
+            <DialogDetailRow detailKey="domain cardinality">
                 <CardinalityOptions
                     disabled={(withOverride && !withOverride.overriddenFields?.domainCardinality) ?? false}
                     group="source"
@@ -72,11 +72,11 @@ export const DomainRangeComponent = (props: {
                             : undefined
                     }
                 />
-            </DialogDetailRow2>
+            </DialogDetailRow>
 
             {isAttribute && (
                 <>
-                    <DialogDetailRow2 detailKey="range">
+                    <DialogDetailRow detailKey="range">
                         <SelectAttributeRange
                             concept={range.concept}
                             isEnabled={withOverride?.overriddenFields?.range}
@@ -96,10 +96,10 @@ export const DomainRangeComponent = (props: {
                                     : undefined
                             }
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
                     {/* show range cardinality only when range is selected*/}
                     {range.concept && !isDataType(range.concept) && (
-                        <DialogDetailRow2 detailKey="range cardinality">
+                        <DialogDetailRow detailKey="range cardinality">
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}
                                 group="target"
@@ -119,14 +119,14 @@ export const DomainRangeComponent = (props: {
                                         : undefined
                                 }
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
                     )}
                 </>
             )}
 
             {!isAttribute && (
                 <>
-                    <DialogDetailRow2
+                    <DialogDetailRow
                         detailKey="range"
                         style={isAttribute && isDataType(range.concept) ? "opacity-70" : ""}
                     >
@@ -149,10 +149,10 @@ export const DomainRangeComponent = (props: {
                                     : undefined
                             }
                         />
-                    </DialogDetailRow2>
+                    </DialogDetailRow>
                     {/* show range cardinality only when range is selected */}
                     {range.concept && !isDataType(range.concept) && (
-                        <DialogDetailRow2 detailKey="range cardinality">
+                        <DialogDetailRow detailKey="range cardinality">
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}
                                 group="target"
@@ -172,7 +172,7 @@ export const DomainRangeComponent = (props: {
                                         : undefined
                                 }
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
                     )}
                 </>
             )}

@@ -10,7 +10,7 @@ import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../cardinality-options";
 import { IriInput } from "../input/iri-input";
 import { MultiLanguageInputForLanguageString } from "../input/multi-language-input-4-language-string";
-import { DialogDetailRow2 } from "./dialog-detail-row";
+import { DialogDetailRow } from "./dialog-detail-row";
 import { SelectDatatype } from "../input/select-datatype";
 
 export const AddAttributesComponent = (props: {
@@ -65,7 +65,7 @@ export const AddAttributesComponent = (props: {
         <div>
             <span className="text-xs italic">It is possible to add only one attribute rn.</span>
             <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                <DialogDetailRow2 detailKey="name">
+                <DialogDetailRow detailKey="name">
                     <MultiLanguageInputForLanguageString
                         inputType="text"
                         ls={name}
@@ -73,8 +73,8 @@ export const AddAttributesComponent = (props: {
                         defaultLang={preferredLanguage}
                         onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                     />
-                </DialogDetailRow2>
-                <DialogDetailRow2 detailKey="description">
+                </DialogDetailRow>
+                <DialogDetailRow detailKey="description">
                     <MultiLanguageInputForLanguageString
                         inputType="text"
                         ls={description}
@@ -82,8 +82,8 @@ export const AddAttributesComponent = (props: {
                         defaultLang={preferredLanguage}
                         onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                     />
-                </DialogDetailRow2>
-                <DialogDetailRow2 detailKey="iri">
+                </DialogDetailRow>
+                <DialogDetailRow detailKey="iri">
                     <IriInput
                         name={name}
                         iriHasChanged={changedFields.iri}
@@ -94,8 +94,8 @@ export const AddAttributesComponent = (props: {
                         setNewIri={(i) => setIri(i)}
                         baseIri={modelIri}
                     />
-                </DialogDetailRow2>
-                <DialogDetailRow2 detailKey="cardinality">
+                </DialogDetailRow>
+                <DialogDetailRow detailKey="cardinality">
                     <CardinalityOptions
                         group="source"
                         defaultCard={cardinality.cardinality}
@@ -103,14 +103,14 @@ export const AddAttributesComponent = (props: {
                         disabled={false}
                         onChange={() => setChangedFields((prev) => ({ ...prev, cardinality: true }))}
                     />
-                </DialogDetailRow2>
-                <DialogDetailRow2 detailKey="datatype">
+                </DialogDetailRow>
+                <DialogDetailRow detailKey="datatype">
                     <SelectDatatype
                         valueSelected={null}
                         onOptionSelected={(value) => setDataType(value)}
                         onChange={() => setChangedFields((prev) => ({ ...prev, dataType: true }))}
                     />
-                </DialogDetailRow2>
+                </DialogDetailRow>
             </div>
             <div className="my-1 flex flex-row justify-center">
                 <button className="ml-8 bg-white px-2 py-1 hover:shadow-sm" onClick={handleSave}>

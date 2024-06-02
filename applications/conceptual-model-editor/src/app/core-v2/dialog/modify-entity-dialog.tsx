@@ -44,7 +44,7 @@ import {
     RemovableAttributeRow,
 } from "../components/dialog/modify/removable-attribute-row";
 import { DialogColoredModelHeader } from "../components/dialog/dialog-colored-model-header";
-import { DialogDetailRow2 } from "../components/dialog/dialog-detail-row";
+import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
 import {
     NewRemovableAttributeProfileRow,
@@ -364,6 +364,7 @@ export const useModifyEntityDialog = () => {
                 ...rangeChanges,
             } as SemanticModelRelationshipEnd;
 
+            // keep the same order of domain and range
             let ends: SemanticModelRelationshipEnd[];
             if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
                 ends = [rangeEnd, domainEnd];
@@ -384,8 +385,9 @@ export const useModifyEntityDialog = () => {
         const handleSaveRelationshipProfile = (m: InMemorySemanticModel) => {
             const { domainChanges, rangeChanges } = getDomainAndRangeEndChangesForProfile();
 
+            // copy only the changes (use what raw entity provided)
             const domainEnd = {
-                ...(raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange!.domainIndex!), //currentDomainAndRange?.domain,
+                ...(raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange!.domainIndex!),
                 ...domainChanges,
             } as SemanticModelRelationshipEndUsage;
             const rangeEnd = {
@@ -393,6 +395,7 @@ export const useModifyEntityDialog = () => {
                 ...rangeChanges,
             } as SemanticModelRelationshipEndUsage;
 
+            // keep the same order of domain and range
             let ends: SemanticModelRelationshipEndUsage[];
             if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
                 ends = [rangeEnd, domainEnd];
@@ -458,7 +461,7 @@ export const useModifyEntityDialog = () => {
                         ---------
                         */}
 
-                        <DialogDetailRow2 detailKey="name">
+                        <DialogDetailRow detailKey="name">
                             <MultiLanguageInputForLanguageStringWithOverride
                                 style="text-xl"
                                 forElement="modify-entity-name"
@@ -478,7 +481,7 @@ export const useModifyEntityDialog = () => {
                                         : undefined
                                 }
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
 
                         {/* 
                         ---------
@@ -486,7 +489,7 @@ export const useModifyEntityDialog = () => {
                         ---------
                         */}
 
-                        <DialogDetailRow2 detailKey="id">{modifiedEntity.id}</DialogDetailRow2>
+                        <DialogDetailRow detailKey="id">{modifiedEntity.id}</DialogDetailRow>
 
                         {/* 
                         ----------
@@ -494,7 +497,7 @@ export const useModifyEntityDialog = () => {
                         ----------
                         */}
 
-                        <DialogDetailRow2 detailKey="iri">
+                        <DialogDetailRow detailKey="iri">
                             <IriInput
                                 name={name2}
                                 iriHasChanged={changedFields.iri}
@@ -503,7 +506,7 @@ export const useModifyEntityDialog = () => {
                                 onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                                 baseIri={modelIri}
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
 
                         {/* 
                         ----------
@@ -511,7 +514,7 @@ export const useModifyEntityDialog = () => {
                         ----------
                         */}
 
-                        <DialogDetailRow2 detailKey="specializes">
+                        <DialogDetailRow detailKey="specializes">
                             <GeneralizationParentsComponent
                                 modifiedEntityId={modifiedEntity.id}
                                 modifiedEntityType={getEntityTypeString(modifiedEntity)}
@@ -531,7 +534,7 @@ export const useModifyEntityDialog = () => {
                                     setNewGeneralizations((prev) => prev.filter((g) => g != gen))
                                 }
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
 
                         {/* 
                         ------------------
@@ -539,7 +542,7 @@ export const useModifyEntityDialog = () => {
                         ------------------
                         */}
 
-                        <DialogDetailRow2 detailKey="description">
+                        <DialogDetailRow detailKey="description">
                             <MultiLanguageInputForLanguageStringWithOverride
                                 forElement="modify-entity-description"
                                 inputType="textarea"
@@ -561,10 +564,10 @@ export const useModifyEntityDialog = () => {
                                         : undefined
                                 }
                             />
-                        </DialogDetailRow2>
+                        </DialogDetailRow>
 
                         {isProfile && (
-                            <DialogDetailRow2 detailKey="usage (profile?) note">
+                            <DialogDetailRow detailKey="usage (profile?) note">
                                 <MultiLanguageInputForLanguageString
                                     inputType="text"
                                     ls={usageNote2}
@@ -572,7 +575,7 @@ export const useModifyEntityDialog = () => {
                                     defaultLang={preferredLanguage}
                                     onChange={() => setChangedFields((prev) => ({ ...prev, usageNote: true }))}
                                 />
-                            </DialogDetailRow2>
+                            </DialogDetailRow>
                         )}
 
                         {/* 
@@ -583,7 +586,7 @@ export const useModifyEntityDialog = () => {
 
                         {canHaveAttributes && (
                             <>
-                                <DialogDetailRow2 style="flex flex-col" detailKey="attributes">
+                                <DialogDetailRow style="flex flex-col" detailKey="attributes">
                                     <>
                                         {attributes.map((v) => (
                                             <RemovableAttributeRow
@@ -605,8 +608,8 @@ export const useModifyEntityDialog = () => {
                                             />
                                         ))}
                                     </>
-                                </DialogDetailRow2>
-                                <DialogDetailRow2 style="flex flex-col" detailKey="attributes profiles">
+                                </DialogDetailRow>
+                                <DialogDetailRow style="flex flex-col" detailKey="attributes profiles">
                                     <>
                                         {attributeProfiles.map((ap) => (
                                             <RemovableAttributeProfileRow
@@ -629,7 +632,7 @@ export const useModifyEntityDialog = () => {
                                             />
                                         ))}
                                     </>
-                                </DialogDetailRow2>
+                                </DialogDetailRow>
                             </>
                         )}
 
@@ -643,9 +646,9 @@ export const useModifyEntityDialog = () => {
                             <>
                                 {isProfile && changedFieldsAsStringArray.length > 0 && (
                                     <>
-                                        <DialogDetailRow2 detailKey="warning">
+                                        <DialogDetailRow detailKey="warning">
                                             <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                        </DialogDetailRow2>
+                                        </DialogDetailRow>
                                     </>
                                 )}
                                 <DomainRangeComponent
