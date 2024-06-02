@@ -7,6 +7,7 @@
 /** @type {import("next").NextConfig} */
 const config = {
     reactStrictMode: true,
+    trailingSlash: true,
 
     // Export to static HTML files for hosting without a Node.js server
     output: "export",
