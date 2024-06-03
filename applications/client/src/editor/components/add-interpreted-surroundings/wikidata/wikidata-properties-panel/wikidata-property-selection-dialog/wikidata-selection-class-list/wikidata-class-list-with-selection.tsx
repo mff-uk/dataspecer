@@ -8,7 +8,7 @@ import { entitySearchTextFilter } from "../../../helpers/search-text-filter";
 import { WikidataInfinityScrollList } from "../../../helpers/wikidata-infinity-scroll-list";
 import { WikidataClassItem } from "./wikidata-class-item";
 import { useDialog } from "../../../../../../dialog";
-import { WikidataEntityDetailDialog } from "../../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
+import { WikidataEntityDetailDialog } from "../../../../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 
 export interface ClassListProperties {
     wdClasses: WdClassHierarchyDescOnly[];

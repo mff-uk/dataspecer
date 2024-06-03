@@ -1,7 +1,7 @@
 import { WdClassDescOnly, WdClassWithSurroundingsDesc, isWdErrorResponse } from "@dataspecer/wikidata-experimental-adapter";
 import { useContext } from "react";
 import { useQuery } from "react-query";
-import { WikidataAdapterContext } from "../contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "../../../wikidata/wikidata-adapter-context";
 
 export interface UseWdGetClassReturnValue {
     wdClassWithSurroundings: WdClassWithSurroundingsDesc | undefined;

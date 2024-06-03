@@ -11,7 +11,7 @@ import { WikidataPropertyItem, WikidataPropertyType } from "./wikidata-property-
 import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-dialog/wikidata-property-selection-dialog";
 import { useDialog } from "../../../../../dialog";
 import { WikidataInfinityScrollList } from "../../helpers/wikidata-infinity-scroll-list";
-import { WikidataEntityDetailDialog } from "../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
+import { WikidataEntityDetailDialog } from "../../../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 
 export interface WikidataPropertiesAccordionProps {
     wdProperties: WdPropertyDescOnly[];

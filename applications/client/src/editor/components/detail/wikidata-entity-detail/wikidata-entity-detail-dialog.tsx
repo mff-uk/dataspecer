@@ -1,16 +1,16 @@
 import { Button, DialogActions, DialogContentText, Divider, Grid, Tab, Tabs } from "@mui/material";
 import React, { useState } from "react";
-import { DialogContent, DialogTitle } from "../../../detail/common";
+import { DialogContent, DialogTitle } from "../common";
 import { WdClassDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
-import { dialog } from "../../../../dialog";
+import { dialog } from "../../../dialog";
 import { useTranslation } from "react-i18next";
-import { selectLanguage } from "../../../../utils/select-language";
-import { CimLinks } from "../../../detail/components/cim-links";
-import { LanguageStringFallback } from "../../../helper/LanguageStringComponents";
-import { InDifferentLanguages } from "../../../detail/components/InDifferentLanguages";
-import { WikidataClassDetailTab } from "./wikidata-entity-tab/wikidata-class-detail-tab";
+import { selectLanguage } from "../../../utils/select-language";
+import { CimLinks } from "../components/cim-links";
+import { LanguageStringFallback } from "../../helper/LanguageStringComponents";
+import { InDifferentLanguages } from "../components/InDifferentLanguages";
 import { DETAIL_SCROLLABLE_TARGET_ID } from "./wikidata-entity-tab/wikidata-entity-detail-grid";
 import { WikidataPropertyDetailTab } from "./wikidata-entity-tab/wikidata-property-detail-tab";
+import { WikidataClassDetailTab } from "./wikidata-entity-tab/wikidata-class-detail-tab";
 
 export interface WikidataShowSelectedDialogProps {
     isOpen: boolean;

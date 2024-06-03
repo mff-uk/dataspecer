@@ -2,7 +2,7 @@ import { WdClassDescOnly, WdEntityId, WdFilterByInstance, isWdErrorResponse } fr
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { dialog } from "../../../../../dialog";
 import { useQuery } from "react-query";
-import { WikidataAdapterContext } from "../../contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "../../../../wikidata/wikidata-adapter-context";
 import { Box, Button, DialogActions, List, ListItem, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { DialogContent, DialogTitle } from "../../../../detail/common";
@@ -136,12 +136,13 @@ const InputIRIConditionsHelpBox: React.FC = () => {
     );
 }
 
+
 function createLinkToSparqlQueryAncestors(wdClassId: WdEntityId): string {
-    return `https://query.wikidata.org/#PREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ASELECT%20%3Finstance%20%3FinstanceLabel%0AWHERE%20%7B%0A%20%20%23%20Instances%20of%20ancestors%20%28exlucing%20the%20starting%20one%29.%0A%20%20%3Finstance%20wdt%3AP31%20%3Fancestor%20.%0A%20%20%3Fancestor%20%5Ewdt%3AP279%2B%20wd%3AQ${wdClassId.toString()}%20.%0A%0A%20%20%23%20Filter%20out%20everything%20that%20is%20not%20an%20item.%0A%20%20FILTER%28STRSTARTS%28STR%28%3Finstance%29%2C%20CONCAT%28STR%28wd%3A%29%2C%20%22Q%22%29%29%29%0A%0A%20%20%23%20Obtaining%20labels%20for%20instances.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%0A%7D%20LIMIT%205%0A`
+    return `https://query.wikidata.org/#PREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ACONSTRUCT%20%7B%0A%20%20%3Finstance%20rdfs%3Alabel%20%3FinstanceLabel%20.%0A%7D%20WHERE%20%7B%0A%20%20%23%20Sub%20query%2C%20otherwise%20it%20looses%20priority%20ordering%20from%20Wikidata.%0A%20%20SELECT%20%3Finstance%20%3FinstanceLabel%0A%20%20WHERE%20%7B%0A%20%20%20%20%23%20Instances%20of%20ancestors%20%28exlucing%20the%20starting%20one%29.%0A%20%20%20%20%3Finstance%20wdt%3AP31%20%3Fancestor%20.%0A%20%20%20%20%3Fancestor%20%5Ewdt%3AP279%2B%20wd%3AQ${wdClassId.toString()}%20.%0A%20%20%20%20%0A%20%20%20%20%23%20Filter%20out%20everything%20that%20is%20not%20an%20item.%0A%20%20%20%20FILTER%28STRSTARTS%28STR%28%3Finstance%29%2C%20CONCAT%28STR%28wd%3A%29%2C%20%22Q%22%29%29%29%0A%0A%20%20%20%20%23%20The%20instance%20must%20not%20be%20a%20class.%0A%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Finstance%20wdt%3AP279%20%3FinstanceClass%20%7D%0A%20%20%20%20%0A%20%20%20%20%23%20Obtaining%20labels%20for%20instances.%0A%20%20%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%0A%20%20%7D%20LIMIT%205%0A%7D`
 } 
 
 function createLinkToSparqlQueryChildren(wdClassId: WdEntityId): string {
-    return `https://query.wikidata.org/#PREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ASELECT%20%3Finstance%20%3FinstanceLabel%0AWHERE%20%7B%0A%20%20%23%20Direct%20instances%20and%20instances%20of%20child%20classes.%0A%20%20wd%3AQ${wdClassId.toString()}%20%5Ewdt%3AP279%2a%2F%5Ewdt%3AP31%20%3Finstance%20.%20%0A%0A%20%20%23%20Filter%20out%20everything%20that%20is%20not%20an%20item.%0A%20%20FILTER%28STRSTARTS%28STR%28%3Finstance%29%2C%20CONCAT%28STR%28wd%3A%29%2C%20%22Q%22%29%29%29%0A%0A%20%20%23%20Obtaining%20labels%20for%20instances.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%0A%7D%20LIMIT%205%0A`
+    return `https://query.wikidata.org/#PREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ACONSTRUCT%20%7B%0A%20%20%3Finstance%20rdfs%3Alabel%20%3FinstanceLabel%20.%0A%7D%20WHERE%20%7B%0A%20%20%23%20Sub%20query%2C%20otherwise%20it%20looses%20priority%20ordering%20from%20Wikidata.%0A%20%20SELECT%20%3Finstance%20%3FinstanceLabel%0A%20%20WHERE%20%7B%0A%20%20%20%20%23%20Direct%20instances%20and%20instances%20of%20child%20classes.%0A%20%20%20%20wd%3AQ${wdClassId.toString()}%20%5Ewdt%3AP279%2a%2F%5Ewdt%3AP31%20%3Finstance%20.%20%0A%0A%20%20%20%20%23%20Filter%20out%20everything%20that%20is%20not%20an%20item.%0A%20%20%20%20FILTER%28STRSTARTS%28STR%28%3Finstance%29%2C%20CONCAT%28STR%28wd%3A%29%2C%20%22Q%22%29%29%29%0A%0A%20%20%20%23%20The%20instance%20must%20not%20be%20a%20class.%0A%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Finstance%20wdt%3AP279%20%3FinstanceClass%20%7D%0A%0A%20%20%20%20%23%20Obtaining%20labels%20for%20instances.%0A%20%20%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%0A%20%20%7D%20LIMIT%205%0A%7D`
 } 
 
 const InstanceSearchHelpBox: React.FC<HelpBoxProps> = ({selectedWdClass}) => {

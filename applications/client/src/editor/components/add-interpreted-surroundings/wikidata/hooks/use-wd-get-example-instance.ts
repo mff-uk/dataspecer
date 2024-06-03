@@ -4,7 +4,7 @@ import {
 } from "@dataspecer/wikidata-experimental-adapter";
 import { useContext } from "react";
 import { useQuery } from "react-query";
-import { WikidataAdapterContext } from "../contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "../../../wikidata/wikidata-adapter-context";
 import { WdExampleInstance } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-sparql-endpoint-connector/api-types/get-example-instances";
 
 export interface UseWdGetExampleInstancesReturnValue {

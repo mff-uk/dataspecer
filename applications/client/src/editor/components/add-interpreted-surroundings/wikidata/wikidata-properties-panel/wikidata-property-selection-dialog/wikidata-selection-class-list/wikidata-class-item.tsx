@@ -17,7 +17,7 @@ import {
 } from "../../../../../helper/LanguageStringComponents";
 import React from "react";
 import { UseDialogOpenFunction } from "../../../../../../dialog";
-import { WikidataEntityDetailDialog } from "../../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
+import { WikidataEntityDetailDialog } from "../../../../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 
 export interface WikidataClassItemProps {
     wdClass: WdClassHierarchyDescOnly;

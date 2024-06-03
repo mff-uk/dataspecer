@@ -1,6 +1,6 @@
 import { CoreResource } from "@dataspecer/core/core/core-resource";
 import { WdClassSurroundings, WdEntityId, WdEntityIri, WdUnderlyingType } from "@dataspecer/wikidata-experimental-adapter";
-import { WikidataAdapterContextValue } from "../contexts/wikidata-adapter-context";
+import { WikidataAdapterContextValue } from "../../../wikidata/wikidata-adapter-context";
 import { WdPropertySelectionRecord } from "./property-selection-record";
 import { WikidataPropertyType } from "../wikidata-properties-panel/wikidata-properties/wikidata-property-item";
 

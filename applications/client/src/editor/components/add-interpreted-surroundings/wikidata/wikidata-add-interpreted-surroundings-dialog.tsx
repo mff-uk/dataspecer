@@ -14,7 +14,7 @@ import {
     wdIriToNumId,
 } from "@dataspecer/wikidata-experimental-adapter";
 import { QueryClientProvider } from "react-query";
-import { WikidataAdapterContext } from "./contexts/wikidata-adapter-context";
+import { WikidataAdapterContext } from "../../wikidata/wikidata-adapter-context";
 import { queryClient } from "./contexts/react-query-context";
 import { WikidataAncestorsSelectorPanel } from "./wikidata-ancestors-selector-panel/wikidata-ancestors-selector-panel";
 import { useWdGetSurroundings } from "./hooks/use-wd-get-surroundings";

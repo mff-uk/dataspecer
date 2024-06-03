@@ -21,7 +21,7 @@ import { entitySearchTextFilterWithMap } from "../helpers/search-text-filter";
 import { useTranslation } from "react-i18next";
 import { LanguageStringText } from "../../../helper/LanguageStringComponents";
 import { useDialog } from "../../../../dialog";
-import { WikidataEntityDetailDialog } from "../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
+import { WikidataEntityDetailDialog } from "../../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 
 export interface AncestorsSelectorPanelProps {
     rootWdClassSurroundings: WdClassSurroundings;

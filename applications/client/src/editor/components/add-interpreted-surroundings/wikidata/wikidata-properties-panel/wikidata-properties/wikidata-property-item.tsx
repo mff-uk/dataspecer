@@ -11,7 +11,7 @@ import { WikidataPropertySelectionDialog } from "../wikidata-property-selection-
 import { useCallback, useContext } from "react";
 import { WdPropertySelectionContext } from "../../contexts/wd-property-selection-context";
 import { WdPropertySelectionRecord, getAllWdPropertySelections } from "../../property-selection-record/property-selection-record";
-import { WikidataEntityDetailDialog } from "../../wikidata-entity-detail-dialog/wikidata-entity-detail-dialog";
+import { WikidataEntityDetailDialog } from "../../../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 
 // Maps to translations of headlines.
 export enum WikidataPropertyType {

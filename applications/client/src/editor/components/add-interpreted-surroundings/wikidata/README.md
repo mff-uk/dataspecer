@@ -25,6 +25,8 @@ The entry point is the `wikidata-add-interpreted-surroundings-dialog.tsx` that c
 
 ### Overview
 
+The most important is the set up of the `WikidataAdapterContext` which then provides the Wikidata adapter to the rest of the components.
+
 Starting from the entrypoint `WikidataAddInterpretedSurroundingsDialog`.
 The dialog is provided with a Wikidata class IRI which then starts loading of it's surroundings through the `WikidataAdapter`.
 The selected class is refered to as a root class.
@@ -116,9 +118,3 @@ A warning is displayed when the instance is not part of the currently selected a
 A user cannot select an class, otherwise it would mean computing the same statistics as were done in the preprocessing.
 Also note that the IRIs might contain some query or #.
 It must be cleaned before querying the backend.
-
-#### Entity details with `WikidataEntityDetailDialog`
-
-The entity detail represents detail of a class or a property.
-The detail is click-through, meaning when clicking on entities, the a new detail is shown for the clicked entity.
-The user can then navigate back with the back button at the bottom.
