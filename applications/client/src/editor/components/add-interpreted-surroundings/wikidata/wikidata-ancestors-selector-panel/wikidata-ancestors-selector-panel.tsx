@@ -57,7 +57,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
             </Typography>
             <Box display={"flex"}>
                 <TextField
-                    placeholder={t("type to search")}
+                    placeholder={t("wikidata.type to search")}
                     style={{ width: 247 }}
                     onChange={(e) => {
                         e.stopPropagation();
@@ -93,7 +93,7 @@ export const WikidataAncestorsSelectorPanel: React.FC<AncestorsSelectorPanelProp
                                 <ListItemText
                                     primary={
                                         <>
-                                            <LanguageStringText from={cls.labels} />
+                                            <LanguageStringText from={cls.labels} /><Box fontSize={11}>(Q{cls.id.toString()})</Box>
                                         </>
                                     }
                                 />

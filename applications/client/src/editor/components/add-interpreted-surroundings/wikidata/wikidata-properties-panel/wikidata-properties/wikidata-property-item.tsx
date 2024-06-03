@@ -96,14 +96,19 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                     }
                 >
                     <Stack direction="row" spacing={4}>
-                    <strong>
-                        <LanguageStringText from={wdProperty.labels} />
-                    </strong>
-                    <SelectedWdPropertiesChips 
-                        wdProperty={wdProperty} 
-                        wdPropertyType={wdPropertyType} 
-                        selectedWdClassId={selectedWdClassSurroundings.startClassId} 
-                    />
+                        <Stack direction="row" spacing={1}>
+                            <strong>
+                                <LanguageStringText from={wdProperty.labels} />
+                            </strong>
+                            <Typography fontSize={13}>
+                                (P{wdProperty.id.toString()})
+                            </Typography> 
+                        </Stack>
+                        <SelectedWdPropertiesChips 
+                            wdProperty={wdProperty} 
+                            wdPropertyType={wdPropertyType} 
+                            selectedWdClassId={selectedWdClassSurroundings.startClassId} 
+                        />
                     </Stack>
                 </ListItemText>
                 <IconButton 

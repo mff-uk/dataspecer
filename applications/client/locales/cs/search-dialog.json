@@ -2,5 +2,17 @@
   "info panel nothing found": "Nebylo nic nalezeno. Zkontrolujte dotaz.",
   "info panel start typing": "Začněte psát do vyhledávacího pole a zde se zobrazí výsledky.",
   "placeholder": "Vložte IRI, nebo hledejte podle titulku. Lze používat regulární výrazy.",
-  "title": "Vyhledání třídy"
+  "title": "Vyhledání třídy",
+  "wikidata": {
+    "use default": "Použít výchozí dialog",
+    "placeholder": "Popište třídu klíčovými slovy, krátkým popisem, nebo vložte IRI",
+    "properties": "Třída má obsahovat tyto vlastnosti",
+    "add property": "Přidat vlastnost",
+    "title property": "Vyhledání vlastnosti",
+    "property input": "Vložte IRI, nebo hledejte podle názvu.",
+    "search error": "Během hledání nastala chyba.",
+    "search results": "Výsledky hledání",
+    "class description": "Popis třídy",
+    "search": "Hledat"
+  }
 }

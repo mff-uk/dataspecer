@@ -54,8 +54,9 @@ const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelect
                 <div>
                     {tDetail(isEntityProperty ? "wikidata.property" : "wikidata.class")}: {" "} 
                     <strong>
-                        {selectLanguage(wdEntityForDetail.labels, i18n.languages)}
+                        {selectLanguage(wdEntityForDetail.labels, i18n.languages)}{" "} 
                     </strong>
+                    ({isEntityProperty ? "P" : "Q"}{wdEntityForDetail.id.toString()})
                     <CimLinks iri={wdEntityForDetail.iri} />
                 </div>
                 <DialogContentText>

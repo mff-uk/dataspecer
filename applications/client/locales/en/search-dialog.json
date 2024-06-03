@@ -2,5 +2,17 @@
   "info panel nothing found": "Nothing found. Check your search query.",
   "info panel start typing": "Start typing into a search dialog to show results.",
   "placeholder": "Type IRI or search for label. You can even use regular expressions.",
-  "title": "Class search"
+  "title": "Class search",
+  "wikidata": {
+    "use default": "Use default dialog",
+    "placeholder": "Describe the class using keywords, short description, or insert IRI.",
+    "properties": "The class must contain these properties",
+    "add property": "Add property",
+    "title property": "Property search",
+    "property input": "Type IRI or search for a label.",
+    "search error": "There was an error during search.",
+    "search results": "Search results",
+    "class description": "The class description",
+    "search": "Search"
+  }
 }

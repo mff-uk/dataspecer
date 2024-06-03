@@ -13,6 +13,9 @@ import { WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc
 import { WdClassHierarchy, WdGetClassHierarchyResponse, WdHierarchyPart } from "./api-types/get-class-hierarchy";
 import { WdClassSurroundings, WdGetClassSurroundingsResponse } from "./api-types/get-class-surroundings";
 import { WdFilterByInstance, WdGetFilterByInstanceResponse } from "./api-types/get-filter-by-instance";
+import { WdPostSearchResponse, WdPostSearchResults, WdSearchClassesConfig, WdSearchPropertiesConfig } from "./api-types/post-experimental-search";
+import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class";
+import { WdPropertyDescOnly } from "../wikidata-entities/wd-property";
 
 export class WdOntologyConnector {
     private readonly httpFetch: HttpFetch;
@@ -27,6 +30,8 @@ export class WdOntologyConnector {
         getFilterByInstanceUrl: (instanceUrl: string) => this.addBaseUrlPrefix(`/filter-by-instance?url=${encodeURI(instanceUrl)}`),
         getClassPropertyEndpointsUrl: (classId: WdEntityId, propertyId: WdEntityId, domainsOrRanges: WdDomainsOrRanges, order: WdBaseOrInheritOrder) =>
             this.addBaseUrlPrefix(`/classes/${classId}/properties/${propertyId}/${domainsOrRanges}?order=${order}`),
+        postClassSearch: () => this.addBaseUrlPrefix("/search-classes"),
+        postPropertySearch: () => this.addBaseUrlPrefix("/search-properties"),
     };
 
     constructor(httpFetch: HttpFetch, baseUrl: string) {
@@ -34,8 +39,22 @@ export class WdOntologyConnector {
         this.BASE_URL = baseUrl;
     }
 
-    private async callFetch<RespType, RetType>(url, RetCreator: { new (response: RespType): RetType }): Promise<RetType | WdErrorResponse> {
+    private async callGetFetch<RespType, RetType>(url, RetCreator: { new (response: RespType): RetType }): Promise<RetType | WdErrorResponse> {
         const response = (await (await this.httpFetch(url)).json()) as object;
+        if (isWdErrorResponse(response)) {
+            return response;
+        } else return new RetCreator(response as RespType);
+    }
+
+    private async callPostFetch<PostData, RespType, RetType>(data: PostData, url, RetCreator: { new (response: RespType): RetType }): Promise<RetType | WdErrorResponse> {
+        const response = (await (await this.httpFetch(url, {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })).json()) as object;
         if (isWdErrorResponse(response)) {
             return response;
         } else return new RetCreator(response as RespType);
@@ -43,33 +62,43 @@ export class WdOntologyConnector {
 
     public async getSearch(query: string): Promise<WdSearchResults | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getSearchUrl(query);
-        return await this.callFetch<WdGetSearchResponse, WdSearchResults>(url, WdSearchResults);
+        return await this.callGetFetch<WdGetSearchResponse, WdSearchResults>(url, WdSearchResults);
     }
 
     public async getClass(classId: WdEntityId): Promise<WdClassWithSurroundingsDesc | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getClassUrl(classId);
-        return await this.callFetch<WdGetClassWithSurroundingsDescResponse, WdClassWithSurroundingsDesc>(url, WdClassWithSurroundingsDesc);
+        return await this.callGetFetch<WdGetClassWithSurroundingsDescResponse, WdClassWithSurroundingsDesc>(url, WdClassWithSurroundingsDesc);
     }
 
     public async getProperty(propertyId: WdEntityId): Promise<WdPropertyWithSurroundingDesc | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getPropertyUrl(propertyId);
-        return await this.callFetch<WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc>(url, WdPropertyWithSurroundingDesc);
+        return await this.callGetFetch<WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc>(url, WdPropertyWithSurroundingDesc);
     }
 
     public async getClassHierarchy(classId: WdEntityId, part: WdHierarchyPart): Promise<WdClassHierarchy | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getHierarchyUrl(classId, part);
-        return await this.callFetch<WdGetClassHierarchyResponse, WdClassHierarchy>(url, WdClassHierarchy);
+        return await this.callGetFetch<WdGetClassHierarchyResponse, WdClassHierarchy>(url, WdClassHierarchy);
     }
 
     public async getClassSurroundings(classId: WdEntityId): Promise<WdClassSurroundings | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getSurroundingsUrl(classId);
-        return await this.callFetch<WdGetClassSurroundingsResponse, WdClassSurroundings>(url, WdClassSurroundings);
+        return await this.callGetFetch<WdGetClassSurroundingsResponse, WdClassSurroundings>(url, WdClassSurroundings);
     }
 
     public async getFilterByInstance(instanceUri: string): Promise<WdFilterByInstance | WdErrorResponse> {
         const clearedInstanceUri = instanceUri.split(/[?#]/)[0];
         const url = this.API_ENDPOINTS.getFilterByInstanceUrl(clearedInstanceUri);
-        return await this.callFetch<WdGetFilterByInstanceResponse, WdFilterByInstance>(url, WdFilterByInstance);
+        return await this.callGetFetch<WdGetFilterByInstanceResponse, WdFilterByInstance>(url, WdFilterByInstance);
+    }
+
+    public async postSearchClasses(config: WdSearchClassesConfig): Promise<WdPostSearchResults<WdClassHierarchyDescOnly> | WdErrorResponse> {
+        const url = this.API_ENDPOINTS.postClassSearch();
+        return await this.callPostFetch<WdSearchClassesConfig, WdPostSearchResponse<WdClassHierarchyDescOnly>, WdPostSearchResults<WdClassHierarchyDescOnly>>(config, url, WdPostSearchResults<WdClassHierarchyDescOnly>);
+    }
+
+    public async postSearchProperties(config: WdSearchPropertiesConfig): Promise<WdPostSearchResults<WdPropertyDescOnly> | WdErrorResponse> {
+        const url = this.API_ENDPOINTS.postPropertySearch();
+        return await this.callPostFetch<WdSearchPropertiesConfig, WdPostSearchResponse<WdPropertyDescOnly>, WdPostSearchResults<WdPropertyDescOnly>>(config, url, WdPostSearchResults<WdPropertyDescOnly>);
     }
 
     public async getClassPropertyEndpoints(
@@ -79,6 +108,6 @@ export class WdOntologyConnector {
         order: WdBaseOrInheritOrder,
     ): Promise<WdClassPropertyEndpoints | WdErrorResponse> {
         const url = this.API_ENDPOINTS.getClassPropertyEndpointsUrl(classId, propertyId, domainsOrRanges, order);
-        return await this.callFetch<WdGetClassPropertyEndpointsResponse, WdClassPropertyEndpoints>(url, WdClassPropertyEndpoints);
+        return await this.callGetFetch<WdGetClassPropertyEndpointsResponse, WdClassPropertyEndpoints>(url, WdClassPropertyEndpoints);
     }
 }

@@ -9,6 +9,7 @@ import {
     Box,
     ListItemIcon,
     Radio,
+    Stack,
 } from "@mui/material";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 import {
@@ -73,10 +74,15 @@ export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({
                             </LanguageStringUndefineable>
                         </Box>
                     }
-                >
-                    <strong>
-                        <LanguageStringText from={wdClass.labels} />
-                    </strong>
+                >   
+                    <Stack direction="row" spacing={1}>
+                        <strong>
+                            <LanguageStringText from={wdClass.labels} />
+                        </strong>
+                        <Typography fontSize={13}>
+                            (Q{wdClass.id.toString()})
+                        </Typography>
+                    </Stack>
                 </ListItemText>
                 <IconButton 
                     size='small'

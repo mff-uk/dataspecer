@@ -15,6 +15,10 @@ import { WdClassHierarchy } from "./wikidata-ontology-connector/api-types/get-cl
 import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
 import { WdSparqlEndpointConnector } from "./wikidata-sparql-endpoint-connector/wd-sparql-endpoint-connector";
 
+export function isWikidataAdapter(adapter: CimAdapter): adapter is WikidataAdapter {
+    return Object.hasOwn(adapter, "thisIsWikidataAdapter");
+}
+
 export class WikidataAdapter implements CimAdapter {
     protected readonly httpFetch: HttpFetch;
     protected iriProvider!: IriProvider;
@@ -23,6 +27,7 @@ export class WikidataAdapter implements CimAdapter {
     );
     public readonly wdOntologyConnector: WdOntologyConnector;
     public readonly wdSparqlEndpointConnector: WdSparqlEndpointConnector;
+    public readonly thisIsWikidataAdapter: boolean = true;
 
     constructor(httpFetch: HttpFetch, baseUrl: string) {
         this.httpFetch = httpFetch;

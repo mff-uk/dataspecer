@@ -10,7 +10,7 @@ import { DialogContent, DialogTitle } from "../../detail/common";
 import { AddInterpretedSurroundingDialogProperties } from "../default/add-interpreted-surroundings-dialog";
 import {
     WdEntityId,
-    WikidataAdapter,
+    isWikidataAdapter,
     wdIriToNumId,
 } from "@dataspecer/wikidata-experimental-adapter";
 import { QueryClientProvider } from "react-query";
@@ -40,11 +40,10 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
             useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.dataPsmClassIri);
         const cimClassIri = pimClass?.pimInterpretation;
 
-        if (props.isOpen && cimClassIri) {
-            const wikidataAdapter = cim.cimAdapter as WikidataAdapter;
+        if (props.isOpen && cimClassIri && isWikidataAdapter(cim.cimAdapter)) {
             return (
                 <WikidataAdapterContext.Provider
-                    value={{ iriProvider: cim.iriProvider, wdAdapter: wikidataAdapter }}
+                    value={{ iriProvider: cim.iriProvider, wdAdapter: cim.cimAdapter }}
                 >
                     <QueryClientProvider client={queryClient}>
                         <WikidataAddInterpretedSurroundingsDialogContent

@@ -1,5 +1,5 @@
-import { WdEntityDescOnly, WdEntityId, WdEntityIdsList, WdExternalOntologyMappings } from "@dataspecer/wikidata-experimental-adapter";
-import { Box, Grid, List, ListItem, ListItemText, TextField, Typography } from "@mui/material";
+import { WdEntityDescOnly, WdEntityId, WdEntityIdsList, WdExternalOntologyMappings, isEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
+import { Box, Grid, List, ListItem, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { entitySearchTextFilterWithMap } from "../../../add-interpreted-surroundings/wikidata/helpers/search-text-filter";
@@ -114,10 +114,13 @@ const EntityListWithSearch: React.FC<EntityListWithSearchProps> = ({wdEntityIds,
                                 </LanguageStringUndefineable>
                             </Box>
                         }
-                    >
-                        <strong>
-                            <LanguageStringText from={wdEntity.labels} />
-                        </strong>
+                    >   
+                        <Stack direction="row" spacing={1}>
+                            <strong>
+                                <LanguageStringText from={wdEntity.labels} />
+                            </strong>
+                            <Typography fontSize={13}>({isEntityPropertyDesc(wdEntity) ? "P" : "Q"}{wdEntity.id.toString()})</Typography>
+                        </Stack>
                     </ListItemText>
                 </ListItem>
             </>

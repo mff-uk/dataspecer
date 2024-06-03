@@ -27,23 +27,23 @@ export const WikidataPropertySelectionList: React.FC<WikidataPropertySelectionLi
                         <ListItemText
                             primary={
                                 <>  
-                                    <LanguageStringFallback from={record.subjectWdClass.labels} fallback={<i>{t("no title")}</i>}/>
+                                    <LanguageStringFallback from={record.subjectWdClass.labels} fallback={<i>{t("no title")}</i>}/> {` (Q${record.subjectWdClass.id.toString()})`}
                                     <BackwardOrOutward wdProperty={record.wdProperty} wdPropertyType={record.wdPropertyType}/>
                                     {   
                                         record.objectWdClass != null &&
-                                        <LanguageStringFallback from={record.objectWdClass.labels} fallback={<i>{t("no title")}</i>} />
+                                        <><LanguageStringFallback from={record.objectWdClass.labels} fallback={<i>{t("no title")}</i>} /> {` (Q${record.objectWdClass.id.toString()})`}</>
                                     }
                                 </>
                             }
                         >
                         </ListItemText>
                         <ListItemSecondaryAction>
-                            <Button onClick={() => props.openSelectionDialog(record)}>edit</Button>
+                            <Button onClick={() => props.openSelectionDialog(record)}>{t("edit")}</Button>
                             <Button 
                                 onClick={() => wdPropertySelectionContext.removeWdPropertySelectionRecord(record)}
                                 color="error"
                             >
-                                delete
+                                {t("delete")}
                             </Button>
                         </ListItemSecondaryAction>
                     </ListItem>
@@ -67,13 +67,12 @@ const BackwardOrOutward: React.FC<BackwardOrOutwardProps> = (props) => {
                 <ArrowBackIcon color={"disabled"} sx={{ verticalAlign: "middle", mx: "1rem" }} /> :
                 <HorizontalRuleIcon color={"disabled"} sx={{ verticalAlign: "middle", mx: "1rem" }} />
             }
-            <LanguageStringFallback from={props.wdProperty.labels} fallback={<i>{t("no title")}</i>} />
+            <LanguageStringFallback from={props.wdProperty.labels} fallback={<i>{t("no title")}</i>} /> {` (P${props.wdProperty.id.toString()})`}
             {
                 props.wdPropertyType === WikidataPropertyType.BACKWARD_ASSOCIATIONS ?
                 <HorizontalRuleIcon color={"disabled"} sx={{ verticalAlign: "middle", mx: "1rem" }} /> :
                 <ArrowForwardIcon color={"disabled"} sx={{ verticalAlign: "middle", mx: "1rem" }} />
             }
-            
         </>
 
     );
