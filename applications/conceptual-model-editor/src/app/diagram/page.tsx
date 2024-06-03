@@ -53,6 +53,16 @@ const Page = () => {
     const { packageId, viewId, updatePackageId } = useQueryParamsContext();
     const { getModelsFromBackend } = useBackendConnection();
 
+    // runs on initial load
+    // if the app was launched without package-id query parameter
+    // - creates a default entity model
+    // - creates a view for it
+    // - registers it with the aggregator
+    // else -- the package-id (and view-id) params were provided
+    // - downloads the models and views for given package from the backend
+    // - deserializes them
+    // - registers them at the aggregator
+    // - if there was no local model within the package, it creates and registers one as well
     useEffect(() => {
         const pId = packageId;
         console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent, pId:", pId);
@@ -161,6 +171,10 @@ const Page = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // registers a subscription callback at the aggregator, that:
+    // - removes whatever was removed from the models registered at the aggregator from the `ClassContext`
+    // - goes through the updated elements
+    // - based on their types puts them to their respective buckets - classes, relationships, etc
     useEffect(() => {
         const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             console.log("page.tsx callback, updated, removed", updated, removed);
