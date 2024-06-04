@@ -1,36 +1,35 @@
 import JSZip from "jszip";
 import DalApi from "../dal-generator-api";
+import { AxiosResponse } from "axios";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { DalGeneratorStrategy, isAxiosResponse } from "../dal-generator-strategy-interface";
+import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
 import { StageGenerationContext } from "../../engine/generator-stage-interface";
-import { ImportRelativePath, TemplateDescription, TemplateGenerator } from "../../app-logic-layer/template-app-logic-generator";
+import { TemplateGenerator } from "../../app-logic-layer/template-app-logic-generator";
 import { ReaderInterfaceGenerator } from "../reader-interface-generator";
 import { LDkitSchemaSelectorGenerator } from "../ldkit-schema-selector-generator";
+import { LdkitReaderTemplate } from "../../template-interfaces/data/ldkit-reader-template";
 
-interface LdkitReaderTemplate extends TemplateDescription {
-    templatePath: string;
-    placeholders: {
-        list_reader_interface: string,
-        list_reader_interface_path: ImportRelativePath,
-        ldkitSchema_selector: string,
-        schema_selector_path: ImportRelativePath
-    };
+export function isAxiosResponse(
+    dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
+): dataLayerResult is AxiosResponse<LayerArtifact, any>
+{
+    return (dataLayerResult as AxiosResponse<LayerArtifact, any>).data !== undefined;
 }
 
 export class LDKitDalGenerator implements DalGeneratorStrategy {
     
     strategyIdentifier: string = "ldkit";
     private readonly endpoint = "http://localhost:8889";
-    private readonly api: DalApi;
+    private readonly _api: DalApi;
     private readonly _templateRenderer: TemplateGenerator;
     private readonly _filePath: string;
     private readonly _templatePath: string;
 
     constructor(templatePath?: string, filePath?: string) {        
-        this.api = new DalApi(this.endpoint);
+        this._api = new DalApi(this.endpoint);
         this._templateRenderer = new TemplateGenerator();
         this._filePath = filePath ?? "./readers/reader-implementation.ts";
-        this._templatePath = templatePath ?? "./overview/ldkit-reader";
+        this._templatePath = templatePath ?? "./list/ldkit-reader";
     }
 
     async generateDataLayer(context: StageGenerationContext): Promise<LayerArtifact> {
@@ -42,10 +41,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
     }
 
     private async getLdkitSchema(aggregateName: string): Promise<LayerArtifact> {
-        // TODO: get from passed context
-        //console.log(`       Calling the backend (${this.endpoint}) for DAL with: `, aggregateName);
-
-        const response = await this.api.generateDalLayerArtifact(this.strategyIdentifier, aggregateName);
+        const response = await this._api.generateDalLayerArtifact(this.strategyIdentifier, aggregateName);
 
         if (!isAxiosResponse(response) || response.status !== 200) {
             throw new Error("Invalid artifact returned from server");

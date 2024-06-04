@@ -12,7 +12,7 @@ import { StageGenerationContext } from "./generator-stage-interface";
 import { LayerArtifact } from "./layer-artifact";
 
 // {
-//     path: "/overview/datasets",
+//     path: "/list/datasets",
 //     element: <OverviewTable />,
 //     children: [],
 //     errorElement: <ErrorPage />

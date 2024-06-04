@@ -1,15 +1,19 @@
 import { GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact } from "../engine/layer-artifact";
-import { DalGeneratorStrategy, isLayerArtifact } from "./dal-generator-strategy-interface";
+import { DalGeneratorStrategy } from "./dal-generator-strategy-interface";
 import { LDKitDalGenerator } from "./strategies/ldkit-strategy";
-
 import { DataSourceType, DatasourceConfig } from "../application-config";
 import { FileDalGeneratorStrategy } from "./strategies/file-dal-strategy";
 import { LocalStorageDalGeneratorStrategy } from "./strategies/localstorage-dal-strategy";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy: (datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
+}
+
+function isLayerArtifact(obj: any): obj is LayerArtifact {
+    const la = obj as LayerArtifact;
+    return la !== undefined && la.exportedObjectName !== undefined;
 }
 
 export class DataLayerGeneratorStage implements GeneratorStage {
@@ -54,31 +58,5 @@ export class DataLayerGeneratorStage implements GeneratorStage {
         }
         
         return dalArtifact as LayerArtifact;
-
-        // let result: LayerArtifact;
-
-        // dalArtifact
-        //     .then(response => {
-        //         const artifact = response.data;
-        //         console.log(artifact);
-        //         console.log("Type of response: ", typeof artifact);
-        //         result = artifact;
-
-        //         return artifact;
-
-        //     })
-        //     .catch(err => {
-        //         const template: LayerArtifact = {
-        //             fileName: "error-dal-layer.ts",
-        //             exportedObjectName: "ErrorDalLayer",
-        //             sourceText: `
-        //             export const ErrorDalLayer = {}
-        //             `
-        //         };
-        //         console.error(err.toJSON());
-                
-        //         result = template;
-        //         return template;
-        //     })
     }
 }

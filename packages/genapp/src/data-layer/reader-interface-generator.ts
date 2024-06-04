@@ -1,22 +1,14 @@
 import { LayerArtifact } from "../engine/layer-artifact";
 import { TemplateConsumer } from "../templates/template-consumer";
-import { ImportRelativePath, TemplateDescription } from "../app-logic-layer/template-app-logic-generator";
 import { CapabilityInterfaceGenerator } from "../capabilities/capability-interface-generator";
 import { BaseArtifactSaver } from "../utils/artifact-saver";
-
-export interface ReaderInterfaceTemplate extends TemplateDescription {
-    templatePath: string,
-    placeholders: {
-        read_return_type: string,
-        read_return_type_path: ImportRelativePath
-    }
-}
+import { ReaderInterfaceTemplate } from "../template-interfaces/data/reader-interface-template";
 
 export class ReaderInterfaceGenerator extends TemplateConsumer {
 
     constructor(templatePath?: string, filePath?: string) {
         super(
-            templatePath ?? "./overview/reader-interface",
+            templatePath ?? "./list/reader-interface",
             filePath ?? "./readers/list-reader.ts"
         );
     }

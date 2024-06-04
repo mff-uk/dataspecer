@@ -2,21 +2,9 @@ import { LayerArtifact } from "../engine/layer-artifact";
 import { TemplateConsumer } from "../templates/template-consumer";
 import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
-import { ImportRelativePath, TemplateDescription } from "./template-app-logic-generator";
 import { ReaderInterfaceGenerator } from "../data-layer/reader-interface-generator";
 import { CapabilityInterfaceGenerator } from "../capabilities/capability-interface-generator";
-
-interface ListCapabilityTemplate extends TemplateDescription {
-    templatePath: string,
-    placeholders: {
-        list_reader_interface: string,
-        list_reader_interface_path: ImportRelativePath,
-        reader_implementation_path: ImportRelativePath,
-        generated_capability_class: string,
-        read_return_type: string,
-        read_return_type_path: ImportRelativePath
-    }
-}
+import { ListCapabilityTemplate } from "../template-interfaces/app/list-capability-template";
 
 export class ListCapabilityApplicationLayerStage extends TemplateConsumer implements GeneratorStage {
 
@@ -25,8 +13,8 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
 
     constructor(templatePath?: string, filePath?: string) {
         super(
-            templatePath ?? "./overview/overview-app-logic",
-            filePath ?? "./overview-app-logic.ts"
+            templatePath ?? "./list/overview-app-logic",
+            filePath ?? "./list-app-logic.ts"
         );
         this.artifactSaver = new ArtifactSaver("/app-logic");
     }
@@ -52,9 +40,7 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
 
         const fullPath = this.artifactSaver ? this.artifactSaver.getFullSavePath(this._filePath) : this._filePath;
 
-        // TODO: for the 2 lines below: the artifacts have already been generated within another layer,
-        // Handle filepath calculation, so that the target filepath corresponds to the actual saved filepath
-        const readerInterfaceArtifact = new ReaderInterfaceGenerator().consumeTemplate(); //this.getReaderWithUpdatedFilepath();
+        const readerInterfaceArtifact = new ReaderInterfaceGenerator().consumeTemplate();
         const capabilityResultArtifact = new CapabilityInterfaceGenerator().consumeTemplate();
 
         const listApplicationTemplate: ListCapabilityTemplate = {
@@ -89,28 +75,4 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
 
         return listAppLogicLayerArtifact;
     }
-
-    // private getReaderWithUpdatedFilepath(): LayerArtifact {
-    //     const initReaderInterface = new ReaderInterfaceGenerator().consumeTemplate();
-
-    //     if (!this._dataLayerLinkArtifact.dependencies) {
-    //         throw new Error("Missing Data layer link");
-    //     }
-
-    //     const matchingReaderInterfaces = this._dataLayerLinkArtifact
-    //         .dependencies
-    //         .filter(dalArtifact => dalArtifact.exportedObjectName === initReaderInterface.exportedObjectName);
-
-    //     if (matchingReaderInterfaces.length !== 1) {
-    //         return initReaderInterface;
-    //     }
-
-    //     const validMatchingReaderInterface = matchingReaderInterfaces.at(0);
-
-    //     if (!validMatchingReaderInterface) {
-    //         return initReaderInterface;
-    //     }
-
-    //     return validMatchingReaderInterface;
-    // }
 }

@@ -1,18 +1,12 @@
 import { LayerArtifact } from "../engine/layer-artifact";
+import { SchemaSelectorTemplate } from "../template-interfaces/data/schema-selector-template";
 import { TemplateConsumer } from "../templates/template-consumer";
-import { TemplateDescription } from "../app-logic-layer/template-app-logic-generator";
-
-interface SchemaSelectorTemplate extends TemplateDescription {
-    templatePath: string,
-    placeholders: {
-    }
-}
 
 export class LDkitSchemaSelectorGenerator extends TemplateConsumer {
 
     constructor(templatePath?: string, filePath?: string) {
         super(
-            templatePath ?? "../templates/overview/ldkit-schema-selector",
+            templatePath ?? "./list/ldkit-schema-selector",
             filePath ?? "./ldkit-schemas/schema-selector.ts"
         );
     }
@@ -21,8 +15,7 @@ export class LDkitSchemaSelectorGenerator extends TemplateConsumer {
         
         const schemaSelectorTemplate: SchemaSelectorTemplate = {
             templatePath: this._templatePath,
-            placeholders: {
-            }
+            placeholders: {}
         };
 
         const schemaSelectorRender: string = this._templateRenderer.renderTemplate(schemaSelectorTemplate);

@@ -1,0 +1,103 @@
+import React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { useEffect, useState } from 'react';
+import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
+
+export default function OverviewTable({ aggregateName }: { aggregateName: string }) {
+
+    const [overviewObjects, setOverviewObjects] = useState(undefined as unknown as object[]);
+    const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
+
+    const stringify = (objectKey) => {
+        //console.log(objectKey)
+        return typeof objectKey == 'object'
+            ? Object.keys(objectKey).map(k => stringify(objectKey[k])).join(" || ")
+            : objectKey.toString();
+    }
+
+    function excludeKey(obj: object, keys: string[]): object {
+        const newObj = { ...obj };
+        keys.forEach(k => delete newObj[k]);
+
+        return newObj;
+    }
+
+    useEffect(() => {
+        if (!overviewObjects) {
+            <%= it.list_capability_app_layer %>.runCapability(aggregateName)
+                .then(result => {
+                    if (!result || !result.entities || result.entities.length === 0) {
+                        console.error("No objects available");
+                    } else {
+                        console.log(`Found ${result.entities.length} corresponding objects`)
+                    }
+                    const results = result.entities.map(res => res.raw);
+
+                    setLoadingStatus(false);
+                    setOverviewObjects(results);
+                })
+        }
+    }, [loadingStatus, aggregateName, overviewObjects]);
+
+    return (
+        loadingStatus
+            ?
+            (<div>Loading results</div>)
+            : (
+                <TableContainer>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table"></Table>
+                    {overviewObjects &&
+                        <React.Fragment>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="right">
+                                        <strong>Index</strong>
+                                    </TableCell>
+                                    {overviewObjects.length > 0
+                                        ? Object
+                                            .keys(excludeKey(overviewObjects[0], ["$id", "$type"]))
+                                            .map((key, ix) => {
+                                                //console.log("KEY: ", key);
+                                                return <TableCell key={ix} align="right">
+                                                    <strong>{key}</strong>
+                                                </TableCell>
+                                            })
+                                        : (<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                            <TableCell align="right">No corresponding objects found.</TableCell>
+                                        </TableRow>)
+                                    }
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {overviewObjects.length > 0 &&
+                                    overviewObjects.map((obj, idx) =>
+                                        <TableRow
+                                            key={idx}
+                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                            <TableCell align="right">
+                                                {idx + 1}
+                                            </TableCell>
+                                            {Object
+                                                .keys(excludeKey(obj, ["$id", "$type"]))
+                                                .map((key, ix) => {
+                                                    return <TableCell key={ix} align="right">
+                                                        {stringify(obj[key])}
+                                                    </TableCell>
+                                                })
+                                            }
+                                        </TableRow>
+                                    )
+                                }
+                            </TableBody>
+                        </React.Fragment>
+                    }
+                </TableContainer>
+            )
+
+    )
+}

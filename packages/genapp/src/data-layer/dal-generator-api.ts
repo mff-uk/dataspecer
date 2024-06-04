@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { LayerArtifact } from "../engine/layer-artifact";
 
 export default class DalApi {
     private readonly endpointBaseUri: string;

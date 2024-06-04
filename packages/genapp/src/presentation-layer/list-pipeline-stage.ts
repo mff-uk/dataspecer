@@ -1,16 +1,8 @@
-import { ImportRelativePath, TemplateDescription } from "../app-logic-layer/template-app-logic-generator";
 import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { TemplateConsumer } from "../templates/template-consumer";
-
-export interface ListTableTemplate extends TemplateDescription {
-    templatePath: string,
-    placeholders: {
-        app_logic_delegate: string,
-        delegate_path: ImportRelativePath
-    }
-}
+import { ListTableTemplate } from "../template-interfaces/presentation/list-table-template";
 
 export class PresentationLayerStage extends TemplateConsumer implements GeneratorStage {
 
@@ -19,16 +11,22 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
 
     constructor(templatePath?: string, filepath?: string) {
         super(
-            templatePath ?? "./overview/overview-table",
-            filepath ?? "OverviewTable.tsx"
+            templatePath ?? "./list/table-component",
+            filepath ?? "ListTable.tsx"
         );
-        this.artifactSaver = new ArtifactSaver("/components/overview");
+        this.artifactSaver = new ArtifactSaver("/components/list");
     }
 
     generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
         
         if (!context.previousResult) {
-            throw new Error("'List capability' application layer depends on LayerArtifact from previous layer");
+            const errorArtifact: LayerArtifact = {
+                filePath: "",
+                exportedObjectName: "ErrorPage",
+                sourceText: ""
+            }
+
+            return Promise.resolve(errorArtifact);
         }
 
         this._listAppLogicArtifact = context.previousResult;
@@ -44,8 +42,8 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
         const tableTemplate: ListTableTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                app_logic_delegate: this._listAppLogicArtifact.exportedObjectName,
-                delegate_path: {
+                list_capability_app_layer: this._listAppLogicArtifact.exportedObjectName,
+                list_app_layer_path: {
                     from: fullPath,
                     to: this._listAppLogicArtifact.filePath
                 }
@@ -55,7 +53,7 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
         const presentationLayerRender = this._templateRenderer.renderTemplate(tableTemplate);
 
         return {
-            exportedObjectName: "OverviewTable",
+            exportedObjectName: "ListTable",
             filePath: this._filePath,
             sourceText: presentationLayerRender
         };
