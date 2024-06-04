@@ -20,8 +20,6 @@ export function WikidataSearchResultsList<T extends WdEntityDescOnly>(props: Wik
             <List dense component="nav"
                 sx={{
                     overflow: 'auto',
-                    maxHeight: 500,
-                    height: 500,
                     margin: theme => theme.spacing(2, 0, 0, 0),
                 }}
                 >
