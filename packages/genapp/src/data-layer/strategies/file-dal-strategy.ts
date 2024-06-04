@@ -3,7 +3,7 @@ import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
 
 export class FileDalGeneratorStrategy implements DalGeneratorStrategy {
 
-    strategyIdentifier: string = "file<type>";
+    _strategyIdentifier: string = "file<type>";
     private readonly fileType: string;
 
     constructor(fileType: string) {

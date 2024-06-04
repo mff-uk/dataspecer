@@ -3,7 +3,7 @@ import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
 
 export class LocalStorageDalGeneratorStrategy implements DalGeneratorStrategy {
 
-    strategyIdentifier: string = "localStorage";
+    _strategyIdentifier: string = "localStorage";
     
     generateDataLayer(): Promise<LayerArtifact> {
         const localDalLayer: LayerArtifact = {

@@ -1,3 +1,4 @@
+import path from "path";
 import JSZip from "jszip";
 import DalApi from "../dal-generator-api";
 import { AxiosResponse } from "axios";
@@ -18,7 +19,7 @@ export function isAxiosResponse(
 
 export class LDKitDalGenerator implements DalGeneratorStrategy {
     
-    strategyIdentifier: string = "ldkit";
+    _strategyIdentifier: string = "ldkit";
     private readonly endpoint = "http://localhost:8889";
     private readonly _api: DalApi;
     private readonly _templateRenderer: TemplateGenerator;
@@ -41,7 +42,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
     }
 
     private async getLdkitSchema(aggregateName: string): Promise<LayerArtifact> {
-        const response = await this._api.generateDalLayerArtifact(this.strategyIdentifier, aggregateName);
+        const response = await this._api.generateDalLayerArtifact(this._strategyIdentifier, aggregateName);
 
         if (!isAxiosResponse(response) || response.status !== 200) {
             throw new Error("Invalid artifact returned from server");
@@ -66,7 +67,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
         const fileContent = await contentPromise;
         const result: LayerArtifact = {
-            filePath: schemaFilename,
+            filePath: path.posix.join("schemas", this._strategyIdentifier, schemaFilename),
             sourceText: fileContent,
             exportedObjectName: `${aggregateName}Schema`
         }
