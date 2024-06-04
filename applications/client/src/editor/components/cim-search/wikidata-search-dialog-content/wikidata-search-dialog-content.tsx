@@ -5,9 +5,6 @@ import { useTranslation } from "react-i18next";
 import { FormGroup, FormControlLabel, Switch } from "@mui/material";
 import { DefaultSearchDialogContent } from "../default-search-dialog-content/default-search-dialog-content";
 import { WikidataClassSearchConfigurable } from "./wikidata-class-search-configurable";
-import { QueryClient } from "react-query";
-
-export const wikidataSearchQueryClient = new QueryClient();
 
 export const WikidataSearchDialogContent: React.FC<DialogParameters & {selected: (cls: PimClass) => void}> = (props) => {
     const {t} = useTranslation("search-dialog");

@@ -1,17 +1,22 @@
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
 import { DialogParameters, useDialog } from "../../../dialog";
-import React from "react";
-import { WdClassSearchQuery } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
-import { Box, Button, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Typography } from "@mui/material";
+import React, { useContext } from "react";
+import { WdClassSearchQuery, WdSearchClassesConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { Box, Button, CircularProgress, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { WikidataPropertySearchDialog } from "./wikidata-property-search-dialog";
-import { WdEntityId, WdPropertyDescOnly } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassHierarchyDescOnly, WdEntityId, WdPropertyDescOnly, isWdErrorResponse, loadWikidataClass } from "@dataspecer/wikidata-experimental-adapter";
 import { LanguageStringUndefineable, LanguageStringText } from "../../helper/LanguageStringComponents";
 import { WikidataEntityDetailDialog } from "../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
+import { useQuery } from "react-query";
+import { WikidataAdapterContext } from "../../wikidata/wikidata-adapter-context";
+import { WikidataSearchResultsList } from "./wikidata-search-results-list";
+import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
 
 const MAX_LENGTH = 200;
+const SEACH_CLASSES_QUERY_KEY = "search_classes_no_key"
 
 const CONFIG_DEFAULT = `{
  "candidateSelectorConfig": {
@@ -50,12 +55,28 @@ const CONFIG_DEFAULT = `{
 }
 `
 
-export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selected: (cls: PimClass) => void}> = ({close, isOpen, selected}) => {
+function createSearchClassesConfig(strConfig: string, wdClassSearchQuery: WdClassSearchQuery): WdSearchClassesConfig {
+    const configObject = JSON.parse(strConfig) as WdSearchClassesConfig;
+    configObject.query = wdClassSearchQuery;
+    return configObject;
+}
+
+export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selected: (cls: PimClass) => void}> = ({close, selected}) => {
     const {t} = useTranslation("search-dialog");
+    const wikidataAdapter = useContext(WikidataAdapterContext);
     const [configText, setConfigText] = React.useState<string>(CONFIG_DEFAULT);
     const [selectedWdProperties, setSelectedWdProperties] = React.useState<WdPropertyDescOnly[]>([]);
     const [classQuery, setClassQuery] = React.useState<WdClassSearchQuery>({ text: "", properties: []});
     const AddWdPropertyDialog = useDialog(WikidataPropertySearchDialog);
+    const [results, setResults] = React.useState<WdClassHierarchyDescOnly[] | null>(null);
+    const {data, isError, isFetching, refetch} = useQuery([SEACH_CLASSES_QUERY_KEY], async () => {
+        const queryConfig = createSearchClassesConfig(configText, classQuery);
+        const response = await wikidataAdapter.wdAdapter.wdOntologyConnector.postSearchClasses(queryConfig);
+        if (!isWdErrorResponse(response)) {
+            setResults(response.results);
+        }
+        return response;
+    }, { refetchOnWindowFocus: false, enabled: false },)
 
     function addSelectedWdProperty(wdProperty: WdPropertyDescOnly): void {
         if (!classQuery.properties.includes(wdProperty.id)) {
@@ -71,9 +92,11 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
         setSelectedWdProperties(filteredWdProperties)
     }
 
+    const queryFailed = isError || (isWdErrorResponse(data))
+
     return (
         <>
-            {/* <TextField
+            <TextField
                     label={"config"}
                     multiline
                     fullWidth
@@ -81,7 +104,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                     onChange={e => setConfigText(e.target.value)}
                     autoComplete="off"
                     value={configText}
-            /> */}
+            />
             <Typography fontSize={19}>{t("wikidata.class description")}:</Typography>
             <Stack direction="column" marginTop={1} marginLeft={2} marginRight={2}>
                 <Box display={"flex"} >
@@ -95,7 +118,14 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                         value={classQuery.text}
                         inputProps={{maxLength: MAX_LENGTH}}
                     />
-                    <Button style={{marginLeft: "1rem"}} variant="contained">{t("wikidata.search")}</Button>
+                    <Button 
+                        style={{marginLeft: "1rem", width: 100}} 
+                        variant="contained"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                    >
+                        {isFetching ? <CircularProgress color="inherit" />: t("wikidata.search")}
+                    </Button>
                 </Box>
                 <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{classQuery.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
                 <Typography sx={{marginTop: 1}} fontSize={16}>{t("wikidata.properties")}:</Typography>
@@ -114,6 +144,18 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                 </Box>
             </Stack>
             <Typography marginTop={1} fontSize={19}>{t("wikidata.search results")}:</Typography>
+            {queryFailed && !isFetching && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} message={t("wikidata.search error")}/>}
+            {!queryFailed && isFetching && <WikidataSearchNotice key={"loading"} isProgress={true} isError={false} height={200}/>}
+            {!queryFailed && !isFetching && results && results.length !== 0 &&
+                <WikidataSearchResultsList<WdClassHierarchyDescOnly> results={results} onSelect={function (wdClass: WdClassHierarchyDescOnly): void {
+                    const pimClass = loadWikidataClass(wdClass, wikidataAdapter.iriProvider)
+                    selected(pimClass);
+                    close()
+                } } />
+            }
+            {!queryFailed && !isFetching && results && results.length === 0 &&
+                <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} message={t("info panel nothing found")}/>
+            }
             <AddWdPropertyDialog.Component />
         </>
     );

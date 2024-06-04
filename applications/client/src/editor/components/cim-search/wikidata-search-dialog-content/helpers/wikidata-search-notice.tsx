@@ -1,11 +1,13 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 
 export interface WikidataSearchNoticeProps {
-    isError: boolean;
-    message: string;
+    isProgress: boolean
+    isError?: boolean;
+    message?: string;
+    height?: number;
 }
 
 export const WikidataSearchNotice: React.FC<WikidataSearchNoticeProps> = (props) => {
@@ -13,7 +15,7 @@ export const WikidataSearchNotice: React.FC<WikidataSearchNoticeProps> = (props)
         <>
             <Box
                 sx={{
-                    height: 300,
+                    height: props?.height ?? 300,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -23,14 +25,19 @@ export const WikidataSearchNotice: React.FC<WikidataSearchNoticeProps> = (props)
             >
                 {
                     <>
-                        {
-                            props.isError 
-                            ?
-                            <SearchOffIcon sx={{ display: "block", height: "4rem", width: "4rem" }} /> 
-                            :
-                            <SearchIcon sx={{ display: "block", height: "4rem", width: "4rem" }} />
+                        {props.isProgress && <CircularProgress color="inherit" style={{ margin: "1rem auto" }} />}
+                        {!props.isProgress && props.isError && 
+                            <>
+                                <SearchOffIcon sx={{ display: "block", height: "4rem", width: "4rem" }} /> 
+                                {props?.message ?? ""}
+                            </>
                         }
-                        {props.message}
+                        {!props.isProgress && !props.isError &&
+                            <>
+                                <SearchIcon sx={{ display: "block", height: "4rem", width: "4rem" }} />
+                                {props?.message ?? ""}
+                            </>
+                        }
                     </>
                 }
             </Box>

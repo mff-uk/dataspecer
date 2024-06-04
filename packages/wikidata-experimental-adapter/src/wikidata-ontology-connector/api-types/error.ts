@@ -6,6 +6,6 @@ export interface WdErrorResponse {
 
 export function isWdErrorResponse(response: object | undefined): response is WdErrorResponse {
     if (response != null) {
-        return "error" in response;
+        return Object.hasOwn(response, "error");
     } else return false;
 }

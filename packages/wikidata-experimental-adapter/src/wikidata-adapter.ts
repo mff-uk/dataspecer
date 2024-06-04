@@ -27,6 +27,7 @@ export class WikidataAdapter implements CimAdapter {
     );
     public readonly wdOntologyConnector: WdOntologyConnector;
     public readonly wdSparqlEndpointConnector: WdSparqlEndpointConnector;
+    // For type narrowing
     public readonly thisIsWikidataAdapter: boolean = true;
 
     constructor(httpFetch: HttpFetch, baseUrl: string) {
@@ -194,5 +195,4 @@ export class WikidataAdapter implements CimAdapter {
         }
         return undefined;
     }
-
 }

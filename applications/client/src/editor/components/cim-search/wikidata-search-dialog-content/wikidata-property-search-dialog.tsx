@@ -94,9 +94,9 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                     />
                 }
                 {results && results.length === 0 && 
-                    <WikidataSearchNotice isError={false} message={t("info panel nothing found")}/>
+                    <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} message={t("info panel nothing found")}/>
                 }
-                {!results  && <WikidataSearchNotice isError={false} message={t("info panel start typing")}/>}
+                {!results  && <WikidataSearchNotice key={"start"} isProgress={false} isError={false} message={t("info panel start typing")}/>}
             </DialogContent>
         </>
     )
