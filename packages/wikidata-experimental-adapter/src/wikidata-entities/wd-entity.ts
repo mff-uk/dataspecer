@@ -30,11 +30,11 @@ export function concatWdPrefixWithId(id: string): string {
     return WIKIDATA_URI_PREFIX + id;
 }
 
-export function isEntityPropertyDesc(entity: WdEntityDescOnly): entity is WdPropertyDescOnly {
+export function isWdEntityPropertyDesc(entity: WdEntityDescOnly): entity is WdPropertyDescOnly {
     return "datatype" in entity;
 }
 
-export function isEntityClassDesc(entity: WdEntityDescOnly): entity is WdClassDescOnly {
+export function isWdEntityClassDesc(entity: WdEntityDescOnly): entity is WdClassDescOnly {
     return !("datatype" in entity);
 }
 

@@ -1,4 +1,4 @@
-import { WdEntityDescOnly, isEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
+import { WdEntityDescOnly, isWdEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
 import { ReactElement } from "react";
 import { useDialog } from "../../../dialog";
 import { WikidataEntityDetailDialog } from "../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
@@ -10,6 +10,9 @@ import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
 export interface WikidataSearchResultsListProps<T extends WdEntityDescOnly> {
     results: T[]
     onSelect: (wdEntity: T) => void;
+    detailOnSelect: (wdEntity : WdEntityDescOnly) => void;
+    detailOnSelectDiabledWhen: (wdEntity: WdEntityDescOnly) => boolean;
+    detailOnSelectButtonText: (wdEntity: WdEntityDescOnly) => string;
 }
 
 export function WikidataSearchResultsList<T extends WdEntityDescOnly>(props: WikidataSearchResultsListProps<T>): ReactElement {
@@ -33,7 +36,7 @@ export function WikidataSearchResultsList<T extends WdEntityDescOnly>(props: Wik
                             <Stack direction="row" spacing={1}>
                                 <strong>{translateFrom(result.labels, i18n.languages)}</strong>
                                 <Typography fontSize={13}>
-                                        ({isEntityPropertyDesc(result) ? "P" : "Q"}{result.id.toString()}) 
+                                        ({isWdEntityPropertyDesc(result) ? "P" : "Q"}{result.id.toString()}) 
                                 </Typography>
                             </Stack>
                         </ListItemText>
@@ -41,7 +44,11 @@ export function WikidataSearchResultsList<T extends WdEntityDescOnly>(props: Wik
                             size="small" 
                             onClick={e => {
                                 e.stopPropagation();
-                                WdEntityDialog.open({wdEntity: result})
+                                WdEntityDialog.open({
+                                    wdEntity: result, 
+                                    onSelect: props.detailOnSelect, 
+                                    onSelectButtonDisableWhen: props.detailOnSelectDiabledWhen, 
+                                    onSelectButtonText: props.detailOnSelectButtonText})
                             }}
                         >
                             <InfoTwoToneIcon/>

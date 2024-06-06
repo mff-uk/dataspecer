@@ -1,7 +1,7 @@
 import { Button, DialogActions, DialogContentText, Divider, Grid, Tab, Tabs } from "@mui/material";
 import React, { useState } from "react";
 import { DialogContent, DialogTitle } from "../common";
-import { WdClassDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassHierarchyDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isWdEntityPropertyDesc } from "@dataspecer/wikidata-experimental-adapter";
 import { dialog } from "../../../dialog";
 import { useTranslation } from "react-i18next";
 import { selectLanguage } from "../../../utils/select-language";
@@ -17,6 +17,9 @@ export interface WikidataShowSelectedDialogProps {
     close: () => void;
 
     wdEntity: WdEntityDescOnly | undefined;
+    onSelect?: undefined | ((entity: WdEntityDescOnly) => void);
+    onSelectButtonText?: undefined | ((entity: WdEntityDescOnly) => string);
+    onSelectButtonDisableWhen?: undefined | ((entity: WdEntityDescOnly) => boolean);
 }
 
 export const WikidataEntityDetailDialog: React.FC<WikidataShowSelectedDialogProps> =
@@ -27,7 +30,7 @@ export const WikidataEntityDetailDialog: React.FC<WikidataShowSelectedDialogProp
         return null;
     });
 
-const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelectedDialogProps> = ({close, wdEntity}) => {
+const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelectedDialogProps> = ({close, wdEntity, onSelect, onSelectButtonDisableWhen, onSelectButtonText}) => {
     const { t: tUI, i18n } = useTranslation("ui");
     const { t: tDetail } = useTranslation("detail");
     const [entitiesHistory, setEntitiesHistory] = useState<WdEntityDescOnly[]>([]);
@@ -46,7 +49,7 @@ const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelect
         setEntitiesHistory(entitiesHistory.slice(0, -1)); 
     }
 
-    const isEntityProperty = isEntityPropertyDesc(wdEntityForDetail);
+    const isEntityProperty = isWdEntityPropertyDesc(wdEntityForDetail);
 
     return (
         <>
@@ -86,17 +89,29 @@ const WikidataEntityDetailDialogClickThroughContent: React.FC<WikidataShowSelect
                         {
                             isEntityProperty ? 
                             <WikidataPropertyDetailTab wdProperty={wdEntityForDetail as WdPropertyDescOnly} onNewDetailEntity={onNewEntityHandle} /> :
-                            <WikidataClassDetailTab wdClass={wdEntityForDetail as WdClassDescOnly} onNewDetailEntity={onNewEntityHandle} />
+                            <WikidataClassDetailTab wdClass={wdEntityForDetail as WdClassHierarchyDescOnly} onNewDetailEntity={onNewEntityHandle} />
                         }   
                     </>
                 }
             </DialogContent>
             <DialogActions>
-                <Button disabled={entitiesHistory.length === 0} onClick={onBackEntityHandle} variant="contained" size="medium">
+                <Button color="info" disabled={entitiesHistory.length === 0} onClick={onBackEntityHandle} variant="contained" size="medium">
                     {tUI("return back button unnamed tool")} ({entitiesHistory.length})
                 </Button>
                 <Divider orientation="vertical"/>
-                <Button onClick={close}>{tUI("close")}</Button>
+
+                {onSelect !== undefined &&
+                    <Button 
+                        disabled={onSelectButtonDisableWhen(wdEntityForDetail)}
+                        onClick={() => {
+                            onSelect(wdEntityForDetail);
+                            close();
+                        }}
+                    >
+                        {onSelectButtonText(wdEntityForDetail)}
+                    </Button>
+                }
+                <Button color="error" onClick={close}>{tUI("close")}</Button>
             </DialogActions>
         </>
     );

@@ -1,4 +1,4 @@
-import { WdPropertyDescOnly, isWdErrorResponse } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isWdEntityPropertyDesc, isWdErrorResponse } from "@dataspecer/wikidata-experimental-adapter";
 import { DialogParameters, dialog } from "../../../dialog";
 import { DialogTitle, DialogContent, Box, CircularProgress, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -20,7 +20,8 @@ const DEFAULT_PROPERTY_SEARCH_CONFIG: WdSearchPropertiesConfig = {
 }
 
 export interface WikidataPropertySearchDialogProps {
-    onSelect: (WdProperty: WdPropertyDescOnly) => void;
+    onWdPropertySelect: (wdProperty: WdPropertyDescOnly) => void;
+    onWdClassSelect: (wdClass: WdClassDescOnly) => void;
 }
 
 const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[]) => {
@@ -32,14 +33,14 @@ const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[
 }
 
 export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataPropertySearchDialogProps>
-    = dialog({maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } }}, ({close, onSelect}) => {
+    = dialog({maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } }}, ({close, onWdPropertySelect, onWdClassSelect}) => {
     const adapterContext = useContext(WikidataAdapterContext);
     const {t} = useTranslation("search-dialog");
     const [results, setResults] = React.useState<WdPropertyDescOnly[] | null>(null);
     const [searchConfig, setSearchConfig] = React.useState<WdSearchPropertiesConfig>(DEFAULT_PROPERTY_SEARCH_CONFIG);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isError, setError] = React.useState(false);
-
+    
     useDebounceEffect(() => {
         setError(false);
         if (searchConfig.query.text != null && searchConfig.query.text !== "") {
@@ -88,9 +89,23 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                     <WikidataSearchResultsList<WdPropertyDescOnly> 
                         results={results} 
                         onSelect={(wdProperty: WdPropertyDescOnly) => {
-                            onSelect(wdProperty);
+                            onWdPropertySelect(wdProperty);
                             close()
-                        }} 
+                        }}
+                        detailOnSelect={(wdEntity: WdEntityDescOnly) => {
+                            if (isWdEntityPropertyDesc(wdEntity)) {
+                                onWdPropertySelect(wdEntity);
+                            } else {
+                                onWdClassSelect(wdEntity)
+                            } 
+                            close();
+                        }}
+                        detailOnSelectButtonText={(wdEntity: WdEntityDescOnly) => {
+                            if (isWdEntityPropertyDesc(wdEntity)) {
+                                return t("wikidata.select property");
+                            } else return t("wikidata.select as root");
+                        }}
+                        detailOnSelectDiabledWhen={(wdEntity: WdEntityDescOnly) => false}
                     />
                 }
                 {results && results.length === 0 && 

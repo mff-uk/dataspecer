@@ -1,11 +1,11 @@
 import { buildEntityMap } from "./utils/build-entity-map";
-import { WdClassDescOnly } from "../../wikidata-entities/wd-class";
+import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 import { WdEntityId } from "../../wikidata-entities/wd-entity";
 import { WdProperty, WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
 
 export interface WdGetPropertyWithSurroundingDescResponseResults {
     readonly startProperty: WdProperty;
-    readonly surroundingClassesDesc: WdClassDescOnly[];
+    readonly surroundingClassesDesc: WdClassHierarchyDescOnly[];
     readonly surroundingPropertiesDesc: WdPropertyDescOnly[];
 }
 
@@ -15,7 +15,7 @@ export interface WdGetPropertyWithSurroundingDescResponse {
 
 export class WdPropertyWithSurroundingDesc {
     readonly startProperty: WdProperty;
-    readonly surroundingClassesDescMap: ReadonlyMap<WdEntityId, WdClassDescOnly>;
+    readonly surroundingClassesDescMap: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>;
     readonly surroundingPropertiesDescMap: ReadonlyMap<WdEntityId, WdPropertyDescOnly>;
 
     constructor(response: WdGetPropertyWithSurroundingDescResponse) {

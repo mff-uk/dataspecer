@@ -13,6 +13,8 @@
     "search error": "Během hledání nastala chyba.",
     "search results": "Výsledky hledání",
     "class description": "Popis třídy",
-    "search": "Hledat"
+    "search": "Hledat",
+    "select as root": "Vybrat jako kořen",
+    "select property": "Vybrat vlastnost"
   }
 }

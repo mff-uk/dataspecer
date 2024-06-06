@@ -1,5 +1,5 @@
 import { buildEntityMap } from "./utils/build-entity-map";
-import { WdClass, WdClassDescOnly } from "../../wikidata-entities/wd-class";
+import { WdClass, WdClassDescOnly, WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
 import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
 import { WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
 
@@ -8,7 +8,7 @@ export interface WdGetClassWithSurroundingsDescResponseResults {
     readonly parentsIds: WdEntityIdsList;
     readonly subjectOfIds: WdEntityIdsList;
     readonly valueOfIds: WdEntityIdsList;
-    readonly surroundingClassesDesc: WdClassDescOnly[];
+    readonly surroundingClassesDesc: WdClassHierarchyDescOnly[];
     readonly surroundingPropertiesDesc: WdPropertyDescOnly[];
 }
 
@@ -21,7 +21,7 @@ export class WdClassWithSurroundingsDesc {
     readonly parentsIds: WdEntityIdsList;
     readonly subjectOfIds: WdEntityIdsList;
     readonly valueOfIds: WdEntityIdsList;
-    readonly surroundingClassesDescMap: ReadonlyMap<WdEntityId, WdClassDescOnly>;
+    readonly surroundingClassesDescMap: ReadonlyMap<WdEntityId, WdClassHierarchyDescOnly>;
     readonly surroundingPropertiesDescMap: ReadonlyMap<WdEntityId, WdPropertyDescOnly>;
 
     constructor(response: WdGetClassWithSurroundingsDescResponse) {

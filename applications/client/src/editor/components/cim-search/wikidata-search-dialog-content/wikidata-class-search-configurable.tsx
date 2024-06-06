@@ -6,7 +6,7 @@ import { Box, Button, CircularProgress, IconButton, List, ListItem, ListItemSeco
 import { useTranslation } from "react-i18next";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { WikidataPropertySearchDialog } from "./wikidata-property-search-dialog";
-import { WdClassHierarchyDescOnly, WdEntityId, WdPropertyDescOnly, isWdErrorResponse, loadWikidataClass } from "@dataspecer/wikidata-experimental-adapter";
+import { WdClassHierarchyDescOnly, WdEntityDescOnly, WdEntityId, WdPropertyDescOnly, isWdEntityPropertyDesc, isWdErrorResponse, loadWikidataClass } from "@dataspecer/wikidata-experimental-adapter";
 import { LanguageStringUndefineable, LanguageStringText } from "../../helper/LanguageStringComponents";
 import { WikidataEntityDetailDialog } from "../../detail/wikidata-entity-detail/wikidata-entity-detail-dialog";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
@@ -92,6 +92,12 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
         setSelectedWdProperties(filteredWdProperties)
     }
 
+    function onWdClassSelect(wdClass: WdClassHierarchyDescOnly): void {
+        const pimClass = loadWikidataClass(wdClass, wikidataAdapter.iriProvider)
+        selected(pimClass);
+        close()
+    };
+
     const queryFailed = isError || (isWdErrorResponse(data))
 
     return (
@@ -129,7 +135,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                 </Box>
                 <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{classQuery.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
                 <Typography sx={{marginTop: 1}} fontSize={16}>{t("wikidata.properties")}:</Typography>
-                <SelectedPropertiesList wdProperties={selectedWdProperties} removeProperty={removeSelectedWdProperty}/>
+                <SelectedPropertiesList wdProperties={selectedWdProperties} removeProperty={removeSelectedWdProperty} detailOnWdClassSelect={onWdClassSelect}/>
                 <Box display="flex" justifyContent="center">
                     <Button 
                         startIcon={<AddBoxIcon/>}
@@ -137,7 +143,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                         color="info" 
                         size="small" 
                         variant="contained"
-                        onClick={() => AddWdPropertyDialog.open({onSelect: addSelectedWdProperty})}
+                        onClick={() => AddWdPropertyDialog.open({onWdPropertySelect: addSelectedWdProperty, onWdClassSelect: onWdClassSelect})}
                         >
                         {t("wikidata.add property")}
                     </Button>    
@@ -147,11 +153,13 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
             {queryFailed && !isFetching && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} message={t("wikidata.search error")}/>}
             {!queryFailed && isFetching && <WikidataSearchNotice key={"loading"} isProgress={true} isError={false} height={200}/>}
             {!queryFailed && !isFetching && results && results.length !== 0 &&
-                <WikidataSearchResultsList<WdClassHierarchyDescOnly> results={results} onSelect={function (wdClass: WdClassHierarchyDescOnly): void {
-                    const pimClass = loadWikidataClass(wdClass, wikidataAdapter.iriProvider)
-                    selected(pimClass);
-                    close()
-                } } />
+                <WikidataSearchResultsList<WdClassHierarchyDescOnly> 
+                    results={results} 
+                    onSelect={onWdClassSelect}
+                    detailOnSelect={onWdClassSelect}
+                    detailOnSelectDiabledWhen={(entity: WdEntityDescOnly) => isWdEntityPropertyDesc(entity)}
+                    detailOnSelectButtonText={(_: WdEntityDescOnly) => t("wikidata.select as root")} 
+                />
             }
             {!queryFailed && !isFetching && results && results.length === 0 &&
                 <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} message={t("info panel nothing found")}/>
@@ -164,10 +172,12 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
 interface SelectedWdPropertiesListProps {
     wdProperties: WdPropertyDescOnly[];
     removeProperty: (wdPropertyId: WdEntityId) => void;
+    detailOnWdClassSelect: (wdClass: WdClassHierarchyDescOnly) => void;
 }
 
-const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProperties, removeProperty}) => {
-    const {t} = useTranslation("ui")
+const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProperties, removeProperty, detailOnWdClassSelect}) => {
+    const {t: tUI} = useTranslation("ui")
+    const {t: tSearch} = useTranslation("search-dialog")
     const WdPropertyDetail = useDialog(WikidataEntityDetailDialog)
     
     return (
@@ -219,7 +229,12 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
                                     size='small'
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        WdPropertyDetail.open({wdEntity: wdProperty})
+                                        WdPropertyDetail.open({
+                                            wdEntity: wdProperty, 
+                                            onSelect: detailOnWdClassSelect, 
+                                            onSelectButtonText: (entity: WdEntityDescOnly) => tSearch("wikidata.select as root"),
+                                            onSelectButtonDisableWhen: (wdEntity: WdEntityDescOnly) => isWdEntityPropertyDesc(wdEntity)
+                                        });
                                     }}
                                     sx={{marginRight: 3}}
                                 >
@@ -229,7 +244,7 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
                                     onClick={() => removeProperty(wdProperty.id)} 
                                     color="error"
                                 >
-                                    {t("delete")}
+                                    {tUI("delete")}
                                 </Button>
                             </ListItemSecondaryAction>
                         </ListItem>

@@ -18,20 +18,21 @@ import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replac
 import {InheritanceOrTree} from "../common/use-inheritance-or";
 import {ObjectContext} from "../data-psm-row";
 import {AddSpecializationDialog} from "../add-specialization/add-specialization-dialog";
-import {WikidataAdapter} from "@dataspecer/wikidata-experimental-adapter";
+import {isWikidataAdapter} from "@dataspecer/wikidata-experimental-adapter";
+import { ConfigurationContext } from "../../App";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
   inheritanceOrTree?: InheritanceOrTree
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
+  const {cim} = React.useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
   const readOnly = false;
   const cimClassIri = pimClass?.pimInterpretation;
 
-  const isWikidataClass = WikidataAdapter.ENTITY_URI_REGEXP.test(cimClassIri);
-  const AddSurroundings = useDialog(isWikidataClass ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
+  const AddSurroundings = useDialog(isWikidataAdapter(cim.cimAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>

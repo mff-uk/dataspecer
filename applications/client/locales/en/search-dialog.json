@@ -13,6 +13,8 @@
     "search error": "There was an error during search.",
     "search results": "Search results",
     "class description": "The class description",
-    "search": "Search"
+    "search": "Search",
+    "select as root": "Select as root",
+    "select property": "Select property"
   }
 }
