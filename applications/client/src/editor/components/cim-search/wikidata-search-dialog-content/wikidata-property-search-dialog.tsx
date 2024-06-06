@@ -1,13 +1,17 @@
 import { WdClassDescOnly, WdEntityDescOnly, WdPropertyDescOnly, isWdEntityPropertyDesc, isWdErrorResponse } from "@dataspecer/wikidata-experimental-adapter";
 import { DialogParameters, dialog } from "../../../dialog";
-import { DialogTitle, DialogContent, Box, CircularProgress, TextField } from "@mui/material";
+import { DialogTitle, DialogContent, Box, CircularProgress, TextField, Typography, Stack } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { CloseDialogButton } from "../../detail/components/close-dialog-button";
 import React, { useContext } from "react";
 import { WikidataAdapterContext } from "../../wikidata/wikidata-adapter-context";
-import { WdSearchPropertiesConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { WdPropertySearchRerankersIds, WdSearchPropertiesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
 import { WikidataSearchResultsList } from "./wikidata-search-results-list";
 import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
+import { WikidataSearchBoostSlider } from "./helpers/wikidata-search-boost-slider";
+import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
+
+const MAX_LENGTH = 50;
 
 const DEFAULT_PROPERTY_SEARCH_CONFIG: WdSearchPropertiesConfig = {
     query: {
@@ -16,6 +20,15 @@ const DEFAULT_PROPERTY_SEARCH_CONFIG: WdSearchPropertiesConfig = {
     candidateSelectorConfig: {
         id: "elastic_bm25",
         maxResults: 30
+    }
+}
+
+const GET_USAGE_BOOST_CONFIG = (usageBoost: number): WdSearchRerankerConfig<WdPropertySearchRerankersIds> => {
+    return {
+        id: "feature_usage_mappings",
+        maxResults: 30,
+        queryWeight: (1 - usageBoost),
+        featureWeights: [0.5]
     }
 }
 
@@ -36,6 +49,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
     = dialog({maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } }}, ({close, onWdPropertySelect, onWdClassSelect}) => {
     const adapterContext = useContext(WikidataAdapterContext);
     const {t} = useTranslation("search-dialog");
+    const [usageBoost, setUsageBoost] = React.useState<number>(0);
     const [results, setResults] = React.useState<WdPropertyDescOnly[] | null>(null);
     const [searchConfig, setSearchConfig] = React.useState<WdSearchPropertiesConfig>(DEFAULT_PROPERTY_SEARCH_CONFIG);
     const [isLoading, setIsLoading] = React.useState(false);
@@ -45,7 +59,12 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
         setError(false);
         if (searchConfig.query.text != null && searchConfig.query.text !== "") {
             setIsLoading(true);
-            adapterContext.wdAdapter.wdOntologyConnector.postSearchProperties(searchConfig).then(response => {
+            const config = {...searchConfig}
+            if (usageBoost !== 0) {
+                config.rerankerConfig = [GET_USAGE_BOOST_CONFIG(usageBoost)]
+            }
+            console.log(config);
+            adapterContext.wdAdapter.wdOntologyConnector.postSearchProperties(config).then(response => {
                 if (isWdErrorResponse(response)) {
                     setError(true);
                 } else {
@@ -58,7 +77,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
         } else {
             setResults(null);
         }
-    }, 150, [searchConfig.query.text])
+    }, 150, [usageBoost, searchConfig.query.text])
 
     return ( 
         <>
@@ -67,40 +86,52 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                 <CloseDialogButton onClick={close} />
             </DialogTitle>
             <DialogContent>
-                <Box display={"flex"}>
-                    <TextField
-                        placeholder={t("wikidata.property input")}
-                        fullWidth
-                        autoFocus
-                        onChange={e => { 
-                            const newPropertyQuery = {...searchConfig.query, text: e.target.value}
-                            setSearchConfig({...searchConfig, query: newPropertyQuery}) 
-                        }}
-                        error={isError}
-                        variant={"standard"}
-                        autoComplete="off"
-                        value={searchConfig.query.text}
-                        helperText={ isError ? t("wikidata.search error") : ""}
-                    />
-                    <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={isLoading ? "indeterminate" : "determinate"}/>
-                </Box>
-                
+                <Typography fontSize={20}>{t("wikidata.property description")}:</Typography>
+                <Stack direction="column" marginTop={1} marginLeft={2} marginRight={2}>
+                    <Box display={"flex"}>
+                        <TextField
+                            placeholder={t("wikidata.property input")}
+                            fullWidth
+                            onChange={e => { 
+                                const newPropertyQuery = {...searchConfig.query, text: e.target.value}
+                                setSearchConfig({...searchConfig, query: newPropertyQuery}) 
+                            }}
+                            error={isError}
+                            autoComplete="off"
+                            value={searchConfig.query.text}
+                            inputProps={{maxLength: MAX_LENGTH}}
+                        />
+                        <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={isLoading ? "indeterminate" : "determinate"}/>
+                    </Box>
+                    <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{searchConfig.query.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
+                    
+                    <WikidataSearchBoostSlider infoText={t("wikidata.boost properties")} tooltipText={t("wikidata.boost properties tooltip")} onChange={(value: number) => setUsageBoost(value)} />
+                </Stack>
+                <Stack direction={"row"} alignItems="center">
+                <Typography marginTop={1} marginRight={3} fontSize={20}>{t("wikidata.search results")}:</Typography>
+                { isError && 
+                    <Stack direction="row" marginTop={1}>
+                        <ReportGmailerrorredOutlinedIcon color="error"/>
+                        <Typography color="error" fontSize={17}>{t("wikidata.search error")}</Typography>
+                    </Stack>
+                }
+                </Stack>
                 {results && results.length !== 0 &&
                     <WikidataSearchResultsList<WdPropertyDescOnly> 
-                        results={results} 
-                        onSelect={(wdProperty: WdPropertyDescOnly) => {
-                            onWdPropertySelect(wdProperty);
-                            close()
-                        }}
-                        detailOnSelect={(wdEntity: WdEntityDescOnly) => {
-                            if (isWdEntityPropertyDesc(wdEntity)) {
-                                onWdPropertySelect(wdEntity);
-                            } else {
-                                onWdClassSelect(wdEntity)
-                            } 
-                            close();
-                        }}
-                        detailOnSelectButtonText={(wdEntity: WdEntityDescOnly) => {
+                    results={results} 
+                    onSelect={(wdProperty: WdPropertyDescOnly) => {
+                        onWdPropertySelect(wdProperty);
+                        close()
+                    }}
+                    detailOnSelect={(wdEntity: WdEntityDescOnly) => {
+                        if (isWdEntityPropertyDesc(wdEntity)) {
+                            onWdPropertySelect(wdEntity);
+                        } else {
+                            onWdClassSelect(wdEntity)
+                        } 
+                        close();
+                    }}
+                    detailOnSelectButtonText={(wdEntity: WdEntityDescOnly) => {
                             if (isWdEntityPropertyDesc(wdEntity)) {
                                 return t("wikidata.select property");
                             } else return t("wikidata.select as root");
@@ -109,9 +140,10 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                     />
                 }
                 {results && results.length === 0 && 
-                    <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} message={t("info panel nothing found")}/>
+                    <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} height={150} message={t("info panel nothing found")}/>
                 }
-                {!results  && <WikidataSearchNotice key={"start"} isProgress={false} isError={false} message={t("info panel start typing")}/>}
+                {!results  && !isError && <WikidataSearchNotice key={"start"} isProgress={false} isError={false} height={150} message={t("info panel start typing")}/>}
+                {!results && isError && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} height={150} />}
             </DialogContent>
         </>
     )

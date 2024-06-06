@@ -1,7 +1,7 @@
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
 import { DialogParameters, useDialog } from "../../../dialog";
 import React, { useContext } from "react";
-import { WdClassSearchQuery, WdSearchClassesConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { WdClassSearchQuery, WdClassSearchRerankersIds, WdSearchClassesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
 import { Box, Button, CircularProgress, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -14,6 +14,8 @@ import { useQuery } from "react-query";
 import { WikidataAdapterContext } from "../../wikidata/wikidata-adapter-context";
 import { WikidataSearchResultsList } from "./wikidata-search-results-list";
 import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
+import { WikidataSearchBoostSlider } from "./helpers/wikidata-search-boost-slider";
+import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
 
 const MAX_LENGTH = 200;
 const SEACH_CLASSES_QUERY_KEY = "search_classes_no_key"
@@ -40,24 +42,31 @@ const CONFIG_DEFAULT = `{
      ]
  }
  ,
- "rerankerConfig": [
+ "rerankerConfig": [ 
     {
-        "id": "feature_instance_mappings",
-        "maxResults": 30,
-        "queryWeight": 0.6,
-        "featureWeights": [0.5]
-    }, 
-    {
-         "id": "cross_encoder",
-         "maxResults": 30
+        "id": "cross_encoder",
+        "maxResults": 30
     }
  ]
 }
 `
 
-function createSearchClassesConfig(strConfig: string, wdClassSearchQuery: WdClassSearchQuery): WdSearchClassesConfig {
+const GET_USAGE_BOOST_CONFIG = (usageBoost: number): WdSearchRerankerConfig<WdClassSearchRerankersIds> => {
+    return {
+        id: "feature_instance_mappings",
+        maxResults: 30,
+        queryWeight: (1 - usageBoost),
+        featureWeights: [0.5]
+    }
+}
+    
+function createSearchClassesConfig(strConfig: string, wdClassSearchQuery: WdClassSearchQuery, usageBoost: number): WdSearchClassesConfig {
     const configObject = JSON.parse(strConfig) as WdSearchClassesConfig;
+    if (usageBoost !== 0) {
+        configObject.rerankerConfig = [GET_USAGE_BOOST_CONFIG(usageBoost), ...(configObject?.rerankerConfig ?? [])];
+    }
     configObject.query = wdClassSearchQuery;
+    console.log(configObject);
     return configObject;
 }
 
@@ -66,11 +75,12 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
     const wikidataAdapter = useContext(WikidataAdapterContext);
     const [configText, setConfigText] = React.useState<string>(CONFIG_DEFAULT);
     const [selectedWdProperties, setSelectedWdProperties] = React.useState<WdPropertyDescOnly[]>([]);
+    const [usageBoost, setUsageBoost] = React.useState<number>(0)
     const [classQuery, setClassQuery] = React.useState<WdClassSearchQuery>({ text: "", properties: []});
     const AddWdPropertyDialog = useDialog(WikidataPropertySearchDialog);
     const [results, setResults] = React.useState<WdClassHierarchyDescOnly[] | null>(null);
     const {data, isError, isFetching, refetch} = useQuery([SEACH_CLASSES_QUERY_KEY], async () => {
-        const queryConfig = createSearchClassesConfig(configText, classQuery);
+        const queryConfig = createSearchClassesConfig(configText, classQuery, usageBoost);
         const response = await wikidataAdapter.wdAdapter.wdOntologyConnector.postSearchClasses(queryConfig);
         if (!isWdErrorResponse(response)) {
             setResults(response.results);
@@ -111,17 +121,17 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                     autoComplete="off"
                     value={configText}
             />
-            <Typography fontSize={19}>{t("wikidata.class description")}:</Typography>
+            <Typography fontSize={20}>{t("wikidata.class description")}:</Typography>
             <Stack direction="column" marginTop={1} marginLeft={2} marginRight={2}>
                 <Box display={"flex"} >
                     <TextField
                         placeholder={t("wikidata.placeholder")}
                         size="medium"
                         fullWidth
-                        autoFocus
                         onChange={e => setClassQuery({...classQuery, text: e.target.value})}
                         autoComplete="off"
                         value={classQuery.text}
+                        error={isError}
                         inputProps={{maxLength: MAX_LENGTH}}
                     />
                     <Button 
@@ -134,7 +144,8 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                     </Button>
                 </Box>
                 <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{classQuery.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
-                <Typography sx={{marginTop: 1}} fontSize={16}>{t("wikidata.properties")}:</Typography>
+                <WikidataSearchBoostSlider infoText={t("wikidata.boost classes")} tooltipText={t("wikidata.boost classes tooltip")} onChange={(value: number) => setUsageBoost(value)} />
+                <Typography sx={{marginTop: 2}} fontSize={18}>{t("wikidata.properties")}:</Typography>
                 <SelectedPropertiesList wdProperties={selectedWdProperties} removeProperty={removeSelectedWdProperty} detailOnWdClassSelect={onWdClassSelect}/>
                 <Box display="flex" justifyContent="center">
                     <Button 
@@ -149,9 +160,17 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                     </Button>    
                 </Box>
             </Stack>
-            <Typography marginTop={1} fontSize={19}>{t("wikidata.search results")}:</Typography>
-            {queryFailed && !isFetching && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} message={t("wikidata.search error")}/>}
-            {!queryFailed && isFetching && <WikidataSearchNotice key={"loading"} isProgress={true} isError={false} height={200}/>}
+            <Stack direction={"row"} alignItems="center">
+                <Typography marginTop={1} marginRight={3} fontSize={20}>{t("wikidata.search results")}:</Typography>
+                { isError && 
+                    <Stack direction="row" marginTop={1}>
+                        <ReportGmailerrorredOutlinedIcon color="error"/>
+                        <Typography color="error" fontSize={17}>{t("wikidata.search error")}</Typography>
+                    </Stack>
+                }
+            </Stack>
+            {queryFailed && !isFetching && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} height={150}/>}
+            {!queryFailed && isFetching && <WikidataSearchNotice key={"loading"} isProgress={true} isError={false} height={150}/>}
             {!queryFailed && !isFetching && results && results.length !== 0 &&
                 <WikidataSearchResultsList<WdClassHierarchyDescOnly> 
                     results={results} 
@@ -162,7 +181,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                 />
             }
             {!queryFailed && !isFetching && results && results.length === 0 &&
-                <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} message={t("info panel nothing found")}/>
+                <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} height={150} message={t("info panel nothing found")}/>
             }
             <AddWdPropertyDialog.Component />
         </>

@@ -5,7 +5,7 @@
   "title": "Class search",
   "wikidata": {
     "use default": "Use default dialog",
-    "placeholder": "Describe the class using keywords, short description, or insert IRI.",
+    "placeholder": "Describe the class using keywords, short description, or both. You can also insert IRI.",
     "properties": "The class must contain these properties",
     "add property": "Add property",
     "title property": "Property search",
@@ -13,8 +13,16 @@
     "search error": "There was an error during search.",
     "search results": "Search results",
     "class description": "The class description",
+    "property description": "The property description",
     "search": "Search",
     "select as root": "Select as root",
-    "select property": "Select property"
+    "select property": "Select property",
+    "boost classes": "Boost widely used classes",
+    "boost properties": "Boost widely used properties",
+    "boost classes tooltip": "Boosts classes that have many instances and external ontology mappings.",
+    "boost properties tooltip": "Boosts properties that have many usages on instances and external ontology mappings.",
+    "boost common tooltip": "The slider defines a portion of a boost score in the final result score. The left side denotes no boost, the right side denotes the boost of 0.9 (meaning the 90% of the final score consists of the boost score, the rest 10% is from the query score). The step is 0.1",
+    "no boost": "No boost",
+    "max boost": "Max boost"
   }
 }

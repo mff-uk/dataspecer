@@ -5,7 +5,7 @@
   "title": "Vyhledání třídy",
   "wikidata": {
     "use default": "Použít výchozí dialog",
-    "placeholder": "Popište třídu klíčovými slovy, krátkým popisem, nebo vložte IRI",
+    "placeholder": "Popište třídu klíčovými slovy, krátkým popisem, nebo použijte obojí. Také můžete vložit IRI.",
     "properties": "Třída má obsahovat tyto vlastnosti",
     "add property": "Přidat vlastnost",
     "title property": "Vyhledání vlastnosti",
@@ -13,8 +13,16 @@
     "search error": "Během hledání nastala chyba.",
     "search results": "Výsledky hledání",
     "class description": "Popis třídy",
+    "property description": "Popis vlastnosti",
     "search": "Hledat",
     "select as root": "Vybrat jako kořen",
-    "select property": "Vybrat vlastnost"
+    "select property": "Vybrat vlastnost",
+    "boost classes": "Zvýhodnit hojně užívané třídy",
+    "boost properties": "Zvýhodnit hojně užívané vlasnotsti",
+    "boost classes tooltip": "Zvýhodní třídy, které mají větší množství instancí a mapování na externí ontologie. ",
+    "boost properties tooltip": "Zvýhodní vlastnosti, které jsou hojně užívané na instancích tříd a vlastnosti, jež mají vetší množství mapování na externí ontologie.",
+    "boost common tooltip": "Posuvník definuje množství \"boost\" skóre obsažené ve finálním skóre výsledku. Levá strana značí zádné zvýhodnění, pravá 0.9 (90% finálního skóre je tvořeno \"boost\" skóre, zbylých 10% je \"query\" skóre). Krok posuvníku je 0.1",
+    "no boost": "Žádné zvyhodnění",
+    "max boost": "Největší zvýhodnění"
   }
 }
