@@ -20,10 +20,13 @@ export interface WikidataPropertySelectionDialogProps {
     editingWdPropertySelectionId: number | undefined
 }
 
-// Upon call to this function, all props should be non null/undefined, except filter by instance (which is set by the user).
-// Assuming it is called on:
-// 1. accosications/backward association to select endpoints
-// 2. on attributes when switch to include inherited properties is on
+/**
+ * Upon call to this function, all props should be non null/undefined, except filter by instance (which is set by the user).
+ * Assuming it is called on:
+ *  1. accosications/backward association to select endpoints
+ *  2. on attributes when switch to include inherited properties is on
+ * The selection must never create records that contain the same definition.  
+ */
 export const WikidataPropertySelectionDialog: React.FC<WikidataPropertySelectionDialogProps> =
     dialog({ fullWidth: true, maxWidth: "md", PaperProps: { sx: { height: "90%" } } }, (props) => {
         if (
@@ -32,9 +35,7 @@ export const WikidataPropertySelectionDialog: React.FC<WikidataPropertySelection
             props.selectedWdClassSurroundings &&
             props.wdPropertyType
         ) {
-            if (
-                props.includeInheritedProperties || !isWdPropertyTypeAttribute(props.wdPropertyType)
-            )
+            if (props.includeInheritedProperties || !isWdPropertyTypeAttribute(props.wdPropertyType))
                 return <WikidaPropertySelectionDialogContent {...props} />;
         }
         return null;

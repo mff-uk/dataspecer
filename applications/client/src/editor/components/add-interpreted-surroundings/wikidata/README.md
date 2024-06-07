@@ -17,13 +17,13 @@ The entry point is the `wikidata-add-interpreted-surroundings-dialog.tsx` that c
     - Hooks for simplified calling of the Wikidata adapter API.
   - `wikidata-entities-detail-dialog`
     - A dialog that shows when clicking `(i)` button on entities.
-    - Diaplys detail of the entity.
+    - Diaplays detail of the entity.
   - `property-selection-record`
     - Contains records that are stored when user selects a property.
     - When the user confirms selection in the main dialog.
     - The Wikidata properties are transformed into the Dataspecer associations and attributes.
 
-### Overview
+## Overview
 
 The most important is the set up of the `WikidataAdapterContext` which then provides the Wikidata adapter to the rest of the components.
 
@@ -37,45 +37,52 @@ After the loading, the main dialog displays it's two panels: `WikidataAncestorsS
 The freshly started dialog displays properties for the root class.
 When user selects a different ancestor (a selected class), the Wikidata adapter is used to obtain surroundings for the selected class.
 
+By clicking on a property, a user adds the property into a selection. 
+The same property cannot be selected multiple times (the Dataspecer cannot handle it).
+The selection is based on the subject and object of the property, and a user is always asked to choose those when selecting an (backwards) association or, in general, when allowing to display inherited properties.
+This is crucial, since Dataspecer needs to know from where the property is inherited, the rest of the inheritance is done in the native Dataspecer model.
 
-- `WikidataAncestorsSelectorPanel` 
-  - Displays a simple list of ancestors of the selected root class.
-  - Clicking on an ancestors selects the ancestors as a selected class and displays its surroundings in the properties panel.
-- `WikidataPropertiesPanel`
-  - Displays filtering options and lists containing the properties grouped into accordion based on whether the property is: association, attribute, backward association, and external identifier (an attribute which contains URI to other data source). The separation was done to improve overall performance when displaying thousands of properties.
-  - When a user selects a property, it is added to a list of selected properties.
-  - The properties can be managed by `WikidataManageSelectedDialog`.
-  - The properties can be filtered by the `WikidataFilterByInstanceDialog`.
-  - When clicking on a property a `WikidataPropertySelectionDialog` is displayed.
-  - `WikidataManageSelectedDialog`
-    - Enables a user to edit already selected properties.
-    - The selection cannot be the same -> a user cannot select the same property multiple times.
-    - See below in *Selecting properties and transformations to the Dataspecer model*.
-  - `WikidataFilterByInstanceDialog`
-    - Enables to insert a URI of an instance and filter the properties by the properties used on the instance.
-    - A warning is displayed when an instance that does not belong the currently selected ancestor tree.
-    - Note that the instance must not be a class otherwise it would take too long, so it is diasllowed.
-  - `WikidataPropertySelectionDialog`
-    - Displays when a user clicks on a property and the property is either association (must select domain/range) or the option to include inherited properties is on.
+- A surroundings dialog content:
+  - `WikidataAncestorsSelectorPanel` 
+    - Displays a simple list of ancestors of the selected root class.
+    - Clicking on an ancestors selects the ancestors as a selected class and displays its surroundings in the properties panel.
+  - `WikidataPropertiesPanel`
+    - Displays filtering options and lists containing the properties grouped into accordion based on whether the property is: association, attribute, backward association, and external identifier (an attribute which contains URI to other data source). The separation was done to improve overall performance when displaying thousands of properties.
+    - When a user selects a property, it is added to a list of selected properties.
+    - Main components:
+      - The `WikidataProperties` components encompasses the splitting properties into groups and displaying appropriate accordions (`WikidataPropertiesAccordion`) within infinity scroll lists (`WikidataInfinityScrollList`).
+        - If an ancestor is selected that is not a root, a `WikidataLoadedProperties` component is used to download the ancestor's surroundings before it is passed to `WikidataProperties`.
+        - Infinity scroll lists are used to handle the thousands of properties to be displayed. More properties are used when a user scrolls the lists.
+      - The properties can be managed by `WikidataManageSelectedDialog`.
+        - Enables a user to edit already selected properties.
+        - Auser cannot select the same property multiple times.
+        - See below in *Selecting properties and transformations to the Dataspecer model*.
+      - The properties can be filtered by the `WikidataFilterByInstanceDialog`.
+          - Enables to insert a URI of an instance and filter the properties by the properties used on the instance.
+          - A warning is displayed when an instance that does not belong the currently selected ancestor tree.
+          - Note that the instance must not be a class otherwise it would take too long, since it is the same statistics computation as is done in preprocessing.
+      - When clicking on a property a `WikidataPropertySelectionDialog` is displayed.
+        - Displays when a user clicks on a property and the property is either association (must select domain/range) or the option to include inherited properties is on.
 
-#### Contexts
+## Contexts
 
 The dialog uses three context for easier manipulation.
 
 - React query client
   - A React query client from the `react-query` library that is used for simplified handling of requests to the backend.
   - It is used by the React hooks inside `hooks` folder.
+  - It is set up to cache the requests for 10 minutes.
 - Wikidata adapter context
   - Contains a `WikidataAdapter` which then enables components to access functions to query the Wikidata ontology API service and the Wikidata SPARQL endpoint.
 -  Property selection
    - Contains a list of selected properties.
 
-#### Hooks 
+## Hooks 
 
 Each backend call is defined as a hook using the Wikidata adapter and the React query client.
 The hooks return the basic information about the requests as in `react-query` library.
 
-#### Selecting properties and transformations to the Dataspecer model.
+## Selecting properties and transformations to the Dataspecer model.
 
 The property selection record defines a property selection which is stored inside Property selection context.
 Each property selection is defined by the:
@@ -91,15 +98,14 @@ When selecting a property which is inherited, the user is prompted to choose an 
 When selecting the domain/range a user is also prompted to select the range/domain.
 The selection is scrict and disallows user to select the same property with the same configuration of type, property, subject, and object.
 
-<br>
-
 When a user is satified by the selection and confirms it.
-The properties are transformer to the Dataspecer model (`property-selection-record/transform-selected-surroundings.ts`).
-Since the user can select the property multiple times with different configuration.
-And because Dataspecer does not allow multiple domains and ranges.
-Each selection is defined as a separate Dataspecer attribute/association with IRI describing the selection's definition.
+The properties are then transformed to the Dataspecer model (`property-selection-record/transform-selected-surroundings.ts`).
 
-<br>
+- **Important**:
+  - Since the user can select the property multiple times with different configuration.
+  - And because Dataspecer does not allow multiple domains and ranges.
+  - Each selection is defined as a separate Dataspecer attribute/association with IRI describing the selection's definition.
+  - It is sort of "hacking" the properties into the Dataspecer, since it is cannot handle (right now) the ontology as is. 
 
 Main dialogs:
 - `WikidataPropertySelectionDialog`
@@ -109,12 +115,15 @@ Main dialogs:
 - `WikidataManageSelectedDialog`
   - The dialog can be used to modify selected properties.
   - All the rules mentioned above apply here as well.
+  - Inside the dialog, the selection is treated as if the "include inherited" was checked.
 
-#### Filter by instance with `WikidataFilterByInstanceDialog`
+## Filter by instance with `WikidataFilterByInstanceDialog`
 
-The filter by instance dialog enables a user to input an instance IRI and filter properties for the currently selected ancesor.
+The filter by instance dialog enables a user to input an instance IRI and filter properties for the currently selected ancestor.
 The filter filters out properties which are not used on the instance.
 A warning is displayed when the instance is not part of the currently selected ancestor tree.
-A user cannot select an class, otherwise it would mean computing the same statistics as were done in the preprocessing.
+A user cannot select a class, otherwise it would mean computing the same statistics as were done in the preprocessing.
 Also note that the IRIs might contain some query or #.
-It must be cleaned before querying the backend.
+
+It is possible that the SPARQL query in the background fails on timeout.
+I have changed numerous times, it seems it depends on the current usage of the Wikidata endpoints, sometimes it finishes and sometimes it does not finish.

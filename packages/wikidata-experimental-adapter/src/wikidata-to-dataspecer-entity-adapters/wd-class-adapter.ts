@@ -14,7 +14,9 @@ export function loadWikidataClass(
     result.pimIsCodelist = false;
     result.pimExtends = cls.subclassOf.map((clsId) => {
         let cimIri = "";
+        // Try get an entity that exist in the context.
         if (contextClasses != null) cimIri = contextClasses.get(clsId)?.iri;
+        // If its not in the context, create the IRI which will later point to the entity.
         if (cimIri === "" || cimIri == null) cimIri = concatWdPrefixWithId("Q" + clsId.toString());
         return iriProvider.cimToPim(cimIri);
     });

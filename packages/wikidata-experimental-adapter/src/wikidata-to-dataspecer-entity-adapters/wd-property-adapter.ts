@@ -4,6 +4,10 @@ import { loadWikidataEntityToResource } from "./wd-entity-adapter";
 import { WdPropertyDescOnly } from "../wikidata-entities/wd-property";
 import { WdClassDescOnly } from "../wikidata-entities/wd-class";
 
+/**
+ * The loading creates a fake IRI to the association defined by the domain and range of the selected property.
+ * That is done in order to conform to the Dataspecer model, since it cannot handle multiple ranges/domains. 
+ */
 export function loadWikidataAssociation(wdProperty: WdPropertyDescOnly, subjectWdClass: WdClassDescOnly, objectWdClass: WdClassDescOnly, isInward: boolean, iriProvider: IriProvider): [PimAssociationEnd, PimAssociation, PimAssociationEnd] {
     const pimAssociation = new PimAssociation();
     loadWikidataEntityToResource(wdProperty, iriProvider, pimAssociation);
