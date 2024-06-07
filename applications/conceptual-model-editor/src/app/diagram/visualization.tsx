@@ -79,6 +79,8 @@ export const Visualization = () => {
 
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
+    // --- handlers --- --- ---
+
     const handleAddEntityToActiveView = useCallback(
         (entityId: string, position?: XYPosition) => {
             const updateStatus = activeVisualModel?.updateEntity(entityId, { visible: true, position });
@@ -155,6 +157,8 @@ export const Visualization = () => {
         };
     };
 
+    // --- mappers from concepts to visualization elements --- --- ---
+
     const relationshipOrGeneralizationToEdgeType = (
         entity: Entity | null,
         color: string | undefined
@@ -212,6 +216,19 @@ export const Visualization = () => {
             .catch(console.error);
     };
 
+    // register a callback with aggregator for visualization
+    // - remove what has been removed from the visualization state
+    // - update entities that have been updated
+    //   - rerender updated classes
+    //   - if they have updated attributes, update them as well
+    //   - collect updated relationships and relationship profiles - rerender them after classes are on the canvas
+    // the callback is registered for twice
+    // - first time for the semantic information about the models
+    //   - new relationship between two classes
+    //   - new attribute for a class
+    //   - rename of a concept
+    // - second time for the visual information from the active visual model
+    //   - change of visibility, position
     useEffect(() => {
         // console.log("rerunning useEffect in visualization");
         const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
@@ -465,6 +482,7 @@ export const Visualization = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aggregatorView, classes /* changed when new view is used */]);
 
+    // clear the canvas on view change
     useEffect(() => {
         console.log("visualization: active visual model changed", activeVisualModel);
         setNodes([]);

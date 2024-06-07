@@ -2,6 +2,14 @@
 
 # Developer documentation
 
+To start developing, follow the [about and install guide](./about-and-install.md). The architecture of `dscme` is depicted, as best as i could, [here](./architecture.md).
+
+Other dev docs:
+
+-   [folder structure](./dev-docs-folder-structure.md)
+-   working with [aggregator](./dev-docs-working-with-aggregator.md)
+-   working with [core-v2 types](./dev-docs-working-with-core2-types.md)
+
 ## Motivation
 
 Conceptual modeling aims on creating abstract representations of systems to simplify communication between people involved and builds certain standards on knowledge exchange. It identifies entities, relationships, and constraints within a domain.
@@ -13,110 +21,120 @@ There are multiple conceptual modeling tools that let you model in ERD (entity-r
 
 ## Chronological Progress Report
 
--   prototyp ve figme
--   iterace s jointjs, navrh reseni s nim
--   napojeni na core 5/2023
-    -   nahrani rdf slovniku
-    -   napojeni na sgov
-    -   jeho zobrazeni na platno
-    -   in-memory slovniky 6/2023
--   zkoumani jinych knihoven https://docs.google.com/spreadsheets/d/1b2dZXq4GI3eeqNKxobrqYva_OaLz0sEm9ggqtvr7-pE/edit#gid=0
-    -   nakonec reactflow
--   predelani do core-v2 8-12/2023
-    -   prekopani cele aplikace
-    -   napojeni na backend
-    -   manipulace s koncepty
--   napojeni na reactflow, corev2 EO2023
--   barvicky pro modely
--   visualni modely pro core-v2
--   ruzne views
--   01/2024, pull request
-    -   krabicky na platne maji atributy
-    -   hrany na platne maji barvicky, popisy a kardinality
-    -   view management
-    -   dialogy na pridani modelu (modely nejsou zapecene v kodu), pridani relationshipu, modifikaci entit
-    -   napojeni na backend
+-   4/2023
+    -   figma prototype
+    -   first iteration with jointks, a tracer-bullet on working with it
+-   5/2023
+    -   integration to dataspecer/core types
+    -   first rdf vocabulary loaded
+    -   first concepts from slovník.gov.cz
+    -   some visualization with jointjs
+-   6/2023
+    -   in-memory vocabularies
+    -   research on diagramming libraries
+        -   https://docs.google.com/spreadsheets/d/1b2dZXq4GI3eeqNKxobrqYva_OaLz0sEm9ggqtvr7-pE/edit#gid=0
+    -   in the end - reactflow
+    -   even though it has some drawbacks such as edge renderings, no edge layout customization
+-   8-12/2023
+    -   dataspecer/core-v2 came up
+    -   application had to be reintegrated
+    -   first connection to dataspecer backend, saving stuff
+    -   concept manipulation - crud
+    -   using reactflow and core-v2 EO 2023
+    -   model colors
+    -   visual models / views - impl for dataspecer/core-v2 pkg
+    -   multiple views support
+-   01/2024
+    -   class boxes on the canvas have attributes
+    -   edges on canvas have colors, labels and cardinalities
+    -   central view management
+    -   dialogs
+        -   create model
+        -   create relationship
+        -   modify concept
+    -   saving whole workspace to backend
 -   02/2024
-    -   spatne se renderovaly hrany, novy pristup k jejich renderovani
-    -   support pro zmenu views ve vizualizaci
-    -   vytvoreni lokalniho project manageru
-    -   implementace na backendove servise
-        -   listovani packages
-        -   podpora barev u modelu
-    -   nacteni package rovnou pri otevreni stranky, `package-id` query parametr
-    -   detail dialog tedka ukaze atributy u tridy
+    -   rendering edges with existing ends
+    -   view management for canvas
+    -   local project/package manager
+    -   enhancements on backend service
+        -   listing views
+        -   adding color support for models
+    -   opening package from backend with `package-id` query parameter
+    -   detail dialog shows attributes + cardinalities
 -   03/2024
-    -   vizualizace se nekresli z naseho stavu, ale je napojena pouze na zmeny z aggregatoru
-        -   nehrozi tak zbytecne vykreslovani, pokud neni treba
-    -   pokus o automatický layouting, nebudu nakonec delat, at si an tom nekdo dalsi udela vyzkumak
-    -   generovani jmen, at nejsou prazdne dialogy
-    -   color picker misto uplne volneho vybirani barev
-    -   nacitani `view-id` take z query param
-    -   zmenit `usages` na `profiles`
-    -   vlastne vubec zacatek prace s apliakcnimi profily
-    -   propsani jazyku i do vizualizace, ted se meni vsude
-    -   pridani vazby profil->class
+    -   visualization does only partial updates, no full rerenders
+        -   subscribes to aggregator changes
+    -   an attempt at auto-layout, too difficult
+        -   (5/2024) another student now works solely on layouts
+    -   random names generation
+    -   color picker instead of completely free color picking
+    -   support for opening a view directly with `view-id` query parameter
+    -   internal change of naming profiles instead of usages
+    -   start of work on application profiles
+    -   language setting works even in visualization
 -   04/2024
-    -   hierarchicky pohled na profily
-    -   ted uz se to zaclo hojne pouzivat
-    -   tvori se prvnich par datasetu pro dalsi vyzkumak - LLM asistent
-    -   autogenerovane iri podle jmena
-    -   vylepseni dialogu na novou hranu, ustaleni vzdhledu vsech dialogu
-    -   disablovatelne casti v dialogach
-    -   nova classa na `alt`+click na platno
-    -   aliasy modelu
-    -   lepsi labels u kardinalit
-    -   aspon jeden lokalni model pri nacteni
-    -   prekopirovani barev do noveho view
-    -   podpora lehciho profilovani -> predkopirovani hodnot
-    -   **pulka dubna**
-    -   prekopano naprosto, jak se chovame k hranam, nebylo dokumentovano
-    -   prepsani hran do noveho zpusobu
-    -   zasah do corev2, aby se to tam naprogramovalo
-    -   podpora pro rozliseni atributu a relaci
-    -   uprava lw-onto generatoru pro praci s novym pristupem k hranam
-    -   vykuchani mojich util funkci namisto tech novych, sdilenych z corev2
-    -   zacinam citit time-crunch, stejne se kupi prace
-    -   util funkce pro lepsi vypreparovani jmen, popisu apod v jazyku
-    -   warningy?
-    -   editace base iri
-    -   slinkovani generalization/speciialation do detailu
-    -   context menus
-    -   agregator tedka kombinuje informace u profilu - co profil neprepise, zdedi se ze vzoru
+    -   hierarchical view on concepts and their profiles in concepts catalog
+    -   `dscme` has first users
+        -   first datasets modelled in `dscme` for other students -- LLM assistant
+    -   auto-generation of iris based on names
+    -   unifying dialog looks
+    -   new class on `alt`+click on canvas
+    -   model aliases
+    -   default local model after cold start
+    -   using the same colors in a new view
+    -   support for profiling, showing values of profiled concept
+    -   **the second half of april**
+    -   let's start over
+    -   we have to work with edges differently than before
+        -   reverse engineering was wrong, the whole group had to come with a way of representing relationships and attributes
+    -   rewriting relationships and attributes to the new style
+    -   dataspecer/core-v2 wasn't even ready for that, had to do some impl there too
+    -   util functions to distinguish relationships and attributes
+    -   adjustments on lw-onto generator for the new approach
+    -   i feel the time-crunch, new requirement still piling up
+    -   util functions getting the name/description/.. easier
+    -   model base iris
+    -   showing generalizations/specializations in the detail dialog
+    -   context menus on canvas
+    -   aggregator didn't show profile info properly
+        -   now it has the [`raw` values](./dev-docs-working-with-aggregator.md#with-raws)
+    -   don't just take whatever profiled class had, take only what's necessary
         -   override checkbox
-    -   hrany muzou mit ruzne poradi source/target -> musel jsem zmenit
+    -   domain and range can come in any order, we have to support that as well
 -   05/2024
-    -   profily nakonec taky musi mit IRI
-    -   podpora relativni/absolutni iri
-    -   refaktoring slozek
-    -   podpora pro datove typy, rozsiritelne jednoduse
-    -   absolutni iricka do lw-ontologie
-        -   teda jenom te v dscme, backend to ma bez, pac nema informace o puvodu konceptu
-    -   sjednoceni dialogovoych tlacitek
-    -   proxy na cteni dat jednodusejc
+    -   profiles also need iris
+    -   support for absolute and relative iris
+    -   file structure refactor
+    -   data-types support, easily extendable
+    -   absolute iris for built-in lw-onto generator
+        -   works well only within `dscme`, backend lw generator doesn't use the information about source model
+    -   dialog buttons unification
+    -   entityProxy for easier detail info reading
     -   drag-n-drop
-    -   autosave na backend
-    -   dalsi refaktory, samozaviraci colorpicker, contextmenu
-    -   odlozeni odevzdavani
-    -   zacatek dokumentace
-    -   vyreseni 👁/🕶
-    -   ukazovani override i po ukonceni dialogu
-    -   fixovani padlych pipelines kvuli chybe v package-lock dalsiho studenta
-    -   integrace na manager, i na builtin manager podle prostredi, kde se vyviji
-    -   dialogy v provideru
-    -   hups, chybely generalizace pro veci jine nez tridy, v interface to vypadalo, ze to ma byt jen pro tridy
-        -   labely pro geralizace
-        -   modifikacni dialog pridava nove generalizace
-        -   muze je dokonce mazat i z vicero slovniku najednou
-    -   zpetna vazba na save buttonu
-    -   package a view query params nakonec v jednom hooku, delaly problem, kdyz byly z ruznych mist
+    -   autosave to backend
+    -   more refactoring, self-closing picker and context menus
+    -   request to postpone the deadline
+    -   started the documentation
+    -   👁/🕶 changing the state only when needed
+    -   fixing failed pipelines because some students push directly to main
+    -   integration to the manager app / built-in project manager, based on the deployment
+    -   dialog provider
+    -   generalizations were done only for classes, the interface didn't say it worked otherwise
+        -   adding that functionality
+        -   labels for edge generalizations on canvas
+        -   modification dialog now adds generalizations
+    -   feedback for `💾pkg` button
+    -   package and view query params are now part of `useQueryParams` hook
+    -   maybe something else, you can check the git history
 
 ## Decisions and future improvements
 
--   dialogy v provideru
--   proxy pro cteni dat je fajn, mohla by se mozna dal vyuzit na modifikace(?)
+We have listed future improvements [here](./future-improvements.md). Those are improvements a user could use. For developer improvements:
 
-## dalsi prace
-
--   pridani barev - staci doplnit barvicky do color palette
--   jak se chovat k hranam a atributum
+-   There could be some more work done on the `EntityProxy` so that it supports changes of fields as well and propagates them to the model/aggregator.
+-   Model colors are now in visual models / views. It would be best to have them more centralized, possibly to have them in the package configuration. Individual views could also change colors of models though.
+-   The color palette offer could be improved either by dynamic color generation based on that contrasts best with colors already selected. Or you could configure better contrasting colors as well. They are in tailwind format so tools like [coolors](https://coolors.co/) could do the trick.
+-   State management is now done with contexts. I don't think it insufficient but some third party library might make it feel, from the DX point of view, a little nicer.
+-   [Edge renderings](./future-improvements.md#edge-renderings)
+-   Logging. I just used the plain old `console.log`. If there was something like Serilog is for .NET, it would be very pleasant. Some configuration settings could help with hiding unnecessary logs for the users

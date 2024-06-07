@@ -53,7 +53,7 @@ I will list them here as well for simplicity, you can always refer yourself ther
     - you can add them as shown [here](./concepts.md#creating-a-concept)
 4. Create specializations
     1. Between my new classes: Kočička and Savec, Pejsek and Savec
-        - creating a [generalization](./concepts.md#creating-a-concept), [docs](./generalizations.md)
+        - creating a [generalization](./concepts.md#creating-a-concept)
     2. Add class dcterms:Location (somehow, from the reused vocabularies)
         - simply drag it from the catalog to canvas, [docs](./visualization.md#placing-a-class-on-canvas)
     3. Between my class and an external class: Město and dcterms:Location
