@@ -13,11 +13,11 @@ import { useBackendConnection } from "../diagram/backend-connection";
  * The manager can be reached by clicking `dscme` logo, when the app is deployed, the logo leads to the dedicated manager app
  */
 const Page = () => {
-    const { createPackage, getPackageFromBackend, backendPackageRootUrl } = useBackendConnection();
+    const { createPackage, getAllPackagesFromBackend } = useBackendConnection();
     const [packages, setPackages] = useState([] as Package[]);
 
     const syncPackages = useCallback(() => {
-        getPackageFromBackend(backendPackageRootUrl)
+        getAllPackagesFromBackend()
             .then(({ subResources }) => {
                 if (!subResources) {
                     return;
@@ -25,7 +25,7 @@ const Page = () => {
                 setPackages(subResources);
             })
             .catch((err) => console.error("error fetching packages from backend", err));
-    }, [getPackageFromBackend, backendPackageRootUrl]);
+    }, [getAllPackagesFromBackend]);
 
     useEffect(() => {
         syncPackages();
