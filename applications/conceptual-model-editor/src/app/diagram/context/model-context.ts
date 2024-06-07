@@ -98,7 +98,6 @@ export const useModelGraphContext = () => {
 
         setVisualModels(new Map(vm.map((m) => [m.getId(), m])));
         setModels(new Map(m.map((m) => [m.getId(), m])));
-        // setAggregatorView(aggregator.getView());
     };
 
     const removeModelFromModels = (modelId: string) => {

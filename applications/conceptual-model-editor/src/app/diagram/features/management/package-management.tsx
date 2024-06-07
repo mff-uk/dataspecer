@@ -15,7 +15,6 @@ const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
 
 export const PackageManagement = () => {
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    // const { packageId } = usePackageSearch();
     const { packageId } = useQueryParamsContext();
     const { models, visualModels } = useModelGraphContext();
     const { showMessage, UpdatingSavePackageButton } = useUpdatingSavePackageButton();

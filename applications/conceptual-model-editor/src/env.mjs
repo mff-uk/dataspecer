@@ -13,10 +13,11 @@ const server = z.object({
  * built with invalid env vars. To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 const client = z.object({
-    NEXT_PUBLIC_APP_BACKEND: z.string().url(),
     NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: z.coerce.number(),
-    NEXT_PUBLIC_MANAGER_PATH: z.string(),
+    NEXT_PUBLIC_APP_BACKEND: z.string().url(),
+    NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT: z.string().url(),
     NEXT_PUBLIC_DSCME_LOGO_LINK: z.string(),
+    NEXT_PUBLIC_MANAGER_PATH: z.string(),
 });
 
 /**
@@ -27,10 +28,11 @@ const client = z.object({
  */
 const processEnv = {
     NODE_ENV: process.env.NODE_ENV,
-    NEXT_PUBLIC_APP_BACKEND: process.env.NEXT_PUBLIC_APP_BACKEND,
     NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS,
-    NEXT_PUBLIC_MANAGER_PATH: process.env.NEXT_PUBLIC_MANAGER_PATH,
+    NEXT_PUBLIC_APP_BACKEND: process.env.NEXT_PUBLIC_APP_BACKEND,
+    NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT: process.env.NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT,
     NEXT_PUBLIC_DSCME_LOGO_LINK: process.env.NEXT_PUBLIC_DSCME_LOGO_LINK,
+    NEXT_PUBLIC_MANAGER_PATH: process.env.NEXT_PUBLIC_MANAGER_PATH,
 };
 
 // Don't touch the part below

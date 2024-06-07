@@ -57,7 +57,6 @@ export const ViewManagement = () => {
         if (!visualModel) {
             return;
         }
-        console.log("viewDeletedHandler: ", viewId, visualModel);
         removeVisualModelFromModels(viewId);
     };
 
