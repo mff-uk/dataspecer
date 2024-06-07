@@ -21,8 +21,8 @@
     "boost properties": "Zvýhodnit hojně užívané vlasnotsti",
     "boost classes tooltip": "Zvýhodní třídy, které mají větší množství instancí a mapování na externí ontologie. ",
     "boost properties tooltip": "Zvýhodní vlastnosti, které jsou hojně užívané na instancích tříd a vlastnosti, jež mají vetší množství mapování na externí ontologie.",
-    "boost common tooltip": "Posuvník definuje množství \"boost\" skóre obsažené ve finálním skóre výsledku. Levá strana značí zádné zvýhodnění, pravá 0.9 (90% finálního skóre je tvořeno \"boost\" skóre, zbylých 10% je \"query\" skóre). Krok posuvníku je 0.1",
+    "boost common tooltip": "Posuvník definuje množství finálního skóre, které je přiděleno \"boost\" skóre. Levá strana značí zádné zvýhodnění, pravá pak maximum 90% (90% finálního skóre je tvořeno \"boost\" skóre, zbylých 10% je \"query\" skóre). Krok posuvníku je 10%.",
     "no boost": "Žádné zvyhodnění",
-    "max boost": "Největší zvýhodnění"
+    "max boost": "Maximální zvýhodnění"
   }
 }

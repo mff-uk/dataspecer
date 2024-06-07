@@ -25,6 +25,7 @@ export const WikidataSearchBoostSlider: React.FC<WikidataSearchBoostSliderProps>
                     color="info"
                     sx={{width: 190, marginLeft: 2}} 
                     defaultValue={0} 
+                    valueLabelFormat={(value: number) => `${value * 100} %`}
                     step={0.1} 
                     min={0} 
                     max={0.9}
@@ -34,7 +35,7 @@ export const WikidataSearchBoostSlider: React.FC<WikidataSearchBoostSliderProps>
                         if (typeof newValue === "number")
                             onChange(newValue);      
                     }}
-                    />
+                />
                 <Typography marginLeft={2} fontSize={15}>{t("wikidata.max boost")}</Typography>
             </Box>
         </>
