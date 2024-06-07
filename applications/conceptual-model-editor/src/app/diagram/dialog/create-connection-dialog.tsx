@@ -216,7 +216,6 @@ export const useCreateConnectionDialog = () => {
                 aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: result.id });
             }
 
-            console.log("create-connection-dialog: created successfully(?)", result);
             close();
         };
 
