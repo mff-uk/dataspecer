@@ -20,11 +20,12 @@ export class DataLayerGeneratorStage implements GeneratorStage {
 
     artifactSaver: ArtifactSaver;
     private readonly _dalGeneratorStrategy: DalGeneratorStrategy;
+    private readonly _datasourceConfig: DatasourceConfig;
     private readonly dalGeneratorFactory: DataAccessLayerGeneratorFactory = {
 
         getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
             const generators = {
-                [DataSourceType.Rdf]: new LDKitDalGenerator(),
+                [DataSourceType.Rdf]: new LDKitDalGenerator(datasourceConfig),
                 [DataSourceType.Json]: new FileDalGeneratorStrategy("json"),
                 [DataSourceType.Xml]: new FileDalGeneratorStrategy("xml"),
                 [DataSourceType.Csv]: new FileDalGeneratorStrategy("csv"),
@@ -46,11 +47,16 @@ export class DataLayerGeneratorStage implements GeneratorStage {
             this.dalGeneratorFactory = dalGeneratorFactory;
         }
 
+        this._datasourceConfig = datasourceConfig;
         this._dalGeneratorStrategy = this.dalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
         this.artifactSaver = new ArtifactSaver("/data-layer");
     }
 
     async generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
+
+        if (this._datasourceConfig.format !== DataSourceType.Local) {
+            context._.sparqlEndpointUri = this._datasourceConfig.endpointUri;
+        }
         const dalArtifact = await this._dalGeneratorStrategy.generateDataLayer(context);
 
         if (!isLayerArtifact(dalArtifact)) {

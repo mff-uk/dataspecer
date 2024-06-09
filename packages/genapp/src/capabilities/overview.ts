@@ -25,7 +25,8 @@ export class OverviewCapability implements CapabilityGenerator {
     private convertConfigToCapabilityContext(config: CapabilityConfiguration): StageGenerationContext {
         const result: StageGenerationContext = {
             aggregateName: this._aggregateName,
-            config: config
+            config: config,
+            _: {} // TODO: better handle custom objects (e.g. create default StageGenerationContext instance)
         };
 
         return result;

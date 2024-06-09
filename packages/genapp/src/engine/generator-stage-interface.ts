@@ -6,6 +6,7 @@ export type StageGenerationContext = {
     aggregateName: string;
     config: CapabilityConfiguration;
     previousResult?: LayerArtifact;
+    _: Record<string, string>;
 };
 
 export interface GeneratorStage {

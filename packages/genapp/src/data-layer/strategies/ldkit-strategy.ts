@@ -6,9 +6,8 @@ import { LayerArtifact } from "../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
 import { StageGenerationContext } from "../../engine/generator-stage-interface";
 import { TemplateGenerator } from "../../app-logic-layer/template-app-logic-generator";
-import { ReaderInterfaceGenerator } from "../reader-interface-generator";
-import { LDkitSchemaSelectorGenerator } from "../ldkit-schema-selector-generator";
-import { LdkitReaderTemplate } from "../../template-interfaces/data/ldkit-reader-template";
+import { DataSourceType, DatasourceConfig } from "../../application-config";
+import { InstanceListLdkitReaderGenerator } from "../../template-interfaces/data/instance-list-reader-template";
 
 export function isAxiosResponse(
     dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
@@ -20,25 +19,33 @@ export function isAxiosResponse(
 export class LDKitDalGenerator implements DalGeneratorStrategy {
     
     _strategyIdentifier: string = "ldkit";
-    private readonly endpoint = "http://localhost:8889";
+    private readonly _backendUrl = "http://localhost:8889";
     private readonly _api: DalApi;
-    private readonly _templateRenderer: TemplateGenerator;
-    private readonly _filePath: string;
-    private readonly _templatePath: string;
+    private readonly _sparqlEndpointUri: string;
 
-    constructor(templatePath?: string, filePath?: string) {        
-        this._api = new DalApi(this.endpoint);
-        this._templateRenderer = new TemplateGenerator();
-        this._filePath = filePath ?? "./readers/reader-implementation.ts";
-        this._templatePath = templatePath ?? "./list/ldkit-reader";
+    constructor(datasourceConfig: DatasourceConfig) {
+        if (datasourceConfig.format !== DataSourceType.Rdf) {
+            throw new Error("Trying to generate LDkit data access with different datasource");
+        }
+        
+        this._api = new DalApi(this._backendUrl);
+        this._sparqlEndpointUri = datasourceConfig.endpointUri;
     }
 
     async generateDataLayer(context: StageGenerationContext): Promise<LayerArtifact> {
 
         const ldkitSchemaArtifact = await this.getLdkitSchema(context.aggregateName);
-        const ldkitReader = this.buildRdfReader(ldkitSchemaArtifact);
 
-        return ldkitReader;
+        const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
+            aggregateName: context.aggregateName,
+            filePath: `./readers/${this._strategyIdentifier}/${context.aggregateName}-list-implementation.ts`,
+            templatePath: "./list/instance-ldkit-list-reader",
+        })
+        .setLdkitSchemaDependency(ldkitSchemaArtifact)
+        .setLdkitSparqlEndpointDependency(this._sparqlEndpointUri)
+        .consumeTemplate();
+
+        return instanceListReaderArtifact;
     }
 
     private async getLdkitSchema(aggregateName: string): Promise<LayerArtifact> {
@@ -72,46 +79,5 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
             exportedObjectName: `${aggregateName}Schema`
         }
         return result;
-    }
-
-    private buildRdfReader(ldkitSchemaArtifact: LayerArtifact): LayerArtifact {
-        
-        const readerInterfaceArtifact = new ReaderInterfaceGenerator().consumeTemplate();
-        const schemaSelectorArtifact = new LDkitSchemaSelectorGenerator().consumeTemplate();
-        const ldkitReaderTemplate: LdkitReaderTemplate = this.populateLdkitReaderTemplate(
-            schemaSelectorArtifact,
-            readerInterfaceArtifact
-        );
-        const ldkitReaderRender: string = this._templateRenderer.renderTemplate(ldkitReaderTemplate);
-
-        const ldkitReaderLayerArtifact = {
-            exportedObjectName: "LdkitListReader",
-            filePath: this._filePath,
-            sourceText: ldkitReaderRender,
-            dependencies: [readerInterfaceArtifact, schemaSelectorArtifact, ldkitSchemaArtifact]
-        } as LayerArtifact;
-
-        return ldkitReaderLayerArtifact;
-    }
-
-    private populateLdkitReaderTemplate(schemaSelectorArtifact: LayerArtifact, readerInterfaceArtifact: LayerArtifact): LdkitReaderTemplate {
-
-        const readerTemplate: LdkitReaderTemplate = {
-            templatePath: this._templatePath,
-            placeholders: {
-                list_reader_interface: readerInterfaceArtifact.exportedObjectName,
-                list_reader_interface_path: {
-                    from: this._filePath,
-                    to: readerInterfaceArtifact.filePath
-                },
-                ldkitSchema_selector: schemaSelectorArtifact.exportedObjectName,
-                schema_selector_path: {
-                    from: this._filePath,
-                    to: schemaSelectorArtifact.filePath
-                }
-            }
-        };
-
-        return readerTemplate;
     }
 }

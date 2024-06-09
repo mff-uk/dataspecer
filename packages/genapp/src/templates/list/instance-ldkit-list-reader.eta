@@ -1,0 +1,35 @@
+import { Context, setDefaultContext } from "ldkit";
+import { <%= it.ldkit_list_reader_base_class %> } from <%~ it.ldkit_list_reader_base_class_path %>;
+import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
+
+export default class <%= it.aggregate_name %>LdkitListReader extends LdkitListReader {
+
+    async readInstanceList<T>(aggregateName: string): Promise<T> {
+        console.log(`Calling readInstanceList for ${aggregateName}`);
+
+        const context: Context = {
+            sources: [<%~ it.ldkit_endpoint_uri %>]
+        }
+
+        setDefaultContext(context);
+        <% const instanceListVariableName = it.aggregate_name.toLowerCase() + "Instances"; %>
+        const <%= instanceListVariableName %> = await this.ldkitFind(".", <%= it.ldkit_schema %>, 0);
+
+        if (!<%= instanceListVariableName %>) {
+            throw new Error("Error on data read.");
+        }
+
+        const aggInstances = <%= instanceListVariableName %>.map(entity => {
+            return {
+                aggregateName: aggregateName,
+                raw: entity
+            };
+        })
+
+        const result: T = {
+            entities: aggInstances
+        } as unknown as T
+
+        return result;
+    }    
+}

@@ -194,7 +194,7 @@ class ApplicationGenerator {
     //     //         });
     // }
 
-    private getCapabilityGenerator(capabilityName: string, rootAggregateName: string, datasource: DatasourceConfig): CapabilityGenerator {
+    private getCapabilityGenerator(capabilityName: string, rootAggregateName: string, datasource: DatasourceConfig): CapabilityGenerator | null {
         const capabilityGeneratorMapping: { [capabilityName: string]: CapabilityGenerator | null } = {
             list: new OverviewCapability(rootAggregateName, datasource),
             detail: new OverviewCapability(rootAggregateName, datasource),

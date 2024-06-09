@@ -1,79 +1,22 @@
-import { createLens, type Context, setDefaultContext, SchemaInterface } from "ldkit";
+import { createLens, SchemaInterface } from "ldkit";
 import { <%= it.list_reader_interface %> } from <%~ it.list_reader_interface_path %>;
-import { <%= it.ldkitSchema_selector %> } from <%~ it.schema_selector_path %>;
-//import { < %= it.aggregateInstance % > } from "< %~ ../../logic/capability-logic % >";
+import { <%= it.list_result_interface %> } from <%~ it.list_result_interface_path %>;
 
 type NestedResultsMap = {
     [attrName: string]: SchemaInterface<any>[];
 }
 
-export default class LdkitListReader implements <%= it.list_reader_interface %> {
+export abstract class LdkitListReader implements <%= it.list_reader_interface %> {
 
-    private readonly _schemaSelector: <%= it.ldkitSchema_selector %>;
     private readonly _nestedResultsCache: NestedResultsMap;
     private readonly _nestedSchemaCache: { [attrName: string]: any };
 
-
     constructor() {
-        this._schemaSelector = new <%= it.ldkitSchema_selector %>();
         this._nestedResultsCache = {};
         this._nestedSchemaCache = {};
     }
 
-    async readInstanceList<T>(aggregateName: string): Promise<T> {
-        console.log(`Calling readInstanceList for ${aggregateName}`);
-        const ldkitSource = this._schemaSelector.getLDkitSchema(aggregateName);
-
-        const context: Context = {
-            sources: [ldkitSource.url]
-        }
-
-        setDefaultContext(context);
-
-        const fetchedInstances = await this.ldkitFind(".", ldkitSource.schema, 0);
-
-        if (!fetchedInstances) {
-            throw new Error("Error on data read.");
-        }
-
-        const aggInstances = fetchedInstances.map(entity => {
-            return {
-                aggregateName: aggregateName,
-                raw: entity
-            }; //as AggregateInstance;
-        })
-
-        const result: T = {
-            entities: aggInstances
-        } as unknown as T
-
-        return result;
-    }
-
-    private async ldkitFind(baseAttrName: string, schema: any, recursionDepth: number): Promise<SchemaInterface<any>[]> {
-
-        console.log("USING SCHEMA: ", schema);
-
-        if (recursionDepth < 3) {
-            const nestedSchemas = this.getNestedSchemas(schema);
-            Object.entries(nestedSchemas)
-                .forEach(([attrName, nestedSchema]) => {
-                    this.ldkitFind(attrName, nestedSchema, recursionDepth + 1);
-                });
-        }
-
-        const lens = createLens(schema);
-        const itemsCount = await lens.count();
-        console.log(`Total items count for: ${schema["@type"]}`, itemsCount);
-        const instances = await lens.find(undefined, 15000);
-
-        this._nestedResultsCache[baseAttrName] = instances;
-        console.log(`Found ${instances.length} items for schema: ${schema["@type"]}`);
-
-        this.tryPopulateInstanceIriValues(instances, this._nestedResultsCache);
-
-        return instances;
-    }
+    abstract readInstanceList(aggregateName: string): Promise<ListResult>;
 
     private getNestedSchemas(schema: object): { [attrName: string]: object } {
 
@@ -98,7 +41,7 @@ export default class LdkitListReader implements <%= it.list_reader_interface %> 
 
     private async tryPopulateInstanceIriValues(instances: SchemaInterface<any>[], nestedInstances: NestedResultsMap) {
 
-        await Promise.all(instances.map((instance, idx) => {
+        await Promise.all(instances.map(instance => {
             console.log(`Populating instance ${instances.length}`);
             Object.entries(instance)
                 .forEach(([attrName, attrValue]) => {
@@ -131,4 +74,30 @@ export default class LdkitListReader implements <%= it.list_reader_interface %> 
         })
         );
     }
+
+    protected async ldkitFind(baseAttrName: string, schema: any, recursionDepth: number): Promise<SchemaInterface<any>[]> {
+
+        console.log("USING SCHEMA: ", schema);
+
+        if (recursionDepth < 3) {
+            const nestedSchemas = this.getNestedSchemas(schema);
+            Object.entries(nestedSchemas)
+                .forEach(([attrName, nestedSchema]) => {
+                    this.ldkitFind(attrName, nestedSchema, recursionDepth + 1);
+                });
+        }
+
+        const lens = createLens(schema);
+        const itemsCount = await lens.count();
+        console.log(`Total items count for: ${schema["@type"]}`, itemsCount);
+        const instances = await lens.find(undefined, 15000);
+
+        this._nestedResultsCache[baseAttrName] = instances;
+        console.log(`Found ${instances.length} items for schema: ${schema["@type"]}`);
+
+        this.tryPopulateInstanceIriValues(instances, this._nestedResultsCache);
+
+        return instances;
+    }
 }
+

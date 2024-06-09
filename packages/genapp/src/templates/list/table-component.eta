@@ -16,7 +16,7 @@ export default function OverviewTable({ aggregateName }: { aggregateName: string
     const stringify = (objectKey) => {
         //console.log(objectKey)
         return typeof objectKey == 'object'
-            ? Object.keys(objectKey).map(k => stringify(objectKey[k])).join(" || ")
+            ? Object.keys(objectKey).filter(key => !["$id", "$type"].includes(key)).map(k => stringify(objectKey[k])).join(" || ")
             : objectKey.toString();
     }
 

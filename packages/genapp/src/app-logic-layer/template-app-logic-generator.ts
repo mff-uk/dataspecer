@@ -9,7 +9,14 @@ export interface ImportRelativePath {
 
 export interface TemplateDescription {
     templatePath: string;
-    placeholders?: { [placeHolderName: string]: string | ImportRelativePath };
+    placeholders?: { [placeHolderName: string]: string | ImportRelativePath | object };
+}
+
+function isImportRelativePath(obj: any): obj is ImportRelativePath {
+    const relPath = (obj as ImportRelativePath);
+    return relPath !== undefined
+        && relPath.from !== undefined
+        && relPath.to !== undefined;
 }
 
 export class TemplateGenerator {
@@ -32,7 +39,7 @@ export class TemplateGenerator {
         if (template.placeholders) {
             Object.entries(template.placeholders)
                 .forEach(([placeholderName, placeholderValue]) => {
-                    if (typeof placeholderValue === "string") {
+                    if (!isImportRelativePath(placeholderValue)) {
                         return;
                     }
 

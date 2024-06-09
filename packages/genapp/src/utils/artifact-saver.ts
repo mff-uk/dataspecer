@@ -67,7 +67,7 @@ export class ArtifactSaver {
 
         const absoluteFilepath = path.posix.resolve(fullFilepath)
         BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName] = absoluteFilepath.substring(absoluteFilepath.indexOf("generated"));
-        console.log("Generated cache: ", BaseArtifactSaver.savedArtifactsMap);
+        //console.log("Generated cache: ", BaseArtifactSaver.savedArtifactsMap);
 
         // save actual path where the artifact has been saved
         artifact.filePath = fullFilepath;

@@ -14,7 +14,7 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
     constructor() {
         this._configuration = {
             "Dataset": {
-                datasource: { 
+                datasource: {
                     format: DataSourceType.Rdf,
                     endpointUri: "https://data.gov.cz/sparql"
                 },
@@ -27,10 +27,18 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
                         hasFilter: true,
                         hasSearch: true,
                         hasAllSelection: true
-                    },
-                    detail: {
-                        id: "dataset_detail_id",
-                        type: "instance",
+                    }
+                }
+            },
+            "Catalog": {
+                datasource: {
+                    format: DataSourceType.Rdf,
+                    endpointUri: "https://data.gov.cz/sparql"
+                },
+                capabilities: {
+                    list: {
+                        id: "catalog_list_id",
+                        type: "collection",
                         showHeader: true,
                         showAsPopup: false,
                         hasFilter: true,
@@ -96,7 +104,7 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
 }
 
 export class FileConfigurationReader implements ConfigurationReader<ApplicationConfiguration> {
-    
+
     private readonly _configFilePath: string;
     private _configuration: ApplicationConfiguration;
 
@@ -108,7 +116,7 @@ export class FileConfigurationReader implements ConfigurationReader<ApplicationC
     getRootAggregateNames(): string[] {
         return Object.keys(this._configuration);
     }
-    
+
     getAppConfiguration(): ApplicationConfiguration {
 
         const fileContent = fs
