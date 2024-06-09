@@ -11,7 +11,7 @@ export class PresentationLayerStage extends TemplateConsumer implements Generato
 
     constructor(templatePath?: string, filepath?: string) {
         super(
-            templatePath ?? "./list/table-component",
+            templatePath ?? "./list/presentation-layer/table-component",
             filepath ?? "ListTable.tsx"
         );
         this.artifactSaver = new ArtifactSaver("/components/list");

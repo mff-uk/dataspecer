@@ -13,7 +13,7 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
 
     constructor(templatePath?: string, filePath?: string) {
         super(
-            templatePath ?? "./list/overview-app-logic",
+            templatePath ?? "./list/application-layer/overview-app-logic",
             filePath ?? "./list-app-logic.ts"
         );
         this.artifactSaver = new ArtifactSaver("/app-logic");

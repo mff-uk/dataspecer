@@ -38,8 +38,8 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
             aggregateName: context.aggregateName,
-            filePath: `./readers/${this._strategyIdentifier}/${context.aggregateName}-list-implementation.ts`,
-            templatePath: "./list/instance-ldkit-list-reader",
+            filePath: `./readers/${this._strategyIdentifier}/${context.aggregateName.toLowerCase()}-list-implementation.ts`,
+            templatePath: "./list/data-layer/ldkit/aggregate-specific-reader",
         })
         .setLdkitSchemaDependency(ldkitSchemaArtifact)
         .setLdkitSparqlEndpointDependency(this._sparqlEndpointUri)

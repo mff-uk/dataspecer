@@ -8,7 +8,7 @@ export class ReaderInterfaceGenerator extends TemplateConsumer {
 
     constructor(templatePath?: string, filePath?: string) {
         super(
-            templatePath ?? "./list/reader-interface",
+            templatePath ?? "./list/data-layer/reader-interface",
             filePath ?? "./readers/list-reader.ts"
         );
     }
