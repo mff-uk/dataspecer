@@ -5,7 +5,7 @@ import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { StageGenerationContext } from "../engine/generator-stage-interface";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { PresentationLayerStage } from "../presentation-layer/list-pipeline-stage";
-import { CapabilityGenerator } from "./capability-definition";
+import { CapabilityGenerator } from "./capability-generator-interface";
 
 export class OverviewCapability implements CapabilityGenerator {
 

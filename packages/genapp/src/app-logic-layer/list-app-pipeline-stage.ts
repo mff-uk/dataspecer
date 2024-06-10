@@ -1,22 +1,25 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { TemplateConsumer } from "../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../templates/template-consumer";
 import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
-import { ReaderInterfaceGenerator } from "../data-layer/reader-interface-generator";
-import { CapabilityInterfaceGenerator } from "../capabilities/capability-interface-generator";
+import { ReaderInterfaceGenerator } from "../data-layer/template-generators/reader-interface-generator";
+import { CapabilityInterfaceGenerator } from "../capabilities/template-generators/capability-interface-generator";
 import { ListCapabilityTemplate } from "../template-interfaces/app/list-capability-template";
 
-export class ListCapabilityApplicationLayerStage extends TemplateConsumer implements GeneratorStage {
+interface ListApplicationLayerTemplateDependencyMap extends TemplateDependencyMap {
+    dataLayerLinkArtifact: LayerArtifact
+}
+
+export class ListCapabilityApplicationLayerStage extends TemplateConsumer<ListCapabilityTemplate> implements GeneratorStage {
 
     artifactSaver: ArtifactSaver;
-    private _dataLayerLinkArtifact!: LayerArtifact;
 
     constructor(templatePath?: string, filePath?: string) {
         super(
             templatePath ?? "./list/application-layer/overview-app-logic",
             filePath ?? "./list-app-logic.ts"
         );
-        this.artifactSaver = new ArtifactSaver("/app-logic");
+        this.artifactSaver = new ArtifactSaver("/application-layer");
     }
 
     generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
@@ -25,23 +28,19 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
             throw new Error("'List capability' application layer depends on LayerArtifact from previous layer");
         }
 
-        this._dataLayerLinkArtifact = context.previousResult;
-
-        const listApplicationLayer = this.consumeTemplate();
+        const listApplicationLayer = this.processTemplate({
+            dataLayerLinkArtifact: context.previousResult
+        });
     
         return Promise.resolve(listApplicationLayer);
     }
 
-    consumeTemplate(): LayerArtifact {
-
-        if (!this._dataLayerLinkArtifact) {
-            throw new Error("Cannot determine the link to data layer");
-        }
+    processTemplate(dependencies: ListApplicationLayerTemplateDependencyMap): LayerArtifact {
 
         const fullPath = this.artifactSaver ? this.artifactSaver.getFullSavePath(this._filePath) : this._filePath;
 
-        const readerInterfaceArtifact = new ReaderInterfaceGenerator().consumeTemplate();
-        const capabilityResultArtifact = new CapabilityInterfaceGenerator().consumeTemplate();
+        const readerInterfaceArtifact = new ReaderInterfaceGenerator().processTemplate();
+        const capabilityResultArtifact = new CapabilityInterfaceGenerator().processTemplate();
 
         const listApplicationTemplate: ListCapabilityTemplate = {
             templatePath: this._templatePath,
@@ -55,7 +54,7 @@ export class ListCapabilityApplicationLayerStage extends TemplateConsumer implem
                 generated_capability_class: "GeneratedCapability",
                 reader_implementation_path: {
                     from: fullPath,
-                    to: this._dataLayerLinkArtifact.filePath
+                    to: dependencies.dataLayerLinkArtifact.filePath
                 },
                 list_reader_interface_path: {
                     from: fullPath,

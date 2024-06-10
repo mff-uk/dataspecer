@@ -12,18 +12,18 @@ export const BaseArtifactSaver: ArtifactSaverCache = {
 
 export class ArtifactSaver {
 
-    private readonly _basePath: string;
+    private readonly _layerSubdirectoryPath: string;
     private readonly _globalBasePaths: string[];
 
     constructor(basePath: string) {
-        this._basePath = basePath;
+        this._layerSubdirectoryPath = basePath;
         this._globalBasePaths = ["generated", "src"];
     }
 
     getFullSavePath(filename: string): string {
         return path.posix.join(
             ...this._globalBasePaths,
-            this._basePath,
+            this._layerSubdirectoryPath,
             filename
         );
     }

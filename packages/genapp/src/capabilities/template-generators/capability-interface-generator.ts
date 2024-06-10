@@ -1,12 +1,12 @@
-import { TemplateDescription } from "../app-logic-layer/template-app-logic-generator";
-import { LayerArtifact } from "../engine/layer-artifact";
-import { TemplateConsumer } from "../templates/template-consumer";
+import { TemplateDescription } from "../../app-logic-layer/template-app-logic-generator";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
 
 export interface CapabilityInterfaceTemplate extends TemplateDescription {
     templatePath: string
 }
 
-export class CapabilityInterfaceGenerator extends TemplateConsumer {
+export class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceTemplate> {
 
     constructor(templatePath?: string, filePath?: string) {
         super(
@@ -15,7 +15,7 @@ export class CapabilityInterfaceGenerator extends TemplateConsumer {
         );
     }
 
-    consumeTemplate(): LayerArtifact {
+    processTemplate(): LayerArtifact {
 
         const capabilityInterfaceTemplate: CapabilityInterfaceTemplate = {
             templatePath: this._templatePath

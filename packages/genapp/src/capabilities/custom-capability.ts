@@ -1,9 +1,6 @@
-import { CapabilityConfiguration } from "../application-config";
 import { LayerArtifact } from "../engine/layer-artifact";
-
-export interface CapabilityGenerator {
-    generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
-}
+import { CapabilityGenerator } from "./capability-generator-interface";
+import { CapabilityConfiguration } from "../application-config";
 
 export class CustomCapabilityGenerator implements CapabilityGenerator {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact> {

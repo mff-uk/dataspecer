@@ -19,7 +19,7 @@ function isImportRelativePath(obj: any): obj is ImportRelativePath {
         && relPath.to !== undefined;
 }
 
-export class TemplateGenerator {
+export class TemplateGenerator<TTemplate extends TemplateDescription> {
 
     private readonly _eta: Eta;
     constructor() {
@@ -30,7 +30,7 @@ export class TemplateGenerator {
         });
     }
 
-    renderTemplate<TTemplate extends TemplateDescription>(template: TTemplate): string {
+    renderTemplate(template: TTemplate): string {
 
         if (!template) {
             throw new Error("Invalid template description");

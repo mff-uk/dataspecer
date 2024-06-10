@@ -5,7 +5,8 @@ import {
     DataSourceType,
     DatasourceConfig
 } from "../application-config";
-import { CapabilityGenerator, CustomCapabilityGenerator } from "../capabilities/capability-definition";
+import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
+import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
 import { OverviewCapability } from "../capabilities/overview";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { StageGenerationContext } from "./generator-stage-interface";

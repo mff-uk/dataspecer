@@ -5,9 +5,8 @@ import { AxiosResponse } from "axios";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
 import { StageGenerationContext } from "../../engine/generator-stage-interface";
-import { TemplateGenerator } from "../../app-logic-layer/template-app-logic-generator";
 import { DataSourceType, DatasourceConfig } from "../../application-config";
-import { InstanceListLdkitReaderGenerator } from "../../template-interfaces/data/instance-list-reader-template";
+import { InstanceListLdkitReaderGenerator } from "../template-generators/ldkit/instance-list-reader-generator";
 
 export function isAxiosResponse(
     dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
@@ -41,9 +40,10 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
             filePath: `./readers/${this._strategyIdentifier}/${context.aggregateName.toLowerCase()}-list-implementation.ts`,
             templatePath: "./list/data-layer/ldkit/aggregate-specific-reader",
         })
-        .setLdkitSchemaDependency(ldkitSchemaArtifact)
-        .setLdkitSparqlEndpointDependency(this._sparqlEndpointUri)
-        .consumeTemplate();
+        .processTemplate({
+            ldkitSchemaArtifact: ldkitSchemaArtifact,
+            sparqlEndpointUri: this._sparqlEndpointUri
+        });
 
         return instanceListReaderArtifact;
     }

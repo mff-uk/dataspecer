@@ -1,11 +1,11 @@
-import { LayerArtifact } from "../engine/layer-artifact";
-import { TemplateConsumer } from "../templates/template-consumer";
-import { CapabilityInterfaceGenerator } from "../capabilities/capability-interface-generator";
-import { BaseArtifactSaver } from "../utils/artifact-saver";
-import { ReaderInterfaceTemplate } from "../template-interfaces/data/reader-interface-template";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
+import { BaseArtifactSaver } from "../../utils/artifact-saver";
+import { ReaderInterfaceTemplate } from "../../template-interfaces/data/reader-interface-template";
+import { CapabilityInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
-export class ReaderInterfaceGenerator extends TemplateConsumer {
-
+export class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
+    
     constructor(templatePath?: string, filePath?: string) {
         super(
             templatePath ?? "./list/data-layer/reader-interface",
@@ -19,9 +19,9 @@ export class ReaderInterfaceGenerator extends TemplateConsumer {
             : this._filePath;
     }
 
-    consumeTemplate(): LayerArtifact {
+    processTemplate(): LayerArtifact {
 
-        const capabilityResultArtifact = new CapabilityInterfaceGenerator().consumeTemplate();
+        const capabilityResultArtifact = new CapabilityInterfaceGenerator().processTemplate();
 
         const readerInterfaceTemplate: ReaderInterfaceTemplate = { 
             templatePath: this._templatePath,
