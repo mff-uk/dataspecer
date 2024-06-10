@@ -7,9 +7,9 @@ import { LayerArtifact } from "../engine/layer-artifact";
 import { PresentationLayerStage } from "../presentation-layer/list-pipeline-stage";
 import { CapabilityGenerator } from "./capability-generator-interface";
 
-export class OverviewCapability implements CapabilityGenerator {
+export class ListCapability implements CapabilityGenerator {
 
-    identifier: string = "overview";
+    identifier: string = "list";
     private readonly _pipeline: GeneratorPipeline;
     private readonly _aggregateName: string;
 
@@ -18,7 +18,7 @@ export class OverviewCapability implements CapabilityGenerator {
         this._pipeline = new GeneratorPipeline(
             new DataLayerGeneratorStage(datasourceConfig),
             new ListCapabilityApplicationLayerStage(),
-            new PresentationLayerStage()
+            new PresentationLayerStage(this.identifier)
         );
     }
 

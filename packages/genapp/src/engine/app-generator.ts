@@ -7,7 +7,7 @@ import {
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
 import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
-import { OverviewCapability } from "../capabilities/overview";
+import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { StageGenerationContext } from "./generator-stage-interface";
 import { LayerArtifact } from "./layer-artifact";
@@ -197,8 +197,8 @@ class ApplicationGenerator {
 
     private getCapabilityGenerator(capabilityName: string, rootAggregateName: string, datasource: DatasourceConfig): CapabilityGenerator | null {
         const capabilityGeneratorMapping: { [capabilityName: string]: CapabilityGenerator | null } = {
-            list: new OverviewCapability(rootAggregateName, datasource),
-            detail: new OverviewCapability(rootAggregateName, datasource),
+            list: new ListCapability(rootAggregateName, datasource),
+            detail: new ListCapability(rootAggregateName, datasource),
             create: null,
             delete: null,
         };

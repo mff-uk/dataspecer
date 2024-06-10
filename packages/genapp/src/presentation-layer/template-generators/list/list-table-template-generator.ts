@@ -2,13 +2,13 @@ import { StageGenerationContext } from "../../../engine/generator-stage-interfac
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { ListTableTemplate } from "../../../template-interfaces/presentation/list-table-template";
 import { TemplateConsumer, TemplateDependencyMap } from "../../../templates/template-consumer";
-import { PresentationLayerGeneratorStrategy } from "../../presentation-layer-strategy-interface";
+import { PresentationLayerGenerator } from "../../presentation-layer-strategy-interface";
 
 interface ListPresentationDependencyMap extends TemplateDependencyMap {
     listAppLogicArtifact: LayerArtifact;
 }
 
-export class ListTableTemplateGenerator extends TemplateConsumer<ListTableTemplate> implements PresentationLayerGeneratorStrategy {
+export class ListTableTemplateGenerator extends TemplateConsumer<ListTableTemplate> implements PresentationLayerGenerator {
 
     strategyIdentifier: string = "list-table-react-generator";
     constructor({ templatePath, filePath }: {templatePath: string, filePath: string }) {
