@@ -26,6 +26,7 @@ import { LanguageStringFallback } from "../../../../helper/LanguageStringCompone
 import { WikidataLoadingError } from "../../helpers/wikidata-loading-error";
 import { WikidataLoading } from "../../helpers/wikidata-loading";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useWdGetEndpoints } from "../../hooks/use-wd-get-endpoints";
 import { getAncestorsContainingProperty } from "../../helpers/ancestors-containing-property";
 import { WikidataPropertySelectionDialogProps } from "./wikidata-property-selection-dialog";
@@ -207,7 +208,7 @@ const SelectionExistsErrorBox: React.FC = () => {
     return (
         <>
             <Box sx={{ display: "flex", alignItems: "center", marginTop: 2, marginBottom: 2 }}>
-                <HelpOutlineIcon color='error' />
+                <WarningAmberIcon color='error' />
                 <Typography sx={{ marginLeft: 2 }} fontSize='15px' textAlign="justify">
                     {t("wikidata.selection.ancestor selection exists error")} 
                 </Typography>
