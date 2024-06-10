@@ -17,7 +17,7 @@ export function isAxiosResponse(
 
 export class LDKitDalGenerator implements DalGeneratorStrategy {
     
-    _strategyIdentifier: string = "ldkit";
+    strategyIdentifier: string = "ldkit";
     private readonly _backendUrl = "http://localhost:8889";
     private readonly _api: DalApi;
     private readonly _sparqlEndpointUri: string;
@@ -37,7 +37,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
             aggregateName: context.aggregateName,
-            filePath: `./readers/${this._strategyIdentifier}/${context.aggregateName.toLowerCase()}-list-implementation.ts`,
+            filePath: `./readers/${this.strategyIdentifier}/${context.aggregateName.toLowerCase()}-list-implementation.ts`,
             templatePath: "./list/data-layer/ldkit/aggregate-specific-reader",
         })
         .processTemplate({
@@ -49,7 +49,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
     }
 
     private async getLdkitSchema(aggregateName: string): Promise<LayerArtifact> {
-        const response = await this._api.generateDalLayerArtifact(this._strategyIdentifier, aggregateName);
+        const response = await this._api.generateDalLayerArtifact(this.strategyIdentifier, aggregateName);
 
         if (!isAxiosResponse(response) || response.status !== 200) {
             throw new Error("Invalid artifact returned from server");
@@ -74,7 +74,7 @@ export class LDKitDalGenerator implements DalGeneratorStrategy {
 
         const fileContent = await contentPromise;
         const result: LayerArtifact = {
-            filePath: path.posix.join("schemas", this._strategyIdentifier, schemaFilename),
+            filePath: path.posix.join("schemas", this.strategyIdentifier, schemaFilename),
             sourceText: fileContent,
             exportedObjectName: `${aggregateName}Schema`
         }

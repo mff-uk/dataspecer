@@ -1,6 +1,6 @@
 import { GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
-import { LayerArtifact } from "../engine/layer-artifact";
+import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy } from "./dal-generator-strategy-interface";
 import { LDKitDalGenerator } from "./strategies/ldkit-strategy";
 import { DataSourceType, DatasourceConfig } from "../application-config";
@@ -9,11 +9,6 @@ import { LocalStorageDalGeneratorStrategy } from "./strategies/localstorage-dal-
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy: (datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
-}
-
-function isLayerArtifact(obj: any): obj is LayerArtifact {
-    const la = obj as LayerArtifact;
-    return la !== undefined && la.exportedObjectName !== undefined;
 }
 
 export class DataLayerGeneratorStage implements GeneratorStage {
@@ -57,6 +52,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
         if (this._datasourceConfig.format !== DataSourceType.Local) {
             context._.sparqlEndpointUri = this._datasourceConfig.endpointUri;
         }
+
         const dalArtifact = await this._dalGeneratorStrategy.generateDataLayer(context);
 
         if (!isLayerArtifact(dalArtifact)) {

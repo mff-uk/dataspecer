@@ -1,4 +1,4 @@
-import { TemplateDescription, TemplateGenerator } from "../app-logic-layer/template-app-logic-generator";
+import { TemplateDescription, TemplateGenerator } from "../engine/eta-template-renderer";
 import { LayerArtifact } from "../engine/layer-artifact";
 
 export interface TemplateDependencyMap {

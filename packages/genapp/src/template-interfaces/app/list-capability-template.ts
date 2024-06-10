@@ -1,4 +1,4 @@
-import { ImportRelativePath, TemplateDescription } from "../../app-logic-layer/template-app-logic-generator"
+import { ImportRelativePath, TemplateDescription } from "../../engine/eta-template-renderer"
 
 export interface ListCapabilityTemplate extends TemplateDescription {
     templatePath: string,
