@@ -12,7 +12,7 @@ printf "VITE_BACKEND=$BACKEND\nVITE_CME=/conceptual-model-editor\nVITE_API_SPECI
 
 printf "VITE_BACKEND=$BACKEND\n" > applications/api-specification/.env.local
 
-if [ $CF_PAGES_BRANCH != "master" ]; then
+if [ $CF_PAGES_BRANCH != "main" ]; then
   printf "VITE_VERSION=$CF_PAGES_BRANCH\n" >> applications/manager/.env.local
 fi
 
