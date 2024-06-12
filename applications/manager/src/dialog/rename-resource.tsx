@@ -24,7 +24,6 @@ type RenameResourceDialogProps = {
   description: LanguageString
 } | null>;
 
-
 export const RenameResourceDialog = ({ inputLabel, inputDescription, isOpen, resolve, type }: RenameResourceDialogProps) => {
   type = type ?? "edit";
 
@@ -78,7 +77,7 @@ export const RenameResourceDialog = ({ inputLabel, inputDescription, isOpen, res
             Please {type === "create" ? "select" : "change"} the name and the description of the resource.
           </ModalDescription>
         </ModalHeader>
-        <ModalBody className="overflow-auto">
+        <ModalBody>
           <div className="flex justify-end">
             <Button variant="ghost" onClick={() => setLabels([...labels, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add name</Button>
             <Button variant="ghost" onClick={() => setDescription([...description, { lang: "cs", value: "", key: _uniqueId() }])}><Plus className="mr-2 h-4 w-4" /> Add description</Button>
@@ -90,7 +89,7 @@ export const RenameResourceDialog = ({ inputLabel, inputDescription, isOpen, res
                   <div>
                     Name:
                   </div>
-                  <input className="flex rounded-md border border-input bg-slate-100 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1.5cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setLabels([...labels.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />
+                  <input className="flex rounded-md border border-input bg-slate-300/30 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1.5cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setLabels([...labels.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />
                   <div className="grow"></div>
                   <Button variant={"ghost"} size="smallIcon" onClick={() => removeName(name.key)}>
                     <X className="text-muted-foreground" size={16} />
@@ -106,7 +105,7 @@ export const RenameResourceDialog = ({ inputLabel, inputDescription, isOpen, res
                   <div>
                     Description:
                   </div>
-                  <input className="flex rounded-md border border-input bg-slate-100 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1.5cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setDescription([...description.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />                
+                  <input className="flex rounded-md border border-input bg-slate-300/30 px-3 bac text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-[1.5cm] text-center border-none p-0" value={name.lang} placeholder="xx" onChange={target => setDescription([...description.map(n => n === name ? { ...n, lang: target.target.value } : n)])} />                
                   <div className="grow"></div>
                   <Button variant={"ghost"} size="smallIcon" onClick={() => removeDescription(name.key)}>
                     <X className="text-muted-foreground" size={16} />

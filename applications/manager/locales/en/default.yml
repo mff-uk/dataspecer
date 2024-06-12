@@ -1,0 +1,32 @@
+'--lang-name': English
+autolayout: Auto layout
+changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
+created: 'Created on {{val, datetime(dateStyle: short)}}'
+dataspecer-packages: packages
+form:
+  authors:
+    instruction: Enter author names
+    name: Authors
+  base-iri:
+    instruction: Enter base IRI for individual concepts
+    name: Base IRI
+  create-button:
+    name: Create
+  description:
+    instruction: Describe your project in more detail
+    name: Description
+  documentation-base-url:
+    instruction: Enter base URL for published documentation
+    name: Documentation base URL
+  name:
+    instruction: Enter the name of the project
+    name: Name
+mode-toggle:
+  dark: Dark
+  light: Light
+  system: System
+  title: Toggle theme
+new-package: New package
+open: Open
+project-wizard: Project Wizard
+remove: Remove
