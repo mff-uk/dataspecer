@@ -30,9 +30,9 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
     const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
 
-    const { cls, attributes, attributeUsages } = props.data;
+    const { cls, attributes, attributeUsages, color } = props.data;
 
-    const clr = props.data.color ?? "#ffffff";
+    const clr = color ?? "#ffffff";
 
     const model = useMemo(() => sourceModelOfEntity(cls.id, [...models.values()]), [cls.id, models]);
 

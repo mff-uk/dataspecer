@@ -33,26 +33,28 @@ type EntityDialogSupportedType =
 export const useEntityDetailDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const editDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const [viewedEntity2, setViewedEntity2] = useState(null as unknown as EntityDialogSupportedType);
+    // we open the dialog with this entity, since you can view related items in the same dialog
+    // we also change the viewed entity state there
+    const [initialViewedEntity, setInitialViewedEntity] = useState(null as unknown as EntityDialogSupportedType);
 
     useEffect(() => {
-        const { current: el } = editDialogRef;
-        if (isOpen && el !== null) el.showModal();
+        const { current: element } = editDialogRef;
+        if (isOpen && element !== null) element.showModal();
     }, [isOpen]);
 
     const localClose = () => {
-        setViewedEntity2(null as unknown as EntityDialogSupportedType);
+        setInitialViewedEntity(null as unknown as EntityDialogSupportedType);
         close();
     };
     const localOpen = (entity: EntityDialogSupportedType) => {
-        setViewedEntity2(entity);
+        setInitialViewedEntity(entity);
         open();
     };
 
     const EntityDetailDialog = () => {
         const { language: preferredLanguage } = useConfigurationContext();
         const [currentLang, setCurrentLang] = useState<string>(preferredLanguage);
-        const [viewedEntity, setViewedEntity] = useState(viewedEntity2);
+        const [viewedEntity, setViewedEntity] = useState(initialViewedEntity);
 
         const { models: m, aggregatorView } = useModelGraphContext();
         const models = [...m.values()];
@@ -81,8 +83,6 @@ export const useEntityDetailDialog = () => {
         const isInActiveView =
             aggregatorView.getActiveVisualModel()?.getVisualEntity(viewedEntity.id)?.visible ?? false;
         const canBeAddedToActiveView = isSemanticModelClass(viewedEntity) || isSemanticModelClassUsage(viewedEntity);
-
-        console.log(viewedEntity, domain, range);
 
         const handleAddEntityToActiveView = (entityId: string) => {
             const updateStatus = aggregatorView.getActiveVisualModel()?.updateEntity(entityId, { visible: true });
