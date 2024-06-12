@@ -22,11 +22,15 @@ function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
+interface Context {
+    baseIri: string;
+}
+
 /**
  * Generates lightweight OWL ontology from the given entities.
  */
-export function generate(entities: SemanticModelEntity[]): Promise<string> {
-    const generator = new Generator();
+export function generate(entities: SemanticModelEntity[], context?: Context): Promise<string> {
+    const generator = new Generator(context);
     return generator.generate(entities);
 }
 
@@ -40,12 +44,19 @@ class Generator {
     private subclasses!: SemanticModelGeneralization[];
     private entitiesMap!: Record<string, SemanticModelEntity>;
 
+    constructor(private context?: Context) {}
+
     public generate(entities: SemanticModelEntity[]): Promise<string> {
-        this.writer = new N3.Writer({prefixes: {
+        this.writer = new N3.Writer();
+        if (this.context?.baseIri) {
+            // @ts-ignore internal API because it does not have @base option
+            this.writer._write(`@base <${this.context.baseIri}> .\n`);
+        }
+        this.writer.addPrefixes({
             owl: "http://www.w3.org/2002/07/owl#",
             rdfs: "http://www.w3.org/2000/01/rdf-schema#",
             rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }});
+        });
         const classes = entities.filter(isSemanticModelClass);
         this.entitiesMap = Object.fromEntries(entities.map(e => [e.id, e]));
         this.subclasses = entities.filter(isSemanticModelGeneralization);

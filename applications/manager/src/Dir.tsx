@@ -16,7 +16,7 @@ import { ProjectWizard } from "./dialog/project-wizard/project-wizard";
 import { RenameResourceDialog } from "./dialog/rename-resource";
 import { ResourceDetail } from "./dialog/resource-detail";
 import { useToggle } from "./hooks/use-toggle";
-import { ModelIcon, modelTypeToName } from "./known-models";
+import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, modifyUserMetadata, requestLoadPackage } from "./package";
 
@@ -160,7 +160,17 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
       </button>
       <h2 className="font-heading ml-3 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow">{pckg.userMetadata?.label?.cs}</h2>
-      <Button variant="ghost" size={"sm"} className="shrink-0 ml-4" onClick={() => openModal(CreateNew, {iri})}><Folder className="mr-2 h-4 w-4" /> {t("new-package")}</Button>
+      <Button variant="ghost" size={"sm"} className="shrink-0 ml-4" onClick={async () => {
+        const names = await openModal(RenameResourceDialog, {type: "create"});
+        if (!names) return;
+        await createModelInstructions[LOCAL_PACKAGE].createHook({
+          iri: "",
+          parentIri: iri,
+          modelType: LOCAL_PACKAGE,
+          label: names?.name,
+          description: names?.description,
+        });
+      }}><Folder className="mr-2 h-4 w-4" /> {t("new-package")}</Button>
       <Button variant="default" size={"sm"} className="shrink-0 ml-4" onClick={() => openModal(ProjectWizard, {iri})}><WandSparkles className="mr-2 h-4 w-4" /> {t("project-wizard")}</Button>
     </div>
     {isOpen &&

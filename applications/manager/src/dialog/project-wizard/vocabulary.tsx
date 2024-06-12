@@ -68,14 +68,14 @@ export const Vocabulary = ({ isOpen, resolve, iri }: { iri: string } & BetterMod
               <Label htmlFor="base-url">{t("form.base-iri.name")}</Label>
               <Input id="base-url" placeholder={t("form.base-iri.instruction")} />
             </div>
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="documentation-url">{t("form.documentation-base-url.name")}</Label>
               <Input id="documentation-url" placeholder={t("form.documentation-base-url.instruction")} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="authors">{t("form.authors.name")}</Label>
               <Textarea id="authors" placeholder={t("form.authors.instruction")} />
-            </div>
+            </div> */}
             <Button type="submit">{t("form.create-button.name")}</Button>
           </form>
         </ModalBody>

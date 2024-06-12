@@ -13,7 +13,7 @@ async function generateLightweightOwl(iri: string): Promise<string> {
     const resource = (await resourceModel.getResource(iri))!;
     const data = await (await resourceModel.getOrCreateResourceModelStore(iri)).getJson();
     const entities = data.entities as Record<string, SemanticModelEntity>;
-    return await generate(Object.values(entities));
+    return await generate(Object.values(entities), {baseIri: data.baseIri});
 }
 
 export const getLightweightOwl = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -34,12 +34,7 @@ export const getLightweightOwl = asyncHandler(async (request: express.Request, r
         return;
     }
 
-    const data = await (await resourceModel.getOrCreateResourceModelStore(query.iri)).getJson();
-    const entities = data.entities as Record<string, SemanticModelEntity>;
-
-    const result = await generate(Object.values(entities));
-
-    response.type("text/turtle").send(result);
+    response.type("text/turtle").send(await generateLightweightOwl(query.iri));
     return;
 });
 
