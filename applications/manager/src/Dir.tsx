@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, EllipsisVertical, Folder, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, EllipsisVertical, Folder, FolderDown, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
@@ -102,6 +102,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/experimental/output.zip?iri=" + encodeURIComponent(iri)}><FolderDown className="mr-2 h-4 w-4" /> {t("export")}</a></DropdownMenuItem>}
           <DropdownMenuItem onClick={async () => {
             const result = await openModal(RenameResourceDialog, {inputLabel: resource.userMetadata?.label, inputDescription: resource.userMetadata?.description});
             if (result) {

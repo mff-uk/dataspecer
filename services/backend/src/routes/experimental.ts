@@ -7,6 +7,14 @@ import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts
 import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
+import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
+
+async function generateLightweightOwl(iri: string): Promise<string> {
+    const resource = (await resourceModel.getResource(iri))!;
+    const data = await (await resourceModel.getOrCreateResourceModelStore(iri)).getJson();
+    const entities = data.entities as Record<string, SemanticModelEntity>;
+    return await generate(Object.values(entities));
+}
 
 export const getLightweightOwl = asyncHandler(async (request: express.Request, response: express.Response) => {
     const querySchema = z.object({
@@ -43,6 +51,19 @@ export const getlightweightFromSimplified = asyncHandler(async (request: express
     return;
 });
 
+async function getDocumentationData(packageId: string): Promise<string> {
+    const resource = (await resourceModel.getPackage(packageId))!;
+    const semanticModels = await Promise.all(resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL).map(async r => await (await resourceModel.getOrCreateResourceModelStore(r.iri)).getJson()));
+
+    const context = {
+        resourceModel,
+        semanticModels: semanticModels.map(m => m.entities as Record<string, SemanticModelEntity>),
+        modelIri: packageId,
+    };
+
+    return await generateDocumentation(context, defaultConfiguration);
+}
+
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {
     const querySchema = z.object({
         iri: z.string().min(1),
@@ -56,16 +77,39 @@ export const getDocumentation = asyncHandler(async (request: express.Request, re
         return;
     }
 
-    const semanticModels = await Promise.all(resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL).map(async r => await (await resourceModel.getOrCreateResourceModelStore(r.iri)).getJson()));
+    response.type("text/html").send(await getDocumentationData(query.iri));
+    return;
+});
 
-    const context = {
-        resourceModel,
-        semanticModels: semanticModels.map(m => m.entities as Record<string, SemanticModelEntity>),
-        modelIri: query.iri,
-    };
+export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const querySchema = z.object({
+        iri: z.string().min(1),
+    });
+    const query = querySchema.parse(request.query);
 
-    const result = await generateDocumentation(context, defaultConfiguration);
+    const resource = await resourceModel.getPackage(query.iri);
 
-    response.type("text/html").send(result);
+    if (!resource) {
+        response.status(404).send({error: "Package does not exist."});
+        return;
+    }
+
+    // Find all semantic models
+    const semanticModels = resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL);
+
+    const zip = new ZipStreamDictionary();
+
+    // HTML
+    const documentation = zip.writePath("index.html");
+    await documentation.write(await getDocumentationData(query.iri));
+    await documentation.close();
+
+    // OWL
+    const owl = zip.writePath("model.owl");
+    await owl.write(await generateLightweightOwl(semanticModels[0].iri));
+    await owl.close();
+
+    // Send zip file
+    response.type("application/zip").send(await zip.save());
     return;
 });

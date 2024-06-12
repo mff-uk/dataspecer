@@ -3,6 +3,7 @@ autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
 dataspecer-packages: správce projektů
+export: Export
 form:
   authors:
     instruction: Zadejte jména autorů
