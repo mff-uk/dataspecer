@@ -7,8 +7,10 @@ import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, deleteResource } from "@/package";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const DeleteResource = ({ iri, isOpen, resolve }: { iri: string } & BetterModalProps<boolean>) => {
+  const {t} = useTranslation();
   const resources = useContext(ResourcesContext);
   const resource = usePreviousValue(resources[iri]!);
 
@@ -19,24 +21,24 @@ export const DeleteResource = ({ iri, isOpen, resolve }: { iri: string } & Bette
     resolve(true);
   }
 
-  const name = lng(resource.userMetadata?.description);
+  const name = lng(resource.userMetadata?.label);
   const type = modelTypeToName[resource.types?.[0]];
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Odstranění modelu</ModalTitle>
+          <ModalTitle>{t("delete-resource.title")}</ModalTitle>
           <ModalDescription>
-            Chystáte se odstranit <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}. Tento krok je nevratný.
+            {name ? t("delete-resource.warning", {name, type}) : t("delete-resource.warning-no-name", {type})}
           </ModalDescription>
         </ModalHeader>
         <ModalFooter>
           <Button variant="destructive" onClick={doDelete} disabled={isLoading}>
             {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-            Odstranit
+            {t("remove")}
           </Button>
-          <Button variant="outline" onClick={() => resolve(false)} disabled={isLoading}>Zavřít</Button>
+          <Button variant="outline" onClick={() => resolve(false)} disabled={isLoading}>{t("close")}</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

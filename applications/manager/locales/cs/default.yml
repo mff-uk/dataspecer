@@ -1,13 +1,15 @@
 '--lang-name': Čeština
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
+close: Zavřít
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
 dataspecer-packages: správce projektů
+delete-resource:
+  title: Odstranit
+  warning: Chystáte se odstranit {{type}} s názvem {{name}}. Tento krok je nevratný.
+  warning-no-name: Chystáte se odstranit {{type}}. Tento krok je nevratný.
 export: Export
 form:
-  authors:
-    instruction: Zadejte jména autorů
-    name: Autoři
   base-iri:
     instruction: Zadejte base IRI pro jednotlivé koncepty
     name: Base IRI

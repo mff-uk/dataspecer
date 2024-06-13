@@ -1,13 +1,15 @@
 '--lang-name': English
 autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
+close: Close
 created: 'Created on {{val, datetime(dateStyle: short)}}'
 dataspecer-packages: packages
+delete-resource:
+  title: Remove
+  warning: You are about to remove {{type}} with name {{name}}. This action is irreversible.
+  warning-no-name: You are about to remove {{type}}. This action is irreversible.
 export: Export
 form:
-  authors:
-    instruction: Enter author names
-    name: Authors
   base-iri:
     instruction: Enter base IRI for individual concepts
     name: Base IRI
@@ -16,9 +18,6 @@ form:
   description:
     instruction: Describe your project in more detail
     name: Description
-  documentation-base-url:
-    instruction: Enter base URL for published documentation
-    name: Documentation base URL
   name:
     instruction: Enter the name of the project
     name: Name
