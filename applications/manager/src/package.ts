@@ -59,6 +59,9 @@ export async function deleteResource(iri: string) {
     const copiedResourcesMemory = {...resourcesMemory.current};
     delete copiedResourcesMemory[iri];
     for (const resource of Object.values(copiedResourcesMemory)) {
+        if (!resource) {
+            continue;
+        }
         if (resource.subResourcesIri?.includes(iri)) {
             copiedResourcesMemory[resource.iri] = {...resource, subResourcesIri: resource.subResourcesIri.filter((subIri) => subIri !== iri)};
         }
