@@ -99,19 +99,15 @@ application.get(basename + '/generate', generate);
 application.get(basename + '/experimental/output.zip', getZip);
 
 (async () => {
-    // Create root models for the common use and for the v1 adapter.
-    if (!await resourceModel.getResource(ROOT_PACKAGE_FOR_V1)) {
-        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
-        await createV1RootModel(resourceModel);
-    }
-    if (!await resourceModel.getResource("http://dataspecer.com/packages/local-root")) {
+    // Create local root
+    if (!await resourceModel.getResource(configuration.localRootIri)) {
         console.log("There is no default root package. Creating one...");
-        await resourceModel.createPackage(null, "http://dataspecer.com/packages/local-root", {
-            label: {
-                cs: "Lokální modely",
-                en: "Local models"
-            },
-        });
+        await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
+    }
+    // Create root models for the common use and for the v1 adapter.
+    if (!await resourceModel.getResource(configuration.v1RootIri)) {
+        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
+        await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
     }
 
     application.listen(Number(configuration.port), () => {
