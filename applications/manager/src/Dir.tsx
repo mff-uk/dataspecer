@@ -144,6 +144,10 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
     requestLoadPackage(iri);
   }, []);
 
+  if (pckg === null) {
+    return;
+  }
+
   if (!pckg) {
     return <div className="my-2 flex">
       <Skeleton className="w-[44px] h-[44px] rounded-full" />

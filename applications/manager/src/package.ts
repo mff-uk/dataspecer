@@ -26,20 +26,20 @@ export async function requestLoadPackage(iri: string, forceUpdate = false) {
     const pckg = await packageService.getPackage(iri) as ResourceWithIris;
     resourcesBeingFetched.delete(iri);
 
-    if (!pckg) {
-        return;
-    }
-
     const copiedResourcesMemory = {...resourcesMemory.current};
 
-    pckg.subResourcesIri = pckg.subResources!.map((resource) => resource.iri);
-    for (const resource of pckg.subResources!) {
-        if (copiedResourcesMemory[resource.iri]) {
-            continue;
+    if (pckg) {
+        pckg.subResourcesIri = pckg.subResources!.map((resource) => resource.iri);
+
+        for (const resource of pckg.subResources!) {
+            if (copiedResourcesMemory[resource.iri]) {
+                continue;
+            }
+            copiedResourcesMemory[resource.iri] = resource as ResourceWithIris;
         }
-        copiedResourcesMemory[resource.iri] = resource as ResourceWithIris;
+        delete pckg.subResources;
     }
-    delete pckg.subResources;
+    
     copiedResourcesMemory[iri] = pckg;
     setResourcesReact(copiedResourcesMemory);
     resourcesMemory.current = copiedResourcesMemory;
