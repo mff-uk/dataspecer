@@ -72,13 +72,13 @@ export const Application = () => {
  */
 const MainRouter = () => {
     const Page = () => useRoutes([
-        {path: "/", element: <ManagerPage><Home/></ManagerPage>},
-        {path: "/specification", element: <ManagerPage><Specification/></ManagerPage>},
-        {path: "/specification/generate", element: <ManagerPage><Generate/></ManagerPage>},
-        {path: "/editor", element: <EditorPage/>}
+        {path: process.env.REACT_APP_MANAGER_BASE_URL + "", element: <ManagerPage><Home/></ManagerPage>},
+        {path: process.env.REACT_APP_MANAGER_BASE_URL + "/specification", element: <ManagerPage><Specification/></ManagerPage>},
+        {path: process.env.REACT_APP_MANAGER_BASE_URL + "/specification/generate", element: <ManagerPage><Generate/></ManagerPage>},
+        {path: process.env.REACT_APP_STRUCTURE_EDITOR_BASE_URL, element: <EditorPage/>}
     ]);
 
-    return <BrowserRouter basename={process.env.REACT_APP_BASENAME}>
+    return <BrowserRouter basename={"/"}>
         <Page/>
     </BrowserRouter>;
 }
