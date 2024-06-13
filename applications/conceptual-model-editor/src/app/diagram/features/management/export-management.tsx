@@ -13,6 +13,7 @@ import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-uti
 import { ExportButton } from "../../components/management/buttons/export-button";
 import { useAutoSave } from "../autosave";
 import { useQueryParamsContext } from "../../context/query-params-context";
+import { exportEntitiesAsDataSpecificationTrig } from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 
 export const ExportManagement = () => {
     const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
@@ -122,6 +123,25 @@ export const ExportManagement = () => {
         saveWorkspaceState(models, visualModels, activeView);
     };
 
+    const handleGenerateDataSpecificationVocabulary = async () => {
+        const entities = Object.values(aggregatorView.getEntities())
+            .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
+            .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
+                return entityOrNull != null;
+            });
+        const modelWrappers = [];
+        for (const model of models.values()) {
+            modelWrappers.push({
+                identifier: model.getId(),
+                alias: model.getAlias(),
+                entities: Object.values(model.getEntities()),
+            });
+        }
+        const stringContent = await exportEntitiesAsDataSpecificationTrig(entities);
+        const date = Date.now();
+        download(stringContent, `dscme-dsv-${date}.ttl`, "text/plain");
+    };
+
     return (
         <div className="my-auto mr-2 flex flex-row">
             <ExportButton title="open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
@@ -134,6 +154,9 @@ export const ExportManagement = () => {
             <ExportButton title="generate lightweight ontology" onClick={handleGenerateLightweightOwl}>
                 💾lw-onto
             </ExportButton>
+            <ExportButton title="generate lightweight ontology" onClick={handleGenerateDataSpecificationVocabulary}>
+                💾dsv
+            </ExportButton>            
         </div>
     );
 };

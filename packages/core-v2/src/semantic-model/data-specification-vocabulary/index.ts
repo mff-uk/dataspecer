@@ -1,11 +1,10 @@
-import { Entity } from "../../entity-model";
-
-import { entitiesToApplicationProfile } from "./entity-model-adapter";
+import { entitiesToApplicationProfile, ModelContainer } from "./entity-model-adapter";
 import { applicationProfileToTrig } from "./rdf-adapter";
+export type {ModelContainer}from "./entity-model-adapter";
 
 export async function exportEntitiesAsDataSpecificationTrig(
-  entities: Entity[]
+  modelContainers: ModelContainer[]
 ): Promise<string> {
-  const dataSpecification = entitiesToApplicationProfile(entities, null);
+  const dataSpecification = entitiesToApplicationProfile(modelContainers, null);
   return await applicationProfileToTrig(dataSpecification);
 }
