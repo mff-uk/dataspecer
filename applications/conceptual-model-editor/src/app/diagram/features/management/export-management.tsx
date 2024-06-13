@@ -123,12 +123,7 @@ export const ExportManagement = () => {
         saveWorkspaceState(models, visualModels, activeView);
     };
 
-    const handleGenerateDataSpecificationVocabulary = async () => {
-        const entities = Object.values(aggregatorView.getEntities())
-            .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
-            .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
-                return entityOrNull != null;
-            });
+    const handleGenerateDataSpecificationVocabulary = () => {
         const modelWrappers = [];
         for (const model of models.values()) {
             modelWrappers.push({
@@ -137,9 +132,13 @@ export const ExportManagement = () => {
                 entities: Object.values(model.getEntities()),
             });
         }
-        const stringContent = await exportEntitiesAsDataSpecificationTrig(entities);
-        const date = Date.now();
-        download(stringContent, `dscme-dsv-${date}.ttl`, "text/plain");
+        // The parent function can not be async, so we wrap the export in a function.
+        (async () => {
+            const stringContent = await exportEntitiesAsDataSpecificationTrig(modelWrappers);
+            const date = Date.now();
+            download(stringContent, `dscme-dsv-${date}.ttl`, "text/plain");
+        })()
+            .catch(console.error);
     };
 
     return (
@@ -156,7 +155,7 @@ export const ExportManagement = () => {
             </ExportButton>
             <ExportButton title="generate lightweight ontology" onClick={handleGenerateDataSpecificationVocabulary}>
                 💾dsv
-            </ExportButton>            
+            </ExportButton>
         </div>
     );
 };
