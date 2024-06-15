@@ -13,7 +13,9 @@ export function entitySearchTextFilterWithMap<T extends WdEntityDescOnly>(
     else {
         return entitiesIds.filter((id) => {
             const entity = entitiesMap.get(id) as WdEntityDescOnly;
-            return entity.labels["en"].toLowerCase().includes(searchText);
+            const inLabel = entity.labels["en"]?.toLowerCase().includes(searchText) ?? false;
+            const inDescription = entity.descriptions["en"]?.toLowerCase().includes(searchText) ?? false;
+            return inLabel || inDescription;
         });
     }
 }
