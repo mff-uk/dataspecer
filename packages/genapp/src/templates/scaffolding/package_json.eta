@@ -1,10 +1,12 @@
 {
-  "name": "genapp_generated_app",
-  "version": "1.0.0",
+  "name": "genapp-demo",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.15.10",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -12,17 +14,13 @@
     "@types/node": "^16.18.82",
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
-    "@mui/icons-material": "^5.15.10",
-    "@mui/material": "^5.15.10",
-    "eta": "^3.4.0",
     "ldkit": "^1.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "ts-morph": "^22.0.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,19 +1,26 @@
-import React from "react";
 import "./App.css";
+import React from "react";
+import { <%= it.main_component %> } from <%~ it.main_component_path %>;
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import <%= it.error_component %> from <%= it.error_component_filepath %>;
-<%= it.componentImports %>
-
+import <%= it.error_component_name %> from <%~ it.error_component_path %>;
+<% for (let idx in it.import_statements) { %><%~ it.import_statements[idx] %><% } %>
 
 const router = createBrowserRouter([
   {
-    path: "*",
-    element: <div>Home page</div>,
+    path: "/",
+    element: <Main />,
+    children: [],
+    errorElement: <<%= it.error_component_name %> />
+  },<% for (let aggregateName in it.artifacts_map) { %><% for (let capabilityName in it.artifacts_map[aggregateName]) { %><% let item = it.artifacts_map[aggregateName][capabilityName] %><% let lowercaseAggregateName = aggregateName.toLowerCase(); %>
+  {
+    path: "<%= lowercaseAggregateName %>/<%= capabilityName %>",<% if (Object.keys(item.props).length > 0) { %>
+    element: <<%= item.componentName %><% for (let propName in item.props) { %>
+                <%= propName %>={"<%= item.props[propName] %>"}<% } %>
+             />,<% } else { %>
+    element: <<%= item.componentName %> />,<% } %>
     children: [],
     errorElement: <ErrorPage />
-  },
-  // the snippet below should be generated from generator's OverviewCapability
-  <%= it.capability_components %>
+  },<% } %><% } %>
 ])
 
 const App = () => {

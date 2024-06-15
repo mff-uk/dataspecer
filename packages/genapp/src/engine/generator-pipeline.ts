@@ -14,12 +14,15 @@ export class GeneratorPipeline {
         for (const stage of this.pipelineStages) {
             const layerArtifact = await stage.generateStage(context);
 
+            let layerOutput = layerArtifact;
             if (stage.artifactSaver) {
-                stage.artifactSaver.saveArtifact(layerArtifact);
+                const savedArtifact = stage.artifactSaver.saveArtifact(layerArtifact);
+                // if layerArtifact had been saved before, the output will use actual saved path
+                layerOutput = savedArtifact;
             }
 
-            this.lastArtifact = layerArtifact;
-            context.previousResult = layerArtifact;
+            this.lastArtifact = layerOutput;
+            context.previousResult = layerOutput;
         }
 
         if (!this.lastArtifact) {

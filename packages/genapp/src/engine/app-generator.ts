@@ -1,16 +1,15 @@
 import {
-    AggregateConfiguration,
     ApplicationConfiguration,
     CapabilityConfiguration,
-    DataSourceType,
     DatasourceConfig
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
 import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
 import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
-import { StageGenerationContext } from "./generator-stage-interface";
-import { LayerArtifact } from "./layer-artifact";
+import { CapabilityArtifactResultMap, LayerArtifact } from "./layer-artifact";
+import { ReactApplicationBaseGenerator } from "./react-app-base-generator";
+import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
 
 // {
 //     path: "/list/datasets",
@@ -24,8 +23,6 @@ type ReactRouterObject = {
     children: string[],
     errorElement: string
 }
-
-type CapabilityArtifactResult = { [capabilityName: string]: LayerArtifact };
 
 class ApplicationGenerator {
 
@@ -219,7 +216,6 @@ class ApplicationGenerator {
         for (const [capabilityName, capabilityConfig] of array) {
             const capabilityGenerator = this.getCapabilityGenerator(capabilityName, rootAggregateName, datasource);
             console.log(capabilityConfig);
-            console.log("=".repeat(20));
 
             if (!capabilityGenerator) {
                 return;
@@ -233,7 +229,7 @@ class ApplicationGenerator {
     }
 
     async processGeneratedPromises(promiseMap: { [capabilityName: string]: Promise<LayerArtifact> }) {
-        const result: CapabilityArtifactResult = {};
+        const result: CapabilityArtifactResultMap = {};
         for (const [capabilityName, promise] of Object.entries(promiseMap)) {
             const capabilityOutput = await promise;
 
@@ -261,7 +257,7 @@ class ApplicationGenerator {
 
     async generate() {
         const appConfig: ApplicationConfiguration = this.configReader.getAppConfiguration();
-        const generatedArtifactsByAggregateName: { [rootAggregateName: string]: CapabilityArtifactResult } = {};
+        const generatedArtifactsByAggregateName: { [rootAggregateName: string]: CapabilityArtifactResultMap } = {};
 
         for (const aggregateName of this.configReader.getRootAggregateNames()) {
             const aggregateGeneratedCapabilities = await this.processAggregateGeneration(aggregateName);
@@ -269,7 +265,12 @@ class ApplicationGenerator {
             generatedArtifactsByAggregateName[aggregateName] = aggregateGeneratedCapabilities;
         }
 
-        //console.log(generatedArtifactsByAggregateName);
+        console.log("~".repeat(100));
+        console.log(generatedArtifactsByAggregateName);
+        const baseGeneratorStage = new ReactAppBaseGeneratorStage();
+
+        const appBaseArtifact = baseGeneratorStage.generateApplicationBase(generatedArtifactsByAggregateName);
+        baseGeneratorStage.artifactSaver.saveArtifact(appBaseArtifact);
     }
 }
 

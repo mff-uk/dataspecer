@@ -2,6 +2,7 @@ import { StageGenerationContext } from "../../../engine/generator-stage-interfac
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { ListTableTemplate } from "../../../template-interfaces/presentation/list-table-template";
 import { TemplateConsumer, TemplateDependencyMap } from "../../../templates/template-consumer";
+import { BaseArtifactSaver } from "../../../utils/artifact-saver";
 import { PresentationLayerGenerator } from "../../presentation-layer-strategy-interface";
 
 interface ListPresentationDependencyMap extends TemplateDependencyMap {
@@ -37,12 +38,13 @@ export class ListTableTemplateGenerator extends TemplateConsumer<ListTableTempla
     }
     
     processTemplate(dependencies: ListPresentationDependencyMap): LayerArtifact {
+
         const tableTemplate: ListTableTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 list_capability_app_layer: dependencies.listAppLogicArtifact.exportedObjectName,
                 list_app_layer_path: {
-                    from: this._filePath,
+                    from: "ListTable" in BaseArtifactSaver.savedArtifactsMap ? BaseArtifactSaver.savedArtifactsMap["ListTable"] : this._filePath,
                     to: dependencies.listAppLogicArtifact.filePath
                 }
             }

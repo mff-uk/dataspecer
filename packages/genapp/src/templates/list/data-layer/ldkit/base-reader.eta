@@ -90,7 +90,7 @@ export abstract class LdkitListReader implements <%= it.list_reader_interface %>
         const lens = createLens(schema);
         const itemsCount = await lens.count();
         console.log(`Total items count for: ${schema["@type"]}`, itemsCount);
-        const instances = await lens.find(undefined, 15000);
+        const instances = await lens.find(undefined, 1000); //15000);
 
         this._nestedResultsCache[baseAttrName] = instances;
         console.log(`Found ${instances.length} items for schema: ${schema["@type"]}`);

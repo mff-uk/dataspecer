@@ -37,9 +37,6 @@ export class ListCapability implements CapabilityGenerator {
         const stageContext = this.convertConfigToCapabilityContext(config);
 
         const pipelineOutput = this._pipeline.generateStages(stageContext);
-
-        console.log(pipelineOutput);
-
         return pipelineOutput;
     }
 }

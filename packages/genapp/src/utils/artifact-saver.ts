@@ -29,11 +29,7 @@ export class ArtifactSaver {
     }
 
     private isSaved(artifactObjectName: string): boolean {
-        const saved = Object.keys(BaseArtifactSaver.savedArtifactsMap).includes(artifactObjectName);
-        if (saved) {
-            console.log(`Retrieving ${artifactObjectName} already saved in ${BaseArtifactSaver.savedArtifactsMap[artifactObjectName]}`);
-        }
-        return saved;
+        return artifactObjectName in BaseArtifactSaver.savedArtifactsMap;
     }
 
     saveArtifact(artifact: LayerArtifact) {
@@ -41,7 +37,6 @@ export class ArtifactSaver {
             throw new Error("No artifact to be saved!");
         }
 
-        console.log(`SAVING ${artifact.exportedObjectName} object`)
         if (this.isSaved(artifact.exportedObjectName)) {
             console.log(`${artifact.exportedObjectName} has been already saved. Restoring ...`)
             const savedFilepath = BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName];
@@ -56,6 +51,7 @@ export class ArtifactSaver {
             } as LayerArtifact;
         }
 
+        console.log(`SAVING ${artifact.exportedObjectName} object`);
         if (artifact.dependencies) {
             artifact.dependencies = artifact.dependencies.map(dep => this.saveArtifact(dep));
         }
@@ -67,13 +63,12 @@ export class ArtifactSaver {
 
         const absoluteFilepath = path.posix.resolve(fullFilepath)
         BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName] = absoluteFilepath.substring(absoluteFilepath.indexOf("generated"));
-        //console.log("Generated cache: ", BaseArtifactSaver.savedArtifactsMap);
 
         // save actual path where the artifact has been saved
         artifact.filePath = fullFilepath;
         return {
             ...artifact,
-            filepath: fullFilepath
+            filePath: fullFilepath
         } as LayerArtifact;
     }
 }

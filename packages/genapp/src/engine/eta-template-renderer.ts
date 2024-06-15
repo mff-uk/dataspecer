@@ -1,6 +1,7 @@
 import path from "path";
 import { Eta } from "eta";
 import { getRelativePath } from "../utils/utils";
+import { BaseArtifactSaver } from "../utils/artifact-saver";
 
 export interface ImportRelativePath {
     from: string;
