@@ -1,16 +1,26 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateMetadata } from "../../templates/template-consumer";
 import { BaseArtifactSaver } from "../../utils/artifact-saver";
-import { ReaderInterfaceTemplate } from "../../template-interfaces/data/reader-interface-template";
-import { CapabilityInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ReaderInterfaceTemplate } from "./reader-interface-template";
+import {
+    InstanceResultReturnInterfaceGenerator,
+    ListResultReturnInterfaceGenerator,
+    CapabilityInterfaceGeneratorType
+} from "../../capabilities/template-generators/capability-interface-generator";
 
-export class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
+class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
     
-    constructor(templatePath?: string, filePath?: string) {
-        super(
-            templatePath ?? "./list/data-layer/reader-interface",
-            filePath ?? "./readers/list-reader.ts"
-        );
+    private readonly _readerInterfaceName: string;
+    private readonly _capabilityReturnTypeGenerator: CapabilityInterfaceGeneratorType;
+
+    constructor(templateMetadata:
+        TemplateMetadata & { queryExportedObjectName: string, listReturnTypeInterfaceGenerator: CapabilityInterfaceGeneratorType }) {
+        super({
+            templatePath: templateMetadata.templatePath,
+            filePath: templateMetadata.filePath
+        });
+        this._readerInterfaceName = templateMetadata.queryExportedObjectName;
+        this._capabilityReturnTypeGenerator = templateMetadata.listReturnTypeInterfaceGenerator;
     }
 
     private getThisArtifactFilepath(exportedObjectName: string): string {
@@ -21,7 +31,7 @@ export class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTe
 
     processTemplate(): LayerArtifact {
 
-        const capabilityResultArtifact = new CapabilityInterfaceGenerator().processTemplate();
+        const capabilityResultArtifact = this._capabilityReturnTypeGenerator.processTemplate();
 
         const readerInterfaceTemplate: ReaderInterfaceTemplate = { 
             templatePath: this._templatePath,
@@ -38,11 +48,25 @@ export class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTe
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: readerInterfaceRender,
-            exportedObjectName: "ListReader",
-            filePath: this.getThisArtifactFilepath("ListReader"),
+            exportedObjectName: this._readerInterfaceName,
+            filePath: this.getThisArtifactFilepath(this._readerInterfaceName),
             dependencies: [capabilityResultArtifact]
         }
 
         return readerInterfaceArtifact;
     }
 }
+
+export const ListReaderInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./readers/list-reader.ts",
+    templatePath: "./list/data-layer/reader-interface",
+    queryExportedObjectName: "ListReader",
+    listReturnTypeInterfaceGenerator: ListResultReturnInterfaceGenerator
+})
+
+export const DetailReaderInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./readers/instance-reader.ts",
+    templatePath: "./detail/data-layer/reader-interface",
+    queryExportedObjectName: "InstanceDetailReader",
+    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+})

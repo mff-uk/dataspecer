@@ -1,0 +1,37 @@
+import { Context, setDefaultContext, createLens, SchemaInterface } from "ldkit";
+import { <%= it.ldkit_instance_reader %> } from <%~ it.ldkit_instance_reader_class_path %>;
+import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
+
+export default class <%= it.aggregate_name %>LdkitInstanceReader implements <%= it.ldkit_instance_reader %> {
+
+    async readInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
+
+        const context: Context = {
+            sources: [<%~ it.ldkit_endpoint_uri %>]
+        }
+
+        setDefaultContext(context);
+        <% const instanceVariableName = it.aggregate_name.toLowerCase() + "InstanceDetail"; %>
+
+        const lens = createLens(<%= it.ldkit_schema %>);
+        const <%= instanceVariableName %> = await lens.findByIri(instanceIri);
+
+        if (!<%= instanceVariableName %>) {
+            throw new Error("Error on data read.");
+        }
+
+        const aggInstances = <%= instanceVariableName %>.map(entity => {
+            return {
+                aggregateName: "<%= it.aggregate_name %>",
+                raw: entity
+            };
+        })
+
+        const result: <%= it.instance_result_type %> = {
+            aggregateName: "<%= it.aggregate_name %>",
+            raw: <%= instanceVariableName %>
+        } as <%= it.instance_result_type %>;
+
+        return result;
+    }
+}

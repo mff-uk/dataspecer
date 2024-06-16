@@ -1,6 +1,6 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { InstanceListLdkitReaderTemplate } from "../../../template-interfaces/data/instance-list-reader-template";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../templates/template-consumer";
+import { LayerArtifact } from "../../../../engine/layer-artifact";
+import { InstanceListLdkitReaderTemplate } from "./instance-list-reader-template";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../templates/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
@@ -16,12 +16,11 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
 
     private readonly _aggregateName: string;
 
-    constructor({ templatePath, filePath, aggregateName } :
-        { templatePath: string, filePath: string, aggregateName: string }) {
-        super(
+    constructor({ templatePath, filePath, aggregateName } : TemplateMetadata & { aggregateName: string }) {
+        super({
             templatePath,
             filePath
-        );
+        });
 
         if (!aggregateName || aggregateName === "") {
             throw new Error(`Invalid aggregate name argument: "${aggregateName}"`);
@@ -67,5 +66,4 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
 
         return readerInterfaceArtifact;
     }
-    
 }

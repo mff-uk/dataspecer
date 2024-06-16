@@ -1,0 +1,5 @@
+import { <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
+
+export interface InstanceDetailReader {
+    readInstance<T extends <%= it.read_return_type %>>(instanceIri: string): Promise<T>;
+}

@@ -10,7 +10,7 @@ import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %
 
 export default function ListTable({ aggregateName }: { aggregateName: string }) {
 
-    const [overviewObjects, setOverviewObjects] = useState(undefined as unknown as object[]);
+    const [objectsList, setObjectsList] = useState(undefined as unknown as object[]);
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
 
     const stringify = (objectKey) => {
@@ -28,7 +28,7 @@ export default function ListTable({ aggregateName }: { aggregateName: string }) 
     }
 
     useEffect(() => {
-        if (!overviewObjects) {
+        if (!objectsList) {
             <%= it.list_capability_app_layer %>.runCapability(aggregateName)
                 .then(result => {
                     if (!result || !result.entities || result.entities.length === 0) {
@@ -39,10 +39,10 @@ export default function ListTable({ aggregateName }: { aggregateName: string }) 
                     const results = result.entities.map(res => res.raw);
 
                     setLoadingStatus(false);
-                    setOverviewObjects(results);
+                    setObjectsList(results);
                 })
         }
-    }, [loadingStatus, aggregateName, overviewObjects]);
+    }, [loadingStatus, aggregateName, objectsList]);
 
     return (
         loadingStatus
@@ -51,16 +51,16 @@ export default function ListTable({ aggregateName }: { aggregateName: string }) 
             : (
                 <TableContainer>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table"></Table>
-                    {overviewObjects &&
+                    {objectsList &&
                         <React.Fragment>
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="right">
                                         <strong>Index</strong>
                                     </TableCell>
-                                    {overviewObjects.length > 0
+                                    {objectsList.length > 0
                                         ? Object
-                                            .keys(excludeKey(overviewObjects[0], ["$id", "$type"]))
+                                            .keys(excludeKey(objectsList[0], ["$id", "$type"]))
                                             .map((key, ix) => {
                                                 //console.log("KEY: ", key);
                                                 return <TableCell key={ix} align="right">
@@ -74,8 +74,8 @@ export default function ListTable({ aggregateName }: { aggregateName: string }) 
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {overviewObjects.length > 0 &&
-                                    overviewObjects.map((obj, idx) =>
+                                {objectsList.length > 0 &&
+                                    objectsList.map((obj, idx) =>
                                         <TableRow
                                             key={idx}
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>

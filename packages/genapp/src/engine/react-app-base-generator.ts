@@ -1,5 +1,5 @@
 import { CapabilityInterfaceGenerator } from "../capabilities/template-generators/capability-interface-generator";
-import { TemplateConsumer, TemplateDependencyMap } from "../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
 import { ImportRelativePath, TemplateDescription } from "./eta-template-renderer";
 import { LayerArtifact } from "./layer-artifact";
 
@@ -33,11 +33,8 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
 
     // <% for (let aggregateName in it.artifacts_map) { %><% for (let capabilityName in it.artifacts_map[aggregateName]) { %><% let item = it.artifacts_map[aggregateName][capabilityName] %>
     //     import <%= item.componentName %> from <%~ item.filepath %>;<% } %><% } %>
-    constructor({ templatePath, filePath }: { templatePath: string, filePath: string }) {
-        super(
-            templatePath,
-            filePath
-        )
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata)
     }
 
     private getImportStatements(artifactsMap: Map): Set<string> {

@@ -1,26 +1,26 @@
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DatasourceConfig } from "../application-config";
-import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
+import { DetailTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
 import { PresentationLayerStage } from "../presentation-layer/list-pipeline-stage";
 import { BaseCapabilityGenerator } from "./capability-generator-interface";
 
-export class ListCapability extends BaseCapabilityGenerator {
+export class DetailCapability extends BaseCapabilityGenerator {
 
     constructor(targetAggregateName: string, datasourceConfig: DatasourceConfig) {
-        const listCapabilityId = "list";
-        const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
-        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(listCapabilityId);
-        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(listCapabilityId);
+        const detailCapabilityId = "detail";
+        const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
+        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(detailCapabilityId);
+        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(detailCapabilityId);
         super(
             targetAggregateName,
             new GeneratorPipeline(
                 new DataLayerGeneratorStage(datasourceConfig, dalLayerGeneratorStrategy),
                 new ApplicationLayerStage(appLayerGeneratorStrategy),
-                new PresentationLayerStage(listCapabilityId, presentationLayerGeneratorStrategy)
+                new PresentationLayerStage(detailCapabilityId, presentationLayerGeneratorStrategy)
             )
         )
     }

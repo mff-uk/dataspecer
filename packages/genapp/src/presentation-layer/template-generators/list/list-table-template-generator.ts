@@ -1,9 +1,9 @@
 import { StageGenerationContext } from "../../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ListTableTemplate } from "../../../template-interfaces/presentation/list-table-template";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../templates/template-consumer";
 import { BaseArtifactSaver } from "../../../utils/artifact-saver";
-import { PresentationLayerGenerator } from "../../presentation-layer-strategy-interface";
+import { PresentationLayerGenerator } from "../../strategy-interface";
+import { ListTableTemplate } from "./list-table-template";
 
 interface ListPresentationDependencyMap extends TemplateDependencyMap {
     listAppLogicArtifact: LayerArtifact;
@@ -12,11 +12,8 @@ interface ListPresentationDependencyMap extends TemplateDependencyMap {
 export class ListTableTemplateGenerator extends TemplateConsumer<ListTableTemplate> implements PresentationLayerGenerator {
 
     strategyIdentifier: string = "list-table-react-generator";
-    constructor({ templatePath, filePath }: {templatePath: string, filePath: string }) {
-        super(
-            templatePath,
-            filePath
-        );
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
     }
     
     generatePresentationLayer(context: StageGenerationContext): Promise<LayerArtifact> {

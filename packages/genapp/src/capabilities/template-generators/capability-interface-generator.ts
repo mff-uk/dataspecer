@@ -1,18 +1,21 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateMetadata } from "../../templates/template-consumer";
 
 export interface CapabilityInterfaceTemplate extends TemplateDescription {
     templatePath: string
 }
 
-export class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceTemplate> {
+class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceTemplate> {
 
-    constructor(templatePath?: string, filePath?: string) {
-        super(
-            templatePath ?? "./capability-result-interface",
-            filePath ?? "../interfaces/capability-result.ts"
-        );
+    private readonly _capabilityInterfaceExportedName: string;
+    constructor(templateMetadata?: TemplateMetadata & { queryExportedObjectName: string }) {
+        super({
+            templatePath: templateMetadata?.templatePath ?? "./capability-result-interface",
+            filePath: templateMetadata?.filePath ?? "../interfaces/capability-result.ts"
+        });
+
+        this._capabilityInterfaceExportedName = templateMetadata?.queryExportedObjectName ?? "ListResult";
     }
 
     processTemplate(): LayerArtifact {
@@ -23,7 +26,7 @@ export class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInt
 
         const render = this._templateRenderer.renderTemplate(capabilityInterfaceTemplate);
         const result: LayerArtifact = {
-            exportedObjectName: "ListResult",
+            exportedObjectName: this._capabilityInterfaceExportedName,
             filePath: this._filePath,
             sourceText: render
         }
@@ -31,3 +34,17 @@ export class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInt
         return result;
     }
 }
+
+export type CapabilityInterfaceGeneratorType = CapabilityInterfaceGenerator;
+
+export const ListResultReturnInterfaceGenerator = new CapabilityInterfaceGenerator({
+    filePath: "../interfaces/capability-result.ts",
+    templatePath: "./capability-result-interface",
+    queryExportedObjectName: "ListResult"
+});
+
+export const InstanceResultReturnInterfaceGenerator = new CapabilityInterfaceGenerator({
+    filePath: "../interfaces/capability-result.ts",
+    templatePath: "./capability-result-interface",
+    queryExportedObjectName: "InstanceResult"
+});

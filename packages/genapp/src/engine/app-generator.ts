@@ -5,6 +5,7 @@ import {
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
 import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
+import { DetailCapability } from "../capabilities/detail";
 import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { CapabilityArtifactResultMap, LayerArtifact } from "./layer-artifact";
@@ -13,7 +14,7 @@ import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
 
 // {
 //     path: "/list/datasets",
-//     element: <OverviewTable />,
+//     element: <ListTable />,
 //     children: [],
 //     errorElement: <ErrorPage />
 // }
@@ -34,7 +35,7 @@ class ApplicationGenerator {
 
     // private getMatchingCapability(capabName: string, datasourceConfig: DatasourceConfig): Capability {
     //     const mapping: { [name: string]: Capability } = {
-    //         "overview": new OverviewCapability(datasourceConfig)
+    //         "list": new ListCapability(datasourceConfig)
     //     };
 
     //     const capabilityMatch: Capability | undefined = mapping[capabName];
@@ -195,7 +196,7 @@ class ApplicationGenerator {
     private getCapabilityGenerator(capabilityName: string, rootAggregateName: string, datasource: DatasourceConfig): CapabilityGenerator | null {
         const capabilityGeneratorMapping: { [capabilityName: string]: CapabilityGenerator | null } = {
             list: new ListCapability(rootAggregateName, datasource),
-            detail: new ListCapability(rootAggregateName, datasource),
+            detail: new DetailCapability(rootAggregateName, datasource),
             create: null,
             delete: null,
         };

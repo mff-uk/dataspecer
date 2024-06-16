@@ -1,5 +1,5 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { DalGeneratorStrategy } from "../dal-generator-strategy-interface";
+import { DalGeneratorStrategy } from "../strategy-interface";
 
 export class LocalStorageDalGeneratorStrategy implements DalGeneratorStrategy {
 

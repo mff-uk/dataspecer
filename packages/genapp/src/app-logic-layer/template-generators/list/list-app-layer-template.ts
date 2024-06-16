@@ -1,6 +1,6 @@
-import { ImportRelativePath, TemplateDescription } from "../../engine/eta-template-renderer"
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer"
 
-export interface ListCapabilityTemplate extends TemplateDescription {
+export interface ListCapabilityAppLayerTemplate extends TemplateDescription {
     templatePath: string,
     placeholders: {
         list_reader_interface: string,

@@ -16,3 +16,7 @@ export interface CapabilityResult {
 export interface ListResult extends CapabilityResult {
     entities: AggregateInstance[];
 }
+
+export interface InstanceResult extends CapabilityResult {
+    instance: AggregateInstance;
+}
