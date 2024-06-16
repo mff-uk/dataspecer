@@ -2,7 +2,7 @@ import { LayerArtifact } from "../../../engine/layer-artifact";
 import { StageGenerationContext } from "../../../engine/generator-stage-interface";
 import { ListCapabilityAppLayerTemplate } from "./list-app-layer-template";
 import { ListReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
-import { ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { TemplateMetadata } from "../../../templates/template-consumer";
 import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
 import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
@@ -30,6 +30,8 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
             listReturnTypeArtifact = ListResultReturnInterfaceGenerator.processTemplate();
         }
 
+        const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
+        
         const listApplicationTemplate: ListCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
@@ -39,7 +41,7 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
                     from: this._filePath,
                     to: listReturnTypeArtifact.filePath
                 },
-                generated_capability_class: "GeneratedCapability",
+                generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 reader_implementation_path: {
                     from: "", //fullPath,
                     to: dependencies.dataLayerLinkArtifact.filePath

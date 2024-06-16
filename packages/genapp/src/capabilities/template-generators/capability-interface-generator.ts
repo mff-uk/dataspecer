@@ -48,3 +48,9 @@ export const InstanceResultReturnInterfaceGenerator = new CapabilityInterfaceGen
     templatePath: "./capability-result-interface",
     queryExportedObjectName: "InstanceResult"
 });
+
+export const GeneratedCapabilityInterfaceGenerator = new CapabilityInterfaceGenerator({
+    filePath: "../interfaces/capability-result.ts",
+    templatePath: "./capability-result-interface",
+    queryExportedObjectName: "GeneratedCapability"
+});

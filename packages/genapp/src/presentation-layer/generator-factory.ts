@@ -1,6 +1,6 @@
 import { PresentationLayerGenerator } from "./strategy-interface";
-import { DetailComponentTemplateGenerator } from "./template-generators/detail/detail-template-generator";
-import { ListTableTemplateGenerator } from "./template-generators/list/list-table-template-generator";
+import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
+import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-generator";
 
 export type PresentationLayerGeneratorFactory = {
     getPresentationLayerGenerator: (targetCapabilityName: string) => PresentationLayerGenerator;
@@ -10,13 +10,13 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
     getPresentationLayerGenerator(targetCapabilityName: string): PresentationLayerGenerator {
 
         const capabilityGeneratorMap: { [capabilityName: string] : PresentationLayerGenerator } = {
-            list: new ListTableTemplateGenerator({ 
+            list: new ListTableTemplateProcessor({ 
                 filePath: "ListTable.tsx", 
                 templatePath: "./list/presentation-layer/table-component" 
             }),
-            detail: new DetailComponentTemplateGenerator({
-                filePath: "",
-                templatePath: ""
+            detail: new DetailComponentTemplateProcessor({
+                filePath: "InstanceDetail.tsx",
+                templatePath: "./detail/presentation-layer/instance-detail-component"
             })
         }
 

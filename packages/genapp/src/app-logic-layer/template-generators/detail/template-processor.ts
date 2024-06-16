@@ -4,7 +4,7 @@ import { DetailCapabilityAppLayerTemplate } from "./detail-app-layer-template";
 import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
 import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 
 export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DetailCapabilityAppLayerTemplate> {
     
@@ -27,13 +27,15 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         if (!instanceReturnTypeArtifact) {
             instanceReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
         }
+
+        const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
         
         const detailAppLayerTemplate: DetailCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 instance_reader_interface: instanceReaderInterfaceArtifact.exportedObjectName,
                 read_return_type: instanceReturnTypeArtifact.exportedObjectName,
-                generated_capability_class: "GeneratedCapability",
+                generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 instance_reader_interface_path: {
                     from: this._filePath,
                     to: instanceReaderInterfaceArtifact.filePath
