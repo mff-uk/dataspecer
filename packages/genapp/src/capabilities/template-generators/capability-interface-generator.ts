@@ -9,13 +9,13 @@ export interface CapabilityInterfaceTemplate extends TemplateDescription {
 class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceTemplate> {
 
     private readonly _capabilityInterfaceExportedName: string;
-    constructor(templateMetadata?: TemplateMetadata & { queryExportedObjectName: string }) {
+    constructor(templateMetadata: TemplateMetadata & { queryExportedObjectName: string }) {
         super({
-            templatePath: templateMetadata?.templatePath ?? "./capability-result-interface",
-            filePath: templateMetadata?.filePath ?? "../interfaces/capability-result.ts"
+            templatePath: templateMetadata.templatePath,
+            filePath: templateMetadata.filePath
         });
 
-        this._capabilityInterfaceExportedName = templateMetadata?.queryExportedObjectName ?? "ListResult";
+        this._capabilityInterfaceExportedName = templateMetadata.queryExportedObjectName;
     }
 
     processTemplate(): LayerArtifact {
@@ -36,6 +36,8 @@ class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceT
 }
 
 export type CapabilityInterfaceGeneratorType = CapabilityInterfaceGenerator;
+
+export const CopyTemplateProcessor = CapabilityInterfaceGenerator;
 
 export const ListResultReturnInterfaceGenerator = new CapabilityInterfaceGenerator({
     filePath: "../interfaces/capability-result.ts",

@@ -8,8 +8,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import AccountTree from '@mui/icons-material/AccountTree';
+import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 240;
 
@@ -27,20 +27,28 @@ export const Sidebar = () => {
             >
                 <Toolbar />
                 <Box sx={{ overflow: 'auto' }}>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => alert(`Redirect to Menu`)}>
+                            <ListItemIcon>
+                                <MenuIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={"Home Page"} />
+                        </ListItemButton>
+                    </ListItem>
                     <List>
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+                        {[<%~ Object.keys(it.aggregates_with_list).map(aggregateName => `"${aggregateName}"`) %>].map((text, index) => (
                             <ListItem key={text} disablePadding>
-                                <ListItemButton>
+                                <ListItemButton onClick={() => alert(`Redirect to `)}>
                                     <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                        <AccountTree />
                                     </ListItemIcon>
-                                    <ListItemText primary={text} />
+                                    <ListItemText primary={`${text} Aggregate`} />
                                 </ListItemButton>
                             </ListItem>
                         ))}
                     </List>
                     <Divider />
-                    <List>
+                    { /* <List>
                         {['All mail', 'Trash', 'Spam'].map((text, index) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton>
@@ -51,7 +59,7 @@ export const Sidebar = () => {
                                 </ListItemButton>
                             </ListItem>
                         ))}
-                    </List>
+                    </List> */}
                 </Box>
             </Drawer>
         </>

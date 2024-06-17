@@ -17,7 +17,6 @@ export class ReactAppBaseGeneratorStage {
 
     generateApplicationBase(artifactsByAggregateName: { [rootAggregateName: string]: CapabilityArtifactResultMap }) {
 
-
         const result: { [aggregateName: string]: any } = {};
         Object.entries(artifactsByAggregateName)
             .forEach(([aggregateName, capabilityMap]) => {
@@ -28,7 +27,10 @@ export class ReactAppBaseGeneratorStage {
                                 capabilityName, 
                                 {
                                     componentName: capabilityArtifact.exportedObjectName,
-                                    relativePath: getRelativePath(this.artifactSaver.getFullSavePath("./App.tsx"), capabilityArtifact.filePath),
+                                    relativePath: getRelativePath(
+                                        this.artifactSaver.getFullSavePath("./App.tsx"),
+                                        capabilityArtifact.filePath
+                                    ),
                                     props: { aggregateName: aggregateName },
                                 }
                             ]

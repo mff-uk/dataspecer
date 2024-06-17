@@ -9,7 +9,6 @@ import { DetailCapability } from "../capabilities/detail";
 import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
 import { CapabilityArtifactResultMap, LayerArtifact } from "./layer-artifact";
-import { ReactApplicationBaseGenerator } from "./react-app-base-generator";
 import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
 
 // {

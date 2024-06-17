@@ -15,7 +15,12 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
             throw new Error("Application layer depends on LayerArtifact generated within previous layer");
         }
 
+        if (!context._.pathResolver) {
+            throw new Error("path resolver not found");
+        }
+
         const applicationLayer = this.processTemplate({
+            pathResolver: context._.pathResolver,
             dataLayerLinkArtifact: context.previousResult
         });
 

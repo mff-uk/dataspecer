@@ -10,7 +10,11 @@ export const BaseArtifactSaver: ArtifactSaverCache = {
     savedArtifactsMap: {}
 };
 
-export class ArtifactSaver {
+export interface GeneratedFilePathCalculator {
+    getFullSavePath(filename: string): string;
+}
+
+export class ArtifactSaver implements GeneratedFilePathCalculator {
 
     private readonly _layerSubdirectoryPath: string;
     private readonly _globalBasePaths: string[];

@@ -1,0 +1,35 @@
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { DetailCapabilityLogic } from "../../application-layer/detail-app-logic";
+import { AggregateInstance } from '../../interfaces/capability-result';
+
+export default function InstanceDetail() {
+
+    const [instance, setInstance] = useState<AggregateInstance>();
+    const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (!instance) {
+            DetailCapabilityLogic.runCapability("")
+                .then(result => {
+                    if (!result || !result.instance) {
+                        console.error("No instance detail available");
+                        return;
+                    }
+
+                    setLoadingStatus(false);
+                    setInstance(result.instance);
+                })
+        }
+    }, [loadingStatus, instance]);
+
+    return (
+        <div>
+            {
+            loadingStatus
+                ? "Hello from Instance detail component"
+                : (instance ? JSON.stringify(instance) : "No detail")
+            }
+        </div>
+    )
+}

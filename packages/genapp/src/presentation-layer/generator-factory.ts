@@ -1,6 +1,6 @@
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
-import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-generator";
+import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
 export type PresentationLayerGeneratorFactory = {
     getPresentationLayerGenerator: (targetCapabilityName: string) => PresentationLayerGenerator;

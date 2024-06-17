@@ -1,7 +1,8 @@
-import { CapabilityInterfaceGenerator } from "../capabilities/template-generators/capability-interface-generator";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
-import { ImportRelativePath, TemplateDescription } from "./eta-template-renderer";
 import { LayerArtifact } from "./layer-artifact";
+import { ImportRelativePath, TemplateDescription } from "./eta-template-renderer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
+import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
+import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template.processor";
 
 interface ReactAppBaseTemplate extends TemplateDescription {
     placeholders: {
@@ -9,24 +10,28 @@ interface ReactAppBaseTemplate extends TemplateDescription {
         error_component_path: ImportRelativePath,
         main_component: string,
         main_component_path: ImportRelativePath,
+        page_template_component: string,
+        page_template_component_path: ImportRelativePath,
         import_statements: string[],
-        artifacts_map: Map
+        artifacts_map: AggregateCapabilitiesReactRouteComponentsMap
     }
 }
 
-//TODO: Find better name
-interface Map {
+export type ReactRouteComponentDescription = {
+    componentName: string,
+    props: { [propName: string]: string }
+    relativePath: string
+}
+
+export type AggregateCapabilitiesReactRouteComponentsMap = {
     [aggregateName: string]: {
-        [capabilityName: string]: {
-            componentName: string,
-            props: { [propName: string]: string }
-            relativePath: string
-        }
+        [capabilityName: string]: ReactRouteComponentDescription
     }
 }
+
 
 interface ReactAppBaseTemplateDependencyMap extends TemplateDependencyMap {
-    artifacts: Map
+    artifacts: AggregateCapabilitiesReactRouteComponentsMap
 }
 
 export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBaseTemplate> {
@@ -37,14 +42,12 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         super(templateMetadata)
     }
 
-    private getImportStatements(artifactsMap: Map): Set<string> {
+    private getImportStatements(artifactsMap: AggregateCapabilitiesReactRouteComponentsMap): Set<string> {
 
         const importStatements = Object.values(artifactsMap)
             .reduce<string[]>((acc, capabilityArtifactsMap) => {
                 const aggregateImports = Object.values(capabilityArtifactsMap)
-                    .map(
-                        artifact => `import ${artifact.componentName} from "${artifact.relativePath}";`
-                    );
+                    .map(artifact => `import ${artifact.componentName} from "${artifact.relativePath}";`);
                 return acc.concat(aggregateImports);
             }, []);
 
@@ -53,48 +56,68 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
 
     processTemplate(dependencies: ReactAppBaseTemplateDependencyMap): LayerArtifact {
 
-        // TODO: fix this
-        const errorPageArtifact = new CapabilityInterfaceGenerator("./scaffolding/ErrorPage", "./ErrorPage.tsx").processTemplate();
-        errorPageArtifact.exportedObjectName = "ErrorPage";
+        const errorPageArtifact = new CopyTemplateProcessor({
+            filePath: "./ErrorPage.tsx",
+            templatePath: "./scaffolding/ErrorPage",
+            queryExportedObjectName: "ErrorPage"
+        }).processTemplate();
 
-        // TODO: fix this
-        const mainComponentArtifact = new CapabilityInterfaceGenerator("./scaffolding/Main", "./Main.tsx").processTemplate();
-        mainComponentArtifact.exportedObjectName = "Main";
+        const mainComponentArtifact = new CopyTemplateProcessor({
+            templatePath: "./scaffolding/Main",
+            filePath: "./Main.tsx",
+            queryExportedObjectName: "Main"
+        }).processTemplate();
 
-        const toCopy: LayerArtifact[] = [];
-        ["Content", "Footer", "Sidebar", "TopBar"].forEach(name => {
-            // TODO: fix this
-            const componentArtifact = new CapabilityInterfaceGenerator(`./scaffolding/${name}`, `./${name}.tsx`).processTemplate();
-            componentArtifact.exportedObjectName = name;
+        const pageTemplateComponentArtifact = new CopyTemplateProcessor({
+            templatePath: "./scaffolding/PageTemplate",
+            filePath: "./PageTemplate.tsx",
+            queryExportedObjectName: "PageTemplate"
+        }).processTemplate();
+
+        const sidebarComponentArtifact = new SidebarComponentTemplateProcessor({
+            filePath: "./Sidebar.tsx",
+            templatePath: "./scaffolding/Sidebar"
+        }).processTemplate({ aggregateCapabilitiesMap: dependencies.artifacts });
+
+        let toCopy: LayerArtifact[] = [];
+        ["Content", "Footer", "TopBar", "index"].forEach(name => {
+            const componentArtifact = new CopyTemplateProcessor({
+                templatePath: `./scaffolding/${name}`,
+                filePath: `./${name}.tsx`,
+                queryExportedObjectName: name
+            }).processTemplate();
+
             toCopy.push(componentArtifact);
-        })
+        });
 
-        // TODO: fix this
-        const indexArtifact = new CapabilityInterfaceGenerator("./scaffolding/index", "./index.tsx").processTemplate();
-        indexArtifact.exportedObjectName = "root";
-        toCopy.push(indexArtifact);
-
-        // TODO: fix this
-        const indexCssArtifact = new CapabilityInterfaceGenerator("./scaffolding/index_css", "./index.css").processTemplate();
-        indexCssArtifact.exportedObjectName = "indexCss";
-        toCopy.push(indexCssArtifact);
-
-        // TODO: fix this
-        const appCssArtifact = new CapabilityInterfaceGenerator("./scaffolding/App_css", "./App.css").processTemplate();
-        appCssArtifact.exportedObjectName = "AppCss";
-        toCopy.push(appCssArtifact);
-
-        const packageArtifact = new CapabilityInterfaceGenerator("./scaffolding/package_json", "../package.json").processTemplate();
-        packageArtifact.exportedObjectName = "package.json";
-        toCopy.push(packageArtifact);
-        
-        const tsconfigArtifact = new CapabilityInterfaceGenerator("./scaffolding/tsconfig_json", "../tsconfig.json").processTemplate();
-        tsconfigArtifact.exportedObjectName = "tsconfig.json";
-        toCopy.push(tsconfigArtifact);
-
-        const webVitalsArtifact = new CapabilityInterfaceGenerator("./scaffolding/reportWebVitals_ts", "./reportWebVitals.ts").processTemplate();
-        webVitalsArtifact.exportedObjectName = "reportWebVitals";
-        toCopy.push(webVitalsArtifact);
+        toCopy = toCopy.concat([
+            {
+                templatePath: "./scaffolding/index_css",
+                filePath: "./index.css",
+                queryExportedObjectName: "index.css"
+            },
+            {
+                templatePath: "./scaffolding/App_css",
+                filePath: "./App.css",
+                queryExportedObjectName: "App.css",
+            },
+            {
+                templatePath: "./scaffolding/package",
+                filePath: "../package.json",
+                queryExportedObjectName: "package"
+            },
+            {
+                templatePath: "./scaffolding/tsconfig",
+                filePath: "../tsconfig.json",
+                queryExportedObjectName: "tsconfig"
+            },
+            {
+                templatePath: "./scaffolding/reportWebVitals",
+                filePath: "./reportWebVitals.ts",
+                queryExportedObjectName:  "reportWebVitals"
+            }
+        ].map(templateMetadata => new CopyTemplateProcessor(templateMetadata).processTemplate())
+        );
 
         const reactAppComponentTemplate: ReactAppBaseTemplate = {
             templatePath: this._templatePath,
@@ -104,6 +127,11 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
                 error_component_path: {
                     from: this._filePath,
                     to: errorPageArtifact.filePath
+                },
+                page_template_component: pageTemplateComponentArtifact.exportedObjectName,
+                page_template_component_path: {
+                    from: this._filePath,
+                    to: pageTemplateComponentArtifact.filePath
                 },
                 error_component_name: errorPageArtifact.exportedObjectName,
                 main_component: mainComponentArtifact.exportedObjectName,
@@ -122,6 +150,8 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
             dependencies: [
                 errorPageArtifact,
                 mainComponentArtifact,
+                pageTemplateComponentArtifact,
+                sidebarComponentArtifact,
                 ...toCopy
             ]
         }

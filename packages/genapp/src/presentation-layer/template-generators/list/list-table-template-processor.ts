@@ -19,7 +19,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
             placeholders: {
                 list_capability_app_layer: dependencies.listAppLogicArtifact.exportedObjectName,
                 list_app_layer_path: {
-                    from: "ListTable" in BaseArtifactSaver.savedArtifactsMap ? BaseArtifactSaver.savedArtifactsMap["ListTable"] : this._filePath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.listAppLogicArtifact.filePath
                 }
             }

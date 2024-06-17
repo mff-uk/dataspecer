@@ -3,7 +3,6 @@ import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy } from "./strategy-interface";
 import { DataSourceType, DatasourceConfig } from "../application-config";
-import { DataAccessLayerGeneratorFactory, ListTemplateDalGeneratorFactory } from "./generator-factory";
 
 export class DataLayerGeneratorStage implements GeneratorStage {
 

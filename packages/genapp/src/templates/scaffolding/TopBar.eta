@@ -5,7 +5,7 @@ export const TopBar = () => {
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
-            Clipped drawer
+            Generated application sample
           </Typography>
         </Toolbar>
       </AppBar>

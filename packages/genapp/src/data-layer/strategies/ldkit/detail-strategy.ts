@@ -28,7 +28,7 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
         const instanceDetailReaderArtifact = new InstanceDetailLdkitReaderGenerator({
             aggregateName: context.aggregateName,
             filePath: path.posix.join(".", "readers", this.strategyIdentifier, `${context.aggregateName.toLowerCase()}-detail.ts`),
-            templatePath: `./detail/data-layer/${this.strategyIdentifier}/aggregate-instance-reader`,
+            templatePath: `./detail/data-layer/${this.strategyIdentifier}/instance-detail-reader`,
         }).processTemplate({
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri

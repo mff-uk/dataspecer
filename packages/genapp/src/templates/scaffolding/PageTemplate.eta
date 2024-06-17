@@ -1,0 +1,17 @@
+import { Box } from "@mui/material";
+import { Footer } from "./Footer"
+import { Sidebar } from "./Sidebar"
+import { TopBar } from "./TopBar"
+
+export const PageTemplate = ({ Component, componentProps }) => {
+    return (
+        <>
+            <Box sx={{ display: 'flex' }}>
+                <TopBar />
+                <Sidebar />
+                <Component { ...componentProps } />
+                <Footer />
+            </Box>
+        </>
+    )
+}

@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../engine/layer-artifact";
 import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
-import { ArtifactSaver } from "../utils/artifact-saver";
+import { ArtifactSaver, GeneratedFilePathCalculator } from "../utils/artifact-saver";
 import { ApplicationLayerGenerator } from "./strategy-interface";
 
 export class ApplicationLayerStage implements GeneratorStage {
@@ -14,6 +14,7 @@ export class ApplicationLayerStage implements GeneratorStage {
     }
 
     generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
+        context._.pathResolver = this.artifactSaver as GeneratedFilePathCalculator;
         const appLayerArtifact = this._applicationLayerGeneratorStrategy.generateApplicationLayer(context);
 
         return appLayerArtifact;

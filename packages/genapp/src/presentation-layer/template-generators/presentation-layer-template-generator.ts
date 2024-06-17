@@ -20,7 +20,12 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
             return Promise.resolve(errorArtifact);
         }
 
+        if (!context._.pathResolver) {
+            throw new Error("Missing path resolver");
+        }
+
         const presentationLayerArtifact = this.processTemplate({
+            pathResolver: context._.pathResolver,   
             listAppLogicArtifact: context.previousResult
         });
 

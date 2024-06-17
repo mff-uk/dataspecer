@@ -53,6 +53,10 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_instance_reader: instanceReaderInterfaceArtifact.exportedObjectName,
                 instance_result_type: instanceReturnTypeArtifact.exportedObjectName,
+                instance_result_type_path: {
+                    from: this._filePath,
+                    to: instanceReturnTypeArtifact.filePath
+                },
                 ldkit_instance_reader_path: {
                     from: this._filePath,
                     to: instanceReaderInterfaceArtifact.filePath

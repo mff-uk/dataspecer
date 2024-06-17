@@ -1,4 +1,4 @@
-import { ArtifactSaver } from "../utils/artifact-saver";
+import { ArtifactSaver, GeneratedFilePathCalculator } from "../utils/artifact-saver";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { GeneratorStage, StageGenerationContext } from "../engine/generator-stage-interface";
 import { PresentationLayerGenerator } from "./strategy-interface";
@@ -18,6 +18,7 @@ export class PresentationLayerStage implements GeneratorStage {
     }
 
     generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
+        context._.pathResolver = this.artifactSaver as GeneratedFilePathCalculator;
         const presentationLayerArtifact = this._presentationLayerStrategy.generatePresentationLayer(context);
         return presentationLayerArtifact;
     }

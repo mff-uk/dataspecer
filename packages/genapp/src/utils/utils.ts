@@ -2,8 +2,8 @@ import path from "path";
 
 export function getRelativePath(sourcePath: string, targetPath: string): string {
     // removes file extension
-    // console.log(`--utils source: "${sourcePath}"`);
-    // console.log(`--utils Target: "${targetPath}"`);
+    console.log(`--utils source: "${sourcePath}"`);
+    console.log(`--utils Target: "${targetPath}"`);
 
     targetPath = targetPath.substring(0, targetPath.lastIndexOf(".") < 1 ? targetPath.length : targetPath.lastIndexOf("."));
     //console.log(`--after Target: "${targetPath}"`);

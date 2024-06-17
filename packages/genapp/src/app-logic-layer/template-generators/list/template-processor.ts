@@ -1,5 +1,4 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { StageGenerationContext } from "../../../engine/generator-stage-interface";
 import { ListCapabilityAppLayerTemplate } from "./list-app-layer-template";
 import { ListReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
@@ -17,7 +16,6 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
 
-        //const fullPath = this.artifactSaver ? this.artifactSaver.getFullSavePath(this._filePath) : this._filePath;
         const readerInterfaceArtifact = ListReaderInterfaceGenerator.processTemplate();
         
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {
@@ -43,11 +41,11 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 reader_implementation_path: {
-                    from: "", //fullPath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.dataLayerLinkArtifact.filePath
                 },
                 list_reader_interface_path: {
-                    from: "", //fullPath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: readerInterfaceArtifact.filePath
                 }
             }

@@ -27,6 +27,15 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
                         hasFilter: true,
                         hasSearch: true,
                         hasAllSelection: true
+                    },
+                    detail: {
+                        id: "dataset_detail_id",
+                        type: "instance",
+                        showHeader: true,
+                        showAsPopup: false,
+                        hasFilter: false,
+                        hasSearch: false,
+                        hasAllSelection: false
                     }
                 }
             },

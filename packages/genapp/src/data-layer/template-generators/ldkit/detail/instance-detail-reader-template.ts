@@ -8,6 +8,7 @@ export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
         ldkit_schema_path: ImportRelativePath,
         aggregate_name: string,
         instance_result_type: string,
+        instance_result_type_path: ImportRelativePath,
         ldkit_endpoint_uri: string
     };
 }
