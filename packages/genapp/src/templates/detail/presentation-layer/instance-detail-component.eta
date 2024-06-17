@@ -10,7 +10,7 @@ export default function InstanceDetail() {
 
     useEffect(() => {
         if (!instance) {
-            DetailCapabilityLogic.runCapability("")
+            DetailCapabilityLogic.runCapability("https://data.gov.cz/zdroj/datové-sady/00006599/841711772")
                 .then(result => {
                     if (!result || !result.instance) {
                         console.error("No instance detail available");
