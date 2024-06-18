@@ -4,8 +4,8 @@ import RawMonacoEditor from "@monaco-editor/react";
 import * as monaco from 'monaco-editor';
 import { useTheme } from "next-themes";
 
-function handleEditorWillMount(monaco) {
-  monaco.editor.defineTheme('dataspecer-dark', {
+function handleEditorWillMount(m: typeof monaco) {
+  m.editor.defineTheme('dataspecer-dark', {
     base: 'vs-dark',
     inherit: true,
     rules: [
