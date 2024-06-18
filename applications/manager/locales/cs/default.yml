@@ -18,9 +18,6 @@ form:
   description:
     instruction: Popište svůj projekt podrobněji
     name: Popis
-  documentation-base-url:
-    instruction: Zadejte základní URL pro publikovanou dokumentaci
-    name: Base URL dokumentace
   name:
     instruction: Zadejte název projektu
     name: Název
@@ -29,6 +26,7 @@ mode-toggle:
   light: Světlé
   system: Dle systému
   title: Změnit motiv
+modify-documentation-template: Upravit šablonu dokumentace
 new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem

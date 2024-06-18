@@ -6,7 +6,9 @@ created: 'Created on {{val, datetime(dateStyle: short)}}'
 dataspecer-packages: packages
 delete-resource:
   title: Remove
-  warning: You are about to remove {{type}} with name {{name}}. This action is irreversible.
+  warning: >-
+    You are about to remove {{type}} with name {{name}}. This action is
+    irreversible.
   warning-no-name: You are about to remove {{type}}. This action is irreversible.
 export: Export
 form:
@@ -26,6 +28,7 @@ mode-toggle:
   light: Light
   system: System
   title: Toggle theme
+modify-documentation-template: Modify documentation template
 new-package: New package
 open: Open
 project-wizard: Project Wizard

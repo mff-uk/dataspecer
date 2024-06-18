@@ -1,3 +1,4 @@
+import { storeModel } from './../main';
 import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { PrismaClient, Resource as PrismaResource } from "@prisma/client";
@@ -196,6 +197,23 @@ export class ResourceModel {
         if (parentResourceId !== null) {
             await this.updateModificationTimeById(parentResourceId);
         }
+    }
+
+    async getResourceModelStore(iri: string, storeName: string = "model"): Promise<ModelStore | null> {
+        const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
+        if (prismaResource === null) {
+            throw new Error("Resource not found.");
+        }
+
+        const onUpdate = () => this.updateModificationTime(iri);
+        
+        const dataStoreId = JSON.parse(prismaResource.dataStoreId);
+
+        if (dataStoreId[storeName]) {
+            return this.storeModel.getModelStore(dataStoreId[storeName], [onUpdate]);
+        } else {
+            return null;
+        }  
     }
 
     async getOrCreateResourceModelStore(iri: string, storeName: string = "model"): Promise<ModelStore> {

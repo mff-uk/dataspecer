@@ -78,7 +78,14 @@ export const getBlob = asyncHandler(async (request: express.Request, response: e
     });
     const query = querySchema.parse(request.query);
 
-    const buffer = await (await resourceModel.getOrCreateResourceModelStore(query.iri, query.name)).getBuffer();
+    const store = await resourceModel.getResourceModelStore(query.iri, query.name);
+
+    if (!store) {
+        response.sendStatus(404);
+        return;
+    }
+
+    const buffer = await (store).getBuffer();
 
     response.send(buffer);
     return;
