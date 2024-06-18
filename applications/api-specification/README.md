@@ -59,3 +59,9 @@ The `src` directory includes several important directories as well as separate n
 
 In case you only need to build this applcation, run `npm run build` specifically from this directory.
 It is possible to run the live server via `npm run dev` from this directory. Before starting the live server, all of the dependencies have to be built.
+
+Please know that for the full experience of the feature on your local machine in addition to this component api-specification (`applications/client`) additional components need to be run. These components are:
+
+- structure editor (located in: `applications/client`)
+- dataspecer manager (located in: `applications/manager`)
+- backend (located in: `services/backend`)
