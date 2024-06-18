@@ -10,6 +10,7 @@ delete-resource:
     You are about to remove {{type}} with name {{name}}. This action is
     irreversible.
   warning-no-name: You are about to remove {{type}}. This action is irreversible.
+duplicate-resource: Duplicate
 export: Export
 form:
   base-iri:

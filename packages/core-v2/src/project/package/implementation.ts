@@ -257,4 +257,19 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
         return [constructedEntityModels, constructedVisualModels] as const;
     }
+
+    async copyRecursively(resourceToCopy: string, newParentResource: string, userMetadata: BaseResource["userMetadata"] = {}) {
+        const url = new URL(this.backendUrl + "/repository/copy-recursively");
+        url.searchParams.append("iri", resourceToCopy);
+        url.searchParams.append("parentIri", newParentResource);
+
+        const result = await this.httpFetch(url.toString(), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userMetadata),
+        });
+        const data = await result.json();
+    }
 }

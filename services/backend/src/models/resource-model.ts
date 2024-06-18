@@ -1,7 +1,8 @@
-import { storeModel } from './../main';
 import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { PrismaClient, Resource as PrismaResource } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
+import { storeModel } from './../main';
 import { LocalStoreModel, ModelStore } from "./local-store-model";
 
 /**
@@ -161,6 +162,51 @@ export class ResourceModel {
      */
     createPackage(parentIri: string | null, iri: string, userMetadata: {}) {
         return this.createResource(parentIri, iri, LOCAL_PACKAGE, userMetadata);
+    }
+
+    /**
+     * Copies package or resource by IRI to another package identified by parentIri.
+     */
+    async copyRecursively(iri: string, parentIri: string, userMetadata: {}) {
+        const prismaParentResource = await this.prismaClient.resource.findFirst({where: {iri: parentIri}});
+        if (prismaParentResource === null) {
+            throw new Error("Parent resource not found.");
+        }
+            
+        const copyResource = async (sourceIri: string, parentIri: string, newIri: string) => {
+            const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: sourceIri}});
+            if (prismaResource === null) {
+                throw new Error("Resource to copy not found.");
+            }
+            await this.createResource(parentIri, newIri, prismaResource.representationType, JSON.parse(prismaResource.userMetadata));
+            const newDataStoreId = {} as Record<string, string>;
+            for (const [key, store] of Object.entries(JSON.parse(prismaResource.dataStoreId))) {
+                const newStore = await this.storeModel.create();
+                newDataStoreId[key] = newStore.uuid;
+                
+                const contents = await storeModel.getModelStore(store as string).getString();
+                await this.storeModel.getModelStore(newStore.uuid).setString(contents);
+            }
+            await this.prismaClient.resource.update({
+                where: {iri: newIri},
+                data: {
+                    dataStoreId: JSON.stringify(newDataStoreId)
+                }
+            });
+
+            // Copy children
+            if (prismaResource.representationType === LOCAL_PACKAGE) {
+                const subResources = await this.prismaClient.resource.findMany({where: {parentResourceId: prismaResource.id}});
+                for (const subResource of subResources) {
+                    await copyResource(subResource.iri, newIri, newIri + "/" + uuidv4());
+                }
+            }
+        }
+
+        // Copy the root
+        await copyResource(iri, parentIri, uuidv4());
+
+        await this.updateModificationTimeById(prismaParentResource.id);
     }
 
     /**

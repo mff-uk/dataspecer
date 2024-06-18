@@ -8,7 +8,7 @@ import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
 import { getDefaultConfiguration } from "./routes/configuration";
 import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
-import { createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
+import { copyRecursively, createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
 import {
     addSpecification,
     cloneSpecification,
@@ -77,6 +77,15 @@ application.patch(basename + '/resources/packages', updateResource); // same
 application.delete(basename + '/resources/packages', deleteResource); // same
 // Special operation to list all root packages
 application.get(basename + '/resources/root-resources', getRootPackages); // ---
+
+
+
+application.post(basename + '/repository/copy-recursively', copyRecursively);
+
+
+
+// Interactive import of packages
+//application.post(basename + '/import', importPackages);
 
 // Configuration
 
