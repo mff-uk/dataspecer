@@ -35,4 +35,4 @@ export interface Package extends BaseResource {
     subResources?: BaseResource[];
 }
 
-export type ResourceEditable = Extract<BaseResource, "iri" | "userMetadata">;
+export type ResourceEditable = Pick<BaseResource, "iri" | "userMetadata">;

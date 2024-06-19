@@ -17,6 +17,7 @@ export const getResource = asyncHandler(async (request: express.Request, respons
     }
 
     response.send(resource);
+    return;
 });
 
 export const createResource = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -32,9 +33,10 @@ export const createResource = asyncHandler(async (request: express.Request, resp
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    resourceModel.createResource(query.parentIri, body.iri, body.type, body.userMetadata ?? {});
+    await resourceModel.createResource(query.parentIri, body.iri, body.type, body.userMetadata ?? {});
 
     response.send(await resourceModel.getResource(body.iri));
+    return;
 });
 
 export const updateResource = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -49,21 +51,23 @@ export const updateResource = asyncHandler(async (request: express.Request, resp
     const body = bodySchema.parse(request.body);
 
     if (body.userMetadata) {
-        resourceModel.updateResource(query.iri, body.userMetadata);
+        await resourceModel.updateResource(query.iri, body.userMetadata);
     }
 
     response.send(await resourceModel.getResource(query.iri));
+    return;
 });
 
 export const deleteResource = asyncHandler(async (request: express.Request, response: express.Response) => {
-    const iri = request.query.iri;
-    if (typeof iri !== "string" || !iri) {
-        response.sendStatus(400);
-        return;
-    }
+    const querySchema = z.object({
+        iri: z.string().min(1),
+    });
+    const query = querySchema.parse(request.query);
 
-    await resourceModel.deleteResource(iri);
-    response.status(200);
+    await resourceModel.deleteResource(query.iri);
+
+    response.sendStatus(204);
+    return;
 });
 
 
@@ -77,6 +81,7 @@ export const getBlob = asyncHandler(async (request: express.Request, response: e
     const buffer = await (await resourceModel.getOrCreateResourceModelStore(query.iri, query.name)).getBuffer();
 
     response.send(buffer);
+    return;
 });
 
 export const updateBlob = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -87,7 +92,9 @@ export const updateBlob = asyncHandler(async (request: express.Request, response
     const query = querySchema.parse(request.query);
 
     const buffer = await (await resourceModel.getOrCreateResourceModelStore(query.iri, query.name)).setJson(request.body);
+    
     response.sendStatus(200);
+    return;
 });
 
 export const deleteBlob = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -98,7 +105,9 @@ export const deleteBlob = asyncHandler(async (request: express.Request, response
     const query = querySchema.parse(request.query);
 
     await resourceModel.deleteModelStore(query.iri, query.name);
-    response.sendStatus(200);
+
+    response.sendStatus(204);
+    return;
 });
 
 export const getPackageResource = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -115,6 +124,7 @@ export const getPackageResource = asyncHandler(async (request: express.Request, 
     }
 
     response.send(resource);
+    return;
 });
 
 export const createPackageResource = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -129,11 +139,13 @@ export const createPackageResource = asyncHandler(async (request: express.Reques
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    resourceModel.createPackage(query.parentIri, body.iri, body.userMetadata ?? {});
+    await resourceModel.createPackage(query.parentIri, body.iri, body.userMetadata ?? {});
 
     response.send(await resourceModel.getPackage(body.iri));
+    return;
 });
 
 export const getRootPackages = asyncHandler(async (request: express.Request, response: express.Response) => {
     response.send(await resourceModel.getRootResources());
+    return;
 });

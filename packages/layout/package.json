@@ -1,0 +1,22 @@
+{
+    "name": "@dataspecer/layout",
+    "version": "0.0.0",
+    "scripts": {
+      "build": "tsc",
+      "dev": "tsc -w",
+      "prebuild": "rimraf lib"
+    },
+    "exports": {
+      ".": "./lib/index.js"
+    },
+    "type": "module",
+    "dependencies": {
+      "elkjs": "0.9.3",
+      "@dataspecer/core-v2": "*"
+    },
+    "devDependencies": {
+      "rimraf": "^5.0.5",
+      "typescript": "~5.4.2"
+    }
+  }
+  

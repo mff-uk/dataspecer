@@ -1,0 +1,18 @@
+projects:
+  application-profile:
+    description: >-
+      Create and publish an application profile to an existing vocabulary on the
+      internet by specifying usage of individual terms.
+    title: Application Profile
+  data-schema:
+    description: >-
+      Create and publish a set of technical schemas and documentation to
+      describe your data in JSON, XML or CSV formats.
+    title: Data Schema
+  vocabulary:
+    create-title: Create a new vocabulary
+    description: >-
+      Create and publish new RDF vocabulary, or any conceptual model, by reusing
+      existing vocabularies on the internet.
+    title: Vocabulary
+start-new-project: Start a new project

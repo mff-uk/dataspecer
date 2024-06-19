@@ -71,71 +71,71 @@ export class OpenapiGenerator implements ArtefactGenerator {
 
 export const generateCompleteOpenApiSpec = (structureModel: StructureModel): any => {
     const openApiSpec: any = {
-      openapi: '3.0.0', // Default version
-      info: {
-        title: "Your API Title",
-        version: "1.0.0",
-        description: "Your API Description",
-      },
-      paths: {}, // Add your paths here based on structureModel
-      components: {
-        schemas: {}, // Add your schemas here based on structureModel
-      },
+        openapi: '3.0.0', // Default version
+        info: {
+            title: "Your API Title",
+            version: "1.0.0",
+            description: "Your API Description",
+        },
+        paths: {}, // Add your paths here based on structureModel
+        components: {
+            schemas: {}, // Add your schemas here based on structureModel
+        },
     };
-  
+
     // Your logic to populate the OpenAPI spec based on the structureModel
     // You'll need to iterate through the structureModel and add relevant information to openApiSpec
 
     // Iterate over roots and classes to build paths and schemas
-  structureModel.roots.forEach((root) => {
-    root.classes.forEach((cls) => {
-      const pathParameters = cls.properties.map((property) => ({
-        name: property.technicalLabel,
-        in: 'path',
-        description: property.humanDescription?.en,
-        required: property.cardinalityMin?? 0 > 0,
-        schema: {
-          type: 'string', 
-        },
-      }));
-
-      const pathObject = {
-        parameters: pathParameters,
-        get: {
-          summary: cls.humanDescription?.en,
-          description: cls.humanDescription?.en,
-          responses: {
-            '200': {
-              description: 'Successful response',
-              content: {
-                'application/json': {
-                  example: {
-                    // Example data for the response
-                    //[cls.technicalLabel?]: {},
-                  },
+    structureModel.roots.forEach((root) => {
+        root.classes.forEach((cls) => {
+            const pathParameters = cls.properties.map((property) => ({
+                name: property.technicalLabel,
+                in: 'path',
+                description: property.humanDescription?.en,
+                required: property.cardinalityMin ?? 0 > 0,
+                schema: {
+                    type: 'string',
                 },
-              },
-            },
-          },
-        },
-      };
+            }));
 
-      openApiSpec.paths[`/${cls.technicalLabel}`] = pathObject;
+            const pathObject = {
+                parameters: pathParameters,
+                get: {
+                    summary: cls.humanDescription?.en,
+                    description: cls.humanDescription?.en,
+                    responses: {
+                        '200': {
+                            description: 'Successful response',
+                            content: {
+                                'application/json': {
+                                    example: {
+                                        // Example data for the response
+                                        //[cls.technicalLabel?]: {},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            };
 
-      const propertiesObject: Record<string, Record<string, unknown>> = {};
-      cls.properties.forEach((property) => {
-        propertiesObject[property.technicalLabel!] = {
-          description: property.humanDescription?.en,
-          type: 'string', 
-        };
-      });
+            openApiSpec.paths[`/${cls.technicalLabel}`] = pathObject;
 
-      openApiSpec.components.schemas[cls.technicalLabel!] = {
-        type: 'object',
-        properties: propertiesObject,
-      };
+            const propertiesObject: Record<string, Record<string, unknown>> = {};
+            cls.properties.forEach((property) => {
+                propertiesObject[property.technicalLabel!] = {
+                    description: property.humanDescription?.en,
+                    type: 'string',
+                };
+            });
+
+            openApiSpec.components.schemas[cls.technicalLabel!] = {
+                type: 'object',
+                properties: propertiesObject,
+            };
+        });
     });
-  });
-  
+
     return openApiSpec;
-  };
+};

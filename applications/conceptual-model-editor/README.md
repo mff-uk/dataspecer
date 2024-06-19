@@ -1,39 +1,11 @@
-# conceptual-model-editor
+# Dataspecer - Conceptual model editor
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Client-side editor of conceptual models with support for application profiles
 
-Apart from the explicit use of several npm `@dataspecer/*` libraries currently linked via npm workspaces, this project is not dependent on the rest of the codebase.
+## Using the editor
 
-This project uses:
+You can try the editor out on [this site](https://tool.dataspecer.com/conceptual-model-editor/core-v2).
 
--   Next.js 13 with [static HTML export enabled](https://nextjs.org/docs/advanced-features/static-html-export) and experimental app directory
--   React.js 18
--   Tailwind.css
--   JointJS
+In there, you can play with it a bit, explore your models, or create some concepts on your own.
 
-# Build instructions
-
-1. Clone the repository
-2. From the root of the mono repository install all packages
-
-```
-npm install
-```
-
-3. Build dependent @dataspecer packages and this project by executing following command from the root of this repository
-
-```
-npm run build
-```
-
-or to explicitly build only dependent packages, use
-
-```
-npx turbo run build --scope=conceptual-model-editor
-```
-
-Then, you can start dev server from this directory by
-
-```
-npm run dev
-```
+For more information on how to use `dscme`, refer yourself to the [Manual section](./docs/main.md).

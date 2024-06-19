@@ -1,4 +1,5 @@
 import { Entity } from "../../entity-model";
+import { isDataType } from "../datatypes";
 import {
     LanguageString,
     SemanticModelClass,
@@ -31,7 +32,7 @@ export function isSemanticModelAttribute(resource: Entity | null): resource is S
 
 export function isSemanticModelRelationPrimitive(resource: SemanticModelRelationship) {
     const isConceptAPrimitiveType = (concept: string | null) => {
-        return concept == null || concept == "" || resource.id.endsWith("#attribute"); // TODO: temporary workaround for SKOS #449
+        return concept == null || concept == "" || isDataType(concept) || resource.id.endsWith("#attribute"); // TODO: temporary workaround for SKOS #449
     };
 
     const conditionForEnds = (end1: SemanticModelRelationshipEnd, end2: SemanticModelRelationshipEnd) => {

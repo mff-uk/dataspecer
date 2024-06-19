@@ -1,24 +1,10 @@
+import React from 'react';
 import './App.css';
-import {ApiSpecificationForm} from './ApiSpecificationForm.tsx'
-import {SplitScreen} from './SplitScreen.tsx'
-
-const ComponentLeft = () => 
-{
-  return <ApiSpecificationForm/>;
-}
-
-const ComponentRight = () => 
-{
-  return <p>Anastasia</p>;
-}
+import { MainForm } from './MainForm.tsx'
 
 function App() {
   return (
-    //<ApiSpecificationForm/>
-    <SplitScreen
-      leftSide = {ComponentLeft}
-      rightSide ={ComponentRight}
-    />
+    <MainForm />
   )
 }
 

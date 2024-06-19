@@ -1,0 +1,35 @@
+'--lang-name': Čeština
+autolayout: Automatický layout
+changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
+close: Zavřít
+created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
+dataspecer-packages: správce projektů
+delete-resource:
+  title: Odstranit
+  warning: Chystáte se odstranit {{type}} s názvem {{name}}. Tento krok je nevratný.
+  warning-no-name: Chystáte se odstranit {{type}}. Tento krok je nevratný.
+export: Export
+form:
+  base-iri:
+    instruction: Zadejte base IRI pro jednotlivé koncepty
+    name: Base IRI
+  create-button:
+    name: Vytvořit
+  description:
+    instruction: Popište svůj projekt podrobněji
+    name: Popis
+  documentation-base-url:
+    instruction: Zadejte základní URL pro publikovanou dokumentaci
+    name: Base URL dokumentace
+  name:
+    instruction: Zadejte název projektu
+    name: Název
+mode-toggle:
+  dark: Tmavé
+  light: Světlé
+  system: Dle systému
+  title: Změnit motiv
+new-package: Nová složka
+open: Otevřít
+project-wizard: Průvodce projektem
+remove: Odstranit

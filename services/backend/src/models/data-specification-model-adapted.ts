@@ -10,19 +10,10 @@ import { ResourceModel } from "./resource-model";
 import configuration from "../configuration";
 import { HttpStoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 
-export const ROOT_PACKAGE_FOR_V1 = "http://dataspecer.com/packages/v1";
+export const ROOT_PACKAGE_FOR_V1 = configuration.v1RootIri;
 
 export async function createV1RootModel(adapter: ResourceModel) {
-  await adapter.createPackage(null, ROOT_PACKAGE_FOR_V1, {
-    label: {
-      cs: "Datové specifikace z core@v.1",
-      en: "Data specifications from core@v.1"
-    },
-    description: {
-      cs: "Tato složka obsahuje všechny datové specifikace se kterými dokáže pracovat manažer specifikací z core@v.1.",
-      en: "This folder contains all data specifications that can be managed by the data specification manager from core@v.1."
-    }
-  });
+  await adapter.createPackage(null, ROOT_PACKAGE_FOR_V1, configuration.v1RootMetadata);
 }
 
 export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {

@@ -131,7 +131,7 @@ const App: React.FC = () => {
                                   startIcon={<ArrowBackIcon />}
                                   sx={{mx: 3}}
                                   component={Link}
-                                  to={dataSpecificationIri ? `/specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
+                                  to={dataSpecificationIri ? process.env.REACT_APP_MANAGER_BASE_URL + `/specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
                                 >
                                     {t("back to specification manager")}
                                 </Button>

@@ -34,6 +34,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     async getPackage(packageId: string): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
+        if (result.status === 404) {
+            // @ts-ignore
+            return null;
+        }
         return (await result.json()) as Package;
     }
 
@@ -65,6 +69,12 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
+    async deleteResource(iri: string): Promise<void> {
+        await this.httpFetch(this.getResourceUrl(iri).toString(), {
+            method: "DELETE",
+        });
+    }
+
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
@@ -76,7 +86,8 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         packageId: string,
         models: EntityModel[],
         visualModels: VisualEntityModel[]
-    ): Promise<Package> {
+    ): Promise<boolean> {
+        const responseStatuses = new Set<number>();
         for (const visualModel of [...models, ...visualModels]) {
             // @ts-ignore
             const modelSerialization = visualModel.serializeModel();
@@ -84,7 +95,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
             const response = await this.httpFetch(this.getResourceUrl(iri).toString());
             if (response.status !== 200) {
-                await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
+                const createdResponse = await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -94,18 +105,25 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                         type: modelSerialization.type,
                     }),
                 });
+                responseStatuses.add(createdResponse.status);
             }
 
-            await this.httpFetch(this.getBlobUrl(iri).toString(), {
+            const updatedResponse = await this.httpFetch(this.getBlobUrl(iri).toString(), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(modelSerialization),
             });
+            responseStatuses.add(updatedResponse.status);
         }
 
-        return null as any as Package; // todo
+        const anyErrors = [...responseStatuses.values()].filter((n) => n > 399).length;
+        if (anyErrors > 0) {
+            return false;
+        }
+        return true;
+        // return null as any as Package; // todo
     }
 
     async createRemoteSemanticModel(packageId: string) {
@@ -141,8 +159,8 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     private async getFullJsonModel(resource: BaseResource): Promise<object> {
-        const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
-        return {resource, ...modelData};
+        const modelData = (await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json()) as any;
+        return { resource, ...modelData };
     }
 
     async getModelsFromResources(resources: BaseResource[]): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
@@ -152,7 +170,9 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         for (const resource of resources) {
             // Visual model
             if (resource.types.includes(LOCAL_VISUAL_MODEL)) {
-                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const modelData = (await (
+                    await this.httpFetch(this.getBlobUrl(resource.iri).toString())
+                ).json()) as any;
                 const model = createVisualModel(resource.iri).deserializeModel(modelData); // ok
                 visualModels.push(model);
             }
@@ -160,28 +180,34 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             // SGOV model
             if (resource.types.includes("https://dataspecer.com/core/model-descriptor/sgov")) {
                 const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch, resource.iri);
-                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const modelData = (await (
+                    await this.httpFetch(this.getBlobUrl(resource.iri).toString())
+                ).json()) as any;
                 await model.unserializeModel(modelData);
                 entityModels.push(model);
-            } 
+            }
 
             // Semantic model
             if (resource.types.includes(LOCAL_SEMANTIC_MODEL)) {
-                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const modelData = (await (
+                    await this.httpFetch(this.getBlobUrl(resource.iri).toString())
+                ).json()) as any;
                 const model = createInMemorySemanticModel().deserializeModel(modelData);
                 entityModels.push(model);
             }
 
             // Pim store wrapper
             if (resource.types.includes("https://dataspecer.com/core/model-descriptor/pim-store-wrapper")) {
-                const modelData = await (await this.httpFetch(this.getBlobUrl(resource.iri).toString())).json() as any;
+                const modelData = (await (
+                    await this.httpFetch(this.getBlobUrl(resource.iri).toString())
+                ).json()) as any;
                 const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias);
                 model.fetchFromPimStore();
                 entityModels.push(model);
             }
         }
 
-        return [entityModels,visualModels] as const;
+        return [entityModels, visualModels] as const;
     }
 
     /**
