@@ -139,6 +139,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                         ".MuiStepLabel-labelContainer span": {
                             fontSize: "17px",
                         },
+                        marginBottom: 1,
                     }}
                 >
                     <Stepper activeStep={activeStep}>

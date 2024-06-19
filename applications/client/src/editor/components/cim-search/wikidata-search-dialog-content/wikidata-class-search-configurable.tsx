@@ -204,7 +204,7 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
             <List component='nav' aria-label='main mailbox folders' dense>
                 {wdProperties.map((wdProperty) => {
                     return (
-                        <ListItem key={wdProperty.iri} role={undefined}>
+                        <ListItem key={wdProperty.iri} role={undefined} dense>
                             <ListItemText
                                 secondary={
                                     <>
@@ -217,7 +217,7 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
                                                             color='textSecondary'
                                                             component={"span"}
                                                             noWrap
-                                                            title={text}
+                                                            width={650}
                                                         >
                                                             {text}
                                                         </Typography>
