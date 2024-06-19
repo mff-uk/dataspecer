@@ -31,8 +31,12 @@ export function WikidataSearchResultsList<T extends WdEntityDescOnly>(props: Wik
                         props.onSelect(result);
                     }}>
                         <Typography marginRight={2}>{(index + 1).toString()}.</Typography>
-                        <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
-                                                                title={translateFrom(result.descriptions, i18n.languages)}>{translateFrom(result.descriptions, i18n.languages)}</Typography>}>
+                        <ListItemText secondary={
+                                <Typography variant="body2" color="textSecondary" noWrap>
+                                    {translateFrom(result.descriptions, i18n.languages)}
+                                </Typography>
+                            }
+                        >
                             <Stack direction="row" spacing={1}>
                                 <strong>{translateFrom(result.labels, i18n.languages)}</strong>
                                 <Typography fontSize={13}>

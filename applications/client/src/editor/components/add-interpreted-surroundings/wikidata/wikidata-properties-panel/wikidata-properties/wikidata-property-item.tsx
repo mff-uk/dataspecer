@@ -83,8 +83,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                                             color='textSecondary'
                                             component={"span"}
                                             noWrap
-                                            title={text}
-                                        >
+                                            >
                                             {text}
                                         </Typography>
                                     ) : (
@@ -94,7 +93,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                             </LanguageStringUndefineable>
                         </Box>
                     }
-                >
+                    >
                     <Stack direction="row" spacing={4}>
                         <Stack direction="row" spacing={1}>
                             <strong>
@@ -108,7 +107,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                             wdProperty={wdProperty} 
                             wdPropertyType={wdPropertyType} 
                             selectedWdClassId={selectedWdClassSurroundings.startClassId} 
-                        />
+                            />
                     </Stack>
                 </ListItemText>
                 <IconButton 
@@ -117,7 +116,7 @@ export const WikidataPropertyItem: React.FC<WikidataPropertyItemProps> = ({
                         event.stopPropagation();
                         openDetailDialogFunc({wdEntity: wdProperty})
                     }}
-                >
+                    >
                     <InfoTwoToneIcon fontSize='inherit' />
                 </IconButton>
             </ListItem>

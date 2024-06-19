@@ -63,7 +63,6 @@ export const WikidataClassItem: React.FC<WikidataClassItemProps> = ({
                                             color='textSecondary'
                                             component={"span"}
                                             noWrap
-                                            title={text}
                                         >
                                             {text}
                                         </Typography>
