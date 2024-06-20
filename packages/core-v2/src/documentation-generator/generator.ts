@@ -6,6 +6,7 @@ import { getTranslation } from "../utils/language";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
+  language: string;
 }
 
 function normalizeLabel(label: string) {
@@ -23,6 +24,12 @@ export async function generateDocumentation(
   const data = {
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
     semanticModels: inputModel.semanticModels,
+
+    // The goal of the given documentation
+    target: {
+      vocabulary: true,
+      applicationProfile: false,
+    },
   };
 
   const semanticModel = inputModel.semanticModels[0]!; // todo
@@ -39,7 +46,7 @@ export async function generateDocumentation(
    */
   handlebars.registerHelper('translate', function(languageString: LanguageString | null | undefined, options: Handlebars.HelperOptions) {
     let translation = "";
-    let translationLang: string | null = "cs";
+    let translationLang: string | null = configuration.language;
 
     languageString = languageString || {};
 
@@ -62,19 +69,19 @@ export async function generateDocumentation(
       return options.fn({
         translation,
         lang: translationLang,
-        otherLang: translationLang === "cs" ? null : translationLang,
+        otherLang: translationLang === configuration.language ? null : translationLang,
       });
     }
   });
 
-  const currentLang  = "cs";
+  const currentLang  = configuration.language;
   const HANDLEBARS_MARK_ENABLE = "#HANDLEBARS_DATASPECER_ENABLE#";
   const HANDLEBARS_MARK_DISABLE = "#HANDLEBARS_DATASPECER_DISABLE#";
 
   /**
-   * {{#iflng "cs"}} ... {{lng "en"}} ... {{lng}} ... {{/iflng}}
+   * {{#iflng "cs"}} Já jsem Pepina (chro) {{lng "de"}} Ich bin Peppa Wutz (grunz) {{lng}} I'm Peppa Pig (oinks) {{/iflng}}
    */
-  handlebars.registerHelper('lng', function(...params: any[]) {
+  handlebars.registerHelper('lng', function(this: {__handlebars_iflng_foundLanguage: boolean}, ...params: any[]) {
     let lng: string | null;
     let options: Handlebars.HelperOptions;
     if (params.length === 1) {
@@ -86,35 +93,33 @@ export async function generateDocumentation(
     }
 
     if (lng === currentLang ||
-      // @ts-ignore
-      (lng === null && this.__handlebars_iflng_foundLanguage)) {
-      // @ts-ignore
+      (lng === null && !this.__handlebars_iflng_foundLanguage)) {
       this.__handlebars_iflng_foundLanguage = true;
       return HANDLEBARS_MARK_ENABLE;
     } else {
       return HANDLEBARS_MARK_DISABLE;
     }
   });
-  handlebars.registerHelper('iflng', function(lang: string, options: Handlebars.HelperOptions) {  
-    // @ts-ignore
-    this.__handlebars_iflng_foundLanguage = false;
+  handlebars.registerHelper('iflng', function(this: any, lang: string, options: Handlebars.HelperOptions) {
+    const context = {...this, __handlebars_iflng_foundLanguage: false} as {__handlebars_iflng_foundLanguage: boolean};
+
+    context.__handlebars_iflng_foundLanguage = false;
     let result = "";
     if (lang === currentLang) {
-      // @ts-ignore
-      this.__handlebars_iflng_foundLanguage = true;
+      context.__handlebars_iflng_foundLanguage = true;
       result += HANDLEBARS_MARK_ENABLE;
     } else {
       result += HANDLEBARS_MARK_DISABLE;
     }
-    // @ts-ignore
-    result += options.fn(this);
+    
+    result += options.fn(context);
     result += HANDLEBARS_MARK_DISABLE;
 
     // Return string between HANDLEBARS_MARK_ENABLE and HANDLEBARS_MARK_DISABLE
     const start = result.indexOf(HANDLEBARS_MARK_ENABLE) + HANDLEBARS_MARK_ENABLE.length;
     const end = result.indexOf(HANDLEBARS_MARK_DISABLE, start);
 
-    if (start === -1 || end === -1) {
+    if (result.indexOf(HANDLEBARS_MARK_ENABLE) === -1) {
       return "";
     } else {
       return result.substring(start, end);
@@ -135,7 +140,7 @@ export async function generateDocumentation(
 
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
     if (isSemanticModelClass(entity)) {
-      const {ok, translation} = getTranslation(entity.name, ["cs"]);
+      const {ok, translation} = getTranslation(entity.name, [configuration.language]);
       if (ok) {
         return normalizeLabel(translation);
       }
