@@ -9,7 +9,7 @@ delete-resource:
   warning: Chystáte se odstranit {{type}} s názvem {{name}}. Tento krok je nevratný.
   warning-no-name: Chystáte se odstranit {{type}}. Tento krok je nevratný.
 duplicate-resource: Duplikovat
-export: Export
+export-zip: Exportovat specifikaci
 form:
   base-iri:
     instruction: Zadejte base IRI pro jednotlivé koncepty
