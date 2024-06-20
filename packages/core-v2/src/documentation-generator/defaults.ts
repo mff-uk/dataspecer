@@ -7,6 +7,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
     <head>
       <meta charset="utf-8" />
       <title>{{translate package.userMetadata.label}}</title>
+      <meta name="color-scheme" content="light dark">
       <script
         src="https://www.w3.org/Tools/respec/respec-w3c"
         class="remove"
@@ -53,25 +54,27 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
 
                 <table class="def">
                   <tr>
-                    <td>Internal ID</td>
-                    <td><a href="{{href id}}">{{id}}</a></td>
-                  </tr>
-                  <tr>
-                    <td>Public IRI</td>
+                    <td>IRI</td>
                     <td><a href="{{iri}}">{{iri}}</a></td>
                   </tr>
+                  {{#translate description}}
                   <tr>
                     <td>Description</td>
-                    <td>{{translate description}}</td>
+                    <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                   </tr>
+                  {{/translate}}
+                  {{#if (parentClasses id)}}
                   <tr>
                     <td>Parent classes</td>
                     <td>{{#each (parentClasses id)}}{{class}}{{#unless @last}}, {{/unless}}{{/each}}</td>
                   </tr>
+                  {{/if}}
+                  {{#if (subClasses id)}}
                   <tr>
                     <td>Sub-classes</td>
                     <td>{{#each (subClasses id)}}{{class}}{{#unless @last}}, {{/unless}}{{/each}}</td>
                   </tr>
+                  {{/if}}
                 </table>
               </section>
             {{/ifEquals}}    
@@ -118,17 +121,15 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
 
                 <table class="def">
                   <tr>
-                    <td>Internal ID</td>
-                    <td><a href="{{href id}}">{{id}}</a></td>
-                  </tr>
-                  <tr>
-                    <td>Public IRI</td>
+                    <td>IRI</td>
                     <td><a href="{{ends.1.iri}}">{{ends.1.iri}}</a></td>
                   </tr>
+                  {{#translate ends.1.description}}
                   <tr>
                     <td>Description</td>
-                    <td>{{translate ends.1.description}}</td>
+                    <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                   </tr>
+                  {{/translate}}
                   <tr>
                     <td>Domain</td>
                     <td><a href="{{href ends.0.concept}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>without assigned name</i>{{/translate}}{{/semanticEntity}}</a></td>

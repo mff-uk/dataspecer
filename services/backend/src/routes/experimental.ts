@@ -46,9 +46,15 @@ export const getlightweightFromSimplified = asyncHandler(async (request: express
     return;
 });
 
+/**
+ * Returns HTML documentation for the given package.
+ */
 async function getDocumentationData(packageId: string): Promise<string> {
     const resource = (await resourceModel.getPackage(packageId))!;
     const semanticModels = await Promise.all(resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL).map(async r => await (await resourceModel.getOrCreateResourceModelStore(r.iri)).getJson()));
+
+    const customRespecTemplate = await resourceModel.getResourceModelStore(packageId, "respec");
+    const template = customRespecTemplate ? (await customRespecTemplate.getJson()).value as string : defaultConfiguration.template;
 
     const context = {
         resourceModel,
@@ -56,7 +62,7 @@ async function getDocumentationData(packageId: string): Promise<string> {
         modelIri: packageId,
     };
 
-    return await generateDocumentation(context, defaultConfiguration);
+    return await generateDocumentation(context, {...defaultConfiguration, template});
 }
 
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {

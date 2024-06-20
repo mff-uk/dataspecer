@@ -1,10 +1,15 @@
 import Handlebars from "handlebars";
-import { isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
+import { isSemanticModelClass, isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
 // @ts-ignore
 import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
+import { getTranslation } from "../utils/language";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
+}
+
+function normalizeLabel(label: string) {
+  return label.replace(/ /g, "-").toLowerCase();
 }
 
 export async function generateDocumentation(
@@ -19,6 +24,8 @@ export async function generateDocumentation(
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
     semanticModels: inputModel.semanticModels,
   };
+
+  const semanticModel = inputModel.semanticModels[0]!; // todo
 
   const handlebars = Handlebars; //AsyncHelpers(Handlebars) as typeof Handlebars;
 
@@ -126,15 +133,52 @@ export async function generateDocumentation(
     return entity ? options.fn(entity) : null;
   });
 
+  function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
+    if (isSemanticModelClass(entity)) {
+      const {ok, translation} = getTranslation(entity.name, ["cs"]);
+      if (ok) {
+        return normalizeLabel(translation);
+      }
+    }
+
+    // Fallback 
+    return null;
+  }
+
   /**
    * Generates link for the given entity.
    */
   handlebars.registerHelper('href', function(input: string, options: Handlebars.HelperOptions) {
-    return "#" + input;
+    // todo: handle external links
+
+    const entity = semanticModel[input];
+    if (entity) {
+      const anchor = getAnchorForLocalEntity(entity);
+      if (anchor) {
+        return "#" + anchor;
+      }
+    }
+
+    // Last option
+    return input;
   });
 
-  handlebars.registerHelper('anchor', function() {
-    // @ts-ignore
+  /**
+   * Generates anchor for the given entity that can be used as a link target.
+   * 
+   * It does not contain the # character. It is intended to be used as an id attribute.
+   */
+  handlebars.registerHelper('anchor', function(this: SemanticModelEntity) {
+    // todo: handle colisions if multiple classes are named the same
+    // todo: handle custom anchors
+    // todo: handle stability of anchors - if new entitity with the same name is added, the anchor to the previous entity should not change
+
+    const anchor = getAnchorForLocalEntity(this);
+    if (anchor) {
+      return anchor;
+    }
+
+    // Last option
     return this.id;
   });
 
