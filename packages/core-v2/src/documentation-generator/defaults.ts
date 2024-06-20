@@ -85,11 +85,6 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
             {{/ifEquals}}    
           {{/each}}
   
-
-          <h2>Profiles of classes</h2>
-          This section lists the profiles of classes.
-
-
           {{#each this}}
             {{#ifEquals type.[0] "class-usage"}}
               <section id="{{anchor}}">
