@@ -34,6 +34,7 @@ new-package: New package
 open: Open
 project-wizard: Project Wizard
 remove: Remove
+show-documentation: Show documentation
 sort-models:
   creation-new-first: Newly created first
   creation-old-first: Newly created last

@@ -32,6 +32,7 @@ new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem
 remove: Odstranit
+show-documentation: Zobrazit dokumentaci
 sort-models:
   creation-new-first: Nově vytvořené první
   creation-old-first: Nově vytvořené poslední
