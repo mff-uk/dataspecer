@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-query'
 import { I18nextProvider } from "react-i18next"
 import { i18nConfig } from './i18n.ts'
+import { SortModelsProvider } from './components/sort-models.tsx'
 
 const queryClient = new QueryClient();
 
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeProvider attribute='class'>
       <I18nextProvider i18n={i18nConfig} defaultNS={'default'}>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <SortModelsProvider>
+            <App />
+          </SortModelsProvider>
         </QueryClientProvider>
       </I18nextProvider>
     </ThemeProvider>

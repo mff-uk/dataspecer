@@ -32,3 +32,10 @@ new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem
 remove: Odstranit
+sort-models:
+  creation-new-first: Nově vytvořené první
+  creation-old-first: Nově vytvořené poslední
+  modification-new-first: Změněné první
+  modification-old-first: Změněné poslední
+  name-az: Abecedně
+  name-za: Obráceně abecedně

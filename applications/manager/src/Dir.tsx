@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { ChevronDown, ChevronRight, Copy, EllipsisVertical, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
 import { Translate } from "./components/translate";
@@ -21,6 +21,8 @@ import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
 import { ModifyRawContent } from "./dialog/modify-raw-content";
 import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
+import React from "react";
+import { SortModelsContext } from "./components/sort-models";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -41,6 +43,33 @@ export function preventDefault<E extends React.SyntheticEvent>(f: ((e: E) => voi
   };
 }
 
+const useSortIris = (iris: string[]) => {
+  const {selectedOption} = React.useContext(SortModelsContext);
+  const resources = useContext(ResourcesContext);
+  return useMemo(() => {
+    const toSort = iris.map(iri => resources[iri]!);
+    toSort?.sort((a, b) => {
+      if (!a || !b) return 0;
+      if (selectedOption === "name-az") {
+        return lng(a.userMetadata?.label)?.localeCompare(lng(b.userMetadata?.label) ?? "") ?? 0;
+      } else if (selectedOption === "name-za") {
+        return (lng(b.userMetadata?.label) ?? "").localeCompare(lng(a.userMetadata?.label) ?? "") ?? 0;
+      } else if (selectedOption === "modification-new-first") {
+        return new Date(b.metadata?.modificationDate ?? 0).getTime() - new Date(a.metadata?.modificationDate ?? 0).getTime();
+      } else if (selectedOption === "modification-old-first") {
+        return new Date(a.metadata?.modificationDate ?? 0).getTime() - new Date(b.metadata?.modificationDate ?? 0).getTime();
+      } else if (selectedOption === "creation-new-first") {
+        return new Date(b.metadata?.creationDate ?? 0).getTime() - new Date(a.metadata?.creationDate ?? 0).getTime();
+      } else if (selectedOption === "creation-old-first") {
+        return new Date(a.metadata?.creationDate ?? 0).getTime() - new Date(b.metadata?.creationDate ?? 0).getTime();
+      }
+      return 0;
+    });
+
+    return toSort.map(r => r?.iri);
+  }, [iris, resources, selectedOption]);
+};
+
 const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
   const resources = useContext(ResourcesContext);
   const resource = resources[iri]!;
@@ -56,6 +85,8 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
   const detailModalToggle = useToggle();
 
   const openModal = useBetterModal();
+
+  const subResources = useSortIris(resource.subResourcesIri ?? []);
 
   return <li className="first:border-y last:border-none border-b">
     <div className="flex items-center space-x-4 hover:bg-accent">
@@ -120,8 +151,8 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    {resource?.subResourcesIri?.length && isOpen && <ul className="pl-8">
-      {resource?.subResourcesIri?.map(iri => <Row iri={iri} key={iri} parentIri={resource.iri} />)}
+    {subResources.length > 0 && isOpen && <ul className="pl-8">
+      {subResources.map(iri => <Row iri={iri} key={iri} parentIri={resource.iri} />)}
     </ul>}
     <ResourceDetail isOpen={detailModalToggle.isOpen} close={detailModalToggle.close} iri={iri} />
   </li>
@@ -149,6 +180,8 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
   useEffect(() => {
     requestLoadPackage(iri);
   }, []);
+
+  const subResources = useSortIris(pckg?.subResourcesIri ?? []);
 
   if (pckg === null) {
     return;
@@ -185,7 +218,7 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
     </div>
     {isOpen &&
       <ul>
-        {pckg.subResourcesIri?.map(iri => <Row iri={iri} parentIri={pckg.iri} key={iri} />)}
+        {subResources.map(iri => <Row iri={iri} parentIri={pckg.iri} key={iri} />)}
       </ul>
     }
   </div>;

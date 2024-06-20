@@ -34,3 +34,10 @@ new-package: New package
 open: Open
 project-wizard: Project Wizard
 remove: Remove
+sort-models:
+  creation-new-first: Newly created first
+  creation-old-first: Newly created last
+  modification-new-first: Recently modified first
+  modification-old-first: Recently modified last
+  name-az: Alphabetically
+  name-za: Reverse alphabetically
