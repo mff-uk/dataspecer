@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import configuration from "./configuration";
@@ -37,9 +36,9 @@ if (basename.endsWith('/')) {
 
 const application = express();
 application.use(cors());
-application.use(bodyParser.json({limit: configuration.payloadSizeLimit}));
-application.use(bodyParser.urlencoded({ extended: false, limit: configuration.payloadSizeLimit }));
-application.use(bodyParser.urlencoded({ extended: true, limit: configuration.payloadSizeLimit }));
+application.use(express.json({limit: configuration.payloadSizeLimit}));
+application.use(express.urlencoded({ extended: false, limit: configuration.payloadSizeLimit }));
+application.use(express.urlencoded({ extended: true, limit: configuration.payloadSizeLimit }));
 
 application.get(basename + '/data-specification', listSpecifications);
 application.post(basename + '/data-specification', addSpecification);
