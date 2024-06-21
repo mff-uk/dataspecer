@@ -1,10 +1,16 @@
 import Handlebars from "handlebars";
-import { isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
+import { isSemanticModelClass, isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
 // @ts-ignore
 import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
+import { getTranslation } from "../utils/language";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
+  language: string;
+}
+
+function normalizeLabel(label: string) {
+  return label.replace(/ /g, "-").toLowerCase();
 }
 
 export async function generateDocumentation(
@@ -12,13 +18,29 @@ export async function generateDocumentation(
     resourceModel: any,
     semanticModels: Record<string, SemanticModelEntity>[],
     modelIri: string,
+    externalArtifacts: Record<string, {
+      type: string,
+      URL: string,
+    }[]>,
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
+  const semanticModel = inputModel.semanticModels[0] ?? {}; // todo add merge of semantic models
+
   const data = {
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
     semanticModels: inputModel.semanticModels,
+    locallyDefinedSemanticEntity: semanticModel,
+
+    // The goal of the given documentation
+    target: {
+      vocabulary: true,
+      applicationProfile: false,
+    },
+
+    externalArtifacts: inputModel.externalArtifacts,
   };
+
 
   const handlebars = Handlebars; //AsyncHelpers(Handlebars) as typeof Handlebars;
 
@@ -32,7 +54,7 @@ export async function generateDocumentation(
    */
   handlebars.registerHelper('translate', function(languageString: LanguageString | null | undefined, options: Handlebars.HelperOptions) {
     let translation = "";
-    let translationLang: string | null = "cs";
+    let translationLang: string | null = configuration.language;
 
     languageString = languageString || {};
 
@@ -55,19 +77,19 @@ export async function generateDocumentation(
       return options.fn({
         translation,
         lang: translationLang,
-        otherLang: translationLang === "cs" ? null : translationLang,
+        otherLang: translationLang === configuration.language ? null : translationLang,
       });
     }
   });
 
-  const currentLang  = "cs";
+  const currentLang  = configuration.language;
   const HANDLEBARS_MARK_ENABLE = "#HANDLEBARS_DATASPECER_ENABLE#";
   const HANDLEBARS_MARK_DISABLE = "#HANDLEBARS_DATASPECER_DISABLE#";
 
   /**
-   * {{#iflng "cs"}} ... {{lng "en"}} ... {{lng}} ... {{/iflng}}
+   * {{#iflng "cs"}} Já jsem Pepina (chro) {{lng "de"}} Ich bin Peppa Wutz (grunz) {{lng}} I'm Peppa Pig (oinks) {{/iflng}}
    */
-  handlebars.registerHelper('lng', function(...params: any[]) {
+  handlebars.registerHelper('lng', function(this: {__handlebars_iflng_foundLanguage: boolean}, ...params: any[]) {
     let lng: string | null;
     let options: Handlebars.HelperOptions;
     if (params.length === 1) {
@@ -79,35 +101,33 @@ export async function generateDocumentation(
     }
 
     if (lng === currentLang ||
-      // @ts-ignore
-      (lng === null && this.__handlebars_iflng_foundLanguage)) {
-      // @ts-ignore
+      (lng === null && !this.__handlebars_iflng_foundLanguage)) {
       this.__handlebars_iflng_foundLanguage = true;
       return HANDLEBARS_MARK_ENABLE;
     } else {
       return HANDLEBARS_MARK_DISABLE;
     }
   });
-  handlebars.registerHelper('iflng', function(lang: string, options: Handlebars.HelperOptions) {  
-    // @ts-ignore
-    this.__handlebars_iflng_foundLanguage = false;
+  handlebars.registerHelper('iflng', function(this: any, lang: string, options: Handlebars.HelperOptions) {
+    const context = {...this, __handlebars_iflng_foundLanguage: false} as {__handlebars_iflng_foundLanguage: boolean};
+
+    context.__handlebars_iflng_foundLanguage = false;
     let result = "";
     if (lang === currentLang) {
-      // @ts-ignore
-      this.__handlebars_iflng_foundLanguage = true;
+      context.__handlebars_iflng_foundLanguage = true;
       result += HANDLEBARS_MARK_ENABLE;
     } else {
       result += HANDLEBARS_MARK_DISABLE;
     }
-    // @ts-ignore
-    result += options.fn(this);
+    
+    result += options.fn(context);
     result += HANDLEBARS_MARK_DISABLE;
 
     // Return string between HANDLEBARS_MARK_ENABLE and HANDLEBARS_MARK_DISABLE
     const start = result.indexOf(HANDLEBARS_MARK_ENABLE) + HANDLEBARS_MARK_ENABLE.length;
     const end = result.indexOf(HANDLEBARS_MARK_DISABLE, start);
 
-    if (start === -1 || end === -1) {
+    if (result.indexOf(HANDLEBARS_MARK_ENABLE) === -1) {
       return "";
     } else {
       return result.substring(start, end);
@@ -126,15 +146,52 @@ export async function generateDocumentation(
     return entity ? options.fn(entity) : null;
   });
 
+  function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
+    if (isSemanticModelClass(entity)) {
+      const {ok, translation} = getTranslation(entity.name, [configuration.language]);
+      if (ok) {
+        return normalizeLabel(translation);
+      }
+    }
+
+    // Fallback 
+    return null;
+  }
+
   /**
    * Generates link for the given entity.
    */
   handlebars.registerHelper('href', function(input: string, options: Handlebars.HelperOptions) {
-    return "#" + input;
+    // todo: handle external links
+
+    const entity = semanticModel[input];
+    if (entity) {
+      const anchor = getAnchorForLocalEntity(entity);
+      if (anchor) {
+        return "#" + anchor;
+      }
+    }
+
+    // Last option
+    return input;
   });
 
-  handlebars.registerHelper('anchor', function() {
-    // @ts-ignore
+  /**
+   * Generates anchor for the given entity that can be used as a link target.
+   * 
+   * It does not contain the # character. It is intended to be used as an id attribute.
+   */
+  handlebars.registerHelper('anchor', function(this: SemanticModelEntity) {
+    // todo: handle colisions if multiple classes are named the same
+    // todo: handle custom anchors
+    // todo: handle stability of anchors - if new entitity with the same name is added, the anchor to the previous entity should not change
+
+    const anchor = getAnchorForLocalEntity(this);
+    if (anchor) {
+      return anchor;
+    }
+
+    // Last option
     return this.id;
   });
 

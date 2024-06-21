@@ -6,9 +6,12 @@ created: 'Created on {{val, datetime(dateStyle: short)}}'
 dataspecer-packages: packages
 delete-resource:
   title: Remove
-  warning: You are about to remove {{type}} with name {{name}}. This action is irreversible.
+  warning: >-
+    You are about to remove {{type}} with name {{name}}. This action is
+    irreversible.
   warning-no-name: You are about to remove {{type}}. This action is irreversible.
-export: Export
+duplicate-resource: Duplicate
+export-zip: Export specification
 form:
   base-iri:
     instruction: Enter base IRI for individual concepts
@@ -26,7 +29,16 @@ mode-toggle:
   light: Light
   system: System
   title: Toggle theme
+modify-documentation-template: Modify documentation template
 new-package: New package
 open: Open
 project-wizard: Project Wizard
 remove: Remove
+show-documentation: Show documentation
+sort-models:
+  creation-new-first: Newly created first
+  creation-old-first: Newly created last
+  modification-new-first: Recently modified first
+  modification-old-first: Recently modified last
+  name-az: Alphabetically
+  name-za: Reverse alphabetically

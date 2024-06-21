@@ -59,6 +59,12 @@ import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 
+// Function that returns SVG for the current model.
+export let getSvgForCurrentView: () => Promise<{
+    svg: string;
+    forModelId: string;
+}|null>;
+
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
@@ -187,7 +193,7 @@ export const Visualization = () => {
         activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId) ?? "69ff69"); // FIXME: a better way to make all edges rerender?
     };
 
-    const exportCanvasToSvg = () => {
+    const getSvg = () => {
         // we calculate a transform for the nodes so that all nodes are visible
         // we then overwrite the transform of the `.react-flow__viewport` element
         // with the style option of the html-to-image library
@@ -202,7 +208,7 @@ export const Visualization = () => {
             return;
         }
 
-        toSvg(flow__viewport, {
+        return toSvg(flow__viewport, {
             backgroundColor: "#ffffff",
             width: imageWidth,
             height: imageHeight,
@@ -211,10 +217,22 @@ export const Visualization = () => {
                 height: imageHeight.toString(),
                 transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
             },
-        })
-            .then(downloadImage)
-            .catch(console.error);
+        });
     };
+
+    const exportCanvasToSvg = () => {
+        const svg = getSvg();
+        if (svg) {
+            svg.then(downloadImage).catch(console.error);
+        }
+    };
+
+    getSvgForCurrentView = () => getSvg()?.then((svg) => {
+        return {
+            svg: svg,
+            forModelId: activeVisualModel?.getId() ?? "",
+        };
+    }) ?? Promise.resolve(null);
 
     // register a callback with aggregator for visualization
     // - remove what has been removed from the visualization state

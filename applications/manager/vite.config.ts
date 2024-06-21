@@ -13,7 +13,7 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    include: ["@dataspecer/core-v2/project", "@dataspecer/core-v2/**"]
+    include: ["@dataspecer/core-v2/**"]
   },
   build: {
     commonjsOptions: {

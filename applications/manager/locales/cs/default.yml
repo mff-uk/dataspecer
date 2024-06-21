@@ -8,7 +8,8 @@ delete-resource:
   title: Odstranit
   warning: Chystáte se odstranit {{type}} s názvem {{name}}. Tento krok je nevratný.
   warning-no-name: Chystáte se odstranit {{type}}. Tento krok je nevratný.
-export: Export
+duplicate-resource: Duplikovat
+export-zip: Exportovat specifikaci
 form:
   base-iri:
     instruction: Zadejte base IRI pro jednotlivé koncepty
@@ -18,9 +19,6 @@ form:
   description:
     instruction: Popište svůj projekt podrobněji
     name: Popis
-  documentation-base-url:
-    instruction: Zadejte základní URL pro publikovanou dokumentaci
-    name: Base URL dokumentace
   name:
     instruction: Zadejte název projektu
     name: Název
@@ -29,7 +27,16 @@ mode-toggle:
   light: Světlé
   system: Dle systému
   title: Změnit motiv
+modify-documentation-template: Upravit šablonu dokumentace
 new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem
 remove: Odstranit
+show-documentation: Zobrazit dokumentaci
+sort-models:
+  creation-new-first: Nově vytvořené první
+  creation-old-first: Nově vytvořené poslední
+  modification-new-first: Změněné první
+  modification-old-first: Změněné poslední
+  name-az: Abecedně
+  name-za: Obráceně abecedně

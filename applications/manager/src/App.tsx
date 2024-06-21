@@ -3,6 +3,7 @@ import Dir from "./Dir";
 import { GithubLink } from './components/github-link';
 import { LanguageToggle } from './components/language-toggle';
 import { ModeToggle } from './components/mode-toggle';
+import { SortModels } from './components/sort-models';
 import { BetterModalProvider } from './lib/better-modal';
 import { ResourcesContext, useResourcesContext } from './package';
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,7 @@ function App() {
                 }
               </div>
               <div className='flex gap-2'>
+                <SortModels />
                 <GithubLink />
                 <ModeToggle />
                 <LanguageToggle />
