@@ -18,21 +18,29 @@ export async function generateDocumentation(
     resourceModel: any,
     semanticModels: Record<string, SemanticModelEntity>[],
     modelIri: string,
+    externalArtifacts: Record<string, {
+      type: string,
+      URL: string,
+    }[]>,
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
+  const semanticModel = inputModel.semanticModels[0] ?? {}; // todo add merge of semantic models
+
   const data = {
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
     semanticModels: inputModel.semanticModels,
+    locallyDefinedSemanticEntity: semanticModel,
 
     // The goal of the given documentation
     target: {
       vocabulary: true,
       applicationProfile: false,
     },
+
+    externalArtifacts: inputModel.externalArtifacts,
   };
 
-  const semanticModel = inputModel.semanticModels[0]!; // todo
 
   const handlebars = Handlebars; //AsyncHelpers(Handlebars) as typeof Handlebars;
 

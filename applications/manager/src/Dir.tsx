@@ -203,7 +203,7 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
       <button onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
       </button>
-      <h2 className="font-heading ml-3 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow">{pckg.userMetadata?.label?.cs}</h2>
+      <h2 className="font-heading ml-3 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow"><Translate text={pckg.userMetadata?.label} /></h2>
       <Button variant="ghost" size={"sm"} className="shrink-0 ml-4" onClick={async () => {
         const names = await openModal(RenameResourceDialog, {type: "create"});
         if (!names) return;
