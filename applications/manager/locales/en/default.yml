@@ -24,6 +24,9 @@ form:
   name:
     instruction: Enter the name of the project
     name: Name
+  url:
+    instruction: URL publicly accessible from the internet
+    name: form.url.name
 mode-toggle:
   dark: Dark
   light: Light

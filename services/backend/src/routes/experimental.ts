@@ -65,7 +65,8 @@ async function getDocumentationData(packageId: string, options: {
     externalArtifacts?: Record<string, {
         type: string,
         URL: string,
-    }[]>
+    }[]>,
+    dsv?: any,
 } = {}): Promise<string> {
     const externalArtifacts = options.externalArtifacts ?? {};
 
@@ -80,6 +81,7 @@ async function getDocumentationData(packageId: string, options: {
         semanticModels: semanticModels.map(m => m.entities as Record<string, SemanticModelEntity>),
         modelIri: packageId,
         externalArtifacts,
+        dsv: options.dsv
     };
 
     return await generateDocumentation(context, {...defaultConfiguration, template});
@@ -126,6 +128,18 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
 
     const zip = new ZipStreamDictionary();
     
+    const dsvMetadata: any = {
+        "@id": ".",
+        "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
+        "http://purl.org/dc/terms/title":
+            Object.entries(resource.userMetadata?.label ?? {}).map(([lang, value]) => (
+            {
+                "@language": lang,
+                "@value": value,
+            })),
+        "https://w3id.org/dsv#artefact": []
+    };
+    
     // OWL
     const owl = await generateLightweightOwl(semanticModels[0].iri);
     if (owl) {
@@ -133,6 +147,16 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         await owlFile.write(owl);
         await owlFile.close();
         externalArtifacts["owl-vocabulary"] = [{type: "model.owl", URL: "./model.owl"}];
+
+        dsvMetadata["https://w3id.org/dsv#artefact"].push({
+            "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+            "http://www.w3.org/ns/dx/prof/hasArtifact": [{
+                "@id": "./model.owl",
+            }],
+            "http://www.w3.org/ns/dx/prof/hasRole": [{
+                "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary"
+            }],
+        });
     }
     
     // DSV
@@ -142,6 +166,16 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         await dsvFile.write(dsv);
         await dsvFile.close();
         externalArtifacts["dsv-profile"] = [{type: "dsv.ttl", URL: "./dsv.ttl"}];
+
+        dsvMetadata["https://w3id.org/dsv#artefact"].push({
+            "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+            "http://www.w3.org/ns/dx/prof/hasArtifact": [{
+                "@id": "./dsv.ttl",
+            }],
+            "http://www.w3.org/ns/dx/prof/hasRole": [{
+                "@id": "http://www.w3.org/ns/dx/prof/role/schema"
+            }],
+        });
     }
     
     // All SVGs
@@ -159,8 +193,17 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     }
 
     // HTML
+    dsvMetadata["https://w3id.org/dsv#artefact"].push({
+        "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+        "http://www.w3.org/ns/dx/prof/hasArtifact": [{
+            "@id": ".",
+        }],
+        "http://www.w3.org/ns/dx/prof/hasRole": [{
+            "@id": "http://www.w3.org/ns/dx/prof/role/specification"
+        }],
+    });
     const documentation = zip.writePath("index.html");
-    await documentation.write(await getDocumentationData(query.iri, {externalArtifacts}));
+    await documentation.write(await getDocumentationData(query.iri, {externalArtifacts, dsv: dsvMetadata}));
     await documentation.close();
 
     // Send zip file

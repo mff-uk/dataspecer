@@ -22,6 +22,7 @@ export async function generateDocumentation(
       type: string,
       URL: string,
     }[]>,
+    dsv: any | null,
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
@@ -31,6 +32,7 @@ export async function generateDocumentation(
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
     semanticModels: inputModel.semanticModels,
     locallyDefinedSemanticEntity: semanticModel,
+    dsv: inputModel.dsv,
 
     // The goal of the given documentation
     target: {

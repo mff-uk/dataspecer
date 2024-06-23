@@ -19,6 +19,7 @@ import {
 import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes/simplified-semantic-model';
 import { getDocumentation, getLightweightOwl, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
 import { generate } from './routes/generate';
+import { importResource } from './routes/import';
 
 // Create application models
 
@@ -81,6 +82,11 @@ application.get(basename + '/resources/root-resources', getRootPackages); // ---
 
 application.post(basename + '/repository/copy-recursively', copyRecursively);
 
+/**
+ * Import: Import endpoint is a wizard that allows you to import specific package/model from a remote source.
+ */
+
+application.post(basename + '/resources/import', importResource);
 
 
 // Interactive import of packages

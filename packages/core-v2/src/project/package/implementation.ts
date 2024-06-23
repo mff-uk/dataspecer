@@ -1,7 +1,7 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { EntityModel } from "../../entity-model";
 import { HttpEntityModel } from "../../entity-model/http-entity-model";
-import { LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
+import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
 import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified";
 import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model";
@@ -75,11 +75,34 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
+    /**
+     * This method is used by CME editor for transparently loading all models from a given package.
+     * @todo It should not be a package, but a model itself with all its dependencies. Now it is a model. 
+     * @param packageId 
+     * @returns 
+     */
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
-        const pckg = await this.getPackage(packageId);
-        return this.getModelsFromResources(pckg.subResources!);
+        const entityModels: EntityModel[] = [];
+        const visualModels: VisualEntityModel[] = [];
+        
+        const recursivellyLoadPackage = async (packageId: string) => {
+            const pckg = await this.getPackage(packageId);
+            const [entity, visual] = await this.getModelsFromResources(pckg.subResources!);
+            entityModels.push(...entity);
+            visualModels.push(...visual);
+
+            for (const resource of pckg.subResources!) {
+                if (resource.types.includes(LOCAL_PACKAGE)) {
+                    await recursivellyLoadPackage(resource.iri);
+                }
+            }
+        }
+
+        await recursivellyLoadPackage(packageId);
+
+        return [entityModels, visualModels] as const;
     }
 
     async updateSemanticModelPackageModels(
