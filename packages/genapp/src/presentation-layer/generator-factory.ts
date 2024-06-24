@@ -3,19 +3,19 @@ import { DetailComponentTemplateProcessor } from "./template-generators/detail/d
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
 export type PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator: (targetCapabilityName: string) => PresentationLayerGenerator;
+    getPresentationLayerGenerator: (targetAggregateName: string, targetCapabilityName: string) => PresentationLayerGenerator;
 }
 
 export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator(targetCapabilityName: string): PresentationLayerGenerator {
+    getPresentationLayerGenerator(aggregateName: string, targetCapabilityName: string): PresentationLayerGenerator {
 
         const capabilityGeneratorMap: { [capabilityName: string] : PresentationLayerGenerator } = {
             list: new ListTableTemplateProcessor({ 
-                filePath: "ListTable.tsx", 
+                filePath: `${aggregateName}ListTable.tsx`, 
                 templatePath: "./list/presentation-layer/table-component" 
             }),
             detail: new DetailComponentTemplateProcessor({
-                filePath: "InstanceDetail.tsx",
+                filePath: `${aggregateName}InstanceDetail.tsx`,
                 templatePath: "./detail/presentation-layer/instance-detail-component"
             })
         }

@@ -16,7 +16,7 @@ export abstract class LdkitListReader implements <%= it.list_reader_interface %>
         this._nestedSchemaCache = {};
     }
 
-    abstract readInstanceList(aggregateName: string): Promise<ListResult>;
+    abstract readInstanceList(): Promise<ListResult>;
 
     private getNestedSchemas(schema: object): { [attrName: string]: object } {
 

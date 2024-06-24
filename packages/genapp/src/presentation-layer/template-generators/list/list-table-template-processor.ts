@@ -1,6 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateMetadata } from "../../../templates/template-consumer";
-import { BaseArtifactSaver } from "../../../utils/artifact-saver";
 import { PresentationLayerDependencyMap } from "../presentation-layer-dependency-map";
 import { PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ListTableTemplate } from "./list-table-template";
@@ -14,9 +13,11 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
     
     processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
 
+        const listTableComponentName: string = `${dependencies.aggregateName}ListTable`;
         const tableTemplate: ListTableTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                presentation_layer_component_name: listTableComponentName,
                 list_capability_app_layer: dependencies.listAppLogicArtifact.exportedObjectName,
                 list_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -28,7 +29,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         const presentationLayerRender = this._templateRenderer.renderTemplate(tableTemplate);
 
         return {
-            exportedObjectName: "ListTable",
+            exportedObjectName: listTableComponentName,
             filePath: this._filePath,
             sourceText: presentationLayerRender,
             dependencies: [dependencies.listAppLogicArtifact]

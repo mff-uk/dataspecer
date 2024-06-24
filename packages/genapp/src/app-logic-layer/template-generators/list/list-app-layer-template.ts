@@ -8,6 +8,7 @@ export interface ListCapabilityAppLayerTemplate extends TemplateDescription {
         reader_implementation_path: ImportRelativePath,
         generated_capability_class: string,
         read_return_type: string,
+        list_app_layer_export_name: string,
         read_return_type_path: ImportRelativePath
     }
 }

@@ -13,8 +13,8 @@ export class DetailCapability extends BaseCapabilityGenerator {
     constructor(targetAggregateName: string, datasourceConfig: DatasourceConfig) {
         const detailCapabilityId = "detail";
         const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
-        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(detailCapabilityId);
-        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(detailCapabilityId);
+        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(targetAggregateName, detailCapabilityId);
+        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, detailCapabilityId);
         super(
             targetAggregateName,
             new GeneratorPipeline(

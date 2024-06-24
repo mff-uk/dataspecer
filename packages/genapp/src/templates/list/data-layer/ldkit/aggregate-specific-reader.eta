@@ -4,8 +4,8 @@ import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 
 export default class <%= it.aggregate_name %>LdkitListReader extends <%= it.ldkit_list_reader_base_class %> {
 
-    async readInstanceList<T>(aggregateName: string): Promise<T> {
-        console.log(`Calling readInstanceList for ${aggregateName}`);
+    async readInstanceList<T>(): Promise<T> {
+        //console.log(`Calling readInstanceList for ${aggregateName}`);
 
         const context: Context = {
             sources: [<%~ it.ldkit_endpoint_uri %>]

@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import { useEffect, useState } from 'react';
 import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
 
-export default function ListTable({ aggregateName }: { aggregateName: string }) {
+export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
     const [objectsList, setObjectsList] = useState(undefined as unknown as object[]);
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);

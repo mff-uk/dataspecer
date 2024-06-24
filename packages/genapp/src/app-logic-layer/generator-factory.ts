@@ -3,21 +3,21 @@ import { DetailAppLayerTemplateProcessor } from "./template-generators/detail/te
 import { ListAppLayerTemplateProcessor } from "./template-generators/list/template-processor";
 
 export type ApplicationLayerGeneratorFactory = {
-    getApplicationLayerGenerator: (capabilityIdentifier: string) => ApplicationLayerGenerator;
+    getApplicationLayerGenerator: (aggregateName: string, capabilityIdentifier: string) => ApplicationLayerGenerator;
 }
 
 export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGeneratorFactory = {
 
-    getApplicationLayerGenerator(capabilityIdentifier: string) {
-
+    getApplicationLayerGenerator(aggregateName: string, capabilityIdentifier: string) {
+        
         const appLayerGenerators: Record<string, ApplicationLayerGenerator> = {
             list: new ListAppLayerTemplateProcessor({
                 templatePath: "./list/application-layer/list-app-logic",
-                filePath: "./list-app-logic.ts"
+                filePath: `./${aggregateName.toLowerCase()}-list-app-logic.ts`
             }),
             detail: new DetailAppLayerTemplateProcessor({
                 templatePath: "./detail/application-layer/detail-app-logic",
-                filePath: "./detail-app-logic.ts"
+                filePath: `./${aggregateName.toLowerCase()}-detail-app-logic.ts`
             })
         };
 

@@ -13,8 +13,8 @@ export class ListCapability extends BaseCapabilityGenerator {
     constructor(targetAggregateName: string, datasourceConfig: DatasourceConfig) {
         const listCapabilityId = "list";
         const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
-        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(listCapabilityId);
-        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(listCapabilityId);
+        const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(targetAggregateName, listCapabilityId);
+        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, listCapabilityId);
         super(
             targetAggregateName,
             new GeneratorPipeline(

@@ -20,6 +20,7 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
         }
 
         const applicationLayer = this.processTemplate({
+            aggregateName: context.aggregateName,
             pathResolver: context._.pathResolver,
             dataLayerLinkArtifact: context.previousResult
         });

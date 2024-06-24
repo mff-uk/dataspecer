@@ -12,10 +12,12 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
 
     constructor(templateMetadata: TemplateMetadata) {
         super(templateMetadata);
+        
     }
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
 
+        const listAppLayerExportName = `${dependencies.aggregateName}ListCapabilityLogic`
         const readerInterfaceArtifact = ListReaderInterfaceGenerator.processTemplate();
         
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {
@@ -33,6 +35,7 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
         const listApplicationTemplate: ListCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                list_app_layer_export_name: listAppLayerExportName,
                 list_reader_interface: readerInterfaceArtifact.exportedObjectName,
                 read_return_type: listReturnTypeArtifact.exportedObjectName,
                 read_return_type_path: {
@@ -54,7 +57,7 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
         const listAppLogicRender = this._templateRenderer.renderTemplate(listApplicationTemplate);
 
         const listAppLogicLayerArtifact: LayerArtifact = {
-            exportedObjectName: "ListCapabilityLogic",
+            exportedObjectName: listAppLayerExportName,
             filePath: this._filePath,
             sourceText: listAppLogicRender,
             dependencies: [readerInterfaceArtifact, listReturnTypeArtifact]
