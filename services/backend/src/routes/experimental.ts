@@ -1,53 +1,59 @@
-import { LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
+import { SemanticModelClass, SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
+import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
 import { resourceModel } from "../main";
 import { asyncHandler } from "../utils/async-handler";
 import express from "express";
 import { z } from "zod";
-import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
 import { exportEntitiesAsDataSpecificationTrig } from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 
-async function generateLightweightOwl(iri: string): Promise<string> {
-    const resource = (await resourceModel.getResource(iri))!;
-    const data = await (await resourceModel.getOrCreateResourceModelStore(iri)).getJson();
-    const entities = data.entities as Record<string, SemanticModelEntity>;
-    return await generate(Object.values(entities), {baseIri: data.baseIri});
+interface ModelDescription {
+    isPrimary: boolean;
+    documentationUrl: string | null;
+    entities: Record<string, SemanticModelEntity>;
+    baseIri: string | null;
 }
 
-async function generateDsv(iri: string): Promise<string> {
-    const resource = (await resourceModel.getResource(iri))!;
-    const data = await (await resourceModel.getOrCreateResourceModelStore(iri)).getJson();
-    const entities = data.entities as Record<string, SemanticModelEntity>;
-    return await exportEntitiesAsDataSpecificationTrig([{
-        identifier: iri,
-        alias: resource.userMetadata?.label?.["en"] ?? resource.userMetadata?.label?.["cs"] ?? "",
-        entities: Object.values(entities),
-    }]);
+async function generateLightweightOwl(entities: Record<string, SemanticModelEntity>, baseIri: string, iri: string): Promise<string> {
+    // @ts-ignore
+    return await generate(Object.values(entities), {baseIri, iri});
+}
+
+async function generateDsv(models: ModelDescription[]): Promise<string> {
+    const config = models.map(model => ({
+        identifier: model.documentationUrl ?? "no-url",
+        alias: "no name yet",
+        entities: Object.values(model.entities),
+    }));
+
+    return await exportEntitiesAsDataSpecificationTrig(config);
 }
 
 export const getLightweightOwl = asyncHandler(async (request: express.Request, response: express.Response) => {
-    const querySchema = z.object({
-        iri: z.string().min(1),
-    });
-    const query = querySchema.parse(request.query);
+    // const querySchema = z.object({
+    //     iri: z.string().min(1),
+    // });
+    // const query = querySchema.parse(request.query);
 
-    const resource = await resourceModel.getResource(query.iri);
+    // const resource = await resourceModel.getResource(query.iri);
 
-    if (!resource) {
-        response.status(404).send({error: "Resource does not exist."});
-        return;
-    }
+    // if (!resource) {
+    //     response.status(404).send({error: "Resource does not exist."});
+    //     return;
+    // }
 
-    if (resource.types[0] !== LOCAL_SEMANTIC_MODEL) {
-        response.status(400).send({error: "This type of resource is not supported."});
-        return;
-    }
+    // if (resource.types[0] !== LOCAL_SEMANTIC_MODEL) {
+    //     response.status(400).send({error: "This type of resource is not supported."});
+    //     return;
+    // }
 
-    response.type("text/turtle").send(await generateLightweightOwl(query.iri));
-    return;
+    // response.type("text/turtle").send(await generateLightweightOwl(query.iri));
+    // return;
 });
 
 
@@ -61,7 +67,7 @@ export const getlightweightFromSimplified = asyncHandler(async (request: express
 /**
  * Returns HTML documentation for the given package.
  */
-async function getDocumentationData(packageId: string, options: {
+async function getDocumentationData(packageId: string, models: ModelDescription[], options: {
     externalArtifacts?: Record<string, {
         type: string,
         URL: string,
@@ -71,14 +77,13 @@ async function getDocumentationData(packageId: string, options: {
     const externalArtifacts = options.externalArtifacts ?? {};
 
     const resource = (await resourceModel.getPackage(packageId))!;
-    const semanticModels = await Promise.all(resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL).map(async r => await (await resourceModel.getOrCreateResourceModelStore(r.iri)).getJson()));
-
+    
     const customRespecTemplate = await resourceModel.getResourceModelStore(packageId, "respec");
     const template = customRespecTemplate ? (await customRespecTemplate.getJson()).value as string : defaultConfiguration.template;
 
     const context = {
         resourceModel,
-        semanticModels: semanticModels.map(m => m.entities as Record<string, SemanticModelEntity>),
+        models,
         modelIri: packageId,
         externalArtifacts,
         dsv: options.dsv
@@ -88,21 +93,51 @@ async function getDocumentationData(packageId: string, options: {
 }
 
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {
-    const querySchema = z.object({
-        iri: z.string().min(1),
-    });
-    const query = querySchema.parse(request.query);
+    // const querySchema = z.object({
+    //     iri: z.string().min(1),
+    // });
+    // const query = querySchema.parse(request.query);
 
-    const resource = await resourceModel.getPackage(query.iri);
+    // const resource = await resourceModel.getPackage(query.iri);
 
-    if (!resource) {
-        response.status(404).send({error: "Package does not exist."});
-        return;
+    // if (!resource) {
+    //     response.status(404).send({error: "Package does not exist."});
+    //     return;
+    // }
+
+    // response.type("text/html").send(await getDocumentationData(query.iri));
+    // return;
+});
+
+function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEntity>): Record<string, SemanticModelEntity> {
+    if (!baseIri) {
+        return entities;
     }
 
-    response.type("text/html").send(await getDocumentationData(query.iri));
-    return;
-});
+    const convert = (iri: string | null) => iri ? new URL(iri, baseIri).toString() : null;
+    const result = {} as Record<string, SemanticModelEntity>;
+    for (const [key, entity] of Object.entries(entities)) {
+        if (isSemanticModelClass(entity)) {
+            result[key] = {
+                ...entity,
+                iri: convert(entity.iri),
+            };
+        } else if (isSemanticModelRelationship(entity)) {
+            result[key] = {
+                ...entity,
+                iri: convert(entity.iri),
+                ends: entity.ends.map(end => ({
+                    ...end,
+                    iri: convert(end.iri),
+                }),
+                ),
+            } as SemanticModelRelationship;
+        } else {
+            result[key] = entity;
+        }
+    }
+    return result;
+}
 
 export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
     const querySchema = z.object({
@@ -117,8 +152,72 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         return;
     }
 
-    // Find all semantic models
-    const semanticModels = resource.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL);
+    // Find all models recursively and store them with their metadata
+    const models = [] as ModelDescription[];
+    async function fillModels(packageIri: string, isRoot: boolean = false) {
+        const pckg = await resourceModel.getPackage(packageIri);
+        if (!pckg) {
+            throw new Error("Package does not exist.");
+        }
+        const semanticModels = pckg.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL);
+        for (const model of semanticModels) {
+            const data = await (await resourceModel.getOrCreateResourceModelStore(model.iri)).getJson();
+            models.push({
+                entities: absoluteIri(data.baseIri, data.entities),
+                isPrimary: isRoot,
+                // @ts-ignore
+                documentationUrl: pckg.userMetadata?.documentBaseUrl ?? (isRoot ? "." : null),
+                baseIri: data.baseIri,
+            });
+        }
+        const pimModels = pckg.subResources.filter(r => r.types[0] === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper");
+        for (const model of pimModels) {
+            const data = await (await resourceModel.getOrCreateResourceModelStore(model.iri)).getJson();
+            const constructedModel = new PimStoreWrapper(data.pimStore, data.id, data.alias);
+            await constructedModel.fetchFromPimStore();
+            const entities = constructedModel.getEntities() as Record<string, SemanticModelEntity>;
+            models.push({
+                entities,
+                isPrimary: false,
+                // @ts-ignore
+                documentationUrl: model.userMetadata?.documentBaseUrl ?? null,
+                baseIri: null
+            });
+        }
+        const packages = pckg.subResources.filter(r => r.types[0] === LOCAL_PACKAGE);
+        for (const p of packages) {
+            await fillModels(p.iri);
+        }
+    }
+    await fillModels(query.iri, true);
+
+    // Get used vocabularies
+    const usedVocabularies = new Set<string>();
+    for (const model of resource.subResources) {
+        if (model.types[0] === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper") {
+            const data = await (await resourceModel.getOrCreateResourceModelStore(model.iri)).getJson();
+            if (data.urls) {
+                for (const url of data.urls) {
+                    usedVocabularies.add(url);
+                }
+            }
+        }
+        if (model.types[0] === LOCAL_PACKAGE) {
+            // @ts-ignore
+            const imported = model.userMetadata?.importedFromUrl as string | undefined;
+            if (imported) {
+                usedVocabularies.add(imported);
+            }
+        }
+    }
+
+    // Primary semantic model
+    const semanticModel = {};
+    for (const model of models) {
+        if (model.isPrimary) {
+            Object.assign(semanticModel, model.entities);
+        }
+    }
 
     // External artifacts for the documentation
     const externalArtifacts: Record<string, {
@@ -137,11 +236,12 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
                 "@language": lang,
                 "@value": value,
             })),
-        "https://w3id.org/dsv#artefact": []
+        "https://w3id.org/dsv#artefact": [],
+        "https://w3id.org/dsv#usedVocabularies" : [[...usedVocabularies].map(v => ({"@id": v}))],
     };
     
     // OWL
-    const owl = await generateLightweightOwl(semanticModels[0].iri);
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
     if (owl) {
         const owlFile = zip.writePath("model.owl");
         await owlFile.write(owl);
@@ -160,7 +260,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     }
     
     // DSV
-    const dsv = await generateDsv(semanticModels[0].iri);
+    const dsv = await generateDsv(models);
     if (dsv) {
         const dsvFile = zip.writePath("dsv.ttl");
         await dsvFile.write(dsv);
@@ -203,7 +303,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         }],
     });
     const documentation = zip.writePath("index.html");
-    await documentation.write(await getDocumentationData(query.iri, {externalArtifacts, dsv: dsvMetadata}));
+    await documentation.write(await getDocumentationData(query.iri, models, {externalArtifacts, dsv: dsvMetadata}));
     await documentation.close();
 
     // Send zip file

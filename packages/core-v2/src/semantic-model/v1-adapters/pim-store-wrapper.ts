@@ -29,11 +29,13 @@ function deepEqual(a: any, b: any): boolean {
 
 export class PimStoreWrapper extends InMemoryEntityModel {
     private pimStore: CoreResourceReader;
+    private urls?: string[];
 
-    constructor(pimStore: CoreResourceReader, id?: string, alias?: string) {
+    constructor(pimStore: CoreResourceReader, id?: string, alias?: string, urls?: string[]) {
         super(id);
         this.pimStore = pimStore;
         this.alias = alias;
+        this.urls = urls;
     }
 
     public fetchFromPimStore() {
@@ -70,6 +72,7 @@ export class PimStoreWrapper extends InMemoryEntityModel {
             id: this.id,
             alias: this.alias,
             pimStore: this.pimStore,
+            urls: this.urls,
         };
     }
 }

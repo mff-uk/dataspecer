@@ -13,10 +13,17 @@ function normalizeLabel(label: string) {
   return label.replace(/ /g, "-").toLowerCase();
 }
 
+interface ModelDescription {
+  isPrimary: boolean;
+  documentationUrl: string | null;
+  entities: Record<string, SemanticModelEntity>;
+  baseIri: string | null;
+}
+
 export async function generateDocumentation(
   inputModel: {
     resourceModel: any,
-    semanticModels: Record<string, SemanticModelEntity>[],
+    models: ModelDescription[],
     modelIri: string,
     externalArtifacts: Record<string, {
       type: string,
@@ -26,11 +33,16 @@ export async function generateDocumentation(
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
-  const semanticModel = inputModel.semanticModels[0] ?? {}; // todo add merge of semantic models
+  // Primary semantic model
+  const semanticModel = {};
+  for (const model of inputModel.models) {
+    if (model.isPrimary) {
+      Object.assign(semanticModel, model.entities);
+    }
+  }
 
   const data = {
     package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
-    semanticModels: inputModel.semanticModels,
     locallyDefinedSemanticEntity: semanticModel,
     dsv: inputModel.dsv,
 
@@ -138,9 +150,14 @@ export async function generateDocumentation(
 
   handlebars.registerHelper('semanticEntity', function(input: string, options: Handlebars.HelperOptions) {
     let entity: SemanticModelEntity | null = null;
-    for (const model of inputModel.semanticModels) {
-      if (Object.hasOwn(model, input)) {
-        entity = model[input]!;
+    for (const model of inputModel.models) {
+      if (Object.hasOwn(model.entities, input)) {
+        entity = model.entities[input]!;
+        break;
+      }
+      const entityByIri = Object.values(model.entities).find(entity => entity.iri === input);
+      if (entityByIri) {
+        entity = entityByIri;
         break;
       }
     }
@@ -166,11 +183,26 @@ export async function generateDocumentation(
   handlebars.registerHelper('href', function(input: string, options: Handlebars.HelperOptions) {
     // todo: handle external links
 
-    const entity = semanticModel[input];
-    if (entity) {
-      const anchor = getAnchorForLocalEntity(entity);
-      if (anchor) {
+    let inModel: ModelDescription | null = null;
+    for (const model of inputModel.models) {
+      if (Object.hasOwn(model.entities, input)) {
+        inModel = model;
+        break;
+      }
+    }
+    const entity = inModel?.entities[input];
+
+    if (inModel && entity) {
+      if (inModel.isPrimary) {
+        const anchor = getAnchorForLocalEntity(entity);
         return "#" + anchor;
+      } else {
+        if (inModel.documentationUrl) {
+          const anchor = getAnchorForLocalEntity(entity);
+          return inModel.documentationUrl + "#" + anchor;
+        } else {
+          return entity.iri;
+        }
       }
     }
 
@@ -218,13 +250,22 @@ export async function generateDocumentation(
     return JSON.stringify(input, null, 2);
   });
 
+  handlebars.registerHelper('console-log', function(input: any) {
+    return console.log("Handlebars console log:", input);
+  });
+
   handlebars.registerHelper('parentClasses', function(id: string) {
     let entities: SemanticModelEntity[] = [];
-    for (const model of inputModel.semanticModels) {
-      for (const entity of Object.values(model)) {
+    for (const model of inputModel.models) {
+      for (const entity of Object.values(model.entities)) {
         if (isSemanticModelGeneralization(entity)) {
           if (entity.child === id) {
-            model[entity.parent] && entities.push(model[entity.parent]!);
+            // Find entity in other model
+            for (const model of inputModel.models) {
+              if (Object.hasOwn(model.entities, entity.parent)) {
+                entities.push(model.entities[entity.parent]!);
+              }
+            }
           }
         }
       }
@@ -234,11 +275,11 @@ export async function generateDocumentation(
 
   handlebars.registerHelper('subClasses', function(id: string) {
     let entities: SemanticModelEntity[] = [];
-    for (const model of inputModel.semanticModels) {
-      for (const entity of Object.values(model)) {
+    for (const model of inputModel.models) {
+      for (const entity of Object.values(model.entities)) {
         if (isSemanticModelGeneralization(entity)) {
           if (entity.parent === id) {
-            model[entity.child] && entities.push(model[entity.child]!);
+            model.entities[entity.child] && entities.push(model.entities[entity.child]!);
           }
         }
       }

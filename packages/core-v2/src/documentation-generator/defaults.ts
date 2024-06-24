@@ -8,6 +8,9 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       <meta charset="utf-8" />
       <title>{{translate package.userMetadata.label}}</title>
       <meta name="color-scheme" content="light dark">
+      <script type="application/ld+json">
+        {{{json dsv}}}
+      </script>
       <script
         src="https://www.w3.org/Tools/respec/respec-w3c"
         class="remove"
@@ -116,21 +119,33 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
 
               <table class="def">
                 <tr>
-                  <td>Internal ID</td>
-                  <td><a href="{{href id}}">{{id}}</a></td>
-                </tr>
-                <tr>
-                  <td>Public IRI</td>
+                  <td>IRI</td>
                   <td><a href="{{iri}}">{{iri}}</a></td>
                 </tr>
+                {{#semanticEntity usageOf}}
                 <tr>
-                  <td>Description</td>
-                  <td>{{translate description}}</td>
+                  <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+                  <td>{{class}} (<a href="{{iri}}">{{iri}}</a>)</td>
                 </tr>
+                {{#translate description}}
                 <tr>
-                  <td>Usage Note</td>
-                  <td>{{translate usageNote}}</td>
+                  <td>{{#iflng "cs"}}Původní popis{{lng}}Original description{{/iflng}}</td>
+                  <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
+                {{/translate}}
+                {{/semanticEntity}}
+                {{#translate description}}
+                <tr>
+                  <td>{{#iflng "cs"}}Nový popis{{lng}}New description{{/iflng}}</td>
+                  <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+                </tr>
+                {{/translate}}
+                {{#translate usageNote}}
+                <tr>
+                  <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
+                  <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+                </tr>
+                {{/translate}}
               </table>
             </section>
           {{/ifEquals}}
@@ -167,7 +182,44 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{/ifEquals}}
         {{/each}}
 
+        {{#each locallyDefinedSemanticEntity}}
+        {{#ifEquals type.[0] "relationship-usage"}}
+          <section id="{{anchor}}">
+            <h4>{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
 
+            <table class="def">
+              <tr>
+                <td>IRI</td>
+                <td><a href="{{iri}}">{{iri}}</a></td>
+              </tr>
+              {{#semanticEntity usageOf}}
+              <tr>
+                <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+                <td>{{class}} (<a href="{{iri}}">{{iri}}</a>)</td>
+              </tr>
+              {{#translate description}}
+              <tr>
+                <td>{{#iflng "cs"}}Původní popis{{lng}}Original description{{/iflng}}</td>
+                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+              </tr>
+              {{/translate}}
+              {{/semanticEntity}}
+              {{#translate description}}
+              <tr>
+                <td>{{#iflng "cs"}}Nový popis{{lng}}New description{{/iflng}}</td>
+                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+              </tr>
+              {{/translate}}
+              {{#translate usageNote}}
+              <tr>
+                <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
+                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+              </tr>
+              {{/translate}}
+            </table>
+          </section>
+        {{/ifEquals}}
+      {{/each}}
       </section>
 
     </body>

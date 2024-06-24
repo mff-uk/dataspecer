@@ -224,7 +224,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
-                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias);
+                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias, modelData.urls);
                 model.fetchFromPimStore();
                 entityModels.push(model);
             }

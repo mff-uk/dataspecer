@@ -17,6 +17,7 @@ export interface createModelContext {
   description?: LanguageString;
   baseIri?: string;
   modelAlias?: string;
+  documentBaseUrl?: string;
 }
 
 function getHookForStandardModel(type: string, initialContent: (iri: string, context: createModelContext) => any) {
@@ -33,6 +34,7 @@ function getHookForStandardModel(type: string, initialContent: (iri: string, con
         userMetadata: {
           label: context.label,
           description: context.description,
+          documentBaseUrl: context.documentBaseUrl,
         }
       }),
     });
@@ -58,6 +60,8 @@ export const createModelInstructions = {
         userMetadata: {
           label: context.label,
           description: context.description,
+          // @ts-ignore
+          documentBaseUrl: context.documentBaseUrl,
         }
       });
       await requestLoadPackage(context.parentIri, true);
