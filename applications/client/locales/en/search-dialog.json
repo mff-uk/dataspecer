@@ -4,6 +4,8 @@
   "placeholder": "Type IRI or search for label. You can even use regular expressions.",
   "title": "Class search",
   "wikidata": {
+    "method selection": "Method selection",
+    "metod config": "Method",
     "use default": "Use default dialog",
     "placeholder": "Describe the class using keywords, short description, or both. You can also insert IRI.",
     "properties": "The class must contain these properties",

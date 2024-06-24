@@ -11,7 +11,7 @@ import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
 import { WikidataSearchBoostSlider } from "./helpers/wikidata-search-boost-slider";
 import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
 
-const MAX_LENGTH = 50;
+const MAX_INPUT_LENGTH = 50;
 
 const DEFAULT_PROPERTY_SEARCH_CONFIG: WdSearchPropertiesConfig = {
     query: {
@@ -23,7 +23,7 @@ const DEFAULT_PROPERTY_SEARCH_CONFIG: WdSearchPropertiesConfig = {
     }
 }
 
-const GET_USAGE_BOOST_CONFIG = (usageBoost: number): WdSearchRerankerConfig<WdPropertySearchRerankersIds> => {
+const create_usage_boost_config = (usageBoost: number): WdSearchRerankerConfig<WdPropertySearchRerankersIds> => {
     return {
         id: "feature_usage_mappings",
         maxResults: 30,
@@ -61,7 +61,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
             setIsLoading(true);
             const config = {...searchConfig}
             if (usageBoost !== 0) {
-                config.rerankerConfig = [GET_USAGE_BOOST_CONFIG(usageBoost)]
+                config.rerankerConfig = [create_usage_boost_config(usageBoost)]
             }
             console.log(config);
             adapterContext.wdAdapter.wdOntologyConnector.postSearchProperties(config).then(response => {
@@ -99,11 +99,11 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                             error={isError}
                             autoComplete="off"
                             value={searchConfig.query.text}
-                            inputProps={{maxLength: MAX_LENGTH}}
+                            inputProps={{maxLength: MAX_INPUT_LENGTH}}
                         />
                         <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={isLoading ? "indeterminate" : "determinate"}/>
                     </Box>
-                    <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{searchConfig.query.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
+                    <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{searchConfig.query.text.length.toString()}/{MAX_INPUT_LENGTH.toString()}</Typography>
                     
                     <WikidataSearchBoostSlider infoText={t("wikidata.boost properties")} tooltipText={t("wikidata.boost properties tooltip")} onChange={(value: number) => setUsageBoost(value)} />
                 </Stack>

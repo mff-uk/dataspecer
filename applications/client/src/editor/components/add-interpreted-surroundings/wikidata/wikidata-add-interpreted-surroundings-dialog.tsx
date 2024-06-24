@@ -109,22 +109,22 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={close}>{t("close button")}</Button>
                 <Button
                     onClick={async () => {
                         const [resourcesToAdd, resources] = transformSelectedSurroundings(
                             propertyWdSelectionContextValue.wdPropertySelectionRecords, adapterContext, rootWdClassSurroundings);
-                        selected({
-                            resourcesToAdd,
-                            sourcePimModel: ReadOnlyMemoryStore.create(resources),
-                            forDataPsmClass: dataPsmClass
-                        })
-                        close();
-                    }}
+                            selected({
+                                resourcesToAdd,
+                                sourcePimModel: ReadOnlyMemoryStore.create(resources),
+                                forDataPsmClass: dataPsmClass
+                            })
+                            close();
+                        }}
                     disabled={propertyWdSelectionContextValue.wdPropertySelectionRecords.length === 0}
                     >
                     {t("confirm button")}
                 </Button>
+                <Button color="error" onClick={close}>{t("close button")}</Button>
             </DialogActions>
         </WdPropertySelectionContext.Provider>
     );

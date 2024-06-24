@@ -1,5 +1,5 @@
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
-import { DialogParameters, useDialog } from "../../../dialog";
+import { useDialog } from "../../../dialog";
 import React, { useContext } from "react";
 import { WdClassSearchQuery, WdClassSearchRerankersIds, WdSearchClassesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
 import { Box, Button, CircularProgress, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Typography } from "@mui/material";
@@ -17,70 +17,49 @@ import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
 import { WikidataSearchBoostSlider } from "./helpers/wikidata-search-boost-slider";
 import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
 
-const MAX_LENGTH = 200;
-const SEACH_CLASSES_QUERY_KEY = "search_classes_no_key"
+const MAX_INPUT_LENGTH = 200;
+const SEARCH_CLASSES_QUERY_KEY = "search_classes_no_key"
+const USAGE_BOOST_MAX_RESULTS = 30
 
-const CONFIG_DEFAULT = `{
- "candidateSelectorConfig": {
-    "id": "qdrant_dense",
-    "maxResults": 10
- }
- ,
- "fusionCandidateSelectorConfig": {
-     "id": "fusion",
-     "maxResults": 20,
-     "fusionWeights": [0.5],
-     "candidateSelectors": [
-         {
-             "id": "qdrant_dense",
-             "maxResults": 100
-         },
-         {
-             "id": "qdrant_sparse",
-             "maxResults": 100
-         }
-     ]
- }
- ,
- "rerankerConfig": [ 
-    {
-        "id": "cross_encoder",
-        "maxResults": 30
-    }
- ]
+export interface WikidataClassSearchConfigurableProps {
+    isOpen: boolean,
+    close: () => void,
+
+    selected: (cls: PimClass) => void
+    // Must not contain usage boost, since it is added by the user.
+    searchConfig: WdSearchClassesConfig;
 }
-`
 
-const GET_USAGE_BOOST_CONFIG = (usageBoost: number): WdSearchRerankerConfig<WdClassSearchRerankersIds> => {
+const create_usage_boost_config = (usageBoost: number): WdSearchRerankerConfig<WdClassSearchRerankersIds> => {
     return {
         id: "feature_instance_mappings",
-        maxResults: 30,
+        maxResults: USAGE_BOOST_MAX_RESULTS,
         queryWeight: (1 - usageBoost),
         featureWeights: [0.5]
     }
 }
-    
-function createSearchClassesConfig(strConfig: string, wdClassSearchQuery: WdClassSearchQuery, usageBoost: number): WdSearchClassesConfig {
-    const configObject = JSON.parse(strConfig) as WdSearchClassesConfig;
+ 
+// Assuming there is no usage boost reranker.
+function createSearchClassesConfig(searchConfig: WdSearchClassesConfig, wdClassSearchQuery: WdClassSearchQuery, usageBoost: number): WdSearchClassesConfig {
+    const configCopy = {...searchConfig}
     if (usageBoost !== 0) {
-        configObject.rerankerConfig = [GET_USAGE_BOOST_CONFIG(usageBoost), ...(configObject?.rerankerConfig ?? [])];
+        configCopy.rerankerConfig = [create_usage_boost_config(usageBoost), ...(configCopy?.rerankerConfig ?? [])];
     }
-    configObject.query = wdClassSearchQuery;
-    console.log(configObject);
-    return configObject;
+    configCopy.query = wdClassSearchQuery;
+    console.log(configCopy);
+    return configCopy;
 }
 
-export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selected: (cls: PimClass) => void}> = ({close, selected}) => {
+export const WikidataClassSearchConfigurable: React.FC<WikidataClassSearchConfigurableProps> = ({close, selected, searchConfig}) => {
     const {t} = useTranslation("search-dialog");
     const wikidataAdapter = useContext(WikidataAdapterContext);
-    const [configText, setConfigText] = React.useState<string>(CONFIG_DEFAULT);
     const [selectedWdProperties, setSelectedWdProperties] = React.useState<WdPropertyDescOnly[]>([]);
     const [usageBoost, setUsageBoost] = React.useState<number>(0)
     const [classQuery, setClassQuery] = React.useState<WdClassSearchQuery>({ text: "", properties: []});
     const AddWdPropertyDialog = useDialog(WikidataPropertySearchDialog);
     const [results, setResults] = React.useState<WdClassHierarchyDescOnly[] | null>(null);
-    const {data, isError, isFetching, refetch} = useQuery([SEACH_CLASSES_QUERY_KEY], async () => {
-        const queryConfig = createSearchClassesConfig(configText, classQuery, usageBoost);
+    const {data, isError, isFetching, refetch} = useQuery([SEARCH_CLASSES_QUERY_KEY], async () => {
+        const queryConfig = createSearchClassesConfig(searchConfig, classQuery, usageBoost);
         const response = await wikidataAdapter.wdAdapter.wdOntologyConnector.postSearchClasses(queryConfig);
         if (!isWdErrorResponse(response)) {
             setResults(response.results);
@@ -112,15 +91,6 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
 
     return (
         <>
-            <TextField
-                    label={"config"}
-                    multiline
-                    fullWidth
-                    size="small"
-                    onChange={e => setConfigText(e.target.value)}
-                    autoComplete="off"
-                    value={configText}
-            />
             <Typography fontSize={20}>{t("wikidata.class description")}:</Typography>
             <Stack direction="column" marginTop={1} marginLeft={2} marginRight={2}>
                 <Box display={"flex"} >
@@ -132,7 +102,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                         autoComplete="off"
                         value={classQuery.text}
                         error={isError}
-                        inputProps={{maxLength: MAX_LENGTH}}
+                        inputProps={{maxLength: MAX_INPUT_LENGTH}}
                     />
                     <Button 
                         style={{marginLeft: "1rem", width: 100}} 
@@ -143,7 +113,7 @@ export const WikidataClassSearchConfigurable: React.FC<DialogParameters & {selec
                         {isFetching ? <CircularProgress color="inherit" />: t("wikidata.search")}
                     </Button>
                 </Box>
-                <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{classQuery.text.length.toString()}/{MAX_LENGTH.toString()}</Typography>
+                <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{classQuery.text.length.toString()}/{MAX_INPUT_LENGTH.toString()}</Typography>
                 <WikidataSearchBoostSlider infoText={t("wikidata.boost classes")} tooltipText={t("wikidata.boost classes tooltip")} onChange={(value: number) => setUsageBoost(value)} />
                 <Typography sx={{marginTop: 2}} fontSize={18}>{t("wikidata.properties")}:</Typography>
                 <SelectedPropertiesList wdProperties={selectedWdProperties} removeProperty={removeSelectedWdProperty} detailOnWdClassSelect={onWdClassSelect}/>

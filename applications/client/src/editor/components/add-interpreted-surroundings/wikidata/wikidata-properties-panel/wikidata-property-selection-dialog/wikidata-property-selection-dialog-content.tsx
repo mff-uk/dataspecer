@@ -168,6 +168,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                     <>
                         <Stack direction='row'>
                             <Button
+                                color="info"
                                 disabled={activeStep < 1}
                                 onClick={() => {
                                     setSelectionHandle(undefined, activeStep);
@@ -177,6 +178,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                                 {t("wikidata.selection.selecting back button")}
                             </Button>
                             <Button
+                                color="info"
                                 disabled={
                                     activeStep === selection.length - 1 ||
                                     selection.indexOf(undefined) === activeStep
@@ -189,7 +191,6 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                         <Divider orientation='vertical' flexItem />
                     </>
                 )}
-                <Button onClick={props.close}>{t("close button")}</Button>
                 <Button 
                     onClick={() => { 
                         if (confirmHandle()) 
@@ -199,6 +200,7 @@ const WikidataPropertySelectionStepperProcess: React.FC<
                 >
                     {t("confirm button")}
                 </Button>
+                <Button color="error" onClick={props.close}>{t("close button")}</Button>
             </DialogActions>
         </>
     );
@@ -388,7 +390,7 @@ const FilterByInstaceHelpBox: React.FC<FilterByInstaceHelpBoxProps> = ({ turnedO
                         minHeight: "25px",
                     }}
                 >
-                    {t(turnedOff ? "turn on" : "turn off")}
+                    {t(turnedOff ? "wikidata.selection.turn on" : "wikidata.selection.turn off")}
                 </Button>
             </Box>
         </>

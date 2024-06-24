@@ -97,7 +97,6 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={close}>{t("close button")}</Button>
                     <Button
                         onClick={() => {
                             refetch();
@@ -107,6 +106,7 @@ export const WikidataFilterByInstanceDialog: React.FC<WikidataFilterByInstanceDi
                         >
                         {t("confirm button")}
                     </Button>
+                    <Button color="error" onClick={close}>{t("close button")}</Button>
                 </DialogActions>
             </>
         );
