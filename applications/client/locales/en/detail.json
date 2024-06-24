@@ -99,5 +99,16 @@
   "title to class": "To class",
   "XML attributes": "XML specific attributes",
   "XML namespace": "namespace",
-  "XML prefix": "prefix"
+  "XML prefix": "prefix",
+  "wikidata": {
+    "error": "No detail available.",
+    "subclass of": "Ancestors",
+    "subject of property": "Domain of properties",
+    "value of property": "Range of properties",
+    "external identifier": "External equivalent ontology mappings",
+    "domain classes": "Domain classes",
+    "range classes": "Range classes",
+    "class": "Class",
+    "property": "Property"
+  }
 }
