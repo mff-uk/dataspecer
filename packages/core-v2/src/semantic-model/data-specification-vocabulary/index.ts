@@ -1,10 +1,10 @@
-import { entitiesToApplicationProfile, ModelContainer } from "./entity-model-adapter";
-import { applicationProfileToTrig } from "./rdf-adapter";
-export type {ModelContainer}from "./entity-model-adapter";
+export type { EntityListContainer } from "./entity-model";
 
-export async function exportEntitiesAsDataSpecificationTrig(
-  modelContainers: ModelContainer[]
-): Promise<string> {
-  const dataSpecification = entitiesToApplicationProfile(modelContainers, null);
-  return await applicationProfileToTrig(dataSpecification);
-}
+// Converstion from list of Semantic entities to DSV and back.
+export { createContext, entityListContainerToConceptualModel } from "./entity-model-to-dsv";
+export { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
+
+// Conversion to and from RDF Turtle.
+export { conceptualModelToRdf } from "./dsv-to-rdf";
+export { rdfToconceptualModel } from "./rdf-to-dsv";
+

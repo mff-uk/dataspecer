@@ -13,7 +13,7 @@ import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-uti
 import { ExportButton } from "../../components/management/buttons/export-button";
 import { useAutoSave } from "../autosave";
 import { useQueryParamsContext } from "../../context/query-params-context";
-import { exportEntitiesAsDataSpecificationTrig } from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 
 export const ExportManagement = () => {
     const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
@@ -124,17 +124,28 @@ export const ExportManagement = () => {
     };
 
     const handleGenerateDataSpecificationVocabulary = () => {
-        const modelWrappers = [];
+        // We collect all models as context and all entities for export.
+        const conceptualModelIri = "";
+        const contextModels = [];
+        const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
+            baseIri: null, // TODO Get base URL.
+            entities: [],
+        };
         for (const model of models.values()) {
-            modelWrappers.push({
-                identifier: model.getId(),
-                alias: model.getAlias(),
+            contextModels.push({
+                baseIri: null, // TODO Get base URL.
                 entities: Object.values(model.getEntities()),
             });
+            Object.values(model.getEntities()).forEach(entity => modelForExport.entities.push(entity));
         }
+        // Create context.
+        const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
         // The parent function can not be async, so we wrap the export in a function.
         (async () => {
-            const stringContent = await exportEntitiesAsDataSpecificationTrig(modelWrappers);
+            const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(
+                conceptualModelIri, modelForExport, context);
+            const stringContent = await DataSpecificationVocabulary.conceptualModelToRdf(
+                conceptualModel, { prettyPrint: true });
             const date = Date.now();
             download(stringContent, `dscme-dsv-${date}.ttl`, "text/plain");
         })()

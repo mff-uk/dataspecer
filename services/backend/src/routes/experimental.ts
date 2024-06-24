@@ -9,7 +9,7 @@ import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simp
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
-import { exportEntitiesAsDataSpecificationTrig } from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 
 interface ModelDescription {
@@ -25,13 +25,26 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 }
 
 async function generateDsv(models: ModelDescription[]): Promise<string> {
-    const config = models.map(model => ({
-        identifier: model.documentationUrl ?? "no-url",
-        alias: "no name yet",
-        entities: Object.values(model.entities),
-    }));
-
-    return await exportEntitiesAsDataSpecificationTrig(config);
+    // We collect all models as context and all entities for export.
+    const conceptualModelIri = ""; // THIS is IRI used for the ConceptualModel.
+    const contextModels = [];
+    const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
+        baseIri: null, // TODO Get base URL.
+        entities: [],
+    };
+    for (const model of models.values()) {
+        contextModels.push({
+            baseIri: null, // TODO Get base URL.
+            entities: Object.values(model.entities),
+        });
+        Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
+    }
+    // Create context.
+    const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
+    //
+    const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(
+        conceptualModelIri, modelForExport, context);
+    return await DataSpecificationVocabulary.conceptualModelToRdf(conceptualModel, { prettyPrint: true });
 }
 
 export const getLightweightOwl = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -77,7 +90,7 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
     const externalArtifacts = options.externalArtifacts ?? {};
 
     const resource = (await resourceModel.getPackage(packageId))!;
-    
+
     const customRespecTemplate = await resourceModel.getResourceModelStore(packageId, "respec");
     const template = customRespecTemplate ? (await customRespecTemplate.getJson()).value as string : defaultConfiguration.template;
 
@@ -226,7 +239,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     }[]> = {};
 
     const zip = new ZipStreamDictionary();
-    
+
     const dsvMetadata: any = {
         "@id": ".",
         "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
@@ -239,7 +252,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         "https://w3id.org/dsv#artefact": [],
         "https://w3id.org/dsv#usedVocabularies" : [[...usedVocabularies].map(v => ({"@id": v}))],
     };
-    
+
     // OWL
     const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
     if (owl) {
@@ -258,7 +271,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
             }],
         });
     }
-    
+
     // DSV
     const dsv = await generateDsv(models);
     if (dsv) {
@@ -277,13 +290,13 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
             }],
         });
     }
-    
+
     // All SVGs
     const visualModels = resource.subResources.filter(r => r.types[0] === LOCAL_VISUAL_MODEL);
     for (const visualModel of visualModels) {
         const svgModel = await resourceModel.getResourceModelStore(visualModel.iri, "svg");
         const svg = svgModel ? (await svgModel.getJson()).svg as string : null;
-        
+
         if (svg) {
             const svgFile = zip.writePath(`${visualModel.iri}.svg`);
             await svgFile.write(svg);
