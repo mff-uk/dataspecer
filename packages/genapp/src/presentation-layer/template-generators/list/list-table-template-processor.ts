@@ -18,10 +18,10 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
             templatePath: this._templatePath,
             placeholders: {
                 presentation_layer_component_name: listTableComponentName,
-                list_capability_app_layer: dependencies.listAppLogicArtifact.exportedObjectName,
+                list_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 list_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: dependencies.listAppLogicArtifact.filePath
+                    to: dependencies.appLogicArtifact.filePath
                 }
             }
         };
@@ -32,7 +32,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
             exportedObjectName: listTableComponentName,
             filePath: this._filePath,
             sourceText: presentationLayerRender,
-            dependencies: [dependencies.listAppLogicArtifact]
+            dependencies: [dependencies.appLogicArtifact]
         };
     }
 }

@@ -27,7 +27,7 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         const presentationLayerArtifact = this.processTemplate({
             aggregateName: context.aggregateName,
             pathResolver: context._.pathResolver,   
-            listAppLogicArtifact: context.previousResult
+            appLogicArtifact: context.previousResult
         });
 
         return Promise.resolve(presentationLayerArtifact);

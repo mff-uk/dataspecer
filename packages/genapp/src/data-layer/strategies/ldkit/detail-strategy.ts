@@ -30,6 +30,7 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
             filePath: path.posix.join(".", "readers", this.strategyIdentifier, `${context.aggregateName.toLowerCase()}-detail.ts`),
             templatePath: `./detail/data-layer/${this.strategyIdentifier}/instance-detail-reader`,
         }).processTemplate({
+            pathResolver: context._.pathResolver,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri
         });

@@ -2,7 +2,7 @@ import { <%= it.instance_reader_interface %> } from <%~ it.instance_reader_inter
 import ReaderImplementation from <%~ it.reader_implementation_path %>;
 import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
  
-export const DetailCapabilityLogic: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
+export const <%= it.detail_app_layer_exported_name %>: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
     name: "detail",
 
     runCapability(instanceIri: string): Promise<<%= it.read_return_type %>> {

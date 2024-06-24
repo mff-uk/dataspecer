@@ -28,15 +28,15 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
                         hasSearch: true,
                         hasAllSelection: true
                     },
-                    // detail: {
-                    //     id: "dataset_detail_id",
-                    //     type: "instance",
-                    //     showHeader: true,
-                    //     showAsPopup: false,
-                    //     hasFilter: false,
-                    //     hasSearch: false,
-                    //     hasAllSelection: false
-                    // }
+                    detail: {
+                        id: "dataset_detail_id",
+                        type: "instance",
+                        showHeader: true,
+                        showAsPopup: false,
+                        hasFilter: false,
+                        hasSearch: false,
+                        hasAllSelection: false
+                    }
                 }
             },
             "Catalog": {
@@ -53,6 +53,15 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
                         hasFilter: true,
                         hasSearch: true,
                         hasAllSelection: true
+                    },
+                    detail: {
+                        id: "catalog_detail_id",
+                        type: "instance",
+                        showHeader: true,
+                        showAsPopup: false,
+                        hasFilter: false,
+                        hasSearch: false,
+                        hasAllSelection: false
                     }
                 }
             },

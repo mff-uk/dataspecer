@@ -1,16 +1,15 @@
-import React from 'react';
 import { useEffect, useState } from 'react';
-import { DetailCapabilityLogic } from "../../application-layer/detail-app-logic";
+import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
 import { AggregateInstance } from '../../interfaces/capability-result';
 
-export default function InstanceDetail() {
+export default function <%= it.aggregate_name %>InstanceDetail() {
 
     const [instance, setInstance] = useState<AggregateInstance>();
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
 
     useEffect(() => {
         if (!instance) {
-            DetailCapabilityLogic.runCapability("https://data.gov.cz/zdroj/datové-sady/00006599/841711772")
+            <%= it.detail_capability_app_layer %>.runCapability("https://data.gov.cz/zdroj/datové-sady/00006599/841711772")
                 .then(result => {
                     if (!result || !result.instance) {
                         console.error("No instance detail available");
@@ -24,12 +23,15 @@ export default function InstanceDetail() {
     }, [loadingStatus, instance]);
 
     return (
-        <div>
-            {
-            loadingStatus
-                ? "Hello from Instance detail component"
-                : (instance ? JSON.stringify(instance) : "No detail")
-            }
-        </div>
+        <>
+            <h2>Detail of "<%= it.aggregate_name %>" instance</h2>
+            <div>
+                {
+                loadingStatus
+                    ? "Hello from Instance detail component"
+                    : (instance ? JSON.stringify(instance) : "No detail")
+                }
+            </div>
+        </>
     )
 }

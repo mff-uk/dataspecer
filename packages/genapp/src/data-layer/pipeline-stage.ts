@@ -18,6 +18,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
 
     async generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
 
+        context._.pathResolver = this.artifactSaver;
         if (this._datasourceConfig.format !== DataSourceType.Local) {
             context._.sparqlEndpointUri = this._datasourceConfig.endpointUri;
         }

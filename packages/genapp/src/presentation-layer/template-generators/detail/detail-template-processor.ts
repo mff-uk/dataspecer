@@ -10,16 +10,23 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         
         const instanceDetailTemplate: DetailReactComponentTemplate = {
             templatePath: this._templatePath,
-            placeholders: {}
+            placeholders: {
+                aggregate_name: dependencies.aggregateName,
+                detail_app_layer_path: {
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
+                    to: dependencies.appLogicArtifact.filePath
+                },
+                detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName
+            }
         }
 
         const instanceDetailComponentRender = this._templateRenderer.renderTemplate(instanceDetailTemplate);
 
         const presentationLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: "InstanceDetail",
+            exportedObjectName: `${dependencies.aggregateName}InstanceDetail`,
             sourceText: instanceDetailComponentRender,
-            dependencies: [dependencies.listAppLogicArtifact]
+            dependencies: [dependencies.appLogicArtifact]
         }
 
         return presentationLayerArtifact;

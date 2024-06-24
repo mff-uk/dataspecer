@@ -15,7 +15,8 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
     }
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
-
+        
+        const detailAppLayerExportedName: string = `${dependencies.aggregateName}DetailCapabilityLogic`;
         const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
 
         if (!instanceReaderInterfaceArtifact.dependencies || instanceReaderInterfaceArtifact.dependencies.length === 0) {
@@ -33,6 +34,7 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         const detailAppLayerTemplate: DetailCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                detail_app_layer_exported_name: detailAppLayerExportedName,
                 instance_reader_interface: instanceReaderInterfaceArtifact.exportedObjectName,
                 read_return_type: instanceReturnTypeArtifact.exportedObjectName,
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
@@ -54,7 +56,7 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         const detailAppLogicRender = this._templateRenderer.renderTemplate(detailAppLayerTemplate);
 
         const detailAppLayerLogicArtifact: LayerArtifact = {
-            exportedObjectName: "DetailCapabilityLogic",
+            exportedObjectName: detailAppLayerExportedName,
             filePath: this._filePath,
             sourceText: detailAppLogicRender,
             dependencies: [instanceReaderInterfaceArtifact, instanceReturnTypeArtifact]

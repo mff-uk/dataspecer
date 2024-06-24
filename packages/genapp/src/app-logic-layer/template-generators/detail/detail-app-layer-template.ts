@@ -2,6 +2,7 @@ import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-tem
 
 export interface DetailCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
+        detail_app_layer_exported_name: string,
         instance_reader_interface: string,
         generated_capability_class: string,
         read_return_type: string,
