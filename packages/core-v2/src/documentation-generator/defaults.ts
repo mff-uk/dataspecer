@@ -19,7 +19,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       <script class="remove">
         // All config options at https://respec.org/docs/
         var respecConfig = {
-          specStatus: "ED",
+          specStatus: "unofficial",
           editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }]
           //github: "some-org/mySpec",
           //shortName: "dahut",
