@@ -46,7 +46,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       </section>
 
       <section>
-        <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachements{{/iflng}}</h1>
+        <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
         <table class="def">
           {{#if externalArtifacts.owl-vocabulary}}
             <tr>
