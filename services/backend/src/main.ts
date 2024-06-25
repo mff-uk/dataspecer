@@ -17,7 +17,7 @@ import {
     modifySpecification
 } from "./routes/specification";
 import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes/simplified-semantic-model';
-import { getDocumentation, getLightweightOwl, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
+import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
 import { generate } from './routes/generate';
 import { importResource } from './routes/import';
 
@@ -111,6 +111,7 @@ application.get(basename + '/experimental/documentation.html', getDocumentation)
 
 application.get(basename + '/generate', generate);
 application.get(basename + '/experimental/output.zip', getZip);
+application.get(basename + '/preview/*', getSingleFile);
 
 (async () => {
     // Create local root

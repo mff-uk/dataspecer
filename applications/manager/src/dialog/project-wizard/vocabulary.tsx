@@ -23,6 +23,7 @@ export const Vocabulary = ({ isOpen, resolve, iri }: { iri: string } & BetterMod
       parentIri: iri,
       label: {[i18n.language]: name},
       description: {[i18n.language]: (event.target as any)["description"].value},
+      documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
     }) as string;
 
     // Create semantic model

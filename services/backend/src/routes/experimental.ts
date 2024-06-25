@@ -11,6 +11,7 @@ import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
+import { raw } from 'body-parser';
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -26,15 +27,15 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 
 async function generateDsv(models: ModelDescription[]): Promise<string> {
     // We collect all models as context and all entities for export.
-    const conceptualModelIri = ""; // THIS is IRI used for the ConceptualModel.
+    const conceptualModelIri = models[0]?.documentationUrl ?? ""; // We consider documentation URL as the IRI of the conceptual model.
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
-        baseIri: null, // TODO Get base URL.
+        baseIri: models[0]?.baseIri ?? "",
         entities: [],
     };
     for (const model of models.values()) {
         contextModels.push({
-            baseIri: null, // TODO Get base URL.
+            baseIri: model.baseIri,
             entities: Object.values(model.entities),
         });
         Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
@@ -152,18 +153,23 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
     return result;
 }
 
-export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
-    const querySchema = z.object({
-        iri: z.string().min(1),
-    });
-    const query = querySchema.parse(request.query);
-
-    const resource = await resourceModel.getPackage(query.iri);
-
-    if (!resource) {
-        response.status(404).send({error: "Package does not exist."});
-        return;
+class SingleFileStreamDictionary {
+    requestedFileContents: string | null = null;
+    constructor(private requestedFile: string) {}
+    writePath(path: string) {
+        return {
+            write: async (data: string) => {
+                if (path === this.requestedFile) {
+                    this.requestedFileContents = data;
+                }
+            },
+            close: () => Promise.resolve(),
+        }
     }
+}
+
+async function generateArtifacts(packageIri: string, streamDictionary: SingleFileStreamDictionary, queryParams: string = "") {
+    const resource = (await resourceModel.getPackage(packageIri))!;
 
     // Find all models recursively and store them with their metadata
     const models = [] as ModelDescription[];
@@ -179,7 +185,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
                 // @ts-ignore
-                documentationUrl: pckg.userMetadata?.documentBaseUrl ?? (isRoot ? "." : null),
+                documentationUrl: pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
                 baseIri: data.baseIri,
             });
         }
@@ -202,7 +208,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
             await fillModels(p.iri);
         }
     }
-    await fillModels(query.iri, true);
+    await fillModels(packageIri, true);
 
     // Get used vocabularies
     const usedVocabularies = new Set<string>();
@@ -238,10 +244,8 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         URL: string,
     }[]> = {};
 
-    const zip = new ZipStreamDictionary();
-
     const dsvMetadata: any = {
-        "@id": ".",
+        "@id": "." + queryParams,
         "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
         "http://purl.org/dc/terms/title":
             Object.entries(resource.userMetadata?.label ?? {}).map(([lang, value]) => (
@@ -256,15 +260,15 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     // OWL
     const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
     if (owl) {
-        const owlFile = zip.writePath("model.owl");
+        const owlFile = streamDictionary.writePath("model.owl");
         await owlFile.write(owl);
         await owlFile.close();
-        externalArtifacts["owl-vocabulary"] = [{type: "model.owl", URL: "./model.owl"}];
+        externalArtifacts["owl-vocabulary"] = [{type: "model.owl", URL: "./model.owl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
             "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
             "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-                "@id": "./model.owl",
+                "@id": "./model.owl" + queryParams,
             }],
             "http://www.w3.org/ns/dx/prof/hasRole": [{
                 "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary"
@@ -275,15 +279,15 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     // DSV
     const dsv = await generateDsv(models);
     if (dsv) {
-        const dsvFile = zip.writePath("dsv.ttl");
+        const dsvFile = streamDictionary.writePath("dsv.ttl");
         await dsvFile.write(dsv);
         await dsvFile.close();
-        externalArtifacts["dsv-profile"] = [{type: "dsv.ttl", URL: "./dsv.ttl"}];
+        externalArtifacts["dsv-profile"] = [{type: "dsv.ttl", URL: "./dsv.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
             "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
             "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-                "@id": "./dsv.ttl",
+                "@id": "./dsv.ttl" + queryParams,
             }],
             "http://www.w3.org/ns/dx/prof/hasRole": [{
                 "@id": "http://www.w3.org/ns/dx/prof/role/schema"
@@ -298,10 +302,10 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
         const svg = svgModel ? (await svgModel.getJson()).svg as string : null;
 
         if (svg) {
-            const svgFile = zip.writePath(`${visualModel.iri}.svg`);
+            const svgFile = streamDictionary.writePath(`${visualModel.iri}.svg`);
             await svgFile.write(svg);
             await svgFile.close();
-            externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {type: "svg", URL: `./${visualModel.iri}.svg`}];
+            externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {type: "svg", URL: `./${visualModel.iri}.svg` + queryParams}];
         }
     }
 
@@ -309,17 +313,80 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     dsvMetadata["https://w3id.org/dsv#artefact"].push({
         "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
         "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-            "@id": ".",
+            "@id": "." + queryParams,
         }],
         "http://www.w3.org/ns/dx/prof/hasRole": [{
             "@id": "http://www.w3.org/ns/dx/prof/role/specification"
         }],
     });
-    const documentation = zip.writePath("index.html");
-    await documentation.write(await getDocumentationData(query.iri, models, {externalArtifacts, dsv: dsvMetadata}));
+    const documentation = streamDictionary.writePath("index.html");
+    await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata}));
     await documentation.close();
+}
 
+export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
+    const querySchema = z.object({
+        iri: z.string().min(1),
+    });
+    const query = querySchema.parse(request.query);
+
+    const resource = await resourceModel.getPackage(query.iri);
+
+    if (!resource) {
+        response.status(404).send({error: "Package does not exist."});
+        return;
+    }
+
+    const zip = new ZipStreamDictionary();
+
+    await generateArtifacts(query.iri, zip as any);
+    
     // Send zip file
     response.type("application/zip").send(await zip.save());
     return;
+});
+
+export const getSingleFile = asyncHandler(async (request: express.Request, response: express.Response) => {
+    // The path does not start with slash.
+    let path = request.params[0];
+    if (path === "") {
+        path = "index.html";
+    }
+
+    const querySchema = z.object({
+        iri: z.string().min(1),
+        // raw that anything non undefined is true
+        raw: z.string().optional().transform(value => value !== undefined).pipe(z.boolean()),
+    });
+    const query = querySchema.parse(request.query);
+    const resource = await resourceModel.getPackage(query.iri);
+    if (!resource) {
+        response.status(404).send({error: "Package does not exist."});
+        return;
+    }
+
+    const streamDictionary = new SingleFileStreamDictionary(path);
+    await generateArtifacts(query.iri, streamDictionary, query.raw ? "" : "?iri=" + encodeURIComponent(query.iri));
+
+    if (streamDictionary.requestedFileContents === null) {
+        response.status(404).send({error: "File not found."});
+        return;
+    } else {
+        const type = path.split(".").pop() ?? "";
+        switch (type) {
+            case "html":
+                response.type("text/html");
+                break;
+            case "ttl":
+                response.type("text/turtle");
+                break;
+            case "svg":
+                response.type("image/svg+xml");
+                break;
+            default:
+                response.type("text/plain");
+        }
+        response.send(streamDictionary.requestedFileContents);
+        return;
+    }
 });

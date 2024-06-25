@@ -2,7 +2,7 @@ import { DocumentationGeneratorConfiguration } from "./generator";
 
 export const defaultConfiguration: DocumentationGeneratorConfiguration = {
   template: `<!DOCTYPE html>
-  {{#def "class"}}<a href="{{href id}}">{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
+  {{#def "class"}}<a href="{{{href id}}}">{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
   <html>
     <head>
       <meta charset="utf-8" />
@@ -51,13 +51,13 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{#if externalArtifacts.owl-vocabulary}}
             <tr>
               <td>OWL</td>
-              <td><a href="{{externalArtifacts.owl-vocabulary.[0].URL}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
+              <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
             </tr>
           {{/if}}
           {{#if externalArtifacts.dsv-profile}}
             <tr>
               <td>{{#iflng "cs"}}DSV profil{{lng}}DSV profile{{/iflng}}</td>
-              <td><a href="{{externalArtifacts.dsv-profile.[0].URL}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
+              <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
             </tr>
           {{/if}}
         </table>
@@ -68,7 +68,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
 
         {{#each externalArtifacts.svg}}
           <figure>
-            <img src="{{URL}}" alt="alt text 2" />
+            <img src="{{{URL}}}" alt="alt text 2" />
             <figcaption>title</figcaption>
           </figure>
         {{/each}}
@@ -87,7 +87,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{iri}}">{{iri}}</a></td>
+                  <td><a href="{{{iri}}}">{{iri}}</a></td>
                 </tr>
                 {{#translate description}}
                 <tr>
@@ -120,12 +120,12 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{iri}}">{{iri}}</a></td>
+                  <td><a href="{{{iri}}}">{{iri}}</a></td>
                 </tr>
                 {{#semanticEntity usageOf}}
                 <tr>
                   <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-                  <td>{{class}} (<a href="{{iri}}">{{iri}}</a>)</td>
+                  <td>{{class}} (<a href="{{{iri}}}">{{iri}}</a>)</td>
                 </tr>
                 {{#translate description}}
                 <tr>
@@ -161,7 +161,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{ends.1.iri}}">{{ends.1.iri}}</a></td>
+                  <td><a href="{{{ends.1.iri}}}">{{ends.1.iri}}</a></td>
                 </tr>
                 {{#translate ends.1.description}}
                 <tr>
@@ -171,11 +171,11 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 {{/translate}}
                 <tr>
                   <td>{{#iflng "cs"}}Doména{{lng}}Domain{{/iflng}}</td>
-                  <td><a href="{{href ends.0.concept}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                  <td><a href="{{{href ends.0.concept}}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
                 </tr>
                 <tr>
                   <td>{{#iflng "cs"}}Rozsah{{lng}}Range{{/iflng}}</td>
-                  <td><a href="{{href ends.1.concept}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                  <td><a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
                 </tr>
               </table>
             </section>
@@ -190,12 +190,12 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
             <table class="def">
               <tr>
                 <td>IRI</td>
-                <td><a href="{{iri}}">{{iri}}</a></td>
+                <td><a href="{{{iri}}}">{{iri}}</a></td>
               </tr>
               {{#semanticEntity usageOf}}
               <tr>
                 <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-                <td>{{class}} (<a href="{{iri}}">{{iri}}</a>)</td>
+                <td>{{class}} (<a href="{{{iri}}}">{{iri}}</a>)</td>
               </tr>
               {{#translate description}}
               <tr>
