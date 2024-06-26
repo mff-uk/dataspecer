@@ -7,7 +7,7 @@ if [ -n "$USE_NEW_MANAGER" ]; then
   OLD_MANAGER="/data-specification-manager"
 else
   NEW_MANAGER="/manager"
-  OLD_MANAGER="/"
+  OLD_MANAGER=""
 fi
 
 npm install
