@@ -260,15 +260,15 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     // OWL
     const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
     if (owl) {
-        const owlFile = streamDictionary.writePath("model.owl");
+        const owlFile = streamDictionary.writePath("model.owl.ttl");
         await owlFile.write(owl);
         await owlFile.close();
-        externalArtifacts["owl-vocabulary"] = [{type: "model.owl", URL: "./model.owl" + queryParams}];
+        externalArtifacts["owl-vocabulary"] = [{type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
             "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
             "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-                "@id": "./model.owl" + queryParams,
+                "@id": "./model.owl.ttl" + queryParams,
             }],
             "http://www.w3.org/ns/dx/prof/hasRole": [{
                 "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary"
