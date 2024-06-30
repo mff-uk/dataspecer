@@ -1,3 +1,4 @@
+import { SemanticModelEntity, SemanticModelRelationship } from "../concepts";
 import { ConceptualModel } from "./dsv-model";
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 import { entityListContainerToConceptualModel, createContext } from "./entity-model-to-dsv";
@@ -63,11 +64,12 @@ test("From DSV to entity model and back.", async () => {
     "http://www.w3.org/ns/dcat#distribution-profile": "dcat-ap-0005",
   };
 
-  const entityModel = conceptualModelToEntityListContainer(dsv, {
+  // Convert from DSV ConceptaulModel to EntityListContainer with Entities.
+  const entityListContainer = conceptualModelToEntityListContainer(dsv, {
     iriToidentifier: iri => iriToidentifier[iri] ?? `MISSING ${iri}`,
   });
 
-  const expectedEntityModel = {
+  const expectedEntityListContainer = {
     "baseIri": null,
     "entities": [
       {
@@ -138,12 +140,48 @@ test("From DSV to entity model and back.", async () => {
     ]
   }
 
-  // console.log("Entity model:" + JSON.stringify(entityModel, null, 2));
+  expect(entityListContainer).toStrictEqual(expectedEntityListContainer);
 
-  expect(entityModel).toStrictEqual(expectedEntityModel);
+  // We need to add placeholder for a vocabulary, so we can properly
+  // detect profiles or classes/relationships (from vocabulary) as
+  // we need it to export to DSV properly. The reason is that DSV
+  // utilize different predicate to profile profile or something
+  // from a vocabulary.
+  const vocabularyEntities: SemanticModelEntity[] = [{
+    "id": "http://www.w3.org/ns/dcat#Dataset",
+    "iri": "http://www.w3.org/ns/dcat#Dataset",
+    "type": [
+      "class"
+    ],
+  }, {
+    "id": "http://www.w3.org/ns/dcat#Distribution",
+    "iri": "http://www.w3.org/ns/dcat#Distribution",
+    "type": [
+      "class"
+    ],
+  }, {
+    "id": "http://www.w3.org/ns/dcat#distribution",
+    "iri": "http://www.w3.org/ns/dcat#distribution",
+    "name": {},
+    "description": {},
+    "type": [
+      "relationship"
+    ],
+    "ends": [{
+      "iri": null,
+      "concept": null,
+    }, {
+      "iri": null,
+      "concept": null,
+    }],
+  } as SemanticModelRelationship];
 
-  // const context = createContext([entityModel], value => value ?? null);
-  // const actual = entityListContainerToConceptualModel("http://dcat-ap-cz/model", entityModel, context)
-  // expect(actual).toStrictEqual(dsv);
+  // Convert from EntityListContainer with entities to ConceptaulModel.
+  const context = createContext([entityListContainer, {
+    baseIri: null,
+    entities: vocabularyEntities,
+  }], value => value ?? null);
+  const actual = entityListContainerToConceptualModel("http://dcat-ap-cz/model", entityListContainer, context)
+  expect(actual).toStrictEqual(dsv);
 });
 
