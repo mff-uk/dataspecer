@@ -1,3 +1,8 @@
+//
+// In this file we use @lc- annotations. The idea
+// is to be able to collect the information automatically
+// and hopefully, one day, be able to integrate it with the specification.
+//
 
 export type LanguageString = { [language: string]: string };
 
@@ -25,7 +30,7 @@ export interface Profile {
   iri: string;
 
   // @lc-identifier skos:prefLabel
-  prefLabel: LanguageString | null | null;
+  prefLabel: LanguageString | null;
 
   // @lc-identifier vann:usageNote
   usageNote: LanguageString | null;

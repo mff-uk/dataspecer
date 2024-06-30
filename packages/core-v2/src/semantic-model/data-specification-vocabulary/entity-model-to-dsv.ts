@@ -33,7 +33,7 @@ import {
   DatatypePropertyProfileType,
 } from "./dsv-model";
 
-interface Context {
+interface EntityListContainerToConceptualModelContext {
 
   /**
    * Given an identifier return a representing entity.
@@ -61,24 +61,24 @@ interface Context {
  */
 export function entityListContainerToConceptualModel(
   conceptualModelIri: string,
-  modelToConvert: EntityListContainer,
-  context: Context
+  entityListContainer: EntityListContainer,
+  context: EntityListContainerToConceptualModelContext
 ): ConceptualModel {
   const result: ConceptualModel = {
     iri: conceptualModelIri,
     profiles: [],
   };
-  (new EntityListCOntainerToConceptualModel(context)).loadToConceptualModel(modelToConvert, result);
+  (new EntityListCOntainerToConceptualModel(context)).loadToConceptualModel(entityListContainer, result);
   return result;
 }
 
 class EntityListCOntainerToConceptualModel {
 
-  readonly context: Context;
+  readonly context: EntityListContainerToConceptualModelContext;
 
   private baseIri: string | null = null;
 
-  constructor(context: Context) {
+  constructor(context: EntityListContainerToConceptualModelContext) {
     this.context = context;
   }
 
@@ -295,13 +295,13 @@ function cardinalityToCardinalityEnum(cardinality: [number, number | null] | nul
 }
 
 function extentToDatatypePropertyProfile(property: PropertyProfile): DatatypePropertyProfile {
-  (property as any).$type = DatatypePropertyProfileType;
+  (property as any).$type = [DatatypePropertyProfileType];
   (property as any).rangeDataTypeIri = [];
   return property as DatatypePropertyProfile;
 }
 
 function extentToObjectPropertyProfile(property: PropertyProfile): ObjectPropertyProfile {
-  (property as any).$type = ObjectPropertyProfileType;
+  (property as any).$type = [ObjectPropertyProfileType];
   (property as any).rangeClassIri = [];
   return property as ObjectPropertyProfile;
 }
@@ -309,7 +309,7 @@ function extentToObjectPropertyProfile(property: PropertyProfile): ObjectPropert
 /**
  * Create context from all given models.
  */
-export function createContext(containers: EntityListContainer[], languageFilter: (value: LanguageString | null | undefined) => LanguageString | null): Context {
+export function createContext(containers: EntityListContainer[], languageFilter: (value: LanguageString | null | undefined) => LanguageString | null): EntityListContainerToConceptualModelContext {
   // Builde index.
   const entityMap: { [identifier: string]: { entity: Entity, container: EntityListContainer } } = {};
   for (const container of containers) {

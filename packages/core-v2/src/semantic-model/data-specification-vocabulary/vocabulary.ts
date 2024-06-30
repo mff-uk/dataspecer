@@ -1,3 +1,8 @@
+/**
+ * This file contains internal vocabulary for use in data-specification-vocabulary
+ * package. The vocabulary is provided as 'n3' package IRI so they can be
+ * easily used with 'n3'.
+ */
 import { DataFactory } from "n3";
 
 const IRI = DataFactory.namedNode;
@@ -33,7 +38,6 @@ export const PROF = {
   "isProfileOf": IRI(PROF_PREFIX + "isProfileOf"),
 };
 
-
 const DSV_PREFIX = "https://w3id.org/dsv#";
 
 export const DSV = {
@@ -41,6 +45,7 @@ export const DSV = {
   "Profile": IRI(DSV_PREFIX + "Profile"),
   "ClassProfile": IRI(DSV_PREFIX + "ClassProfile"),
   "class": IRI(DSV_PREFIX + "class"),
+  "domain": IRI(DSV_PREFIX + "domain"),
   "model": IRI(DSV_PREFIX + "model"),
   "ObjectPropertyProfile": IRI(DSV_PREFIX + "ObjectPropertyProfile"),
   "DatatypePropertyProfile": IRI(DSV_PREFIX + "DatatypePropertyProfile"),

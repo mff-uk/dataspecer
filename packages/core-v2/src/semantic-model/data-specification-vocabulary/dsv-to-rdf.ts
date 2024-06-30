@@ -20,14 +20,21 @@ const IRI = DataFactory.namedNode;
 
 const Literal = DataFactory.literal;
 
-interface RdfAdapterConfiguration {
+interface ConceptualModelToRdfConfiguration {
 
+  /**
+   * Prefixes to use when writing RDF output.
+   */
   prefixes?: { [prefix: string]: string };
 
+  /**
+   * True to do some additional formating on the output string.
+   */
   prettyPrint?: boolean;
+
 }
 
-export async function conceptualModelToRdf(model: ConceptualModel, configuration: RdfAdapterConfiguration): Promise<string> {
+export async function conceptualModelToRdf(model: ConceptualModel, configuration: ConceptualModelToRdfConfiguration): Promise<string> {
   const effectiveConfiguration = {
     ...createDefaultConfiguration(),
     ...configuration,
@@ -49,7 +56,7 @@ export async function conceptualModelToRdf(model: ConceptualModel, configuration
   }));
 }
 
-function createDefaultConfiguration(): RdfAdapterConfiguration {
+function createDefaultConfiguration(): ConceptualModelToRdfConfiguration {
   return {
     "prefixes": {
       "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -89,8 +96,10 @@ class ConceptualModelWriter {
     this.writeProfileBase(profile)
     this.addType(profile.iri, DSV.ClassProfile);
     this.addIri(profile.iri, DSV.class, profile.profiledClassIri);
-    // Proeprties.
+    // Properties.
     for (const property of profile.properties) {
+      this.addIri(property.iri, DSV.domain, profile.iri);
+      //
       if (isObjectPropertyProfile(property)) {
         this.writeObjectPropertyProfile(property);
       }
@@ -198,9 +207,9 @@ function cardinalityToIri(cardinality: Cardinality | null): N3.NamedNode<string>
 }
 
 /**
- * Given string promise apply formattting.
+ * Add an empty line before each resource section.
  */
-export function prettyPrintTurtle(turtle: string): string {
+function prettyPrintTurtle(turtle: string): string {
   const lines = turtle.split(/\r?\n|\r|\n/g);
   const linesNext = [];
   for (const line of lines) {
@@ -209,6 +218,5 @@ export function prettyPrintTurtle(turtle: string): string {
     }
     linesNext.push(line);
   }
-
   return linesNext.join("\n");
 }

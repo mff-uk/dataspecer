@@ -4,7 +4,7 @@ export type { EntityListContainer } from "./entity-model";
 export { createContext, entityListContainerToConceptualModel } from "./entity-model-to-dsv";
 export { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 
-// Conversion to and from RDF Turtle.
+// Conversion to and from RDF.
 export { conceptualModelToRdf } from "./dsv-to-rdf";
-export { rdfToconceptualModel } from "./rdf-to-dsv";
+export { rdfToConceptualModel } from "./rdf-to-dsv";
 
