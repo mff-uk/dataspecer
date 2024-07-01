@@ -34,10 +34,10 @@ The problem with Dataspecer is that it only maps concepts that are contained in 
 
 That is the reason why we created `dscme` - Dataspecer Conceptual Model Editor.
 
-### Conceptual modeling
+### Conceptual modeling and Application profiles
 
 Conceptual modeling aims on creating abstract representations of systems to simplify communication between people involved and builds certain standards on knowledge exchange. It identifies entities, relationships, and constraints within a domain.
-Application profiles are customized specifications that define how a set of concepts should be used for a particular application or domain.
+Application profiles are customized specifications that define how a set of concepts should be used for a particular application or domain. If you want to learn more, see the [Semic style guide](https://semiceu.github.io/style-guide/1.0.0/terminological-clarifications.html#sec:what-is-an-ap-specification). By the way, the whole [Terms clarification section](https://semiceu.github.io/style-guide/1.0.0/terminological-clarifications.html) is a useful source of information for the context of `dscme`.
 
 ### Similar tools
 
