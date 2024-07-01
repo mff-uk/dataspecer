@@ -85,7 +85,7 @@ function App(props: {children: React.ReactNode}) {
                             <FilterContext.Provider value={filter}>
                                 <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
                                     <Toolbar>
-                                        <Typography variant="h6" component={Link} to={`/`} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                        <Typography variant="h6" component={Link} to={process.env.REACT_APP_MANAGER_BASE_URL} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
                                             <strong>Dataspecer</strong> specification manager
                                         </Typography>
                                         <ReturnBackButton />

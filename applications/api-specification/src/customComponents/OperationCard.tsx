@@ -6,25 +6,26 @@ import OperationTypeSelect from '../customComponents/OperationTypeSelect';
 import OperationNameInput from '../customComponents/OperationNameInput';
 import EndpointInput from '../customComponents/EndpointInput';
 import CommentInput from '../customComponents/CommentInput';
-import StatusCodeSelect from './HttpStatusCode';
-import Association from '../customComponents/IsAssociationSwitch.tsx';
-import IsCollection from '../customComponents/IsCollectionSwitch.tsx';
+import StatusCodeSelect from './StatusCodeSelect.tsx';
+import IsAssociation from './IsAssociation.tsx';
+import IsCollection from './IsCollection.tsx';
 import { DataStructure } from '@/Models/DataStructureModel.tsx';
 import { OperationCardProps } from '@/Props/OperationCardProps.tsx';
 
-const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, baseUrl, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
+/* OperationCard - react functional component 
+ * The values provided through this component are utilized for
+ * paths and their respective operation construct generation in the resulting OpenAPI specification
+ */
+const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOperation, index, register, setValue, selectedDataStructure, fetchedDataStructures, getValues, defaultValue }) => {
 
     const [selectedResponseObject, setSelectedResponseObject] = useState(null);
     const [responseObjectFields, setResponseObjectFields] = useState([]);
     const [isCollection, setIsCollection] = useState(false);
     const [associationModeOn, setAssotiationMode] = useState(false);
 
-    useEffect(() => {
-        const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
-        const savedValue = getValues(path);
-    }, [getValues, index, operationIndex]);
-
     const deleteButtonRef = useRef(null);
+
+    /* updates form value corresponding to the target data structure (in case it exists) */
     useEffect(() => {
         try {
             const path = `dataStructures.${index}.operations.${operationIndex}.oResponseObject.givenName`;
@@ -32,7 +33,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
         }
         catch
         {
-            //console.log("ANASTASIA")
+            console.log("Values could not be set")
         }
     }, [selectedResponseObject, setValue, index, operationIndex]);
 
@@ -55,10 +56,10 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         </Button>
                     </div>
                 </div>
-                {/* Form fields for operation details */}
+                {/* Operation Details */}
                 <Card className="p-2 justify-end">
-                    {/* Association Mode*/}
-                    <Association
+                    {/* Association Mode - whether targed data structure is a ds one level below the main ds*/}
+                    <IsAssociation
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
@@ -70,7 +71,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         setResponseObjectFields={setResponseObjectFields}
                         setAssociationModeOn={setAssotiationMode}
                         defaultValue={defaultValue} />
-                    {/* Switch to treat Resource as a collection*/}
+                    {/* Collection mode - whether a collection is manipulated*/}
                     <IsCollection
                         index={index}
                         operationIndex={operationIndex}
@@ -81,7 +82,7 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         dataStructures={fetchedDataStructures}
                         setIsCollection={setIsCollection}
                     />
-                    {/* Operation Name */}
+                    {/* Operation Name - operationId in the generated OAS*/}
                     <OperationNameInput
                         index={index}
                         operationIndex={operationIndex}
@@ -101,26 +102,25 @@ const OperationCard: React.FC<OperationCardProps> = ({ operationIndex, removeOpe
                         isCollection={isCollection}
                         associationModeOn={associationModeOn}
                     />
-                    {/* Endpoint */}
+                    {/* Endpoint (path)*/}
                     <EndpointInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
                         dataStructureName={selectedDataStructure}
-                        baseUrl={baseUrl} />
-                    {/* Comment */}
+                    />
+                    {/* Comment - mapped to summary in the resulting OAS*/}
                     <CommentInput
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
 
                     />
-
+                    {/* HTTP status code */}
                     <StatusCodeSelect
                         index={index}
                         operationIndex={operationIndex}
                         register={register}
-
                     />
                 </Card>
             </Card>

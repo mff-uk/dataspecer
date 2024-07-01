@@ -13,7 +13,7 @@ export async function createRdfsModel(urls: string[], httpFetch: HttpFetch) {
     cim.setIriProvider(new IdentityIriProvider());
     const cimObject = await (cim as any).getCim();
     const resources = cimObject.entities;
-    const storeWrapper = new PimStoreWrapper({resources} as any);
+    const storeWrapper = new PimStoreWrapper({resources} as any, undefined, undefined, urls);
     storeWrapper.fetchFromPimStore();
     return storeWrapper;
 }

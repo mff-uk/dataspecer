@@ -1,7 +1,6 @@
-import {BaseProps} from './BaseProps';
+import { BaseProps } from './BaseProps';
 
-export interface EndpointInputProps extends BaseProps 
-{
+/* Props passed to the EndpointInput (representing endpoints/paths) component */
+export interface EndpointInputProps extends BaseProps {
     dataStructureName: string;
-    baseUrl: string;
 }

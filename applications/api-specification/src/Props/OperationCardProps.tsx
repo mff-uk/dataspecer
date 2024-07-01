@@ -1,12 +1,10 @@
 import { DataStructure } from '@/Models/DataStructureModel';
 import { BaseProps } from './BaseProps';
 
-export interface OperationCardProps extends BaseProps 
-{
-
+/* Props passed to the OperationCard component */
+export interface OperationCardProps extends BaseProps {
     setValue: any;
     getValues: any;
-    baseUrl: string;
     selectedDataStructure: string;
     fetchedDataStructures: DataStructure[];
     selectedDataStruct: any,

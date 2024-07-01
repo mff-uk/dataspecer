@@ -82,5 +82,6 @@
   "set root element button": "Set root element",
   "tags": "Tags",
   "title": "schema editor",
-  "version": "Version"
+  "version": "Version",
+  "edit": "Edit"
 }

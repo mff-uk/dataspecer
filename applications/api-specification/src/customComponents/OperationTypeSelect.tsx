@@ -5,17 +5,19 @@ import { OperationTypeSelectProps } from '@/Props/OperationTypeSelectProps';
 import { DataStructure } from '@/Models/DataStructureModel';
 import { OperationType } from '../Models/OperationTypeModel.tsx';
 
+/* gets plural of the words - utilized for suggested path generation */
 const pluralizeAndNoSpaces = (word: string): string => {
     const pluralWord = pluralize(word);
     return pluralWord.replace(/\s+/g, '');
 };
 
-// Predefined http methods based on isCollection state
+/* Predefined HTTP methods for collection manipulations */
 const collectionHttpMethods: OperationType[] = [
-    { value: 'GET', label: 'GET - Retrieve a list of resources within the collection' },
+    { value: 'GET', label: 'GET - Retrieve a collection of resources' },
     { value: 'POST', label: 'POST - Create a new resource within the collection' },
 ];
 
+/* Predefined HTTP methods for single resource manipulations */
 const singleResourceHttpMethods: OperationType[] = [
     { value: 'GET', label: 'GET - Retrieve the specific entity' },
     { value: 'PUT', label: 'PUT - Full replacement of the entity' },
@@ -23,6 +25,7 @@ const singleResourceHttpMethods: OperationType[] = [
     { value: 'DELETE', label: 'DELETE - Remove the specific entity' },
 ];
 
+/* OperationTypeSelect - react functional component for selecting operation type */
 const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
     index,
     operationIndex,
@@ -41,7 +44,6 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
     const [selectedOperationType, setSelectedOperationType] = useState('');
 
-
     const handleChange = (event) => {
         const selectedValue = event.target.value;
         setSelectedOperationType(selectedValue);
@@ -55,29 +57,43 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
 
     }, [path, getValues, selectedOperationType]);
 
-    const copyToClipboard = (str) => {
+
+    /* copies string to clipboard
+     * utilized for copying the suggested path 
+     */
+    const copyStrToClipboard = (str) => {
         navigator.clipboard.writeText(str).then(
             () => {
-                alert('Suggested path copied to clipboard');
+                alert('Suggested path was copied to clipboard');
             },
             (err) => {
-                console.error('Could not copy - Error: ', err);
+                console.error('Suggested path could not be copied. Error: ', err);
             }
         );
     };
 
-    let suggestedPath = '';
+    /* generates suggested path*/
+    const generateSuggestedPath = (dataStructure, isCollection, associationModeOn, selectedResponseObject) => {
 
-    if (dataStructure && isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
-    } else if (dataStructure && !isCollection && associationModeOn && selectedResponseObject) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
-    } else if (dataStructure && isCollection && !associationModeOn) {
-        suggestedPath = pluralizeAndNoSpaces(dataStructure);
-    } else if (dataStructure && !isCollection && !associationModeOn) {
-        suggestedPath = `${pluralizeAndNoSpaces(dataStructure)}/{id}`;
+        let suggestedPath = '';
+
+        if (dataStructure && isCollection && associationModeOn && selectedResponseObject) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}`;
+        }
+        else if (dataStructure && !isCollection && associationModeOn && selectedResponseObject) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}/${pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{id}`;
+        }
+        else if (dataStructure && isCollection && !associationModeOn) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}`;
+        }
+        else if (dataStructure && !isCollection && !associationModeOn) {
+            suggestedPath = `/${pluralizeAndNoSpaces(dataStructure)}/{id}`;
+        }
+
+        return suggestedPath;
     }
 
+    const suggestedPath = generateSuggestedPath(dataStructure, isCollection, associationModeOn, selectedResponseObject)
     const availableHttpMethods = isCollection ? collectionHttpMethods : singleResourceHttpMethods;
     return (
         <>
@@ -96,7 +112,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 <option value="">
                     Select Operation Type
                 </option>
-                {/* Render available options based on isCollection state */}
+                {/* Rendering available options based on the state of isCollection */}
                 {availableHttpMethods.map(httpMethod => (
                     <option key={httpMethod.value} value={httpMethod.value}>
                         {httpMethod.label}
@@ -104,36 +120,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                 ))}
             </select>
 
-            {
-                // dataStructure && isCollection && associationModeOn && selectedResponseObject ? (
-                //     <div>
-                //         {/* <h2>Association mode combined with collection</h2> */}
-                //         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}</p>
-                //     </div>
-                // ) : dataStructure && !isCollection && associationModeOn && selectedResponseObject ? (
-                //     <div>
-                //         {/* <h2>Association mode combined with singleton</h2> */}
-                //         <p>Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`}/{pluralizeAndNoSpaces((selectedResponseObject as unknown as DataStructure).name)}/{`{id}`}</p>
-                //     </div>
-
-                // ) : dataStructure && isCollection && !associationModeOn ? (
-
-                //     <div>
-                //         {/* <h2>Collection with main data structure</h2> */}
-                //         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)} </p>
-                //     </div>
-                // ) : dataStructure && !isCollection && !associationModeOn ? (
-                //     <div>
-                //         {/* <h2>Singleton with main data structure</h2> */}
-                //         <p> Suggested Path: {pluralizeAndNoSpaces(dataStructure)}/{`{id}`} </p>
-                //     </div>
-
-                // ) : (
-                //     <h2>Default case</h2>
-                // )
-            }
-
-            {/* Request Body Component */}
+            {/* Rendering Request Body Component if needed  */}
             {(isCollection && selectedOperationType === 'POST') ||
                 (!isCollection && selectedOperationType === 'PATCH') ? (
                 <RequestBodyComponent
@@ -154,7 +141,7 @@ const OperationTypeSelect: React.FC<OperationTypeSelectProps> = ({
                     <p>Suggested Path: {suggestedPath}</p>
                     <button
                         className="ml-2 p-1 bg-blue-500 text-white rounded"
-                        onClick={() => copyToClipboard(suggestedPath)}
+                        onClick={() => copyStrToClipboard(suggestedPath)}
                     >
                         copy
                     </button>

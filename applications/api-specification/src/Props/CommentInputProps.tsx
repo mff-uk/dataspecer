@@ -1,4 +1,4 @@
-import {BaseProps} from './BaseProps';
+import { BaseProps } from './BaseProps';
 
-export interface CommentInputProps extends BaseProps 
-{}
+/* Props passed to the CommentInput component */
+export interface CommentInputProps extends BaseProps { }

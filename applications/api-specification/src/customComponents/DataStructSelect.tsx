@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
+/* Select component utilized for choosing data structures */
 function DataStructuresSelect({ index, register, dataStructures, onChange, getValues }) {
 
     let path = '';
@@ -10,7 +11,6 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
     const handleChange = (event) => {
 
         const selectedValue = event.target.value;
-        //console.log(selectedValue + " selected value")
 
         const selectedDataStructure = dataStructures.find(
             (structure) => structure.givenName === selectedValue
@@ -32,15 +32,9 @@ function DataStructuresSelect({ index, register, dataStructures, onChange, getVa
                 },
             });
 
-            console.log(getValues(path))
-            console.log(selectedDataStructure)
         }
 
-
-
     };
-
-    
 
     return (
 

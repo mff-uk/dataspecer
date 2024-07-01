@@ -1,4 +1,4 @@
-import {BaseProps} from './BaseProps';
+import { BaseProps } from './BaseProps';
 
-export interface OperationNameInputProps extends BaseProps 
-{}
+/* Props passed to the OperationNameInput component */
+export interface OperationNameInputProps extends BaseProps { }

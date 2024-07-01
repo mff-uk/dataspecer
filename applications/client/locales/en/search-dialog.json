@@ -2,5 +2,29 @@
   "info panel nothing found": "Nothing found. Check your search query.",
   "info panel start typing": "Start typing into a search dialog to show results.",
   "placeholder": "Type IRI or search for label. You can even use regular expressions.",
-  "title": "Class search"
+  "title": "Class search",
+  "wikidata": {
+    "method selection": "Method selection",
+    "metod config": "Method",
+    "use default": "Use default dialog",
+    "placeholder": "Describe the class using keywords, short description, or both. You can also insert IRI.",
+    "properties": "The class must contain these properties",
+    "add property": "Add property",
+    "title property": "Property search",
+    "property input": "Type IRI or search for a label.",
+    "search error": "There was an error during search.",
+    "search results": "Search results",
+    "class description": "The class description",
+    "property description": "The property description",
+    "search": "Search",
+    "select as root": "Select as root",
+    "select property": "Select property",
+    "boost classes": "Boost widely used classes",
+    "boost properties": "Boost widely used properties",
+    "boost classes tooltip": "Boosts classes that have many instances and external ontology mappings.",
+    "boost properties tooltip": "Boosts properties that have many usages on instances and external ontology mappings.",
+    "boost common tooltip": "The slider defines a portion of a final result score that is assigned to a boost score . The left side denotes no boost, the right side denotes the max boost of 90% (meaning the 90% of the final score consists of the boost score, the rest 10% is from the query score). The step is 10%",
+    "no boost": "No boost",
+    "max boost": "Max boost"
+  }
 }

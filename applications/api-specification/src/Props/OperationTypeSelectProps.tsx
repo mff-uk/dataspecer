@@ -1,8 +1,8 @@
 import { DataStructure } from '@/Models/DataStructureModel';
-import {BaseProps} from './BaseProps';
+import { BaseProps } from './BaseProps';
 
-export interface OperationTypeSelectProps extends BaseProps 
-{
+/* Props passed to OperationTypeSelect component*/
+export interface OperationTypeSelectProps extends BaseProps {
     setValue: any;
     dataStructure: string;
     allDataStructures: DataStructure[];

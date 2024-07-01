@@ -1,11 +1,10 @@
-import { Entity } from "../../entity-model";
+export type { EntityListContainer } from "./entity-model";
 
-import { entitiesToApplicationProfile } from "./entity-model-adapter";
-import { applicationProfileToTrig } from "./rdf-adapter";
+// Converstion from list of Semantic entities to DSV and back.
+export { createContext, entityListContainerToConceptualModel } from "./entity-model-to-dsv";
+export { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 
-export async function exportEntitiesAsDataSpecificationTrig(
-  entities: Entity[]
-): Promise<string> {
-  const dataSpecification = entitiesToApplicationProfile(entities, null);
-  return await applicationProfileToTrig(dataSpecification);
-}
+// Conversion to and from RDF.
+export { conceptualModelToRdf } from "./dsv-to-rdf";
+export { rdfToConceptualModel } from "./rdf-to-dsv";
+
