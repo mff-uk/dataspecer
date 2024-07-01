@@ -7,8 +7,21 @@ import { LanguageString } from '@dataspecer/core-v2/semantic-model/concepts';
 import N3, { Quad_Object } from 'n3';
 import { resourceModel } from '../main';
 import { v4 as uuidv4 } from 'uuid';
-import { createPimModel, createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
+import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
 import { httpFetch } from '@dataspecer/core/io/fetch/fetch-nodejs';
+import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
+import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
+import { PimStoreWrapper } from '@dataspecer/core-v2/semantic-model/v1-adapters';
+
+function getIriToIdMapping() {
+  const mapping: Record<string, string> = {};
+  return (iri: string) => {
+    if (!mapping[iri]) {
+      mapping[iri] = uuidv4();
+    }
+    return mapping[iri];
+  };
+}
 
 
 function jsonLdLiteralToLanguageString(literal: Quad_Object[]): LanguageString {
@@ -36,6 +49,54 @@ async function importRdfsModel(parentIri: string, url: string, newIri: string, u
   serialization.id = newIri;
   serialization.alias = userMetadata?.label?.en ?? userMetadata?.label?.cs;
   await store.setJson(serialization);
+}
+
+async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, newIri: string, userMetadata: any) {
+  await resourceModel.createResource(
+    parentIri,
+    newIri,
+    LOCAL_SEMANTIC_MODEL,
+    userMetadata
+  );
+  const store = await resourceModel.getOrCreateResourceModelStore(newIri);
+
+  const result = {
+    entities: [],
+    baseIri: null,
+  } as any;
+
+  // Vocabulary
+  if (rdfsUrl) {   
+    const wrapper = await createRdfsModel([rdfsUrl], httpFetch);
+    const serialization = wrapper.serializeModel();
+    const model = new PimStoreWrapper(serialization.pimStore, serialization.id, serialization.alias, serialization.urls);
+    model.fetchFromPimStore();
+
+    result.entities = {
+      ...result.entities,
+      ...model.getEntities(),
+    }
+  }
+
+  // DSV
+  if (dsvUrl) {
+    const response = await fetch(dsvUrl);
+    const data = await response.text();
+    const conceptualModel = await rdfToConceptualModel(data);
+    const dsvResult = conceptualModelToEntityListContainer(conceptualModel[0], {
+      iriToidentifier: getIriToIdMapping(),
+    });
+
+    result.entities = {
+      ...result.entities,
+      ...dsvResult.entities,
+    }
+  }
+
+  result.modelId = newIri;
+  result.modelAlias = (userMetadata?.label?.en ?? userMetadata?.label?.cs);
+
+  await store.setJson(result);
 }
 
 /**
@@ -73,20 +134,27 @@ async function importFromUrl(parentIri: string, url: string) {
       importedFromUrl: url,
     });
 
+    let rdfsUrl = null;
+    let dsvUrl = null;
+
     const artefacts = store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null);
     for (const artefact of artefacts) {
       const artefactUrl = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasArtifact", null)[0].id;
       const role = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasRole", null)[0].id;
 
       if (role === "http://www.w3.org/ns/dx/prof/role/vocabulary") {
-        await importRdfsModel(newPackageIri, artefactUrl, newPackageIri + "/vocabulary", {
-          label: {
-            en: (name.en ?? name.cs),
-          },
-          documentBaseUrl: url,
-        });
+        rdfsUrl = artefactUrl;
+      } else if (role === "http://www.w3.org/ns/dx/prof/role/schema") {
+        dsvUrl = artefactUrl;
       }
     }
+
+    await importRdfsAndDsv(newPackageIri, rdfsUrl, dsvUrl, newPackageIri + "/model", {
+      label: {
+        en: (name.en ?? name.cs),
+      },
+      documentBaseUrl: url,
+    });
 
     const vocabularies = store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null);
     for (const vocabulary of vocabularies) {
