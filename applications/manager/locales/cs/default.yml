@@ -19,6 +19,9 @@ form:
   description:
     instruction: Popište svůj projekt podrobněji
     name: Popis
+  documentation-base-url:
+    instruction: Základ URL adresy pro veřejně dostupnou dokumentaci. Měla by končit lomítkem..
+    name: Base URL dokumentace
   name:
     instruction: Zadejte název projektu
     name: Název

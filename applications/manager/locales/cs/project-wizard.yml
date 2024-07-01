@@ -11,7 +11,9 @@ projects:
     title: Datové schéma
   profile:
     create-title: Vytvořit aplikační profil
-    help: Zadejte URL adresu specifikace na internetu ze které bude vytvořen nový aplikační profil. Specifikace se importuje do nově vytvořeného package.
+    help: >-
+      Zadejte URL adresu specifikace na internetu ze které bude vytvořen nový
+      aplikační profil. Specifikace se importuje do nově vytvořeného package.
   vocabulary:
     create-title: Vytvořit nový slovník
     description: >-

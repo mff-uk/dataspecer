@@ -21,12 +21,15 @@ form:
   description:
     instruction: Describe your project in more detail
     name: Description
+  documentation-base-url:
+    instruction: Base URL for publicly accessible documentation. Should end with a slash.
+    name: Base URL documentation
   name:
     instruction: Enter the name of the project
     name: Name
   url:
     instruction: URL publicly accessible from the internet
-    name: form.url.name
+    name: URL
 mode-toggle:
   dark: Dark
   light: Light
