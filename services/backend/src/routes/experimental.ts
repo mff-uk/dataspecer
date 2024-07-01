@@ -128,7 +128,7 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
         return entities;
     }
 
-    const convert = (iri: string | null) => iri ? new URL(iri, baseIri).toString() : null;
+    const convert = (iri: string | null) => (iri && !iri.includes("://")) ? (baseIri + iri) : iri;
     const result = {} as Record<string, SemanticModelEntity>;
     for (const [key, entity] of Object.entries(entities)) {
         if (isSemanticModelClass(entity)) {

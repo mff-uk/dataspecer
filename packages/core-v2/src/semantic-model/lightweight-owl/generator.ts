@@ -46,6 +46,20 @@ class Generator {
 
     constructor(private context?: Context) {}
 
+    private processIri(iri: string): string {
+        const baseIri = this.context?.baseIri;
+        console.log(iri, baseIri);
+        if (baseIri && baseIri.length && iri.startsWith(baseIri)) {
+            if (baseIri.endsWith("#")) {
+                return iri.substring(baseIri.length - 1);
+            } else {
+                return iri.substring(baseIri.length);
+            }
+        } else {
+            return iri;
+        }
+    }
+
     public generate(entities: SemanticModelEntity[]): Promise<string> {
         this.writer = new N3.Writer();
         if (this.context?.baseIri) {
@@ -83,7 +97,7 @@ class Generator {
     }
 
     private writeClass(entity: SemanticModelClass) {
-        const iri = namedNode(entity.iri ?? entity.id);
+        const iri = namedNode(this.processIri(entity.iri ?? entity.id));
         this.writer.addQuad(
             iri,
             RDF_TYPE,
@@ -100,13 +114,13 @@ class Generator {
             this.writer.addQuad(
                 iri,
                 namedNode("http://www.w3.org/2000/01/rdf-schema#subClassOf"),
-                namedNode((this.entitiesMap[subclass.parent] as SemanticModelClass)?.iri ?? subclass.parent)
+                namedNode(this.processIri((this.entitiesMap[subclass.parent] as SemanticModelClass)?.iri ?? subclass.parent))
             );
         }
     }
 
     private getNodeById(id: string) {
-        return namedNode(this.entitiesMap[id]?.iri ?? id);
+        return namedNode(this.processIri(this.entitiesMap[id]?.iri ?? id));
     }
 
     private writeNamedThing(entity: NamedThing & SemanticModelEntity) {
@@ -115,11 +129,11 @@ class Generator {
         let name: LanguageString, description: LanguageString;
         if (isSemanticModelRelationship(entity)) {
             const range = getDomainAndRange(entity)?.range;
-            iri = namedNode(range?.iri ?? entity.iri ?? entity.id);
+            iri = namedNode(this.processIri(range?.iri ?? entity.iri ?? entity.id));
             name = range?.name ?? entity.name;
             description = range?.description ?? entity.description;
         } else {
-            iri = namedNode(entity.iri ?? entity.id);
+            iri = namedNode(this.processIri(entity.iri ?? entity.id));
             name = entity.name;
             description = entity.description;
         }
@@ -133,7 +147,7 @@ class Generator {
         const domainEnd = getDomainAndRange(entity)?.domain;
         const rangeEnd = getDomainAndRange(entity)?.range;
 
-        const iri = namedNode(rangeEnd?.iri ?? entity.iri ?? entity.id);
+        const iri = namedNode(this.processIri(rangeEnd?.iri ?? entity.iri ?? entity.id));
 
         // const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
