@@ -18,7 +18,6 @@ import {
     CreateProfileButton,
     DrawOnCanvasButton,
     ExpandButton,
-    ModifyButton,
     OpenDetailButton,
     RemoveButton,
 } from "../buttons";
@@ -85,7 +84,9 @@ export const EntityRow = (props: {
                 )}
                 {removable && <RemoveButton onClickHandler={removable.remove} />}
                 {sourceModelIsLocal && (
-                    <ModifyButton onClickHandler={() => openModificationDialog(entity, sourceModel)} />
+                    <button className="ml-0.5 hover:bg-teal-400" title="Modify" onClick={() => openModificationDialog(entity, sourceModel)}>
+                        ✏
+                    </button>
                 )}
                 <OpenDetailButton onClick={() => openDetailDialog(entity)} />
                 {drawable && (

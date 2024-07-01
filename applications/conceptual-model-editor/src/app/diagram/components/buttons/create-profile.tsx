@@ -1,13 +1,18 @@
-export const CreateProfileButton = (props: { onClickHandler?: () => void }) => {
-    const { onClickHandler } = props;
+import { t } from "../../application/";
+
+export const CreateProfileButton = ({ onClickHandler }: { onClickHandler?: () => void }) => {
+
+    // TODO Is this needed?
+    const hasHandler = onClickHandler !== undefined;
+
+    const title = hasHandler
+        ? t("create-profile-button.title")
+        : t("create-profile-button.title.missing-handler");
+
     return (
         <button
-            className={`hover:bg-teal-400 ${onClickHandler ? "" : "opacity-30"}`}
-            title={
-                onClickHandler
-                    ? "create profile"
-                    : "don't make profiles here, possibly find the entity and make the profile there"
-            }
+            className={`hover:bg-teal-400 ${hasHandler ? "" : "opacity-30"}`}
+            title={title}
             onClick={onClickHandler}
         >
             🧲

@@ -16,7 +16,7 @@ export const RemovableAttributeRow = (props: {
     return (
         <div className={`flex flex-row ${toBeRemoved ? "line-through" : ""}`} title={description ?? ""}>
             {name}
-            <button title="after save removes this entity from the attributes domain" onClick={addToToBeRemoved}>
+            <button title="after save removes this attributes" onClick={addToToBeRemoved}>
                 🗑
             </button>
         </div>

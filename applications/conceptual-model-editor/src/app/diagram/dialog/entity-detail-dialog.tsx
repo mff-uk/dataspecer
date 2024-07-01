@@ -22,6 +22,7 @@ import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { ScrollableResourceDetailClickThroughList } from "../components/scrollable-detail-click-through";
 import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dialog/dialog-colored-model-header";
 import { CloseButton } from "../components/dialog/buttons/close-button";
+import { t } from "../application";
 
 type EntityDialogSupportedType =
     | SemanticModelClass
@@ -107,7 +108,7 @@ export const useEntityDetailDialog = () => {
                         style="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8"
                     />
 
-                    {/* 
+                    {/*
                     ------------------------------------
                     Top header section with name and iri
                     ------------------------------------
@@ -135,7 +136,7 @@ export const useEntityDetailDialog = () => {
                         {iri}
                     </p>
 
-                    {/* 
+                    {/*
                     --------------------------------------------
                     profiles / generalizations / specializations
                     --------------------------------------------
@@ -154,7 +155,7 @@ export const useEntityDetailDialog = () => {
                                 </DialogDetailRow>
                             )}
                             {originalProfile && originalProfile.id != profileOf?.id && (
-                                <DialogDetailRow detailKey="the original profiled entity">
+                                <DialogDetailRow detailKey={t("entity-detail-dialog.original-profile")}>
                                     <ResourceDetailClickThrough
                                         detailDialogLanguage={currentLang}
                                         resource={originalProfile}
@@ -164,7 +165,7 @@ export const useEntityDetailDialog = () => {
                                 </DialogDetailRow>
                             )}
                             {profiledBy.length > 0 && (
-                                <DialogDetailRow detailKey="profiled by">
+                                <DialogDetailRow detailKey={t("entity-detail-dialog.profiled-by")}>
                                     <ScrollableResourceDetailClickThroughList
                                         detailDialogLanguage={currentLang}
                                         resources={profiledBy}
@@ -174,7 +175,7 @@ export const useEntityDetailDialog = () => {
                             )}
                         </>
                         {specializationOf.length > 0 && (
-                            <DialogDetailRow detailKey="specialization of">
+                            <DialogDetailRow detailKey={t("entity-detail-dialog.specialization-of")}>
                                 <ScrollableResourceDetailClickThroughList
                                     detailDialogLanguage={currentLang}
                                     resources={specializationOf}
@@ -183,7 +184,7 @@ export const useEntityDetailDialog = () => {
                             </DialogDetailRow>
                         )}
                         {generalizationOf.length > 0 && (
-                            <DialogDetailRow detailKey="generalization of">
+                            <DialogDetailRow detailKey={t("entity-detail-dialog.generalization-of")}>
                                 <ScrollableResourceDetailClickThroughList
                                     detailDialogLanguage={currentLang}
                                     resources={generalizationOf}
@@ -194,24 +195,24 @@ export const useEntityDetailDialog = () => {
                     </div>
                 </div>
 
-                {/* 
+                {/*
                 -------------------------------------
                 basic information - type, description
                 -------------------------------------
                 */}
 
                 <div className="grid gap-y-3 bg-slate-100 md:grid-cols-[20%_80%] md:pl-8">
-                    <DialogDetailRow detailKey="type">{getEntityTypeString(viewedEntity)}</DialogDetailRow>
-                    <DialogDetailRow detailKey="description">{description}</DialogDetailRow>
+                    <DialogDetailRow detailKey={t("entity-detail-dialog.type")}>{getEntityTypeString(viewedEntity)}</DialogDetailRow>
+                    <DialogDetailRow detailKey={t("entity-detail-dialog.description")}>{description}</DialogDetailRow>
 
-                    {/* 
+                    {/*
                     ---------------------------------
                     attributes and attribute profiles
                     ---------------------------------
                     */}
 
                     {attributes.length > 0 && (
-                        <DialogDetailRow detailKey="attributes">
+                        <DialogDetailRow detailKey={t("entity-detail-dialog.attributes")}>
                             <ScrollableResourceDetailClickThroughList
                                 detailDialogLanguage={currentLang}
                                 resources={attributes}
@@ -221,7 +222,7 @@ export const useEntityDetailDialog = () => {
                     )}
 
                     {attributeProfiles.length > 0 && (
-                        <DialogDetailRow detailKey="attribute profiles">
+                        <DialogDetailRow detailKey={t("entity-detail-dialog.attributes-profiles")}>
                             <ScrollableResourceDetailClickThroughList
                                 detailDialogLanguage={currentLang}
                                 resources={attributeProfiles}
@@ -229,16 +230,16 @@ export const useEntityDetailDialog = () => {
                             />
                         </DialogDetailRow>
                     )}
-                    {usageNote && <DialogDetailRow detailKey="usage note">{usageNote}</DialogDetailRow>}
+                    {usageNote && <DialogDetailRow detailKey={t("entity-detail-dialog.usage-note")}>{usageNote}</DialogDetailRow>}
 
-                    {/* 
+                    {/*
                     ---------------------------------------------
                     domain and range for relationships (profiles)
                     ---------------------------------------------
                     */}
 
                     {domain.entity && (
-                        <DialogDetailRow detailKey="domain">
+                        <DialogDetailRow detailKey={t("entity-detail-dialog.domain")}>
                             <ResourceDetailClickThrough
                                 detailDialogLanguage={currentLang}
                                 resource={domain.entity}
@@ -250,7 +251,7 @@ export const useEntityDetailDialog = () => {
                         </DialogDetailRow>
                     )}
                     {range.entity && (
-                        <DialogDetailRow detailKey="range">
+                        <DialogDetailRow detailKey={t("entity-detail-dialog.range")}>
                             <ResourceDetailClickThrough
                                 resource={range.entity}
                                 detailDialogLanguage={currentLang}
@@ -262,7 +263,7 @@ export const useEntityDetailDialog = () => {
                         </DialogDetailRow>
                     )}
                     {datatype && (
-                        <DialogDetailRow detailKey="datatype">
+                        <DialogDetailRow detailKey={t("entity-detail-dialog.datatype")}>
                             {datatype.label ? `${datatype.label} (${datatype.uri})` : datatype.uri}
                         </DialogDetailRow>
                     )}

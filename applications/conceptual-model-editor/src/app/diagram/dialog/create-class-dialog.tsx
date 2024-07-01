@@ -14,6 +14,7 @@ import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
+import { t, logger } from "../application/";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -43,26 +44,26 @@ export const useCreateClassDialog = () => {
 
         const handleCreateClass = () => {
             if (!activeModel) {
-                alert("active model not set");
+                alert(t("create-class-dialog.error.model-not-set"));
                 return;
             }
             if (!newIri || newIri == "") {
-                alert("iri not set");
+                alert(t("create-class-dialog.error-iri-not-set"));
                 return;
             }
-
-            const { id: clsId } = createAClass(activeModel, newName, newIri, newDescription); // addClassToModel(activeModel, newName, newIri, newDescription);
-
-            if (clsId) {
+            const newClass = createAClass(activeModel, newName, newIri, newDescription);
+            if (newClass.id !== undefined) {
                 aggregatorView
                     .getActiveVisualModel()
-                    ?.addEntity({ sourceEntityId: clsId, position: position ?? undefined });
+                    ?.addEntity({ sourceEntityId: newClass.id, position: position ?? undefined });
+            } else {
+                logger.warn("We have not recieved the id of newly created class.", newClass);
             }
             close();
         };
 
         return (
-            <BaseDialog heading="Creating an entity">
+            <BaseDialog heading={t("create-class-dialog.create-class")}>
                 <div>
                     <div>
                         <DialogColoredModelHeaderWithModelSelector
@@ -71,7 +72,7 @@ export const useCreateClassDialog = () => {
                             onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
                         />
                         <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-                            <DialogDetailRow detailKey="name" style="text-xl">
+                            <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
                                 <MultiLanguageInputForLanguageString
                                     ls={newName}
                                     setLs={setNewName}
@@ -79,7 +80,7 @@ export const useCreateClassDialog = () => {
                                     inputType="text"
                                 />
                             </DialogDetailRow>
-                            <DialogDetailRow detailKey="iri">
+                            <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
                                 <IriInput
                                     name={newName}
                                     newIri={newIri}
@@ -89,7 +90,7 @@ export const useCreateClassDialog = () => {
                                     baseIri={modelIri}
                                 />
                             </DialogDetailRow>
-                            <DialogDetailRow detailKey="description">
+                            <DialogDetailRow detailKey={t("create-class-dialog.description")}>
                                 <MultiLanguageInputForLanguageString
                                     ls={newDescription}
                                     setLs={setNewDescription}

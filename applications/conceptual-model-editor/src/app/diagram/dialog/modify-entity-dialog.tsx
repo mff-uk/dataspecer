@@ -57,6 +57,7 @@ import { ModifyButton } from "../components/dialog/buttons/modify-button";
 import { areLanguageStringsEqual } from "../util/language-utils";
 import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
 import { useModelGraphContext } from "../context/model-context";
+import { t } from "../application/";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -165,7 +166,7 @@ export const useModifyEntityDialog = () => {
                     : overriddenFields;
             overriddenFields =
                 (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange!.domainIndex!)?.cardinality !=
-                null
+                    null
                     ? { ...overriddenFields, domainCardinality: true }
                     : overriddenFields;
             overriddenFields =
@@ -302,7 +303,7 @@ export const useModifyEntityDialog = () => {
             if (
                 !overriddenFields.domainCardinality &&
                 (raw as SemanticModelRelationshipUsage).ends.at(currentDomainAndRange!.domainIndex!)?.cardinality !=
-                    null
+                null
             ) {
                 domainEnd = { ...domainEnd, cardinality: null };
             }
@@ -435,20 +436,20 @@ export const useModifyEntityDialog = () => {
         };
 
         return (
-            <BaseDialog heading="Entity modification">
+            <BaseDialog heading={isProfile ? t("modify-entity-dialog.label-profile") : t("modify-entity-dialog.label-class") } >
                 <div>
                     <DialogColoredModelHeader
                         activeModel={model}
                         style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pl-8 md:pr-16 md:pb-4 md:pt-2"
                     />
                     <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                        {/* 
+                        {/*
                         ---------
                         Entity name
                         ---------
                         */}
 
-                        <DialogDetailRow detailKey="name">
+                        <DialogDetailRow detailKey={t("modify-entity-dialog.type")}>
                             <MultiLanguageInputForLanguageStringWithOverride
                                 style="text-xl"
                                 forElement="modify-entity-name"
@@ -461,30 +462,30 @@ export const useModifyEntityDialog = () => {
                                 withOverride={
                                     isProfile
                                         ? {
-                                              callback: () =>
-                                                  setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
-                                              defaultValue: overriddenFields.name,
-                                          }
+                                            callback: () =>
+                                                setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
+                                            defaultValue: overriddenFields.name,
+                                        }
                                         : undefined
                                 }
                             />
                         </DialogDetailRow>
 
-                        {/* 
+                        {/*
                         ---------
                         Entity id
                         ---------
                         */}
 
-                        <DialogDetailRow detailKey="id">{modifiedEntity.id}</DialogDetailRow>
+                        <DialogDetailRow detailKey={t("modify-entity-dialog.id")}>{modifiedEntity.id}</DialogDetailRow>
 
-                        {/* 
+                        {/*
                         ----------
                         Entity IRI
                         ----------
                         */}
 
-                        <DialogDetailRow detailKey="iri">
+                        <DialogDetailRow detailKey={t("modify-entity-dialog.iri")}>
                             <IriInput
                                 name={name}
                                 iriHasChanged={changedFields.iri}
@@ -495,13 +496,13 @@ export const useModifyEntityDialog = () => {
                             />
                         </DialogDetailRow>
 
-                        {/* 
+                        {/*
                         ----------
                         Entity generalizations
                         ----------
                         */}
 
-                        <DialogDetailRow detailKey="specializes">
+                        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
                             <GeneralizationParentsComponent
                                 modifiedEntityId={modifiedEntity.id}
                                 modifiedEntityType={getEntityTypeString(modifiedEntity)}
@@ -523,13 +524,13 @@ export const useModifyEntityDialog = () => {
                             />
                         </DialogDetailRow>
 
-                        {/* 
+                        {/*
                         ------------------
                         Entity description
                         ------------------
                         */}
 
-                        <DialogDetailRow detailKey="description">
+                        <DialogDetailRow detailKey={t("modify-entity-dialog.description")}>
                             <MultiLanguageInputForLanguageStringWithOverride
                                 forElement="modify-entity-description"
                                 inputType="textarea"
@@ -541,20 +542,20 @@ export const useModifyEntityDialog = () => {
                                 withOverride={
                                     isProfile
                                         ? {
-                                              callback: () =>
-                                                  setOverriddenFields((prev) => ({
-                                                      ...prev,
-                                                      description: !prev.description,
-                                                  })),
-                                              defaultValue: overriddenFields.description,
-                                          }
+                                            callback: () =>
+                                                setOverriddenFields((prev) => ({
+                                                    ...prev,
+                                                    description: !prev.description,
+                                                })),
+                                            defaultValue: overriddenFields.description,
+                                        }
                                         : undefined
                                 }
                             />
                         </DialogDetailRow>
 
                         {isProfile && (
-                            <DialogDetailRow detailKey="usage (profile?) note">
+                            <DialogDetailRow detailKey={t("modify-entity-dialog.usage-note")}>
                                 <MultiLanguageInputForLanguageString
                                     inputType="text"
                                     ls={usageNote}
@@ -565,7 +566,7 @@ export const useModifyEntityDialog = () => {
                             </DialogDetailRow>
                         )}
 
-                        {/* 
+                        {/*
                         --------------------------------------
                         Attributes for class and class profile
                         --------------------------------------
@@ -573,7 +574,7 @@ export const useModifyEntityDialog = () => {
 
                         {canHaveAttributes && (
                             <>
-                                <DialogDetailRow style="flex flex-col" detailKey="attributes">
+                                <DialogDetailRow style="flex flex-col" detailKey={t("modify-entity-dialog.attributes")}>
                                     <>
                                         {attributes.map((v) => (
                                             <RemovableAttributeRow
@@ -596,7 +597,7 @@ export const useModifyEntityDialog = () => {
                                         ))}
                                     </>
                                 </DialogDetailRow>
-                                <DialogDetailRow style="flex flex-col" detailKey="attributes profiles">
+                                <DialogDetailRow style="flex flex-col" detailKey={t("modify-entity-dialog.attributes-profiles")}>
                                     <>
                                         {attributeProfiles.map((ap) => (
                                             <RemovableAttributeProfileRow
@@ -623,7 +624,7 @@ export const useModifyEntityDialog = () => {
                             </>
                         )}
 
-                        {/* 
+                        {/*
                         -----------------------------------------------------------
                         Range and domain for a relationship or relationship profile
                         -----------------------------------------------------------
@@ -661,7 +662,7 @@ export const useModifyEntityDialog = () => {
                     </div>
                 </div>
 
-                {/* 
+                {/*
                 -----------------------------------------------------
                 Adding new attributes to class or class profile
                 -----------------------------------------------------
@@ -693,7 +694,7 @@ export const useModifyEntityDialog = () => {
                     </div>
                 )}
 
-                {/* 
+                {/*
                 ----------------------------
                 Save and cancel button group
                 ----------------------------
