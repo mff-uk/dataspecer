@@ -31,6 +31,12 @@ enum ConnectionType {
     generalization = "generalization",
 }
 
+// TODO: This is not nice but, we cano not move the useState outside of
+//  the CreateConnectionDialog as it would cause re-creation of the dialog.
+//  Instead we use this ugly trick, it would be better to have the CreateConnectionDialog
+//  as a separate component.
+let openWithConnectionType = ConnectionType.association;
+
 export const useCreateConnectionDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
 
@@ -43,12 +49,6 @@ export const useCreateConnectionDialog = () => {
 
     const { createConnection } = useClassesContext();
     const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
-
-    // TODO: This is not nice but, we cano not move the useState outside of
-    //  the CreateConnectionDialog as it would cause re-creation of the dialog.
-    //  Instead we use this ugly trick, it would be better to have the CreateConnectionDialog
-    //  as a separate component.
-    let openWithConnectionType = ConnectionType.association;
 
     const closeDialog = () => {
         setConnectionCreated(null as unknown as Connection);
