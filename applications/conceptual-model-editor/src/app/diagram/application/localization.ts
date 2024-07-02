@@ -16,7 +16,9 @@ const translations: Record<string, string | Function> = {
   "create-profile-button.title.missing-handler": "Can't make profiles here, possibly find the entity and make the profile there",
   //
   "modify-entity-dialog.label-class": "Class modification",
-  "modify-entity-dialog.label-profile": "Profile modification",
+  "modify-entity-dialog.label-class-profile": "Class profile modification",
+  "modify-entity-dialog.label-relationship": "Relationship modification",
+  "modify-entity-dialog.label-relationship-profile": "Relationship profile modification",
   "modify-entity-dialog.type": "Name",
   "modify-entity-dialog.id": "Identifier",
   "modify-entity-dialog.iri": "IRI",

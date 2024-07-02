@@ -42,17 +42,14 @@ export const IriInput = (props: {
      */
     disabled?: boolean;
     /**
-     * Disable auto suggestions.
-     */
-    withNameSuggestionsDisabled?: boolean;
-    /**
      * Method used to suggest IRI.
+     * When undefined there is no generation.
      */
-    nameSuggestion: (name: string) => string,
+    nameSuggestion?: (name: string) => string,
 }) => {
     // TODO: This probably owned by the parent component, we could move it there.
     const { language: preferredLanguage } = useConfigurationContext();
-    const { name, newIri, iriHasChanged, setNewIri, disabled, withNameSuggestionsDisabled } = props;
+    const { name, newIri, iriHasChanged, setNewIri, disabled } = props;
 
     const baseIri = props.baseIri ?? "";
 
@@ -60,7 +57,7 @@ export const IriInput = (props: {
     const [workingWithAbsoluteIri, setWorkingWithAbsoluteIri] = useState(absoluteIri);
 
     const generateIriFromName = () => {
-        if (iriHasChanged || workingWithAbsoluteIri || withNameSuggestionsDisabled) {
+        if (iriHasChanged || workingWithAbsoluteIri || props.nameSuggestion === undefined) {
             return;
         }
         const [next, language] = getStringFromLanguageStringInLang(name, preferredLanguage);

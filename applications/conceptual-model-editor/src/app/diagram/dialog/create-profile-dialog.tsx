@@ -35,7 +35,6 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
-import { configuration } from "../application/";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -236,8 +235,6 @@ export const useCreateProfileDialog = () => {
                             iriHasChanged={changedFields.iri}
                             onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                             baseIri={modelIri}
-                            withNameSuggestionsDisabled={true}
-                            nameSuggestion={configuration().nameToClassIri}
                         />
                     </DialogDetailRow>
 

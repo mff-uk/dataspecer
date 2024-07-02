@@ -57,7 +57,7 @@ import { ModifyButton } from "../components/dialog/buttons/modify-button";
 import { areLanguageStringsEqual } from "../util/language-utils";
 import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
 import { useModelGraphContext } from "../context/model-context";
-import { t, configuration } from "../application/";
+import { t } from "../application/";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -108,10 +108,15 @@ export const useModifyEntityDialog = () => {
             specializationOfAsGeneralizations,
         } = EntityProxy(modifiedEntity);
 
+        // TODO: We have multiple dialogs in one .. :(
+        const isClass = isSemanticModelClass(modifiedEntity);
         const isProfile = isSemanticProfile(modifiedEntity);
+        const isRelationship = isSemanticModelRelationship(modifiedEntity);
+        const isRelationshipUsage = isSemanticModelRelationshipUsage(modifiedEntity);
 
-        const currentIri = getIri(modifiedEntity);
-        const [newIri, setNewIri] = useState(currentIri ?? undefined);
+        // Use initial IRI value.
+        const previousIri = getIri(modifiedEntity) ?? undefined ;
+        const [newIri, setNewIri] = useState(previousIri);
 
         const currentDomainAndRange = canHaveDomainAndRange ? temporaryDomainRangeHelper(modifiedEntity) : null;
 
@@ -417,9 +422,8 @@ export const useModifyEntityDialog = () => {
         };
 
         const handleSaveButtonClicked = () => {
-            console.log("save button clicked", name, newIri, description, newAttributes);
             if (!model) {
-                alert("model is null");
+                alert("Model is null.");
                 close();
                 return;
             }
@@ -431,12 +435,24 @@ export const useModifyEntityDialog = () => {
             } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
                 handleSaveRelationshipProfile(model);
             }
-
             close();
         };
 
+        let heading = "";
+        if (isClass) {
+            heading = t("modify-entity-dialog.label-class") ;
+        } else if (isProfile) {
+            heading = t("modify-entity-dialog.label-class-profile") ;
+        } else if (isRelationship) {
+            heading = t("modify-entity-dialog.label-relationship") ;
+        } else if (isRelationshipUsage) {
+            heading = t("modify-entity-dialog.label-relationship-profile") ;
+        } else {
+            heading = "Not sure ...";
+        }
+
         return (
-            <BaseDialog heading={isProfile ? t("modify-entity-dialog.label-profile") : t("modify-entity-dialog.label-class") } >
+            <BaseDialog heading={heading} >
                 <div>
                     <DialogColoredModelHeader
                         activeModel={model}
@@ -488,12 +504,11 @@ export const useModifyEntityDialog = () => {
                         <DialogDetailRow detailKey={t("modify-entity-dialog.iri")}>
                             <IriInput
                                 name={name}
-                                iriHasChanged={changedFields.iri}
+                                iriHasChanged={true}
                                 newIri={newIri}
-                                setNewIri={(i) => setNewIri(i)}
+                                setNewIri={setNewIri}
                                 onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                                 baseIri={modelIri}
-                                nameSuggestion={configuration().nameToClassIri}
                             />
                         </DialogDetailRow>
 
