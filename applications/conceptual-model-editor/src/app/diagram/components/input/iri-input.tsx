@@ -90,20 +90,6 @@ export const IriInput = (props: {
                 setNewIri(iriWithoutBase);
             }
         }
-
-        // if (isAbsolute && shouldIncludeBaseIri) {
-        //     // We changed to absolute from relative and we
-        //     // also need to include the base IRI.
-        //     setNewIri((baseIri ?? "") + (newIri ?? ""));
-
-        //     // We do not do it next time.
-        //     setShouldIncludeBaseIri(false);
-        // }
-
-        // if (!isAbsolute) {
-        //     // We change from absolute to relative,
-        //     // when changing relative - absoulte - relative
-        // }
     };
 
     const onChangeIri = (event: ChangeEvent<HTMLInputElement>) => {
