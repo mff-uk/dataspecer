@@ -59,7 +59,7 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
                 description: resource.pimHumanDescription ?? {},
                 ends: [
                     {
-                        cardinality: [left.pimCardinalityMin ?? 0, left.pimCardinalityMax],
+                        cardinality: ((left.pimCardinalityMin ?? 0) === 0 && left.pimCardinalityMax === null) ? null : [left.pimCardinalityMin ?? 0, left.pimCardinalityMax],
                         name: left.pimHumanLabel ?? {},
                         description: left.pimHumanDescription ?? {},
                         concept: left.pimPart,
