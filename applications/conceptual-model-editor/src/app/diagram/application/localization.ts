@@ -59,7 +59,7 @@ const translations: Record<string, string | Function> = {
   //
   "model-service.model-label-from-id": (id: string) => `Unnamed model with id '${id}'`,
   //
-  "create-profile-dialog.label": (profile: string) => `Create a profile ${profile ? "of '" + profile : "'"}`,
+  "create-profile-dialog.label": (profile: string) => `Create a profile ${profile ? "of '" + profile + "'" : ""}`,
   "create-profile-dialog.profiled": "Profiled entity",
   "create-profile-dialog.profiled-type": "rofiled entity type",
   "create-profile-dialog.name": "Name",
@@ -68,7 +68,11 @@ const translations: Record<string, string | Function> = {
   "create-profile-dialog.usage-note": "Usage note",
   //
   "model": "Model",
-  "generalization-label": (child: string, parent: string) => `Generalization of '${child}' is '${parent}'`
+  "generalization-label": (child: string, parent: string) => `Generalization of '${child}' is '${parent}'`,
+  "domain": "Domain",
+  "domain-cardinality": "Domain cardinality",
+  "range": "Range",
+  "range-cardinality": "Range cardinality",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

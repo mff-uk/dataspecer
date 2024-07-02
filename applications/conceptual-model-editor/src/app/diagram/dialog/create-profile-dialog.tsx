@@ -172,8 +172,6 @@ export const useCreateProfileDialog = () => {
         };
 
         const handleSavingProfile = (m: InMemorySemanticModel) => {
-            console.log("saving profile", changedFields, name, description, usageNote, newDomain, newRange);
-
             if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                 handleSaveClassProfile(entity, m);
             } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
@@ -256,12 +254,10 @@ export const useCreateProfileDialog = () => {
 
                     {hasDomainAndRange && (
                         <>
-                            {changedFieldsAsStringArray.length > 0 && (
-                                <>
-                                    <DialogDetailRow detailKey="warning">
-                                        <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                    </DialogDetailRow>
-                                </>
+                            {changedFieldsAsStringArray.length === 0 ? null : (
+                                <DialogDetailRow detailKey="warning">
+                                    <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                                </DialogDetailRow>
                             )}
                             <DomainRangeComponent
                                 entity={entity}
@@ -278,9 +274,11 @@ export const useCreateProfileDialog = () => {
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
                                 withOverride={{ overriddenFields, setOverriddenFields }}
+                                hideCardinality={false}
                             />
                         </>
                     )}
+
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (

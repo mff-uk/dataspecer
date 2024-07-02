@@ -37,6 +37,9 @@ enum ConnectionType {
 //  as a separate component.
 let openWithConnectionType = ConnectionType.association;
 
+/**
+ * This dialog can be used to create an association or a generalization between two entities.
+ */
 export const useCreateConnectionDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
 
@@ -206,7 +209,7 @@ export const useCreateConnectionDialog = () => {
                                 disabled={connectionType !== ConnectionType.association}
                             />
                         </DialogDetailRow>
-                        <AssociationComponent
+                        <Association
                             from={source.id}
                             to={target.id}
                             setAssociation={setAssociation}
@@ -232,7 +235,10 @@ export const useCreateConnectionDialog = () => {
     };
 };
 
-export const TypeSwitch = (props: {
+/**
+ * Swith between generalization and relationship.
+ */
+const TypeSwitch = (props: {
     value: ConnectionType;
     onChange: (value: ConnectionType) => void;
     disabled?: boolean;
@@ -264,7 +270,10 @@ export const TypeSwitch = (props: {
     );
 };
 
-const AssociationComponent = (props: {
+/**
+ * Contains fields relevant only for association.
+ */
+const Association = (props: {
     from: string;
     to: string;
     setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
@@ -310,28 +319,31 @@ const AssociationComponent = (props: {
                     disabled={disabled}
                 />
             </DialogDetailRow>
-            <DialogDetailRow detailKey={t("create-connection-dialog.cardinality")}>
-                <div>
+            {/* We hide cardinality for associations. */}
+            {configuration().hideRelationCardinality ? null :
+                <DialogDetailRow detailKey={t("create-connection-dialog.cardinality")}>
                     <div>
-                        {t("create-connection-dialog.source")}:
-                        <CardinalityOptions
-                            disabled={disabled}
-                            group="source"
-                            defaultCard={source.cardinality}
-                            setCardinality={setSource}
-                        />
+                        <div>
+                            {t("create-connection-dialog.source")}:
+                            <CardinalityOptions
+                                disabled={disabled}
+                                group="source"
+                                defaultCard={source.cardinality}
+                                setCardinality={setSource}
+                            />
+                        </div>
+                        <div>
+                            {t("create-connection-dialog.target")}:
+                            <CardinalityOptions
+                                disabled={disabled}
+                                group="target"
+                                defaultCard={target.cardinality}
+                                setCardinality={setTarget}
+                            />
+                        </div>
                     </div>
-                    <div>
-                        {t("create-connection-dialog.target")}:
-                        <CardinalityOptions
-                            disabled={disabled}
-                            group="target"
-                            defaultCard={target.cardinality}
-                            setCardinality={setTarget}
-                        />
-                    </div>
-                </div>
-            </DialogDetailRow>
+                </DialogDetailRow>
+            }
         </>
     );
 };

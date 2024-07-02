@@ -443,8 +443,10 @@ export const useModifyEntityDialog = () => {
         };
 
         let heading = "";
+        let hideCardinality = false;
         if (isClass) {
             heading = t("modify-entity-dialog.label-class");
+            hideCardinality = configuration().hideRelationCardinality;
         } else if (isProfile) {
             heading = t("modify-entity-dialog.label-class-profile");
         } else if (isRelationship) {
@@ -453,6 +455,7 @@ export const useModifyEntityDialog = () => {
             } else {
                 heading = t("modify-entity-dialog.label-relationship");
             }
+            hideCardinality = configuration().hideRelationCardinality;
         } else if (isRelationshipProfile) {
             if (isAttributeProfile) {
                 heading = t("modify-entity-dialog.label-attribute-profile");
@@ -462,6 +465,7 @@ export const useModifyEntityDialog = () => {
         } else {
             heading = "Not sure ...";
         }
+        console.log("Modify eneity dialog:", {hideCardinality});
 
         return (
             <BaseDialog heading={heading} >
@@ -686,6 +690,7 @@ export const useModifyEntityDialog = () => {
                                     onRangeCardinalityChange={() =>
                                         setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                     }
+                                    hideCardinality={hideCardinality}
                                 />
                             </>
                         )}
@@ -718,6 +723,7 @@ export const useModifyEntityDialog = () => {
                                         setNewAttributes((prev) => prev.concat(attribute));
                                         setWantsToAddNewAttributes(false);
                                     }}
+                                    hideCardinality={hideCardinality}
                                 />
                             )}
                         </div>
