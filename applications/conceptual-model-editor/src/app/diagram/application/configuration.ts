@@ -35,6 +35,13 @@ export interface Configuration {
    */
   hideIdentifier: boolean;
 
+  /**
+   * If true cardinalities for attributes and associations are
+   * not visible to the user.
+   * In addition they are also set to null for new entities.
+   */
+  hideRelationCardinality: boolean;
+
 }
 
 /**
@@ -46,5 +53,6 @@ export const configuration = (): Configuration => {
     nameToIri: NamingConventions.lowerCamelCase,
     nameToClassIri: NamingConventions.upperCamelCase,
     hideIdentifier: true,
+    hideRelationCardinality: true,
   };
 };
