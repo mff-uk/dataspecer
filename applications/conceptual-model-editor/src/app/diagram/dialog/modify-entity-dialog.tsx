@@ -6,6 +6,7 @@ import {
     type SemanticModelGeneralization,
     isSemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useMemo, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
@@ -18,6 +19,7 @@ import {
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
 import { getIri, getModelIri } from "../util/iri-utils";
@@ -112,7 +114,9 @@ export const useModifyEntityDialog = () => {
         const isClass = isSemanticModelClass(modifiedEntity);
         const isProfile = isSemanticProfile(modifiedEntity);
         const isRelationship = isSemanticModelRelationship(modifiedEntity);
-        const isRelationshipUsage = isSemanticModelRelationshipUsage(modifiedEntity);
+        const isAttribute = isSemanticModelAttribute(modifiedEntity);
+        const isRelationshipProfile = isSemanticModelRelationshipUsage(modifiedEntity);
+        const isAttributeProfile = isSemanticModelAttributeUsage(modifiedEntity);
 
         // Use initial IRI value.
         const previousIri = getIri(modifiedEntity) ?? undefined;
@@ -444,9 +448,17 @@ export const useModifyEntityDialog = () => {
         } else if (isProfile) {
             heading = t("modify-entity-dialog.label-class-profile");
         } else if (isRelationship) {
-            heading = t("modify-entity-dialog.label-relationship");
-        } else if (isRelationshipUsage) {
-            heading = t("modify-entity-dialog.label-relationship-profile");
+            if (isAttribute) {
+                heading = t("modify-entity-dialog.label-attribute");
+            } else {
+                heading = t("modify-entity-dialog.label-relationship");
+            }
+        } else if (isRelationshipProfile) {
+            if (isAttributeProfile) {
+                heading = t("modify-entity-dialog.label-attribute-profile");
+            } else {
+                heading = t("modify-entity-dialog.label-relationship-profile");
+            }
         } else {
             heading = "Not sure ...";
         }
