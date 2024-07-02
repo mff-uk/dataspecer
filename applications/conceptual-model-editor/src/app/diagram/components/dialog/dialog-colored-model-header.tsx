@@ -76,8 +76,12 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
     const { aggregatorView, models } = useModelGraphContext();
     const { activeModel, onModelSelected, style } = props;
 
-    const inMemoryModels = filterInMemoryModels(models);
+    const availableModels = filterInMemoryModels(models).map(model => ({
+        id: model.id,
+        label: model.alias ?? `Unnnamed model with id: ${model.id}`,
+    }));
 
+    console.log("DialogColoredModelHeaderWithModelSelector", {availableModels});
     return (
         <div
             className={style}
@@ -91,10 +95,9 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                     onChange={(e) => onModelSelected(e.target.value)}
                     defaultValue={activeModel}
                 >
-                    {inMemoryModels.map(({ id, alias }) => (
-                        <option key={id + (alias ?? "")} value={id}>
-                            {alias ? alias + ":" : null}
-                            {id}
+                    {availableModels.map(item => (
+                        <option key={item.id} value={item.id}>
+                            {item.label}
                         </option>
                     ))}
                 </select>
