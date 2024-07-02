@@ -54,7 +54,7 @@ export const DSV = {
   "datatypePropertyRange": IRI(DSV_PREFIX + "datatypePropertyRange"),
   "profileOf": IRI(DSV_PREFIX + "profileOf"),
   "cardinality": IRI(DSV_PREFIX + "cardinality"),
-  "inherits": IRI(DSV_PREFIX + "iheritsProperties"),
+  "inherits": IRI(DSV_PREFIX + "inheritsProperties"),
   "ManyToMany": IRI(DSV_PREFIX + "nn"),
   "ManyToOne": IRI(DSV_PREFIX + "n1"),
   "ManyToZero": IRI(DSV_PREFIX + "n0"),
