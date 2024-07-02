@@ -89,7 +89,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
 
     result.entities = {
       ...result.entities,
-      ...dsvResult.entities,
+      ...Object.fromEntries(dsvResult.entities.map(entity => [entity.id, entity])),
     }
   }
 

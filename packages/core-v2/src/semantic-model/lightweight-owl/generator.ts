@@ -24,12 +24,13 @@ function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
 
 interface Context {
     baseIri: string;
+    iri: string;
 }
 
 /**
  * Generates lightweight OWL ontology from the given entities.
  */
-export function generate(entities: SemanticModelEntity[], context?: Context): Promise<string> {
+export function generate(entities: SemanticModelEntity[], context: Context): Promise<string> {
     const generator = new Generator(context);
     return generator.generate(entities);
 }
@@ -44,7 +45,7 @@ class Generator {
     private subclasses!: SemanticModelGeneralization[];
     private entitiesMap!: Record<string, SemanticModelEntity>;
 
-    constructor(private context?: Context) {}
+    constructor(private context: Context) {}
 
     public generate(entities: SemanticModelEntity[]): Promise<string> {
         this.writer = new N3.Writer();
@@ -93,13 +94,18 @@ class Generator {
             namedNode("http://www.w3.org/2000/01/rdf-schema#Class")
         );
         this.writeNamedThing(entity);
+        this.writer.addQuad(
+            iri,
+            namedNode("http://www.w3.org/2000/01/rdf-schema#isDefinedBy"),
+            namedNode(this.context.iri),
+        );
         for (const subclass of this.subclasses.filter(s => s.child === entity.id)) {
             this.writer.addQuad(
                 iri,
                 namedNode("http://www.w3.org/2000/01/rdf-schema#subClassOf"),
                 namedNode((this.entitiesMap[subclass.parent] as SemanticModelClass)?.iri ?? subclass.parent)
             );
-        }
+        };
     }
 
     private getNodeById(id: string) {
@@ -141,6 +147,12 @@ class Generator {
         }
 
         this.writeNamedThing(entity);
+
+        this.writer.addQuad(
+            iri,
+            namedNode("http://www.w3.org/2000/01/rdf-schema#isDefinedBy"),
+            namedNode(this.context.iri),
+        );
 
         const domainConcept = domainEnd?.concept ?? null;
         const rangeConcept = rangeEnd?.concept ?? null;

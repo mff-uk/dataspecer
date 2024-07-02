@@ -1,17 +1,16 @@
-import { SemanticModelClass, SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
+import { defaultConfiguration, generateDocumentation } from "@dataspecer/core-v2/documentation-generator";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { resourceModel } from "../main";
-import { asyncHandler } from "../utils/async-handler";
+import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
+import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
+import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
 import express from "express";
 import { z } from "zod";
-import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
-import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
-import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
-import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
-import { raw } from 'body-parser';
+import { resourceModel } from "../main";
+import { asyncHandler } from "../utils/async-handler";
+import { SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -73,7 +72,7 @@ export const getLightweightOwl = asyncHandler(async (request: express.Request, r
 
 export const getlightweightFromSimplified = asyncHandler(async (request: express.Request, response: express.Response) => {
     const entities = simplifiedSemanticModelToSemanticModel(request.body, {});
-    const result = await generate(Object.values(entities));
+    const result = await generate(Object.values(entities), {baseIri: "", iri: ""});
     response.type("text/turtle").send(result);
     return;
 });
@@ -258,7 +257,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     };
 
     // OWL
-    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.documentationUrl ?? "");
     if (owl) {
         const owlFile = streamDictionary.writePath("model.owl.ttl");
         await owlFile.write(owl);
