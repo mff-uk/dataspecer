@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 import { IRI } from "iri";
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { TwoWaySwitch } from "./two-way-switch";
