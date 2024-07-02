@@ -38,9 +38,8 @@ export const useBaseDialog = () => {
                     }
                 }}
             >
-                <div className="pb-2">
-                    <h1 className="text-xl">{heading}</h1>
-                </div>
+                <h1 className="text-xl">{heading}</h1>
+                <hr className="my-2"/>
                 {children}
             </dialog>
         );

@@ -105,7 +105,7 @@ export const useEntityDetailDialog = () => {
                         viewedEntity={viewedEntity}
                         currentLanguage={currentLang}
                         setCurrentLanguage={(l) => setCurrentLang(l)}
-                        style="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8"
+                        style="grid md:grid-cols-[20%_80%] md:grid-rows-1 md:py-2 md:pl-8"
                     />
 
                     {/*

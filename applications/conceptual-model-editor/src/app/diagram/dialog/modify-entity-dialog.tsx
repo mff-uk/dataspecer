@@ -57,7 +57,7 @@ import { ModifyButton } from "../components/dialog/buttons/modify-button";
 import { areLanguageStringsEqual } from "../util/language-utils";
 import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
 import { useModelGraphContext } from "../context/model-context";
-import { t } from "../application/";
+import { t, configuration } from "../application/";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -115,7 +115,7 @@ export const useModifyEntityDialog = () => {
         const isRelationshipUsage = isSemanticModelRelationshipUsage(modifiedEntity);
 
         // Use initial IRI value.
-        const previousIri = getIri(modifiedEntity) ?? undefined ;
+        const previousIri = getIri(modifiedEntity) ?? undefined;
         const [newIri, setNewIri] = useState(previousIri);
 
         const currentDomainAndRange = canHaveDomainAndRange ? temporaryDomainRangeHelper(modifiedEntity) : null;
@@ -440,13 +440,13 @@ export const useModifyEntityDialog = () => {
 
         let heading = "";
         if (isClass) {
-            heading = t("modify-entity-dialog.label-class") ;
+            heading = t("modify-entity-dialog.label-class");
         } else if (isProfile) {
-            heading = t("modify-entity-dialog.label-class-profile") ;
+            heading = t("modify-entity-dialog.label-class-profile");
         } else if (isRelationship) {
-            heading = t("modify-entity-dialog.label-relationship") ;
+            heading = t("modify-entity-dialog.label-relationship");
         } else if (isRelationshipUsage) {
-            heading = t("modify-entity-dialog.label-relationship-profile") ;
+            heading = t("modify-entity-dialog.label-relationship-profile");
         } else {
             heading = "Not sure ...";
         }
@@ -493,7 +493,9 @@ export const useModifyEntityDialog = () => {
                         ---------
                         */}
 
-                        <DialogDetailRow detailKey={t("modify-entity-dialog.id")}>{modifiedEntity.id}</DialogDetailRow>
+                        {configuration().hideIdentifier ? null :
+                            <DialogDetailRow detailKey={t("modify-entity-dialog.id")}>{modifiedEntity.id}</DialogDetailRow>
+                        }
 
                         {/*
                         ----------

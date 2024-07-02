@@ -35,6 +35,7 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
+import { t } from "../application/";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -183,29 +184,24 @@ export const useCreateProfileDialog = () => {
 
         return (
             <BaseDialog
-                heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
+                heading={t("create-profile-dialog.label", displayNameOfProfiledEntity)}
             >
-                <div className="">
+                <div>
                     <DialogColoredModelHeaderWithModelSelector
                         style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
                         activeModel={activeModel}
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                        <DialogDetailRow detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow>
-                        <DialogDetailRow detailKey="profiled entity type">
+                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled")}>{displayNameOfProfiledEntity}</DialogDetailRow>
+                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled-type")}>
                             {getEntityTypeString(entity)}
                         </DialogDetailRow>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                    {/*
-                    ------------
-                    Profile name
-                    ------------
-                    */}
 
-                    <DialogDetailRow detailKey="name">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.name")}>
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-name"
                             ls={name}
@@ -221,13 +217,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/*
-                    -----------
-                    Profile IRI
-                    -----------
-                    */}
-
-                    <DialogDetailRow detailKey="iri">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.iri")}>
                         <IriInput
                             name={name}
                             newIri={newIri}
@@ -238,13 +228,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/*
-                    -------------------
-                    Profile description
-                    -------------------
-                    */}
-
-                    <DialogDetailRow detailKey="description">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.description")}>
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-description"
                             ls={description}
@@ -261,13 +245,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/*
-                    ----------
-                    Usage note
-                    ----------
-                    */}
-
-                    <DialogDetailRow detailKey="usage (profile?) note">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.usage-note")}>
                         <MultiLanguageInputForLanguageString
                             ls={usageNote}
                             setLs={setUsageNote}
@@ -276,11 +254,6 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/*
-                    -----------------------------------------------------------
-                    Range and domain for a relationship or relationship profile
-                    -----------------------------------------------------------
-                    */}
                     {hasDomainAndRange && (
                         <>
                             {changedFieldsAsStringArray.length > 0 && (
@@ -313,7 +286,7 @@ export const useCreateProfileDialog = () => {
                     {model && entity ? (
                         <CreateButton onClick={() => handleSavingProfile(model)} />
                     ) : (
-                        <CreateButton style="cursor-not-allowed" disabled={true} title="model probably not selected" />
+                        <CreateButton style="cursor-not-allowed" disabled={true} title="You have to select model first" />
                     )}
                     <CancelButton onClick={localClose} />
                 </div>

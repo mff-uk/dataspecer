@@ -30,6 +30,11 @@ export interface Configuration {
    */
   nameToClassIri: NameToIriStrategy;
 
+  /**
+   * When true identifiers should not be visible to the user.
+   */
+  hideIdentifier: boolean;
+
 }
 
 /**
@@ -40,5 +45,6 @@ export const configuration = (): Configuration => {
     languagePreferences: ["en", "es", "de", "cs", "sk"],
     nameToIri: NamingConventions.lowerCamelCase,
     nameToClassIri: NamingConventions.upperCamelCase,
+    hideIdentifier: true,
   };
 };
