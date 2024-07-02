@@ -3,7 +3,8 @@ import {logger} from "./logging";
 /**
  * List of texts used in the application.
  */
-const translations: Record<string, string> = {
+// eslint-disable-next-line @typescript-eslint/ban-types
+const translations: Record<string, string | Function> = {
   "create-class-dialog.create-class": "Create a new class",
   "create-class-dialog.name": "Name",
   "create-class-dialog.iri": "IRI",
@@ -43,14 +44,30 @@ const translations: Record<string, string> = {
   "entity-detail-dialog.domain": "Domain",
   "entity-detail-dialog.range": "Range",
   "entity-detail-dialog.datatype": "Datatype",
+  //
+  "create-connection-dialog.iri": "IRI",
+  "create-connection-dialog.type": "Type",
+  "create-connection-dialog.name": "Name",
+  "create-connection-dialog.description": "Definition",
+  "create-connection-dialog.cardinality": "Cardinalities",
+  "create-connection-dialog.source": "Source",
+  "create-connection-dialog.target": "Target",
+  //
+  "model-service.model-label-from-id": (id: string) => `Unnamed model with id '${id}'`,
+  //
+  "model": "Model",
+  "generalization-label": (child: string, parent: string) => `Generalization of '${child}' is '${parent}'`
 };
 
-export const t = (text: string) : string => {
+export const t = (text: string, ...args: unknown[]) : string => {
   const result = translations[text];
-  console.log({result, translations, text});
   if (result === undefined) {
     logger.missingTranslation(text);
     return "MISSING: " + text;
+  } else  if (result instanceof Function) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return result(...args);
+  } else {
+    return result;
   }
-  return result;
 };

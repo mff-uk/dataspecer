@@ -7,11 +7,8 @@ import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-mode
 import type { EntityDetailSupportedType } from "../../util/detail-utils";
 import { getLanguagesForNamedThing } from "../../util/language-utils";
 
-const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-    return [...models.entries()]
-        .filter(([_, m]) => m instanceof InMemorySemanticModel)
-        .map(([mId, m]) => ({ id: mId, alias: m.getAlias() }));
-};
+import { t } from "../../application";
+import { getModelLabel } from "../../service/model-service";
 
 export const DialogColoredModelHeader = (props: { activeModel: EntityModel | null; style?: string }) => {
     const { aggregatorView } = useModelGraphContext();
@@ -76,18 +73,19 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
     const { aggregatorView, models } = useModelGraphContext();
     const { activeModel, onModelSelected, style } = props;
 
-    const availableModels = filterInMemoryModels(models).map(model => ({
-        id: model.id,
-        label: model.alias ?? `Unnnamed model with id: ${model.id}`,
-    }));
+    const availableModels = Array.from(models.values())
+        .filter(model => model instanceof InMemorySemanticModel)
+        .map(model => ({
+            id: model.getId(),
+            label: getModelLabel(model),
+        }));
 
-    console.log("DialogColoredModelHeaderWithModelSelector", {availableModels});
     return (
         <div
             className={style}
             style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel ?? "") }}
         >
-            <DialogDetailRow detailKey="active model">
+            <DialogDetailRow detailKey={t("model")}>
                 <select
                     className="w-full"
                     name="models"

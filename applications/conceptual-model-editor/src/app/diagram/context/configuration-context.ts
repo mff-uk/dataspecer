@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 
-export const SupportedLanguages = ["en", "cs", "es"] as const;
+export const SupportedLanguages = ["en", "cs"] as const;
 export type SupportedLanguageType = (typeof SupportedLanguages)[number];
 
 export type ConfigurationContextType = {

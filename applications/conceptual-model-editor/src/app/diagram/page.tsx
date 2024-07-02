@@ -32,6 +32,8 @@ import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
+import "./page.css";
+
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
 
