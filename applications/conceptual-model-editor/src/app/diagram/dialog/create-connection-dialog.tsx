@@ -82,16 +82,14 @@ export const useCreateConnectionDialog = () => {
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
-        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
+        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id">>({
+            iri: getRandomName(7),
             name: {},
             description: {},
             ends: [],
         });
 
-        const [newIri, setNewIri] = useState(getRandomName(7));
-        const [iriHasChanged, setIriHasChanged] = useState(false);
-
-        const modelIri = getModelIri(models.get(activeModel));
+        const baseIri = getModelIri(models.get(activeModel));
 
         const source = classes.find((item) => item.id == sourceId) ?? profiles.find((item) => item.id == sourceId);
         const target = classes.find((item) => item.id == targetId) ?? profiles.find((item) => item.id == targetId);
@@ -141,7 +139,7 @@ export const useCreateConnectionDialog = () => {
                                 description: association.description ?? null,
                                 concept: association.ends.at(1)?.concept ?? null,
                                 cardinality: association.ends.at(1)?.cardinality ?? null,
-                                iri: newIri,
+                                iri: association.iri,
                             },
                         ],
                     } as AssociationConnectionType);
@@ -197,24 +195,14 @@ export const useCreateConnectionDialog = () => {
                             (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
                         }
                     >
-                        <DialogDetailRow detailKey={t("create-connection-dialog.iri")}>
-                            <IriInput
-                                name={association.name}
-                                newIri={newIri}
-                                setNewIri={(i) => setNewIri(i)}
-                                iriHasChanged={iriHasChanged}
-                                onChange={() => setIriHasChanged(true)}
-                                baseIri={modelIri}
-                                nameSuggestion={configuration().nameToIri}
-                                disabled={connectionType !== ConnectionType.association}
-                            />
-                        </DialogDetailRow>
                         <Association
                             from={source.id}
                             to={target.id}
                             setAssociation={setAssociation}
                             key="association-component-create-connection"
                             disabled={connectionType !== ConnectionType.association}
+                            baseIri={baseIri}
+                            language={preferredLanguage}
                         />
                     </div>
                 </div>
@@ -276,28 +264,33 @@ const TypeSwitch = (props: {
 const Association = (props: {
     from: string;
     to: string;
-    setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
+    setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id">>>;
     disabled: boolean;
+    baseIri: string;
+    language: string;
 }) => {
-    const { language: preferredLanguage } = useConfigurationContext();
-    const { from, to, setAssociation, disabled } = props;
+    const { language, disabled, setAssociation } = props;
+
+    const [iri, setIri] = useState(getRandomName(7));
+    const [iriHasChanged, setIriHasChanged] = useState(false);
 
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
     const [source, setSource] = useState({
-        concept: from,
+        concept: props.from,
     } as SemanticModelRelationshipEnd);
     const [target, setTarget] = useState({
-        concept: to,
+        concept: props.to,
     } as SemanticModelRelationshipEnd);
 
     useEffect(() => {
         setAssociation({
+            iri,
             name,
             description,
             ends: [source, target],
         });
-    }, [name, description, source, target, setAssociation]);
+    }, [iri, name, description, source, target, setAssociation]);
 
     return (
         <>
@@ -306,7 +299,19 @@ const Association = (props: {
                     ls={name}
                     setLs={setName}
                     inputType="text"
-                    defaultLang={preferredLanguage}
+                    defaultLang={language}
+                    disabled={disabled}
+                />
+            </DialogDetailRow>
+            <DialogDetailRow detailKey={t("create-connection-dialog.iri")}>
+                <IriInput
+                    name={name}
+                    newIri={iri}
+                    setNewIri={(i) => setIri(i)}
+                    iriHasChanged={iriHasChanged}
+                    onChange={() => setIriHasChanged(true)}
+                    baseIri={props.baseIri}
+                    nameSuggestion={configuration().nameToIri}
                     disabled={disabled}
                 />
             </DialogDetailRow>
@@ -315,10 +320,11 @@ const Association = (props: {
                     ls={description}
                     setLs={setDescription}
                     inputType="textarea"
-                    defaultLang={preferredLanguage}
+                    defaultLang={language}
                     disabled={disabled}
                 />
             </DialogDetailRow>
+
             {/* We hide cardinality for associations. */}
             {configuration().hideRelationCardinality ? null :
                 <DialogDetailRow detailKey={t("create-connection-dialog.cardinality")}>
