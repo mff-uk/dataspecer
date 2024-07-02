@@ -2,7 +2,7 @@
 
 # Developer documentation
 
-To start developing, follow the [about and install guide](./about-and-install.md). The architecture of `dscme` is depicted, as best as i could, [here](./architecture.md).
+To start developing, follow the [about and install guide](./about-and-install.md). The architecture of `dscme` is depicted, as best as i could, [here](./architecture.md). If you are wondering why we do what we do, read the [motivation](#motivation).
 
 Other dev docs:
 
@@ -12,121 +12,38 @@ Other dev docs:
 
 ## Motivation
 
+### Why to use Dataspecer
+
+Imagine you have to ensure that a group of entities publish some information about themselves. Let us take villages/towns/cities that need to publish information about tourist destinations. The goal is to know the single-point-of-contact, opening hours, barrier-free access and whether there is a lower price for elderly.
+
+![publishing entities](./img/motivation-0-publishing-entities.svg)
+
+The problem is that IT specialists in every village are not synchronized with each other and the data published are not interoperable.
+
+The solution is to have a data specification that ensures said interoperability.
+
+![data specification](./img/motivation-1-data-specification.svg)
+
+Now that data interoperability is ensured, another problem (much less severe) becomes the process of creating such data specification. Luckily, there is already the tool named [Dataspecer](https://dataspecer.com) that manages data specifications.
+
+![dataspecer manages data specifications](./img/motivation-2-dataspecer.svg)
+
+It maps concepts from [ontologies](<https://en.wikipedia.org/wiki/Ontology_(information_science)>) to data structures. Data structures can then be used as a basis for generating validation JSON schemas, CSV, or Shacl and ShEx validation for RDF.
+
+The problem with Dataspecer is that it only maps concepts that are contained in the source ontology. If there is a concept you need to use and it doesn't exist there, Dataspecer won't help.
+
+That is the reason why we created `dscme` - Dataspecer Conceptual Model Editor.
+
+### Conceptual modeling and Application profiles
+
 Conceptual modeling aims on creating abstract representations of systems to simplify communication between people involved and builds certain standards on knowledge exchange. It identifies entities, relationships, and constraints within a domain.
-Application profiles are customized specifications that define how a set of concepts should be used for a particular application or domain.
+Application profiles are customized specifications that define how a set of concepts should be used for a particular application or domain. If you want to learn more, see the [Semic style guide](https://semiceu.github.io/style-guide/1.0.0/terminological-clarifications.html#sec:what-is-an-ap-specification). By the way, the whole [Terms clarification section](https://semiceu.github.io/style-guide/1.0.0/terminological-clarifications.html) is a useful source of information for the context of `dscme`.
 
 ### Similar tools
 
-There are multiple conceptual modeling tools that let you model in ERD (entity-relationship diagrams), UML, flowcharts etc. `dscme` is a browser-based, open-source conceptual model editor. It is, by the looks of it, similar to other tools like Protégé Web, WebVOWL, and maybe others. It provides an environment for ontology and data modeling. Like these tools, it supports multiple models and offers various views on concepts, allowing for easier interaction. However, `dscme` differs by supporting IRIs for all resources, enabling precise identification and linking of web-based data. Additionally, by setting for example base IRIs for models and supporting application profiles, `dscme` offers more tailored and versatile metadata management capabilities compared to the more general features of other conceptual modeling tools.
+There are multiple conceptual modeling tools that let you model in ERD (entity-relationship diagrams), UML, flowcharts etc. `dscme` is a browser-based, open-source conceptual model editor. It is, by the looks of it, similar to other tools like Protégé Web, WebVOWL, and maybe others. It provides an environment for ontology and data modeling. Like these tools, it supports multiple models and offers various views on concepts, allowing for easier interaction.
 
-## Chronological Progress Report
-
--   4/2023
-    -   figma prototype
-    -   first iteration with jointks, a tracer-bullet on working with it
--   5/2023
-    -   integration to dataspecer/core types
-    -   first rdf vocabulary loaded
-    -   first concepts from slovník.gov.cz
-    -   some visualization with jointjs
--   6/2023
-    -   in-memory vocabularies
-    -   research on diagramming libraries
-        -   https://docs.google.com/spreadsheets/d/1b2dZXq4GI3eeqNKxobrqYva_OaLz0sEm9ggqtvr7-pE/edit#gid=0
-    -   in the end - reactflow
-    -   even though it has some drawbacks such as edge renderings, no edge layout customization
--   8-12/2023
-    -   dataspecer/core-v2 came up
-    -   application had to be reintegrated
-    -   first connection to dataspecer backend, saving stuff
-    -   concept manipulation - crud
-    -   using reactflow and core-v2 EO 2023
-    -   model colors
-    -   visual models / views - impl for dataspecer/core-v2 pkg
-    -   multiple views support
--   01/2024
-    -   class boxes on the canvas have attributes
-    -   edges on canvas have colors, labels and cardinalities
-    -   central view management
-    -   dialogs
-        -   create model
-        -   create relationship
-        -   modify concept
-    -   saving whole workspace to backend
--   02/2024
-    -   rendering edges with existing ends
-    -   view management for canvas
-    -   local project/package manager
-    -   enhancements on backend service
-        -   listing views
-        -   adding color support for models
-    -   opening package from backend with `package-id` query parameter
-    -   detail dialog shows attributes + cardinalities
--   03/2024
-    -   visualization does only partial updates, no full rerenders
-        -   subscribes to aggregator changes
-    -   an attempt at auto-layout, too difficult
-        -   (5/2024) another student now works solely on layouts
-    -   random names generation
-    -   color picker instead of completely free color picking
-    -   support for opening a view directly with `view-id` query parameter
-    -   internal change of naming profiles instead of usages
-    -   start of work on application profiles
-    -   language setting works even in visualization
--   04/2024
-    -   hierarchical view on concepts and their profiles in concepts catalog
-    -   `dscme` has first users
-        -   first datasets modelled in `dscme` for other students -- LLM assistant
-    -   auto-generation of iris based on names
-    -   unifying dialog looks
-    -   new class on `alt`+click on canvas
-    -   model aliases
-    -   default local model after cold start
-    -   using the same colors in a new view
-    -   support for profiling, showing values of profiled concept
-    -   **the second half of april**
-    -   let's start over
-    -   we have to work with edges differently than before
-        -   reverse engineering was wrong, the whole group had to come with a way of representing relationships and attributes
-    -   rewriting relationships and attributes to the new style
-    -   dataspecer/core-v2 wasn't even ready for that, had to do some impl there too
-    -   util functions to distinguish relationships and attributes
-    -   adjustments on lw-onto generator for the new approach
-    -   i feel the time-crunch, new requirement still piling up
-    -   util functions getting the name/description/.. easier
-    -   model base iris
-    -   showing generalizations/specializations in the detail dialog
-    -   context menus on canvas
-    -   aggregator didn't show profile info properly
-        -   now it has the [`raw` values](./dev-docs-working-with-aggregator.md#with-raws)
-    -   don't just take whatever profiled class had, take only what's necessary
-        -   override checkbox
-    -   domain and range can come in any order, we have to support that as well
--   05/2024
-    -   profiles also need iris
-    -   support for absolute and relative iris
-    -   file structure refactor
-    -   data-types support, easily extendable
-    -   absolute iris for built-in lw-onto generator
-        -   works well only within `dscme`, backend lw generator doesn't use the information about source model
-    -   dialog buttons unification
-    -   entityProxy for easier detail info reading
-    -   drag-n-drop
-    -   autosave to backend
-    -   more refactoring, self-closing picker and context menus
-    -   request to postpone the deadline
-    -   started the documentation
-    -   👁/🕶 changing the state only when needed
-    -   fixing failed pipelines because some students push directly to main
-    -   integration to the manager app / built-in project manager, based on the deployment
-    -   dialog provider
-    -   generalizations were done only for classes, the interface didn't say it worked otherwise
-        -   adding that functionality
-        -   labels for edge generalizations on canvas
-        -   modification dialog now adds generalizations
-    -   feedback for `💾pkg` button
-    -   package and view query params are now part of `useQueryParams` hook
-    -   maybe something else, you can check the git history
+However, `dscme` differs by supporting IRIs for all resources, enabling precise identification and linking of web-based data. Additionally, by setting for example base IRIs for models and supporting application profiles, `dscme` offers more tailored and versatile metadata management capabilities compared to the more general features of other conceptual modeling tools.
 
 ## Decisions and future improvements
 
