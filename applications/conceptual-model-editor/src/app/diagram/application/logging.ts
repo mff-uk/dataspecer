@@ -6,10 +6,10 @@
  * For now we just call console to print into the console.
  */
 export const logger = {
-  error: (message: string, ...args: any) => {
+  error: (message: string, ...args: unknown[]) => {
     console.error(message, ...args);
   },
-  warn: (message: string, ...args: any) => {
+  warn: (message: string, ...args: unknown[]) => {
     console.error(message, ...args);
   },
   /**

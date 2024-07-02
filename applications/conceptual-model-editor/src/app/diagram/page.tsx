@@ -261,7 +261,7 @@ const Page = () => {
                             updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else {
-                        console.error(`Unknown type of updated entity type: ${curr.aggregatedEntity?.type} id: ${curr.aggregatedEntity?.id}`);
+                        console.error("Unknown type of updated entity", curr.aggregatedEntity);
                         throw new Error("Unknown type of updated entity.");
                     }
                 },
