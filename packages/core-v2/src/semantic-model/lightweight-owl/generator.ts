@@ -46,30 +46,13 @@ class Generator {
 
     constructor(private context?: Context) {}
 
-    private processIri(iri: string): string {
-        const baseIri = this.context?.baseIri;
-        console.log(iri, baseIri);
-        if (baseIri && baseIri.length && iri.startsWith(baseIri)) {
-            if (baseIri.endsWith("#")) {
-                return iri.substring(baseIri.length - 1);
-            } else {
-                return iri.substring(baseIri.length);
-            }
-        } else {
-            return iri;
-        }
-    }
-
     public generate(entities: SemanticModelEntity[]): Promise<string> {
         this.writer = new N3.Writer();
-        if (this.context?.baseIri) {
-            // @ts-ignore internal API because it does not have @base option
-            this.writer._write(`@base <${this.context.baseIri}> .\n`);
-        }
         this.writer.addPrefixes({
             owl: "http://www.w3.org/2002/07/owl#",
             rdfs: "http://www.w3.org/2000/01/rdf-schema#",
             rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            ... this.context?.baseIri ? { "": this.context.baseIri } : {},
         });
         const classes = entities.filter(isSemanticModelClass);
         this.entitiesMap = Object.fromEntries(entities.map(e => [e.id, e]));
@@ -97,7 +80,7 @@ class Generator {
     }
 
     private writeClass(entity: SemanticModelClass) {
-        const iri = namedNode(this.processIri(entity.iri ?? entity.id));
+        const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(
             iri,
             RDF_TYPE,
@@ -114,13 +97,13 @@ class Generator {
             this.writer.addQuad(
                 iri,
                 namedNode("http://www.w3.org/2000/01/rdf-schema#subClassOf"),
-                namedNode(this.processIri((this.entitiesMap[subclass.parent] as SemanticModelClass)?.iri ?? subclass.parent))
+                namedNode((this.entitiesMap[subclass.parent] as SemanticModelClass)?.iri ?? subclass.parent)
             );
         }
     }
 
     private getNodeById(id: string) {
-        return namedNode(this.processIri(this.entitiesMap[id]?.iri ?? id));
+        return namedNode(this.entitiesMap[id]?.iri ?? id);
     }
 
     private writeNamedThing(entity: NamedThing & SemanticModelEntity) {
@@ -129,11 +112,11 @@ class Generator {
         let name: LanguageString, description: LanguageString;
         if (isSemanticModelRelationship(entity)) {
             const range = getDomainAndRange(entity)?.range;
-            iri = namedNode(this.processIri(range?.iri ?? entity.iri ?? entity.id));
+            iri = namedNode(range?.iri ?? entity.iri ?? entity.id);
             name = range?.name ?? entity.name;
             description = range?.description ?? entity.description;
         } else {
-            iri = namedNode(this.processIri(entity.iri ?? entity.id));
+            iri = namedNode(entity.iri ?? entity.id);
             name = entity.name;
             description = entity.description;
         }
@@ -147,7 +130,7 @@ class Generator {
         const domainEnd = getDomainAndRange(entity)?.domain;
         const rangeEnd = getDomainAndRange(entity)?.range;
 
-        const iri = namedNode(this.processIri(rangeEnd?.iri ?? entity.iri ?? entity.id));
+        const iri = namedNode(rangeEnd?.iri ?? entity.iri ?? entity.id);
 
         // const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
