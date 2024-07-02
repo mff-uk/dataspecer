@@ -121,7 +121,8 @@ export const useCreateConnectionDialog = () => {
                         type: "generalization",
                         child: source.id,
                         parent: target.id,
-                        iri: newIri,
+                        // https://github.com/mff-uk/dataspecer/issues/537
+                        iri: null,
                     } as GeneralizationConnectionType);
                     break;
                 case ConnectionType.association:
@@ -185,6 +186,14 @@ export const useCreateConnectionDialog = () => {
                                 {getEntityLabel(target, preferredLanguage)}
                             </span>
                         </DialogDetailRow>
+                    </div>
+
+                    <div
+                        className={
+                            "grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 " +
+                            (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
+                        }
+                    >
                         <DialogDetailRow detailKey={t("create-connection-dialog.iri")}>
                             <IriInput
                                 name={association.name}
@@ -194,22 +203,15 @@ export const useCreateConnectionDialog = () => {
                                 onChange={() => setIriHasChanged(true)}
                                 baseIri={modelIri}
                                 nameSuggestion={configuration().nameToIri}
+                                disabled={connectionType !== ConnectionType.association}
                             />
                         </DialogDetailRow>
-                    </div>
-
-                    <div
-                        className={
-                            "grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 " +
-                            (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
-                        }
-                    >
                         <AssociationComponent
                             from={source.id}
                             to={target.id}
                             setAssociation={setAssociation}
                             key="association-component-create-connection"
-                            disabled={connectionType != "association"}
+                            disabled={connectionType !== ConnectionType.association}
                         />
                     </div>
                 </div>
