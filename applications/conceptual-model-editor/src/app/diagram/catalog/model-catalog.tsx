@@ -35,15 +35,15 @@ export const ModelCatalog = () => {
     const AddModelDialogButton = () => (
         <button
             onClick={() =>
-                openAddModelDialog(async (ttlFiles: string[]) => {
-                    const cb = async () => {
-                        const model = await createRdfsModel(ttlFiles, httpFetch);
+                openAddModelDialog(async (url: string) => {
+                    const callBack = async () => {
+                        const model = await createRdfsModel([url], httpFetch);
                         model.fetchFromPimStore();
                         addModelToGraph(model);
                         const aggregatedView = aggregator.getView();
                         setAggregatorView(aggregatedView);
                     };
-                    await cb();
+                    await callBack();
                 })
             }
             disabled={isAddModelDialogOpen}
