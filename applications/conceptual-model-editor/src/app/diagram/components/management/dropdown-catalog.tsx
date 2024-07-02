@@ -22,7 +22,7 @@ const key = (value: string | [string, string]) => {
     } else {
         return value;
     }
-}
+};
 
 const val = (value: string | [string, string]) => {
     if (Array.isArray(value)) {
@@ -30,7 +30,7 @@ const val = (value: string | [string, string]) => {
     } else {
         return value;
     }
-}
+};
 
 export const DropDownCatalog = (props: {
     catalogName: string;
@@ -53,7 +53,7 @@ export const DropDownCatalog = (props: {
     }, [dropdownOpen]);
 
     const valueSelectedVal = useMemo(() => {
-        return val(availableValues.find((v) => key(v) === valueSelected)!);
+        return val(availableValues.find((v) => key(v) === valueSelected) ?? "---");
     }, [valueSelected, availableValues]);
 
     return (

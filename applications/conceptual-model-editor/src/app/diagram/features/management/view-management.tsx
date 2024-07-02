@@ -17,7 +17,7 @@ export const ViewManagement = () => {
     const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
     const activeViewId = aggregatorView.getActiveViewId();
-    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.modelAlias]);
+    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.modelAlias] as [string, string]);
 
     useEffect(() => {
         if (!activeViewId) {
