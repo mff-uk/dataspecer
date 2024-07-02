@@ -8,13 +8,13 @@ import { getModelIri } from "../util/iri-utils";
 import { useBaseDialog } from "../components/base-dialog";
 import { generateName } from "../util/name-utils";
 import { useConfigurationContext } from "../context/configuration-context";
-import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
+import { IriInput } from "../components/input/iri-input";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
-import { t, logger } from "../application/";
+import { t, logger, configuration } from "../application/";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -37,10 +37,10 @@ export const useCreateClassDialog = () => {
 
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
         const [newDescription, setNewDescription] = useState<LanguageString>({});
-        const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
 
-        const modelIri = getModelIri(activeModel);
+        const baseIri = getModelIri(activeModel);
+        const [newIri, setNewIri] = useState( configuration().nameToClassIri(newName[preferredLanguage] ?? ""));
+        const [iriHasChanged, setIriHasChanged] = useState(false);
 
         const handleCreateClass = () => {
             if (!activeModel) {
@@ -84,10 +84,11 @@ export const useCreateClassDialog = () => {
                                 <IriInput
                                     name={newName}
                                     newIri={newIri}
-                                    setNewIri={(i) => setNewIri(i)}
+                                    setNewIri={(iri) => setNewIri(iri)}
                                     iriHasChanged={iriHasChanged}
                                     onChange={() => setIriHasChanged(true)}
-                                    baseIri={modelIri}
+                                    baseIri={baseIri}
+                                    nameSuggestion={configuration().nameToClassIri}
                                 />
                             </DialogDetailRow>
                             <DialogDetailRow detailKey={t("create-class-dialog.description")}>

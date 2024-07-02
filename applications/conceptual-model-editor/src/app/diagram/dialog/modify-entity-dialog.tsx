@@ -57,7 +57,7 @@ import { ModifyButton } from "../components/dialog/buttons/modify-button";
 import { areLanguageStringsEqual } from "../util/language-utils";
 import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
 import { useModelGraphContext } from "../context/model-context";
-import { t } from "../application/";
+import { t, configuration } from "../application/";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -493,6 +493,7 @@ export const useModifyEntityDialog = () => {
                                 setNewIri={(i) => setNewIri(i)}
                                 onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                                 baseIri={modelIri}
+                                nameSuggestion={configuration().nameToClassIri}
                             />
                         </DialogDetailRow>
 

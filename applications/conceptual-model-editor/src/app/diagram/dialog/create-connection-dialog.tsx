@@ -24,7 +24,7 @@ import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
 import { getEntityLabel } from "../service/model-service";
-import { t, logger } from "../application/";
+import { t, logger, configuration } from "../application/";
 
 enum ConnectionType {
     association = "association",
@@ -193,6 +193,7 @@ export const useCreateConnectionDialog = () => {
                                 iriHasChanged={iriHasChanged}
                                 onChange={() => setIriHasChanged(true)}
                                 baseIri={modelIri}
+                                nameSuggestion={configuration().nameToIri}
                             />
                         </DialogDetailRow>
                     </div>

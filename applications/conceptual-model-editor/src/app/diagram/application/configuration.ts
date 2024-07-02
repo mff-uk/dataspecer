@@ -1,3 +1,6 @@
+import * as NamingConventions from "./naming-styles";
+
+export type NameToIriStrategy = (name: string) => string;
 
 /**
  * This configuration is not provided via the React context as we
@@ -17,13 +20,25 @@ export interface Configuration {
    */
   languagePreferences: string[];
 
+  /**
+   * Given a name creates IRI.
+   */
+  nameToIri: NameToIriStrategy;
+
+  /**
+   * Specialization of nameToIri used for classes.
+   */
+  nameToClassIri: NameToIriStrategy;
+
 }
 
 /**
  * Read comment for the Configuration interface above!
  */
-export const configuration = () : Configuration => {
+export const configuration = (): Configuration => {
   return {
-    "languagePreferences": ["en", "es", "de", "cs", "sk"]
+    languagePreferences: ["en", "es", "de", "cs", "sk"],
+    nameToIri: NamingConventions.lowerCamelCase,
+    nameToClassIri: NamingConventions.upperCamelCase,
   };
 };

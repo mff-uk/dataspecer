@@ -35,6 +35,7 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
+import { configuration } from "../application/";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -199,7 +200,7 @@ export const useCreateProfileDialog = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                    {/* 
+                    {/*
                     ------------
                     Profile name
                     ------------
@@ -221,7 +222,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
+                    {/*
                     -----------
                     Profile IRI
                     -----------
@@ -236,10 +237,11 @@ export const useCreateProfileDialog = () => {
                             onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                             baseIri={modelIri}
                             withNameSuggestionsDisabled={true}
+                            nameSuggestion={configuration().nameToClassIri}
                         />
                     </DialogDetailRow>
 
-                    {/* 
+                    {/*
                     -------------------
                     Profile description
                     -------------------
@@ -262,7 +264,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
+                    {/*
                     ----------
                     Usage note
                     ----------
@@ -277,7 +279,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
+                    {/*
                     -----------------------------------------------------------
                     Range and domain for a relationship or relationship profile
                     -----------------------------------------------------------

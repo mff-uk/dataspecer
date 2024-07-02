@@ -12,7 +12,7 @@ import { IriInput } from "../input/iri-input";
 import { MultiLanguageInputForLanguageString } from "../input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "./dialog-detail-row";
 import { SelectDatatype } from "../input/select-datatype";
-import { t } from "../../application/";
+import { t, configuration } from "../../application/";
 
 export const AddAttributesComponent = (props: {
     preferredLanguage: string;
@@ -94,6 +94,7 @@ export const AddAttributesComponent = (props: {
                         }}
                         setNewIri={(i) => setIri(i)}
                         baseIri={modelIri}
+                        nameSuggestion={configuration().nameToIri}
                     />
                 </DialogDetailRow>
                 <DialogDetailRow detailKey={t("attributes-component.cardinality")}>
