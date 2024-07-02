@@ -33,7 +33,7 @@ export const Vocabulary = ({ isOpen, resolve, iri }: { iri: string } & BetterMod
       // Create semantic model
       await createModelInstructions[LOCAL_SEMANTIC_MODEL].createHook({
         parentIri: packageIri,
-        label: {en: "Semantic model"},
+        label: {en: name},
         description: {en: "Semantic model for the vocabulary"},
         baseIri: (event.target as any)["base-url"].value,
         documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,

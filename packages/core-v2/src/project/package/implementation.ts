@@ -115,8 +115,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             // @ts-ignore
             const modelSerialization = visualModel.serializeModel();
             const iri = visualModel.getId();
+            const name = modelSerialization.modelAlias ?? modelSerialization.alias;
 
             const response = await this.httpFetch(this.getResourceUrl(iri).toString());
+            const userMetadata = name ? { label: { en: name } } : {};
             if (response.status !== 200) {
                 const createdResponse = await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
                     method: "POST",
@@ -126,9 +128,21 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                     body: JSON.stringify({
                         iri: iri,
                         type: modelSerialization.type,
+                        userMetadata: userMetadata
                     }),
                 });
                 responseStatuses.add(createdResponse.status);
+            } else {
+                const updatedResponse = await this.httpFetch(this.getResourceUrl(iri).toString(), {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        userMetadata: userMetadata
+                    }),
+                });
+                responseStatuses.add(updatedResponse.status);
             }
 
             const updatedResponse = await this.httpFetch(this.getBlobUrl(iri).toString(), {
@@ -191,11 +205,14 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         const visualModels = [];
 
         for (const resource of resources) {
+            const name = resource.userMetadata.label?.en ?? resource.userMetadata.label?.cs;
+
             // Visual model
             if (resource.types.includes(LOCAL_VISUAL_MODEL)) {
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 const model = createVisualModel(resource.iri).deserializeModel(modelData); // ok
                 visualModels.push(model);
             }
@@ -206,6 +223,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 await model.unserializeModel(modelData);
                 entityModels.push(model);
             }
@@ -215,6 +233,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 const model = createInMemorySemanticModel().deserializeModel(modelData);
                 entityModels.push(model);
             }
@@ -224,7 +243,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
-                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias, modelData.urls);
+                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, name, modelData.urls);
                 model.fetchFromPimStore();
                 entityModels.push(model);
             }

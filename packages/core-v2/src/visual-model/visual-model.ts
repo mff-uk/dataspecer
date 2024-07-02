@@ -29,6 +29,8 @@ export class VisualEntityModelImpl implements VisualEntityModel {
     /** @internal */
     public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
 
+    public modelAlias: string | null = null;
+
     constructor(modelId: string | undefined) {
         console.log("visual model being created", modelId);
         this.iri = modelId ?? createId();
@@ -125,6 +127,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
             modelId: this.getId(),
             visualEntities: Object.fromEntries(this.entitiesMap.entries()),
             modelColors: Object.fromEntries(this.modelColors.entries()),
+            modelAlias: this.modelAlias,
         };
     }
 
@@ -138,6 +141,7 @@ export class VisualEntityModelImpl implements VisualEntityModel {
         for (const [modelId, color] of Object.entries(colors)) {
             this.modelColors.set(modelId, color);
         }
+        this.modelAlias = modelDescriptor.modelAlias;
         return this;
     }
 

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState, useMemo } from "react";
 
 const CatalogItem = (props: { value: string; onValueSelected: () => void; withDeleteButton?: () => void }) => {
     const { value, onValueSelected, withDeleteButton } = props;
@@ -16,10 +16,26 @@ const CatalogItem = (props: { value: string; onValueSelected: () => void; withDe
     );
 };
 
+const key = (value: string | [string, string]) => {
+    if (Array.isArray(value)) {
+        return value[0];
+    } else {
+        return value;
+    }
+}
+
+const val = (value: string | [string, string]) => {
+    if (Array.isArray(value)) {
+        return value[1];
+    } else {
+        return value;
+    }
+}
+
 export const DropDownCatalog = (props: {
     catalogName: string;
     valueSelected: string | null;
-    availableValues: readonly string[];
+    availableValues: readonly string[] | readonly [string, string][]; // [key, value]
     openCatalogTitle?: string;
     onValueSelected: (value: string) => void;
     onValueDeleted?: (value: string) => void;
@@ -36,6 +52,10 @@ export const DropDownCatalog = (props: {
         }
     }, [dropdownOpen]);
 
+    const valueSelectedVal = useMemo(() => {
+        return val(availableValues.find((v) => key(v) === valueSelected)!);
+    }, [valueSelected, availableValues]);
+
     return (
         <div className="my-auto">
             <div className="flex flex-col text-[15px]">
@@ -43,7 +63,7 @@ export const DropDownCatalog = (props: {
                     <div className="text-nowrap">
                         {catalogName}:
                         <span className="ml-2 max-w-40 overflow-x-clip text-wrap font-mono">
-                            {valueSelected ?? "---"}
+                            {valueSelectedVal ?? "---"}
                         </span>
                     </div>
                     <button
@@ -71,17 +91,17 @@ export const DropDownCatalog = (props: {
                             <ul className="w-full">
                                 {availableValues.map((value) => (
                                     <CatalogItem
-                                        key={value}
-                                        value={value}
+                                        key={key(value)}
+                                        value={val(value)}
                                         onValueSelected={() => {
                                             setDropdownOpen(false);
-                                            onValueSelected(value);
+                                            onValueSelected(key(value));
                                         }}
                                         withDeleteButton={
                                             onValueDeleted
                                                 ? () => {
                                                       setDropdownOpen(false);
-                                                      onValueDeleted(value);
+                                                      onValueDeleted(key(value));
                                                   }
                                                 : undefined
                                         }
