@@ -91,19 +91,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 {{#translate description}}
                 <tr>
-                  <td>{{#iflng "cs"}}Popis{{lng}}Description{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
                   <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
                 {{/translate}}
                 {{#if (parentClasses id)}}
                 <tr>
-                  <td>{{#iflng "cs"}}Rodičovské třídy{{lng}}Parent classes{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Rodičovské třídy{{lng}}Subclass of{{/iflng}}</td>
                   <td>{{#each (parentClasses id)}}{{class}}{{#unless @last}}, {{/unless}}{{/each}}</td>
                 </tr>
                 {{/if}}
                 {{#if (subClasses id)}}
                 <tr>
-                  <td>{{#iflng "cs"}}Podtřídy z tohoto slovníku{{lng}}Sub-classes{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Podtřídy z tohoto slovníku{{lng}}Subclasses{{/iflng}}</td>
                   <td>{{#each (subClasses id)}}{{class}}{{#unless @last}}, {{/unless}}{{/each}}</td>
                 </tr>
                 {{/if}}
