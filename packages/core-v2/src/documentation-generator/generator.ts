@@ -108,7 +108,11 @@ export async function generateDocumentation(
   /**
    * Shortens IRIs by using prefixes.
    */
-  handlebars.registerHelper('prefixed', function(iri: string) {
+  handlebars.registerHelper('prefixed', function(iri?: string) {
+    if (!iri) {
+      return iri;
+    }
+    
     const last = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
     if (last === -1) {
       return iri;
