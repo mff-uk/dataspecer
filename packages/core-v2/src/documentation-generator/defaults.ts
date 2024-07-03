@@ -22,7 +22,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           specStatus: "unofficial",
           editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }]
           //github: "some-org/mySpec",
-          //shortName: "dahut",
+          shortName: "todo",
           //xref: "web-platform",
           //group: "my-working-group",
         };
@@ -203,7 +203,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/ifEquals}}
       {{/each}}
       </section>
-      
+
       <section>
         <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
         <table class="def">
