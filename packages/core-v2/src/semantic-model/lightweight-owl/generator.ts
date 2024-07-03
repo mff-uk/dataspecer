@@ -41,7 +41,6 @@ const RDF_TYPE = namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const OWL_THING = ["http://www.w3.org/2002/07/owl#Thing"];
 
 function getRelationshipIri(relationship: SemanticModelRelationship) {
-    const domainEnd = getDomainAndRange(relationship)?.domain;
     const rangeEnd = getDomainAndRange(relationship)?.range;
     return rangeEnd?.iri ?? relationship.iri ?? relationship.id;
 }
@@ -163,7 +162,7 @@ class Generator {
             this.writer.addQuad(
                 iri,
                 namedNode("http://www.w3.org/2000/01/rdf-schema#subPropertyOf"),
-                namedNode(getRelationshipIri(this.entitiesMap[generalization.parent] as SemanticModelRelationship) ?? generalization.parent)
+                namedNode(this.entitiesMap[generalization.parent] ? getRelationshipIri(this.entitiesMap[generalization.parent] as SemanticModelRelationship) : generalization.parent)
             );
         };
 
