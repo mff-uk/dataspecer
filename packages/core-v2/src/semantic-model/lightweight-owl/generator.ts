@@ -40,9 +40,15 @@ const RDF_TYPE = namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 // IRIs that basically represents owl thing and are not necessary to be included in the ontology
 const OWL_THING = ["http://www.w3.org/2002/07/owl#Thing"];
 
+function getRelationshipIri(relationship: SemanticModelRelationship) {
+    const domainEnd = getDomainAndRange(relationship)?.domain;
+    const rangeEnd = getDomainAndRange(relationship)?.range;
+    return rangeEnd?.iri ?? relationship.iri ?? relationship.id;
+}
+
 class Generator {
     private writer!: N3.Writer;
-    private subclasses!: SemanticModelGeneralization[];
+    private generalizations!: SemanticModelGeneralization[];
     private entitiesMap!: Record<string, SemanticModelEntity>;
 
     constructor(private context: Context) {}
@@ -57,8 +63,8 @@ class Generator {
         });
         const classes = entities.filter(isSemanticModelClass);
         this.entitiesMap = Object.fromEntries(entities.map(e => [e.id, e]));
-        this.subclasses = entities.filter(isSemanticModelGeneralization);
-        this.subclasses.sort((a, b) => a.parent < b.parent ? -1 : a.parent > b.parent ? 1 : 0);
+        this.generalizations = entities.filter(isSemanticModelGeneralization);
+        this.generalizations.sort((a, b) => a.parent < b.parent ? -1 : a.parent > b.parent ? 1 : 0);
         classes.sort(simpleIdSort);
         const properties = entities.filter(isSemanticModelRelationship);
         // TODO: what about application profiles
@@ -99,7 +105,7 @@ class Generator {
             namedNode("http://www.w3.org/2000/01/rdf-schema#isDefinedBy"),
             namedNode(this.context.iri),
         );
-        for (const subclass of this.subclasses.filter(s => s.child === entity.id)) {
+        for (const subclass of this.generalizations.filter(s => s.child === entity.id)) {
             this.writer.addQuad(
                 iri,
                 namedNode("http://www.w3.org/2000/01/rdf-schema#subClassOf"),
@@ -135,8 +141,7 @@ class Generator {
     private writeProperty(entity: SemanticModelRelationship) {
         const domainEnd = getDomainAndRange(entity)?.domain;
         const rangeEnd = getDomainAndRange(entity)?.range;
-
-        const iri = namedNode(rangeEnd?.iri ?? entity.iri ?? entity.id);
+        const iri = namedNode(getRelationshipIri(entity));
 
         // const iri = namedNode(entity.iri ?? entity.id);
         this.writer.addQuad(iri, RDF_TYPE, namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
@@ -153,6 +158,14 @@ class Generator {
             namedNode("http://www.w3.org/2000/01/rdf-schema#isDefinedBy"),
             namedNode(this.context.iri),
         );
+
+        for (const generalization of this.generalizations.filter(s => s.child === entity.id)) {
+            this.writer.addQuad(
+                iri,
+                namedNode("http://www.w3.org/2000/01/rdf-schema#subPropertyOf"),
+                namedNode(getRelationshipIri(this.entitiesMap[generalization.parent] as SemanticModelRelationship) ?? generalization.parent)
+            );
+        };
 
         const domainConcept = domainEnd?.concept ?? null;
         const rangeConcept = rangeEnd?.concept ?? null;
