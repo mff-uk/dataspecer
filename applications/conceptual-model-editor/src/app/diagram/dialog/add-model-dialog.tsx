@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useBaseDialog } from "../components/base-dialog";
 import { AddButton } from "../components/dialog/buttons/add-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
@@ -9,14 +9,14 @@ const DEFAULT_IMPORT_URL = "https://www.w3.org/ns/dcat.ttl";
 export const useAddModelDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const addModelDialogRef = useRef(null as unknown as HTMLDialogElement);
-    const [onSaveCallback, setOnSaveCallback] = useState<null | ((url: string) => Promise<void>)>(null);
+    const [onSaveCallback, setOnSaveCallback] = useState<null | ((url: string, options: {name: string}) => Promise<void>)>(null);
 
     useEffect(() => {
         const { current: el } = addModelDialogRef;
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const localOpen = (onSaveCallback: (url: string) => Promise<void>) => {
+    const localOpen = (onSaveCallback: (url: string, options: {name: string}) => Promise<void>) => {
         // We store the callback.
         setOnSaveCallback(() => onSaveCallback);
         open();
@@ -27,16 +27,33 @@ export const useAddModelDialog = () => {
         close();
     };
 
-    const save = async (url: string) => {
-        await onSaveCallback?.(url);
+    const save = async (url: string, name: string) => {
+        await onSaveCallback?.(url, {name});
         localClose();
     };
 
     const AddModelDialog = () => {
         const [url, setUrl] = useState(DEFAULT_IMPORT_URL);
 
+        const [name, setName] = useState("");
+        const [isNameDefault, setIsNameDefault] = useState(true);
+
+        const urlName = useMemo(() => {
+            let chunkToParse = url;
+            try {
+                chunkToParse = (new URL(url)).pathname;
+            } catch (error) {}
+
+            return chunkToParse.split("/").pop()?.split(".")[0] ?? "";
+        }, [url]);
+
         const handleAddModels = () => {
-            save(url).catch((error: unknown) => logger.error("Can't import model.", {url, error}));
+            save(url, isNameDefault ? urlName : name).catch((error: unknown) => logger.error("Can't import model.", {url, error}));
+        };
+
+        const changeName = (newName: string) => {
+            setIsNameDefault(newName === urlName);
+            setName(newName);
         };
 
         return (
@@ -52,6 +69,14 @@ export const useAddModelDialog = () => {
                     type="text"
                     onChange={(e) => setUrl(e.target.value.trim())}
                     value={url}
+                />
+                <br/>
+                <label htmlFor="name">Imported model name:</label>
+                <input
+                    name="name"
+                    type="text"
+                    onChange={(e) => changeName(e.target.value.trim())}
+                    value={isNameDefault ? urlName : name}
                 />
                 <br/>
                 <p className="italic">

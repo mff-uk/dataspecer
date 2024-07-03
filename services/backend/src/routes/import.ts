@@ -164,8 +164,17 @@ async function importFromUrl(parentIri: string, url: string) {
 
     return await resourceModel.getResource(newPackageIri);
   } else {
+    // Generate name
+    let chunkToParse = url;
+    try {
+        chunkToParse = (new URL(url)).pathname;
+    } catch (error) {}
+
+    const name = chunkToParse.split("/").pop()?.split(".")[0] ?? null;
+
     return await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
       documentBaseUrl: url,
+      ... name ? { label: { en: name } } : {},
     });
   }
 }

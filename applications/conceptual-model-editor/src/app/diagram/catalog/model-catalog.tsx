@@ -35,11 +35,12 @@ export const ModelCatalog = () => {
     const AddModelDialogButton = () => (
         <button
             onClick={() =>
-                openAddModelDialog(async (url: string) => {
+                openAddModelDialog(async (url: string, options: {name: string}) => {
                     const callBack = async () => {
                         const model = await createRdfsModel([url], httpFetch);
                         model.fetchFromPimStore();
                         addModelToGraph(model);
+                        model.alias = options.name;
                         const aggregatedView = aggregator.getView();
                         setAggregatorView(aggregatedView);
                     };
