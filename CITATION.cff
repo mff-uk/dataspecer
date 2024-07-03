@@ -54,11 +54,35 @@ preferred-citation:
     - family-names: Klímek
       given-names: Jakub
       orcid: 'https://orcid.org/0000-0001-7234-3051'
+  editors:
+    - family-names: Groth
+      given-names: Paul
+    - family-names: Rula
+      given-names: Anisa
+    - family-names: Schneider
+      given-names: Jodi
+    - family-names: Tiddi
+      given-names: Ilaria
+    - family-names: Simperl
+      given-names: Elena
+    - family-names: Alexopoulos
+      given-names: Panos
+    - family-names: Hoekstra
+      given-names: Rinke
+    - family-names: Alam
+      given-names: Mehwish
+    - family-names: Dimou
+      given-names: Anastasia
+    - family-names: Tamper
+      given-names: Minna
   doi: 10.1007/978-3-031-11609-4_10
   title: "DataSpecer: A Model-Driven Approach to Managing Data Specifications"
   conference:
     name: "Lecture Notes in Computer Science"
   collection-title: "The Semantic Web: ESWC 2022 Satellite Events - Hersonissos, Crete, Greece, May 29 - June 2, 2022, Proceedings"
+  url: https://doi.org/10.1007/978-3-031-11609-4_10
+  publisher:
+    name: Springer
   month: 5
   start: 52
   end: 56
