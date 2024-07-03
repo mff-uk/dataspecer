@@ -57,8 +57,8 @@ preferred-citation:
   doi: 10.1007/978-3-031-11609-4_10
   title: "DataSpecer: A Model-Driven Approach to Managing Data Specifications"
   conference:
-    name: "The Semantic Web: ESWC 2022 Satellite Events - Hersonissos, Crete, Greece, May 29 - June 2, 2022"
-  collection-title: "Lecture Notes in Computer Science"
+    name: "Lecture Notes in Computer Science"
+  collection-title: "The Semantic Web: ESWC 2022 Satellite Events - Hersonissos, Crete, Greece, May 29 - June 2, 2022, Proceedings"
   month: 5
   start: 52
   end: 56
