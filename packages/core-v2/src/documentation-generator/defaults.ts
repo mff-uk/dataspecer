@@ -42,26 +42,8 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{#translate package.userMetadata.label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
       </section>
       
-      <section id="sotd">
-      </section>
-
-      <section>
-        <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
-        <table class="def">
-          {{#if externalArtifacts.owl-vocabulary}}
-            <tr>
-              <td>{{#iflng "cs"}}Slovník{{lng}}Vocabulary{{/iflng}}</td>
-              <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
-            </tr>
-          {{/if}}
-          {{#if externalArtifacts.dsv-profile}}
-            <tr>
-              <td>{{#iflng "cs"}}Aplikační profil{{lng}}Application profile{{/iflng}}</td>
-              <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
-            </tr>
-          {{/if}}
-        </table>
-      </section>
+      <!--<section id="sotd">
+      </section>-->
 
       <section>
         <h1>{{#iflng "cs"}}Slovník{{lng}}Vocabulary Overview{{/iflng}}</h1>
@@ -221,7 +203,24 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/ifEquals}}
       {{/each}}
       </section>
-
+      
+      <section>
+        <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
+        <table class="def">
+          {{#if externalArtifacts.owl-vocabulary}}
+            <tr>
+              <td>{{#iflng "cs"}}Slovník{{lng}}Vocabulary{{/iflng}}</td>
+              <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
+            </tr>
+          {{/if}}
+          {{#if externalArtifacts.dsv-profile}}
+            <tr>
+              <td>{{#iflng "cs"}}Aplikační profil{{lng}}Application profile{{/iflng}}</td>
+              <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
+            </tr>
+          {{/if}}
+        </table>
+      </section>
     </body>
   </html>`,
   language: "en"
