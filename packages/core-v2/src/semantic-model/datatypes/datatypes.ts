@@ -14,7 +14,10 @@ export const XsdSimpleTypeURIs = [
     "http://www.w3.org/2001/XMLSchema#QName",
 ];
 
-export const RdfTypeURIs = ["http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"];
+export const RdfTypeURIs = [
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literal",
+];
 
 export const DataTypeURIs = [
     ...XsdSimpleTypeURIs,
