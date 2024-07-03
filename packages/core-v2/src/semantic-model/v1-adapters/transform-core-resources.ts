@@ -45,6 +45,15 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
     // Transform classes
     for (const resource of Object.values(resources)) {
         if (PimClass.is(resource)) {
+            // Hotfix remove empty classes
+            if (!resource.pimHumanLabel || !Object.keys(resource.pimHumanLabel).length) {
+                continue;
+            }
+            // Hotfix remove owl:Thing
+            if (resource.iri === "http://www.w3.org/2002/07/owl#Thing") {
+                continue;
+            }
+
             // Merge transform pim class into result
             result = { ...result, ...transformPimClass(resource) };
         }
