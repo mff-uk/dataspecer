@@ -59,3 +59,10 @@ The `src` directory includes several important directories as well as separate n
 
 In case you only need to build this applcation, run `npm run build` specifically from this directory.
 It is possible to run the live server via `npm run dev` from this directory. Before starting the live server, all of the dependencies have to be built.
+
+Note: In n case the user wants to run this application locally the user needs to update the URL in the browser.
+The part of the URL can be copied from the production env.
+
+The URL for accessing extension for creating sample OpenAPI specification for sample data structure - Tourist Destinations could be:
+
+http://localhost:YOUR_PORT_NUMBER/?package-iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099&model-iri=3f6ce178-547f-4de5-91a1-11e271b63a63
