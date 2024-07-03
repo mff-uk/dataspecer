@@ -58,8 +58,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
     const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
 
-    const d = data as SimpleFloatingEdgeDataType;
-    const { entity } = d;
+    const { entity, usageNotes, cardinalitySource, cardinalityTarget, bgColor } = data as SimpleFloatingEdgeDataType;
 
     const model = useMemo(() => sourceModelOfEntity(entity.id, [...models.values()]), [entity.id, models]);
 
@@ -166,7 +165,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                     }}
                 >
                     <EdgeNameLabel name={displayName} isProfile={isProfile} hasParents={parentNames} />
-                    <EdgeUsageNotesLabel usageNotes={d.usageNotes} />
+                    <EdgeUsageNotesLabel usageNotes={usageNotes} />
                     {isMenuOptionsOpen && (
                         <MenuOptions
                             openDetailHandler={() => openDetailDialog(entity)}
@@ -183,18 +182,18 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                         />
                     )}
                 </div>
-                {d.cardinalitySource && (
+                {cardinalitySource && (
                     <CardinalityEdgeLabel
                         transform={`translate(${sx}px,${sy}px) translate(-110%,${sy > ty ? "-80" : "0"}%)`}
-                        label={d.cardinalitySource}
-                        bgColor={d.bgColor}
+                        label={cardinalitySource}
+                        bgColor={bgColor}
                     />
                 )}
-                {d.cardinalityTarget && (
+                {cardinalityTarget && (
                     <CardinalityEdgeLabel
                         transform={`translate(${tx}px,${ty}px) translate(${sx < tx ? "-110" : "10"}%,-10%) `}
-                        label={d.cardinalityTarget}
-                        bgColor={d.bgColor}
+                        label={cardinalityTarget}
+                        bgColor={bgColor}
                     />
                 )}
             </EdgeLabelRenderer>

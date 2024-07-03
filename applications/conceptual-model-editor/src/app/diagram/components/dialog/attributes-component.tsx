@@ -12,14 +12,16 @@ import { IriInput } from "../input/iri-input";
 import { MultiLanguageInputForLanguageString } from "../input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "./dialog-detail-row";
 import { SelectDatatype } from "../input/select-datatype";
+import { t, configuration } from "../../application/";
 
 export const AddAttributesComponent = (props: {
     preferredLanguage: string;
     sourceModel: EntityModel | null;
     modifiedClassId: string;
     saveNewAttribute: (attr: Partial<Omit<SemanticModelRelationship, "type">>) => void;
+    hideCardinality: boolean,
 }) => {
-    const { preferredLanguage, sourceModel, modifiedClassId, saveNewAttribute } = props;
+    const { preferredLanguage, sourceModel, modifiedClassId, saveNewAttribute, hideCardinality } = props;
 
     const [newAttribute, setNewAttribute] = useState<Partial<Omit<SemanticModelRelationship, "type">>>({});
     const [name, setName] = useState({} as LanguageString);
@@ -63,9 +65,13 @@ export const AddAttributesComponent = (props: {
 
     return (
         <div>
-            <span className="text-xs italic">It is possible to add only one attribute rn.</span>
+            <div className="text-xs text-center">
+               It is possible to add only one attribute. To add the attribute. click on the &quot;add&quot; button below.
+               After adding the attribute, you have to save the dialog.
+               You can cancel the addition of the attribute by clicking on the &quot;cancel&quot; button above.
+            </div>
             <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                <DialogDetailRow detailKey="name">
+                <DialogDetailRow detailKey={t("attributes-component.name")}>
                     <MultiLanguageInputForLanguageString
                         inputType="text"
                         ls={name}
@@ -74,7 +80,7 @@ export const AddAttributesComponent = (props: {
                         onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
                     />
                 </DialogDetailRow>
-                <DialogDetailRow detailKey="description">
+                <DialogDetailRow detailKey={t("attributes-component.description")}>
                     <MultiLanguageInputForLanguageString
                         inputType="text"
                         ls={description}
@@ -83,7 +89,7 @@ export const AddAttributesComponent = (props: {
                         onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
                     />
                 </DialogDetailRow>
-                <DialogDetailRow detailKey="iri">
+                <DialogDetailRow detailKey={t("attributes-component.iri")}>
                     <IriInput
                         name={name}
                         iriHasChanged={changedFields.iri}
@@ -93,18 +99,21 @@ export const AddAttributesComponent = (props: {
                         }}
                         setNewIri={(i) => setIri(i)}
                         baseIri={modelIri}
+                        nameSuggestion={configuration().nameToIri}
                     />
                 </DialogDetailRow>
-                <DialogDetailRow detailKey="cardinality">
-                    <CardinalityOptions
-                        group="source"
-                        defaultCard={cardinality.cardinality}
-                        setCardinality={setCardinality}
-                        disabled={false}
-                        onChange={() => setChangedFields((prev) => ({ ...prev, cardinality: true }))}
-                    />
-                </DialogDetailRow>
-                <DialogDetailRow detailKey="datatype">
+                {hideCardinality ? null :
+                    <DialogDetailRow detailKey={t("attributes-component.cardinality")}>
+                        <CardinalityOptions
+                            group="source"
+                            defaultCard={cardinality.cardinality}
+                            setCardinality={setCardinality}
+                            disabled={false}
+                            onChange={() => setChangedFields((prev) => ({ ...prev, cardinality: true }))}
+                        />
+                    </DialogDetailRow>
+                }
+                <DialogDetailRow detailKey={t("attributes-component.datatype")}>
                     <SelectDatatype
                         valueSelected={null}
                         onOptionSelected={(value) => setDataType(value)}

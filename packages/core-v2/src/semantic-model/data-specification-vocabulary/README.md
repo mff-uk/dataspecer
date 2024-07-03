@@ -1,2 +1,2 @@
 # Data Specification Vocabulary
-This folder contains generator for [Data Specification Vocabulary](https://github.com/mff-uk/data-specification-vocabulary/).
+This folder contains adapter for [Data Specification Vocabulary](https://github.com/mff-uk/data-specification-vocabulary/).

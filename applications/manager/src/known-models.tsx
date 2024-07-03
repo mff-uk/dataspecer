@@ -5,15 +5,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { cn } from "./lib/utils";
 import { packageService, requestLoadPackage } from "./package";
 
-export interface createModelContext {
-  iri: string;
-  parentIri: string;
-  modelType: string;
-  label?: LanguageString;
-  description?: LanguageString;
+export function getCMELink(packageId: string, viewId: string) {
+  return import.meta.env.VITE_CME + "/diagram?package-id=" + encodeURIComponent(packageId) + "&view-id=" + encodeURIComponent(viewId)
 }
 
-function getHookForStandardModel(type: string, initialContent: (iri: string) => any) {
+export interface createModelContext {
+  iri?: string;
+  parentIri: string;
+  modelType?: string;
+  label?: LanguageString;
+  description?: LanguageString;
+  baseIri?: string;
+  modelAlias?: string;
+  documentBaseUrl?: string;
+}
+
+function getHookForStandardModel(type: string, initialContent: (iri: string, context: createModelContext) => any) {
   return async (context: createModelContext) => {
     const iri = uuidv4();
     await fetch(import.meta.env.VITE_BACKEND + "/resources?parentIri=" + encodeURIComponent(context.parentIri), {
@@ -27,6 +34,7 @@ function getHookForStandardModel(type: string, initialContent: (iri: string) => 
         userMetadata: {
           label: context.label,
           description: context.description,
+          documentBaseUrl: context.documentBaseUrl,
         }
       }),
     });
@@ -35,9 +43,10 @@ function getHookForStandardModel(type: string, initialContent: (iri: string) => 
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(initialContent(iri)),
+      body: JSON.stringify(initialContent(iri, context)),
     });
     await requestLoadPackage(context.parentIri, true);
+    return iri;
   }
 }
 
@@ -45,14 +54,18 @@ export const createModelInstructions = {
   [LOCAL_PACKAGE as string]: {
     needsNaming: true,
     createHook: async (context: createModelContext) => {
+      const iri = uuidv4();
       await packageService.createPackage(context.parentIri, {
-        iri: uuidv4(), 
+        iri, 
         userMetadata: {
           label: context.label,
           description: context.description,
+          // @ts-ignore
+          documentBaseUrl: context.documentBaseUrl,
         }
       });
       await requestLoadPackage(context.parentIri, true);
+      return iri;
     }
   },
   [API_SPECIFICATION_MODEL]: {
@@ -76,11 +89,11 @@ export const createModelInstructions = {
   },
   [LOCAL_SEMANTIC_MODEL]: {
     needsNaming: false,
-    createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, iri => ({
+    createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, (iri, context) => ({
       "type": "http://dataspecer.com/resources/local/semantic-model",
       "modelId": iri,
-      "modelAlias": "",
-      "baseIri": iri,
+      "modelAlias": context.modelAlias ?? "",
+      "baseIri": context.baseIri ?? iri,
       "entities": {}
     })),
   },

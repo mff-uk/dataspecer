@@ -32,6 +32,8 @@ import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
+import "./page.css";
+
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
 
@@ -53,6 +55,16 @@ const Page = () => {
     const { packageId, viewId, updatePackageId } = useQueryParamsContext();
     const { getModelsFromBackend } = useBackendConnection();
 
+    // runs on initial load
+    // if the app was launched without package-id query parameter
+    // - creates a default entity model
+    // - creates a view for it
+    // - registers it with the aggregator
+    // else -- the package-id (and view-id) params were provided
+    // - downloads the models and views for given package from the backend
+    // - deserializes them
+    // - registers them at the aggregator
+    // - if there was no local model within the package, it creates and registers one as well
     useEffect(() => {
         const pId = packageId;
         console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent, pId:", pId);
@@ -67,23 +79,22 @@ const Page = () => {
                 );
                 return;
             }
-            console.log("page: gonna create new default model", defaultModelAlreadyCreated);
 
-            const aggr = new SemanticModelAggregator();
-            const aggrView = aggr.getView();
+            const tempAggregator = new SemanticModelAggregator();
+            const tempAggregatorView = tempAggregator.getView();
             const visualModel = new VisualEntityModelImpl(undefined);
             setVisualModels(new Map([[visualModel.getId(), visualModel]]));
-            aggr.addModel(visualModel);
-            aggrView.changeActiveVisualModel(visualModel.getId());
+            tempAggregator.addModel(visualModel);
+            tempAggregatorView.changeActiveVisualModel(visualModel.getId());
 
             const model = new InMemorySemanticModel();
             model.setAlias("default local model");
             setModels(new Map([[model.getId(), model]]));
-            aggr.addModel(model);
+            tempAggregator.addModel(model);
 
             setDefaultModelAlreadyCreated(true);
-            setAggregator(aggr);
-            setAggregatorView(aggrView);
+            setAggregator(tempAggregator);
+            setAggregatorView(tempAggregatorView);
             return () => {
                 setDefaultModelAlreadyCreated(false);
                 setModels(() => new Map<string, EntityModel>());
@@ -123,20 +134,20 @@ const Page = () => {
                 setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m])));
                 setModels(new Map(entityModels.map((m) => [m.getId(), m])));
 
-                const aggrView = aggregator.getView();
+                const tempAggregatorView = aggregator.getView();
                 const availableVisualModelIds = visualModels2.map((m) => m.getId());
 
                 if (viewId && availableVisualModelIds.includes(viewId)) {
-                    aggrView.changeActiveVisualModel(viewId);
+                    tempAggregatorView.changeActiveVisualModel(viewId);
                 } else {
                     // choose the first available model
                     const modelId = visualModels2.at(0)?.getId();
                     if (modelId) {
-                        aggrView.changeActiveVisualModel(modelId);
+                        tempAggregatorView.changeActiveVisualModel(modelId);
                     }
                 }
 
-                setAggregatorView(aggrView);
+                setAggregatorView(tempAggregatorView);
                 return () => {
                     for (const m of [...entityModels, ...visualModels2]) {
                         try {
@@ -161,6 +172,10 @@ const Page = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // registers a subscription callback at the aggregator, that:
+    // - removes whatever was removed from the models registered at the aggregator from the `ClassContext`
+    // - goes through the updated elements
+    // - based on their types puts them to their respective buckets - classes, relationships, etc
     useEffect(() => {
         const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             console.log("page.tsx callback, updated, removed", updated, removed);
@@ -173,15 +188,30 @@ const Page = () => {
             setGeneralizations((prev) => prev.filter((v) => !removedIds.has(v.id)));
             setRawEntities((prev) => prev.filter((r) => r?.id && !removedIds.has(r?.id)));
 
-            const { clsses, rels, gens, prfiles, raws } = updated.reduce(
-                ({ clsses, rels, gens, prfiles, raws }, curr) => {
+            const {
+                updatedClasses,
+                updatedRelationships,
+                updatedGeneralizations,
+                updatedProfiles,
+                updatedRawEntities,
+            } = updated.reduce(
+                (
+                    {
+                        updatedClasses,
+                        updatedRelationships,
+                        updatedGeneralizations,
+                        updatedProfiles,
+                        updatedRawEntities,
+                    },
+                    curr
+                ) => {
                     if (isSemanticModelClass(curr.aggregatedEntity)) {
                         return {
-                            clsses: clsses.concat(curr.aggregatedEntity),
-                            rels,
-                            gens,
-                            prfiles,
-                            raws: raws.concat(curr.rawEntity),
+                            updatedClasses: updatedClasses.concat(curr.aggregatedEntity),
+                            updatedRelationships,
+                            updatedGeneralizations,
+                            updatedProfiles,
+                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
                         if (bothEndsHaveAnIri(curr.aggregatedEntity)) {
@@ -198,49 +228,51 @@ const Page = () => {
                                     object: curr.aggregatedEntity,
                                 })
                             );
-                            return { clsses, rels, gens, prfiles, raws: raws.concat(curr.rawEntity) };
+                            return {
+                                updatedClasses,
+                                updatedRelationships,
+                                updatedGeneralizations,
+                                updatedProfiles,
+                                updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                            };
                         }
                         return {
-                            clsses,
-                            rels: rels.concat(curr.aggregatedEntity),
-                            gens,
-                            prfiles,
-                            raws: raws.concat(curr.rawEntity),
+                            updatedClasses,
+                            updatedRelationships: updatedRelationships.concat(curr.aggregatedEntity),
+                            updatedGeneralizations,
+                            updatedProfiles,
+                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else if (
                         isSemanticModelClassUsage(curr.aggregatedEntity) ||
                         isSemanticModelRelationshipUsage(curr.aggregatedEntity)
                     ) {
                         return {
-                            clsses,
-                            rels,
-                            gens,
-                            prfiles: prfiles.concat(curr.aggregatedEntity),
-                            raws: raws.concat(curr.rawEntity),
+                            updatedClasses,
+                            updatedRelationships,
+                            updatedGeneralizations,
+                            updatedProfiles: updatedProfiles.concat(curr.aggregatedEntity),
+                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else if (isSemanticModelGeneralization(curr.aggregatedEntity)) {
                         return {
-                            clsses,
-                            rels,
-                            gens: gens.concat(curr.aggregatedEntity),
-                            prfiles,
-                            raws: raws.concat(curr.rawEntity),
+                            updatedClasses,
+                            updatedRelationships,
+                            updatedGeneralizations: updatedGeneralizations.concat(curr.aggregatedEntity),
+                            updatedProfiles,
+                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else {
-                        console.error(
-                            "unknown type of updated entity: ",
-                            curr.aggregatedEntity?.type,
-                            curr.aggregatedEntity?.id
-                        );
-                        throw new Error("unknown type of updated entity");
+                        console.error("Unknown type of updated entity", curr.aggregatedEntity);
+                        throw new Error("Unknown type of updated entity.");
                     }
                 },
                 {
-                    clsses: [] as SemanticModelClass[],
-                    rels: [] as SemanticModelRelationship[],
-                    gens: [] as SemanticModelGeneralization[],
-                    prfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
-                    raws: [] as (Entity | null)[],
+                    updatedClasses: [] as SemanticModelClass[],
+                    updatedRelationships: [] as SemanticModelRelationship[],
+                    updatedGeneralizations: [] as SemanticModelGeneralization[],
+                    updatedProfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
+                    updatedRawEntities: [] as (Entity | null)[],
                 }
             );
 
@@ -250,19 +282,29 @@ const Page = () => {
             }
             setSourceModelOfEntityMap(new Map(localSourceMap));
 
-            const [clssesIds, relsIds, gensIds, prfilesIds, rawsIds] = [
-                new Set(clsses.map((c) => c.id)),
-                new Set(rels.map((r) => r.id)),
-                new Set(gens.map((g) => g.id)),
-                new Set(prfiles.map((p) => p.id)),
-                new Set(raws.map((r) => r?.id)),
+            const [
+                updatedClassIds,
+                updatedRelationshipIds,
+                updatedGeneralizationIds,
+                updatedProfileIds,
+                updatedRawEntityIds,
+            ] = [
+                new Set(updatedClasses.map((c) => c.id)),
+                new Set(updatedRelationships.map((r) => r.id)),
+                new Set(updatedGeneralizations.map((g) => g.id)),
+                new Set(updatedProfiles.map((p) => p.id)),
+                new Set(updatedRawEntities.map((r) => r?.id)),
             ];
 
-            setClasses((prev) => prev.filter((v) => !clssesIds.has(v.id)).concat(clsses));
-            setRelationships((prev) => prev.filter((v) => !relsIds.has(v.id)).concat(rels));
-            setGeneralizations((prev) => prev.filter((v) => !gensIds.has(v.id)).concat(gens));
-            setUsages((prev) => prev.filter((v) => !prfilesIds.has(v.id)).concat(prfiles));
-            setRawEntities((prev) => prev.filter((r) => !rawsIds.has(r?.id)).concat(raws));
+            setClasses((prev) => prev.filter((v) => !updatedClassIds.has(v.id)).concat(updatedClasses));
+            setRelationships((prev) =>
+                prev.filter((v) => !updatedRelationshipIds.has(v.id)).concat(updatedRelationships)
+            );
+            setGeneralizations((prev) =>
+                prev.filter((v) => !updatedGeneralizationIds.has(v.id)).concat(updatedGeneralizations)
+            );
+            setUsages((prev) => prev.filter((v) => !updatedProfileIds.has(v.id)).concat(updatedProfiles));
+            setRawEntities((prev) => prev.filter((r) => !updatedRawEntityIds.has(r?.id)).concat(updatedRawEntities));
         };
         const callToUnsubscribe = aggregatorView?.subscribeToChanges(callback);
 

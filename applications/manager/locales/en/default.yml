@@ -1,0 +1,50 @@
+'--lang-name': English
+autolayout: Auto layout
+changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
+close: Close
+created: 'Created on {{val, datetime(dateStyle: short)}}'
+dataspecer-packages: packages
+delete-resource:
+  title: Remove
+  warning: >-
+    You are about to remove {{type}} with name {{name}}. This action is
+    irreversible.
+  warning-no-name: You are about to remove {{type}}. This action is irreversible.
+duplicate-resource: Duplicate
+export-zip: Export specification
+form:
+  base-iri:
+    instruction: Enter base IRI for individual concepts
+    name: Base IRI
+  create-button:
+    name: Create
+  description:
+    instruction: Describe your project in more detail
+    name: Description
+  documentation-base-url:
+    instruction: Base URL for publicly accessible documentation. Should end with a slash.
+    name: Base URL documentation
+  name:
+    instruction: Enter the name of the project
+    name: Name
+  url:
+    instruction: URL publicly accessible from the internet
+    name: URL
+mode-toggle:
+  dark: Dark
+  light: Light
+  system: System
+  title: Toggle theme
+modify-documentation-template: Modify documentation template
+new-package: New package
+open: Open
+project-wizard: Project Wizard
+remove: Remove
+show-documentation: Show documentation
+sort-models:
+  creation-new-first: Newly created first
+  creation-old-first: Newly created last
+  modification-new-first: Recently modified first
+  modification-old-first: Recently modified last
+  name-az: Alphabetically
+  name-za: Reverse alphabetically

@@ -349,6 +349,11 @@ export class SemanticModelAggregatorView {
         return this.aggregator.activeVisualModel;
     }
 
+    getAvailableVisualModels(): VisualEntityModel[] {
+        return [...this.aggregator.models.keys()]
+            .filter((m) => isVisualModel(m)) as VisualEntityModel[];
+    }
+
     getAvailableVisualModelIds(): string[] {
         return [...this.aggregator.models.keys()]
             .filter((m) => isVisualModel(m))

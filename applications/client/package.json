@@ -56,6 +56,8 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.2.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-query": "^3.39.3",
     "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",
     "react-syntax-highlighter": "^15.5.0",

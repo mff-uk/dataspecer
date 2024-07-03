@@ -8,12 +8,13 @@ import { getModelIri } from "../util/iri-utils";
 import { useBaseDialog } from "../components/base-dialog";
 import { generateName } from "../util/name-utils";
 import { useConfigurationContext } from "../context/configuration-context";
-import { IriInput, WhitespaceRegExp } from "../components/input/iri-input";
+import { IriInput } from "../components/input/iri-input";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
+import { t, logger, configuration } from "../application/";
 
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
@@ -36,33 +37,33 @@ export const useCreateClassDialog = () => {
 
         const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
         const [newDescription, setNewDescription] = useState<LanguageString>({});
-        const [iriHasChanged, setIriHasChanged] = useState(false);
-        const [newIri, setNewIri] = useState(newName[preferredLanguage]?.toLowerCase().replace(WhitespaceRegExp, "-"));
 
-        const modelIri = getModelIri(activeModel);
+        const baseIri = getModelIri(activeModel);
+        const [newIri, setNewIri] = useState( configuration().nameToClassIri(newName[preferredLanguage] ?? ""));
+        const [iriHasChanged, setIriHasChanged] = useState(false);
 
         const handleCreateClass = () => {
             if (!activeModel) {
-                alert("active model not set");
+                alert(t("create-class-dialog.error.model-not-set"));
                 return;
             }
             if (!newIri || newIri == "") {
-                alert("iri not set");
+                alert(t("create-class-dialog.error-iri-not-set"));
                 return;
             }
-
-            const { id: clsId } = createAClass(activeModel, newName, newIri, newDescription); // addClassToModel(activeModel, newName, newIri, newDescription);
-
-            if (clsId) {
+            const newClass = createAClass(activeModel, newName, newIri, newDescription);
+            if (newClass.id !== undefined) {
                 aggregatorView
                     .getActiveVisualModel()
-                    ?.addEntity({ sourceEntityId: clsId, position: position ?? undefined });
+                    ?.addEntity({ sourceEntityId: newClass.id, position: position ?? undefined });
+            } else {
+                logger.warn("We have not recieved the id of newly created class.", newClass);
             }
             close();
         };
 
         return (
-            <BaseDialog heading="Creating an entity">
+            <BaseDialog heading={t("create-class-dialog.create-class")}>
                 <div>
                     <div>
                         <DialogColoredModelHeaderWithModelSelector
@@ -71,7 +72,7 @@ export const useCreateClassDialog = () => {
                             onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
                         />
                         <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-                            <DialogDetailRow detailKey="name" style="text-xl">
+                            <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
                                 <MultiLanguageInputForLanguageString
                                     ls={newName}
                                     setLs={setNewName}
@@ -79,17 +80,18 @@ export const useCreateClassDialog = () => {
                                     inputType="text"
                                 />
                             </DialogDetailRow>
-                            <DialogDetailRow detailKey="iri">
+                            <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
                                 <IriInput
                                     name={newName}
                                     newIri={newIri}
-                                    setNewIri={(i) => setNewIri(i)}
+                                    setNewIri={(iri) => setNewIri(iri)}
                                     iriHasChanged={iriHasChanged}
                                     onChange={() => setIriHasChanged(true)}
-                                    baseIri={modelIri}
+                                    baseIri={baseIri}
+                                    nameSuggestion={configuration().nameToClassIri}
                                 />
                             </DialogDetailRow>
-                            <DialogDetailRow detailKey="description">
+                            <DialogDetailRow detailKey={t("create-class-dialog.description")}>
                                 <MultiLanguageInputForLanguageString
                                     ls={newDescription}
                                     setLs={setNewDescription}

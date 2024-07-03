@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import configuration from "./configuration";
@@ -8,7 +7,7 @@ import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
 import { getDefaultConfiguration } from "./routes/configuration";
 import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
-import { createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
+import { copyRecursively, createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
 import {
     addSpecification,
     cloneSpecification,
@@ -18,8 +17,9 @@ import {
     modifySpecification
 } from "./routes/specification";
 import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes/simplified-semantic-model';
-import { getDocumentation, getLightweightOwl, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
+import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
 import { generate } from './routes/generate';
+import { importResource } from './routes/import';
 
 // Create application models
 
@@ -37,9 +37,9 @@ if (basename.endsWith('/')) {
 
 const application = express();
 application.use(cors());
-application.use(bodyParser.json({limit: configuration.payloadSizeLimit}));
-application.use(bodyParser.urlencoded({ extended: false, limit: configuration.payloadSizeLimit }));
-application.use(bodyParser.urlencoded({ extended: true, limit: configuration.payloadSizeLimit }));
+application.use(express.json({limit: configuration.payloadSizeLimit}));
+application.use(express.urlencoded({ extended: false, limit: configuration.payloadSizeLimit }));
+application.use(express.urlencoded({ extended: true, limit: configuration.payloadSizeLimit }));
 
 application.get(basename + '/data-specification', listSpecifications);
 application.post(basename + '/data-specification', addSpecification);
@@ -78,6 +78,20 @@ application.delete(basename + '/resources/packages', deleteResource); // same
 // Special operation to list all root packages
 application.get(basename + '/resources/root-resources', getRootPackages); // ---
 
+
+
+application.post(basename + '/repository/copy-recursively', copyRecursively);
+
+/**
+ * Import: Import endpoint is a wizard that allows you to import specific package/model from a remote source.
+ */
+
+application.post(basename + '/resources/import', importResource);
+
+
+// Interactive import of packages
+//application.post(basename + '/import', importPackages);
+
 // Configuration
 
 application.get(basename + '/default-configuration', getDefaultConfiguration);
@@ -96,21 +110,19 @@ application.get(basename + '/experimental/documentation.html', getDocumentation)
 // Generate artifacts
 
 application.get(basename + '/generate', generate);
+application.get(basename + '/experimental/output.zip', getZip);
+application.get(basename + '/preview/*', getSingleFile);
 
 (async () => {
-    // Create root models for the common use and for the v1 adapter.
-    if (!await resourceModel.getResource(ROOT_PACKAGE_FOR_V1)) {
-        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
-        await createV1RootModel(resourceModel);
-    }
-    if (!await resourceModel.getResource("http://dataspecer.com/packages/local-root")) {
+    // Create local root
+    if (!await resourceModel.getResource(configuration.localRootIri)) {
         console.log("There is no default root package. Creating one...");
-        await resourceModel.createPackage(null, "http://dataspecer.com/packages/local-root", {
-            label: {
-                cs: "Lokální modely",
-                en: "Local models"
-            },
-        });
+        await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
+    }
+    // Create root models for the common use and for the v1 adapter.
+    if (!await resourceModel.getResource(configuration.v1RootIri)) {
+        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
+        await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
     }
 
     application.listen(Number(configuration.port), () => {

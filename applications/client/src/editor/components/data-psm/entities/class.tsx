@@ -8,7 +8,7 @@ import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescrip
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {useDialog} from "../../../dialog";
-import {AddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
+import {AddInterpretedSurroundingsDialog, WikidataAddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {CreateInclude} from "../../../operations/create-include";
 import {DataPsmClassAddSurroundingsButton} from "../class/DataPsmClassAddSurroundingsButton";
@@ -18,18 +18,21 @@ import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replac
 import {InheritanceOrTree} from "../common/use-inheritance-or";
 import {ObjectContext} from "../data-psm-row";
 import {AddSpecializationDialog} from "../add-specialization/add-specialization-dialog";
+import {isWikidataAdapter} from "@dataspecer/wikidata-experimental-adapter";
+import { ConfigurationContext } from "../../App";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
   inheritanceOrTree?: InheritanceOrTree
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
+  const {cim} = React.useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
   const readOnly = false;
   const cimClassIri = pimClass?.pimInterpretation;
 
-  const AddSurroundings = useDialog(AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
+  const AddSurroundings = useDialog(isWikidataAdapter(cim.cimAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>

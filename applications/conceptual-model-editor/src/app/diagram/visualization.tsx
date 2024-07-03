@@ -59,6 +59,12 @@ import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 
+// Function that returns SVG for the current model.
+export let getSvgForCurrentView: () => Promise<{
+    svg: string;
+    forModelId: string;
+}|null>;
+
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
@@ -78,6 +84,8 @@ export const Visualization = () => {
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
+    // --- handlers --- --- ---
 
     const handleAddEntityToActiveView = useCallback(
         (entityId: string, position?: XYPosition) => {
@@ -155,6 +163,8 @@ export const Visualization = () => {
         };
     };
 
+    // --- mappers from concepts to visualization elements --- --- ---
+
     const relationshipOrGeneralizationToEdgeType = (
         entity: Entity | null,
         color: string | undefined
@@ -183,7 +193,7 @@ export const Visualization = () => {
         activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId) ?? "69ff69"); // FIXME: a better way to make all edges rerender?
     };
 
-    const exportCanvasToSvg = () => {
+    const getSvg = () => {
         // we calculate a transform for the nodes so that all nodes are visible
         // we then overwrite the transform of the `.react-flow__viewport` element
         // with the style option of the html-to-image library
@@ -198,7 +208,7 @@ export const Visualization = () => {
             return;
         }
 
-        toSvg(flow__viewport, {
+        return toSvg(flow__viewport, {
             backgroundColor: "#ffffff",
             width: imageWidth,
             height: imageHeight,
@@ -207,13 +217,37 @@ export const Visualization = () => {
                 height: imageHeight.toString(),
                 transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
             },
-        })
-            .then(downloadImage)
-            .catch(console.error);
+        });
     };
 
+    const exportCanvasToSvg = () => {
+        const svg = getSvg();
+        if (svg) {
+            svg.then(downloadImage).catch(console.error);
+        }
+    };
+
+    getSvgForCurrentView = () => getSvg()?.then((svg) => {
+        return {
+            svg: svg,
+            forModelId: activeVisualModel?.getId() ?? "",
+        };
+    }) ?? Promise.resolve(null);
+
+    // register a callback with aggregator for visualization
+    // - remove what has been removed from the visualization state
+    // - update entities that have been updated
+    //   - rerender updated classes
+    //   - if they have updated attributes, update them as well
+    //   - collect updated relationships and relationship profiles - rerender them after classes are on the canvas
+    // the callback is registered for twice
+    // - first time for the semantic information about the models
+    //   - new relationship between two classes
+    //   - new attribute for a class
+    //   - rename of a concept
+    // - second time for the visual information from the active visual model
+    //   - change of visibility, position
     useEffect(() => {
-        // console.log("rerunning useEffect in visualization");
         const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
@@ -342,12 +376,12 @@ export const Visualization = () => {
                     }
                     // it is an attribute, rerender the node that the attribute comes form
                     const domainOfAttribute = temporaryDomainRangeHelper(entity)?.domain.concept;
-                    const aggrEntityOfAttributesNode =
+                    const aggregatedEntityOfAttributesNode =
                         entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
 
                     if (
-                        isSemanticModelClass(aggrEntityOfAttributesNode) ||
-                        isSemanticModelClassUsage(aggrEntityOfAttributesNode)
+                        isSemanticModelClass(aggregatedEntityOfAttributesNode) ||
+                        isSemanticModelClassUsage(aggregatedEntityOfAttributesNode)
                     ) {
                         // LOL, local attributes & attribute profiles are missing the new attribute, needs to be added
                         if (isSemanticModelRelationship(entity)) {
@@ -360,8 +394,8 @@ export const Visualization = () => {
                                 .concat(entity);
                         }
 
-                        const visEntityOfAttributesNode = entities[aggrEntityOfAttributesNode.id]?.visualEntity;
-                        const n = getNode(aggrEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
+                        const visEntityOfAttributesNode = entities[aggregatedEntityOfAttributesNode.id]?.visualEntity;
+                        const n = getNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                         if (n && n != "hide-it!") {
                             setNodes((prev) =>
                                 prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
@@ -370,9 +404,9 @@ export const Visualization = () => {
                     } else {
                         console.log(
                             "callback2: something weird",
-                            aggrEntityOfAttributesNode,
+                            aggregatedEntityOfAttributesNode,
                             entity,
-                            entities[aggrEntityOfAttributesNode?.id ?? ""]
+                            entities[aggregatedEntityOfAttributesNode?.id ?? ""]
                         );
                     }
                     continue;
@@ -395,26 +429,15 @@ export const Visualization = () => {
                 }
             }
 
-            // console.log(
-            //     "visualization useEffect aggregator callback AFTER setting locals u&r:",
-            //     updated,
-            //     removed,
-            //     "local: r,a,g,p,ap",
-            //     localRelationships,
-            //     localAttributes,
-            //     localGeneralizations,
-            //     localProfiles,
-            //     localAttributeProfiles
-            // );
             const rerenderAllEdges = () => {
-                const e2 = aggregatorView.getActiveVisualModel()?.getVisualEntities();
-                const es = [
+                const visualEntities = aggregatorView.getActiveVisualModel()?.getVisualEntities();
+                const edgesToRender = [
                     ...localRelationships,
                     ...localGeneralizations,
                     ...localProfiles.filter(isSemanticModelRelationshipUsage),
                 ]
                     .map((relOrGen) => {
-                        const visible = e2?.get(relOrGen.id)?.visible ?? true;
+                        const visible = visualEntities?.get(relOrGen.id)?.visible ?? true;
                         if (!visible) {
                             return;
                         }
@@ -435,36 +458,36 @@ export const Visualization = () => {
                         })
                     );
 
-                setEdges(es);
+                setEdges(edgesToRender);
             };
             rerenderAllEdges();
         };
 
-        const callToUnsubscribe2 = aggregatorView.subscribeToChanges(aggregatorCallback);
-        const callToUnsubscribe3 = aggregatorView
+        const callToUnsubscribeSemanticAggregatorCallback = aggregatorView.subscribeToChanges(aggregatorCallback);
+        const callToUnsubscribeCanvasCallback = aggregatorView
             .getActiveVisualModel()
             ?.subscribeToChanges((updated: Record<string, VisualEntity>, removed: string[]) => {
-                // console.log("visual model subscription", updated, removed);
                 const entities = aggregatorView.getEntities();
-                const updatedAsAggrEntityWrappers = Object.entries(updated).map(([_, visualEntity]) => {
+                const updatedAsAggregatedEntityWrappers = Object.entries(updated).map(([_, visualEntity]) => {
                     return {
                         id: visualEntity.sourceEntityId,
                         aggregatedEntity: entities[visualEntity.sourceEntityId]?.aggregatedEntity ?? null,
                         visualEntity: visualEntity,
                     } as AggregatedEntityWrapper;
                 });
-                aggregatorCallback(updatedAsAggrEntityWrappers, removed);
+                aggregatorCallback(updatedAsAggregatedEntityWrappers, removed);
             });
 
         aggregatorCallback([], []);
 
         return () => {
-            callToUnsubscribe2?.();
-            callToUnsubscribe3?.();
+            callToUnsubscribeSemanticAggregatorCallback?.();
+            callToUnsubscribeCanvasCallback?.();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aggregatorView, classes /* changed when new view is used */]);
 
+    // clear the canvas on view change
     useEffect(() => {
         console.log("visualization: active visual model changed", activeVisualModel);
         setNodes([]);

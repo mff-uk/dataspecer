@@ -1,7 +1,7 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { EntityModel } from "../../entity-model";
 import { HttpEntityModel } from "../../entity-model/http-entity-model";
-import { LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
+import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
 import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified";
 import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model";
@@ -75,11 +75,34 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
+    /**
+     * This method is used by CME editor for transparently loading all models from a given package.
+     * @todo It should not be a package, but a model itself with all its dependencies. Now it is a model. 
+     * @param packageId 
+     * @returns 
+     */
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
-        const pckg = await this.getPackage(packageId);
-        return this.getModelsFromResources(pckg.subResources!);
+        const entityModels: EntityModel[] = [];
+        const visualModels: VisualEntityModel[] = [];
+        
+        const recursivellyLoadPackage = async (packageId: string) => {
+            const pckg = await this.getPackage(packageId);
+            const [entity, visual] = await this.getModelsFromResources(pckg.subResources!);
+            entityModels.push(...entity);
+            visualModels.push(...visual);
+
+            for (const resource of pckg.subResources!) {
+                if (resource.types.includes(LOCAL_PACKAGE)) {
+                    await recursivellyLoadPackage(resource.iri);
+                }
+            }
+        }
+
+        await recursivellyLoadPackage(packageId);
+
+        return [entityModels, visualModels] as const;
     }
 
     async updateSemanticModelPackageModels(
@@ -92,8 +115,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             // @ts-ignore
             const modelSerialization = visualModel.serializeModel();
             const iri = visualModel.getId();
+            const name = modelSerialization.modelAlias ?? modelSerialization.alias;
 
             const response = await this.httpFetch(this.getResourceUrl(iri).toString());
+            const userMetadata = name ? { label: { en: name } } : {};
             if (response.status !== 200) {
                 const createdResponse = await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
                     method: "POST",
@@ -103,9 +128,21 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                     body: JSON.stringify({
                         iri: iri,
                         type: modelSerialization.type,
+                        userMetadata: userMetadata
                     }),
                 });
                 responseStatuses.add(createdResponse.status);
+            } else {
+                const updatedResponse = await this.httpFetch(this.getResourceUrl(iri).toString(), {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        userMetadata: userMetadata
+                    }),
+                });
+                responseStatuses.add(updatedResponse.status);
             }
 
             const updatedResponse = await this.httpFetch(this.getBlobUrl(iri).toString(), {
@@ -168,11 +205,14 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         const visualModels = [];
 
         for (const resource of resources) {
+            const name = resource.userMetadata.label?.en ?? resource.userMetadata.label?.cs;
+
             // Visual model
             if (resource.types.includes(LOCAL_VISUAL_MODEL)) {
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 const model = createVisualModel(resource.iri).deserializeModel(modelData); // ok
                 visualModels.push(model);
             }
@@ -183,6 +223,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 await model.unserializeModel(modelData);
                 entityModels.push(model);
             }
@@ -192,6 +233,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
+                modelData.modelAlias = name;
                 const model = createInMemorySemanticModel().deserializeModel(modelData);
                 entityModels.push(model);
             }
@@ -201,7 +243,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 const modelData = (await (
                     await this.httpFetch(this.getBlobUrl(resource.iri).toString())
                 ).json()) as any;
-                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, modelData.alias);
+                const model = new PimStoreWrapper(modelData.pimStore, modelData.id, name, modelData.urls);
                 model.fetchFromPimStore();
                 entityModels.push(model);
             }
@@ -256,5 +298,20 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         }
 
         return [constructedEntityModels, constructedVisualModels] as const;
+    }
+
+    async copyRecursively(resourceToCopy: string, newParentResource: string, userMetadata: BaseResource["userMetadata"] = {}) {
+        const url = new URL(this.backendUrl + "/repository/copy-recursively");
+        url.searchParams.append("iri", resourceToCopy);
+        url.searchParams.append("parentIri", newParentResource);
+
+        const result = await this.httpFetch(url.toString(), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userMetadata),
+        });
+        const data = await result.json();
     }
 }

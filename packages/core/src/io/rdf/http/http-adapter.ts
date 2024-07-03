@@ -53,7 +53,8 @@ function supportedTypes() {
 
 function getContentType(response): string {
   if (!response.headers.has("content-type")) {
-    throw Error("Missing 'content-type' header.");
+    //throw Error("Missing 'content-type' header.");
+    return MimeType.Turtle; // Fallback to default
   }
   const value = response.headers.get("content-type").toLowerCase();
   const index = value.indexOf(";");

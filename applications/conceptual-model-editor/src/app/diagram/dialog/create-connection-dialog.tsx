@@ -18,211 +18,156 @@ import { IriInput } from "../components/input/iri-input";
 import { getModelIri } from "../util/iri-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
 
-import { EntityProxy } from "../util/detail-utils";
 import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
-import { TwoWaySwitch } from "../components/input/two-way-switch";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
-const AssociationComponent = (props: {
-    from: string;
-    to: string;
-    setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id" | "iri">>>;
-    disabled: boolean;
-}) => {
-    const { language: preferredLanguage } = useConfigurationContext();
-    const { from, to, setAssociation, disabled } = props;
+import { getEntityLabel } from "../service/model-service";
+import { t, logger, configuration } from "../application/";
 
-    const [name, setName] = useState({} as LanguageString);
-    const [description, setDescription] = useState({} as LanguageString);
-    const [source, setSource] = useState({
-        concept: from,
-    } as SemanticModelRelationshipEnd);
-    const [target, setTarget] = useState({
-        concept: to,
-    } as SemanticModelRelationshipEnd);
+enum ConnectionType {
+    association = "association",
+    generalization = "generalization",
+}
 
-    useEffect(() => {
-        setAssociation({
-            name,
-            description,
-            ends: [source, target],
-        });
-    }, [name, description, source, target, setAssociation]);
+// TODO: This is not nice but, we cano not move the useState outside of
+//  the CreateConnectionDialog as it would cause re-creation of the dialog.
+//  Instead we use this ugly trick, it would be better to have the CreateConnectionDialog
+//  as a separate component.
+let openWithConnectionType = ConnectionType.association;
 
-    return (
-        <>
-            <DialogDetailRow detailKey="name">
-                <MultiLanguageInputForLanguageString
-                    ls={name}
-                    setLs={setName}
-                    inputType="text"
-                    defaultLang={preferredLanguage}
-                    disabled={disabled}
-                />
-            </DialogDetailRow>
-            <DialogDetailRow detailKey="description">
-                <MultiLanguageInputForLanguageString
-                    ls={description}
-                    setLs={setDescription}
-                    inputType="textarea"
-                    defaultLang={preferredLanguage}
-                    disabled={disabled}
-                />
-            </DialogDetailRow>
-            <DialogDetailRow detailKey="cardinalities">
-                <div>
-                    <div>
-                        cardinality-source:
-                        <CardinalityOptions
-                            disabled={disabled}
-                            group="source"
-                            defaultCard={source.cardinality}
-                            setCardinality={setSource}
-                        />
-                    </div>
-                    <div>
-                        cardinality-target:
-                        <CardinalityOptions
-                            disabled={disabled}
-                            group="target"
-                            defaultCard={target.cardinality}
-                            setCardinality={setTarget}
-                        />
-                    </div>
-                </div>
-            </DialogDetailRow>
-        </>
-    );
-};
-
+/**
+ * This dialog can be used to create an association or a generalization between two entities.
+ */
 export const useCreateConnectionDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const { createConnection } = useClassesContext();
-    const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
-    const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
 
+    // TODO This code is part of the baseDialog, we should remove it from here.
+    const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
     useEffect(() => {
         const { current: el } = createConnectionDialogRef;
         if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
-    const localClose = () => {
+    const { createConnection } = useClassesContext();
+    const [connectionCreated, setConnectionCreated] = useState(null as unknown as Connection);
+
+    const closeDialog = () => {
         setConnectionCreated(null as unknown as Connection);
         close();
     };
 
-    const localOpen = (connection: Connection) => {
+    const openDialog = (connection: Connection) => {
         if (!connection || !(connection.source && connection.target)) {
-            alert("couldn't find source:" + (connection.source ?? "") + ", or target:" + (connection.target ?? ""));
+            alert("Couldn't find source:" + (connection.source ?? "") + ", or target:" + (connection.target ?? ""));
             return;
         }
         setConnectionCreated(connection);
         open();
     };
 
-    const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-        return [...models.entries()]
-            .filter(([_, m]) => m instanceof InMemorySemanticModel)
-            .map(([mId, m]) => [mId, m.getAlias()]) as [string, string | null][];
-    };
-
     const CreateConnectionDialog = () => {
-        const { source: sourceId, target: targetId } = connectionCreated;
+        const [connectionType, setConnectionType] = useState<ConnectionType>(openWithConnectionType);
 
+        const filterInMemoryModels = (models: Map<string, EntityModel>) => {
+            return [...models.entries()]
+                .filter(([_, m]) => m instanceof InMemorySemanticModel)
+                .map(([mId, m]) => [mId, m.getAlias()]) as [string, string | null][];
+        };
+
+        const { source: sourceId, target: targetId } = connectionCreated;
         const { language: preferredLanguage } = useConfigurationContext();
-        const { classes: c, profiles: p } = useClassesContext();
+        const { classes, profiles } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
-
-        const [connectionType, setConnectionType] = useState<"association" | "generalization">("association");
-        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id" | "iri">>({
+        const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id">>({
+            iri: getRandomName(7),
             name: {},
             description: {},
             ends: [],
         });
 
-        const [newIri, setNewIri] = useState(getRandomName(7));
-        const [iriHasChanged, setIriHasChanged] = useState(false);
+        const baseIri = getModelIri(models.get(activeModel));
 
-        const modelIri = getModelIri(models.get(activeModel));
+        const source = classes.find((item) => item.id == sourceId) ?? profiles.find((item) => item.id == sourceId);
+        const target = classes.find((item) => item.id == targetId) ?? profiles.find((item) => item.id == targetId);
 
-        const source = c.find((cls) => cls.id == sourceId) ?? p.find((prof) => prof.id == sourceId);
-        const target = c.find((cls) => cls.id == targetId) ?? p.find((prof) => prof.id == targetId);
-
-        if (!source || !target) {
-            alert(
-                "couldn't find source or target. " +
-                    (sourceId ?? "sourceId undefined") +
-                    " " +
-                    (targetId ?? "targetId undefined")
-            );
-            localClose();
+        if (source === undefined || target === undefined) {
+            alert("Couldn't find source or target. See logs for more details.");
+            logger.error("Couldn't find source or target.", {
+                sourceIdentifier: sourceId,
+                source,
+                targetidentifier: targetId,
+                target,
+            });
+            closeDialog();
             return;
         }
 
-        const sourceName = EntityProxy(source, preferredLanguage).name;
-        const targetName = EntityProxy(target, preferredLanguage).name;
-
         const handleSaveConnection = () => {
-            const saveModel = models.get(activeModel);
-            if (!saveModel || !(saveModel instanceof InMemorySemanticModel)) {
-                alert(`create-conn-dialog: unknown active model '${activeModel}, ${saveModel?.getId() ?? ""}'`);
+            const modelToSaveTo = models.get(activeModel);
+            if (!modelToSaveTo || !(modelToSaveTo instanceof InMemorySemanticModel)) {
+                alert(`Can't set to a model. '${activeModel}, ${modelToSaveTo?.getId() ?? ""}'`);
                 close();
                 return;
             }
 
-            let result:
-                | {
-                      success: boolean;
-                      id?: undefined;
-                  }
-                | {
-                      success: true;
-                      id: string;
-                  }
-                | null = null;
-            if (connectionType == "generalization") {
-                result = createConnection(saveModel, {
-                    type: "generalization",
-                    child: source.id,
-                    parent: target.id,
-                    iri: newIri,
-                } as GeneralizationConnectionType);
-                console.log("creating generalization ", result, target, source);
-            } else if (connectionType == "association") {
-                result = createConnection(saveModel, {
-                    type: "association",
-                    ends: [
-                        {
-                            concept: association.ends.at(0)?.concept ?? null,
-                            cardinality: association.ends.at(0)?.cardinality ?? null,
-                        },
-                        {
-                            name: association.name ?? null,
-                            description: association.description ?? null,
-                            concept: association.ends.at(1)?.concept ?? null,
-                            cardinality: association.ends.at(1)?.cardinality ?? null,
-                            iri: newIri,
-                        },
-                    ],
-                } as AssociationConnectionType);
-                console.log("creating association ", result, target, source);
+            let result: { id?: string; } | null = null;
+
+            switch (connectionType) {
+                case ConnectionType.generalization:
+                    result = createConnection(modelToSaveTo, {
+                        type: "generalization",
+                        child: source.id,
+                        parent: target.id,
+                        // https://github.com/mff-uk/dataspecer/issues/537
+                        iri: null,
+                    } as GeneralizationConnectionType);
+                    break;
+                case ConnectionType.association:
+                    result = createConnection(modelToSaveTo, {
+                        type: "association",
+                        ends: [
+                            {
+                                concept: association.ends.at(0)?.concept ?? null,
+                                cardinality: association.ends.at(0)?.cardinality ?? null,
+                            },
+                            {
+                                name: association.name ?? null,
+                                description: association.description ?? null,
+                                concept: association.ends.at(1)?.concept ?? null,
+                                cardinality: association.ends.at(1)?.cardinality ?? null,
+                                iri: association.iri,
+                            },
+                        ],
+                    } as AssociationConnectionType);
+                    break;
             }
 
-            if (result && result.id) {
+            if (result !== null && result.id !== null) {
                 aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: result.id });
             }
 
-            console.log("create-connection-dialog: created successfully(?)", result);
             close();
         };
 
         return (
             <BaseDialog heading="Create a connection">
                 <div>
+                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 py-2">
+                        <DialogDetailRow detailKey={t("create-connection-dialog.type")}>
+                            <TypeSwitch
+                                value={connectionType}
+                                onChange={(next) => {
+                                    openWithConnectionType = next;
+                                    setConnectionType(next);
+                                }}
+                            />
+                        </DialogDetailRow>
+                    </div>
+
                     <DialogColoredModelHeaderWithModelSelector
                         style={
                             "grid grid-cols-1 px-1 md:grid-cols-[25%_75%] bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
@@ -230,50 +175,34 @@ export const useCreateConnectionDialog = () => {
                         activeModel={activeModel}
                         onModelSelected={(m) => setActiveModel(m)}
                     />
-                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                        <DialogDetailRow detailKey="source">
+
+                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 gap-y-2">
+                        <DialogDetailRow detailKey={t("create-connection-dialog.source")}>
                             <span>
-                                {sourceName} -- ({source.id})
+                                {getEntityLabel(source, preferredLanguage)}
                             </span>
                         </DialogDetailRow>
-                        <DialogDetailRow detailKey="target">
+                        <DialogDetailRow detailKey={t("create-connection-dialog.target")}>
                             <span>
-                                {targetName} -- ({target.id})
+                                {getEntityLabel(target, preferredLanguage)}
                             </span>
-                        </DialogDetailRow>
-                        <DialogDetailRow detailKey="iri">
-                            <IriInput
-                                name={association.name}
-                                newIri={newIri}
-                                setNewIri={(i) => setNewIri(i)}
-                                iriHasChanged={iriHasChanged}
-                                onChange={() => setIriHasChanged(true)}
-                                baseIri={modelIri}
-                            />
                         </DialogDetailRow>
                     </div>
 
-                    <div className="grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
-                        <DialogDetailRow detailKey="type">
-                            <TwoWaySwitch
-                                choices={["association", "generalization"]}
-                                selected={connectionType}
-                                onChoiceSelected={(c) => setConnectionType(c as typeof connectionType)}
-                            />
-                        </DialogDetailRow>
-                    </div>
                     <div
                         className={
                             "grid grid-cols-1 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 " +
                             (connectionType == "association" ? "pt-4" : "pointer-events-none pt-4 opacity-30")
                         }
                     >
-                        <AssociationComponent
+                        <Association
                             from={source.id}
                             to={target.id}
                             setAssociation={setAssociation}
                             key="association-component-create-connection"
-                            disabled={connectionType != "association"}
+                            disabled={connectionType !== ConnectionType.association}
+                            baseIri={baseIri}
+                            language={preferredLanguage}
                         />
                     </div>
                 </div>
@@ -288,8 +217,139 @@ export const useCreateConnectionDialog = () => {
 
     return {
         isCreateConnectionDialogOpen: isOpen,
-        closeCreateConnectionDialog: localClose,
-        openCreateConnectionDialog: localOpen,
+        closeCreateConnectionDialog: closeDialog,
+        openCreateConnectionDialog: openDialog,
         CreateConnectionDialog,
     };
+};
+
+/**
+ * Swith between generalization and relationship.
+ */
+const TypeSwitch = (props: {
+    value: ConnectionType;
+    onChange: (value: ConnectionType) => void;
+    disabled?: boolean;
+}) => {
+    const { value, onChange, disabled } = props;
+    const isAssociation = value === ConnectionType.association;
+    const isGeneralization = !isAssociation;
+
+    return (
+        <div>
+            <button
+                className={isAssociation ? "font-bold text-blue-800" : ""}
+                disabled={disabled || isAssociation}
+                onClick={() => onChange(ConnectionType.association)}
+            >
+                Association
+            </button>
+
+            <span className="mx-2">|</span>
+
+            <button
+                className={isGeneralization ? "font-bold text-blue-800" : ""}
+                disabled={disabled || isGeneralization}
+                onClick={() => onChange(ConnectionType.generalization)}
+            >
+                Generalization
+            </button>
+        </div>
+    );
+};
+
+/**
+ * Contains fields relevant only for association.
+ */
+const Association = (props: {
+    from: string;
+    to: string;
+    setAssociation: Dispatch<SetStateAction<Omit<SemanticModelRelationship, "type" | "id">>>;
+    disabled: boolean;
+    baseIri: string;
+    language: string;
+}) => {
+    const { language, disabled, setAssociation } = props;
+
+    const [iri, setIri] = useState(getRandomName(7));
+    const [iriHasChanged, setIriHasChanged] = useState(false);
+
+    const [name, setName] = useState({} as LanguageString);
+    const [description, setDescription] = useState({} as LanguageString);
+    const [source, setSource] = useState({
+        concept: props.from,
+    } as SemanticModelRelationshipEnd);
+    const [target, setTarget] = useState({
+        concept: props.to,
+    } as SemanticModelRelationshipEnd);
+
+    useEffect(() => {
+        setAssociation({
+            iri,
+            name,
+            description,
+            ends: [source, target],
+        });
+    }, [iri, name, description, source, target, setAssociation]);
+
+    return (
+        <>
+            <DialogDetailRow detailKey={t("create-connection-dialog.name")}>
+                <MultiLanguageInputForLanguageString
+                    ls={name}
+                    setLs={setName}
+                    inputType="text"
+                    defaultLang={language}
+                    disabled={disabled}
+                />
+            </DialogDetailRow>
+            <DialogDetailRow detailKey={t("create-connection-dialog.iri")}>
+                <IriInput
+                    name={name}
+                    newIri={iri}
+                    setNewIri={(i) => setIri(i)}
+                    iriHasChanged={iriHasChanged}
+                    onChange={() => setIriHasChanged(true)}
+                    baseIri={props.baseIri}
+                    nameSuggestion={configuration().nameToIri}
+                    disabled={disabled}
+                />
+            </DialogDetailRow>
+            <DialogDetailRow detailKey={t("create-connection-dialog.description")}>
+                <MultiLanguageInputForLanguageString
+                    ls={description}
+                    setLs={setDescription}
+                    inputType="textarea"
+                    defaultLang={language}
+                    disabled={disabled}
+                />
+            </DialogDetailRow>
+
+            {/* We hide cardinality for associations. */}
+            {configuration().hideRelationCardinality ? null :
+                <DialogDetailRow detailKey={t("create-connection-dialog.cardinality")}>
+                    <div>
+                        <div>
+                            {t("create-connection-dialog.source")}:
+                            <CardinalityOptions
+                                disabled={disabled}
+                                group="source"
+                                defaultCard={source.cardinality}
+                                setCardinality={setSource}
+                            />
+                        </div>
+                        <div>
+                            {t("create-connection-dialog.target")}:
+                            <CardinalityOptions
+                                disabled={disabled}
+                                group="target"
+                                defaultCard={target.cardinality}
+                                setCardinality={setTarget}
+                            />
+                        </div>
+                    </div>
+                </DialogDetailRow>
+            }
+        </>
+    );
 };

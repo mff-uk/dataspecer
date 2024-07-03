@@ -33,13 +33,11 @@ export const getStringFromLanguageStringInLang = (
     }
 
     // get lang from lang hierarchy
-    let nextLanguages = nextLanguageInHierarchy(preferredLanguage);
-    while (nextLanguages.length > 0) {
-        const nextLang = nextLanguages.at(0)!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        nextLanguages = nextLanguages.slice(1);
-        const possibleResult = languageString?.[nextLang];
+    const nextLanguages = getLanguageHierarchy(preferredLanguage);
+    for (const language of nextLanguages) {
+        const possibleResult = languageString?.[language];
         if (possibleResult) {
-            return [possibleResult, nextLang] as const;
+            return [possibleResult, language] as const;
         }
     }
 
@@ -47,8 +45,8 @@ export const getStringFromLanguageStringInLang = (
     const languages = getAvailableLanguagesForLanguageString(languageString);
     const anyLanguage = languages.at(0);
     if (anyLanguage) {
-        const res = languageString[anyLanguage]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        return [res, anyLanguage] as const;
+        const value = languageString[anyLanguage]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        return [value, anyLanguage] as const;
     }
 
     return [null, null] as const;
@@ -82,7 +80,7 @@ export const getLocalizedStringFromLanguageString = (ls: LanguageString | null, 
     return getLocalizedString(getStringFromLanguageStringInLang(ls, preferredLanguage));
 };
 
-const nextLanguageInHierarchy = (lang: string) => {
+const getLanguageHierarchy = (lang: string) => {
     switch (lang) {
         case "en":
             return ["cs", "de", "es", "ja"];
@@ -113,8 +111,7 @@ export const getLanguagesForNamedThing = (
 };
 
 export const getAvailableLanguagesForLanguageString = (ls: LanguageString) => {
-    const languages = Object.keys(ls);
-    return languages;
+    return Object.keys(ls);
 };
 
 export const areLanguageStringsEqual = (ls1: LanguageString | null, ls2: LanguageString | null) => {

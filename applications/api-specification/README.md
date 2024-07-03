@@ -66,3 +66,9 @@ The part of the URL can be copied from the production env.
 The URL for accessing extension for creating sample OpenAPI specification for sample data structure - Tourist Destinations could be:
 
 http://localhost:YOUR_PORT_NUMBER/?package-iri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F26bfd105-3d19-4664-ad8b-d6f84131d099&model-iri=3f6ce178-547f-4de5-91a1-11e271b63a63
+
+Please know that for the full experience of the feature on your local machine in addition to this component api-specification (`applications/client`) additional components need to be run. These components are:
+
+- structure editor (located in: `applications/client`)
+- dataspecer manager (located in: `applications/manager`)
+- backend (located in: `services/backend`)
