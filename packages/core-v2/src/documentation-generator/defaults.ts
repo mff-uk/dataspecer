@@ -70,7 +70,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{{iri}}}">{{iri}}</a></td>
+                  <td><a href="{{{iri}}}">{{prefixed iri}}</a></td>
                 </tr>
                 {{#translate name}}
                 <tr>
@@ -109,7 +109,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{{iri}}}">{{iri}}</a></td>
+                  <td><a href="{{{iri}}}">{{prefixed iri}}</a></td>
                 </tr>
                 {{#translate aggregation.name}}
                 <tr>
@@ -126,7 +126,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 {{#semanticEntity usageOf}}
                 <tr>
                   <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-                  <td>{{class}} (<a href="{{{iri}}}">{{iri}}</a>)</td>
+                  <td>{{class}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)</td>
                 </tr>
                 {{/semanticEntity}}
 
@@ -169,7 +169,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               <table class="def">
                 <tr>
                   <td>IRI</td>
-                  <td><a href="{{{ends.1.iri}}}">{{ends.1.iri}}</a></td>
+                  <td><a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a></td>
                 </tr>
                 {{#translate ends.1.name}}
                 <tr>
@@ -204,7 +204,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
             <table class="def">
               <tr>
                 <td>IRI</td>
-                <td><a href="{{{ends.1.iri}}}">{{ends.1.iri}}</a></td>
+                <td><a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a></td>
               </tr>
               {{#translate aggregation.ends.1.name}}
               <tr>
@@ -230,7 +230,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               {{#semanticEntity usageOf}}
               <tr>
                 <td>{{#iflng "cs"}}Profil{{lng}}Profile of{{/iflng}}</td>
-                <td>{{relation}} (<a href="{{{iri}}}">{{iri}}</a>)</td>
+                <td>{{relation}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)</td>
               </tr>
               {{/semanticEntity}}
 

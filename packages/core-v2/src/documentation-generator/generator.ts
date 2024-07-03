@@ -23,6 +23,26 @@ interface ModelDescription {
   baseIri: string | null;
 }
 
+const PREFIX_MAP: Record<string, string> = {
+  "http://www.w3.org/ns/adms#": "adms",
+  "http://purl.org/dc/elements/1.1/": "dc",
+  "http://www.w3.org/ns/dcat#": "dcat",
+  "http://purl.org/dc/terms/": "dcterms",
+  "http://purl.org/dc/dcmitype/": "dctype",
+  "http://xmlns.com/foaf/0.1/": "foaf",
+  "http://www.w3.org/ns/locn#": "locn",
+  "http://www.w3.org/ns/odrl/2/": "odrl",
+  "http://www.w3.org/2002/07/owl#": "owl",
+  "http://www.w3.org/ns/prov#": "prov",
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
+  "http://www.w3.org/2000/01/rdf-schema#": "rdfs",
+  "http://www.w3.org/2004/02/skos/core#": "skos",
+  "http://spdx.org/rdf/terms#": "spdx",
+  "http://www.w3.org/2006/time#": "time",
+  "http://www.w3.org/2006/vcard/ns#": "vcard",
+  "http://www.w3.org/2001/XMLSchema#": "xsd",
+};
+
 export async function generateDocumentation(
   inputModel: {
     resourceModel: any,
@@ -83,6 +103,26 @@ export async function generateDocumentation(
   handlebars.registerHelper('ifEquals', function(arg1: any, arg2: any, options: any) {
     // @ts-ignore
     return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+  });
+
+  /**
+   * Shortens IRIs by using prefixes.
+   */
+  handlebars.registerHelper('prefixed', function(iri: string) {
+    const last = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
+    if (last === -1) {
+      return iri;
+    }
+
+    const prefix = iri.substring(0, last + 1);
+    const suffix = iri.substring(last + 1);
+
+    // todo - use prefixes from the model
+    if (Object.hasOwn(PREFIX_MAP, prefix)) {
+      return PREFIX_MAP[prefix] + ":" + suffix;
+    }
+
+    return iri;
   });
 
   /**
