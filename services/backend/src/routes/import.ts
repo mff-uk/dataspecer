@@ -103,6 +103,8 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
  * Imports from URL and creates either a package or PIM model.
  */
 async function importFromUrl(parentIri: string, url: string) {
+  url = url.replace(/#.*$/, "");
+
   // const baseIri = url;
   const baseIri = url;
 
@@ -132,6 +134,7 @@ async function importFromUrl(parentIri: string, url: string) {
       label: name,
       description,
       importedFromUrl: url,
+      documentBaseUrl: url,
     });
 
     let rdfsUrl = null;
