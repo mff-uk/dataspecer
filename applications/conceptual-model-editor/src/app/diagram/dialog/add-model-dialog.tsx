@@ -42,7 +42,9 @@ export const useAddModelDialog = () => {
             let chunkToParse = url;
             try {
                 chunkToParse = (new URL(url)).pathname;
-            } catch (error) {}
+            } catch (_) {
+                // Ignore
+            }
 
             return chunkToParse.split("/").pop()?.split(".")[0] ?? "";
         }, [url]);
