@@ -43,14 +43,29 @@ export const MainForm = () => {
 
     const [selectedDataStructures, setSelectedDataStructures] = useState<Array<any>>([]);
     const [fetchingData, setFetchingData] = useState(false);
+    const [availableDataStructs, setAvailableDataStructs] = useState([]);
+
 
     /* watch changes in dataStructures and update selectedDataStructures accordingly */
     useEffect(() => {
         const dataStructures = watch("dataStructures");
         setSelectedDataStructures(dataStructures)
+        setAvailableDataStructs(availableDataStructs)
     }, [watch]);
 
+
     const [fetchedDataStructuresArr, setFetchedDataStructuresArr] = useState([]);
+
+    useEffect(() => {
+        if (!selectedDataStructures || !fetchedDataStructuresArr || !fields) {
+            return;
+        }
+
+        const selectedDataStructs = selectedDataStructures.map(ds => ds.name);
+        const availableDataStructs = fetchedDataStructuresArr.filter(ds => !selectedDataStructs.includes(ds.name) && !selectedDataStructs.includes(ds.givenName));
+
+        setAvailableDataStructs(availableDataStructs);
+    }, [selectedDataStructures, fetchedDataStructuresArr, fields]);
 
     /* Data specification info - its data structures*/
     const { fetchDataStructures } = retrieveDataSpecificationInfo();
@@ -82,6 +97,7 @@ export const MainForm = () => {
                 }
 
                 setFetchedDataStructuresArr(data);
+                setAvailableDataStructs(data);
             } catch (err) {
                 console.error('Data structures could not be fetched. Error: ', err);
             }
@@ -246,6 +262,17 @@ export const MainForm = () => {
 
                                             onChange={(selectedDataStructure) => {
 
+                                                try {
+                                                    const isDuplicate = selectedDataStructures.some(ds => ds.name === selectedDataStructure.name || ds.name === selectedDataStructure.givenName);
+
+                                                    if (isDuplicate) {
+                                                        alert('This data structure is already selected. Please select ANOTHER data structure');
+                                                        return;
+                                                    }
+                                                }
+                                                catch
+                                                { }
+
                                                 register(`dataStructures.${index}.name`).onChange({
                                                     target: {
                                                         value: selectedDataStructure.name,
@@ -264,7 +291,24 @@ export const MainForm = () => {
                                                 });
                                             }} getValues={getValues} />
                                     </div>
-                                    <Button className="bg-red-500 hover:bg-red-400" type="button" onClick={() => remove(index)}>
+                                    <Button
+                                        className="bg-red-500 hover:bg-red-400"
+                                        type="button"
+                                        onClick={() => {
+                                            try {
+                                                remove(index);
+                                                setSelectedDataStructures((prevState) => {
+                                                    try {
+                                                        const newState = [...prevState];
+                                                        newState.splice(index, 1);
+                                                        return newState;
+                                                    }
+                                                    catch { }
+                                                });
+                                            }
+                                            catch { }
+
+                                        }}>
                                         Delete
                                     </Button>
                                 </div>
@@ -309,6 +353,7 @@ export const MainForm = () => {
                             className="bg-blue-500 hover:bg-blue-400"
                             type="button"
                             onClick={() => append({ name: '', operations: [] })}
+                            disabled={availableDataStructs.length === 0}
                         >
                             Add Data Structure
                         </Button>
