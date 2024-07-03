@@ -3,6 +3,9 @@ import { isSemanticModelClass, isSemanticModelGeneralization } from '../semantic
 // @ts-ignore
 import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
 import { getTranslation } from "../utils/language";
+import { SemanticModelAggregator } from "../semantic-model/aggregator";
+import { Entities, Entity, InMemoryEntityModel } from "../entity-model";
+import { isSemanticModelClassUsage } from "../semantic-model/usage/concepts";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
@@ -34,10 +37,29 @@ export async function generateDocumentation(
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
   // Primary semantic model
-  const semanticModel = {};
+  const semanticModel = {} as Entities
   for (const model of inputModel.models) {
     if (model.isPrimary) {
       Object.assign(semanticModel, model.entities);
+    }
+  }
+
+  // Create an aggregator and pass all models to it to effectively work with application profiles
+  const aggregator = new SemanticModelAggregator();
+  for (const model of inputModel.models) {
+    const entityModel = new InMemoryEntityModel();
+    entityModel.change(model.entities, []);
+    aggregator.addModel(entityModel);
+  }
+  const aggregatedEntities = aggregator.getView().getEntities();
+
+  // Modify semantic model to include aggregated entities
+  // We need to modify all the models
+  for (const model of inputModel.models) {
+    for (const entity of Object.values(model.entities)) {
+      const entityWithAggregation = entity as Entity & {aggregation?: Entity, aggregationParent?: Entity};
+      entityWithAggregation.aggregation = aggregatedEntities[entity.id]?.aggregatedEntity!;
+      entityWithAggregation.aggregationParent = aggregatedEntities[entity.id]?.sources[0]?.aggregatedEntity!;
     }
   }
 
@@ -173,6 +195,14 @@ export async function generateDocumentation(
       }
     }
 
+    if (isSemanticModelClassUsage(entity)) {
+      // @ts-ignore
+      const {ok, translation} = getTranslation(entity.aggregation.name, [configuration.language]);
+      if (ok) {
+        return normalizeLabel(translation);
+      }
+    }
+
     // Fallback 
     return null;
   }
@@ -247,7 +277,17 @@ export async function generateDocumentation(
   })
 
   handlebars.registerHelper('json', function(input: any) {
-    return JSON.stringify(input, null, 2);
+    const cache = [] as any[];
+    return JSON.stringify(input, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        // Duplicate reference found, discard key
+        if (cache.includes(value)) return;
+    
+        // Store value in our collection
+        cache.push(value);
+      }
+      return value;
+    }, 2);
   });
 
   handlebars.registerHelper('console-log', function(input: any) {
