@@ -230,7 +230,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               {{#semanticEntity usageOf}}
               <tr>
                 <td>{{#iflng "cs"}}Profil{{lng}}Profile of{{/iflng}}</td>
-                <td>{{relation}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)</td>
+                <td>{{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)</td>
               </tr>
               {{/semanticEntity}}
 
