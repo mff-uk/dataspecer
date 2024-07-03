@@ -41,8 +41,8 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{#iflng "cs"}}Tento soubor dokumentuje{{lng}}This file documents{{/iflng}}
           {{#translate package.userMetadata.label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
       </section>
+      
       <section id="sotd">
-        <p>todo.</p>
       </section>
 
       <section>
@@ -50,13 +50,13 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         <table class="def">
           {{#if externalArtifacts.owl-vocabulary}}
             <tr>
-              <td>OWL</td>
+              <td>{{#iflng "cs"}}Slovník{{lng}}Vocabulary{{/iflng}}</td>
               <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
             </tr>
           {{/if}}
           {{#if externalArtifacts.dsv-profile}}
             <tr>
-              <td>{{#iflng "cs"}}DSV profil{{lng}}DSV profile{{/iflng}}</td>
+              <td>{{#iflng "cs"}}Aplikační profil{{lng}}Application profile{{/iflng}}</td>
               <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
             </tr>
           {{/if}}
@@ -69,7 +69,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{#each externalArtifacts.svg}}
           <figure>
             <img src="{{{URL}}}" alt="alt text 2" />
-            <figcaption>title</figcaption>
+            <figcaption>Overview diagram</figcaption>
           </figure>
         {{/each}}
 
@@ -129,14 +129,14 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 {{#translate description}}
                 <tr>
-                  <td>{{#iflng "cs"}}Původní popis{{lng}}Original description{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
                   <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
                 {{/translate}}
                 {{/semanticEntity}}
                 {{#translate description}}
                 <tr>
-                  <td>{{#iflng "cs"}}Nový popis{{lng}}New description{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
                   <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
                 {{/translate}}
@@ -151,7 +151,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{/ifEquals}}
         {{/each}}
 
-        <h2>{{#iflng "cs"}}Vlastnosti (atributy a asociace){{lng}}Properties (attributes and associations){{/iflng}}</h2>
+        <h2>{{#iflng "cs"}}Vlastnosti{{lng}}Properties{{/iflng}}</h2>
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "relationship"}}
             <section id="{{anchor}}">
@@ -165,16 +165,16 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 {{#translate ends.1.description}}
                 <tr>
-                  <td>{{#iflng "cs"}}Popis{{lng}}Description{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
                   <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
                 {{/translate}}
                 <tr>
-                  <td>{{#iflng "cs"}}Doména{{lng}}Domain{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Definiční obor{{lng}}Domain{{/iflng}}</td>
                   <td><a href="{{{href ends.0.concept}}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
                 </tr>
                 <tr>
-                  <td>{{#iflng "cs"}}Rozsah{{lng}}Range{{/iflng}}</td>
+                  <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
                   <td><a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
                 </tr>
               </table>
@@ -194,19 +194,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               </tr>
               {{#semanticEntity usageOf}}
               <tr>
-                <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+                <td>{{#iflng "cs"}}Profil{{lng}}Profile of{{/iflng}}</td>
                 <td>{{class}} (<a href="{{{iri}}}">{{iri}}</a>)</td>
               </tr>
               {{#translate description}}
               <tr>
-                <td>{{#iflng "cs"}}Původní popis{{lng}}Original description{{/iflng}}</td>
+                <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
                 <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
               </tr>
               {{/translate}}
               {{/semanticEntity}}
               {{#translate description}}
               <tr>
-                <td>{{#iflng "cs"}}Nový popis{{lng}}New description{{/iflng}}</td>
+                <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
                 <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
               </tr>
               {{/translate}}
