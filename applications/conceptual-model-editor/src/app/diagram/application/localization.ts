@@ -66,6 +66,7 @@ const translations: Record<string, string | Function> = {
   "create-profile-dialog.iri": "IRI",
   "create-profile-dialog.description": "Definition",
   "create-profile-dialog.usage-note": "Usage note",
+  "create-profile-dialog.warning": "Warning",
   //
   "model": "Model",
   "generalization-label": (child: string, parent: string) => `Generalization of '${child}' is '${parent}'`,

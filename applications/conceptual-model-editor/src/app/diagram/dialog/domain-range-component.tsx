@@ -105,7 +105,7 @@ export const DomainRangeComponent = (props: {
                         />
                     </DialogDetailRow>
                     {/* show range cardinality only when range is selected*/}
-                    {range.concept && !isDataType(range.concept) && (
+                    {range.concept === null ? null : (
                         <DialogDetailRow detailKey={t("range-cardinality")}>
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}
@@ -157,9 +157,8 @@ export const DomainRangeComponent = (props: {
                             }
                         />
                     </DialogDetailRow>
-
                     {/* Show range cardinality only when range (concept) is selected. */}
-                    {range.concept && !isDataType(range.concept) && (
+                    {range.concept === null ? null : (
                         <DialogDetailRow detailKey={t("range-cardinality")}>
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}

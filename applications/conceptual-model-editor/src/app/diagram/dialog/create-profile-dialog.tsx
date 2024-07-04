@@ -254,11 +254,6 @@ export const useCreateProfileDialog = () => {
 
                     {hasDomainAndRange && (
                         <>
-                            {changedFieldsAsStringArray.length === 0 ? null : (
-                                <DialogDetailRow detailKey="warning">
-                                    <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                </DialogDetailRow>
-                            )}
                             <DomainRangeComponent
                                 entity={entity}
                                 domain={newDomain}
@@ -278,7 +273,11 @@ export const useCreateProfileDialog = () => {
                             />
                         </>
                     )}
-
+                    {changedFieldsAsStringArray.length === 0 ? null : (
+                        <DialogDetailRow detailKey={t("create-profile-dialog.warning")}>
+                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                        </DialogDetailRow>
+                    )}
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (

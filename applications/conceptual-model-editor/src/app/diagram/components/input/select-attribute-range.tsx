@@ -19,7 +19,6 @@ export const SelectAttributeRange = (props: {
 }) => {
     const { concept, isEnabled, onChange, setRange, withOverride } = props;
     const [keepAsAttribute, setKeepAsAttribute] = useState(true);
-
     return (
         <div className="flex flex-row">
             <div className="flex flex-grow flex-col">
