@@ -313,7 +313,6 @@ function suggestNewProfileIri(entity: ProfileDialogSupportedTypes | null) : stri
     const head = entityIri.slice(0, tailIndex + 1);
     const tail = entityIri.slice(tailIndex + 1);
     const prefix = prefixForIri(head);
-    console.log({head, tail, prefix});
     if (prefix === null) {
         return tail;
     }
