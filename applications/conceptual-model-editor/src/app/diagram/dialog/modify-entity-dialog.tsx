@@ -340,6 +340,8 @@ export const useModifyEntityDialog = () => {
             ) {
                 rangeEnd = { ...rangeEnd, description: null };
             }
+            // iri
+            rangeEnd = changedFields.iri ? { ...rangeEnd, iri: newIri } : rangeEnd;
 
             // range
             if (overriddenFields.range && changedFields.range) {
