@@ -184,7 +184,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
                 // @ts-ignore
-                documentationUrl: data.baseIri + "conceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
+                documentationUrl: data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
                 baseIri: data.baseIri,
             });
         }
