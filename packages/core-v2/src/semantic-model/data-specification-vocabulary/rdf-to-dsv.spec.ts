@@ -15,14 +15,14 @@ test("From RDF to DSV and back.", async () => {
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>, dsv:profileOf;
+    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>;
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>.
 
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>, dsv:profileOf;
+    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>;
     dsv:cardinality <https://w3id.org/dsv#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
@@ -36,7 +36,7 @@ test("From RDF to DSV and back.", async () => {
 
 <http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>, dsv:profileOf;
+    dsv:inheritsProperties skos:prefLabel, <http://purl.org/vocab/vann/usageNote>;
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Distribution>.
 `;

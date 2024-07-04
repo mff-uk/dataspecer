@@ -115,7 +115,8 @@ class ConceptualModelWriter {
     //
     this.addStringProperty(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addStringProperty(profile.iri, VANN.usageNote, profile.usageNote);
-    this.addIriProperty(profile.iri, DSV.profileOf, profile.profileOfIri);
+    // We do not write this into properties.
+    this.addIri(profile.iri, DSV.profileOf, profile.profileOfIri);
   }
 
   private addIri(subject: string, predicate: N3.NamedNode, value: string | null) {
