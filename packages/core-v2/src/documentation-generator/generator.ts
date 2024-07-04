@@ -275,7 +275,6 @@ export async function generateDocumentation(
       }
     }
     const entity = inModel?.entities[input];
-    console.log(entity);
 
     if (inModel && entity) {
       if (inModel.isPrimary) {
