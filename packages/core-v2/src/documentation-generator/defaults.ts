@@ -189,7 +189,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 <tr>
                   <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
-                  <td><a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                  <td><a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a></td>
                 </tr>
               </table>
             </section>
@@ -224,7 +224,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               </tr>
               <tr>
                 <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
-                <td><a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                <td><a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a></td>
               </tr>
 
               {{#semanticEntity usageOf}}

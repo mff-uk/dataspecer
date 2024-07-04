@@ -228,7 +228,7 @@ export async function generateDocumentation(
       }
     }
 
-    return entity ? options.fn(entity) : null;
+    return entity ? options.fn(entity) : options.inverse(input);
   });
 
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
