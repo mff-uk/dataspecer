@@ -48,13 +48,16 @@ export const prepareClassAndClassUsageForSelect = (entities: SemanticEntity[]): 
   const duplicateNames = getDuplicateNames(entities);
 
   for (const item of entities) {
-    const { name, iri } = EntityProxy(item);
+    const { name, iri, model } = EntityProxy(item);
     const displayIri = duplicateNames.has(name ?? "");
+
+    const nameLabel = name ?? "";
+    const modelLabel = model === null ? "" : `[${getModelLabel(model)}]`;
     const iriLabel = displayIri && iri !== null ? `(${iri})` : "";
-    const label = `${name ?? ""} ${iriLabel}`;
+
     result.push({
       id: item.id,
-      label: label,
+      label: `${nameLabel} ${modelLabel} ${iriLabel}`,
     });
   }
 
