@@ -6,3 +6,12 @@
 dialog.base-dialog > *:last-child {
   margin-top: auto;
 }
+
+/**
+ * Update edges to look transparent.
+ */
+ svg > defs > marker[id*="arrowclosed"] polyline {
+  fill: #f1f1f1 !important;
+  width: 20;
+  height: 20;
+}
