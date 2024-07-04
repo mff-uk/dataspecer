@@ -192,7 +192,7 @@ class EntityListCOntainerToConceptualModel {
       if (profileOfRange === undefined) {
         console.error(`Missing end for '${profileOf.id}' as profile for '${item.id}'`);
       } else {
-        propertyProfile.profiledPropertyIri = this.context.entityToIri(profileOf);
+        propertyProfile.profileOfIri = this.context.entityToIri(profileOf);
       }
     } else  {
       // It can be part of the core types.

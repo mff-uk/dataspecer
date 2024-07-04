@@ -44,7 +44,7 @@ test("Issue #608", () => {
                             "en": "A name given to the dataset."
                         },
                         "cardinality": null,
-                        "concept": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literal",
+                        "concept": "http://www.w3.org/2000/01/rdf-schema#Literal",
                         "usageNote": null,
                         "iri": "terms-title-profile"
                     }
@@ -138,7 +138,7 @@ test("Issue #608", () => {
                             "datatype-property-profile"
                         ],
                         "rangeDataTypeIri": [
-                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literal"
+                            "http://www.w3.org/2000/01/rdf-schema#Literal"
                         ]
                     }
                 ]
