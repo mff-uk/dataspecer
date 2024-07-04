@@ -11,6 +11,7 @@ import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
 import { resourceModel } from "../main";
 import { asyncHandler } from "../utils/async-handler";
 import { SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -130,12 +131,12 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
     const convert = (iri: string | null) => (iri && !iri.includes("://")) ? (baseIri + iri) : iri;
     const result = {} as Record<string, SemanticModelEntity>;
     for (const [key, entity] of Object.entries(entities)) {
-        if (isSemanticModelClass(entity)) {
+        if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
             };
-        } else if (isSemanticModelRelationship(entity)) {
+        } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
@@ -144,7 +145,7 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
                     iri: convert(end.iri),
                 }),
                 ),
-            } as SemanticModelRelationship;
+            } as SemanticModelRelationship | SemanticModelRelationshipUsage;
         } else {
             result[key] = entity;
         }
