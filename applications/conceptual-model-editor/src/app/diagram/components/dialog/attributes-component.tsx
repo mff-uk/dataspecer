@@ -66,7 +66,7 @@ export const AddAttributesComponent = (props: {
     return (
         <div>
             <div className="text-xs text-center">
-               It is possible to add only one attribute. To add the attribute. click on the &quot;add&quot; button below.
+               To add an attribute click on the &quot;add&quot; button below.
                After adding the attribute, you have to save the dialog.
                You can cancel the addition of the attribute by clicking on the &quot;cancel&quot; button above.
             </div>
