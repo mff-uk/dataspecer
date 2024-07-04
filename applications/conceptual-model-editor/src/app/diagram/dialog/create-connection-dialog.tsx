@@ -242,7 +242,7 @@ const TypeSwitch = (props: {
                 disabled={disabled || isAssociation}
                 onClick={() => onChange(ConnectionType.association)}
             >
-                Association
+                Relationship
             </button>
 
             <span className="mx-2">|</span>
