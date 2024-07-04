@@ -47,7 +47,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       </section>-->
 
       <section>
-        <h1>{{#iflng "cs"}}Slovník{{lng}}Vocabulary Overview{{/iflng}}</h1>
+        <h1>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h1>
 
         {{#each externalArtifacts.svg}}
           <figure>
