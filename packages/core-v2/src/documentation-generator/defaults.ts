@@ -23,7 +23,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           specStatus: "unofficial",
           editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }]
           //github: "some-org/mySpec",
-          //shortName: "todo",
+          shortName: "todo",
           //xref: "web-platform",
           //group: "my-working-group",
         };
