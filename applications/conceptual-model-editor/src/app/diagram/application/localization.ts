@@ -25,6 +25,7 @@ const translations: Record<string, string | Function> = {
   "modify-entity-dialog.id": "Identifier",
   "modify-entity-dialog.iri": "IRI",
   "modify-entity-dialog.specialization-of": "Specialization of",
+  "modify-entity-dialog.specialization-of-property": "Subproperty of",
   "modify-entity-dialog.description": "Definition",
   "modify-entity-dialog.usage-note": "Usage note",
   "modify-entity-dialog.attributes": "Attributes",
@@ -41,6 +42,7 @@ const translations: Record<string, string | Function> = {
   "entity-detail-dialog.original-profile": "The original profiled entity",
   "entity-detail-dialog.profiled-by": "Profiled by",
   "entity-detail-dialog.specialization-of": "Specialization of",
+  "entity-detail-dialog.specialization-of-property": "Subproperty of",
   "entity-detail-dialog.generalization-of": "Generalization of",
   "entity-detail-dialog.attributes": "Attributes",
   "entity-detail-dialog.attributes-profiles": "Attributes profiles",
@@ -48,6 +50,7 @@ const translations: Record<string, string | Function> = {
   "entity-detail-dialog.domain": "Domain",
   "entity-detail-dialog.range": "Range",
   "entity-detail-dialog.datatype": "Datatype",
+  "entity-detail-dialog.direct-profile": "Direct profile of",
   //
   "create-connection-dialog.iri": "IRI",
   "create-connection-dialog.type": "Type",

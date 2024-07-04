@@ -538,7 +538,9 @@ export const useModifyEntityDialog = () => {
                         ----------
                         */}
 
-                        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
+                        <DialogDetailRow detailKey={t(isRelationship || isRelationshipProfile ?
+                            "modify-entity-dialog.specialization-of-property" :
+                            "modify-entity-dialog.specialization-of")}>
                             <GeneralizationParentsComponent
                                 modifiedEntityId={modifiedEntity.id}
                                 modifiedEntityType={getEntityTypeString(modifiedEntity)}
