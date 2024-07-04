@@ -115,6 +115,7 @@ export const useModifyEntityDialog = () => {
         const isProfile = isSemanticProfile(modifiedEntity);
         const isRelationship = isSemanticModelRelationship(modifiedEntity);
         const isAttribute = isSemanticModelAttribute(modifiedEntity);
+        const isClassProfile = isSemanticModelClassUsage(modifiedEntity);
         const isRelationshipProfile = isSemanticModelRelationshipUsage(modifiedEntity);
         const isAttributeProfile = isSemanticModelAttributeUsage(modifiedEntity);
 
@@ -449,7 +450,7 @@ export const useModifyEntityDialog = () => {
         if (isClass) {
             heading = t("modify-entity-dialog.label-class");
             hideCardinality = configuration().hideRelationCardinality;
-        } else if (isProfile) {
+        } else if (isClassProfile) {
             heading = t("modify-entity-dialog.label-class-profile");
         } else if (isRelationship) {
             if (isAttribute) {
@@ -467,7 +468,6 @@ export const useModifyEntityDialog = () => {
         } else {
             heading = "Not sure ...";
         }
-        console.log("Modify eneity dialog:", {hideCardinality});
 
         return (
             <BaseDialog heading={heading} >
