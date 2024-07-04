@@ -32,6 +32,4 @@ export const usePrefixForIri = (iri: string | null) : string | null => {
     }
   }
   return iri;
-}
-
-
+};
