@@ -36,6 +36,7 @@ import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
 import { t } from "../application/";
+import { prefixForIri } from "../service/prefix-service";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -67,7 +68,7 @@ export const useCreateProfileDialog = () => {
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
         const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
-        const [newIri, setNewIri] = useState(getIri(entity)?.concat("-profile") ?? getRandomName(8));
+        const [newIri, setNewIri] = useState(suggestNewProfileIri(entity));
         const [changedFields, setChangedFields] = useState({
             name: false,
             description: false,
@@ -298,3 +299,23 @@ export const useCreateProfileDialog = () => {
         CreateProfileDialog,
     };
 };
+
+function suggestNewProfileIri(entity: ProfileDialogSupportedTypes | null) : string {
+    const entityIri = getIri(entity);
+    if (entityIri === null) {
+        return getRandomName(8);
+    }
+    const tailIndex = Math.max(entityIri.lastIndexOf("/"), entityIri.lastIndexOf("#"));
+    if (tailIndex === -1) {
+        // It does not even look like an IRI we just return it.
+        return entityIri;
+    }
+    const head = entityIri.slice(0, tailIndex + 1);
+    const tail = entityIri.slice(tailIndex + 1);
+    const prefix = prefixForIri(head);
+    console.log({head, tail, prefix});
+    if (prefix === null) {
+        return tail;
+    }
+    return `${prefix}-${tail}`;
+}
