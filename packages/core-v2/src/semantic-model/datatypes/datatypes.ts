@@ -16,11 +16,15 @@ export const XsdSimpleTypeURIs = [
 
 export const RdfTypeURIs = [
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literal",
+];
+
+export const RdfsTypeURIs = [
+    "http://www.w3.org/2000/01/rdf-schema#Literal",
 ];
 
 export const DataTypeURIs = [
     ...XsdSimpleTypeURIs,
     ...RdfTypeURIs,
+    ...RdfsTypeURIs,
     // other data types
 ];
