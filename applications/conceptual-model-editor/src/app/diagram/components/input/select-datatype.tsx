@@ -26,17 +26,18 @@ export const SelectDatatype = (props: {
                 disabled={disabled}
                 onChange={(e) => {
                     const value = e.target.value;
-                    if (value == "null") {
+                    if (value === "null") {
                         onOptionSelected(null);
                     } else {
                         onOptionSelected(value);
                     }
                     onChange?.();
                 }}
+                value={valueSelected ?? "null"}
             >
                 <option value="null">---</option>
                 {values.map(item => (
-                    <option key={item.id} value={item.id} selected={valueSelected == item.id}>
+                    <option key={item.id} value={item.id}>
                         {item.label}
                     </option>
                 ))}

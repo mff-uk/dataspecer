@@ -115,7 +115,7 @@ export const AddAttributesComponent = (props: {
                 }
                 <DialogDetailRow detailKey={t("attributes-component.datatype")}>
                     <SelectDatatype
-                        valueSelected={null}
+                        valueSelected={dataType}
                         onOptionSelected={(value) => setDataType(value)}
                         onChange={() => setChangedFields((prev) => ({ ...prev, dataType: true }))}
                     />

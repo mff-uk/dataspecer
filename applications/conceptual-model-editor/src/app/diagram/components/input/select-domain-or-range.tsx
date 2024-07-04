@@ -44,7 +44,7 @@ export const SelectDomainOrRange = (props: {
                     }}
                     value={value}
                 >
-                    <option value="null" disabled={!withNullValueEnabled} selected={concept == "" || concept == null}>
+                    <option value="null" disabled={!withNullValueEnabled}>
                         ---
                     </option>
                     {values.map(item => (
