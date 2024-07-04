@@ -1,11 +1,11 @@
 import Handlebars from "handlebars";
-import { isSemanticModelClass, isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from '../semantic-model/concepts/concepts-utils';
 // @ts-ignore
 import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
 import { getTranslation } from "../utils/language";
 import { SemanticModelAggregator } from "../semantic-model/aggregator";
 import { Entities, Entity, InMemoryEntityModel } from "../entity-model";
-import { isSemanticModelClassUsage } from "../semantic-model/usage/concepts";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../semantic-model/usage/concepts";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
@@ -232,14 +232,15 @@ export async function generateDocumentation(
   });
 
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
-    if (isSemanticModelClass(entity)) {
-      const {ok, translation} = getTranslation(entity.name, [configuration.language]);
+    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+      // @ts-ignore
+      const {ok, translation} = getTranslation(entity.aggregation.ends[1].name, [configuration.language]);
       if (ok) {
         return normalizeLabel(translation);
       }
     }
 
-    if (isSemanticModelClassUsage(entity)) {
+    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.name, [configuration.language]);
       if (ok) {
@@ -263,8 +264,18 @@ export async function generateDocumentation(
         inModel = model;
         break;
       }
+      // Hotfix because AP usage links to IRI not to ID
+      const entity = Object.values(model.entities).find(entity => entity.iri === input ||
+        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && entity.ends.some(end => end.iri === input))
+      );
+      if (entity) {
+        inModel = model;
+        input = entity.id;
+        break;
+      }
     }
     const entity = inModel?.entities[input];
+    console.log(entity);
 
     if (inModel && entity) {
       if (inModel.isPrimary) {

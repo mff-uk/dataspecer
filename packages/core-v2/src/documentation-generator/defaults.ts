@@ -21,7 +21,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         // All config options at https://respec.org/docs/
         var respecConfig = {
           specStatus: "unofficial",
-          editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }]
+          editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }],
           //github: "some-org/mySpec",
           shortName: "todo",
           //xref: "web-platform",
