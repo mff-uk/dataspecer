@@ -20,3 +20,18 @@ export const prefixForIri = (iri: string | null) : string | null => {
   }
   return null;
 };
+
+/**
+ * Given an absolute URL replace the absolute part with a prefix.
+ * If there is no prefix match, returns the original.
+ */
+export const usePrefixForIri = (iri: string | null) : string | null => {
+  for (const [prefix, shortcut] of vocabulary) {
+    if (iri?.startsWith(prefix)) {
+      return shortcut + ":" + iri.substring(prefix.length);
+    }
+  }
+  return iri;
+}
+
+
