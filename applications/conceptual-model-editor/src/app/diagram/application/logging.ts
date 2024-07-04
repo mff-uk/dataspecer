@@ -17,5 +17,11 @@ export const logger = {
    */
   missingTranslation: (name: string) => {
     console.error(`[TRANSLATION] Missing for '${name}'.`);
-  }
+  },
+  /**
+   * Report invalid entity.
+   */
+  invalidEntity: (identifier: string, message: string, ...args: unknown[]) => {
+    console.error(`[ENTITY] '${identifier}' is not valid: ${message}`, ...args);
+  },
 };

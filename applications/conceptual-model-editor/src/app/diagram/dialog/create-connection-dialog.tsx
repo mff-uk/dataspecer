@@ -23,7 +23,7 @@ import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 
-import { getEntityLabel } from "../service/model-service";
+import { getEntityLabel } from "../service/entity-service";
 import { t, logger, configuration } from "../application/";
 
 enum ConnectionType {

@@ -1,16 +1,6 @@
 import { DataTypeURIs, dataTypeUriToName } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
 
-const OptionRow = (props: { datatype: string; selected: boolean }) => {
-    const { datatype, selected } = props;
-    const datatypeLabel = dataTypeUriToName(datatype);
-    return (
-        <option value={datatype} selected={selected}>
-            {datatypeLabel} ({datatype})
-        </option>
-    );
-};
-
 export const SelectDatatype = (props: {
     valueSelected: string | null;
     onOptionSelected: (optionValue: string | null) => void;
@@ -19,6 +9,15 @@ export const SelectDatatype = (props: {
     withOverride?: boolean;
 }) => {
     const { valueSelected, onOptionSelected, onChange, disabled, withOverride } = props;
+
+    const values: {
+        id: string;
+        label: string;
+    }[] = DataTypeURIs.map(iri => ({
+        id: iri,
+        label: dataTypeUriToName(iri) ?? iri,
+    }));
+    values.sort((left, right) => left.label.localeCompare(right.label));
 
     return (
         <div className="flex flex-col md:flex-row">
@@ -36,8 +35,10 @@ export const SelectDatatype = (props: {
                 }}
             >
                 <option value="null">---</option>
-                {DataTypeURIs.map((datatype) => (
-                    <OptionRow key={datatype} datatype={datatype} selected={valueSelected == datatype} />
+                {values.map(item => (
+                    <option key={item.id} value={item.id} selected={valueSelected == item.id}>
+                        {item.label}
+                    </option>
                 ))}
             </select>
             {withOverride && (

@@ -14,27 +14,14 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getDuplicateNames } from "../../util/name-utils";
-import { EntityProxy, type getEntityTypeString } from "../../util/detail-utils";
+import { type getEntityTypeString } from "../../util/detail-utils";
+import { prepareClassAndClassUsageForSelect } from "../../service/model-service";
 
 type SupportedTypes =
     | SemanticModelClass
     | SemanticModelClassUsage
     | SemanticModelRelationship
     | SemanticModelRelationshipUsage;
-
-const OptionRow = (props: { parent: SupportedTypes; duplicateNames: Set<string> }) => {
-    const { parent, duplicateNames } = props;
-    const { name, iri } = EntityProxy(parent);
-
-    const displayIri = duplicateNames.has(name ?? "");
-
-    return (
-        <option value={parent.id}>
-            {name} {displayIri && `(${iri ?? parent.id})`}
-        </option>
-    );
-};
 
 const getPossibleParents = (type: ReturnType<typeof getEntityTypeString>, resources: SupportedTypes[]) => {
     if (type == "relationship" || type == "relationship profile") {
@@ -58,9 +45,9 @@ export const SelectGeneralizationParent = (props: {
     const { valueSelected, onOptionSelected, parentType, alreadySpecialized } = props;
     const { classes: c, relationships: r, profiles: p } = useClassesContext();
     const resources = [...c, ...r, ...p];
-    const possibleParents =
-        getPossibleParents(parentType, resources)?.filter((p) => !alreadySpecialized.includes(p.id)) ?? [];
-    const duplicateNames = getDuplicateNames(possibleParents);
+
+    const possibleParents = getPossibleParents(parentType, resources)?.filter((p) => !alreadySpecialized.includes(p.id)) ?? [];
+    const values = prepareClassAndClassUsageForSelect(possibleParents);
 
     return (
         <div className="flex-grow">
@@ -75,8 +62,10 @@ export const SelectGeneralizationParent = (props: {
                 <option value={undefined} disabled selected={valueSelected?.parent === undefined}>
                     ---
                 </option>
-                {possibleParents.map((parent) => (
-                    <OptionRow key={"possible-parent" + parent.id} parent={parent} duplicateNames={duplicateNames} />
+                {values.map(item => (
+                    <option key={item.id} value={item.id}>
+                        {item.label}
+                    </option>
                 ))}
             </select>
         </div>
