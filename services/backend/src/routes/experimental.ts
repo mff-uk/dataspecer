@@ -26,7 +26,7 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 
 async function generateDsv(models: ModelDescription[]): Promise<string> {
     // We collect all models as context and all entities for export.
-    const conceptualModelIri = models[0]?.documentationUrl ?? ""; // We consider documentation URL as the IRI of the conceptual model.
+    const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
         baseIri: models[0]?.baseIri ?? "",
@@ -184,7 +184,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
                 // @ts-ignore
-                documentationUrl: data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
+                documentationUrl: pckg.userMetadata?.documentBaseUrl, //data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
                 baseIri: data.baseIri,
             });
         }
@@ -257,7 +257,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     };
 
     // OWL
-    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.documentationUrl ?? "");
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri + "applicationProfileConceptualModel");
     if (owl) {
         const owlFile = streamDictionary.writePath("model.owl.ttl");
         await owlFile.write(owl);
