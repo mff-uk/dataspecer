@@ -29,7 +29,7 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
         parentIri: iri,
         label: {},
         description: {[i18n.language]: (event.target as any)["description"].value},
-        documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
+        //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
       }) as string;
   
       // Import
@@ -58,7 +58,7 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
         label: {en: name},
         description: {en: "Semantic model for the profile"},
         baseIri: (event.target as any)["base-url"].value,
-        documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
+        //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
         modelAlias: name,
       });
   
@@ -110,10 +110,10 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
               <Label htmlFor="base-url">{t("form.base-iri.name")}</Label>
               <Input id="base-url" placeholder={t("form.base-iri.instruction")} defaultValue="https://example.com/profile/vocabulary#" />
             </div>
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="documentation-url">{t("form.documentation-base-url.name")}</Label>
               <Input id="documentation-url" placeholder={t("form.documentation-base-url.instruction")} defaultValue="https://example.com/profile/" />
-            </div>
+            </div> */}
             <LoadingButton type="submit" loading={loading}>{t("form.create-button.name")}</LoadingButton>
           </form>
         </ModalBody>
