@@ -12,6 +12,8 @@ You can do many things in here.
 -   create diagrams
 -   and.. that seems it
 
+We expect you have your reasons for using `dscme`. If you are wondering around and looking for motivation why you should want to use `dscme`, refer yourself to the [motivation section in developer documentation](./dev-docs.md#motivation).
+
 ## Workflow
 
 You can head straight to the editor on [this url](https://tool.dataspecer.com/conceptual-model-editor/diagram). There you can do quite a lot of things. However, if you want to have your work persisted, refer yourself to [persistence section](./persistence.md).
