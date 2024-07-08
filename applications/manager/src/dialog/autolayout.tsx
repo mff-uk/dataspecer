@@ -78,6 +78,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
           userMetadata: {
             label: {
               cs: "Vygenerovaný autolayout",
+              en: "Generated autolayout",
             }
           }
         }),
@@ -105,16 +106,18 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Autolayout</ModalTitle>
+          <ModalTitle>Autolayout (Work in progress - sometimes crashes, etc.)</ModalTitle>
           <ModalDescription>
-            Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}.
+           Launches layout from @dataspecer/layout for <strong>{type}</strong>{name && <> with name <strong>{name}</strong></>}.
+            {/* cz: Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}. */}
           </ModalDescription>          
         </ModalHeader>
         <ModalBody>
           <div className='h-8'>------------------------</div>         
           <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel} 
                       onChange={(e => setShouldCreateNewModel(e.target.checked))} />
-          <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model)</label>    
+          <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Create new visual model (If unchecked then last layouted visual model is overridden [i.e. destroyed])
+            { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>    
           <div className='h-8'></div>         
           <div>------------------------</div>         
           <ConfigDialog></ConfigDialog>
@@ -122,9 +125,9 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
         <ModalFooter>
           <Button variant="default" onClick={execute} disabled={isLoading}>
             {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-            Spustit
+            Launch{/* cz: Spustit */}
           </Button>
-          <Button variant="outline" onClick={() => resolve(false)} disabled={isLoading}>Zavřít</Button>
+          <Button variant="outline" onClick={() => resolve(false)} disabled={isLoading}>Close{/* cz: Zavřít */}</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

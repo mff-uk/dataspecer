@@ -133,41 +133,45 @@ export const useConfigDialog = () => {
     // }
 
 
-    const ForceConfig = () =>
-        <div>
-            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
-            <div className="flex flex-row">
-                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
-            </div> 
-            <div className="flex flex-row">
-                <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false" 
-                        defaultValue={config["min-distance-between-nodes"]} 
-                        onMouseUp={(e) => { setConfig({...config, "min-distance-between-nodes": parseInt((e.target as HTMLInputElement).value)});}}></input>
-                        {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
-                            (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                {config["min-distance-between-nodes"]}
+    const ForceConfig = () => {
+        return (
+            <div>
+                
+                <h1 className='font-black'>Physics-based model settings {/* cz: Nastavení fyzikálního modelu */}</h1>
+                <div className="flex flex-row">                    
+                    <label htmlFor="range-min-distance-between-nodes">Min distance between nodes: {/* cz: Min vzdálenost mezi vrcholy: */}</label>
+                </div> 
+                <div className="flex flex-row">
+                    <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false" 
+                            defaultValue={config["min-distance-between-nodes"]} 
+                            onMouseUp={(e) => { setConfig({...config, "min-distance-between-nodes": parseInt((e.target as HTMLInputElement).value)});}}></input>
+                            {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
+                                (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                    {config["min-distance-between-nodes"]}
+                </div>
+
+
+                <div className="flex flex-row">                    
+                    <label htmlFor="force-alg-type">Computation model type: {/* cz: Typ výpočtu: */}</label>
+                </div> 
+                <div className="flex flex-row">
+                    <select id="force-alg-type" value={config["force-alg-type"]} onChange={(event) => {
+                                    // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
+                                    setConfig({...config, ["force-alg-type"]: event.target.value });        
+                        }}>
+                        <option value="EADES">Eades</option>
+                        <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
+                    </select>
+                </div> 
             </div>
-
-
-            <div className="flex flex-row">
-                <label htmlFor="force-alg-type">Typ výpočtu: </label>
-            </div> 
-            <div className="flex flex-row">
-                <select id="force-alg-type" value={config["force-alg-type"]} onChange={(event) => {
-                                // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-                                setConfig({...config, ["force-alg-type"]: event.target.value });        
-                    }}>
-                    <option value="EADES">Eades</option>
-                    <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
-                </select>
-            </div> 
-        </div>
+            );
+        }
 
     const StressConfig = () => 
-        <div>
-            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
-            <div className="flex flex-row">
-                <label htmlFor="range-stress-edge-len">Ideální délka hran: </label>
+        <div>            
+            <h1 className='font-black'>Physics-based model settings {/* cz: Nastavení fyzikálního modelu */}</h1>
+            <div className="flex flex-row">                
+                <label htmlFor="range-stress-edge-len">Ideal edge length: {/* cz: Ideální délka hran: */}</label>
             </div> 
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
@@ -183,27 +187,27 @@ export const useConfigDialog = () => {
     const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
         <div>
             <h1 className='font-black'>
-                {props.idPrefix === "" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
+                {props.idPrefix === "" ? "Main algorithm settings" : "Settings for generalization edges" /* cz: "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy" */}
             </h1>
             <div className="flex flex-row">
-                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferovaný směr hran: </label>
+                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferred edge directions: {/* cz: Preferovaný směr hran: */}</label>
             </div> 
             <div className="flex flex-row">
                 <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
                                 // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
                                 setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
                     }}>
-                    <option value="UP">Nahoru</option>
-                    <option value="RIGHT">Doprava</option>
-                    <option value="DOWN">Dolu</option>
-                    <option value="LEFT">Doleva</option>
+                    <option value="UP">Up{/* Nahoru */}</option>
+                    <option value="RIGHT">Right{/* Doprava */}</option>
+                    <option value="DOWN">Down{/* Dolu */}</option>
+                    <option value="LEFT">Left{/* Doleva */}</option>
                 </select>
             </div>            
     
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
                 { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
-                <label htmlFor={`range-${props.idPrefix}layer-gap`}>Prostor mezi vrstvami: </label>
+                <label htmlFor={`range-${props.idPrefix}layer-gap`}>Space between layers: {/* cz: Prostor mezi vrstvami: */}</label>
             </div>
             <div className="flex flex-row">    
                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
@@ -214,7 +218,7 @@ export const useConfigDialog = () => {
             
 
             <div className="flex flex-row">
-                 <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
+                 <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Space between nodes in layer: {/* cz: Prostor mezi třídami uvnitř vrstvy: */}</label>
              </div>
              <div className="flex flex-row ">
                  <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
@@ -227,7 +231,7 @@ export const useConfigDialog = () => {
                     <div>
                         <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config['double-run']} 
                                  onChange={e => setConfig({...config, "double-run": e.target.checked })} />
-                        <label htmlFor="checkbox-double-run">Spusť dva běhy</label>
+                        <label htmlFor="checkbox-double-run">Run algorithm for generalization separately{/* cz: Spusť dva běhy */}</label>
                     </div>
                 
             }
@@ -252,15 +256,15 @@ export const useConfigDialog = () => {
     const ConfigDialog = () =>   
         <div>
             <div className="flex flex-row">
-                <label htmlFor="main-layout-alg" className='font-black'>Hlavní layoutovací algoritmus: </label>
+                <label htmlFor="main-layout-alg" className='font-black'>Main layouting algorithm: { /* cz: Hlavní layoutovací algoritmus: */} </label>
             </div>    
             <div className="flex flex-row">
                 <select id="main-layout-alg" value={config['main-layout-alg']} 
                         onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
-                    <option value="layered">Úrovňový</option>
-                    <option value="stress">Fyzikální (Stress)</option>
-                    <option value="force">Fyzikální (Force - Jen Debug)</option>
-                    <option value="random">Náhodný</option>
+                    <option value="layered">Layered (Hierarchical){/* cz: Úrovňový */}</option>
+                    <option value="stress">Physical (Stress){ /* cz: Fyzikální (Stress) */ }</option>
+                    <option value="force">Physical (Force - Just debug){/* cz: Fyzikální (Force - Jen Debug) */}</option>
+                    <option value="random">Random{/* cz: Náhodný */}</option>
                 </select>
             </div>            
             <div className='h-8'>------------------------</div> 
@@ -268,7 +272,8 @@ export const useConfigDialog = () => {
             <div className='h-8'>------------------------</div> 
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
                     onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
-            <label htmlFor="checkbox-main-layout-alg">Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec)</label>            
+            <label htmlFor="checkbox-main-layout-alg">
+                Process generalization relationships separately (sometimes crashes){/* cz: Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec) */}</label>            
             {config['process-general-separately'] === false ? null : 
                 <div>
                     <div className='h-2'></div>                  
