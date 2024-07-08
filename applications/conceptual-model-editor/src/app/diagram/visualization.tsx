@@ -40,7 +40,6 @@ import {
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { type Entity } from "@dataspecer/core-v2/entity-model";
 import { useClassesContext } from "./context/classes-context";
 import { type VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
@@ -63,7 +62,7 @@ import { getRandomName } from "../utils/random-gen";
 export let getSvgForCurrentView: () => Promise<{
     svg: string;
     forModelId: string;
-}|null>;
+} | null>;
 
 export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
@@ -164,26 +163,6 @@ export const Visualization = () => {
     };
 
     // --- mappers from concepts to visualization elements --- --- ---
-
-    const relationshipOrGeneralizationToEdgeType = (
-        entity: Entity | null,
-        color: string | undefined
-    ): Edge | undefined => {
-        if (isSemanticModelRelationshipUsage(entity)) {
-            const usageNotes = entity.usageNote ? [entity.usageNote] : [];
-            return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes) as Edge;
-        } else if (isSemanticModelRelationship(entity)) {
-            return semanticModelRelationshipToReactFlowEdge(entity, color, []) as Edge;
-        } else if (isSemanticModelGeneralization(entity)) {
-            return semanticModelGeneralizationToReactFlowEdge(entity, color) as Edge;
-        }
-        return;
-    };
-
-    const classUsageToEdgeType = (entity: SemanticModelClassUsage, color: string | undefined): Edge => {
-        const res = semanticModelClassUsageToReactFlowEdge(entity, color);
-        return res;
-    };
 
     const rerenderEverythingOnCanvas = () => {
         const modelId = [...models.keys()].at(0);
@@ -305,10 +284,20 @@ export const Visualization = () => {
             };
 
             const getEdge = (
-                relOrGen: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage,
+                entity: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage | SemanticModelClassUsage,
                 color: string | undefined
             ) => {
-                return relationshipOrGeneralizationToEdgeType(relOrGen, color);
+                if (isSemanticModelRelationshipUsage(entity)) {
+                    const usageNotes = entity.usageNote ? [entity.usageNote] : [];
+                    return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes) as Edge;
+                } else if (isSemanticModelRelationship(entity)) {
+                    return semanticModelRelationshipToReactFlowEdge(entity, color, []) as Edge;
+                } else if (isSemanticModelGeneralization(entity)) {
+                    return semanticModelGeneralizationToReactFlowEdge(entity, color) as Edge;
+                } else if (isSemanticModelClassUsage(entity)) {
+                    return semanticModelClassUsageToReactFlowEdge(entity, color);
+                }
+                return;
             };
 
             if (removed.length > 0) {
@@ -435,29 +424,20 @@ export const Visualization = () => {
                     ...localRelationships,
                     ...localGeneralizations,
                     ...localProfiles.filter(isSemanticModelRelationshipUsage),
+                    ...localProfiles.filter(isSemanticModelClassUsage),
                 ]
-                    .map((relOrGen) => {
-                        const visible = visualEntities?.get(relOrGen.id)?.visible ?? true;
+                    .map((entity) => {
+                        const visible = visualEntities?.get(entity.id)?.visible ?? true;
                         if (!visible) {
                             return;
                         }
-
-                        const sourceModelId = sourceModelOfEntityMap.get(relOrGen.id);
+                        const sourceModelId = sourceModelOfEntityMap.get(entity.id);
                         return getEdge(
-                            relOrGen,
-                            localActiveVisualModel?.getColor(sourceModelId ?? "some random model id that doesn't exist")
+                            entity,
+                            sourceModelId === undefined ? undefined : (localActiveVisualModel?.getColor(sourceModelId) ?? undefined)
                         );
                     })
-                    .filter((e): e is Edge => {
-                        return e?.id != undefined;
-                    })
-                    .concat(
-                        [...localProfiles].filter(isSemanticModelClassUsage).map((u) => {
-                            const sourceModelId = sourceModelOfEntityMap.get(u.id);
-                            return classUsageToEdgeType(u, localActiveVisualModel?.getColor(sourceModelId ?? ""));
-                        })
-                    );
-
+                    .filter((edge): edge is Edge => edge?.id !== undefined);
                 setEdges(edgesToRender);
             };
             rerenderAllEdges();
