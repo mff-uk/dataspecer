@@ -69,23 +69,26 @@ export const ExportManagement = () => {
     };
 
     const handleGenerateLightweightOwl = () => {
-        generate(
-            Object.values(aggregatorView.getEntities())
-                .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
-                .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
-                    return entityOrNull != null;
-                })
-                .map((aggregatedEntity) => {
-                    const modelBaseIri = getModelIri(models.get(sourceModelOfEntityMap.get(aggregatedEntity.id) ?? ""));
-                    const entityIri = getIri(aggregatedEntity, modelBaseIri);
+        const entities = Object.values(aggregatorView.getEntities())
+            .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
+            .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
+                return entityOrNull != null;
+            })
+            .map((aggregatedEntity) => {
+                const modelBaseIri = getModelIri(models.get(sourceModelOfEntityMap.get(aggregatedEntity.id) ?? ""));
+                const entityIri = getIri(aggregatedEntity, modelBaseIri);
 
-                    if (!entityIri) {
-                        return aggregatedEntity;
-                    }
+                if (!entityIri) {
+                    return aggregatedEntity;
+                }
 
-                    return entityWithOverriddenIri(entityIri, aggregatedEntity);
-                })
-        )
+                return entityWithOverriddenIri(entityIri, aggregatedEntity);
+            });
+        const context = {
+            baseIri: "", // TODO Get base URL.
+            iri: "",
+        };
+        generate(entities, context)
             .then((generatedLightweightOwl) => {
                 const date = Date.now();
                 download(generatedLightweightOwl, `dscme-lw-ontology-${date}.ttl`, "text/plain");
