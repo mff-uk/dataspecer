@@ -197,10 +197,10 @@ export const useConfigDialog = () => {
                                 // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
                                 setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
                     }}>
-                    <option value="UP">UP{/* Nahoru */}</option>
-                    <option value="RIGHT">RIGHT{/* Doprava */}</option>
-                    <option value="DOWN">DOWN{/* Dolu */}</option>
-                    <option value="LEFT">LEFT{/* Doleva */}</option>
+                    <option value="UP">Up{/* Nahoru */}</option>
+                    <option value="RIGHT">Right{/* Doprava */}</option>
+                    <option value="DOWN">Down{/* Dolu */}</option>
+                    <option value="LEFT">Left{/* Doleva */}</option>
                 </select>
             </div>            
     

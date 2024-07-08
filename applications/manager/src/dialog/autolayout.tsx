@@ -116,7 +116,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
           <div className='h-8'>------------------------</div>         
           <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel} 
                       onChange={(e => setShouldCreateNewModel(e.target.checked))} />
-          <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Create new visual model (If unchecked then last layouted visual model is overridden)
+          <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Create new visual model (If unchecked then last layouted visual model is overridden [i.e. destroyed])
             { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>    
           <div className='h-8'></div>         
           <div>------------------------</div>         
