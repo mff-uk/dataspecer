@@ -93,6 +93,7 @@ export const ModelCatalog = () => {
     return (
         <>
             <div className="min-w-24 overflow-y-scroll bg-teal-100 px-1">
+                <h3 className="font-semibold">model catalog</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index.toString()}>
