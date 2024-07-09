@@ -1,75 +1,98 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createSgovModel, createRdfsModel, ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
-import { useAddModelDialog } from "../dialog/add-model-dialog";
 import { ModelItemRow } from "../components/catalog-rows/model-item-row";
+import { useState } from "react";
+
+import { AddModelDialog, type PredefinedModel } from "../dialog/add-model-dialog";
+
+import { logger } from "../application/";
+
+const PREDEFINED_MODELS: PredefinedModel[] = [{
+    "identifier": "rdf",
+    "label": "RDF",
+}, {
+    "identifier": "rdfs",
+    "label": "RDFS",
+}, {
+    "identifier": "dcterms",
+    "label": "Dublin Core Terms",
+}, {
+    "identifier": "foaf",
+    "label": "FOAF",
+}, {
+    "identifier": "skos",
+    "label": "SKOS",
+}, {
+    "identifier": "sgov",
+    "label": "Czech Semantic Dictionary of terms",
+    "alias": "SGOV",
+}];
+
+const PREDEFINED_MODELS_URL: Record<string, string> = {
+    "rdf": "https://datagov-cz.github.io/cache-slovniku/rdf.ttl",
+    "rdfs": "https://datagov-cz.github.io/cache-slovniku/rdfs.ttl",
+    "dcterms": "https://datagov-cz.github.io/cache-slovniku/dublin_core_terms.ttl",
+    "foaf": "https://datagov-cz.github.io/cache-slovniku/foaf.ttl",
+    "skos": "https://datagov-cz.github.io/cache-slovniku/skos.rdf",
+};
 
 export const ModelCatalog = () => {
     const { aggregator, setAggregatorView, addModelToGraph, models } = useModelGraphContext();
-    const { isAddModelDialogOpen, AddModelDialog, openAddModelDialog } = useAddModelDialog();
+    const [isAddDialogOpen, setAddDialogOpen] = useState(false);
 
-    const handleAddModel = (modelType: "local" | "sgov") => {
-        if (modelType == "sgov") {
-            const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
-            model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl").catch(console.log);
-            model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba").catch(console.log);
+    const addModelFromUrl = (url: string, alias: string) => {
+        void (async () => {
+            const model = await createRdfsModel([url], httpFetch);
+            model.fetchFromPimStore();
             addModelToGraph(model);
-        } else if (modelType == "local") {
-            const model = new InMemorySemanticModel();
-            addModelToGraph(model);
-        }
-
-        const aggregatedView = aggregator.getView();
-        setAggregatorView(aggregatedView);
+            model.alias = alias;
+            const aggregatedView = aggregator.getView();
+            setAggregatorView(aggregatedView);
+        })();
     };
 
-    const hasSgov = () => {
-        const m = [...models.values()].find((m) => m instanceof ExternalSemanticModel);
-        if (!m) {
-            return false;
-        }
-        return true;
+    const addSgov = () => {
+        const model = createSgovModel("https://slovník.gov.cz/sparql", httpFetch);
+        model.allowClass("https://slovník.gov.cz/datový/turistické-cíle/pojem/turistický-cíl").catch(console.error);
+        model.allowClass("https://slovník.gov.cz/veřejný-sektor/pojem/fyzická-osoba").catch(console.error);
+        addModelToGraph(model);
     };
 
-    const AddModelDialogButton = () => (
-        <button
-            onClick={() =>
-                openAddModelDialog(async (url: string, options: {name: string}) => {
-                    const callBack = async () => {
-                        const model = await createRdfsModel([url], httpFetch);
-                        model.fetchFromPimStore();
-                        addModelToGraph(model);
-                        model.alias = options.name;
-                        const aggregatedView = aggregator.getView();
-                        setAggregatorView(aggregatedView);
-                    };
-                    await callBack();
-                })
+    const addLocalModel = (alias: string) => {
+        const model = new InMemorySemanticModel();
+        model.setAlias(alias);
+        addModelToGraph(model);
+    };
+
+    const onAddModelFromUrl = (url: string, alias: string) => {
+        setAddDialogOpen(false);
+        addModelFromUrl(url, alias);
+    };
+
+    const onAddPredefinedModel = (models: PredefinedModel[]) => {
+        setAddDialogOpen(false);
+        for (const model of models) {
+            const url = PREDEFINED_MODELS_URL[model.identifier] ?? null;
+            if (url !== null) {
+                addModelFromUrl(url, model.alias ?? model.label);
+            } else if (model.identifier === "sgov") {
+                addSgov();
+            } else {
+                logger.error("Invalid predefined model.", {model});
             }
-            disabled={isAddModelDialogOpen}
-            type="button"
-            className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
-        >
-            + <span className="font-mono">model</span>
-        </button>
-    );
+        }
+    };
 
-    const AddModelButton = (props: { disabled?: boolean; modelType: "local" | "sgov" }) => (
-        <button
-            onClick={() => handleAddModel(props.modelType)}
-            disabled={props.disabled}
-            type="button"
-            className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
-        >
-            + <span className="font-mono">{props.modelType}</span>
-        </button>
-    );
+    const onAddLocalModel = (alias: string) => {
+        setAddDialogOpen(false);
+        addLocalModel(alias);
+    };
 
     return (
         <>
             <div className="min-w-24 overflow-y-scroll bg-teal-100 px-1">
-                <h3 className="font-semibold">model catalog</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index.toString()}>
@@ -78,12 +101,23 @@ export const ModelCatalog = () => {
                     ))}
                 </ul>
                 <div className="flex flex-row [&>*]:mr-1">
-                    <AddModelDialogButton />
-                    <AddModelButton disabled={hasSgov()} modelType="sgov" />
-                    <AddModelButton modelType="local" />
+                    <button
+                        onClick={() => setAddDialogOpen(true)}
+                        type="button"
+                        className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
+                    >
+                        Add a model
+                    </button>
                 </div>
             </div>
-            {isAddModelDialogOpen && <AddModelDialog />}
+            <AddModelDialog
+                isOpen={isAddDialogOpen}
+                predefinedModels={PREDEFINED_MODELS}
+                onCancel={() => setAddDialogOpen(false)}
+                onAddModelFromUrl={onAddModelFromUrl}
+                onAddPredefinedModel={onAddPredefinedModel}
+                onAddLocalModel={onAddLocalModel}
+            />
         </>
     );
 };
