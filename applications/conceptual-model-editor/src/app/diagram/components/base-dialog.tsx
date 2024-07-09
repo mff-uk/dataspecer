@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { clickedInside } from "../util/utils";
 
 export const useBaseDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -51,4 +50,14 @@ export const useBaseDialog = () => {
         open,
         BaseDialog,
     };
+};
+
+const clickedInside = (rect: DOMRect, cliX: number, cliY: number) => {
+    const offset = 15;
+    return (
+        rect.top + offset <= cliY &&
+        cliY <= rect.top + rect.height + offset &&
+        rect.left - offset <= cliX &&
+        cliX <= rect.left + rect.width + offset
+    );
 };
