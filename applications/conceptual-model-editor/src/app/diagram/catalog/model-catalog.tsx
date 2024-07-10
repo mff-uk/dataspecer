@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import { AddModelDialog, type PredefinedModel } from "../dialog/add-model-dialog";
 
-import { logger } from "../application/";
+import { logger, t } from "../application/";
 
 const PREDEFINED_MODELS: PredefinedModel[] = [{
     "identifier": "rdf",
@@ -93,7 +93,7 @@ export const ModelCatalog = () => {
     return (
         <>
             <div className="min-w-24 overflow-y-scroll bg-teal-100 px-1">
-                <h3 className="font-semibold">model catalog</h3>
+                <h3 className="font-semibold">{t("model-catalog.label")}</h3>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index.toString()}>
@@ -107,7 +107,7 @@ export const ModelCatalog = () => {
                         type="button"
                         className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
                     >
-                        Add a model
+                        {t("model-catalog.add-vocabulary")}
                     </button>
                 </div>
             </div>

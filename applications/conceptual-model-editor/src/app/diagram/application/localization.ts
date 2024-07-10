@@ -91,6 +91,9 @@ const translations: Record<string, string | Function> = {
   "add-model-dialog.url-size-warning": "Be warned, that the import is not optimized for large files.",
   "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
   "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
+  //
+  "model-catalog.label": "Vocabularies",
+  "model-catalog.add-vocabulary": "Add a vocabulary",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {
