@@ -77,6 +77,20 @@ const translations: Record<string, string | Function> = {
   "domain-cardinality": "Domain cardinality",
   "range": "Range",
   "range-cardinality": "Range cardinality",
+  //
+  "add-model-dialog.label": "Add vocabulary",
+  "add-model-dialog.tab-from-url": "Vocabulary from URL",
+  "add-model-dialog.tab-predefined": "Well-known vocabularie",
+  "add-model-dialog.tab-create": "Create new vocabulary",
+  "add-model-dialog.btn-ok": "✅ Add vocabulary(s)",
+  "add-model-dialog.btn-cancel": "❌ Cancel",
+  "add-model-dialog.url-label": "Vocabulary Turtle file (*.ttl) URL:",
+  "add-model-dialog.url-placeholder": "URL:",
+  "add-model-dialog.alias-label": "Alias:",
+  "add-model-dialog.alias-placeholder": "Alias for your vocabulary, you can change this later.",
+  "add-model-dialog.url-size-warning": "Be warned, that the import is not optimized for large files.",
+  "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
+  "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

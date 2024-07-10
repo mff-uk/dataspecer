@@ -5,6 +5,8 @@ import { ModalDialog } from "./modal-dialog";
 
 import { Label, Input, Checkbox, Tab, Tabs } from "./components";
 
+import { t } from "../application";
+
 const DEFAULT_URL = "https://www.w3.org/ns/dcat.ttl";
 
 const DEFAULT_NAME = "dcat";
@@ -23,6 +25,12 @@ export interface PredefinedModel {
    * If missing label is used instead.
    */
   alias?: string;
+}
+
+enum TabList {
+  AddFromUrl = 0,
+  AddPredefined = 1,
+  CreateLocal = 2
 }
 
 export const AddModelDialog = (props: {
@@ -51,7 +59,7 @@ export const AddModelDialog = (props: {
    */
   onAddLocalModel: (alias: string) => void,
 }) => {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeTabIndex, setActiveTabIndex] = useState(TabList.AddFromUrl);
 
   // renderAddModelByUrl
   const [url, setUrl] = useState(DEFAULT_URL);
@@ -65,14 +73,14 @@ export const AddModelDialog = (props: {
 
   const onAdd = () => {
     switch (activeTabIndex) {
-      case 0:
+      case TabList.AddFromUrl:
         props.onAddModelFromUrl(url, alias);
         break;
-      case 1:
+      case TabList.AddPredefined:
         props.onAddPredefinedModel(activeSelection);
         setActiveSelection([]);
         break;
-      case 2:
+      case TabList.CreateLocal:
         props.onAddLocalModel(localAlias);
         setLocalAlias("");
         break;
@@ -94,27 +102,27 @@ export const AddModelDialog = (props: {
   const content = <>
     <Tabs>
       <Tab
-        active={activeTabIndex === 0}
-        onClick={() => setActiveTabIndex(0)}
+        active={activeTabIndex === TabList.AddFromUrl}
+        onClick={() => setActiveTabIndex(TabList.AddFromUrl)}
       >
-        Select model to import
+        {t("add-model-dialog.tab-from-url")}
       </Tab>
       <Tab
-        active={activeTabIndex === 1}
-        onClick={() => setActiveTabIndex(1)}
+        active={activeTabIndex === TabList.AddPredefined}
+        onClick={() => setActiveTabIndex(TabList.AddPredefined)}
       >
-        Import from URL
+        {t("add-model-dialog.tab-predefined")}
       </Tab>
       <Tab
-        active={activeTabIndex === 2}
-        onClick={() => setActiveTabIndex(2)}
+        active={activeTabIndex === TabList.CreateLocal}
+        onClick={() => setActiveTabIndex(TabList.CreateLocal)}
       >
-        Create a new local model
+        {t("add-model-dialog.tab-create")}
       </Tab>
     </Tabs>
     {/* Content. */}
     <div>
-      <div className={getTabContentStyle(activeTabIndex === 0)}>
+      <div className={getTabContentStyle(activeTabIndex === TabList.AddFromUrl)}>
         {renderAddModelByUrl({
           url,
           setUrl,
@@ -122,14 +130,14 @@ export const AddModelDialog = (props: {
           setAlias
         })}
       </div>
-      <div className={getTabContentStyle(activeTabIndex === 1)}>
+      <div className={getTabContentStyle(activeTabIndex === TabList.AddPredefined)}>
         {renderAddModelFromPredefined({
           predefinedModels: props.predefinedModels,
           activeSelection,
           toggleSelection: onToggleSelection,
         })}
       </div>
-      <div className={getTabContentStyle(activeTabIndex === 2)}>
+      <div className={getTabContentStyle(activeTabIndex === TabList.CreateLocal)}>
         {renderAddLocalModel({
           alias: localAlias,
           setAlias: setLocalAlias,
@@ -143,18 +151,18 @@ export const AddModelDialog = (props: {
       className="p-2 text-green-700 hover:shadow"
       onClick={onAdd}
     >
-      ✅ Add model(s)
+      {t("add-model-dialog.btn-ok")}
     </button>
     <button
       className="p-2 text-red-700 hover:shadow"
       onClick={props.onCancel}>
-      ❌ Cancel
+      {t("add-model-dialog.btn-cancel")}
     </button>
   </>;
 
   return (
     <ModalDialog
-      heading="Add model"
+      heading={t("add-model-dialog.label")}
       isOpen={props.isOpen}
       onCancel={props.onCancel}
       content={content}
@@ -176,32 +184,28 @@ function renderAddModelByUrl(props: {
 }) {
   return (
     <>
-      <p>
-        Import semantic model using given URL.
-      </p>
-      <br />
-      <Label html-for="model-url">Model Turtle file (*.ttl) URL:</Label>
+      <Label html-for="model-url">{t("add-model-dialog.url-label")}</Label>
       <Input
         id="model-url"
         type="url"
         pattern="https://.*"
-        placeholder="URL"
+        placeholder={t("add-model-dialog.url-placeholder")}
         value={props.url}
         onChange={(event) => props.setUrl(event.target.value.trim())}
         required
       />
-      <Label html-for="model-alias">Model alias:</Label>
+      <Label html-for="model-alias">{t("add-model-dialog.alias-label")}</Label>
       <Input
         id="model-alias"
         type="text"
-        placeholder="Alias for your model, you can change this later."
+        placeholder={t("add-model-dialog.alias-placeholder")}
         value={props.alias}
         onChange={(event) => props.setAlias(event.target.value)}
         required
       />
       <br />
       <p className="italic">
-        Be warned, that the import is not optimized for large files.
+        {t("add-model-dialog.url-size-warning")}
       </p>
     </>
   );
@@ -215,7 +219,7 @@ function renderAddModelFromPredefined(props: {
   return (
     <>
       <p>
-        Select models from bellow to import. You can import multiple models at once.
+        {t("add-model-dialog.tab-predefined.introduction")}
       </p>
       <br />
       <ul>
@@ -245,14 +249,14 @@ function renderAddLocalModel(props: {
   return (
     <>
       <p>
-        Create new empty local model.
+        {t("add-model-dialog.tab-create.introduction")}
       </p>
       <br />
-      <Label html-for="local-alias">Model alias:</Label>
+      <Label html-for="local-alias">{t("add-model-dialog.alias-label")}</Label>
       <Input
         id="local-alias"
         type="text"
-        placeholder="Alias for your model, you can change this later."
+        placeholder={t("add-model-dialog.alias-placeholder")}
         value={props.alias}
         onChange={(event) => props.setAlias(event.target.value)}
         required
