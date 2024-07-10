@@ -1,8 +1,8 @@
 import { type Entities, type EntityModel } from "@dataspecer/core-v2/entity-model";
 
 import { t } from "../application/";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { type SemanticModelClass, type SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { type SemanticModelClassUsage, type SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityProxy } from "../util/detail-utils";
 import { getDuplicateNames } from "../util/name-utils";
 
