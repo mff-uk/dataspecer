@@ -18,6 +18,23 @@ export const useAutoSave = () => {
     const [autosaveButtonLabel, setAutosaveButtonLabel] = useState(getAutosaveLabel(AUTOSAVE_ENABLED_BY_DEFAULT));
 
     useEffect(() => {
+
+        // We create the handler here to emphasize that it captures the
+        // same variables as the callback. The reason is that since we allow
+        // autoload from the start, models, visualModels may change later.
+        const handleAutoSavePackage = () => {
+            if (!packageId) {
+                return;
+            }
+            updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+                .then(status => {
+                    setAutosaveButtonLabel(`... ${status ? "success" : "fail"}`);
+                    // Keep the label for some time and then return back.
+                    setTimeout(() => setAutosaveButtonLabel(getAutosaveLabel(autosaveActive)), 750);
+                })
+                .catch(console.error);
+        };
+
         setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
 
         if (!autosaveActive) {
@@ -27,30 +44,15 @@ export const useAutoSave = () => {
         }
         handleAutoSavePackage();
 
+        // Unregister so we do not register twice.
+        clearInterval(autosaveInterval ?? undefined);
         const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
         setAutosaveInterval(timeout);
 
-        // We can not list all properties as this would cycle.
+        // We can not list all properties (autosaveInterval) as this would cycle since
+        // we set the value in this function.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autosaveActive]);
-
-    const handleAutoSavePackage = () => {
-        if (!packageId) {
-            return;
-        }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
-            .then((status) => {
-                showWasAutosaved(status ? "success" : "fail");
-            })
-            .catch(console.log);
-    };
-
-    const showWasAutosaved = (result: "success" | "fail" = "success") => {
-        setAutosaveButtonLabel(`... ${result}`);
-        setTimeout(() => {
-            setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
-        }, 750);
-    };
+    }, [autosaveActive, models, visualModels]);
 
     let autosaveButtonTitle: string;
     if (!packageId) {
