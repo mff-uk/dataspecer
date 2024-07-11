@@ -23,6 +23,7 @@ export const RowHierarchy = (props: {
         handleRemoveEntityFromActiveView: (entityId: string) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
+        handleTargeting: (entityId: string) => void;
     };
     indent: number;
 }) => {
@@ -30,33 +31,39 @@ export const RowHierarchy = (props: {
     const { profiles, classes, allowedClasses } = useClassesContext();
     const { entity } = props;
 
-    const sourceModel = sourceModelOfEntity(props.entity.id, [...models.values()]);
+    const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-    const isAttribute = isAnAttribute(props.entity);
+    const isAttribute = isAnAttribute(entity);
+    const isEdge = isAnEdge(entity);
 
     const expansionHandler =
-        isSemanticModelClass(props.entity) && sourceModel instanceof ExternalSemanticModel
+        isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
             ? {
-                  toggleHandler: () => props.handlers.handleExpansion(sourceModel, props.entity.id),
-                  expanded: () => allowedClasses.includes(props.entity.id),
+                  toggleHandler: () => props.handlers.handleExpansion(sourceModel, entity.id),
+                  expanded: () => allowedClasses.includes(entity.id),
               }
             : null;
 
     const drawingHandler =
         isAttribute ||
-        (isAnEdge(entity) && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()?.getVisualEntities()))
+        (isEdge && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()?.getVisualEntities()))
             ? null
             : {
-                  addToViewHandler: () => props.handlers.handleAddEntityToActiveView(props.entity.id),
-                  removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(props.entity.id),
+                  addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity.id),
+                  removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
               };
 
     const removalHandler =
         sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
-            ? { remove: () => props.handlers.handleRemoval(sourceModel, props.entity.id) }
+            ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
             : null;
 
-    const thisEntityProfiles = profiles.filter((p) => p.usageOf == props.entity.id);
+    const thisEntityProfiles = profiles.filter((p) => p.usageOf == entity.id);
+
+    const targetHandler = { 
+        centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
+        isTargetable: !isAttribute && !isEdge,
+     };     
 
     // console.log("row hierarchy rerendered", sourceModel?.getId());
 
@@ -72,16 +79,17 @@ export const RowHierarchy = (props: {
             >
                 <EntityRow
                     offset={props.indent}
-                    entity={props.entity}
+                    entity={entity}
                     key={
-                        props.entity.id +
+                        entity.id +
                         (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") +
                         classes.length.toString()
                     }
                     expandable={expansionHandler}
                     drawable={drawingHandler}
                     removable={removalHandler}
-                    sourceModel={sourceModel}
+                    targetable={targetHandler}
+                    sourceModel={sourceModel}                    
                 />
                 {thisEntityProfiles.map((p) => (
                     <RowHierarchy

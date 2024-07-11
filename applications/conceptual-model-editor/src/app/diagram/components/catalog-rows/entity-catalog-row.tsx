@@ -24,6 +24,7 @@ import {
 import { onDragStart } from "../../reactflow/utils";
 import { useCanvasVisibility } from "../../util/canvas-utils";
 import { useDialogsContext } from "../../context/dialogs-context";
+import { MoveViewportToEntityButton } from "../buttons/center-viewport-on-entity";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -46,6 +47,11 @@ export const EntityRow = (props: {
     removable: null | {
         remove: () => void;
     };
+    targetable: null | {
+        centerViewportOnEntityHandler: () => void;
+        isTargetable: boolean;
+    };
+
     sourceModel?: EntityModel;
     offset?: number;
 }) => {
@@ -97,6 +103,7 @@ export const EntityRow = (props: {
                     />
                 )}
                 <CreateProfileButton onClickHandler={() => openProfileDialog(entity)} />
+                {props.targetable?.isTargetable && <MoveViewportToEntityButton disabled={!isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />}
             </div>
         </div>
     );

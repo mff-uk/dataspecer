@@ -7,7 +7,7 @@ export const DrawOnCanvasButton = (props: {
     return (
         <button
             className="hover:bg-teal-400"
-            title="add/remove from view"
+            title="Add/Remove from view"
             onClick={() => {
                 visible ? removeFromCanvas?.() : addToCanvas?.();
             }}

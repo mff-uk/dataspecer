@@ -33,6 +33,7 @@ import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
 import "./page.css";
+import { ReactFlowProvider } from "reactflow";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -368,7 +369,9 @@ const Page = () => {
 const PageWrapper = () => {
     return (
         <QueryParamsProvider>
-            <Page />
+            <ReactFlowProvider>     {/* So we can access functionalities of reactflow inside catalog */}
+                <Page />
+            </ReactFlowProvider>
         </QueryParamsProvider>
     );
 };
