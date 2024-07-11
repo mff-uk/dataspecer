@@ -14,6 +14,7 @@ import ReactFlow, {
     getTransformForBounds,
     useEdgesState,
     useNodesState,
+    useReactFlow,
 } from "reactflow";
 import { useMemo, useCallback, useEffect, useState } from "react";
 import {
@@ -82,7 +83,11 @@ export const Visualization = () => {
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
-    const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+    // TODO: Remove the next few comments if no issues will be found within next few days/weeks. And also remove the onInit line in the return.
+    // I think that the wrapper using ReactflowInstance provider in page.tsx is enough, hopefully it doesn't break anything.
+    // The Old code:
+    //const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+    const reactFlowInstance = useReactFlow();
 
     // --- handlers --- --- ---
 
@@ -506,8 +511,8 @@ export const Visualization = () => {
                     snapGrid={[20, 20]}
                     onDragOver={onDragOver}
                     onDrop={onDrop}
-                    snapToGrid={true}
-                    onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}
+                    snapToGrid={true}     
+                    // onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}               
                     onPaneClick={onPaneClick}
                 >
                     <Controls />
