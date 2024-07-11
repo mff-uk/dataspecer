@@ -11,19 +11,25 @@ import { logger, t } from "../application/";
 
 const PREDEFINED_MODELS: PredefinedModel[] = [{
     "identifier": "rdf",
-    "label": "RDF",
+    "label": "RDF - Resource Description Framework",
 }, {
     "identifier": "rdfs",
-    "label": "RDFS",
+    "label": "RDFS - RDF Schema",
 }, {
     "identifier": "dcterms",
-    "label": "Dublin Core Terms",
+    "label": "DCMI Metadata Terms",
 }, {
     "identifier": "foaf",
-    "label": "FOAF",
+    "label": "FOAF (Friend of a Friend) Vocabulary",
 }, {
     "identifier": "skos",
-    "label": "SKOS",
+    "label": "SKOS Simple Knowledge Organization System",
+}, {
+    "identifier": "owl",
+    "label": "OWL 2 - Web Ontology Language",
+}, {
+    "identifier": "dcat",
+    "label": "DCAT - Data Catalog Vocabulary",
 }, {
     "identifier": "sgov",
     "label": "Czech Semantic Dictionary of terms",
@@ -33,9 +39,11 @@ const PREDEFINED_MODELS: PredefinedModel[] = [{
 const PREDEFINED_MODELS_URL: Record<string, string> = {
     "rdf": "https://datagov-cz.github.io/cache-slovniku/rdf.ttl",
     "rdfs": "https://datagov-cz.github.io/cache-slovniku/rdfs.ttl",
-    "dcterms": "https://datagov-cz.github.io/cache-slovniku/dublin_core_terms.ttl",
+    "dcterms": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_terms.ttl",
     "foaf": "https://datagov-cz.github.io/cache-slovniku/foaf.ttl",
     "skos": "https://datagov-cz.github.io/cache-slovniku/skos.rdf",
+    "owl": "https://www.w3.org/2002/07/owl#",
+    "dcat": "https://www.w3.org/ns/dcat.ttl"
 };
 
 export const ModelCatalog = () => {

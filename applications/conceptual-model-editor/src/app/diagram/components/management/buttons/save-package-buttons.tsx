@@ -2,7 +2,7 @@ import { useUpdatingButton } from "../../../features/updating-button";
 import { ManagementButton, type ManagementButtonPropsType } from "./management-button";
 
 export const useUpdatingSavePackageButton = () => {
-    const { UpdatingButton, showMessage } = useUpdatingButton("💾pkg");
+    const { UpdatingButton, showMessage } = useUpdatingButton("💾save");
 
     const UpdatingSavePackageButton = (props: ManagementButtonPropsType) => {
         return <UpdatingButton {...props} color="bg-green-600" withDisabledHelpCursor={true} />;
@@ -17,7 +17,7 @@ export const useUpdatingSavePackageButton = () => {
 export const SavePackageButton = (props: { disabled?: boolean; title?: string; onClick?: () => void }) => {
     return (
         <ManagementButton color="bg-green-600" {...props} withDisabledHelpCursor={true}>
-            💾pkg
+            💾save
         </ManagementButton>
     );
 };
@@ -25,7 +25,7 @@ export const SavePackageButton = (props: { disabled?: boolean; title?: string; o
 export const SavePackageAndLeaveButton = (props: { disabled?: boolean; title?: string; onClick?: () => void }) => {
     return (
         <ManagementButton color="bg-green-600" {...props} withDisabledHelpCursor={true}>
-            💾pkg & 👋
+            💾save & 👋leave
         </ManagementButton>
     );
 };

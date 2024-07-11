@@ -7,10 +7,10 @@ import { useModelGraphContext } from "../../context/model-context";
 import { useQueryParamsContext } from "../../context/query-params-context";
 import { getSvgForCurrentView } from "../../visualization";
 
-const SAVE_PACKAGE = "save package to backend";
-const SAVE_PACKAGE_AND_LEAVE = "save package to backend and leave back to manager";
+const SAVE_PACKAGE = "Save package";
+const SAVE_PACKAGE_AND_LEAVE = "Save package and go back to manager";
 const YOU_NEED_A_PACKAGE_ON_BACKEND =
-    "to be able to save to backend, make sure you are in a package. Start with visiting manager/v2";
+    "To be able to save to backend, make sure you are in a package. Start with visiting manager/v2";
 
 const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
 

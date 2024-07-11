@@ -26,6 +26,7 @@ import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
 import { getModelDetails } from "../util/model-utils";
 import { compareMaps } from "../util/utils";
 import { useDialogsContext } from "../context/dialogs-context";
+import { useReactFlow } from "reactflow";
 
 const getEntitiesToShow = (
     entityType: "class" | "relationship" | "attribute" | "profile",
@@ -145,13 +146,39 @@ export const EntitiesOfModel = (props: {
             activeVisualModel?.addEntity({ sourceEntityId: entityId, visible: false });
         }
     };
-
+    
     const handleRemoval = async (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
         if (model instanceof InMemorySemanticModel) {
             deleteEntityFromModel(model, entityId);
         } else {
             await model.releaseClass(entityId);
         }
+    };
+
+    // TODO: Ideally these methods (meaning all the handlers in this method) should be defined elsewhere on separate places 
+    //       and imported here or passed as props.
+    //       BUT I think that in future we will add here at most 1 extra button for catalog entities, so it is kinda fine.
+    const reactflowInstance = useReactFlow();
+    const handleTargeting = (entityId: string) => {
+        const visualEntity = activeVisualModel?.getVisualEntity(entityId);
+        // TODO: For now only for nodes (It probably makes sense for other entities also but the implementation is slightly more complicated). 
+        //       For edges it kinda works, for attributes we first have to find the domain class they are part of.
+        if(entityType === "class" || entityType === "profile") {
+            const reactflowNode = reactflowInstance.getNode(entityId);
+            if(reactflowNode !== undefined) {
+                reactflowInstance.fitView({nodes: [reactflowNode], 
+                    duration: 400, 
+                    //minZoom: reactflowInstance.getViewport().zoom,
+                    //maxZoom: reactflowInstance.getViewport().zoom,
+                });
+            }
+        }
+        // else if(entityType === "relationship") {
+        //     reactflowInstance.setCenter(visualEntity?.position.x as number, visualEntity?.position.y as number);  
+        // }
+        // else {                        
+        //     // TODO: EMPTY
+        // }
     };
 
     const getAppendedRow = () => {
@@ -195,6 +222,7 @@ export const EntitiesOfModel = (props: {
                 handleRemoveEntityFromActiveView,
                 handleExpansion: toggleAllow,
                 handleRemoval,
+                handleTargeting,
             }}
         />
     );
