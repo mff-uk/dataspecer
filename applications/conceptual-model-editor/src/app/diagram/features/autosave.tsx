@@ -60,11 +60,11 @@ export const useAutoSave = () => {
     let autosaveButtonTitle: string;
     if (!packageId) {
         autosaveButtonTitle =
-            "you can only use autosave to backend when you are inside a package\ngo to /manager and start from there";
+            "you can only use autosave when you are inside a package\ngo to /manager and start from there";
     } else if (autosaveActive) {
-        autosaveButtonTitle = "autosave: active, stop autosave to backend";
+        autosaveButtonTitle = "autosave: active, stop autosave";
     } else {
-        autosaveButtonTitle = "autosave: inactive, start autosave to backend";
+        autosaveButtonTitle = "autosave: inactive, start autosave";
     }
 
     const AutoSaveButton = () => {
