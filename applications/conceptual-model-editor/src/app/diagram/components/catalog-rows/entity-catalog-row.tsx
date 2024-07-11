@@ -84,7 +84,7 @@ export const EntityRow = (props: {
                 )}
                 {removable && <RemoveButton onClickHandler={removable.remove} />}
                 {sourceModelIsLocal && (
-                    <button className="ml-0.5 hover:bg-teal-400" title="Modify" onClick={() => openModificationDialog(entity, sourceModel)}>
+                    <button className="hover:bg-teal-400" title="Modify" onClick={() => openModificationDialog(entity, sourceModel)}>
                         ✏
                     </button>
                 )}
