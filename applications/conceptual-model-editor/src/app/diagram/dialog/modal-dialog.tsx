@@ -18,10 +18,6 @@ export const ModalDialog: React.FC<{
      */
     isOpen: boolean,
     /**
-     * True to allow close on backdrop.
-     */
-    closeOnBackdrop?: boolean,
-    /**
      * Callback when closing the dialog.
      */
     onCancel: () => void,
@@ -32,18 +28,6 @@ export const ModalDialog: React.FC<{
 
     const onCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
         event.preventDefault();
-        props.onCancel();
-    };
-
-    const onMouseDown = (event: MouseEvent<HTMLDialogElement>) => {
-        if (!props.closeOnBackdrop) {
-            return;
-        }
-        const rectangle = dialogReference.current.getBoundingClientRect();
-        const clickedInRect = inRectangle(event.clientX, event.clientY, rectangle);
-        if (clickedInRect) {
-            return;
-        }
         props.onCancel();
     };
 
@@ -63,7 +47,6 @@ export const ModalDialog: React.FC<{
             ref={dialogReference}
             className="base-dialog z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:p-4"
             onCancel={onCancel}
-            onMouseDown={onMouseDown}
         >
             <h1 className="text-xl">{heading}</h1>
             <hr className="my-2"/>
@@ -74,15 +57,5 @@ export const ModalDialog: React.FC<{
                 {props.footer}
             </div>
         </dialog>
-    );
-};
-
-const inRectangle = (x: number, y: number, rectangle: DOMRect) => {
-    const offset = 15;
-    return (
-        rectangle.top + offset <= y &&
-        y <= rectangle.top + rectangle.height + offset &&
-        rectangle.left - offset <= x &&
-        x <= rectangle.left + rectangle.width + offset
     );
 };

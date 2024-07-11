@@ -29,13 +29,6 @@ export const useBaseDialog = () => {
                     e.preventDefault();
                     close();
                 }}
-                onMouseDown={(e) => {
-                    const rect = dialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
             >
                 <h1 className="text-xl">{heading}</h1>
                 <hr className="my-2"/>
@@ -50,14 +43,4 @@ export const useBaseDialog = () => {
         open,
         BaseDialog,
     };
-};
-
-const clickedInside = (rect: DOMRect, cliX: number, cliY: number) => {
-    const offset = 15;
-    return (
-        rect.top + offset <= cliY &&
-        cliY <= rect.top + rect.height + offset &&
-        rect.left - offset <= cliX &&
-        cliX <= rect.left + rect.width + offset
-    );
 };
