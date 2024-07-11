@@ -29,7 +29,7 @@ const translations: Record<string, string | Function> = {
   "modify-entity-dialog.description": "Definition",
   "modify-entity-dialog.usage-note": "Usage note",
   "modify-entity-dialog.attributes": "Attributes",
-  "modify-entity-dialog.attributes-profiles": "Attributes profiles",
+  "modify-entity-dialog.attributes-profiles": "Attribute profiles",
   //
   "attributes-component.name": "Name",
   "attributes-component.description": "Definition",
@@ -45,7 +45,7 @@ const translations: Record<string, string | Function> = {
   "entity-detail-dialog.specialization-of-property": "Subproperty of",
   "entity-detail-dialog.generalization-of": "Generalization of",
   "entity-detail-dialog.attributes": "Attributes",
-  "entity-detail-dialog.attributes-profiles": "Attributes profiles",
+  "entity-detail-dialog.attributes-profiles": "Attribute profiles",
   "entity-detail-dialog.usage-note": "Usage note",
   "entity-detail-dialog.domain": "Domain",
   "entity-detail-dialog.range": "Range",
@@ -64,7 +64,7 @@ const translations: Record<string, string | Function> = {
   //
   "create-profile-dialog.label": (profile: string) => `Create a profile ${profile ? "of '" + profile + "'" : ""}`,
   "create-profile-dialog.profiled": "Profiled entity",
-  "create-profile-dialog.profiled-type": "rofiled entity type",
+  "create-profile-dialog.profiled-type": "Profiled entity type",
   "create-profile-dialog.name": "Name",
   "create-profile-dialog.iri": "IRI",
   "create-profile-dialog.description": "Definition",
@@ -80,7 +80,7 @@ const translations: Record<string, string | Function> = {
   //
   "add-model-dialog.label": "Add vocabulary",
   "add-model-dialog.tab-from-url": "Vocabulary from URL",
-  "add-model-dialog.tab-predefined": "Well-known vocabularie",
+  "add-model-dialog.tab-predefined": "Well-known vocabularies",
   "add-model-dialog.tab-create": "Create new vocabulary",
   "add-model-dialog.btn-ok": "✅ Add vocabulary(s)",
   "add-model-dialog.btn-cancel": "❌ Cancel",
