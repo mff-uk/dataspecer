@@ -157,17 +157,17 @@ export const ExportManagement = () => {
 
     return (
         <div className="my-auto mr-2 flex flex-row">
-            <ExportButton title="open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
+            <ExportButton title="Open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
                 📥ws
             </ExportButton>
             <AutoSaveButton />
-            <ExportButton title="generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
+            <ExportButton title="Generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
                 💾ws
             </ExportButton>
-            <ExportButton title="generate lightweight ontology" onClick={handleGenerateLightweightOwl}>
-                💾lw-onto
+            <ExportButton title="Generate RDFS/OWL (vocabulary)" onClick={handleGenerateLightweightOwl}>
+                💾rdfs/owl
             </ExportButton>
-            <ExportButton title="generate lightweight ontology" onClick={handleGenerateDataSpecificationVocabulary}>
+            <ExportButton title="Generate DSV (application profile)" onClick={handleGenerateDataSpecificationVocabulary}>
                 💾dsv
             </ExportButton>
         </div>
