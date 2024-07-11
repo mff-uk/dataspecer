@@ -13,6 +13,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
+      - name: Create .env for conceptual-model-editor
+        run: cp applications/conceptual-model-editor/.env.example applications/conceptual-model-editor/.env
+      - name: Install packages
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm run test
