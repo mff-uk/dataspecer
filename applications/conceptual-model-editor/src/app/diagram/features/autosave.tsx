@@ -29,7 +29,10 @@ export const useAutoSave = () => {
 
         const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
         setAutosaveInterval(timeout);
-    }, [autosaveActive, autosaveInterval]);
+
+        // We can not list all properties as this would cycle.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autosaveActive]);
 
     const handleAutoSavePackage = () => {
         if (!packageId) {
