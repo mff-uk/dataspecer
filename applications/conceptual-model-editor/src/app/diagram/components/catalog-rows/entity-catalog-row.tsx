@@ -72,7 +72,7 @@ export const EntityRow = (props: {
                 <TreeLikeOffset offset={offset} />
                 {name}
             </span>
-            <div className="ml-2 flex flex-row bg-teal-300 px-1 ">
+            <div className="ml-2 flex flex-row px-1 ">
                 {expandable && (
                     <ExpandButton
                         onClickHandler={() => {

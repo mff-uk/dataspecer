@@ -13,7 +13,7 @@ export const InputEntityRow = (props: { onClickHandler: (search: string) => void
                 onChange={(e) => setSearchInput(e.target.value)}
             />
             <button
-                className="ml-2 flex flex-row bg-teal-300 px-1 pr-6"
+                className="ml-2 flex flex-row px-1 pr-6"
                 onClick={() => {
                     props.onClickHandler(searchInput);
                     setSearchInput("");
