@@ -4,26 +4,21 @@ import { ExportButton } from "../components/management/buttons/export-button";
 import { useModelGraphContext } from "../context/model-context";
 import { useQueryParamsContext } from "../context/query-params-context";
 
+const AUTOSAVE_INTERVAL = parseInt(process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS ?? "30000") || 30000;
+
+const AUTOSAVE_ENABLED_BY_DEFAULT = process.env.NEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT === "1";
+
 export const useAutoSave = () => {
     const { models, visualModels } = useModelGraphContext();
     const { packageId } = useQueryParamsContext();
 
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const [autosaveActive, setAutosaveActive] = useState(false);
+    const [autosaveActive, setAutosaveActive] = useState(AUTOSAVE_ENABLED_BY_DEFAULT);
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
-    const [autosaveButtonLabel, setAutosaveButtonLabel] = useState("🔴autosave");
-
-    const AUTOSAVE_INTERVAL = parseInt(process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS ?? "30000") || 30000;
-
-    const getCurrentLabel = () => {
-        if (autosaveActive) {
-            return "🟢autosave";
-        }
-        return "🔴autosave";
-    };
+    const [autosaveButtonLabel, setAutosaveButtonLabel] = useState(getAutosaveLabel(AUTOSAVE_ENABLED_BY_DEFAULT));
 
     useEffect(() => {
-        setAutosaveButtonLabel(getCurrentLabel());
+        setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
 
         if (!autosaveActive) {
             clearInterval(autosaveInterval ?? undefined);
@@ -31,13 +26,10 @@ export const useAutoSave = () => {
             return;
         }
         handleAutoSavePackage();
-        const res = setInterval(() => {
-            handleAutoSavePackage();
-        }, AUTOSAVE_INTERVAL);
 
-        setAutosaveInterval(res);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autosaveActive]);
+        const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
+        setAutosaveInterval(timeout);
+    }, [autosaveActive, autosaveInterval]);
 
     const handleAutoSavePackage = () => {
         if (!packageId) {
@@ -53,7 +45,7 @@ export const useAutoSave = () => {
     const showWasAutosaved = (result: "success" | "fail" = "success") => {
         setAutosaveButtonLabel(`... ${result}`);
         setTimeout(() => {
-            setAutosaveButtonLabel(getCurrentLabel());
+            setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
         }, 750);
     };
 
@@ -85,3 +77,11 @@ export const useAutoSave = () => {
         AutoSaveButton,
     };
 };
+
+const getAutosaveLabel = (active: boolean) => {
+    if (active) {
+        return "🟢autosave";
+    }
+    return "🔴autosave";
+};
+
