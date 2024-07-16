@@ -5,14 +5,14 @@ import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
-import { useModelGraphContext } from "../../context/model-context";
-import { useDownload } from "../export/download";
-import { useClassesContext } from "../../context/classes-context";
-import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-utils";
-import { ExportButton } from "../../components/management/buttons/export-button";
-import { useAutoSave } from "../autosave";
-import { useQueryParamsContext } from "../../context/query-params-context";
+import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
+import { useModelGraphContext } from "../context/model-context";
+import { useDownload } from "../features/export/download";
+import { useClassesContext } from "../context/classes-context";
+import { getIri, getModelIri, entityWithOverriddenIri } from "../util/iri-utils";
+import { ExportButton } from "../components/management/buttons/export-button";
+import { useAutoSave } from "../features/autosave";
+import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 
 export const ExportManagement = () => {

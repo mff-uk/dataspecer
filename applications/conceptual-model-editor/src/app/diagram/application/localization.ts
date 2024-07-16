@@ -5,6 +5,19 @@ import {logger} from "./logging";
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 const translations: Record<string, string | Function> = {
+  "notification.icon-error": "Error icon",
+  "notification.icon-sucess": "Check icon",
+  //
+  "header.package.label": (name:string) => `Package: ${name}`,
+  "header.package.missing": "Package of unknown name",
+  "header.package.save": "💾 Save",
+  "header.package.save.title": "Save package",
+  "header.package.disable": "To be able to save to backend, make sure you are in a package.  Start with visiting tjhe manager.",
+  "header.package.save-and-leave": "💾👋 Save and leave",
+  "header.package.save-and-leave.title": "Save package and go back to manager",
+  //
+  "header.logo-title": "Leave to manager without saving",
+  //
   "create-class-dialog.create-class": "Create a new class",
   "create-class-dialog.name": "Name",
   "create-class-dialog.iri": "IRI",

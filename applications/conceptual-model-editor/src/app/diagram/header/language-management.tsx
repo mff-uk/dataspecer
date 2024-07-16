@@ -2,8 +2,8 @@ import {
     type SupportedLanguageType,
     SupportedLanguages,
     useConfigurationContext,
-} from "../../context/configuration-context";
-import { DropDownCatalog } from "../../components/management/dropdown-catalog";
+} from "../context/configuration-context";
+import { DropDownCatalog } from "../components/management/dropdown-catalog";
 
 export const LanguageManagement = () => {
     const { language, changeLanguage } = useConfigurationContext();

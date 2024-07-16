@@ -23,7 +23,7 @@ import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
 import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
 import { type Warning, WarningsContext } from "./context/warnings-context";
-import Header from "./header";
+import Header from "./header/header";
 import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
@@ -34,6 +34,7 @@ import { QueryParamsProvider, useQueryParamsContext } from "./context/query-para
 
 import "./page.css";
 import { ReactFlowProvider } from "reactflow";
+import { NotificationList } from "./notification";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -357,6 +358,7 @@ const Page = () => {
                                         <Visualization />
                                     </div>
                                 </main>
+                                <NotificationList />
                             </DialogsContextProvider>
                         </WarningsContext.Provider>
                     </ClassesContext.Provider>
