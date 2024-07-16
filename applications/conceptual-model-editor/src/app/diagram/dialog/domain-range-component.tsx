@@ -35,9 +35,12 @@ export const DomainRangeComponent = (props: {
     hideCardinality: boolean,
 }) => {
     const { entity, range, setRange, domain, setDomain, withOverride, hideCardinality } = props;
+
     const isAttribute = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+    const isAssociation = !isAttribute;
     return (
         <>
+            {/* We always render a domain.  */}
             <DialogDetailRow detailKey={t("domain")}>
                 <SelectDomainOrRange
                     forElement="domain"
@@ -57,6 +60,7 @@ export const DomainRangeComponent = (props: {
                 />
             </DialogDetailRow>
 
+            {/* Domain cardinality is can be hidden. */}
             {hideCardinality ? null :
                 <DialogDetailRow detailKey={t("domain-cardinality")}>
                     <CardinalityOptions
@@ -81,7 +85,8 @@ export const DomainRangeComponent = (props: {
                 </DialogDetailRow>
             }
 
-            {!(isAttribute && !hideCardinality) ? null : (
+            {/* Render content for an attribute.  */}
+            {!isAttribute ? null : (
                 <>
                     <DialogDetailRow detailKey={t("range")}>
                         <SelectAttributeRange
@@ -105,7 +110,7 @@ export const DomainRangeComponent = (props: {
                         />
                     </DialogDetailRow>
                     {/* show range cardinality only when range is selected*/}
-                    {range.concept === null ? null : (
+                    {range.concept === null || hideCardinality ? null : (
                         <DialogDetailRow detailKey={t("range-cardinality")}>
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}
@@ -131,7 +136,8 @@ export const DomainRangeComponent = (props: {
                 </>
             )}
 
-            {!(!isAttribute && !hideCardinality) ? null : (
+            {/* Render for association. */}
+            {!isAssociation ? null : (
                 <>
                     <DialogDetailRow
                         detailKey={t("range")}
@@ -158,7 +164,7 @@ export const DomainRangeComponent = (props: {
                         />
                     </DialogDetailRow>
                     {/* Show range cardinality only when range (concept) is selected. */}
-                    {range.concept === null ? null : (
+                    {range.concept === null || hideCardinality ? null : (
                         <DialogDetailRow detailKey={t("range-cardinality")}>
                             <CardinalityOptions
                                 disabled={(withOverride && !withOverride.overriddenFields?.rangeCardinality) ?? false}

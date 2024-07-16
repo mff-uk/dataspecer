@@ -449,7 +449,6 @@ export const useModifyEntityDialog = () => {
         let hideCardinality = false;
         if (isClass) {
             heading = t("modify-entity-dialog.label-class");
-            hideCardinality = configuration().hideRelationCardinality;
         } else if (isClassProfile) {
             heading = t("modify-entity-dialog.label-class-profile");
         } else if (isRelationship) {
@@ -476,7 +475,7 @@ export const useModifyEntityDialog = () => {
                         activeModel={model}
                         style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pl-8 md:pr-16 md:pb-4 md:pt-2"
                     />
-                    <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16">
+                    <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pl-8 md:pr-16 my-2 py-2">
                         {/*
                         ---------
                         Entity name
