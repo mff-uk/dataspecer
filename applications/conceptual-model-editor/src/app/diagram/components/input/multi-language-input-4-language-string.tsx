@@ -1,5 +1,5 @@
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 
 const LanguageItem = (props: {
@@ -93,11 +93,15 @@ export const MultiLanguageInputForLanguageString = (props: {
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
 
-    if (!languages.includes(currentLang) && languages.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        setCurrentLang(languages.at(0)!);
-        props.onChange?.();
-    }
+    // In this hook we make sure that selected language is one of the available ones.
+    // For example when user deleted language it will change it to next one.
+    useEffect(() => {
+        if (!languages.includes(currentLang) && languages.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            setCurrentLang(languages.at(0)!);
+            props.onChange?.();
+        }
+    }, [languages, currentLang]) ;
 
     const displayString = ls[currentLang] ?? "";
 
@@ -119,6 +123,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                 {disabled ? null : <AddLang
                     key={"add-language-button"}
                     onEnterCallback={(l) => {
+                        console.log("onEnterCallback: 0");
                         setLs((prev) => ({ ...prev, [l]: "" }));
                         setCurrentLang(l);
                         props.onChange?.();
@@ -132,6 +137,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                     className="w-full"
                     value={displayString}
                     onChange={(e) => {
+                        console.log("onChange: 1");
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
                         props.onChange?.();
                     }}
@@ -142,6 +148,7 @@ export const MultiLanguageInputForLanguageString = (props: {
                     value={displayString}
                     className="w-full"
                     onChange={(e) => {
+                        console.log("onChange: 2");
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
                         props.onChange?.();
                     }}
