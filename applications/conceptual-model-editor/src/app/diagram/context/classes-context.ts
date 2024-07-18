@@ -201,7 +201,7 @@ export const useClassesContext = () => {
     };
 
     const executeMultipleOperations = (model: InMemorySemanticModel, operations: Operation[]) => {
-        console.log("classes-context: bout to execute multiple operations", operations);
+        console.log("[classes-context] We are about to execute operations.", { operations });
         model.executeOperations(operations);
     };
 
