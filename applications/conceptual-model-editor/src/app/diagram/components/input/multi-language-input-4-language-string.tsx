@@ -13,7 +13,7 @@ const LanguageItem = (props: {
     return (
         <li onClick={onClick} className={selected ? "font-bold" : ""}>
             {children}
-            {selected && (
+            {!selected || disabled ? null : (
                 <button disabled={disabled} className="text-xs" onClick={onDeleted}>
                     🗑
                 </button>
@@ -115,17 +115,15 @@ export const MultiLanguageInputForLanguageString = (props: {
                         >
                             {lang}
                         </LanguageItem>
-                    ))
-                    .concat(
-                        <AddLang
-                            key={"add-language-button"}
-                            onEnterCallback={(l) => {
-                                setLs((prev) => ({ ...prev, [l]: "" }));
-                                setCurrentLang(l);
-                                props.onChange?.();
-                            }}
-                        />
-                    )}
+                    ))}
+                {disabled ? null : <AddLang
+                    key={"add-language-button"}
+                    onEnterCallback={(l) => {
+                        setLs((prev) => ({ ...prev, [l]: "" }));
+                        setCurrentLang(l);
+                        props.onChange?.();
+                    }}
+                />}
             </ul>
             {props.inputType == "text" ? (
                 <input
