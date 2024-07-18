@@ -123,7 +123,6 @@ export const MultiLanguageInputForLanguageString = (props: {
                 {disabled ? null : <AddLang
                     key={"add-language-button"}
                     onEnterCallback={(l) => {
-                        console.log("onEnterCallback: 0");
                         setLs((prev) => ({ ...prev, [l]: "" }));
                         setCurrentLang(l);
                         props.onChange?.();
@@ -137,7 +136,6 @@ export const MultiLanguageInputForLanguageString = (props: {
                     className="w-full"
                     value={displayString}
                     onChange={(e) => {
-                        console.log("onChange: 1");
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
                         props.onChange?.();
                     }}
@@ -148,7 +146,6 @@ export const MultiLanguageInputForLanguageString = (props: {
                     value={displayString}
                     className="w-full"
                     onChange={(e) => {
-                        console.log("onChange: 2");
                         setLs((prev) => ({ ...prev, [currentLang]: e.target.value }));
                         props.onChange?.();
                     }}
