@@ -14,15 +14,15 @@ import {
     type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { CardinalityOptions } from "../components/cardinality-options";
-import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
-import type { OverriddenFieldsType } from "../util/profile-utils";
-import { useClassesContext } from "../context/classes-context";
-import { OverrideFieldCheckbox } from "../components/input/override-field-checkbox";
-import type { WithOverrideHandlerType } from "../util/profile-utils";
-import { prepareSemanticModelEntitiesForSelect, SelectItem } from "../service/entity-service";
+import { CardinalityOptions } from "../../components/cardinality-options";
+import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
+import type { OverriddenFieldsType } from "../../util/profile-utils";
+import { useClassesContext } from "../../context/classes-context";
+import { OverrideFieldCheckbox } from "../../components/input/override-field-checkbox";
+import type { WithOverrideHandlerType } from "../../util/profile-utils";
+import { prepareSemanticModelEntitiesForSelect, SelectItem } from "../../service/entity-service";
 
-import { t } from "../application/";
+import { t } from "../../application";
 import { DataTypeURIs, dataTypeUriToName } from "@dataspecer/core-v2/semantic-model/datatypes";
 
 interface DomainRangeComponentType {
