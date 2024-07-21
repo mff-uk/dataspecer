@@ -5,7 +5,7 @@ import { useModelGraphContext } from "../context/model-context";
 import { ModelItemRow } from "../components/catalog-rows/model-item-row";
 import { useState } from "react";
 
-import { AddModelDialog, type PredefinedModel } from "../dialog/add-model-dialog";
+import { AddModelDialog, type PredefinedModel } from "../dialog/create-model-dialog";
 
 import { logger, t } from "../application/";
 
