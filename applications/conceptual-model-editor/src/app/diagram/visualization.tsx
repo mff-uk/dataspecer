@@ -14,7 +14,7 @@ import ReactFlow, {
     getTransformForBounds,
     useEdgesState,
     useNodesState,
-    useReactFlow,
+    useReactFlow,    
 } from "reactflow";
 import { useMemo, useCallback, useEffect, useState } from "react";
 import {
@@ -490,6 +490,16 @@ export const Visualization = () => {
         }
     };
 
+    const onNodeDragStop = (event: React.MouseEvent, node: Node, nodes: Node[]) => {                
+        activeVisualModel?.updateEntity(node.id, { position: node.positionAbsolute });
+    };
+    const onSelectionDragStop = (event: React.MouseEvent, nodes: Node[]) => {                
+        for (const n of nodes) {
+            activeVisualModel?.updateEntity(n.id, { position: n.positionAbsolute });
+        }
+    };
+    
+
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
@@ -502,7 +512,7 @@ export const Visualization = () => {
                     edgeTypes={edgeTypes}
                     onNodesChange={(changes: NodeChange[]) => {
                         onNodesChange(changes);
-                        handleNodeChanges(changes);
+                        // handleNodeChanges(changes);
                     }}
                     onEdgesChange={(changes: EdgeChange[]) => {
                         onEdgesChange(changes);
@@ -514,6 +524,8 @@ export const Visualization = () => {
                     snapToGrid={true}     
                     // onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}               
                     onPaneClick={onPaneClick}
+                    onNodeDragStop={onNodeDragStop}
+                    onSelectionDragStop={onSelectionDragStop}                    
                 >
                     <Controls />
                     <MiniMap
