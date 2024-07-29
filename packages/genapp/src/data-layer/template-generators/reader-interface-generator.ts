@@ -8,6 +8,7 @@ import {
     CapabilityInterfaceGeneratorType
 } from "../../capabilities/template-generators/capability-interface-generator";
 
+// TODO: Change interface name
 class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
     
     private readonly _readerInterfaceName: string;
@@ -68,5 +69,13 @@ export const DetailReaderInterfaceGenerator = new ReaderInterfaceGenerator({
     filePath: "./readers/instance-reader.ts",
     templatePath: "./detail/data-layer/reader-interface",
     queryExportedObjectName: "InstanceDetailReader",
+    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+})
+
+// TODO: Change name of interface generator
+export const DeleteInstanceMutatorInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./writers/instance-delete-mutator.ts",
+    queryExportedObjectName: "AggregateInstanceDeleteMutator",
+    templatePath: "./delete/data-layer/instance-delete-interface",
     listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
